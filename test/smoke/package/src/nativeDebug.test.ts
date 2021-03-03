@@ -3,6 +3,7 @@
 
 import * as assert from "assert";
 import { Application } from "../../automation";
+import AutomationHelper from "./helpers/AutomationHelper";
 import { LaunchConfigurationManager } from "./helpers/launchConfigurationManager";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
@@ -30,12 +31,18 @@ export function startReactNativeTests(
 ): void {
     describe("React Native", () => {
         let app: Application;
+        let automationHelper: AutomationHelper;
+
+        async function initApp(workspaceOrFolder: string, sessionName?: string, locale?: string) {
+            app = await vscodeManager.runVSCode(workspaceOrFolder, sessionName, locale);
+            automationHelper = new AutomationHelper(app);
+        }
 
         async function disposeAll() {
             SmokeTestLogger.info("Dispose all ...");
             if (app) {
                 SmokeTestLogger.info("Stopping React Native packager ...");
-                await app.workbench.quickaccess.runCommand(SmokeTestsConstants.stopPackagerCommand);
+                await automationHelper.runCommandWithRetry(SmokeTestsConstants.stopPackagerCommand);
                 await sleep(3000);
                 await app.stop();
             }
@@ -47,11 +54,8 @@ export function startReactNativeTests(
         if (testParameters.RunAndroidTests || testParameters.RunBasicTests) {
             it("Android RN app Debug test", async function () {
                 this.timeout(debugAndroidTestTime);
-                app = await vscodeManager.runVSCode(
-                    project.workspaceDirectory,
-                    "Android RN app Debug test",
-                );
-                await app.workbench.quickaccess.openFile(project.projectEntryPointFile);
+                await initApp(project.workspaceDirectory, "Android RN app Debug test");
+                await automationHelper.openFileWithRetry(project.projectEntryPointFile);
                 await app.workbench.editors.scrollTop();
                 SmokeTestLogger.info("Android Debug test: App.js file is opened");
                 await app.workbench.debug.setBreakpointOnLine(RNSetBreakpointOnLine);
@@ -62,11 +66,11 @@ export function startReactNativeTests(
                     `Android Debug test: Chosen debug configuration: ${AndroidRNDebugConfigName}`,
                 );
                 SmokeTestLogger.info("Android Debug test: Starting debugging");
-                await app.workbench.quickaccess.runDebugScenario(AndroidRNDebugConfigName);
+                await automationHelper.runDebugScenarioWithRetry(AndroidRNDebugConfigName);
                 await androidEmulatorManager.waitUntilAppIsInstalled(RN_APP_PACKAGE_NAME);
                 await app.workbench.debug.waitForDebuggingToStart();
                 SmokeTestLogger.info("Android Debug test: Debugging started");
-                await app.workbench.debug.waitForStackFrame(
+                await automationHelper.waitForStackFrameWithRetry(
                     sf =>
                         sf.name === project.projectEntryPointFile &&
                         sf.lineNumber === RNSetBreakpointOnLine,
@@ -112,11 +116,8 @@ export function startReactNativeTests(
                     project.workspaceDirectory,
                 );
                 const deviceName = iosSimulatorManager.getSimulator().name;
-                app = await vscodeManager.runVSCode(
-                    project.workspaceDirectory,
-                    "iOS RN app Debug test",
-                );
-                await app.workbench.quickaccess.openFile(project.projectEntryPointFile);
+                await initApp(project.workspaceDirectory, "iOS RN app Debug test");
+                await automationHelper.openFileWithRetry(project.projectEntryPointFile);
                 await app.workbench.editors.scrollTop();
                 SmokeTestLogger.info("iOS Debug test: App.js file is opened");
                 await app.workbench.debug.setBreakpointOnLine(RNSetBreakpointOnLine);
@@ -131,11 +132,11 @@ export function startReactNativeTests(
                     target: deviceName,
                 });
                 SmokeTestLogger.info("iOS Debug test: Starting debugging");
-                await app.workbench.quickaccess.runDebugScenario(IosRNDebugConfigName);
+                await automationHelper.runDebugScenarioWithRetry(IosRNDebugConfigName);
                 await iosSimulatorManager.waitUntilIosAppIsInstalled(RnAppBundleId);
                 await app.workbench.debug.waitForDebuggingToStart();
                 SmokeTestLogger.info("iOS Debug test: Debugging started");
-                await app.workbench.debug.waitForStackFrame(
+                await automationHelper.waitForStackFrameWithRetry(
                     sf =>
                         sf.name === project.projectEntryPointFile &&
                         sf.lineNumber === RNSetBreakpointOnLine,

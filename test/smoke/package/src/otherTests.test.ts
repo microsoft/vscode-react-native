@@ -4,6 +4,7 @@
 import * as assert from "assert";
 import { Application } from "../../automation";
 import AndroidEmulatorManager from "./helpers/androidEmulatorManager";
+import AutomationHelper from "./helpers/AutomationHelper";
 import IosSimulatorManager from "./helpers/iosSimulatorManager";
 import { LaunchConfigurationManager } from "./helpers/launchConfigurationManager";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
@@ -25,12 +26,18 @@ const debugIosTestTime = SmokeTestsConstants.iosTestTimeout;
 export function startOtherTests(project: TestProject, testParameters?: TestRunArguments): void {
     describe("React Native", () => {
         let app: Application;
+        let automationHelper: AutomationHelper;
+
+        async function initApp(workspaceOrFolder: string, sessionName?: string, locale?: string) {
+            app = await vscodeManager.runVSCode(workspaceOrFolder, sessionName, locale);
+            automationHelper = new AutomationHelper(app);
+        }
 
         async function disposeAll() {
             SmokeTestLogger.info("Dispose all ...");
             if (app) {
                 SmokeTestLogger.info("Stopping React Native packager ...");
-                await app.workbench.quickaccess.runCommand(SmokeTestsConstants.stopPackagerCommand);
+                await automationHelper.runCommandWithRetry(SmokeTestsConstants.stopPackagerCommand);
                 await sleep(3000);
                 await app.stop();
             }
@@ -45,7 +52,7 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
                 const launchConfigurationManager = new LaunchConfigurationManager(
                     project.workspaceDirectory,
                 );
-                app = await vscodeManager.runVSCode(
+                await initApp(
                     project.workspaceDirectory,
                     `Save Android emulator test (first launch)`,
                 );
@@ -56,7 +63,7 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
                 SmokeTestLogger.info(
                     "Android emulator save test: Starting debugging in first time",
                 );
-                await app.workbench.quickaccess.runDebugScenario(AndroidRNDebugConfigName);
+                await automationHelper.runDebugScenarioWithRetry(AndroidRNDebugConfigName);
                 SmokeTestLogger.info("Android emulator save test: Debugging started in first time");
                 SmokeTestLogger.info("Android emulator save test: Wait until emulator starting");
                 await androidEmulatorManager.waitUntilEmulatorStarting();
@@ -76,7 +83,7 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
                 );
                 SmokeTestLogger.info("Android emulator save test: Dispose all");
                 await disposeAll();
-                app = await vscodeManager.runVSCode(
+                await initApp(
                     project.workspaceDirectory,
                     `Save Android emulator test (second launch)`,
                 );
@@ -87,7 +94,7 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
                 SmokeTestLogger.info(
                     "Android emulator save test: Starting debugging in second time",
                 );
-                await app.workbench.quickaccess.runDebugScenario(AndroidRNDebugConfigName);
+                await automationHelper.runDebugScenarioWithRetry(AndroidRNDebugConfigName);
                 SmokeTestLogger.info(
                     "Android emulator save test: Debugging started in second time",
                 );
@@ -109,17 +116,14 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
                     project.workspaceDirectory,
                 );
                 await IosSimulatorManager.shutdownAllSimulators();
-                app = await vscodeManager.runVSCode(
-                    project.workspaceDirectory,
-                    `Save iOS simulator test (first launch)`,
-                );
+                await initApp(project.workspaceDirectory, `Save iOS simulator test (first launch)`);
                 launchConfigurationManager.updateLaunchScenario(IosRNDebugConfigName, {
                     target: "simulator",
                 });
                 SmokeTestLogger.info(
                     "iOS simulator save test: Starting debugging at the first time",
                 );
-                await app.workbench.quickaccess.runDebugScenario(IosRNDebugConfigName);
+                await automationHelper.runDebugScenarioWithRetry(IosRNDebugConfigName);
                 SmokeTestLogger.info(
                     "iOS simulator save test: Debugging started at the first time",
                 );
@@ -148,14 +152,14 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
                 );
                 await disposeAll();
                 await IosSimulatorManager.shutdownAllSimulators();
-                app = await vscodeManager.runVSCode(
+                await initApp(
                     project.workspaceDirectory,
                     `Save iOS simulator test (second launch)`,
                 );
                 SmokeTestLogger.info(
                     "iOS simulator save test: Starting debugging at the second time",
                 );
-                await app.workbench.quickaccess.runDebugScenario(IosRNDebugConfigName);
+                await automationHelper.runDebugScenarioWithRetry(IosRNDebugConfigName);
                 SmokeTestLogger.info(
                     "iOS simulator save test: Debugging started at the second time",
                 );

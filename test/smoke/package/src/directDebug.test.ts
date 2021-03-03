@@ -4,6 +4,7 @@
 import * as assert from "assert";
 import { Application } from "../../automation";
 import { AppiumClient, AppiumHelper, Platform } from "./helpers/appiumHelper";
+import AutomationHelper from "./helpers/AutomationHelper";
 import IosSimulatorManager from "./helpers/iosSimulatorManager";
 import { LaunchConfigurationManager } from "./helpers/launchConfigurationManager";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
@@ -31,6 +32,12 @@ export function startDirectDebugTests(
     describe("Direct debugging", () => {
         let app: Application | null;
         let client: AppiumClient | null;
+        let automationHelper: AutomationHelper;
+
+        async function initApp(workspaceOrFolder: string, sessionName?: string, locale?: string) {
+            app = await vscodeManager.runVSCode(workspaceOrFolder, sessionName, locale);
+            automationHelper = new AutomationHelper(app);
+        }
 
         async function disposeAll() {
             try {
@@ -60,7 +67,7 @@ export function startDirectDebugTests(
 
         async function stopPackager() {
             if (app) {
-                await app.workbench.quickaccess.runCommand(SmokeTestsConstants.stopPackagerCommand);
+                await automationHelper.runCommandWithRetry(SmokeTestsConstants.stopPackagerCommand);
                 await sleep(3000);
             }
         }
@@ -89,8 +96,8 @@ export function startDirectDebugTests(
                     }
                 }
 
-                app = await vscodeManager.runVSCode(project.workspaceDirectory, testname);
-                await app.workbench.quickaccess.openFile("AppTestButton.js");
+                await initApp(project.workspaceDirectory, testname);
+                await automationHelper.openFileWithRetry("AppTestButton.js");
                 await app.workbench.editors.scrollTop();
                 SmokeTestLogger.info(`${testname}: AppTestButton.js file is opened`);
                 await app.workbench.debug.setBreakpointOnLine(RNHermesSetBreakpointOnLine);
@@ -99,7 +106,7 @@ export function startDirectDebugTests(
                 );
                 SmokeTestLogger.info(`${testname}: Chosen debug configuration: ${debugConfigName}`);
                 SmokeTestLogger.info(`${testname}: Starting debugging`);
-                await app.workbench.quickaccess.runDebugScenario(debugConfigName);
+                await automationHelper.runDebugScenarioWithRetry(debugConfigName);
 
                 let opts: any;
                 switch (platform) {
@@ -140,12 +147,12 @@ export function startDirectDebugTests(
                 assert.strictEqual(isHermesWorking, true);
                 SmokeTestLogger.info(`${testname}: Reattaching to Hermes app`);
                 await app.workbench.debug.disconnectFromDebugger();
-                await app.workbench.quickaccess.runDebugScenario(RNHermesAttachConfigName);
+                await automationHelper.runDebugScenarioWithRetry(RNHermesAttachConfigName);
                 SmokeTestLogger.info(`${testname}: Reattached successfully`);
                 await sleep(7000);
                 SmokeTestLogger.info(`${testname}: Click Test Button`);
                 await AppiumHelper.clickTestButtonHermes(client, platform);
-                await app.workbench.debug.waitForStackFrame(
+                await automationHelper.waitForStackFrameWithRetry(
                     sf =>
                         sf.name === "AppTestButton.js" &&
                         sf.lineNumber === RNHermesSetBreakpointOnLine,

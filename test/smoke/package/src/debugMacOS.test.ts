@@ -10,6 +10,7 @@ import { Application } from "../../automation";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 import { TestRunArguments } from "./helpers/testConfigProcessor";
 import TestProject from "./helpers/testProject";
+import AutomationHelper from "./helpers/AutomationHelper";
 
 const RNmacOSDebugConfigName = "Debug macOS";
 const RNmacOSHermesDebugConfigName = "Debug macOS Hermes - Experimental";
@@ -28,12 +29,18 @@ export function startDebugMacOSTests(
     describe("Debugging macOS", () => {
         let app: Application;
         let currentMacOSAppName: string = "";
+        let automationHelper: AutomationHelper;
+
+        async function initApp(workspaceOrFolder: string, sessionName?: string, locale?: string) {
+            app = await vscodeManager.runVSCode(workspaceOrFolder, sessionName, locale);
+            automationHelper = new AutomationHelper(app);
+        }
 
         async function disposeAll() {
             SmokeTestLogger.info("Dispose all ...");
             if (app) {
                 SmokeTestLogger.info("Stopping React Native packager ...");
-                await app.workbench.quickaccess.runCommand(SmokeTestsConstants.stopPackagerCommand);
+                await automationHelper.runCommandWithRetry(SmokeTestsConstants.stopPackagerCommand);
                 await sleep(3000);
                 await app.stop();
             }
@@ -82,8 +89,8 @@ export function startDebugMacOSTests(
             project: TestProject,
             isHermesProject: boolean = false,
         ): Promise<void> {
-            app = await vscodeManager.runVSCode(project.workspaceDirectory, testname);
-            await app.workbench.quickaccess.openFile(project.projectEntryPointFile);
+            await initApp(project.workspaceDirectory, testname);
+            await automationHelper.openFileWithRetry(project.projectEntryPointFile);
             await app.workbench.editors.scrollTop();
             SmokeTestLogger.info(`${testname}: App.js file is opened`);
 
@@ -101,10 +108,10 @@ export function startDebugMacOSTests(
             SmokeTestLogger.info(`${testname}: Breakpoint is set on line ${setBreakpointOnLine}`);
             SmokeTestLogger.info(`${testname}: Chosen debug configuration: ${debugConfigName}`);
             SmokeTestLogger.info(`${testname}: Starting debugging`);
-            await app.workbench.quickaccess.runDebugScenario(debugConfigName);
+            await automationHelper.runDebugScenarioWithRetry(debugConfigName);
             await app.workbench.debug.waitForDebuggingToStart();
             SmokeTestLogger.info(`${testname}: Debugging started`);
-            await app.workbench.debug.waitForStackFrame(
+            await automationHelper.waitForStackFrameWithRetry(
                 sf =>
                     sf.name === project.projectEntryPointFile &&
                     sf.lineNumber === setBreakpointOnLine,

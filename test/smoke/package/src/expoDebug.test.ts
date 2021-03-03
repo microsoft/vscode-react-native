@@ -11,6 +11,7 @@ import { androidEmulatorManager, iosSimulatorManager, vscodeManager } from "./ma
 import { TestRunArguments } from "./helpers/testConfigProcessor";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 import TestProject from "./helpers/testProject";
+import AutomationHelper from "./helpers/AutomationHelper";
 
 const EXPO_APP_LAUNCH_TIMEOUT = 120_000;
 const ExpoSuccessPattern = "Tunnel ready";
@@ -40,12 +41,18 @@ export function startExpoTests(
         let app: Application;
         let expoFirstLaunch = true;
         let client: AppiumClient;
+        let automationHelper: AutomationHelper;
+
+        async function initApp(workspaceOrFolder: string, sessionName?: string, locale?: string) {
+            app = await vscodeManager.runVSCode(workspaceOrFolder, sessionName, locale);
+            automationHelper = new AutomationHelper(app);
+        }
 
         async function disposeAll() {
             SmokeTestLogger.info("Dispose all ...");
             if (app) {
                 SmokeTestLogger.info("Stopping React Native packager ...");
-                await app.workbench.quickaccess.runCommand(SmokeTestsConstants.stopPackagerCommand);
+                await automationHelper.runCommandWithRetry(SmokeTestsConstants.stopPackagerCommand);
                 await sleep(3000);
                 await app.stop();
             }
@@ -109,11 +116,11 @@ export function startExpoTests(
             SmokeTestLogger.info(`${testName}: Starting debugging`);
             // Scan logs only if launch retries provided (Expo Tunnel scenarios)
             if (triesToLaunchApp <= 1) {
-                await app.workbench.quickaccess.runDebugScenario(debugConfigName);
+                await automationHelper.runDebugScenarioWithRetry(debugConfigName);
             } else {
                 for (let retry = 1; retry <= triesToLaunchApp; retry++) {
                     let expoLaunchStatus: ExpoLaunch;
-                    await app.workbench.quickaccess.runDebugScenario(debugConfigName);
+                    await automationHelper.runDebugScenarioWithRetry(debugConfigName);
                     expoLaunchStatus = await findExpoSuccessAndFailurePatterns(
                         logFilePath,
                         ExpoSuccessPattern,
@@ -139,11 +146,11 @@ export function startExpoTests(
             triesToLaunchApp: number,
         ) {
             let logFilePath = "";
-            app = await vscodeManager.runVSCode(project.workspaceDirectory, testName);
+            await initApp(project.workspaceDirectory, testName);
             SmokeTestLogger.info(
                 `${testName}: ${project.workspaceDirectory} directory is opened in VS Code`,
             );
-            await app.workbench.quickaccess.openFile(path.basename(project.projectEntryPointFile));
+            await automationHelper.openFileWithRetry(project.projectEntryPointFile);
             await app.workbench.editors.scrollTop();
             SmokeTestLogger.info(`${testName}: ${project.projectEntryPointFile} file is opened`);
             await app.workbench.debug.setBreakpointOnLine(ExpoSetBreakpointOnLine);
@@ -226,7 +233,7 @@ export function startExpoTests(
             }
 
             SmokeTestLogger.info(`${testName}: Debugging started`);
-            await app.workbench.debug.waitForStackFrame(
+            await automationHelper.waitForStackFrameWithRetry(
                 sf =>
                     sf.name === project.projectEntryPointFile &&
                     sf.lineNumber === ExpoSetBreakpointOnLine,

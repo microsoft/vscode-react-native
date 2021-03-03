@@ -2,10 +2,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { Editors } from "./editors";
-import { Code, executeWithSpecifiedPollRetryParameters } from "./code";
+import { Code } from "./code";
 import { QuickInput } from "./quickinput";
 
 export class QuickAccess {
+
     constructor(private code: Code, private editors: Editors, private quickInput: QuickInput) { }
 
     public async openQuickAccess(value: string): Promise<void> {
@@ -36,46 +37,23 @@ export class QuickAccess {
         }
     }
 
-    public async openFile(fileName: string, retryCount: number = 10, retryInterval: number = 1000): Promise<void> {
-        const fun = async () => {
-            await this.openQuickAccess(fileName);
-            await this.quickInput.waitForQuickInputElements(names => names[0] === fileName);
-            await this.code.dispatchKeybinding("enter");
-            await this.editors.waitForActiveTab(fileName);
-            await this.editors.waitForEditorFocus(fileName);
-        };
+    public async openFile(fileName: string): Promise<void> {
+        await this.openQuickAccess(fileName);
 
-        let tryes = 10;
-        while (tryes > 0) {
-            try {
-                await executeWithSpecifiedPollRetryParameters(fun, retryCount, retryInterval);
-                break;
-            } catch (e) {
-                await this.code.dispatchKeybinding("escape");
-                tryes--;
-            }
-        }
+        await this.quickInput.waitForQuickInputElements(names => names[0] === fileName);
+        await this.code.dispatchKeybinding("enter");
+        await this.editors.waitForActiveTab(fileName);
+        await this.editors.waitForEditorFocus(fileName);
     }
 
-    public async runCommand(commandId: string, retryCount: number = 10, retryInterval: number = 1000): Promise<void> {
-        const fun = async () => {
-            await this.openQuickAccess(`>${commandId}`);
-            // wait for best choice to be focused
-            await this.code.waitForTextContent(QuickInput.QUICK_INPUT_FOCUSED_ELEMENT);
-            // wait and click on best choice
-            await this.quickInput.selectQuickInputElement(0);
-        };
+    public async runCommand(commandId: string): Promise<void> {
+        await this.openQuickAccess(`>${commandId}`);
 
-        let tryes = 10;
-        while (tryes > 0) {
-            try {
-                await executeWithSpecifiedPollRetryParameters(fun, retryCount, retryInterval);
-                break;
-            } catch (e) {
-                await this.code.dispatchKeybinding("escape");
-                tryes--;
-            }
-        }
+        // wait for best choice to be focused
+        await this.code.waitForTextContent(QuickInput.QUICK_INPUT_FOCUSED_ELEMENT);
+
+        // wait and click on best choice
+        await this.quickInput.selectQuickInputElement(0);
     }
 
     public async openQuickOutline(): Promise<void> {
@@ -99,29 +77,19 @@ export class QuickAccess {
         }
     }
 
-    public async runDebugScenario(scenario: string, index?: number, retryCount: number = 10, retryInterval: number = 1000): Promise<void> {
-        const fun = async () => {
-            await this.openQuickAccess(`debug ${scenario}`);
-            if (index) {
-                for (let from = 0; from < index; from++) {
-                    await this.code.dispatchKeybinding("down");
-                }
-            }
-            // wait for the best choice to be focused
-            await this.code.waitForTextContent(QuickInput.QUICK_INPUT_FOCUSED_ELEMENT, scenario);
-            // wait and click on the best choice
-            await this.code.waitAndClick(QuickInput.QUICK_INPUT_FOCUSED_ELEMENT);
-        };
+    public async runDebugScenario(scenario: string, index?: number): Promise<void> {
+        await this.openQuickAccess(`debug ${scenario}`);
 
-        let tryes = 10;
-        while (tryes > 0) {
-            try {
-                await executeWithSpecifiedPollRetryParameters(fun, retryCount, retryInterval);
-                break;
-            } catch (e) {
-                await this.code.dispatchKeybinding("escape");
-                tryes--;
+        if (index) {
+            for (let from = 0; from < index; from++) {
+                await this.code.dispatchKeybinding("down");
             }
         }
+
+        // wait for the best choice to be focused
+        await this.code.waitForTextContent(QuickInput.QUICK_INPUT_FOCUSED_ELEMENT, scenario);
+
+        // wait and click on the best choice
+        await this.code.waitAndClick(QuickInput.QUICK_INPUT_FOCUSED_ELEMENT);
     }
 }
