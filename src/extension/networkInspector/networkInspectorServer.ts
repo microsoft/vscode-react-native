@@ -17,6 +17,12 @@ import {
 import { ClientOS } from "./clientUtils";
 import * as net from "net";
 import * as tls from "tls";
+import * as nls from "vscode-nls";
+nls.config({
+    messageFormat: nls.MessageFormat.bundle,
+    bundleFormat: nls.BundleFormat.standalone,
+})();
+const localize = nls.loadMessageBundle();
 
 // The code is borrowed from https://github.com/facebook/flipper/blob/master/desktop/app/src/server.tsx
 
@@ -51,7 +57,7 @@ export class NetworkInspectorServer {
     }
 
     public async start(adbHelper: AdbHelper): Promise<void> {
-        this.logger.info("Starting Network inspector");
+        this.logger.info(localize("StartNetworkinspector", "Starting Network inspector"));
         this.initialisePromise = new Promise(async (resolve, reject) => {
             this.certificateProvider = new CertificateProvider(adbHelper);
 
@@ -68,7 +74,7 @@ export class NetworkInspectorServer {
                 return reject(err);
             }
 
-            this.logger.info("Network inspector is working");
+            this.logger.info(localize("NetworkInspectorWorking", "Network inspector is working"));
             resolve();
         });
         return await this.initialisePromise;
@@ -88,7 +94,7 @@ export class NetworkInspectorServer {
                 this.insecureServer.stop();
             }
         }
-        this.logger.info("Network inspector has been stopped");
+        this.logger.info(localize("NetworkInspectorStopped", "Network inspector has been stopped"));
     }
 
     private async startServer(
@@ -106,7 +112,11 @@ export class NetworkInspectorServer {
                 transportServer
                     .on("error", err => {
                         this.logger.error(
-                            `Error while opening Network inspector server on port ${port}`,
+                            localize(
+                                "ErrorOpeningNetworkInspectorServerOnPort",
+                                "Error while opening Network inspector server on port {0}",
+                                port,
+                            ),
                         );
                         reject(err);
                     })
@@ -169,7 +179,11 @@ export class NetworkInspectorServer {
                 if (payload.kind == "ERROR" || payload.kind == "CLOSED") {
                     client.then(client => {
                         server.logger.info(
-                            `Device disconnected ${client.id} from the Network inspector`,
+                            localize(
+                                "NIDeviceDisconnected",
+                                "Device disconnected {0} from the Network inspector",
+                                client.id,
+                            ),
                         );
                         server.removeConnection(client.id);
                     });
@@ -179,7 +193,7 @@ export class NetworkInspectorServer {
                 subscription.request(Number.MAX_SAFE_INTEGER);
             },
             onError(error) {
-                server.logger.error("[server] connection status error ", error);
+                server.logger.error("Network inspector server connection status error ", error);
             },
         });
 
@@ -319,13 +333,16 @@ export class NetworkInspectorServer {
             query.device_id = csrId;
             query.app = appNameWithUpdateHint(query);
 
-            const id = buildClientId({
-                app: query.app,
-                os: query.os,
-                device: query.device,
-                device_id: csrId,
-            });
-            this.logger.info(`Device connected: ${id}`);
+            const id = buildClientId(
+                {
+                    app: query.app,
+                    os: query.os,
+                    device: query.device,
+                    device_id: csrId,
+                },
+                this.logger,
+            );
+            this.logger.info(localize("NIDeviceConnected", "Device connected: {0}", id));
 
             const client = new ClientDevice(id, query, conn, this.logger);
 

@@ -15,6 +15,12 @@ import { v4 as uuid } from "uuid";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { NETWORK_INSPECTOR_LOG_CHANNEL_NAME } from "./networkInspectorServer";
 import { ClientOS } from "./clientUtils";
+import * as nls from "vscode-nls";
+nls.config({
+    messageFormat: nls.MessageFormat.bundle,
+    bundleFormat: nls.BundleFormat.standalone,
+})();
+const localize = nls.loadMessageBundle();
 
 // The code is borrowed from https://github.com/facebook/flipper/blob/master/desktop/app/src/utils/CertificateProvider.tsx
 
@@ -521,7 +527,13 @@ export class CertificateProvider {
         })
             .then(() => undefined)
             .catch(e => {
-                this.logger.info(`Certificate will expire soon: ${filename}`);
+                this.logger.warning(
+                    localize(
+                        "NICertificateExpireSoon",
+                        "Certificate will expire soon: {0}",
+                        filename,
+                    ),
+                );
                 throw e;
             })
             .then(() =>

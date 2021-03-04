@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { ClientIdConstituents, ClientQuery } from "./clientDevice";
+import { OutputChannelLogger } from "../log/OutputChannelLogger";
 
 export enum ClientOS {
     iOS = "iOS",
@@ -10,15 +11,18 @@ export enum ClientOS {
     MacOS = "MacOS",
 }
 
-export function buildClientId(clientInfo: {
-    app: string;
-    os: ClientOS;
-    device: string;
-    device_id: string;
-}): string {
+export function buildClientId(
+    clientInfo: {
+        app: string;
+        os: ClientOS;
+        device: string;
+        device_id: string;
+    },
+    logger: OutputChannelLogger,
+): string {
     for (const key of ["app", "os", "device", "device_id"] as Array<keyof ClientIdConstituents>) {
         if (!clientInfo[key]) {
-            console.error(`Attempted to build clientId with invalid ${key}: "${clientInfo[key]}`);
+            logger.error(`Attempted to build clientId with invalid ${key}: "${clientInfo[key]}`);
         }
     }
     const escapedName = escape(clientInfo.app);
