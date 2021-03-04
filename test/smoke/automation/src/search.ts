@@ -123,7 +123,7 @@ export class Search extends Viewlet {
             await this.code.waitAndClick(INPUT, 2, 2);
 
             try {
-                await this.code.waitForActiveElement(INPUT, 10);
+                await this.code.waitForActiveElement(INPUT);
                 break;
             } catch (err) {
                 if (++retries > 5) {
