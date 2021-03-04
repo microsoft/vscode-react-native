@@ -128,7 +128,9 @@ export default class AutomationHelper {
             await this.app.workbench.code.waitForElement(TOOLBAR_HIDDEN);
             await this.app.workbench.code.waitForElement(NOT_DEBUG_STATUS_BAR);
         };
-        const catchFun = async () => { return; };
+        const catchFun = async () => {
+            return;
+        };
         await this.retryWithSpecifiedPollRetryParameters(
             fun,
             catchFun,
