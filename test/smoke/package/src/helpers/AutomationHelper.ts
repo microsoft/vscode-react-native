@@ -139,4 +139,24 @@ export default class AutomationHelper {
             pollRetryInterval,
         );
     }
+
+    public async prepareForDebugScenarioCreactionTestWithRetry(
+        retryCount: number = 5,
+        pollRetryCount: number = 10,
+        pollRetryInterval: number = 1000,
+    ): Promise<any> {
+        const fun = async () => {
+            await this.app.workbench.debug.openDebugViewlet();
+            await this.app.workbench.debug.configure();
+            await this.app.workbench.terminal.showTerminalWithoutNecessaryFocus();
+        };
+        const catchFun = async () => await this.app.workbench.code.dispatchKeybinding("escape");
+        await this.retryWithSpecifiedPollRetryParameters(
+            fun,
+            catchFun,
+            retryCount,
+            pollRetryCount,
+            pollRetryInterval,
+        );
+    }
 }

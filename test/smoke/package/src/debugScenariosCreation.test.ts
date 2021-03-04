@@ -8,12 +8,14 @@ import { Application } from "../../automation";
 import { testApplicationSetupManager } from "./main";
 import { LaunchConfigurationManager } from "./helpers/launchConfigurationManager";
 import TestProject from "./helpers/testProject";
+import AutomationHelper from "./helpers/AutomationHelper";
 
 export function startDebugScenariosCreationTests(project: TestProject): void {
     describe("Debugging scenarios creation test", () => {
         let app: Application;
         let launchConfigurationManager: LaunchConfigurationManager;
         let previousConfigurationsCount: number;
+        let automationHelper: AutomationHelper;
 
         async function initApp(
             workspaceOrFolder: string,
@@ -21,16 +23,15 @@ export function startDebugScenariosCreationTests(project: TestProject): void {
             locale?: string,
         ): Promise<Application> {
             app = await vscodeManager.runVSCode(workspaceOrFolder, sessionName, locale);
+            automationHelper = new AutomationHelper(app);
             return app;
         }
 
         before(async () => {
             app = await initApp(project.workspaceDirectory, "DebuggingScenariosCreationTest");
             launchConfigurationManager = new LaunchConfigurationManager(project.workspaceDirectory);
-            await app.workbench.debug.openDebugViewlet();
-            await app.workbench.debug.configure();
+            await automationHelper.prepareForDebugScenarioCreactionTestWithRetry();
             SmokeTestLogger.info("Debugging scenarios creation test: launch.json file is opened");
-            await app.workbench.terminal.showTerminalWithoutNecessaryFocus();
         });
 
         after(async () => {
