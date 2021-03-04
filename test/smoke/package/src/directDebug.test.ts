@@ -162,6 +162,10 @@ export function startDirectDebugTests(
                         sf.name === "AppTestButton.js" &&
                         sf.lineNumber === RNHermesSetBreakpointOnLine,
                     `looking for AppTestButton.js and line ${RNHermesSetBreakpointOnLine}`,
+                    5,
+                    60,
+                    1000,
+                    async () => await AppiumHelper.clickTestButtonHermes(client, platform),
                 );
                 SmokeTestLogger.info(`${testname}: Stack frame found`);
                 await app.workbench.debug.continue();

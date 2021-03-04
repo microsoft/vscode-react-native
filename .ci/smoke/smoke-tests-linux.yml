@@ -5,7 +5,7 @@ pr:
 
 variables:
   vswdbotLogin: vswdbot
-  appiumVersion: 1.19.0
+  appiumVersion: 1.20.2
   expoCLIVersion: latest
   smokeTestDirectory: test/smoke
 

@@ -12,6 +12,7 @@ export interface IStackFrame {
 const DISCONNECT = `.debug-toolbar .action-label[title*="Disconnect"]`;
 const TOOLBAR_HIDDEN = `.debug-toolbar[aria-hidden="true"]`;
 const NOT_DEBUG_STATUS_BAR = `.statusbar:not(debugging)`;
+const STOP = `.debug-toolbar .action-label[title*="Stop"]`;
 
 export default class AutomationHelper {
     constructor(private app: Application) {}
@@ -103,8 +104,14 @@ export default class AutomationHelper {
         retryCount: number = 5,
         pollRetryCount: number = 60,
         pollRetryInterval: number = 1000,
+        beforeWaitForStackFrame?: () => Promise<any>,
     ): Promise<any> {
-        const fun = async () => await this.app.workbench.debug.waitForStackFrame(func, message);
+        const fun = async () => {
+            if (beforeWaitForStackFrame) {
+                await beforeWaitForStackFrame();
+            }
+            await this.app.workbench.debug.waitForStackFrame(func, message);
+        };
         const catchFun = async () =>
             await this.runCommandWithRetry(SmokeTestsConstants.reloadAppCommand);
         await this.retryWithSpecifiedPollRetryParameters(
@@ -123,7 +130,10 @@ export default class AutomationHelper {
     ): Promise<any> {
         const fun = async () => {
             try {
-                await this.app.workbench.code.waitAndClick(DISCONNECT);
+                await Promise.race([
+                    this.app.workbench.code.waitAndClick(DISCONNECT),
+                    this.app.workbench.code.waitAndClick(STOP),
+                ]);
             } catch (e) {}
             await this.app.workbench.code.waitForElement(TOOLBAR_HIDDEN);
             await this.app.workbench.code.waitForElement(NOT_DEBUG_STATUS_BAR);
