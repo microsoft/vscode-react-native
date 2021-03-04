@@ -45,7 +45,7 @@ export default class AutomationHelper {
 
     public async openFileWithRetry(
         fileName: string,
-        retryCount: number = 5,
+        retryCount: number = 3,
         pollRetryCount: number = 10,
         pollRetryInterval: number = 1000,
     ): Promise<any> {
@@ -62,7 +62,7 @@ export default class AutomationHelper {
 
     public async runCommandWithRetry(
         commandId: string,
-        retryCount: number = 5,
+        retryCount: number = 3,
         pollRetryCount: number = 10,
         pollRetryInterval: number = 1000,
     ): Promise<any> {
@@ -80,7 +80,7 @@ export default class AutomationHelper {
     public async runDebugScenarioWithRetry(
         scenario: string,
         index: number = 0,
-        retryCount: number = 5,
+        retryCount: number = 3,
         pollRetryCount: number = 30,
         pollRetryInterval: number = 1000,
     ): Promise<any> {
@@ -101,7 +101,7 @@ export default class AutomationHelper {
     public async waitForStackFrameWithRetry(
         func: (stackFrame: IStackFrame) => boolean,
         message: string,
-        retryCount: number = 5,
+        retryCount: number = 3,
         pollRetryCount: number = 60,
         pollRetryInterval: number = 1000,
         beforeWaitForStackFrame?: () => Promise<any>,
@@ -124,7 +124,7 @@ export default class AutomationHelper {
     }
 
     public async disconnectFromDebuggerWithRetry(
-        retryCount: number = 5,
+        retryCount: number = 3,
         pollRetryCount: number = 30,
         pollRetryInterval: number = 1000,
     ): Promise<any> {
@@ -151,7 +151,7 @@ export default class AutomationHelper {
     }
 
     public async prepareForDebugScenarioCreactionTestWithRetry(
-        retryCount: number = 5,
+        retryCount: number = 3,
         pollRetryCount: number = 10,
         pollRetryInterval: number = 1000,
     ): Promise<any> {
