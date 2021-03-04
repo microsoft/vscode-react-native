@@ -165,7 +165,11 @@ export function startDirectDebugTests(
                     5,
                     60,
                     1000,
-                    async () => await AppiumHelper.clickTestButtonHermes(client, platform),
+                    async () =>
+                        await AppiumHelper.clickTestButtonHermes(
+                            client || (await AppiumHelper.webdriverAttach(opts)),
+                            platform,
+                        ),
                 );
                 SmokeTestLogger.info(`${testname}: Stack frame found`);
                 await app.workbench.debug.continue();
