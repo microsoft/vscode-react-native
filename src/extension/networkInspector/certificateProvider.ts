@@ -348,7 +348,7 @@ export class CertificateProvider {
             const filePath = path.resolve(dir.path, filename);
             fs.promises
                 .writeFile(filePath, contents)
-                .then(() => iosUtil.push(udid, filePath, bundleId, destination));
+                .then(() => iosUtil.push(udid, filePath, bundleId, destination, this.logger));
         });
     }
 
@@ -464,7 +464,13 @@ export class CertificateProvider {
             .dir({ unsafeCleanup: true })
             .then(dir => {
                 return iosUtil
-                    .pull(deviceId, originalFile, bundleId, path.join(dir.path, csrFileName))
+                    .pull(
+                        deviceId,
+                        originalFile,
+                        bundleId,
+                        path.join(dir.path, csrFileName),
+                        this.logger,
+                    )
                     .then(() => dir);
             })
             .then(dir => {

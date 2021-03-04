@@ -6,6 +6,7 @@ import { notNullOrUndefined } from "../../common/utils";
 import { PromiseUtil } from "../../common/node/promise";
 import { IVirtualDevice } from "../VirtualDeviceManager";
 import { DeviceType } from "../launchArgs";
+import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { promises, constants } from "fs";
 
 // The code is borrowed from https://github.com/facebook/flipper/blob/master/desktop/app/src/utils/iOSContainerUtility.tsx
@@ -94,7 +95,13 @@ async function targets(): Promise<Array<DeviceTarget>> {
     }
 }
 
-async function push(udid: string, src: string, bundleId: string, dst: string): Promise<void> {
+async function push(
+    udid: string,
+    src: string,
+    bundleId: string,
+    dst: string,
+    logger?: OutputChannelLogger,
+): Promise<void> {
     const cp = new ChildProcess();
     await checkIdbIsInstalled();
     return wrapWithErrorMessage(
@@ -106,10 +113,17 @@ async function push(udid: string, src: string, bundleId: string, dst: string): P
                 return;
             })
             .catch(e => handleMissingIdb(e)),
+        logger,
     );
 }
 
-async function pull(udid: string, src: string, bundleId: string, dst: string): Promise<void> {
+async function pull(
+    udid: string,
+    src: string,
+    bundleId: string,
+    dst: string,
+    logger?: OutputChannelLogger,
+): Promise<void> {
     const cp = new ChildProcess();
     await checkIdbIsInstalled();
     return wrapWithErrorMessage(
@@ -121,6 +135,7 @@ async function pull(udid: string, src: string, bundleId: string, dst: string): P
                 return;
             })
             .catch(e => handleMissingIdb(e)),
+        logger,
     );
 }
 
@@ -144,9 +159,9 @@ function handleMissingIdb(e: Error): void {
     throw e;
 }
 
-function wrapWithErrorMessage<T>(p: Promise<T>): Promise<T> {
+function wrapWithErrorMessage<T>(p: Promise<T>, logger?: OutputChannelLogger): Promise<T> {
     return p.catch((e: Error) => {
-        console.error(e);
+        logger?.error(e.message);
         // Give the user instructions. Don't embed the error because it's unique per invocation so won't be deduped.
         throw new Error(
             "A problem with idb has ocurred. Please run `sudo rm -rf /tmp/idb*` and `sudo yum install -y fb-idb` to update it, if that doesn't fix it, post in Flipper Support.",

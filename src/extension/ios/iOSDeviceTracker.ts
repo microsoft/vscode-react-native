@@ -8,23 +8,36 @@ import iosUtil, { DeviceTarget } from "./iOSContainerUtility";
 import { DeviceStorage } from "../networkInspector/devices/deviceStorage";
 import { ClientOS } from "../networkInspector/clientUtils";
 import { IOSClienDevice } from "../networkInspector/devices/iOSClienDevice";
+import { findFileInFolderHierarchy } from "../../common/extensionHelper";
+import { ChildProcess, execFile } from "child_process";
+import { ChildProcess as ChildProcessUtils } from "../../common/node/childProcess";
 
 export class IOSDeviceTracker extends AbstractDeviceTracker {
+    private readonly portForwardingClientPath: string;
     private iOSSimulatorManager: IOSSimulatorManager;
+    private portForwarders: Array<ChildProcess>;
 
     constructor() {
         super();
+        this.portForwardingClientPath =
+            (findFileInFolderHierarchy(__dirname, "static/PortForwardingMacApp.app") || __dirname) +
+            "/Contents/MacOS/PortForwardingMacApp";
         this.iOSSimulatorManager = new IOSSimulatorManager();
+        this.portForwarders = [];
     }
 
     public async start(): Promise<void> {
         this.logger.debug("Start iOS device tracker");
+        if (await this.isXcodeDetected()) {
+            this.startDevicePortForwarders();
+        }
         await this.queryDevicesLoop();
     }
 
     public stop(): void {
         this.logger.debug("Stop iOS device tracker");
         this.isStop = true;
+        this.portForwarders.forEach(process => process.kill());
     }
 
     protected async queryDevices(): Promise<void> {
@@ -55,7 +68,6 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
                     activeDevice.state || "active",
                     activeDevice.name,
                 );
-                // await this.initIOSDevice(androidDevice); // prepare real iOS devices
                 DeviceStorage.devices.set(androidDevice.id, androidDevice);
             }
         }
@@ -63,6 +75,35 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
         currentDevicesIds.forEach(oldDeviceId => {
             DeviceStorage.devices.delete(oldDeviceId);
         });
+    }
+
+    private startDevicePortForwarders(): void {
+        if (this.portForwarders.length > 0) {
+            // Only ever start them once.
+            return;
+        }
+        // start port forwarding server for real device connections
+        this.portForwarders = [this.forwardPort(8089, 8079), this.forwardPort(8088, 8078)];
+    }
+
+    private forwardPort(port: number, multiplexChannelPort: number): ChildProcess {
+        const childProcess = execFile(
+            this.portForwardingClientPath,
+            [`-portForward=${port}`, `-multiplexChannelPort=${multiplexChannelPort}`],
+            (err, stdout, stderr) => {
+                this.logger.error(
+                    `Port forwarding app failed to start: ${stdout.toString()}, ${stderr.toString}`,
+                );
+            },
+        );
+        console.log("Port forwarding app started", childProcess);
+        childProcess.addListener("error", err => {
+            this.logger.error("Port forwarding app error", err);
+        });
+        childProcess.addListener("exit", code => {
+            this.logger.debug(`Port forwarding app exited with code ${code}`);
+        });
+        return childProcess;
     }
 
     private getRunningSimulators(): Promise<IiOSSimulator[]> {
@@ -74,5 +115,13 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
             this.logger.error(e.message);
             return [];
         });
+    }
+
+    private isXcodeDetected(): Promise<boolean> {
+        const cp = new ChildProcessUtils();
+        return cp
+            .execToString("xcode-select -p")
+            .then(() => true)
+            .catch(() => false);
     }
 }
