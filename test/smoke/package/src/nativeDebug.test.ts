@@ -99,7 +99,7 @@ export function startReactNativeTests(
                 SmokeTestLogger.success(
                     'Android Debug test: "Test output from debuggee" string is found',
                 );
-                await app.workbench.debug.disconnectFromDebugger();
+                await automationHelper.disconnectFromDebuggerWithRetry();
                 SmokeTestLogger.info("Android Debug test: Debugging is stopped");
             });
         }
@@ -165,7 +165,7 @@ export function startReactNativeTests(
                 SmokeTestLogger.success(
                     'iOS Debug test: "Test output from debuggee" string is found',
                 );
-                await app.workbench.debug.disconnectFromDebugger();
+                await automationHelper.disconnectFromDebuggerWithRetry();
                 SmokeTestLogger.info("iOS Debug test: Debugging is stopped");
             });
         }

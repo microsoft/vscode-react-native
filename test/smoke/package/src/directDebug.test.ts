@@ -151,7 +151,7 @@ export function startDirectDebugTests(
                 let isHermesWorking = await AppiumHelper.isHermesWorking(client, platform);
                 assert.strictEqual(isHermesWorking, true);
                 SmokeTestLogger.info(`${testname}: Reattaching to Hermes app`);
-                await app.workbench.debug.disconnectFromDebugger();
+                await automationHelper.disconnectFromDebuggerWithRetry();
                 await automationHelper.runDebugScenarioWithRetry(RNHermesAttachConfigName);
                 SmokeTestLogger.info(`${testname}: Reattached successfully`);
                 await sleep(7000);
@@ -181,7 +181,7 @@ export function startDirectDebugTests(
                         `${testname}: "Test output from Hermes debuggee" string is found`,
                     );
                 }
-                await app.workbench.debug.disconnectFromDebugger();
+                await automationHelper.disconnectFromDebuggerWithRetry();
                 SmokeTestLogger.info(`${testname}: Debugging is stopped`);
             } catch (e) {
                 SmokeTestLogger.error(`${testname} failed: ${e.toString()}`);

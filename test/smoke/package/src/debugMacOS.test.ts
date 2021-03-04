@@ -138,7 +138,7 @@ export function startDebugMacOSTests(
                 '"Test output from debuggee" string is missing in debug console',
             );
             SmokeTestLogger.success(`${testname}: "Test output from debuggee" string is found`);
-            await app.workbench.debug.disconnectFromDebugger();
+            await automationHelper.disconnectFromDebuggerWithRetry();
             SmokeTestLogger.info(`${testname}: Debugging is stopped`);
         }
 

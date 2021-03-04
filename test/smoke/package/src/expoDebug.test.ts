@@ -260,7 +260,7 @@ export function startExpoTests(
                 '"Test output from debuggee" string is missing in debug console',
             );
             SmokeTestLogger.success(`${testName}: \"Test output from debuggee\" string is found`);
-            await app.workbench.debug.disconnectFromDebugger();
+            await automationHelper.disconnectFromDebuggerWithRetry();
             SmokeTestLogger.info(`${testName}: Debugging is stopped`);
         }
 

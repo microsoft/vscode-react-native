@@ -121,7 +121,7 @@ export function startDebugRNWTests(project: TestProject, testParameters: TestRun
                     SmokeTestLogger.success(
                         'Windows Debug test: "Test output from debuggee" string is found',
                     );
-                    await app.workbench.debug.disconnectFromDebugger();
+                    await automationHelper.disconnectFromDebuggerWithRetry();
                     SmokeTestLogger.info("Windows Debug test: Debugging is stopped");
                 } catch (e) {
                     SmokeTestLogger.error(`Windows Debug test failed: ${e.toString()}`);

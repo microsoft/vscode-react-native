@@ -9,6 +9,10 @@ export interface IStackFrame {
     lineNumber: number;
 }
 
+const DISCONNECT = `.debug-toolbar .action-label[title*="Disconnect"]`;
+const TOOLBAR_HIDDEN = `.debug-toolbar[aria-hidden="true"]`;
+const NOT_DEBUG_STATUS_BAR = `.statusbar:not(debugging)`;
+
 export default class AutomationHelper {
     constructor(private app: Application) {}
 
@@ -103,6 +107,28 @@ export default class AutomationHelper {
         const fun = async () => await this.app.workbench.debug.waitForStackFrame(func, message);
         const catchFun = async () =>
             await this.runCommandWithRetry(SmokeTestsConstants.reloadAppCommand);
+        await this.retryWithSpecifiedPollRetryParameters(
+            fun,
+            catchFun,
+            retryCount,
+            pollRetryCount,
+            pollRetryInterval,
+        );
+    }
+
+    public async disconnectFromDebuggerWithRetry(
+        retryCount: number = 5,
+        pollRetryCount: number = 30,
+        pollRetryInterval: number = 1000,
+    ): Promise<any> {
+        const fun = async () => {
+            try {
+                await this.app.workbench.code.waitAndClick(DISCONNECT);
+            } catch (e) {}
+            await this.app.workbench.code.waitForElement(TOOLBAR_HIDDEN);
+            await this.app.workbench.code.waitForElement(NOT_DEBUG_STATUS_BAR);
+        };
+        const catchFun = async () => { return; };
         await this.retryWithSpecifiedPollRetryParameters(
             fun,
             catchFun,
