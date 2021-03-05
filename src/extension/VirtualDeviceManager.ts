@@ -3,15 +3,15 @@
 
 import * as nls from "vscode-nls";
 import { QuickPickOptions, window } from "vscode";
+import { IDevice } from "../common/device";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
 })();
 const localize = nls.loadMessageBundle();
 
-export interface IVirtualDevice {
+export interface IVirtualDevice extends IDevice {
     name?: string;
-    id: string;
 }
 
 export abstract class VirtualDeviceManager {
@@ -34,9 +34,9 @@ export abstract class VirtualDeviceManager {
         return result?.toString();
     }
 
-    public abstract async startSelection(): Promise<string | undefined>;
+    public abstract startSelection(): Promise<string | undefined>;
 
-    protected abstract async getVirtualDevicesNamesList(
+    protected abstract getVirtualDevicesNamesList(
         filter?: (el: IVirtualDevice) => unknown,
     ): Promise<string[]>;
 }

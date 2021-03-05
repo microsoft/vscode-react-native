@@ -168,7 +168,7 @@ export class ChildProcess {
     // unresponsive. Until the underlying issue is resolved, manually kill any
     // orphaned instances (where the parent process has died and PPID is 1)
     // before launching another instruments run.
-    public async killOrphanedInstrumentsProcesses() {
+    public async killOrphanedInstrumentsProcesses(): Promise<void> {
         const result = await this.execToString("ps -e -o user,ppid,pid,comm");
         if (result) {
             result

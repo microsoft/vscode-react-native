@@ -5,7 +5,7 @@ import * as semver from "semver";
 
 import { GeneralMobilePlatform, MobilePlatformDeps } from "../generalMobilePlatform";
 import { IAndroidRunOptions, PlatformType } from "../launchArgs";
-import { AdbHelper, AndroidAPILevel, IDevice } from "./adb";
+import { AdbHelper, AndroidAPILevel, IAdbDevice } from "./adb";
 import { Package } from "../../common/node/package";
 import { PackageNameResolver } from "./packageNameResolver";
 import { OutputVerifier, PatternToFailure } from "../../common/outputVerifier";
@@ -59,8 +59,8 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         "Starting: Intent",
     ];
 
-    private debugTarget: IDevice;
-    private devices: IDevice[];
+    private debugTarget: IAdbDevice;
+    private devices: IAdbDevice[];
     private packageName: string;
     private adbHelper: AdbHelper;
     private emulatorManager: AndroidEmulatorManager;
@@ -190,7 +190,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                                 ? this.adbHelper.getOnlineDevices()
                                 : Promise.resolve([this.debugTarget]);
                         } else {
-                            return Promise.reject<IDevice[]>(reason);
+                            return Promise.reject<IAdbDevice[]>(reason);
                         }
                     },
                 )
@@ -270,7 +270,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         });
     }
 
-    private launchAppWithADBReverseAndLogCat(device: IDevice): Promise<void> {
+    private launchAppWithADBReverseAndLogCat(device: IAdbDevice): Promise<void> {
         return this.configureADBReverseWhenApplicable(device)
             .then(() => {
                 return this.needsToLaunchApps
@@ -286,7 +286,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
             });
     }
 
-    private configureADBReverseWhenApplicable(device: IDevice): Promise<void> {
+    private configureADBReverseWhenApplicable(device: IAdbDevice): Promise<void> {
         return Promise.resolve() // For other emulators and devices we try to enable adb reverse
             .then(() => this.adbHelper.apiVersion(device.id))
             .then(apiVersion => {
@@ -323,12 +323,12 @@ export class AndroidPlatform extends GeneralMobilePlatform {
      * *  If an emulator is specified and it is connected, use that one.
      * *  Otherwise, use the first one in the list.
      */
-    private getTargetEmulator(devices: IDevice[]): IDevice {
-        let activeFilterFunction = (device: IDevice) => {
+    private getTargetEmulator(devices: IAdbDevice[]): IAdbDevice {
+        let activeFilterFunction = (device: IAdbDevice) => {
             return device.isOnline;
         };
 
-        let targetFilterFunction = (device: IDevice) => {
+        let targetFilterFunction = (device: IAdbDevice) => {
             return device.id === this.runOptions.target && activeFilterFunction(device);
         };
 
@@ -345,7 +345,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         return activeDevices && activeDevices[0];
     }
 
-    private startMonitoringLogCat(device: IDevice, logCatArguments: string[]): void {
+    private startMonitoringLogCat(device: IAdbDevice, logCatArguments: string[]): void {
         LogCatMonitorManager.delMonitor(device.id); // Stop previous logcat monitor if it's running
 
         // this.logCatMonitor can be mutated, so we store it locally too

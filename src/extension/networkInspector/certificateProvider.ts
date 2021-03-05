@@ -5,6 +5,7 @@ import { openssl, isInstalled as opensslInstalled } from "../../common/opensslWr
 import * as path from "path";
 import * as os from "os";
 import * as fs from "fs";
+import { FileSystem as fsUtils } from "../../common/node/fileSystem";
 import * as mkdirp from "mkdirp";
 import * as tmp from "tmp-promise";
 import { AdbHelper } from "../android/adb";
@@ -13,6 +14,13 @@ import iosUtil from "../ios/iOSContainerUtility";
 import { v4 as uuid } from "uuid";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { NETWORK_INSPECTOR_LOG_CHANNEL_NAME } from "./networkInspectorServer";
+import { ClientOS } from "./clientUtils";
+import * as nls from "vscode-nls";
+nls.config({
+    messageFormat: nls.MessageFormat.bundle,
+    bundleFormat: nls.BundleFormat.standalone,
+})();
+const localize = nls.loadMessageBundle();
 
 // The code is borrowed from https://github.com/facebook/flipper/blob/master/desktop/app/src/utils/CertificateProvider.tsx
 
@@ -31,8 +39,8 @@ const csrFileName = "app.csr";
 const deviceCAcertFile = "sonarCA.crt";
 const deviceClientCertFile = "device.crt";
 
-const caSubject = "/C=US/ST=CA/L=Menlo Park/O=Test/CN=TestCA";
-const serverSubject = "/C=US/ST=CA/L=Menlo Park/O=Test/CN=localhost";
+const caSubject = "/C=US/ST=CA/L=Test/O=Test/CN=TestCA";
+const serverSubject = "/C=US/ST=CA/L=Test/O=Test/CN=localhost";
 const minCertExpiryWindowSeconds = 24 * 60 * 60;
 const allowedAppNameRegex = /^[\w.-]+$/;
 
@@ -87,7 +95,7 @@ export class CertificateProvider {
 
     public async processCertificateSigningRequest(
         unsanitizedCsr: string,
-        os: string,
+        os: ClientOS,
         appDirectory: string,
         medium: CertificateExchangeMedium,
     ): Promise<{ deviceId: string }> {
@@ -97,7 +105,7 @@ export class CertificateProvider {
         }
         this.ensureOpenSSLIsAvailable();
         const rootFolder = (await tmp.dir()).path;
-        const certFolder = rootFolder + "/FlipperCerts/";
+        const certFolder = path.join(rootFolder, "FlipperCerts");
         return this.certificateSetup
             .then(() => this.getCACertificate())
             .then(caCert =>
@@ -203,16 +211,16 @@ export class CertificateProvider {
     }
 
     public getTargetDeviceId(
-        os: string,
+        os: ClientOS,
         appName: string,
         appDirectory: string,
         csr: string,
     ): Promise<string> {
-        if (os === "Android") {
+        if (os === ClientOS.Android) {
             return this.getTargetAndroidDeviceId(appName, appDirectory, csr);
-        } else if (os === "iOS") {
+        } else if (os === ClientOS.iOS) {
             return this.getTargetiOSDeviceId(appName, appDirectory, csr);
-        } else if (os == "MacOS") {
+        } else if (os == ClientOS.MacOS) {
             return Promise.resolve("");
         }
         return Promise.resolve("unknown");
@@ -264,39 +272,50 @@ export class CertificateProvider {
         filename: string,
         contents: string,
         csr: string,
-        os: string,
+        os: ClientOS,
         medium: CertificateExchangeMedium,
         certFolder: string,
     ): Promise<void> {
         const appNamePromise = this.extractAppNameFromCSR(csr);
 
         if (medium === "WWW") {
-            const certPathExists = fs.existsSync(certFolder);
-            if (!certPathExists) {
-                mkdirp.sync(certFolder);
-            }
-            return fs.promises.writeFile(certFolder + filename, contents).catch(e => {
+            return fsUtils.writeFileToFolder(certFolder, filename, contents).catch(e => {
                 throw new Error(`Failed to write ${filename} to temporary folder. Error: ${e}`);
             });
         }
 
-        if (os === "Android") {
+        if (os === ClientOS.Android) {
             const deviceIdPromise = appNamePromise.then(app =>
                 this.getTargetAndroidDeviceId(app, destination, csr),
             );
-            return Promise.all([deviceIdPromise, appNamePromise]).then(([deviceId, appName]) =>
-                androidUtil.push(
+            return Promise.all([deviceIdPromise, appNamePromise]).then(([deviceId, appName]) => {
+                if (process.platform === "win32") {
+                    return fsUtils
+                        .writeFileToFolder(certFolder, filename, contents)
+                        .then(() =>
+                            androidUtil.pushFile(
+                                this.adbHelper,
+                                deviceId,
+                                appName,
+                                destination + filename,
+                                path.join(certFolder, filename),
+                                this.logger,
+                            ),
+                        );
+                }
+                return androidUtil.push(
                     this.adbHelper,
                     deviceId,
                     appName,
                     destination + filename,
                     contents,
-                ),
-            );
+                    this.logger,
+                );
+            });
         }
-        if (os === "iOS" || os === "windows" || os == "MacOS") {
+        if (os === ClientOS.iOS || os === ClientOS.Windows || os === ClientOS.MacOS) {
             return fs.promises.writeFile(destination + filename, contents).catch(err => {
-                if (os === "iOS") {
+                if (os === ClientOS.iOS) {
                     // Writing directly to FS failed. It's probably a physical device.
                     const relativePathInsideApp = this.getRelativePathInAppContainer(destination);
                     return appNamePromise
@@ -335,7 +354,7 @@ export class CertificateProvider {
             const filePath = path.resolve(dir.path, filename);
             fs.promises
                 .writeFile(filePath, contents)
-                .then(() => iosUtil.push(udid, filePath, bundleId, destination));
+                .then(() => iosUtil.push(udid, filePath, bundleId, destination, this.logger));
         });
     }
 
@@ -402,9 +421,9 @@ export class CertificateProvider {
                 throw new Error("No iOS devices found");
             }
             const deviceMatchList = targets.map(target =>
-                this.iOSDeviceHasMatchingCSR(deviceCsrFilePath, target.udid, appName, csr).then(
+                this.iOSDeviceHasMatchingCSR(deviceCsrFilePath, target.id, appName, csr).then(
                     isMatch => {
-                        return { id: target.udid, isMatch };
+                        return { id: target.id, isMatch };
                     },
                 ),
             );
@@ -425,7 +444,7 @@ export class CertificateProvider {
         csr: string,
     ): Promise<{ isMatch: boolean; foundCsr: string }> {
         return androidUtil
-            .pull(this.adbHelper, deviceId, processName, directory + csrFileName)
+            .pull(this.adbHelper, deviceId, processName, directory + csrFileName, this.logger)
             .then(deviceCsr => {
                 // Santitize both of the string before comparation
                 // The csr string extraction on client side return string in both way
@@ -451,7 +470,13 @@ export class CertificateProvider {
             .dir({ unsafeCleanup: true })
             .then(dir => {
                 return iosUtil
-                    .pull(deviceId, originalFile, bundleId, path.join(dir.path, csrFileName))
+                    .pull(
+                        deviceId,
+                        originalFile,
+                        bundleId,
+                        path.join(dir.path, csrFileName),
+                        this.logger,
+                    )
                     .then(() => dir);
             })
             .then(dir => {
@@ -502,7 +527,13 @@ export class CertificateProvider {
         })
             .then(() => undefined)
             .catch(e => {
-                this.logger.info(`Certificate will expire soon: ${filename}`);
+                this.logger.warning(
+                    localize(
+                        "NICertificateExpireSoon",
+                        "Certificate will expire soon: {0}",
+                        filename,
+                    ),
+                );
                 throw e;
             })
             .then(() =>

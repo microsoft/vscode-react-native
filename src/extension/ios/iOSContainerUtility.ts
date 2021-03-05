@@ -4,6 +4,9 @@
 import { ChildProcess } from "../../common/node/childProcess";
 import { notNullOrUndefined } from "../../common/utils";
 import { PromiseUtil } from "../../common/node/promise";
+import { IVirtualDevice } from "../VirtualDeviceManager";
+import { DeviceType } from "../launchArgs";
+import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { promises, constants } from "fs";
 
 // The code is borrowed from https://github.com/facebook/flipper/blob/master/desktop/app/src/utils/iOSContainerUtility.tsx
@@ -21,11 +24,10 @@ type IdbTarget = {
     architecture: string;
 };
 
-export type DeviceTarget = {
-    udid: string;
-    type: "physical" | "emulator";
-    name: string;
-};
+export interface DeviceTarget extends IVirtualDevice {
+    type: DeviceType;
+    state: string;
+}
 
 const isIdbAvailable = PromiseUtil.promiseCacheDecorator<boolean>(isAvailable);
 
@@ -38,10 +40,6 @@ function isAvailable(): Promise<boolean> {
         .then(() => true)
         .catch(() => false);
 }
-
-// function safeExec(command: string): Promise<{ stdout: string; stderr: string } | Output> {
-//     return mutex.acquire().then(release => unsafeExec(command).finally(release));
-// }
 
 async function targets(): Promise<Array<DeviceTarget>> {
     const cp = new ChildProcess();
@@ -66,7 +64,12 @@ async function targets(): Promise<Array<DeviceTarget>> {
                 .map(line => JSON.parse(line))
                 .filter(({ type }: IdbTarget) => type !== "simulator")
                 .map((target: IdbTarget) => {
-                    return { udid: target.udid, type: "physical", name: target.name };
+                    return {
+                        id: target.udid,
+                        type: "device",
+                        name: target.name,
+                        state: target.state,
+                    };
                 }),
         );
     } else {
@@ -81,13 +84,24 @@ async function targets(): Promise<Array<DeviceTarget>> {
                 .filter(notNullOrUndefined)
                 .filter(([_match, _name, _udid, isSim]) => !isSim)
                 .map(([_match, name, udid]) => {
-                    return { udid: udid, type: "physical", name: name };
+                    return {
+                        id: udid,
+                        type: "device",
+                        name,
+                        state: "active",
+                    };
                 }),
         );
     }
 }
 
-async function push(udid: string, src: string, bundleId: string, dst: string): Promise<void> {
+async function push(
+    udid: string,
+    src: string,
+    bundleId: string,
+    dst: string,
+    logger?: OutputChannelLogger,
+): Promise<void> {
     const cp = new ChildProcess();
     await checkIdbIsInstalled();
     return wrapWithErrorMessage(
@@ -99,10 +113,17 @@ async function push(udid: string, src: string, bundleId: string, dst: string): P
                 return;
             })
             .catch(e => handleMissingIdb(e)),
+        logger,
     );
 }
 
-async function pull(udid: string, src: string, bundleId: string, dst: string): Promise<void> {
+async function pull(
+    udid: string,
+    src: string,
+    bundleId: string,
+    dst: string,
+    logger?: OutputChannelLogger,
+): Promise<void> {
     const cp = new ChildProcess();
     await checkIdbIsInstalled();
     return wrapWithErrorMessage(
@@ -114,6 +135,7 @@ async function pull(udid: string, src: string, bundleId: string, dst: string): P
                 return;
             })
             .catch(e => handleMissingIdb(e)),
+        logger,
     );
 }
 
@@ -137,9 +159,9 @@ function handleMissingIdb(e: Error): void {
     throw e;
 }
 
-function wrapWithErrorMessage<T>(p: Promise<T>): Promise<T> {
+function wrapWithErrorMessage<T>(p: Promise<T>, logger?: OutputChannelLogger): Promise<T> {
     return p.catch((e: Error) => {
-        console.error(e);
+        logger?.error(e.message);
         // Give the user instructions. Don't embed the error because it's unique per invocation so won't be deduped.
         throw new Error(
             "A problem with idb has ocurred. Please run `sudo rm -rf /tmp/idb*` and `sudo yum install -y fb-idb` to update it, if that doesn't fix it, post in Flipper Support.",

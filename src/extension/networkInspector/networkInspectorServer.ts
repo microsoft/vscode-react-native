@@ -14,8 +14,15 @@ import {
     SecureServerConfig,
     CertificateExchangeMedium,
 } from "./certificateProvider";
+import { ClientOS } from "./clientUtils";
 import * as net from "net";
 import * as tls from "tls";
+import * as nls from "vscode-nls";
+nls.config({
+    messageFormat: nls.MessageFormat.bundle,
+    bundleFormat: nls.BundleFormat.standalone,
+})();
+const localize = nls.loadMessageBundle();
 
 // The code is borrowed from https://github.com/facebook/flipper/blob/master/desktop/app/src/server.tsx
 
@@ -34,8 +41,8 @@ function transformCertificateExchangeMediumToType(
 export const NETWORK_INSPECTOR_LOG_CHANNEL_NAME = "Network Inspector";
 
 export class NetworkInspectorServer {
-    private readonly secureServerPort = 8088;
-    private readonly insecureServerPort = 8089;
+    public static readonly SecureServerPort = 8088;
+    public static readonly InsecureServerPort = 8089;
 
     private connections: Map<string, ClientDevice>;
     private secureServer: RSocketServer<any, any> | null;
@@ -50,19 +57,24 @@ export class NetworkInspectorServer {
     }
 
     public async start(adbHelper: AdbHelper): Promise<void> {
-        this.logger.info("Starting Network inspector");
+        this.logger.info(localize("StartNetworkinspector", "Starting Network inspector"));
         this.initialisePromise = new Promise(async (resolve, reject) => {
             this.certificateProvider = new CertificateProvider(adbHelper);
 
             try {
                 let options = await this.certificateProvider.loadSecureServerConfig();
-                this.secureServer = await this.startServer(this.secureServerPort, options);
-                this.insecureServer = await this.startServer(this.insecureServerPort);
+                this.secureServer = await this.startServer(
+                    NetworkInspectorServer.SecureServerPort,
+                    options,
+                );
+                this.insecureServer = await this.startServer(
+                    NetworkInspectorServer.InsecureServerPort,
+                );
             } catch (err) {
                 return reject(err);
             }
 
-            this.logger.info("Network inspector is working");
+            this.logger.info(localize("NetworkInspectorWorking", "Network inspector is working"));
             resolve();
         });
         return await this.initialisePromise;
@@ -82,7 +94,7 @@ export class NetworkInspectorServer {
                 this.insecureServer.stop();
             }
         }
-        this.logger.info("Network inspector has been stopped");
+        this.logger.info(localize("NetworkInspectorStopped", "Network inspector has been stopped"));
     }
 
     private async startServer(
@@ -100,7 +112,11 @@ export class NetworkInspectorServer {
                 transportServer
                     .on("error", err => {
                         this.logger.error(
-                            `Error while opening Network inspector server on port ${port}`,
+                            localize(
+                                "ErrorOpeningNetworkInspectorServerOnPort",
+                                "Error while opening Network inspector server on port {0}",
+                                port,
+                            ),
                         );
                         reject(err);
                     })
@@ -163,7 +179,11 @@ export class NetworkInspectorServer {
                 if (payload.kind == "ERROR" || payload.kind == "CLOSED") {
                     client.then(client => {
                         server.logger.info(
-                            `Device disconnected ${client.id} from the Network inspector`,
+                            localize(
+                                "NIDeviceDisconnected",
+                                "Device disconnected {0} from the Network inspector",
+                                client.id,
+                            ),
                         );
                         server.removeConnection(client.id);
                     });
@@ -173,7 +193,7 @@ export class NetworkInspectorServer {
                 subscription.request(Number.MAX_SAFE_INTEGER);
             },
             onError(error) {
-                server.logger.error("[server] connection status error ", error);
+                server.logger.error("Network inspector server connection status error ", error);
             },
         });
 
@@ -283,7 +303,7 @@ export class NetworkInspectorServer {
                             transformCertificateExchangeMediumToType(medium),
                         )
                         .catch(e => {
-                            console.error(e);
+                            this.logger.error(e.toString());
                         });
                 }
             },
@@ -299,7 +319,7 @@ export class NetworkInspectorServer {
         // otherwise, use given device_id
         const { csr_path, csr } = csrQuery;
         // For iOS we do not need to confirm the device id, as it never changes unlike android.
-        return (csr_path && csr && query.os != "iOS"
+        return (csr_path && csr && query.os !== ClientOS.iOS
             ? this.certificateProvider.extractAppNameFromCSR(csr).then(appName => {
                   return this.certificateProvider.getTargetDeviceId(
                       query.os,
@@ -313,17 +333,21 @@ export class NetworkInspectorServer {
             query.device_id = csrId;
             query.app = appNameWithUpdateHint(query);
 
-            const id = buildClientId({
-                app: query.app,
-                os: query.os,
-                device: query.device,
-                device_id: csrId,
-            });
-            this.logger.debug(`Device connected: ${id}`);
+            const id = buildClientId(
+                {
+                    app: query.app,
+                    os: query.os,
+                    device: query.device,
+                    device_id: csrId,
+                },
+                this.logger,
+            );
+            this.logger.info(localize("NIDeviceConnected", "Device connected: {0}", id));
 
-            const client = new ClientDevice(id, query, conn);
+            const client = new ClientDevice(id, query, conn, this.logger);
 
             client.init().then(() => {
+                this.logger.debug(`Device client initialised: ${id}`);
                 /* If a device gets disconnected without being cleaned up properly,
                  * Flipper won't be aware until it attempts to reconnect.
                  * When it does we need to terminate the zombie connection.

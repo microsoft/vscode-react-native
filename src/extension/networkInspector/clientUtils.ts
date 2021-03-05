@@ -2,16 +2,27 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { ClientIdConstituents, ClientQuery } from "./clientDevice";
+import { OutputChannelLogger } from "../log/OutputChannelLogger";
 
-export function buildClientId(clientInfo: {
-    app: string;
-    os: string;
-    device: string;
-    device_id: string;
-}): string {
+export enum ClientOS {
+    iOS = "iOS",
+    Android = "Android",
+    Windows = "Windows",
+    MacOS = "MacOS",
+}
+
+export function buildClientId(
+    clientInfo: {
+        app: string;
+        os: ClientOS;
+        device: string;
+        device_id: string;
+    },
+    logger: OutputChannelLogger,
+): string {
     for (const key of ["app", "os", "device", "device_id"] as Array<keyof ClientIdConstituents>) {
         if (!clientInfo[key]) {
-            console.error(`Attempted to build clientId with invalid ${key}: "${clientInfo[key]}`);
+            logger.error(`Attempted to build clientId with invalid ${key}: "${clientInfo[key]}`);
         }
     }
     const escapedName = escape(clientInfo.app);
@@ -23,7 +34,7 @@ export function appNameWithUpdateHint(query: ClientQuery): string {
     // section because it refers to the name given by client which is not fixed
     // for android emulators, so it is indicated as outdated so that developers
     // might want to update SDK to get rid of this connection swap problem
-    if (query.os === "Android" && (!query.sdk_version || query.sdk_version < 3)) {
+    if (query.os === ClientOS.Android && (!query.sdk_version || query.sdk_version < 3)) {
         return query.app + " (Outdated SDK)";
     }
     return query.app;

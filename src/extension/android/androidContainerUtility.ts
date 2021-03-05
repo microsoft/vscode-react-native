@@ -2,11 +2,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { AdbHelper } from "./adb";
+import * as path from "path";
+import { OutputChannelLogger } from "../log/OutputChannelLogger";
 
 const allowedAppNameRegex = /^[\w.-]+$/;
 const appNotApplicationRegex = /not an application/;
 const appNotDebuggableRegex = /debuggable/;
 const operationNotPermittedRegex = /not permitted/;
+const deviceTmpDir = "/sdcard/";
 
 // The code is borrowed from https://github.com/facebook/flipper/blob/master/desktop/app/src/utils/androidContainerUtility.tsx,
 // https://github.com/facebook/flipper/blob/master/desktop/app/src/utils/androidContainerUtilityInternal.tsx
@@ -32,12 +35,28 @@ export function push(
     app: string,
     filepath: string,
     contents: string,
+    logger?: OutputChannelLogger,
 ): Promise<void> {
     return validateAppName(app).then(validApp =>
         validateFilePath(filepath).then(validFilepath =>
             validateFileContent(contents).then(validContent =>
-                _push(adbHelper, deviceId, validApp, validFilepath, validContent),
+                _push(adbHelper, deviceId, validApp, validFilepath, validContent, logger),
             ),
+        ),
+    );
+}
+
+export function pushFile(
+    adbHelper: AdbHelper,
+    deviceId: string,
+    app: string,
+    destFilepath: string,
+    sourceFilepath: string,
+    logger?: OutputChannelLogger,
+): Promise<void> {
+    return validateAppName(app).then(validApp =>
+        validateFilePath(destFilepath).then(validFilepath =>
+            _pushFile(adbHelper, deviceId, validApp, validFilepath, sourceFilepath, logger),
         ),
     );
 }
@@ -47,9 +66,12 @@ export function pull(
     deviceId: string,
     app: string,
     path: string,
+    logger?: OutputChannelLogger,
 ): Promise<string> {
     return validateAppName(app).then(validApp =>
-        validateFilePath(path).then(validPath => _pull(adbHelper, deviceId, validApp, validPath)),
+        validateFilePath(path).then(validPath =>
+            _pull(adbHelper, deviceId, validApp, validPath, logger),
+        ),
     );
 }
 
@@ -80,11 +102,12 @@ function _push(
     app: string,
     filename: string,
     contents: string,
+    logger?: OutputChannelLogger,
 ): Promise<void> {
-    const command = `echo \\"${contents}\\" > '${filename}' && chmod 644 '${filename}'`;
+    const command = `echo \\"${contents}\\" > "${filename}" && chmod 644 "${filename}"`;
     return executeCommandAsApp(adbHelper, deviceId, app, command)
         .then(res => {
-            console.log(res);
+            logger?.debug(res);
         })
         .catch(error => {
             if (error instanceof RunAsError) {
@@ -92,7 +115,7 @@ function _push(
                 return executeCommandWithSu(adbHelper, deviceId, app, command)
                     .then(() => undefined)
                     .catch(e => {
-                        console.debug(e);
+                        logger?.debug(e.toString());
                         throw error;
                     });
             }
@@ -100,14 +123,43 @@ function _push(
         });
 }
 
-function _pull(adbHelper: AdbHelper, deviceId: string, app: string, path: string): Promise<string> {
-    const command = `cat '${path}'`;
+function _pushFile(
+    adbHelper: AdbHelper,
+    deviceId: string,
+    app: string,
+    destFilepath: string,
+    sourceFilepath: string,
+    logger?: OutputChannelLogger,
+): Promise<void> {
+    const destFileName = path.basename(destFilepath);
+    const tmpFilePath = deviceTmpDir + destFileName;
+    return adbHelper
+        .executeQuery(deviceId, `push ${sourceFilepath} ${tmpFilePath}`)
+        .then(res => {
+            logger?.debug(res);
+            const command = `cp "${tmpFilePath}" "${destFilepath}" && chmod 644 "${destFilepath}"`;
+            return executeCommandAsApp(adbHelper, deviceId, app, command);
+        })
+        .then(res => {
+            logger?.debug(res);
+        })
+        .finally(() => adbHelper.executeShellCommand(deviceId, `rm ${tmpFilePath}`));
+}
+
+function _pull(
+    adbHelper: AdbHelper,
+    deviceId: string,
+    app: string,
+    path: string,
+    logger?: OutputChannelLogger,
+): Promise<string> {
+    const command = `cat "${path}"`;
     return executeCommandAsApp(adbHelper, deviceId, app, command).catch(error => {
         if (error instanceof RunAsError) {
             // Fall back to running the command directly. This will work if adb is running as root.
             return executeCommandWithSu(adbHelper, deviceId, app, command).catch(e => {
                 // Throw the original error.
-                console.debug(e);
+                logger?.debug(e.toString());
                 throw error;
             });
         }
@@ -141,7 +193,7 @@ function _executeCommandWithRunner(
     command: string,
     runner: string,
 ): Promise<string> {
-    return adbHelper.executeShellCommand(deviceId, `echo "${command}" | ${runner}`).then(output => {
+    return adbHelper.executeShellCommand(deviceId, `echo '${command}' | ${runner}`).then(output => {
         if (output.match(appNotApplicationRegex)) {
             throw new RunAsError(
                 RunAsErrorCode.NotAnApp,
