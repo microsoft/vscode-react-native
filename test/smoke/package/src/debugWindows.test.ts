@@ -9,6 +9,8 @@ import { vscodeManager } from "./main";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 import { Application } from "../../automation";
 import { TestRunArguments } from "./helpers/testConfigProcessor";
+import TestProject from "./helpers/testProject";
+import AutomationHelper from "./helpers/AutomationHelper";
 
 const RNwindowsSetBreakpointOnLine = 1;
 const RNWDebugConfigName = "Debug RN Wind";
@@ -16,16 +18,26 @@ const RNWDebugConfigName = "Debug RN Wind";
 // Time for macOS Debug Test before it reaches timeout
 const debugWindowsTestTime = SmokeTestsConstants.windowsTestTimeout;
 
-export function startDebugRNWTests(workspace: string, testParameters: TestRunArguments): void {
+export function startDebugRNWTests(project: TestProject, testParameters: TestRunArguments): void {
     describe("Debugging Windows", () => {
         let app: Application;
-        SmokeTestLogger.info(JSON.stringify(testParameters));
+        let automationHelper: AutomationHelper;
+
+        async function initApp(
+            workspaceOrFolder: string,
+            sessionName?: string,
+            locale?: string,
+        ): Promise<Application> {
+            app = await vscodeManager.runVSCode(workspaceOrFolder, sessionName, locale);
+            automationHelper = new AutomationHelper(app);
+            return app;
+        }
 
         async function disposeAll() {
             SmokeTestLogger.info("Dispose all ...");
             if (app) {
                 SmokeTestLogger.info("Stopping React Native packager ...");
-                await app.workbench.quickaccess.runCommand(SmokeTestsConstants.stopPackagerCommand);
+                await automationHelper.runCommandWithRetry(SmokeTestsConstants.stopPackagerCommand);
                 await sleep(3000);
                 await app.stop();
             }
@@ -66,8 +78,8 @@ export function startDebugRNWTests(workspace: string, testParameters: TestRunArg
             it("RN Windows app Debug test", async function () {
                 try {
                     this.timeout(debugWindowsTestTime);
-                    app = await vscodeManager.runVSCode(workspace, "RN Windows app Debug test");
-                    await app.workbench.quickaccess.openFile("App.js");
+                    app = await initApp(project.workspaceDirectory, "RN Windows app Debug test");
+                    await automationHelper.openFileWithRetry(project.projectEntryPointFile);
                     await app.workbench.editors.scrollTop();
                     SmokeTestLogger.info("Windows Debug test: App.js file is opened");
                     await app.workbench.debug.setBreakpointOnLine(RNwindowsSetBreakpointOnLine);
@@ -78,16 +90,17 @@ export function startDebugRNWTests(workspace: string, testParameters: TestRunArg
                         `Windows Debug test: Chosen debug configuration: ${RNWDebugConfigName}`,
                     );
                     SmokeTestLogger.info("Windows Debug test: Starting debugging");
-                    await app.workbench.quickaccess.runDebugScenario(RNWDebugConfigName);
+                    await automationHelper.runDebugScenarioWithRetry(RNWDebugConfigName);
                     await checkIfAppIsInstalledOnWindows(
                         SmokeTestsConstants.RNWAppName,
                         SmokeTestsConstants.windowsAppBuildAndInstallTimeout,
                     );
                     await app.workbench.debug.waitForDebuggingToStart();
                     SmokeTestLogger.info("Windows Debug test: Debugging started");
-                    await app.workbench.debug.waitForStackFrame(
+                    await automationHelper.waitForStackFrameWithRetry(
                         sf =>
-                            sf.name === "App.js" && sf.lineNumber === RNwindowsSetBreakpointOnLine,
+                            sf.name === project.projectEntryPointFile &&
+                            sf.lineNumber === RNwindowsSetBreakpointOnLine,
                         `looking for App.js and line ${RNwindowsSetBreakpointOnLine}`,
                     );
                     SmokeTestLogger.info("Windows Debug test: Stack frame found");
@@ -108,7 +121,7 @@ export function startDebugRNWTests(workspace: string, testParameters: TestRunArg
                     SmokeTestLogger.success(
                         'Windows Debug test: "Test output from debuggee" string is found',
                     );
-                    await app.workbench.debug.disconnectFromDebugger();
+                    await automationHelper.disconnectFromDebuggerWithRetry();
                     SmokeTestLogger.info("Windows Debug test: Debugging is stopped");
                 } catch (e) {
                     SmokeTestLogger.error(`Windows Debug test failed: ${e.toString()}`);

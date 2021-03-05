@@ -25,6 +25,8 @@ export class SmokeTestsConstants {
     public static enableRemoteJSTimeout = 120 * 1000;
     // Command for stop React Native Packager
     public static stopPackagerCommand = "Stop Packager";
+    // Command for realod React Native application
+    public static reloadAppCommand = "Reload App";
 
     // Timeout for macOS smoke test
     public static macOSTestTimeout = 500 * 1000;

@@ -4,11 +4,13 @@
 import * as assert from "assert";
 import { Application } from "../../automation";
 import { AppiumClient, AppiumHelper, Platform } from "./helpers/appiumHelper";
+import AutomationHelper from "./helpers/AutomationHelper";
 import IosSimulatorManager from "./helpers/iosSimulatorManager";
 import { LaunchConfigurationManager } from "./helpers/launchConfigurationManager";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { TestRunArguments } from "./helpers/testConfigProcessor";
+import TestProject from "./helpers/testProject";
 import { sleep } from "./helpers/utilities";
 import { androidEmulatorManager, iosSimulatorManager, vscodeManager } from "./main";
 
@@ -23,10 +25,24 @@ const RNHermesSetBreakpointOnLine = 11;
 // Time for Android Debug Test before it reaches timeout
 const hermesTestTime = SmokeTestsConstants.hermesTestTimeout;
 
-export function startDirectDebugTests(workspace: string, testParameters: TestRunArguments): void {
+export function startDirectDebugTests(
+    project: TestProject,
+    testParameters: TestRunArguments,
+): void {
     describe("Direct debugging", () => {
         let app: Application | null;
         let client: AppiumClient | null;
+        let automationHelper: AutomationHelper;
+
+        async function initApp(
+            workspaceOrFolder: string,
+            sessionName?: string,
+            locale?: string,
+        ): Promise<Application> {
+            app = await vscodeManager.runVSCode(workspaceOrFolder, sessionName, locale);
+            automationHelper = new AutomationHelper(app);
+            return app;
+        }
 
         async function disposeAll() {
             try {
@@ -56,7 +72,7 @@ export function startDirectDebugTests(workspace: string, testParameters: TestRun
 
         async function stopPackager() {
             if (app) {
-                await app.workbench.quickaccess.runCommand(SmokeTestsConstants.stopPackagerCommand);
+                await automationHelper.runCommandWithRetry(SmokeTestsConstants.stopPackagerCommand);
                 await sleep(3000);
             }
         }
@@ -76,18 +92,17 @@ export function startDirectDebugTests(workspace: string, testParameters: TestRun
                     case Platform.iOS: {
                         debugConfigName = RNIosHermesDebugConfigName;
                         // We need to implicitly add target to "Debug iOS" configuration to avoid running additional simulator
-                        new LaunchConfigurationManager(workspace).updateLaunchScenario(
-                            RNIosHermesDebugConfigName,
-                            {
-                                target: iosSimulatorManager.getSimulator().name,
-                            },
-                        );
+                        new LaunchConfigurationManager(
+                            project.workspaceDirectory,
+                        ).updateLaunchScenario(RNIosHermesDebugConfigName, {
+                            target: iosSimulatorManager.getSimulator().name,
+                        });
                         break;
                     }
                 }
 
-                app = await vscodeManager.runVSCode(workspace, testname);
-                await app.workbench.quickaccess.openFile("AppTestButton.js");
+                app = await initApp(project.workspaceDirectory, testname);
+                await automationHelper.openFileWithRetry("AppTestButton.js");
                 await app.workbench.editors.scrollTop();
                 SmokeTestLogger.info(`${testname}: AppTestButton.js file is opened`);
                 await app.workbench.debug.setBreakpointOnLine(RNHermesSetBreakpointOnLine);
@@ -96,7 +111,7 @@ export function startDirectDebugTests(workspace: string, testParameters: TestRun
                 );
                 SmokeTestLogger.info(`${testname}: Chosen debug configuration: ${debugConfigName}`);
                 SmokeTestLogger.info(`${testname}: Starting debugging`);
-                await app.workbench.quickaccess.runDebugScenario(debugConfigName);
+                await automationHelper.runDebugScenarioWithRetry(debugConfigName);
 
                 let opts: any;
                 switch (platform) {
@@ -113,7 +128,7 @@ export function startDirectDebugTests(workspace: string, testParameters: TestRun
                     }
                     case Platform.iOS: {
                         const buildPath = IosSimulatorManager.getIOSBuildPath(
-                            `${workspace}/ios`,
+                            `${project.workspaceDirectory}/ios`,
                             `${SmokeTestsConstants.HermesAppName}.xcworkspace`,
                             "Debug",
                             SmokeTestsConstants.HermesAppName,
@@ -136,17 +151,24 @@ export function startDirectDebugTests(workspace: string, testParameters: TestRun
                 let isHermesWorking = await AppiumHelper.isHermesWorking(client, platform);
                 assert.strictEqual(isHermesWorking, true);
                 SmokeTestLogger.info(`${testname}: Reattaching to Hermes app`);
-                await app.workbench.debug.disconnectFromDebugger();
-                await app.workbench.quickaccess.runDebugScenario(RNHermesAttachConfigName);
+                await automationHelper.disconnectFromDebuggerWithRetry();
+                await automationHelper.runDebugScenarioWithRetry(RNHermesAttachConfigName);
                 SmokeTestLogger.info(`${testname}: Reattached successfully`);
                 await sleep(7000);
                 SmokeTestLogger.info(`${testname}: Click Test Button`);
-                await AppiumHelper.clickTestButtonHermes(client, platform);
-                await app.workbench.debug.waitForStackFrame(
+                await automationHelper.waitForStackFrameWithRetry(
                     sf =>
                         sf.name === "AppTestButton.js" &&
                         sf.lineNumber === RNHermesSetBreakpointOnLine,
                     `looking for AppTestButton.js and line ${RNHermesSetBreakpointOnLine}`,
+                    5,
+                    60,
+                    1000,
+                    async () =>
+                        await AppiumHelper.clickTestButtonHermes(
+                            client || (await AppiumHelper.webdriverAttach(opts)),
+                            platform,
+                        ),
                 );
                 SmokeTestLogger.info(`${testname}: Stack frame found`);
                 await app.workbench.debug.continue();
@@ -166,7 +188,7 @@ export function startDirectDebugTests(workspace: string, testParameters: TestRun
                         `${testname}: "Test output from Hermes debuggee" string is found`,
                     );
                 }
-                await app.workbench.debug.disconnectFromDebugger();
+                await automationHelper.disconnectFromDebuggerWithRetry();
                 SmokeTestLogger.info(`${testname}: Debugging is stopped`);
             } catch (e) {
                 SmokeTestLogger.error(`${testname} failed: ${e.toString()}`);
