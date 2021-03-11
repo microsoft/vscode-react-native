@@ -125,9 +125,17 @@ export class ExponentHelper {
             });
     }
 
-    public getExpPackagerOptions(): Promise<ExpConfigPackager> {
+    private async getArgumentsFromExpoMetroConfig(projectRoot: string): Promise<ExpMetroConfig> {
+        return XDL.getMetroConfig(projectRoot).then(config => {
+            return { sourceExts: config.resolver.sourceExts };
+        });
+    }
+
+    public async getExpPackagerOptions(projectRoot: string): Promise<ExpMetroConfig> {
         this.lazilyInitialize();
-        return this.getFromExpConfig("packagerOpts").then(opts => opts || {});
+        const options = await this.getFromExpConfig<any>("packagerOpts").then(opts => opts || {});
+        const metroConfig = await this.getArgumentsFromExpoMetroConfig(projectRoot);
+        return { ...options, ...metroConfig };
     }
 
     public appHasExpoInstalled(): Promise<boolean> {
@@ -334,7 +342,7 @@ var entryPoint = require('${entryPoint}');`;
         });
     }
 
-    private getFromExpConfig(key: string): Promise<any> {
+    private getFromExpConfig<T>(key: string): Promise<T> {
         return this.getExpConfig().then((config: ExpConfig) => config[key]);
     }
 

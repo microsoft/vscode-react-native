@@ -304,6 +304,8 @@ If you want to change your app entrypoint (for example, from `index.js` to `inde
 
 ### How to launch and debug a React Native for Windows application
 
+Before launching and debugging a React Native for Windows application, please make sure that your development environment is configured properly in accordance with [the official system requirements](https://microsoft.github.io/react-native-windows/docs/rnw-dependencies).
+
 You can debug UWP and WPF React Native for Windows applications by changing the `platform` in your `launch.json` configuration:
 
 - For `UWP` use `windows`:
