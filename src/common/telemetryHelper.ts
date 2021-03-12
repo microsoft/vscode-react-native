@@ -200,9 +200,9 @@ export class TelemetryHelper {
         } else {
             this.addTelemetryEventProperty(
                 event,
-                `${errorPropPrefix}error.message`,
-                error.message,
-                isPii,
+                `${errorPropPrefix}error.code`,
+                InternalErrorCode.UnknownError,
+                false,
             );
         }
     }
