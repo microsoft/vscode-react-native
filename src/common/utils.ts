@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 import * as path from "path";
 
-export function getFileNameWithoutExtension(fileName: string) {
+export function getFileNameWithoutExtension(fileName: string): string {
     return path.basename(fileName, path.extname(fileName));
 }
 

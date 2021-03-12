@@ -19,21 +19,28 @@ export class QuickInput {
         await this.waitForQuickInputClosed();
     }
 
-    public async waitForQuickInputOpened(retryCount?: number): Promise<void> {
-        await this.code.waitForActiveElement(QuickInput.QUICK_INPUT_INPUT, retryCount);
+    public async waitForQuickInputOpened(): Promise<void> {
+        await this.code.waitForActiveElement(QuickInput.QUICK_INPUT_INPUT);
     }
 
-    public async selectQuickInputElement(index: number): Promise<void> {
+    public async selectQuickInputElement(index: number, close: boolean = true): Promise<void> {
         await this.waitForQuickInputOpened();
         for (let from = 0; from < index; from++) {
             await this.code.dispatchKeybinding("down");
         }
         await this.code.dispatchKeybinding("enter");
-        await this.waitForQuickInputClosed();
+        if (close) {
+            await this.waitForQuickInputClosed();
+        }
     }
 
     private async waitForQuickInputClosed(): Promise<void> {
         await this.code.waitForElement(QuickInput.QUICK_INPUT, r => !!r && r.attributes.style.indexOf("display: none;") !== -1);
+    }
+
+    public async inputAndSelect(text: string): Promise<void> {
+        await this.code.waitForSetValue(QuickInput.QUICK_INPUT_INPUT, text);
+        await this.code.dispatchKeybinding("enter");
     }
 
     public async submit(text: string): Promise<void> {

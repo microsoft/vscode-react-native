@@ -8,8 +8,6 @@ export abstract class BaseCDPMessageHandler implements ICDPMessageHandler {
     protected debuggerTarget: Connection | null;
     protected applicationTarget: Connection | null;
 
-    constructor() {}
-
     public processDebuggerCDPMessage(event: any): ProcessedCDPMessage {
         return {
             event,

@@ -12,44 +12,50 @@ export class FileSystem {
     }
 
     public ensureDirectory(dir: string): Promise<void> {
-        return this.stat(dir).then((stat: nodeFs.Stats): void => {
-            if (stat.isDirectory()) {
-                return;
-            }
-            throw new Error(`Expected ${dir} to be a directory`);
-        }, (err: Error & { code?: string }): Promise<any> => {
-            if (err && err.code === "ENOENT") {
-                return this.mkDir(dir);
-            }
-            throw err;
-        });
+        return this.stat(dir).then(
+            (stat: nodeFs.Stats): void => {
+                if (stat.isDirectory()) {
+                    return;
+                }
+                throw new Error(`Expected ${dir} to be a directory`);
+            },
+            (err: Error & { code?: string }): Promise<any> => {
+                if (err && err.code === "ENOENT") {
+                    return this.mkDir(dir);
+                }
+                throw err;
+            },
+        );
     }
 
     public ensureFileWithContents(file: string, contents: string): Promise<void> {
-        return this.stat(file).then((stat: nodeFs.Stats) => {
-            if (!stat.isFile()) {
-                throw new Error(`Expected ${file} to be a file`);
-            }
+        return this.stat(file).then(
+            (stat: nodeFs.Stats) => {
+                if (!stat.isFile()) {
+                    throw new Error(`Expected ${file} to be a file`);
+                }
 
-            return this.readFile(file).then(existingContents => {
-                if (contents !== existingContents) {
+                return this.readFile(file).then(existingContents => {
+                    if (contents !== existingContents) {
+                        return this.writeFile(file, contents);
+                    }
+                    return Promise.resolve();
+                });
+            },
+            (err: Error & { code?: string }): Promise<any> => {
+                if (err && err.code === "ENOENT") {
                     return this.writeFile(file, contents);
                 }
-                return Promise.resolve();
-            });
-        }, (err: Error & { code?: string }): Promise<any> => {
-            if (err && err.code === "ENOENT") {
-                return this.writeFile(file, contents);
-            }
-            throw err;
-        });
+                throw err;
+            },
+        );
     }
 
     /**
      *  Helper function to check if a file or directory exists
      */
     public existsSync(filename: string): boolean {
-            return this.fs.existsSync(filename);
+        return this.fs.existsSync(filename);
     }
 
     /**
@@ -60,7 +66,7 @@ export class FileSystem {
             .then(() => {
                 return Promise.resolve(true);
             })
-            .catch((err) => {
+            .catch(() => {
                 return Promise.resolve(false);
             });
     }
@@ -91,7 +97,7 @@ export class FileSystem {
         return this.fs.promises.copyFile(from, to);
     }
 
-    public deleteFileIfExistsSync(filename: string) {
+    public deleteFileIfExistsSync(filename: string): void {
         if (this.existsSync(filename)) {
             this.fs.unlinkSync(filename);
         }
@@ -118,13 +124,13 @@ export class FileSystem {
     }
 
     public directoryExists(directoryPath: string): Promise<boolean> {
-        return this.stat(directoryPath).then(stats => {
-            return stats.isDirectory();
-        }).catch(reason => {
-            return reason.code === "ENOENT"
-                ? false
-                : Promise.reject<boolean>(reason);
-        });
+        return this.stat(directoryPath)
+            .then(stats => {
+                return stats.isDirectory();
+            })
+            .catch(reason => {
+                return reason.code === "ENOENT" ? false : Promise.reject<boolean>(reason);
+            });
     }
 
     /**
@@ -141,16 +147,18 @@ export class FileSystem {
         const exists = await this.exists(p);
         if (exists) {
             const stats = await this.stat(p);
-                if (stats.isDirectory()) {
-                    const childPaths = await this.readDir(p);
-                    childPaths.forEach(childPath => {
-                        return new Promise(() => this.removePathRecursivelyAsync(path.join(p, childPath)));
-                    });
-                    this.rmdir(p);
-                } else {
-                    /* file */
-                    return this.unlink(p);
-                }
+            if (stats.isDirectory()) {
+                const childPaths = await this.readDir(p);
+                await Promise.all(
+                    childPaths.map(childPath =>
+                        this.removePathRecursivelyAsync(path.join(p, childPath)),
+                    ),
+                );
+                await this.rmdir(p);
+            } else {
+                /* file */
+                return this.unlink(p);
+            }
         }
         return Promise.resolve();
     }
@@ -161,7 +169,8 @@ export class FileSystem {
             if (stats.isDirectory()) {
                 let contents = this.fs.readdirSync(p);
                 contents.forEach(childPath =>
-                    this.removePathRecursivelySync(path.join(p, childPath)));
+                    this.removePathRecursivelySync(path.join(p, childPath)),
+                );
                 this.fs.rmdirSync(p);
             } else {
                 /* file */

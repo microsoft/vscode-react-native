@@ -27,23 +27,8 @@ module.exports = {
       "@typescript-eslint/no-var-requires": "off",
       "@typescript-eslint/triple-slash-reference": "off",
       "@typescript-eslint/no-namespace": "off",
-      "@typescript-eslint/member-delimiter-style": ["error", {
-        multiline: {
-          delimiter: 'comma',
-          requireLast: true,
-        },
-        singleline: {
-          delimiter: 'comma',
-          requireLast: false,
-        },
-        overrides: {
-          interface: {
-              multiline: {
-                  delimiter: "semi",
-                  requireLast: true
-              }
-          }
-      }
+      "@typescript-eslint/explicit-module-boundary-types": ["warn" ,{
+        allowArgumentsExplicitlyTypedAsAny: true
       }],
       "prefer-const": "off",
       "header/header": [

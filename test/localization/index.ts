@@ -5,7 +5,7 @@ import * as path from "path";
 import * as Mocha from "mocha";
 
 export function run(): Promise<void> {
-    const mocha = new Mocha ({
+    const mocha = new Mocha({
         ui: "tdd",
         grep: RegExp("localizationContext"),
         reporter: "mocha-multi-reporters",
@@ -36,4 +36,3 @@ export function run(): Promise<void> {
         }
     });
 }
-

@@ -7,7 +7,7 @@ import {
     WebSocketTransport,
     IProtocolCommand,
     IProtocolError,
-    IProtocolSuccess
+    IProtocolSuccess,
 } from "vscode-cdp-proxy";
 import { IncomingMessage } from "http";
 import { CancellationToken } from "vscode";
@@ -17,7 +17,6 @@ import { DebuggerEndpointHelper } from "./debuggerEndpointHelper";
 import { BaseCDPMessageHandler } from "./CDPMessageHandlers/baseCDPMessageHandler";
 
 export class ReactNativeCDPProxy {
-
     private readonly PROXY_LOG_TAGS = {
         DEBUGGER_COMMAND: "Command Debugger To Target",
         APPLICATION_COMMAND: "Command Target To Debugger",
@@ -41,7 +40,12 @@ export class ReactNativeCDPProxy {
     constructor(hostAddress: string, port: number, logLevel: LogLevel = LogLevel.None) {
         this.port = port;
         this.hostAddress = hostAddress;
-        this.logger = OutputChannelLogger.getChannel("React Native Chrome Proxy", true, false, true);
+        this.logger = OutputChannelLogger.getChannel(
+            "React Native Chrome Proxy",
+            process.env.REACT_NATIVE_TOOLS_LAZY_LOGS === "false" ? false : true,
+            false,
+            true,
+        );
         this.logLevel = logLevel;
         this.browserInspectUri = "";
         this.debuggerEndpointHelper = new DebuggerEndpointHelper();
@@ -50,17 +54,16 @@ export class ReactNativeCDPProxy {
     public initializeServer(
         CDPMessageHandler: BaseCDPMessageHandler,
         logLevel: LogLevel,
-        cancellationToken?: CancellationToken
+        cancellationToken?: CancellationToken,
     ): Promise<void> {
         this.logLevel = logLevel;
         this.CDPMessageHandler = CDPMessageHandler;
         this.cancellationToken = cancellationToken;
 
-        return Server.create({ port: this.port, host: this.hostAddress })
-            .then((server: Server) => {
-                this.server = server;
-                this.server.onConnection(this.onConnectionHandler.bind(this));
-            });
+        return Server.create({ port: this.port, host: this.hostAddress }).then((server: Server) => {
+            this.server = server;
+            this.server.onConnection(this.onConnectionHandler.bind(this));
+        });
     }
 
     public async stopServer(): Promise<void> {
@@ -78,7 +81,7 @@ export class ReactNativeCDPProxy {
         this.cancellationToken = undefined;
     }
 
-    public setBrowserInspectUri(browserInspectUri: string) {
+    public setBrowserInspectUri(browserInspectUri: string): void {
         this.browserInspectUri = browserInspectUri;
     }
 
@@ -86,7 +89,11 @@ export class ReactNativeCDPProxy {
         this.applicationTargetPort = applicationTargetPort;
     }
 
-    private async onConnectionHandler([debuggerTarget, request]: [Connection, IncomingMessage]): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    private async onConnectionHandler([debuggerTarget, request]: [
+        Connection,
+        IncomingMessage,
+    ]): Promise<void> {
         this.debuggerTarget = debuggerTarget;
 
         this.debuggerTarget.pause(); // don't listen for events until the target is ready
@@ -96,14 +103,18 @@ export class ReactNativeCDPProxy {
                 this.browserInspectUri = await this.debuggerEndpointHelper.retryGetWSEndpoint(
                     `http://localhost:${this.applicationTargetPort}`,
                     90,
-                    this.cancellationToken
+                    this.cancellationToken,
                 );
             } else {
-                this.browserInspectUri = await this.debuggerEndpointHelper.getWSEndpoint(`http://localhost:${this.applicationTargetPort}`);
+                this.browserInspectUri = await this.debuggerEndpointHelper.getWSEndpoint(
+                    `http://localhost:${this.applicationTargetPort}`,
+                );
             }
         }
 
-        this.applicationTarget = new Connection(await WebSocketTransport.create(this.browserInspectUri));
+        this.applicationTarget = new Connection(
+            await WebSocketTransport.create(this.browserInspectUri),
+        );
 
         this.applicationTarget.onError(this.onApplicationTargetError.bind(this));
         this.debuggerTarget.onError(this.onDebuggerTargetError.bind(this));
@@ -125,7 +136,11 @@ export class ReactNativeCDPProxy {
     }
 
     private handleDebuggerTargetCommand(event: IProtocolCommand) {
-        this.logger.logWithCustomTag(this.PROXY_LOG_TAGS.DEBUGGER_COMMAND, JSON.stringify(event, null , 2), this.logLevel);
+        this.logger.logWithCustomTag(
+            this.PROXY_LOG_TAGS.DEBUGGER_COMMAND,
+            JSON.stringify(event, null, 2),
+            this.logLevel,
+        );
         const processedMessage = this.CDPMessageHandler.processDebuggerCDPMessage(event);
 
         if (processedMessage.sendBack) {
@@ -136,7 +151,11 @@ export class ReactNativeCDPProxy {
     }
 
     private handleApplicationTargetCommand(event: IProtocolCommand) {
-        this.logger.logWithCustomTag(this.PROXY_LOG_TAGS.APPLICATION_COMMAND, JSON.stringify(event, null , 2), this.logLevel);
+        this.logger.logWithCustomTag(
+            this.PROXY_LOG_TAGS.APPLICATION_COMMAND,
+            JSON.stringify(event, null, 2),
+            this.logLevel,
+        );
         const processedMessage = this.CDPMessageHandler.processApplicationCDPMessage(event);
 
         if (processedMessage.sendBack) {
@@ -147,7 +166,11 @@ export class ReactNativeCDPProxy {
     }
 
     private handleDebuggerTargetReply(event: IProtocolError | IProtocolSuccess) {
-        this.logger.logWithCustomTag(this.PROXY_LOG_TAGS.DEBUGGER_REPLY, JSON.stringify(event, null , 2), this.logLevel);
+        this.logger.logWithCustomTag(
+            this.PROXY_LOG_TAGS.DEBUGGER_REPLY,
+            JSON.stringify(event, null, 2),
+            this.logLevel,
+        );
         const processedMessage = this.CDPMessageHandler.processDebuggerCDPMessage(event);
 
         if (processedMessage.sendBack) {
@@ -158,7 +181,11 @@ export class ReactNativeCDPProxy {
     }
 
     private handleApplicationTargetReply(event: IProtocolError | IProtocolSuccess) {
-        this.logger.logWithCustomTag(this.PROXY_LOG_TAGS.APPLICATION_REPLY, JSON.stringify(event, null , 2), this.logLevel);
+        this.logger.logWithCustomTag(
+            this.PROXY_LOG_TAGS.APPLICATION_REPLY,
+            JSON.stringify(event, null, 2),
+            this.logLevel,
+        );
         const processedMessage = this.CDPMessageHandler.processApplicationCDPMessage(event);
 
         if (processedMessage.sendBack) {
@@ -182,7 +209,7 @@ export class ReactNativeCDPProxy {
 
     private async onDebuggerTargetClosed() {
         this.browserInspectUri = "";
-        this.CDPMessageHandler.processDebuggerCDPMessage({method: "close"});
+        this.CDPMessageHandler.processDebuggerCDPMessage({ method: "close" });
         this.debuggerTarget = null;
     }
 }

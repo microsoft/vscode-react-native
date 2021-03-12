@@ -12,11 +12,14 @@ import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { InternalError, NestedError } from "../common/error/internalError";
-import { ILaunchArgs, PlatformType } from "../extension/launchArgs";
+import { IRunOptions, PlatformType } from "../extension/launchArgs";
 import { AppLauncher } from "../extension/appLauncher";
 import { LogLevel } from "../extension/log/LogHelper";
 import * as nls from "vscode-nls";
-nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
+nls.config({
+    messageFormat: nls.MessageFormat.bundle,
+    bundleFormat: nls.BundleFormat.standalone,
+})();
 const localize = nls.loadMessageBundle();
 
 /**
@@ -42,12 +45,16 @@ export interface TerminateEventArgs {
     args: any;
 }
 
-export interface IAttachRequestArgs extends DebugProtocol.AttachRequestArguments, ILaunchArgs {
+export interface IAttachRequestArgs
+    extends DebugProtocol.AttachRequestArguments,
+        IRunOptions,
+        vscode.DebugConfiguration {
     webkitRangeMax: number;
     webkitRangeMin: number;
-    cwd: string; /* Automatically set by VS Code to the currently opened folder */
+    cwd: string /* Automatically set by VS Code to the currently opened folder */;
     port: number;
     url?: string;
+    useHermesEngine: boolean;
     address?: string;
     trace?: string;
     skipFiles?: [];
@@ -55,12 +62,14 @@ export interface IAttachRequestArgs extends DebugProtocol.AttachRequestArguments
     sourceMapPathOverrides?: { [key: string]: string };
 }
 
-export interface ILaunchRequestArgs extends DebugProtocol.LaunchRequestArguments, IAttachRequestArgs { }
+export interface ILaunchRequestArgs
+    extends DebugProtocol.LaunchRequestArguments,
+        IAttachRequestArgs {}
 
 export abstract class DebugSessionBase extends LoggingDebugSession {
-
     protected static rootSessionTerminatedEventEmitter: vscode.EventEmitter<TerminateEventArgs> = new vscode.EventEmitter<TerminateEventArgs>();
-    public static readonly onDidTerminateRootDebugSession = DebugSessionBase.rootSessionTerminatedEventEmitter.event;
+    public static readonly onDidTerminateRootDebugSession =
+        DebugSessionBase.rootSessionTerminatedEventEmitter.event;
 
     protected readonly stopCommand: string;
     protected readonly pwaNodeSessionName: string;
@@ -88,7 +97,11 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         this.cancellationTokenSource = new vscode.CancellationTokenSource();
     }
 
-    protected initializeRequest(response: DebugProtocol.InitializeResponse, args: DebugProtocol.InitializeRequestArguments): void {
+    protected initializeRequest(
+        response: DebugProtocol.InitializeResponse,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        args: DebugProtocol.InitializeRequestArguments,
+    ): void {
         response.body = response.body || {};
 
         response.body.supportsConfigurationDoneRequest = true;
@@ -99,7 +112,10 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         this.sendResponse(response);
     }
 
-    protected abstract establishDebugSession(attachArgs: IAttachRequestArgs, resolve?: (value?: void | PromiseLike<void> | undefined) => void): void;
+    protected abstract establishDebugSession(
+        attachArgs: IAttachRequestArgs,
+        resolve?: (value?: void | PromiseLike<void> | undefined) => void,
+    ): void;
 
     protected initializeSettings(args: any): Promise<any> {
         if (!this.isSettingsInitialized) {
@@ -111,10 +127,12 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
             if (logLevel) {
                 logLevel = logLevel.replace(logLevel[0], logLevel[0].toUpperCase());
                 logger.setup(Logger.LogLevel[logLevel], chromeDebugCoreLogs || false);
-                this.cdpProxyLogLevel = LogLevel[logLevel] === LogLevel.Verbose ? LogLevel.Custom : LogLevel.None;
+                this.cdpProxyLogLevel =
+                    LogLevel[logLevel] === LogLevel.Verbose ? LogLevel.Custom : LogLevel.None;
             } else {
                 logger.setup(Logger.LogLevel.Log, chromeDebugCoreLogs || false);
-                this.cdpProxyLogLevel = LogHelper.LOG_LEVEL === LogLevel.Trace ? LogLevel.Custom : LogLevel.None;
+                this.cdpProxyLogLevel =
+                    LogHelper.LOG_LEVEL === LogLevel.Trace ? LogLevel.Custom : LogLevel.None;
             }
 
             if (typeof args.sourceMaps !== "boolean") {
@@ -126,23 +144,29 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
             }
 
             const projectRootPath = getProjectRoot(args);
-            return ReactNativeProjectHelper.isReactNativeProject(projectRootPath)
-                .then((result) => {
-                    if (!result) {
-                        throw ErrorHelper.getInternalError(InternalErrorCode.NotInReactNativeFolderError);
-                    }
-                    this.projectRootPath = projectRootPath;
-                    this.appLauncher = AppLauncher.getAppLauncherByProjectRootPath(projectRootPath);
-                    this.isSettingsInitialized = true;
+            return ReactNativeProjectHelper.isReactNativeProject(projectRootPath).then(result => {
+                if (!result) {
+                    throw ErrorHelper.getInternalError(
+                        InternalErrorCode.NotInReactNativeFolderError,
+                    );
+                }
+                this.projectRootPath = projectRootPath;
+                this.appLauncher = AppLauncher.getAppLauncherByProjectRootPath(projectRootPath);
+                this.isSettingsInitialized = true;
 
-                    return void 0;
-                });
+                return void 0;
+            });
         } else {
             return Promise.resolve();
         }
     }
 
-    protected async disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): Promise<void> {
+    protected async disconnectRequest(
+        response: DebugProtocol.DisconnectResponse,
+        args: DebugProtocol.DisconnectArguments,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        request?: DebugProtocol.Request,
+    ): Promise<void> {
         if (this.appLauncher) {
             await this.appLauncher.getRnCdpProxy().stopServer();
         }
@@ -153,9 +177,15 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         // Then we tell the extension to stop monitoring the logcat, and then we disconnect the debugging session
         if (this.previousAttachArgs && this.previousAttachArgs.platform === PlatformType.Android) {
             try {
-                this.appLauncher.stopMonitoringLogCat();
+                this.appLauncher.getMobilePlatform().dispose();
             } catch (err) {
-                logger.warn(localize("CouldNotStopMonitoringLogcat", "Couldn't stop monitoring logcat: {0}", err.message || err));
+                logger.warn(
+                    localize(
+                        "CouldNotStopMonitoringLogcat",
+                        "Couldn't stop monitoring logcat: {0}",
+                        err.message || err,
+                    ),
+                );
             }
         }
 
@@ -172,10 +202,10 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
     }
 
     protected showError(error: Error, response: DebugProtocol.Response): void {
-
         // We can't print error messages after the debugging session is stopped. This could break the extension work.
-        if ((error instanceof InternalError || error instanceof NestedError)
-            && error.errorCode === InternalErrorCode.CancellationTokenTriggered
+        if (
+            (error instanceof InternalError || error instanceof NestedError) &&
+            error.errorCode === InternalErrorCode.CancellationTokenTriggered
         ) {
             return;
         }
@@ -185,7 +215,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
             { format: error.message, id: 1 },
             undefined,
             undefined,
-            ErrorDestination.User
+            ErrorDestination.User,
         );
     }
 }
@@ -200,10 +230,14 @@ export function getProjectRoot(args: any): string {
         let settingsContent = fs.readFileSync(settingsPath, "utf8");
         settingsContent = stripJsonComments(settingsContent);
         let parsedSettings = JSON.parse(settingsContent);
-        let projectRootPath = parsedSettings["react-native-tools.projectRoot"] || parsedSettings["react-native-tools"].projectRoot;
+        let projectRootPath =
+            parsedSettings["react-native-tools.projectRoot"] ||
+            parsedSettings["react-native-tools"].projectRoot;
         return path.resolve(vsCodeRoot, projectRootPath);
     } catch (e) {
-        logger.verbose(`${settingsPath} file doesn't exist or its content is incorrect. This file will be ignored.`);
+        logger.verbose(
+            `${settingsPath} file doesn't exist or its content is incorrect. This file will be ignored.`,
+        );
         return args.cwd ? path.resolve(args.cwd) : path.resolve(args.program, "../..");
     }
 }

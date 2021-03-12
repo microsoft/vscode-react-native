@@ -6,7 +6,7 @@ import http = require("http");
 export class Request {
     public static request(url: string, expectStatusOK = false): Promise<any> {
         return new Promise((resolve, reject) => {
-            let req = http.get(url, function(res) {
+            let req = http.get(url, function (res) {
                 let responseString = "";
                 res.on("data", (data: Buffer) => {
                     responseString += data.toString();

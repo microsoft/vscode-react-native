@@ -5,22 +5,22 @@
   "scripts": {
     "postinstall": "tsc",
     "watch": "tsc --watch",
-    "mocha": "tsc && node ./node_modules/mocha/bin/_mocha --reporter mocha-multi-reporters --reporter-options configFile=./mochaReporterConfig.json"
+    "mocha": "tsc && node ./node_modules/mocha/bin/_mocha --config ./.mocharc.js --reporter mocha-multi-reporters --reporter-options configFile=./mochaReporterConfig.json"
   },
   "devDependencies": {
-    "@expo/xdl": "57.9.31",
+    "@expo/xdl": "59.0.17",
     "@types/clipboardy": "^2.0.1",
     "@types/gulp-filter": "^3.0.33",
     "@types/mkdirp": "^1.0.0",
     "@types/mocha": "^5.2.7",
-    "@types/node": "^10.14.4",
+    "@types/node": "12.19.7",
     "@types/request": "^2.48.1",
     "@types/rimraf": "2.0.2",
     "@types/semver": "^6.0.0",
     "@types/url-parse": "^1.4.3",
     "@types/vinyl-fs": "^2.4.11",
     "@types/vinyl-source-stream": "^0.0.30",
-    "@types/webdriverio": "^4.13.0",
+    "ansi-styles": "^4.3.0",
     "clipboardy": "^2.1.0",
     "gulp-chmod": "^2.0.0",
     "gulp-filter": "^5.0.1",
@@ -36,19 +36,15 @@
     "request": "^2.88.0",
     "rimraf": "^2.6.1",
     "tree-kill": "^1.2.2",
-    "typescript": "^3.7.5",
+    "typescript": "3.7.5",
     "url-parse": "^1.4.3",
     "vinyl-fs": "^3.0.3",
     "vinyl-source-stream": "^1.1.0",
-    "webdriverio": "^4.13.0"
+    "webdriverio": "6.10.0"
   },
   "resolutions": {
-    "@expo/xdl/analytics-node/axios": "^0.19.0",
-    "**/serialize-javascript": "^3.1.0",
-    "**/tree-kill": "^1.2.2",
-    "**/minimist": "^1.2.3",
-    "lodash": "^4.17.19",
-    "dot-prop": "^5.2.0",
-    "bl": "^1.2.3"
+    "@expo/xdl/analytics-node/axios": "^0.21.1",
+    "lodash": "^4.17.20",
+    "@expo/xdl/node-forge": "^0.10.0"
   }
 }

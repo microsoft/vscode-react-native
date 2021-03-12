@@ -40,7 +40,7 @@ export class Workbench {
     public readonly keybindingsEditor: KeybindingsEditor;
     public readonly terminal: Terminal;
 
-    constructor(code: Code, userDataPath: string) {
+    constructor(public readonly code: Code, userDataPath: string) {
         this.editors = new Editors(code);
         this.quickinput = new QuickInput(code);
         this.quickaccess = new QuickAccess(code, this.editors, this.quickinput);

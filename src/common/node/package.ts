@@ -7,7 +7,6 @@ import { FileSystem } from "./fileSystem";
 import { ErrorHelper } from "../error/errorHelper";
 import { InternalErrorCode } from "../error/internalErrorCode";
 
-
 interface IPackageDependencyDict {
     [packageName: string]: string;
 }
@@ -38,9 +37,9 @@ export class Package {
     }
 
     public parsePackageInformation(): Promise<IPackageInformation> {
-        return this.fileSystem.readFile(this.informationJsonFilePath(), "utf8")
-            .then(data =>
-                <IPackageInformation>JSON.parse(data.toString()));
+        return this.fileSystem
+            .readFile(this.informationJsonFilePath(), "utf8")
+            .then(data => <IPackageInformation>JSON.parse(data.toString()));
     }
 
     public name(): Promise<string> {
@@ -59,23 +58,32 @@ export class Package {
         return this.parseProperty("version").then(version =>
             typeof version === "string"
                 ? version
-                : Promise.reject<string>(ErrorHelper.getInternalError(InternalErrorCode.CouldNotParsePackageVersion, this.informationJsonFilePath(), version)));
+                : Promise.reject<string>(
+                      ErrorHelper.getInternalError(
+                          InternalErrorCode.CouldNotParsePackageVersion,
+                          this.informationJsonFilePath(),
+                          version,
+                      ),
+                  ),
+        );
     }
 
     public setMainFile(value: string): Promise<void> {
-        return this.parsePackageInformation()
-            .then(packageInformation => {
-                packageInformation.main = value;
-                return this.fileSystem.writeFile(this.informationJsonFilePath(), JSON.stringify(<Record<string, any>>packageInformation));
-            });
+        return this.parsePackageInformation().then(packageInformation => {
+            packageInformation.main = value;
+            return this.fileSystem.writeFile(
+                this.informationJsonFilePath(),
+                JSON.stringify(<Record<string, any>>packageInformation),
+            );
+        });
     }
 
-    public dependencyPath(dependencyName: string) {
+    public dependencyPath(dependencyName: string): string {
         return pathModule.resolve(this._path, this.DEPENDENCIES_SUBFOLDER, dependencyName);
     }
 
     public dependencyPackage(dependencyName: string): Package {
-        return new Package(this.dependencyPath(dependencyName), { fileSystem: this.fileSystem});
+        return new Package(this.dependencyPath(dependencyName), { fileSystem: this.fileSystem });
     }
 
     public informationJsonFilePath(): string {
@@ -83,8 +91,6 @@ export class Package {
     }
 
     private parseProperty(name: string): Promise<any> {
-        return this.parsePackageInformation()
-            .then(packageInformation =>
-                packageInformation[name]);
+        return this.parsePackageInformation().then(packageInformation => packageInformation[name]);
     }
 }

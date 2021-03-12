@@ -2,39 +2,62 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { Application } from "../../automation";
-import { runVSCode, RNworkspacePath } from "./main";
+import { vscodeManager } from "./main";
 import * as assert from "assert";
-import * as path from "path";
-import { sleep, findStringInFile } from "./helpers/utilities";
+import { sleep } from "./helpers/utilities";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
+import { SmokeTestLogger } from "./helpers/smokeTestLogger";
+import TestProject from "./helpers/testProject";
+import AutomationHelper from "./helpers/AutomationHelper";
 
 const startPackagerCommand = "Start Packager";
 const packagerStartedCheck = "Запуск упаковщика";
-export function setup() {
+export function startLocalizationTests(project: TestProject): void {
     describe("Localization test", () => {
         let app: Application;
+        let automationHelper: AutomationHelper;
+
+        async function initApp(
+            workspaceOrFolder: string,
+            sessionName?: string,
+            locale?: string,
+        ): Promise<Application> {
+            app = await vscodeManager.runVSCode(workspaceOrFolder, sessionName, locale);
+            automationHelper = new AutomationHelper(app);
+            return app;
+        }
 
         afterEach(async () => {
+            SmokeTestLogger.info("Dispose all ...");
             if (app) {
+                SmokeTestLogger.info("Stopping React Native packager ...");
+                await automationHelper.runCommandWithRetry(SmokeTestsConstants.stopPackagerCommand);
+                await sleep(3000);
                 await app.stop();
             }
         });
 
         it("Test localization", async function () {
-            app = await runVSCode(RNworkspacePath, "ru");
-            console.log("Localization test: Starting packager");
-            await app.workbench.quickaccess.runCommand(startPackagerCommand);
-            await sleep(10 * 1000);
-            if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
-                console.log(`Localization test: Search for '${packagerStartedCheck}' string output`);
-                const found = findStringInFile(path.join(process.env.REACT_NATIVE_TOOLS_LOGS_DIR, SmokeTestsConstants.ReactNativeLogFileName), packagerStartedCheck);
+            try {
+                app = await initApp(project.workspaceDirectory, "LocalizationTest", "ru");
+                SmokeTestLogger.info("Localization test: Starting packager");
+                await automationHelper.runCommandWithRetry(startPackagerCommand);
+                await sleep(10 * 1000);
+                SmokeTestLogger.info(
+                    `Localization test: Search for '${packagerStartedCheck}' string output`,
+                );
+                const found = vscodeManager.findStringInLogs(
+                    packagerStartedCheck,
+                    SmokeTestsConstants.ReactNativeLogFileName,
+                );
                 if (found) {
-                    console.log(`Localization test: Output found`);
+                    SmokeTestLogger.success(`Localization test: Output found`);
                 } else {
                     assert.fail("Localized RU string is not found in log file");
                 }
-            } else {
-                assert.fail("REACT_NATIVE_TOOLS_LOGS_DIR is not defined");
+            } catch (e) {
+                SmokeTestLogger.error("Localization test failed: " + e);
+                return this.skip();
             }
         });
     });

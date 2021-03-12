@@ -32,12 +32,14 @@ export class LaunchScenariosManager {
         if (this.launchScenarios.configurations) {
             for (let i = 0; i < this.launchScenarios.configurations.length; i++) {
                 const config = this.launchScenarios.configurations[i];
-                if (scenario.name === config.name &&
+                if (
+                    scenario.name === config.name &&
                     scenario.platform === config.platform &&
                     scenario.type === config.type &&
-                    scenario.request === config.request) {
-                        return i;
-                    }
+                    scenario.request === config.request
+                ) {
+                    return i;
+                }
             }
         }
         return null;
@@ -56,7 +58,7 @@ export class LaunchScenariosManager {
         }
     }
 
-    public updateLaunchScenario(launchArgs: any, updates: any) {
+    public updateLaunchScenario(launchArgs: any, updates: any): void {
         this.readLaunchScenarios();
         let launchConfigIndex = this.getFirstScenarioIndexByParams(launchArgs);
         const launchScenarios = this.getLaunchScenarios();

@@ -1,23 +1,19 @@
 trigger:
   - master
-  - preview
 pr:
   - master
-  - preview
 
 variables:
   vswdbotLogin: vswdbot
-  appiumVersion: 1.17.1
-  basicOnly: false
+  appiumVersion: 1.19.0
   expoCLIVersion: latest
-  nightlyBuild: false
   smokeTestDirectory: test/smoke
 
 jobs:
   - job: Windows
     pool:
       name: "React Native smoke tests - Windows"
-    timeoutInMinutes: 60
+    timeoutInMinutes: 80
     steps:
       - checkout: self
         clean: true

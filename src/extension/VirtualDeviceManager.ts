@@ -3,7 +3,10 @@
 
 import * as nls from "vscode-nls";
 import { QuickPickOptions, window } from "vscode";
-nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
+nls.config({
+    messageFormat: nls.MessageFormat.bundle,
+    bundleFormat: nls.BundleFormat.standalone,
+})();
 const localize = nls.loadMessageBundle();
 
 export interface IVirtualDevice {
@@ -12,13 +15,17 @@ export interface IVirtualDevice {
 }
 
 export abstract class VirtualDeviceManager {
-
-    protected async selectVirtualDevice(filter?: (el: IVirtualDevice) => unknown): Promise<string | undefined> {
+    protected async selectVirtualDevice(
+        filter?: (el: IVirtualDevice) => unknown,
+    ): Promise<string | undefined> {
         const emulatorsList = await this.getVirtualDevicesNamesList(filter);
         const quickPickOptions: QuickPickOptions = {
             ignoreFocusOut: true,
             canPickMany: false,
-            placeHolder: localize("SelectVirtualDevice", "Select virtual device for launch application"),
+            placeHolder: localize(
+                "SelectVirtualDevice",
+                "Select virtual device for launch application",
+            ),
         };
         let result: string | undefined = emulatorsList[0];
         if (emulatorsList.length > 1) {
@@ -29,7 +36,7 @@ export abstract class VirtualDeviceManager {
 
     public abstract async startSelection(): Promise<string | undefined>;
 
-    protected abstract async getVirtualDevicesNamesList(filter?: (el: IVirtualDevice) => unknown): Promise<string[]>;
-
-
+    protected abstract async getVirtualDevicesNamesList(
+        filter?: (el: IVirtualDevice) => unknown,
+    ): Promise<string[]>;
 }

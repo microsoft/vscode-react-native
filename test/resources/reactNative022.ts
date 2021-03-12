@@ -3,14 +3,14 @@
 
 import * as path from "path";
 import * as assert from "assert";
-import {PromiseUtil} from "../../src/common/node/promise";
-import {IAndroidRunOptions} from "../../src/extension/launchArgs";
-import {ISpawnResult} from "../../src/common/node/childProcess";
-import {FileSystem} from "../../src/common/node/fileSystem";
-import {Package} from "../../src/common/node/package";
-import {Recording, Simulator} from "./processExecution/simulator";
-import {AdbHelper} from "../../src/extension/android/adb";
-import {APKSerializer} from "./simulators/apkSerializer";
+import { PromiseUtil } from "../../src/common/node/promise";
+import { IAndroidRunOptions } from "../../src/extension/launchArgs";
+import { ISpawnResult } from "../../src/common/node/childProcess";
+import { FileSystem } from "../../src/common/node/fileSystem";
+import { Package } from "../../src/common/node/package";
+import { Recording, Simulator } from "./processExecution/simulator";
+import { AdbHelper } from "../../src/extension/android/adb";
+import { APKSerializer } from "./simulators/apkSerializer";
 
 const sampleRNProjectPath = path.join(__dirname, "sampleReactNative022Project");
 const processExecutionsRecordingsPath = path.join(__dirname, "processExecutionsRecordings");
@@ -18,7 +18,6 @@ const processExecutionsRecordingsPath = path.join(__dirname, "processExecutionsR
 /* This class simulates calling the React-Native CLI v0.22. It currently supports react-native init
     and react-native run-android. */
 export class ReactNative022 {
-
     public static DEFAULT_PROJECT_FILE = path.join(sampleRNProjectPath, "package.json");
 
     private static ANDROID_APK_RELATIVE_PATH = "android/app/build/outputs/apk/app-debug.apk";
@@ -37,8 +36,10 @@ export class ReactNative022 {
                 action: () => this.installAppInAllDevices(), // 3. We install it on all available devices.
             },
         ],
-        beforeSuccess: (stdout: string, stderr: string) => // 4. If we didn't had any errors after starting to launch the app,
-            this.launchApp(stdout, stderr),                // it means we were succesful
+        beforeSuccess: (
+            stdout: string,
+            stderr: string, // 4. If we didn't had any errors after starting to launch the app,
+        ) => this.launchApp(stdout, stderr), // it means we were succesful
     });
 
     private recording: Recording;
@@ -57,7 +58,9 @@ export class ReactNative022 {
     }
 
     public loadRecordingFromName(recordingName: string): Promise<void> {
-        return this.loadRecordingFromFile(path.join(processExecutionsRecordingsPath, `${recordingName}.json`));
+        return this.loadRecordingFromFile(
+            path.join(processExecutionsRecordingsPath, `${recordingName}.json`),
+        );
     }
 
     public loadRecordingFromString(recordingContent: string): Promise<void> {
@@ -65,10 +68,9 @@ export class ReactNative022 {
     }
 
     public loadRecordingFromFile(recordingPath: string): Promise<void> {
-            return new FileSystem().readFile(recordingPath)
-            .then(fileContents => {
-                this.loadRecording(JSON.parse(fileContents.toString()));
-            });
+        return new FileSystem().readFile(recordingPath).then(fileContents => {
+            this.loadRecording(JSON.parse(fileContents.toString()));
+        });
     }
 
     public loadRecording(recording: Recording): void {
@@ -80,15 +82,20 @@ export class ReactNative022 {
         return Promise.resolve()
             .then(() => {
                 this.fileSystem.makeDirectoryRecursiveSync(projectRoot);
-                return this.projectFileContent !== undefined ?
-                    this.projectFileContent :
-                    this.readDefaultProjectFile();
-            }).then(defaultContents => {
+                return this.projectFileContent !== undefined
+                    ? this.projectFileContent
+                    : this.readDefaultProjectFile();
+            })
+            .then(defaultContents => {
                 const reactNativeConfiguration = JSON.parse(defaultContents.toString());
                 reactNativeConfiguration.name = projectName;
                 const reactNativeConfigurationFormatted = JSON.stringify(reactNativeConfiguration);
-                return this.fileSystem.writeFile(this.getPackageJsonPath(projectRoot), reactNativeConfigurationFormatted);
-            }).then(() => {
+                return this.fileSystem.writeFile(
+                    this.getPackageJsonPath(projectRoot),
+                    reactNativeConfigurationFormatted,
+                );
+            })
+            .then(() => {
                 return this.fileSystem.mkDir(this.getAndroidProjectPath(projectRoot));
             });
     }
@@ -114,12 +121,25 @@ export class ReactNative022 {
     }
 
     private createAPK(): Promise<void> {
-        return this.isAndroidProjectPresent().then(isPresent => {
-            return isPresent ? void 0 : Promise.reject<void>(new Error("The recording expects the Android project to be present, but it's not"));
-        }).then(() => {
-            this.androidAPKPath = path.join(this.projectRoot, ReactNative022.ANDROID_APK_RELATIVE_PATH);
-            return new APKSerializer(this.fileSystem).writeApk(this.androidAPKPath, { packageName: this.androidPackageName });
-        });
+        return this.isAndroidProjectPresent()
+            .then(isPresent => {
+                return isPresent
+                    ? void 0
+                    : Promise.reject<void>(
+                          new Error(
+                              "The recording expects the Android project to be present, but it's not",
+                          ),
+                      );
+            })
+            .then(() => {
+                this.androidAPKPath = path.join(
+                    this.projectRoot,
+                    ReactNative022.ANDROID_APK_RELATIVE_PATH,
+                );
+                return new APKSerializer(this.fileSystem).writeApk(this.androidAPKPath, {
+                    packageName: this.androidPackageName,
+                });
+            });
     }
 
     private isAndroidProjectPresent(): Promise<boolean> {
@@ -154,16 +174,27 @@ export class ReactNative022 {
         Starting: Intent { cmp=com.sampleapplication/.MainActivity }
         Error: some error happened
         **/
-        const succesfulOutputEnd = `Starting the app \\(.*adb shell am start -n ([^ /]+)\/\\.MainActivity\\)\\.\\.\\.\\s+`
-            + `Starting: Intent { cmp=([^ /]+)\/\\.MainActivity }\\s+$`;
+        const succesfulOutputEnd =
+            `Starting the app \\(.*adb shell am start -n ([^ /]+)\/\\.MainActivity\\)\\.\\.\\.\\s+` +
+            `Starting: Intent { cmp=([^ /]+)\/\\.MainActivity }\\s+$`;
         const matches = stdout.match(new RegExp(succesfulOutputEnd));
         if (matches) {
-            if (matches.length === 3 && matches[1] === this.androidPackageName && matches[2] === this.androidPackageName) {
+            if (
+                matches.length === 3 &&
+                matches[1] === this.androidPackageName &&
+                matches[2] === this.androidPackageName
+            ) {
                 return this.adbHelper.launchApp(this.projectRoot, this.androidPackageName);
             } else {
-                return Promise.reject<void>(new Error("There was an error while trying to match the Starting the app messages."
-                    + "Expected to match the pattern and recognize the expected android package name, but it failed."
-                    + `Expected android package name: ${this.androidPackageName}. Actual matches: ${JSON.stringify(matches)}`));
+                return Promise.reject<void>(
+                    new Error(
+                        "There was an error while trying to match the Starting the app messages." +
+                            "Expected to match the pattern and recognize the expected android package name, but it failed." +
+                            `Expected android package name: ${
+                                this.androidPackageName
+                            }. Actual matches: ${JSON.stringify(matches)}`,
+                    ),
+                );
             }
         } else {
             // The record doesn't indicate that the app was launched, so we don't do anything

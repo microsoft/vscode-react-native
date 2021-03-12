@@ -5,7 +5,10 @@ import { IVirtualDevice, VirtualDeviceManager } from "../VirtualDeviceManager";
 import { ChildProcess } from "../../common/node/childProcess";
 import { QuickPickOptions, window } from "vscode";
 import * as nls from "vscode-nls";
-nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
+nls.config({
+    messageFormat: nls.MessageFormat.bundle,
+    bundleFormat: nls.BundleFormat.standalone,
+})();
 const localize = nls.loadMessageBundle();
 
 export interface IiOSSimulator extends IVirtualDevice {
@@ -26,9 +29,15 @@ export class IOSSimulatorManager extends VirtualDeviceManager {
         this.simulators = [];
     }
 
-    public findSimulator(name: string, system: string | null = this.lastSelectedSystem, simulators?: IiOSSimulator[]): IiOSSimulator | null {
+    public findSimulator(
+        name: string,
+        system: string | null = this.lastSelectedSystem,
+        simulators?: IiOSSimulator[],
+    ): IiOSSimulator | null {
         const sims = simulators ? simulators : this.simulators;
-        const foundSimulator = sims.find((value) => value.name === name && (!system || value.system === system));
+        const foundSimulator = sims.find(
+            value => value.name === name && (!system || value.system === system),
+        );
         if (!foundSimulator) {
             return null;
         }
@@ -37,7 +46,7 @@ export class IOSSimulatorManager extends VirtualDeviceManager {
 
     public getSimulatorById(udid: string, simulators?: IiOSSimulator[]): IiOSSimulator | null {
         const sims = simulators ? simulators : this.simulators;
-        const foundSimulator = sims.find((value) => value.id === udid);
+        const foundSimulator = sims.find(value => value.id === udid);
         if (!foundSimulator) {
             return null;
         }
@@ -46,14 +55,17 @@ export class IOSSimulatorManager extends VirtualDeviceManager {
 
     public async collectSimulators(): Promise<IiOSSimulator[]> {
         const simulators: IiOSSimulator[] = [];
-        const res = JSON.parse(await this.childProcess.execToString(IOSSimulatorManager.SIMULATORS_LIST_COMMAND));
+        const res = JSON.parse(
+            await this.childProcess.execToString(IOSSimulatorManager.SIMULATORS_LIST_COMMAND),
+        );
 
-        Object.keys(res.devices).forEach((system) => {
-            res.devices[system].forEach((device: any) => {
+        Object.keys(res.devices).forEach(rawSystem => {
+            let system = rawSystem.split(".").slice(-1)[0]; // "com.apple.CoreSimulator.SimRuntime.iOS-11-4" -> "iOS-11-4"
+            res.devices[rawSystem].forEach((device: any) => {
                 simulators.push({
                     name: device.name,
                     id: device.udid,
-                    system: system.split(".").slice(-1)[0], // "com.apple.CoreSimulator.SimRuntime.iOS-11-4" -> "iOS-11-4"
+                    system: system,
                     state: device.state,
                 });
             });
@@ -67,7 +79,10 @@ export class IOSSimulatorManager extends VirtualDeviceManager {
         const quickPickOptions: QuickPickOptions = {
             ignoreFocusOut: true,
             canPickMany: false,
-            placeHolder: localize("SelectIOSSystemVersion", "Select system version of iOS virtual device"),
+            placeHolder: localize(
+                "SelectIOSSystemVersion",
+                "Select system version of iOS virtual device",
+            ),
         };
         let result: string | undefined = systemsList[0];
         if (systemsList.length > 1) {
@@ -91,7 +106,9 @@ export class IOSSimulatorManager extends VirtualDeviceManager {
         return undefined;
     }
 
-    protected async getVirtualDevicesNamesList(filter?: (el: IiOSSimulator) => unknown): Promise<string[]> {
+    protected async getVirtualDevicesNamesList(
+        filter?: (el: IiOSSimulator) => unknown,
+    ): Promise<string[]> {
         const names: string[] = [];
         this.simulators.forEach((el: IiOSSimulator) => {
             if (el.name && (!filter || filter(el))) {

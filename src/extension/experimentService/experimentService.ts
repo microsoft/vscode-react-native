@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as Configstore from "configstore";
 import * as https from "https";
 import * as vscode from "vscode";
 import { IExperiment } from "./IExperiment";
 import { PromiseUtil } from "../../common/node/promise";
 import { TelemetryHelper } from "../../common/telemetryHelper";
 import { Telemetry } from "../../common/telemetry";
+import { ExtensionConfigManager } from "../extensionConfigManager";
 
 export enum ExperimentStatuses {
     ENABLED = "enabled",
@@ -36,14 +36,12 @@ export class ExperimentService implements vscode.Disposable {
     private static instance: ExperimentService;
 
     private readonly endpointURL: string;
-    private readonly configName: string;
-    private config: Configstore;
     private downloadedExperimentsConfig: Array<ExperimentConfig> | null;
     private experimentsInstances: Map<string, IExperiment>;
     private downloadConfigRequest: Promise<ExperimentConfig[]>;
     private cancellationTokenSource: vscode.CancellationTokenSource;
 
-    public static create () {
+    public static create(): ExperimentService {
         if (!ExperimentService.instance) {
             ExperimentService.instance = new ExperimentService();
         }
@@ -58,22 +56,20 @@ export class ExperimentService implements vscode.Disposable {
         }
 
         let experimentResults: Array<ExperimentResult> = await Promise.all(
-            this.downloadedExperimentsConfig.map(expConfig => this.executeExperiment(expConfig))
+            this.downloadedExperimentsConfig.map(expConfig => this.executeExperiment(expConfig)),
         );
 
         this.sendExperimentTelemetry(experimentResults);
     }
 
-    public dispose() {
+    public dispose(): void {
         this.cancellationTokenSource.cancel();
         this.cancellationTokenSource.dispose();
     }
 
     private constructor() {
-        this.endpointURL = "https://microsoft.github.io/vscode-react-native/experiments/experimentsConfig.json";
-        this.configName = "reactNativeToolsConfig";
-
-        this.config = new Configstore(this.configName);
+        this.endpointURL =
+            "https://microsoft.github.io/vscode-react-native/experiments/experimentsConfig.json";
         this.cancellationTokenSource = new vscode.CancellationTokenSource();
         this.downloadedExperimentsConfig = null;
 
@@ -81,14 +77,17 @@ export class ExperimentService implements vscode.Disposable {
     }
 
     private async executeExperiment(expConfig: ExperimentConfig): Promise<ExperimentResult> {
-        let curExperimentParameters = this.config.get(expConfig.experimentName);
+        let curExperimentParameters = ExtensionConfigManager.config.get(expConfig.experimentName);
         let expInstance = this.experimentsInstances.get(expConfig.experimentName);
 
         let expResult: ExperimentResult;
         if (expInstance && expConfig.enabled) {
             try {
                 expResult = await expInstance.run(expConfig, curExperimentParameters);
-                this.config.set(expConfig.experimentName, expResult.updatedExperimentParameters);
+                ExtensionConfigManager.config.set(
+                    expConfig.experimentName,
+                    expResult.updatedExperimentParameters,
+                );
             } catch (err) {
                 expResult = {
                     resultStatus: ExperimentStatuses.FAILED,
@@ -126,10 +125,7 @@ export class ExperimentService implements vscode.Disposable {
             for (let expConfig of this.downloadedExperimentsConfig) {
                 try {
                     let expClass = await import(`./experiments/${expConfig.experimentName}`);
-                    expInstances.set(
-                        expConfig.experimentName,
-                        new expClass.default()
-                    );
+                    expInstances.set(expConfig.experimentName, new expClass.default());
                 } catch (err) {
                     expConfig.enabled = false;
                 }
@@ -141,19 +137,21 @@ export class ExperimentService implements vscode.Disposable {
 
     private downloadExperimentsConfig(): Promise<ExperimentConfig[]> {
         return new Promise<ExperimentConfig[]>((resolve, reject) => {
-            https.get(this.endpointURL, (response) => {
-                let data = "";
-                response.setEncoding("utf8");
-                response.on("data", (chunk: string) => (data += chunk));
-                response.on("end", () => {
-                    try {
-                        resolve(JSON.parse(data));
-                    } catch (err) {
-                        reject(err);
-                    }
-                });
-                response.on("error", reject);
-            }).on("error", reject);
+            https
+                .get(this.endpointURL, response => {
+                    let data = "";
+                    response.setEncoding("utf8");
+                    response.on("data", (chunk: string) => (data += chunk));
+                    response.on("end", () => {
+                        try {
+                            resolve(JSON.parse(data));
+                        } catch (err) {
+                            reject(err);
+                        }
+                    });
+                    response.on("error", reject);
+                })
+                .on("error", reject);
         });
     }
 
@@ -161,22 +159,19 @@ export class ExperimentService implements vscode.Disposable {
         const runExperimentsEvent = TelemetryHelper.createTelemetryEvent("runExperiments");
 
         experimentsResults.forEach(expResult => {
-            if (
-                expResult.resultStatus === ExperimentStatuses.FAILED
-                && expResult.error
-            ) {
+            if (expResult.resultStatus === ExperimentStatuses.FAILED && expResult.error) {
                 TelemetryHelper.addTelemetryEventErrorProperty(
                     runExperimentsEvent,
                     expResult.error,
                     undefined,
-                    `${expResult.updatedExperimentParameters.experimentName}.`
+                    `${expResult.updatedExperimentParameters.experimentName}.`,
                 );
             } else {
                 TelemetryHelper.addTelemetryEventProperty(
                     runExperimentsEvent,
                     expResult.updatedExperimentParameters.experimentName,
                     expResult.resultStatus,
-                    false
+                    false,
                 );
             }
         });
