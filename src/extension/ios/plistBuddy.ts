@@ -54,11 +54,8 @@ export class PlistBuddy {
             } else {
                 productsFolder = path.join(iosProjectRoot, "build", "Build", "Products");
             }
-            const sdkSuffix = simulator ? "simulator" : "os";
-            const deviceType =
-                (scheme?.toLowerCase().indexOf("tvos") ?? -1) > -1 ? "appletv" : "iphone";
-            const sdkType = `${deviceType}${sdkSuffix}`;
 
+            const sdkType = this.getSdkType(simulator, scheme);
             let configurationFolder = path.join(productsFolder, `${configuration}-${sdkType}`);
             let executable = "";
             if (productName) {
@@ -196,6 +193,13 @@ export class PlistBuddy {
             rnVersion,
         );
         return getFileNameWithoutExtension(projectWorkspaceConfigName);
+    }
+
+    public getSdkType(simulator: boolean, scheme?: string) {
+        const sdkSuffix = simulator ? "simulator" : "os";
+        const deviceType =
+            (scheme?.toLowerCase().indexOf("tvos") ?? -1) > -1 ? "appletv" : "iphone";
+        return `${deviceType}${sdkSuffix}`;
     }
 
     public getProjectWorkspaceConfigName(
