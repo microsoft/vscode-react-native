@@ -241,7 +241,6 @@ function onFolderAdded(
                 "AddProjectReactNativeVersionIsEmpty",
                 ErrorHelper.getInternalError(InternalErrorCode.CouldNotFindProjectVersion),
                 versions.reactNativeVersion,
-                false,
             );
         } else if (isSupportedVersion(versions.reactNativeVersion)) {
             promises.push(
