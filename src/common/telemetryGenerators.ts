@@ -62,7 +62,7 @@ export abstract class TelemetryGeneratorBase {
     public addError(error: Error): TelemetryGeneratorBase {
         let errorWithErrorCode: IHasErrorCode = <IHasErrorCode>(<Record<string, any>>error);
         const errorCode = errorWithErrorCode.errorCode || InternalErrorCode.UnknownError;
-        this.add("error.code" + ++this.errorIndex, errorCode, /*isPii*/ false);
+        this.add(`error.code${++this.errorIndex}`, errorCode, /*isPii*/ false);
         return this;
     }
 
