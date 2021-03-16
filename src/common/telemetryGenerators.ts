@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import { InternalErrorCode } from "./error/internalErrorCode";
 import { Telemetry } from "./telemetry";
 import { ICommandTelemetryProperties, TelemetryHelper } from "./telemetryHelper";
 
@@ -59,12 +60,9 @@ export abstract class TelemetryGeneratorBase {
     }
 
     public addError(error: Error): TelemetryGeneratorBase {
-        this.add("error.message" + ++this.errorIndex, error.message, /*isPii*/ true);
         let errorWithErrorCode: IHasErrorCode = <IHasErrorCode>(<Record<string, any>>error);
-        if (errorWithErrorCode.errorCode) {
-            this.add("error.code" + this.errorIndex, errorWithErrorCode.errorCode, /*isPii*/ false);
-        }
-
+        const errorCode = errorWithErrorCode.errorCode || InternalErrorCode.UnknownError;
+        this.add(`error.code${++this.errorIndex}`, errorCode, /*isPii*/ false);
         return this;
     }
 
