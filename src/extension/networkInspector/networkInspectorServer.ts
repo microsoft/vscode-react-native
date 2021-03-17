@@ -18,6 +18,7 @@ import { ClientOS } from "./clientUtils";
 import * as net from "net";
 import * as tls from "tls";
 import * as nls from "vscode-nls";
+import { InspectorViewType } from "./views/inspectorView";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -344,7 +345,13 @@ export class NetworkInspectorServer {
             );
             this.logger.info(localize("NIDeviceConnected", "Device connected: {0}", id));
 
-            const client = new ClientDevice(id, query, conn, this.logger);
+            const client = new ClientDevice(
+                id,
+                query,
+                conn,
+                InspectorViewType.console,
+                this.logger,
+            );
 
             client.init().then(() => {
                 this.logger.debug(`Device client initialised: ${id}`);

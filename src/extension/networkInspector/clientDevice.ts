@@ -3,7 +3,9 @@
 
 import { ReactiveSocket } from "rsocket-types";
 import { ClientOS } from "./clientUtils";
+import { InspectorView, InspectorViewType } from "./views/inspectorView";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
+import { InspectorViewFactory } from "./views/inspectorViewFactory";
 
 // The code is borrowed from https://github.com/facebook/flipper/blob/master/desktop/app/src/Client.tsx
 
@@ -33,13 +35,13 @@ export interface SecureClientQuery extends ClientQuery, ClientCsrQuery {
     medium?: number;
 }
 
-type Params = {
+export interface RequestParams {
     api: string;
     method: string;
     params?: Record<string, any>;
-};
+}
 
-type RequestMetadata = { method: string; id: number; params: Params | undefined };
+type RequestMetadata = { method: string; id: number; params: RequestParams | undefined };
 
 type ErrorType = { message: string; stacktrace: string; name: string };
 
@@ -53,6 +55,7 @@ export class ClientDevice {
     private messageIdCounter: number;
     private sdkVersion: number;
     private activePlugins: Set<string>;
+    private inspectorView: InspectorView;
 
     private requestCallbacks: Map<
         number,
@@ -67,6 +70,7 @@ export class ClientDevice {
         id: string,
         query: ClientQuery,
         connection: ReactiveSocket<any, any> | null | undefined,
+        inspectorViewType: InspectorViewType,
         logger: OutputChannelLogger,
     ) {
         this.networkInspectorPluginName = "Network";
@@ -79,6 +83,7 @@ export class ClientDevice {
         this.sdkVersion = query.sdk_version || 0;
         this.activePlugins = new Set();
         this.requestCallbacks = new Map();
+        this.inspectorView = InspectorViewFactory.getInspectorView(inspectorViewType);
     }
 
     get id(): string {
@@ -98,6 +103,7 @@ export class ClientDevice {
         if (plugins.includes(this.networkInspectorPluginName)) {
             this.initNetworkInspectorPlugin();
         }
+        await this.inspectorView.init();
     }
 
     public onMessage(msg: string): void {
@@ -116,33 +122,31 @@ export class ClientDevice {
         const data: {
             id?: number;
             method?: string;
-            params?: Params;
+            params?: RequestParams;
             success?: Record<string, any>;
             error?: ErrorType;
         } = rawData;
 
-        const { id, method } = data;
-
-        if (id == null) {
+        if (!data.id) {
             const { error } = data;
-            if (error != null) {
+            if (error) {
                 this.logger.error(
-                    `Error received from device ${method ? `when calling ${method}` : ""}: ${
-                        error.message
-                    } + \nDevice Stack Trace: ${error.stacktrace}`,
+                    `Error received from device ${
+                        data.method ? `when calling ${data.method}` : ""
+                    }: ${error.message} + \nDevice Stack Trace: ${error.stacktrace}`,
                 );
-            } else if (method === "execute") {
-                console.log(data);
+            } else if (data.method === "execute" && data.params) {
+                this.inspectorView.handleMessage(data.params);
             }
             return; // method === "execute";
         }
 
         if (this.sdkVersion < 1) {
-            const callbacks = this.requestCallbacks.get(id);
+            const callbacks = this.requestCallbacks.get(data.id);
             if (!callbacks) {
                 return;
             }
-            this.requestCallbacks.delete(id);
+            this.requestCallbacks.delete(data.id);
             this.onResponse(data, callbacks.resolve, callbacks.reject);
         }
     }
@@ -169,7 +173,7 @@ export class ClientDevice {
         }
     }
 
-    private rawCall<T>(method: string, fromPlugin: boolean, params?: Params): Promise<T> {
+    private rawCall<T>(method: string, fromPlugin: boolean, params?: RequestParams): Promise<T> {
         return new Promise((resolve, reject) => {
             const id = this.messageIdCounter++;
             const metadata: RequestMetadata = {

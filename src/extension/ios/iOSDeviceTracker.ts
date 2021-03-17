@@ -96,7 +96,7 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
                 );
             },
         );
-        console.log("Port forwarding app started", childProcess);
+        this.logger.debug(`Port forwarding app started for ${port} port`);
         childProcess.addListener("error", err => {
             this.logger.error("Port forwarding app error", err);
         });
