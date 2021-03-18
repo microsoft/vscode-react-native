@@ -25,7 +25,7 @@ export class InspectorViewFactory {
         return InspectorViewFactory.cachedInspectorViews.get(inspectorViewType) as InspectorView;
     }
 
-    public static clearCache() {
+    public static clearCache(): void {
         InspectorViewFactory.cachedInspectorViews.forEach(inspectorView => {
             inspectorView.dispose();
         });

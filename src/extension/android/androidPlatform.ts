@@ -15,7 +15,7 @@ import { LogCatMonitor } from "./logCatMonitor";
 import * as nls from "vscode-nls";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ErrorHelper } from "../../common/error/errorHelper";
-import { isNullOrUndefined } from "util";
+import { notNullOrUndefined } from "../../common/utils";
 import { PromiseUtil } from "../../common/node/promise";
 import { AndroidEmulatorManager, IAndroidEmulator } from "./androidEmulatorManager";
 import { LogCatMonitorManager } from "./logCatMonitorManager";
@@ -154,7 +154,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
 
             if (mainActivity) {
                 this.adbHelper.setLaunchActivity(mainActivity);
-            } else if (!isNullOrUndefined(this.runOptions.debugLaunchActivity)) {
+            } else if (notNullOrUndefined(this.runOptions.debugLaunchActivity)) {
                 this.runArguments.push("--main-activity", this.runOptions.debugLaunchActivity);
                 this.adbHelper.setLaunchActivity(this.runOptions.debugLaunchActivity);
             }

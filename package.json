@@ -762,6 +762,7 @@
     "openssl-wrapper": "^0.3.4",
     "pako": "^2.0.3",
     "qr-image": "^3.2.0",
+    "querystring": "^0.2.1",
     "rsocket-core": "0.0.23",
     "rsocket-tcp-server": "0.0.23",
     "semver": "^6.3.0",
