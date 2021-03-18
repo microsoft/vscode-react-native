@@ -185,6 +185,7 @@ export class Packager {
 
                         let env = Object.assign({}, process.env);
                         // CI="true" env property breaks RN fast refresh feature, so we need to remove it from default env variables
+                        // See more info in the issue https://github.com/microsoft/vscode-react-native/issues/1529
                         delete env.CI;
                         if (this.runOptions && (this.runOptions.env || this.runOptions.envFile)) {
                             env = GeneralMobilePlatform.getEnvArgument(
