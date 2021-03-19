@@ -195,7 +195,7 @@ export class PlistBuddy {
         return getFileNameWithoutExtension(projectWorkspaceConfigName);
     }
 
-    public getSdkType(simulator: boolean, scheme?: string) {
+    public getSdkType(simulator: boolean, scheme?: string): string {
         const sdkSuffix = simulator ? "simulator" : "os";
         const deviceType =
             (scheme?.toLowerCase().indexOf("tvos") ?? -1) > -1 ? "appletv" : "iphone";
