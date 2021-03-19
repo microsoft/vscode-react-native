@@ -68,6 +68,7 @@ export enum InternalErrorCode {
     PackageNotFound = 714,
     ReactDevtoolsIsNotInstalled = 715,
     CancellationTokenTriggered = 716,
+    UnknownError = 717,
 
     // Activation errors
     CouldNotFindLocationOfNodeDebugger = 801,

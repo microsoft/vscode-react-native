@@ -177,6 +177,51 @@ suite("plistBuddy", function () {
             });
         });
 
+        test("getBundleId should return the bundle ID for an AppleTV project using RN >=0.59", function () {
+            const projectRoot = path.join("/", "userHome", "rnProject");
+            const iosProjectRoot = path.join(projectRoot, "ios");
+            const appName = "myApp";
+            const scheme = "myCustomScheme-tvOS";
+            const simulatorBundleId = "com.contoso.simulator";
+            const deviceBundleId = "com.contoso.device";
+            const plistBuddy = getPlistBuddy(
+                appName,
+                iosProjectRoot,
+                scheme,
+                simulatorBundleId,
+                deviceBundleId,
+                true,
+            );
+
+            sandbox.stub(ProjectVersionHelper, "getReactNativeVersions").returns(
+                Promise.resolve({
+                    reactNativeVersion: "0.59.0",
+                    reactNativeWindowsVersion: "",
+                }),
+            );
+            sandbox.stub(plistBuddy, "getConfigurationData", fakeGetConfigurationData);
+            sandbox.stub(plistBuddy, "getInferredScheme").returns(scheme);
+
+            return Promise.all([
+                plistBuddy.getBundleId(iosProjectRoot, projectRoot, true, "Debug", appName),
+                plistBuddy.getBundleId(iosProjectRoot, projectRoot, true, "Debug", appName, scheme),
+                plistBuddy.getBundleId(iosProjectRoot, projectRoot, false, undefined, appName),
+                plistBuddy.getBundleId(
+                    iosProjectRoot,
+                    projectRoot,
+                    false,
+                    undefined,
+                    appName,
+                    scheme,
+                ),
+            ]).then(([simulatorId1, simulatorId2, deviceId1, deviceId2]) => {
+                assert.strictEqual(simulatorBundleId, simulatorId1);
+                assert.strictEqual(simulatorBundleId, simulatorId2);
+                assert.strictEqual(deviceBundleId, deviceId1);
+                assert.strictEqual(deviceBundleId, deviceId2);
+            });
+        });
+
         suite("fetchParameterFromBuildSettings", function () {
             const buildSettingsFile = path.join(
                 __dirname,
@@ -252,7 +297,9 @@ suite("plistBuddy", function () {
             scheme: string | undefined,
             simulatorBundleId: string,
             deviceBundleId: string,
+            isTV: boolean = false,
         ) {
+            const deviceType = isTV ? "appletv" : "iphone";
             const infoPlistPath = (simulator: boolean) =>
                 scheme
                     ? path.join(
@@ -261,7 +308,7 @@ suite("plistBuddy", function () {
                           scheme,
                           "Build",
                           "Products",
-                          simulator ? "Debug-iphonesimulator" : "Debug-iphoneos",
+                          `Debug-${deviceType}${simulator ? "simulator" : "os"}`,
                           `${appName}.app`,
                           "Info.plist",
                       )
@@ -270,7 +317,7 @@ suite("plistBuddy", function () {
                           "build",
                           "Build",
                           "Products",
-                          simulator ? "Debug-iphonesimulator" : "Debug-iphoneos",
+                          `Debug-${deviceType}${simulator ? "simulator" : "os"}`,
                           `${appName}.app`,
                           "Info.plist",
                       );

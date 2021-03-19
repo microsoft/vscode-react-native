@@ -122,14 +122,9 @@ export class TelemetryHelper {
         });
     }
 
-    public static sendErrorEvent(
-        eventName: string,
-        error: Error,
-        errorDescription?: string,
-        isPii: boolean = true,
-    ): void {
+    public static sendErrorEvent(eventName: string, error: Error, errorDescription?: string): void {
         const event = TelemetryHelper.createTelemetryEvent(eventName);
-        TelemetryHelper.addTelemetryEventErrorProperty(event, error, errorDescription, "", isPii);
+        TelemetryHelper.addTelemetryEventErrorProperty(event, error, errorDescription, "");
         Telemetry.send(event);
     }
 
@@ -179,7 +174,6 @@ export class TelemetryHelper {
         error: Error,
         errorDescription?: string,
         errorPropPrefix: string = "",
-        isPii: boolean = true,
     ): void {
         let errorWithErrorCode: IHasErrorCode = <IHasErrorCode>(<Record<string, any>>error);
         if (errorWithErrorCode.errorCode) {
@@ -200,9 +194,9 @@ export class TelemetryHelper {
         } else {
             this.addTelemetryEventProperty(
                 event,
-                `${errorPropPrefix}error.message`,
-                error.message,
-                isPii,
+                `${errorPropPrefix}error.code`,
+                InternalErrorCode.UnknownError,
+                false,
             );
         }
     }

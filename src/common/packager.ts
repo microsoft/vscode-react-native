@@ -183,7 +183,10 @@ export class Packager {
                         //  This bug will be fixed in 0.41
                         const failedRNVersions: string[] = ["0.38.0", "0.39.0", "0.40.0"];
 
-                        let env = process.env;
+                        let env = Object.assign({}, process.env);
+                        // CI="true" env property breaks RN fast refresh feature, so we need to remove it from default env variables
+                        // See more info in the issue https://github.com/microsoft/vscode-react-native/issues/1529
+                        delete env.CI;
                         if (this.runOptions && (this.runOptions.env || this.runOptions.envFile)) {
                             env = GeneralMobilePlatform.getEnvArgument(
                                 env,
