@@ -3,7 +3,7 @@
 
 import * as os from "os";
 import { join } from "path";
-const XDLTools = require("xdl/build/tools");
+const XDLFsCache = require("xdl/build/tools/FsCache");
 
 export class SmokeTestsConstants {
     // Default code of android platform version which is being targeted during the tests.
@@ -18,7 +18,7 @@ export class SmokeTestsConstants {
     // Expo application cache for iOS platform
     public static iOSExpoAppsCacheDir = join(os.homedir(), ".expo", "ios-simulator-app-cache");
     // Expo versions cache
-    public static ExpoVersionsJsonFilePath = join(XDLTools.FsCache.getCacheDir(), "versions.json");
+    public static ExpoVersionsJsonFilePath = join(XDLFsCache.getCacheDir(), "versions.json");
     // Timeout for driver to wait for UI elements response to interaction (in seconds)
     public static elementResponseTimeout = 250;
     // Timeout for enabling Remote JS Debugging while testing RN app
