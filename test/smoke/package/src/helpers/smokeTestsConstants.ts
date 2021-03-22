@@ -3,7 +3,7 @@
 
 import * as os from "os";
 import { join } from "path";
-const XDL = require("@expo/xdl");
+const XDL = require("xdl");
 
 export class SmokeTestsConstants {
     // Default code of android platform version which is being targeted during the tests.

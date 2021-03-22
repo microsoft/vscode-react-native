@@ -8,7 +8,7 @@ import * as cp from "child_process";
 import { SmokeTestLogger } from "./smokeTestLogger";
 import { ExpoClientData } from "./androidEmulatorManager";
 
-const XDL = require("@expo/xdl");
+const XDL = require("xdl");
 
 interface IiOSSimulator {
     system: string;

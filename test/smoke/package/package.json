@@ -8,7 +8,6 @@
     "mocha": "tsc && node ./node_modules/mocha/bin/_mocha --config ./.mocharc.js --reporter mocha-multi-reporters --reporter-options configFile=./mochaReporterConfig.json"
   },
   "devDependencies": {
-    "@expo/xdl": "59.0.17",
     "@types/clipboardy": "^2.0.1",
     "@types/gulp-filter": "^3.0.33",
     "@types/mkdirp": "^1.0.0",
@@ -40,11 +39,10 @@
     "url-parse": "^1.4.3",
     "vinyl-fs": "^3.0.3",
     "vinyl-source-stream": "^1.1.0",
-    "webdriverio": "6.10.0"
+    "webdriverio": "6.10.0",
+    "xdl": "^59.0.27"
   },
   "resolutions": {
-    "@expo/xdl/analytics-node/axios": "^0.21.1",
-    "lodash": "^4.17.20",
-    "@expo/xdl/node-forge": "^0.10.0"
+    "lodash": "^4.17.20"
   }
 }

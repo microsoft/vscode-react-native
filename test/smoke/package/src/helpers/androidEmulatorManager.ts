@@ -5,7 +5,7 @@ import * as cp from "child_process";
 import { SmokeTestLogger } from "./smokeTestLogger";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
 import { waitUntil, sleep } from "./utilities";
-const XDL = require("@expo/xdl");
+const XDL = require("xdl");
 
 export interface IDevice {
     id: string;
