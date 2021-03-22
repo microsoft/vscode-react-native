@@ -6,6 +6,8 @@ import { RequestParams } from "../clientDevice";
 import { URL } from "url";
 import * as vscode from "vscode";
 import { Request, Response, Header } from "../networkMessageData";
+import { EditorColorThemesHelper, SystemColorTheme } from "../../../common/editorColorThemesHelper";
+import { SettingsHelper } from "../../settingsHelper";
 
 interface ConsoleNetworkRequestDataView {
     title: string;
@@ -24,11 +26,24 @@ interface ConsoleNetworkRequestDataView {
 export class InspectorConsoleView extends InspectorView {
     private readonly maxResponseBodyLength = 75000;
     private readonly openDeveloperToolsCommand = "workbench.action.toggleDevTools";
+    private readonly consoleLogsColors = {
+        Blue: "#0000ff",
+        Orange: "#f28b54",
+    };
+
+    private consoleLogsColor: string;
 
     public async init(): Promise<void> {
         if (!this.isInitialized) {
             this.isInitialized = true;
             await vscode.commands.executeCommand(this.openDeveloperToolsCommand);
+            if (EditorColorThemesHelper.isAutoDetectColorSchemeEnabled()) {
+                this.setupConsoleLogsColor(EditorColorThemesHelper.getCurrentSystemColorTheme());
+            } else {
+                this.setupConsoleLogsColor(
+                    SettingsHelper.getNetworkInspectorConsoleLogsColorTheme(),
+                );
+            }
         }
     }
 
@@ -48,6 +63,14 @@ export class InspectorConsoleView extends InspectorView {
     }
 
     public dispose(): any {}
+
+    private setupConsoleLogsColor(systemColorTheme: SystemColorTheme): void {
+        if (systemColorTheme === SystemColorTheme.Light) {
+            this.consoleLogsColor = this.consoleLogsColors.Blue;
+        } else {
+            this.consoleLogsColor = this.consoleLogsColors.Orange;
+        }
+    }
 
     private handleRequest(data: Request) {
         this.requests.set(data.id, data);
@@ -108,7 +131,7 @@ export class InspectorConsoleView extends InspectorView {
 
         console.log(
             networkRequestData.title,
-            "color: #1E90FF",
+            `color: ${this.consoleLogsColor}`,
             networkRequestData.networkRequestData,
         );
     }

@@ -5,6 +5,7 @@ import * as path from "path";
 import { ConfigurationReader } from "../common/configurationReader";
 import { Packager } from "../common/packager";
 import { LogLevel } from "./log/LogHelper";
+import { SystemColorTheme } from "../common/editorColorThemesHelper";
 import { PackagerStatusIndicator } from "./packagerStatusIndicator";
 
 export class SettingsHelper {
@@ -129,6 +130,20 @@ export class SettingsHelper {
         }
 
         return "";
+    }
+
+    public static getNetworkInspectorConsoleLogsColorTheme(): SystemColorTheme {
+        const workspaceConfiguration = vscode.workspace.getConfiguration(
+            "react-native-tools.networkInspector",
+            null,
+        );
+        if (workspaceConfiguration.has("consoleLogsColorTheme")) {
+            let consoleLogsColorTheme: string = ConfigurationReader.readString(
+                workspaceConfiguration.get("consoleLogsColorTheme"),
+            );
+            return SystemColorTheme[consoleLogsColorTheme];
+        }
+        return SystemColorTheme.Light;
     }
 
     /**

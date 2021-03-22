@@ -719,6 +719,16 @@
           ],
           "default": "Info",
           "scope": "resource"
+        },
+        "react-native-tools.networkInspector.consoleLogsColorTheme": {
+          "description": "%reactNative.configuration.properties.react-native-tools.consoleLogsColorTheme.description%",
+          "type": "string",
+          "enum": [
+            "Light",
+            "Dark"
+          ],
+          "default": "Light",
+          "scope": "resource"
         }
       }
     }

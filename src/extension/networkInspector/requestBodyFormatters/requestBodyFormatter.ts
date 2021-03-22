@@ -91,7 +91,7 @@ export function decodeBody(container: Request | Response, logger?: OutputChannel
         return Base64.decode(container.data);
     } catch (err) {
         logger?.debug(
-            `Flipper failed to decode request/response body (size: ${
+            `Network inspector failed to decode request/response body (size: ${
                 container.data.length
             }): ${err.toString()}`,
         );
