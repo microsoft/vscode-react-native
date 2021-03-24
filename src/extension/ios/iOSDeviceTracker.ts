@@ -91,9 +91,11 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
             this.portForwardingClientPath,
             [`-portForward=${port}`, `-multiplexChannelPort=${multiplexChannelPort}`],
             (err, stdout, stderr) => {
-                this.logger.error(
-                    `Port forwarding app failed to start: ${stdout.toString()}, ${stderr.toString}`,
-                );
+                if (!err?.killed) {
+                    this.logger.error(
+                        `Port forwarding app failed to start: ${err?.message}, ${stdout}, ${stderr}`,
+                    );
+                }
             },
         );
         this.logger.debug(`Port forwarding app started for ${port} port`);
