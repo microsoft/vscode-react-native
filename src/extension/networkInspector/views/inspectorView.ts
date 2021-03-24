@@ -3,7 +3,7 @@
 
 import { RequestParams } from "../clientDevice";
 import { Disposable } from "vscode";
-import { Request, Response } from "../networkMessageData";
+import { Request, Response, PartialResponse } from "../networkMessageData";
 import { RequestBodyFormatter } from "../requestBodyFormatters/requestBodyFormatter";
 import { OutputChannelLogger } from "../../log/OutputChannelLogger";
 
@@ -15,6 +15,7 @@ export abstract class InspectorView implements Disposable {
     protected requestBodyDecoder: RequestBodyFormatter;
     protected requests: Map<string, Request>;
     protected responses: Map<string, Response>;
+    protected partialResponses: Map<string, PartialResponse>;
     protected isInitialized: boolean;
     protected logger: OutputChannelLogger;
 
@@ -22,6 +23,7 @@ export abstract class InspectorView implements Disposable {
         this.logger = logger;
         this.requests = new Map();
         this.responses = new Map();
+        this.partialResponses = new Map();
         this.isInitialized = false;
         this.requestBodyDecoder = new RequestBodyFormatter(this.logger);
     }

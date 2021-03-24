@@ -5,9 +5,17 @@ import { InspectorView } from "./inspectorView";
 import { RequestParams } from "../clientDevice";
 import { URL } from "url";
 import * as vscode from "vscode";
-import { Request, Response, Header } from "../networkMessageData";
+import {
+    Request,
+    Response,
+    Header,
+    ResponseFollowupChunk,
+    PartialResponse,
+} from "../networkMessageData";
 import { EditorColorThemesHelper, SystemColorTheme } from "../../../common/editorColorThemesHelper";
 import { SettingsHelper } from "../../settingsHelper";
+import { combineBase64Chunks } from "../requestBodyFormatters/utils";
+import { Base64 } from "js-base64";
 
 interface ConsoleNetworkRequestDataView {
     title: string;
@@ -57,6 +65,7 @@ export class InspectorConsoleView extends InspectorView {
                     this.handleResponse(data.params as Response);
                     break;
                 case "partialResponse":
+                    this.handlePartialResponse(data.params as Response | ResponseFollowupChunk);
                     break;
             }
         }
@@ -83,6 +92,90 @@ export class InspectorConsoleView extends InspectorView {
                 this.createNetworkRequestData(this.requests.get(data.id) as Request, data),
             );
         }
+    }
+
+    private handlePartialResponse(data: Response | ResponseFollowupChunk) {
+        /* Some clients (such as low end Android devices) struggle to serialise large payloads in one go, so partial responses allow them
+        to split payloads into chunks and serialise each individually.
+
+        Such responses will be distinguished between normal responses by both:
+          * Being sent to the partialResponse method.
+          * Having a totalChunks value > 1.
+
+        The first chunk will always be included in the initial response. This response must have index 0.
+        The remaining chunks will be sent in ResponseFollowupChunks, which each contain another piece of the payload, along with their index from 1 onwards.
+        The payload of each chunk is individually encoded in the same way that full responses are.
+
+        The order that initialResponse, and followup chunks are recieved is not guaranteed to be in index order.
+        */
+
+        let newPartialResponseEntry;
+        let responseId;
+        if (data.index !== undefined && data.index > 0) {
+            // It's a follow up chunk
+            const followupChunk: ResponseFollowupChunk = data as ResponseFollowupChunk;
+            const partialResponseEntry = this.partialResponses.get(followupChunk.id) ?? {
+                followupChunks: {},
+            };
+
+            newPartialResponseEntry = Object.assign({}, partialResponseEntry);
+            newPartialResponseEntry.followupChunks[followupChunk.index] = followupChunk.data;
+            responseId = followupChunk.id;
+        } else {
+            // It's an initial chunk
+            const partialResponse: Response = data as Response;
+            const partialResponseEntry = this.partialResponses.get(partialResponse.id) ?? {
+                followupChunks: {},
+            };
+            newPartialResponseEntry = {
+                ...partialResponseEntry,
+                initialResponse: partialResponse,
+            };
+            responseId = partialResponse.id;
+        }
+        const response = this.assembleChunksIfResponseIsComplete(newPartialResponseEntry);
+        if (response) {
+            this.handleResponse(response);
+            this.partialResponses.delete(responseId);
+        } else {
+            this.partialResponses.set(responseId, newPartialResponseEntry);
+        }
+    }
+
+    private assembleChunksIfResponseIsComplete(
+        partialResponseEntry: PartialResponse,
+    ): Response | null {
+        const numChunks = partialResponseEntry.initialResponse?.totalChunks;
+        if (
+            !partialResponseEntry.initialResponse ||
+            !numChunks ||
+            Object.keys(partialResponseEntry.followupChunks).length + 1 < numChunks
+        ) {
+            // Partial response not yet complete, do nothing.
+            return null;
+        }
+        // Partial response has all required chunks, convert it to a full Response.
+
+        const response: Response = partialResponseEntry.initialResponse;
+        const allChunks: string[] =
+            response.data != null
+                ? [
+                      response.data,
+                      ...Object.entries(partialResponseEntry.followupChunks)
+                          // It's important to parseInt here or it sorts lexicographically
+                          .sort((a, b) => parseInt(a[0], 10) - parseInt(b[0], 10))
+                          .map(([_k, v]: [string, string]) => v),
+                  ]
+                : [];
+        const data = combineBase64Chunks(allChunks);
+
+        const newResponse = {
+            ...response,
+            // Currently data is always decoded at render time, so re-encode it to match the single response format.
+            data: Base64.btoa(data),
+        };
+
+        return newResponse;
     }
 
     private createNetworkRequestData(
@@ -118,8 +211,6 @@ export class InspectorConsoleView extends InspectorView {
             return headersViewObject;
         }, {});
     }
-
-    // private handlePartialResponse() {}
 
     private printNetworkRequestData(networkRequestData: ConsoleNetworkRequestDataView) {
         const responseBody = networkRequestData.networkRequestData["Response Body"];

@@ -1,6 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+export type ResponseFollowupChunk = {
+    id: string;
+    totalChunks: number;
+    index: number;
+    data: string;
+};
+
 export type RequestId = string;
 
 export type Header = {
@@ -49,4 +56,9 @@ export type Response = {
     insights: Insights | null | undefined;
     totalChunks?: number;
     index?: number;
+};
+
+export type PartialResponse = {
+    initialResponse?: Response;
+    followupChunks: { [id: number]: string };
 };
