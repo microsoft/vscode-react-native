@@ -7,7 +7,7 @@ import PackageLoader from "../../common/packageLoader";
 
 const XDL_PACKAGE = "xdl";
 const METRO_CONFIG_PACKAGE = "@expo/metro-config";
-const NGROK_PACKAGE = "ngrok";
+const NGROK_PACKAGE = "@expo/ngrok";
 
 const EXPO_DEPS: string[] = [XDL_PACKAGE, NGROK_PACKAGE];
 

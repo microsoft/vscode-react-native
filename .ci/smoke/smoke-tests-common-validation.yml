@@ -50,8 +50,8 @@ steps:
       npm install -g yarn react-native-cli
       npm install -g appium@$(appiumVersion) --force
       npm install -g expo-cli@$(expoCLIVersion)
-      npm install -g ngrok
-    displayName: "npm install -g yarn react-native-cli expo-cli ngrok appium"
+      npm install -g @expo/ngrok
+    displayName: "npm install -g yarn react-native-cli expo-cli @expo/ngrok appium"
 
   - bash: npm install --global windows-build-tools --vs2015
     displayName: "npm install --global windows-build-tools --vs2015"
