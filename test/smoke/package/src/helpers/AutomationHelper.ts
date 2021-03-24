@@ -125,7 +125,7 @@ export default class AutomationHelper {
 
     public async disconnectFromDebuggerWithRetry(
         retryCount: number = 3,
-        pollRetryCount: number = 30,
+        pollRetryCount: number = 10,
         pollRetryInterval: number = 1000,
     ): Promise<any> {
         const fun = async () => {
@@ -135,6 +135,28 @@ export default class AutomationHelper {
                     this.app.workbench.code.waitAndClick(STOP),
                 ]);
             } catch (e) {}
+            await this.app.workbench.code.waitForElement(TOOLBAR_HIDDEN);
+            await this.app.workbench.code.waitForElement(NOT_DEBUG_STATUS_BAR);
+        };
+        const catchFun = async () => {
+            return;
+        };
+        await this.retryWithSpecifiedPollRetryParameters(
+            fun,
+            catchFun,
+            retryCount,
+            pollRetryCount,
+            pollRetryInterval,
+        );
+    }
+
+    public async stopDebuggingWithRetry(
+        retryCount: number = 3,
+        pollRetryCount: number = 10,
+        pollRetryInterval: number = 1000,
+    ): Promise<any> {
+        const fun = async () => {
+            await this.app.workbench.code.waitAndClick(STOP);
             await this.app.workbench.code.waitForElement(TOOLBAR_HIDDEN);
             await this.app.workbench.code.waitForElement(NOT_DEBUG_STATUS_BAR);
         };

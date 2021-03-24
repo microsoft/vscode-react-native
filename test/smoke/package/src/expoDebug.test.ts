@@ -138,7 +138,7 @@ export function startExpoTests(
                             assert.fail(`App start has failed after ${retry} retries`);
                         }
                         SmokeTestLogger.warn(`Attempt to start #${retry} failed, retrying...`);
-                        await automationHelper.disconnectFromDebuggerWithRetry();
+                        await automationHelper.stopDebuggingWithRetry();
                     }
                 }
             }
