@@ -13,7 +13,7 @@ import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 import TestProject from "./helpers/testProject";
 import AutomationHelper from "./helpers/AutomationHelper";
 
-const EXPO_APP_LAUNCH_TIMEOUT = 120_000;
+const EXPO_APP_LAUNCH_TIMEOUT = 240_000;
 const ExpoSuccessPattern = "Tunnel ready";
 const ExpoFailurePattern = "XDLError";
 
@@ -266,17 +266,6 @@ export function startExpoTests(
         }
 
         if (testParameters.RunAndroidTests) {
-            it("Android Expo app Debug test(Tunnel)", async function () {
-                this.timeout(debugExpoTestTime);
-                await expoTest(
-                    expoProject,
-                    "Android Expo Debug test(Tunnel)",
-                    ExpoDebugConfigName,
-                    Platform.AndroidExpo,
-                    5,
-                );
-            });
-
             it("Android Pure RN app Expo test(LAN)", async function () {
                 this.timeout(debugExpoTestTime);
                 await expoTest(
@@ -309,19 +298,20 @@ export function startExpoTests(
                     1,
                 );
             });
-        }
-        if (process.platform === "darwin" && testParameters.RunIosTests) {
-            it("iOS Expo app Debug test(Tunnel)", async function () {
+
+            it("Android Expo app Debug test(Tunnel)", async function () {
                 this.timeout(debugExpoTestTime);
                 await expoTest(
                     expoProject,
-                    "iOS Expo Debug test(Tunnel)",
+                    "Android Expo Debug test(Tunnel)",
                     ExpoDebugConfigName,
-                    Platform.iOSExpo,
+                    Platform.AndroidExpo,
                     5,
                 );
             });
+        }
 
+        if (process.platform === "darwin" && testParameters.RunIosTests) {
             it("iOS Pure RN app Expo test(LAN)", async function () {
                 this.timeout(debugExpoTestTime);
                 await expoTest(
@@ -352,6 +342,17 @@ export function startExpoTests(
                     ExpoLocalDebugConfigName,
                     Platform.iOSExpo,
                     1,
+                );
+            });
+
+            it("iOS Expo app Debug test(Tunnel)", async function () {
+                this.timeout(debugExpoTestTime);
+                await expoTest(
+                    expoProject,
+                    "iOS Expo Debug test(Tunnel)",
+                    ExpoDebugConfigName,
+                    Platform.iOSExpo,
+                    5,
                 );
             });
         }
