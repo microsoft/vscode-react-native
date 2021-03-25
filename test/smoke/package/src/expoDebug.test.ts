@@ -172,7 +172,7 @@ export function startExpoTests(
             } else {
                 assert.fail("REACT_NATIVE_TOOLS_LOGS_DIR is not defined");
             }
-            await automationHelper.runDebugScenarioWithRetry(debugConfigName);
+            await runExpoDebugScenario(logFilePath, testName, debugConfigName, triesToLaunchApp);
 
             await app.workbench.editors.waitForTab("Expo QR Code", false, true);
             await app.workbench.editors.waitForActiveTab("Expo QR Code", false, true);
