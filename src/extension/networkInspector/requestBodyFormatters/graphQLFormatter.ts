@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { IFormatter, decodeBody } from "./requestBodyFormatter";
+import { IFormatter, decodeBody, FormattedBody } from "./requestBodyFormatter";
 import { OutputChannelLogger } from "../../log/OutputChannelLogger";
 import { Request, Response } from "../networkMessageData";
 import * as querystring from "querystring";
@@ -9,11 +9,11 @@ import * as querystring from "querystring";
 export class GraphQLFormatter implements IFormatter {
     constructor(private logger: OutputChannelLogger) {}
 
-    public formatRequest(request: Request, contentType: string): string | any | null {
+    public formatRequest(request: Request, contentType: string): FormattedBody | null {
         if (request.url.indexOf("graphql") > 0) {
             const decoded = decodeBody(request, this.logger);
             if (!decoded) {
-                return undefined;
+                return null;
             }
             const data = querystring.parse(decoded);
             if (typeof data.variables === "string") {
@@ -27,7 +27,7 @@ export class GraphQLFormatter implements IFormatter {
         return null;
     }
 
-    public formatResponse(response: Response, contentType: string): string | any | null {
+    public formatResponse(response: Response, contentType: string): FormattedBody | null {
         if (
             contentType.startsWith("application/json") ||
             contentType.startsWith("application/hal+json") ||

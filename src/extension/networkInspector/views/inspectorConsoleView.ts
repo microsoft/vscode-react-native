@@ -15,6 +15,7 @@ import {
 import { EditorColorThemesHelper, SystemColorTheme } from "../../../common/editorColorThemesHelper";
 import { SettingsHelper } from "../../settingsHelper";
 import { combineBase64Chunks } from "../requestBodyFormatters/utils";
+import { FormattedBody } from "../requestBodyFormatters/requestBodyFormatter";
 import { Base64 } from "js-base64";
 
 interface ConsoleNetworkRequestDataView {
@@ -26,8 +27,8 @@ interface ConsoleNetworkRequestDataView {
         Duration: string;
         "Request Headers": Record<string, string>;
         "Response Headers": Record<string, string>;
-        "Request Body": any | null | undefined;
-        "Response Body": any | null | undefined;
+        "Request Body": FormattedBody | null | undefined;
+        "Response Body": FormattedBody | null | undefined;
     };
 }
 
@@ -71,8 +72,6 @@ export class InspectorConsoleView extends InspectorView {
         }
     }
 
-    public dispose(): any {}
-
     private setupConsoleLogsColor(systemColorTheme: SystemColorTheme): void {
         if (systemColorTheme === SystemColorTheme.Light) {
             this.consoleLogsColor = this.consoleLogsColors.Blue;
@@ -81,11 +80,11 @@ export class InspectorConsoleView extends InspectorView {
         }
     }
 
-    private handleRequest(data: Request) {
+    private handleRequest(data: Request): void {
         this.requests.set(data.id, data);
     }
 
-    private handleResponse(data: Response) {
+    private handleResponse(data: Response): void {
         this.responses.set(data.id, data);
         if (this.requests.has(data.id)) {
             this.printNetworkRequestData(
@@ -94,7 +93,7 @@ export class InspectorConsoleView extends InspectorView {
         }
     }
 
-    private handlePartialResponse(data: Response | ResponseFollowupChunk) {
+    private handlePartialResponse(data: Response | ResponseFollowupChunk): void {
         /* Some clients (such as low end Android devices) struggle to serialise large payloads in one go, so partial responses allow them
         to split payloads into chunks and serialise each individually.
 
@@ -212,9 +211,13 @@ export class InspectorConsoleView extends InspectorView {
         }, {});
     }
 
-    private printNetworkRequestData(networkRequestData: ConsoleNetworkRequestDataView) {
+    private printNetworkRequestData(networkRequestData: ConsoleNetworkRequestDataView): void {
         const responseBody = networkRequestData.networkRequestData["Response Body"];
-        if (responseBody && responseBody.length > this.maxResponseBodyLength) {
+        if (
+            responseBody &&
+            typeof responseBody === "string" &&
+            responseBody.length > this.maxResponseBodyLength
+        ) {
             networkRequestData.networkRequestData["Response Body"] =
                 responseBody.substring(0, this.maxResponseBodyLength) +
                 "... (Response body exceeds output limit, the rest its part is omitted)";

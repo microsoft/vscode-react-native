@@ -11,9 +11,11 @@ import { GraphQLFormatter } from "./graphQLFormatter";
 import { FormUrlencodedFormatter } from "./formUrlencodedFormatter";
 import { notNullOrUndefined } from "../../../common/utils";
 
+export type FormattedBody = string | Record<string, any> | Array<Record<string, any>>;
+
 export interface IFormatter {
-    formatRequest?: (request: Request, contentType: string) => string | any | null;
-    formatResponse?: (response: Response, contentType: string) => string | any | null;
+    formatRequest?: (request: Request, contentType: string) => FormattedBody | null;
+    formatResponse?: (response: Response, contentType: string) => FormattedBody | null;
 }
 
 export class RequestBodyFormatter {
@@ -30,7 +32,7 @@ export class RequestBodyFormatter {
         ];
     }
 
-    public formatBody(container: Request | Response): string | any {
+    public formatBody(container: Request | Response): FormattedBody {
         const contentType = getHeaderValue(container.headers, "content-type");
 
         for (let formatter of this.formatters) {

@@ -28,7 +28,8 @@ export abstract class InspectorView implements Disposable {
         this.requestBodyDecoder = new RequestBodyFormatter(this.logger);
     }
 
+    public dispose(): void {}
+
     public abstract init(): Promise<void>;
-    public abstract dispose(): void;
     public abstract handleMessage(data: RequestParams): void;
 }
