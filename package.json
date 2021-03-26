@@ -719,6 +719,16 @@
           ],
           "default": "Info",
           "scope": "resource"
+        },
+        "react-native-tools.networkInspector.consoleLogsColorTheme": {
+          "description": "%reactNative.configuration.properties.react-native-tools.consoleLogsColorTheme.description%",
+          "type": "string",
+          "enum": [
+            "Light",
+            "Dark"
+          ],
+          "default": "Light",
+          "scope": "resource"
         }
       }
     }
@@ -756,10 +766,13 @@
     "flatten-source-map": "0.0.2",
     "glob": "^7.1.6",
     "ip": "^1.1.5",
+    "js-base64": "^3.6.0",
     "jsonc-parser": "^3.0.0",
     "mkdirp": "^1.0.3",
     "openssl-wrapper": "^0.3.4",
+    "pako": "^2.0.3",
     "qr-image": "^3.2.0",
+    "querystring": "^0.2.1",
     "rsocket-core": "0.0.23",
     "rsocket-tcp-server": "0.0.23",
     "semver": "^6.3.0",
@@ -782,6 +795,7 @@
     "@types/mocha": "^8.0.3",
     "@types/ncp": "^2.0.3",
     "@types/node": "^10.17.26",
+    "@types/pako": "^1.0.1",
     "@types/qr-image": "^3.2.3",
     "@types/rimraf": "^3.0.0",
     "@types/rsocket-core": "0.0.6",

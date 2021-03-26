@@ -31,6 +31,7 @@ import { AdbHelper } from "./android/adb";
 import { LogCatMonitor } from "./android/logCatMonitor";
 import { LogCatMonitorManager } from "./android/logCatMonitorManager";
 import { NetworkInspectorServer } from "./networkInspector/networkInspectorServer";
+import { InspectorViewFactory } from "./networkInspector/views/inspectorViewFactory";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -403,6 +404,7 @@ export class CommandPaletteHandler {
             }
             await CommandPaletteHandler.networkInspectorModule.networkInspector.stop();
             CommandPaletteHandler.networkInspectorModule = null;
+            InspectorViewFactory.clearCache();
         }
     }
 

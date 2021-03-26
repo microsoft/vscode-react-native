@@ -229,7 +229,7 @@ export class CertificateProvider {
     private ensureOpenSSLIsAvailable(): void {
         if (!opensslInstalled()) {
             throw new Error(
-                "It looks like you don't have OpenSSL installed. Please install it to continue.",
+                "It looks like you don't have OpenSSL installed globally. Please install it and add it to Path to continue.",
             );
         }
     }
