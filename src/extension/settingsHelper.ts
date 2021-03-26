@@ -138,7 +138,7 @@ export class SettingsHelper {
             null,
         );
         if (workspaceConfiguration.has("consoleLogsColorTheme")) {
-            let consoleLogsColorTheme: string = ConfigurationReader.readString(
+            const consoleLogsColorTheme: string = ConfigurationReader.readString(
                 workspaceConfiguration.get("consoleLogsColorTheme"),
             );
             return SystemColorTheme[consoleLogsColorTheme];

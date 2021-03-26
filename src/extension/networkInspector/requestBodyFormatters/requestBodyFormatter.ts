@@ -82,7 +82,7 @@ export function decodeBody(container: Request | Response, logger?: OutputChannel
                 // on iOS, the stream send to flipper is already inflated, so the content-encoding will not
                 // match the actual data anymore, and we should skip inflating.
                 // In that case, we intentionally fall-through
-                if (!("" + e).includes("incorrect header check")) {
+                if (!e.toString().includes("incorrect header check")) {
                     throw e;
                 }
             }

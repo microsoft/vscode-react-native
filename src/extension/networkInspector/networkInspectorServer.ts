@@ -86,7 +86,7 @@ export class NetworkInspectorServer {
             try {
                 await this.initialisePromise;
             } catch (err) {
-                this.logger.debug(err.toString());
+                this.logger.error(err.toString());
             }
             if (this.secureServer) {
                 this.secureServer.stop();
