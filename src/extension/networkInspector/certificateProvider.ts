@@ -22,7 +22,15 @@ nls.config({
 })();
 const localize = nls.loadMessageBundle();
 
-// The code is borrowed from https://github.com/facebook/flipper/blob/master/desktop/app/src/utils/CertificateProvider.tsx
+// Start region: the code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/utils/CertificateProvider.tsx
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @format
+ */
 
 export type CertificateExchangeMedium = "FS_ACCESS" | "WWW";
 
@@ -142,27 +150,6 @@ export class CertificateProvider {
                 }
             })
             .then(async deviceId => {
-                if (medium === "WWW") {
-                    // const zipPromise = new Promise((resolve, reject) => {
-                    //     const output = fs.createWriteStream(certsZipPath);
-                    //     const archive = archiver("zip", {
-                    //         zlib: { level: 9 }, // Sets the compression level.
-                    //     });
-                    //     archive.directory(certFolder, false);
-                    //     output.on("close", function () {
-                    //         resolve(certsZipPath);
-                    //     });
-                    //     archive.on("warning", reject);
-                    //     archive.on("error", reject);
-                    //     archive.pipe(output);
-                    //     archive.finalize();
-                    // });
-                    // await reportPlatformFailures(zipPromise, "www-certs-exchange-zipping-certs");
-                    // await reportPlatformFailures(
-                    //     this.uploadFiles(certsZipPath, deviceId),
-                    //     "www-certs-exchange-uploading-certs",
-                    // );
-                }
                 return {
                     deviceId,
                 };
@@ -632,6 +619,8 @@ export class CertificateProvider {
             .then(path => fs.promises.writeFile(path.path, content).then(() => path.path));
     }
 }
+
+// End region
 
 function getFilePath(fileName: string): string {
     return path.resolve(os.homedir(), ".config", "vscode-react-native", "certs", fileName);

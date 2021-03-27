@@ -1,0 +1,14 @@
+{
+    "Registrations": [
+        {
+            "Component": {
+                "Type": "git",
+                "Git": {
+                    "RepositoryUrl": "https://github.com/facebook/flipper",
+                    "CommitHash": "095667b742d5d4297ee3aa22d99031f8c27f88db"
+                }
+            },
+            "DevelopmentDependency": false
+        }
+    ]
+}

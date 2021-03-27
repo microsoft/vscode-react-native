@@ -1,6 +1,16 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+// Start region: the code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/plugins/network/types.tsx
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @format
+ */
+
 export type ResponseFollowupChunk = {
     id: string;
     totalChunks: number;
@@ -62,3 +72,5 @@ export type PartialResponse = {
     initialResponse?: Response;
     followupChunks: { [id: number]: string };
 };
+
+// End region

@@ -77,6 +77,15 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
         });
     }
 
+    // The code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/dispatcher/iOSDevice.tsx#L81-L88
+    /**
+     * Copyright (c) Facebook, Inc. and its affiliates.
+     *
+     * This source code is licensed under the MIT license found in the
+     * LICENSE file in the root directory of this source tree.
+     *
+     * @format
+     */
     private startDevicePortForwarders(): void {
         if (this.portForwarders.length > 0) {
             // Only ever start them once.
@@ -86,6 +95,15 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
         this.portForwarders = [this.forwardPort(8089, 8079), this.forwardPort(8088, 8078)];
     }
 
+    // Start region: the code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/dispatcher/iOSDevice.tsx#L63-L79
+    /**
+     * Copyright (c) Facebook, Inc. and its affiliates.
+     *
+     * This source code is licensed under the MIT license found in the
+     * LICENSE file in the root directory of this source tree.
+     *
+     * @format
+     */
     private forwardPort(port: number, multiplexChannelPort: number): ChildProcess {
         const childProcess = execFile(
             this.portForwardingClientPath,
@@ -108,10 +126,21 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
         return childProcess;
     }
 
+    // End region
+
     private getRunningSimulators(): Promise<IiOSSimulator[]> {
         return this.iOSSimulatorManager.collectSimulators("booted");
     }
 
+    // The code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/dispatcher/iOSDevice.tsx#L227-L232
+    /**
+     * Copyright (c) Facebook, Inc. and its affiliates.
+     *
+     * This source code is licensed under the MIT license found in the
+     * LICENSE file in the root directory of this source tree.
+     *
+     * @format
+     */
     private getActiveDevices(): Promise<Array<DeviceTarget>> {
         return iosUtil.targets().catch(e => {
             this.logger.error(e.message);
@@ -119,6 +148,15 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
         });
     }
 
+    // The code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/dispatcher/iOSDevice.tsx#L282-L286
+    /**
+     * Copyright (c) Facebook, Inc. and its affiliates.
+     *
+     * This source code is licensed under the MIT license found in the
+     * LICENSE file in the root directory of this source tree.
+     *
+     * @format
+     */
     private isXcodeDetected(): Promise<boolean> {
         const cp = new ChildProcessUtils();
         return cp
