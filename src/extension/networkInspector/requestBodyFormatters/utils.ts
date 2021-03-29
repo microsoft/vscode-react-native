@@ -4,8 +4,10 @@
 import { TextDecoder } from "util";
 import { Base64 } from "js-base64";
 
-// The code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/plugins/network/chunks.tsx#L12-L28
 /**
+ * @preserve
+ * Start region: the code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/plugins/network/chunks.tsx#L12-L28
+ *
  * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
@@ -28,3 +30,8 @@ export function combineBase64Chunks(chunks: string[]): string {
     const data = new TextDecoder("utf-8").decode(buffer);
     return data;
 }
+
+/**
+ * @preserve
+ * End region: https://github.com/facebook/flipper/blob/v0.79.1/desktop/plugins/network/chunks.tsx#L12-L28
+ */

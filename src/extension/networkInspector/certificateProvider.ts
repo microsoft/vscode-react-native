@@ -22,8 +22,10 @@ nls.config({
 })();
 const localize = nls.loadMessageBundle();
 
-// Start region: the code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/utils/CertificateProvider.tsx
 /**
+ * @preserve
+ * Start region: the code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/utils/CertificateProvider.tsx
+ *
  * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
@@ -620,7 +622,10 @@ export class CertificateProvider {
     }
 }
 
-// End region
+/**
+ * @preserve
+ * End region: https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/utils/CertificateProvider.tsx
+ */
 
 function getFilePath(fileName: string): string {
     return path.resolve(os.homedir(), ".config", "vscode-react-native", "certs", fileName);

@@ -77,8 +77,10 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
         });
     }
 
-    // The code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/dispatcher/iOSDevice.tsx#L81-L88
     /**
+     * @preserve
+     * Start region: The code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/dispatcher/iOSDevice.tsx#L81-L88
+     *
      * Copyright (c) Facebook, Inc. and its affiliates.
      *
      * This source code is licensed under the MIT license found in the
@@ -95,8 +97,15 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
         this.portForwarders = [this.forwardPort(8089, 8079), this.forwardPort(8088, 8078)];
     }
 
-    // Start region: the code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/dispatcher/iOSDevice.tsx#L63-L79
     /**
+     * @preserve
+     * End region: https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/dispatcher/iOSDevice.tsx#L81-L88
+     */
+
+    /**
+     * @preserve
+     * Start region: the code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/dispatcher/iOSDevice.tsx#L63-L79
+     *
      * Copyright (c) Facebook, Inc. and its affiliates.
      *
      * This source code is licensed under the MIT license found in the
@@ -126,14 +135,19 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
         return childProcess;
     }
 
-    // End region
+    /**
+     * @preserve
+     * End region: https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/dispatcher/iOSDevice.tsx#L63-L79
+     */
 
     private getRunningSimulators(): Promise<IiOSSimulator[]> {
         return this.iOSSimulatorManager.collectSimulators("booted");
     }
 
-    // The code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/dispatcher/iOSDevice.tsx#L227-L232
     /**
+     * @preserve
+     * Start region: the code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/dispatcher/iOSDevice.tsx#L227-L232
+     *
      * Copyright (c) Facebook, Inc. and its affiliates.
      *
      * This source code is licensed under the MIT license found in the
@@ -148,8 +162,15 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
         });
     }
 
-    // The code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/dispatcher/iOSDevice.tsx#L282-L286
     /**
+     * @preserve
+     * End region: https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/dispatcher/iOSDevice.tsx#L227-L232
+     */
+
+    /**
+     * @preserve
+     * Start region: the code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/dispatcher/iOSDevice.tsx#L282-L286
+     *
      * Copyright (c) Facebook, Inc. and its affiliates.
      *
      * This source code is licensed under the MIT license found in the
@@ -164,4 +185,9 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
             .then(() => true)
             .catch(() => false);
     }
+
+    /**
+     * @preserve
+     * End region: https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/dispatcher/iOSDevice.tsx#L282-L286
+     */
 }

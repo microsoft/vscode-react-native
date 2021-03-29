@@ -25,8 +25,10 @@ nls.config({
 })();
 const localize = nls.loadMessageBundle();
 
-// Start region: the code is borrowed from https://github.com/facebook/flipper/blob/master/desktop/app/src/server.tsx
 /**
+ * @preserve
+ * Start region: the code is borrowed from https://github.com/facebook/flipper/blob/master/desktop/app/src/server.tsx
+ *
  * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
@@ -376,7 +378,10 @@ export class NetworkInspectorServer {
         });
     }
 
-    // End region
+    /**
+     * @preserve
+     * End region: https://github.com/facebook/flipper/blob/master/desktop/app/src/server.tsx
+     */
 
     private removeConnection(id: string) {
         const clientDevice = this.connections.get(id);

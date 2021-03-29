@@ -61,8 +61,10 @@ export class RequestBodyFormatter {
     }
 }
 
-// The code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/plugins/network/utils.tsx#L23-L60
 /**
+ * @preserve
+ * Start region: the code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/plugins/network/utils.tsx#L23-L60
+ *
  * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
@@ -110,8 +112,15 @@ export function decodeBody(container: Request | Response, logger?: OutputChannel
     }
 }
 
-// The code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/plugins/network/utils.tsx#L14-L21
 /**
+ * @preserve
+ * End region: https://github.com/facebook/flipper/blob/v0.79.1/desktop/plugins/network/utils.tsx#L23-L60
+ */
+
+/**
+ * @preserve
+ * Start region: the code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/plugins/network/utils.tsx#L14-L21
+ *
  * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
@@ -127,3 +136,8 @@ export function getHeaderValue(headers: Array<Header>, key: string): string {
     }
     return "";
 }
+
+/**
+ * @preserve
+ * End region: https://github.com/facebook/flipper/blob/v0.79.1/desktop/plugins/network/utils.tsx#L14-L21
+ */

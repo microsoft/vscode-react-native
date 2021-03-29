@@ -5,8 +5,10 @@ import { IFormatter, decodeBody, FormattedBody } from "./requestBodyFormatter";
 import { OutputChannelLogger } from "../../log/OutputChannelLogger";
 import { Request } from "../networkMessageData";
 
-// The code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/plugins/network/RequestDetails.tsx#L769-L785
 /**
+ * @preserve
+ * Start region: the code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/plugins/network/RequestDetails.tsx#L769-L785
+ *
  * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
@@ -29,3 +31,8 @@ export class FormUrlencodedFormatter implements IFormatter {
         return null;
     }
 }
+
+/**
+ * @preserve
+ * End region: https://github.com/facebook/flipper/blob/v0.79.1/desktop/plugins/network/RequestDetails.tsx#L769-L785
+ */
