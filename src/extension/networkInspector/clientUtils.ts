@@ -45,7 +45,6 @@ export function buildClientId(
  * End region: https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/utils/clientUtils.tsx#L60-L78
  */
 
-
 /**
  * @preserve
  * Start region: the code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/server.tsx#L74-L83
