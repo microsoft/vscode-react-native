@@ -5,6 +5,7 @@ React Native Tools incorporates third party material from the projects listed be
 1.	DefinitelyTyped (https://github.com/DefinitelyTyped/DefinitelyTyped)
 2.	TACO Tools for Apache Cordova (https://github.com/microsoft/TACO)
 3.	Visual Studio Code (https://github.com/microsoft/vscode)
+4.	Flipper (https://github.com/facebook/flipper)
 
 %% DefinitelyTyped NOTICES, INFORMATION, AND LICENSE BEGIN HERE
 =========================================
@@ -104,6 +105,11 @@ END OF Visual Studio Code NOTICES, INFORMATION, AND LICENSE
 
 %% Flipper NOTICES, INFORMATION, AND LICENSE BEGIN HERE
 =========================================
+Borrowed files:
+* local: static/PortForwardingMacApp.app - original: https://github.com/facebook/flipper/tree/v0.79.1/desktop/static/PortForwardingMacApp.app
+* local: src/typings/openssl-wrapper/openssl-wrapper.d.ts - original: https://github.com/facebook/flipper/blob/v0.79.1/desktop/types/openssl-wrapper.d.ts
+* local: src/common/opensslWrapperWithPromises.ts - original: https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/utils/openssl-wrapper-with-promises.tsx
+
 MIT License
 
 Copyright (c) Facebook, Inc. and its affiliates.
