@@ -642,10 +642,18 @@ module.exports.watchFolders = ['.vscode'];`;
         return useCachedApp;
     }
 
-    private installPackagesForProject(project: TestProject, isDev: boolean = false, ... packages: string[]): void {
-        const command = `${utilities.npmCommand} install ${packages.join(" ")} ${isDev ? "--save-dev" : ""}`;
+    private installPackagesForProject(
+        project: TestProject,
+        isDev: boolean = false,
+        ...packages: string[]
+    ): void {
+        const command = `${utilities.npmCommand} install ${packages.join(" ")} ${
+            isDev ? "--save-dev" : ""
+        }`;
         SmokeTestLogger.projectInstallLog(
-            `*** Adding ${packages.join(", ")} package${packages.length > 1 ? "s" : ""} to project in ${project.workspaceDirectory} via '${command}' ...`,
+            `*** Adding ${packages.join(", ")} package${
+                packages.length > 1 ? "s" : ""
+            } to project in ${project.workspaceDirectory} via '${command}' ...`,
         );
         utilities.execSync(
             command,
