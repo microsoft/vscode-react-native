@@ -4,8 +4,7 @@ React Native Tools incorporates third party material from the projects listed be
 
 1.	DefinitelyTyped (https://github.com/DefinitelyTyped/DefinitelyTyped)
 2.	TACO Tools for Apache Cordova (https://github.com/microsoft/TACO)
-3.	Visual Studio Code (https://github.com/microsoft/vscode)
-4.	Flipper (https://github.com/facebook/flipper)
+3.  Visual Studio Code (https://github.com/microsoft/vscode)
 
 %% DefinitelyTyped NOTICES, INFORMATION, AND LICENSE BEGIN HERE
 =========================================
@@ -102,34 +101,3 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 =========================================
 END OF Visual Studio Code NOTICES, INFORMATION, AND LICENSE
-
-%% Flipper NOTICES, INFORMATION, AND LICENSE BEGIN HERE
-=========================================
-Borrowed files:
-* local: static/PortForwardingMacApp.app - original: https://github.com/facebook/flipper/tree/v0.79.1/desktop/static/PortForwardingMacApp.app
-* local: src/typings/openssl-wrapper/openssl-wrapper.d.ts - original: https://github.com/facebook/flipper/blob/v0.79.1/desktop/types/openssl-wrapper.d.ts
-* local: src/common/opensslWrapperWithPromises.ts - original: https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/utils/openssl-wrapper-with-promises.tsx
-
-MIT License
-
-Copyright (c) Facebook, Inc. and its affiliates.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-=========================================
-END OF Flipper NOTICES, INFORMATION, AND LICENSE

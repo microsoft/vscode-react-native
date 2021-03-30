@@ -7,17 +7,7 @@ import { InspectorView, InspectorViewType } from "./views/inspectorView";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { InspectorViewFactory } from "./views/inspectorViewFactory";
 
-/**
- * @preserve
- * Start region: the code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/Client.tsx
- *
- * Copyright (c) Facebook, Inc. and its affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- * @format
- */
+// The code is borrowed from https://github.com/facebook/flipper/blob/master/desktop/app/src/Client.tsx
 
 export interface ClientIdConstituents {
     app: string;
@@ -262,8 +252,3 @@ export class ClientDevice {
         return !!(this._connection && (!plugin || this.activePlugins.has(plugin)));
     }
 }
-
-/**
- * @preserve
- * End region: https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/Client.tsx
- */
