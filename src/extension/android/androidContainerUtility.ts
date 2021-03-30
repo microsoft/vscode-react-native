@@ -29,6 +29,18 @@ class RunAsError extends Error {
     }
 }
 
+/**
+ * @preserve
+ * Start region: the code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/utils/androidContainerUtility.tsx#L19-L46
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @format
+ */
+
 export function push(
     adbHelper: AdbHelper,
     deviceId: string,
@@ -46,6 +58,25 @@ export function push(
     );
 }
 
+export function pull(
+    adbHelper: AdbHelper,
+    deviceId: string,
+    app: string,
+    path: string,
+    logger?: OutputChannelLogger,
+): Promise<string> {
+    return validateAppName(app).then(validApp =>
+        validateFilePath(path).then(validPath =>
+            _pull(adbHelper, deviceId, validApp, validPath, logger),
+        ),
+    );
+}
+
+/**
+ * @preserve
+ * End region: https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/utils/androidContainerUtility.tsx#L19-L46
+ */
+
 export function pushFile(
     adbHelper: AdbHelper,
     deviceId: string,
@@ -61,19 +92,40 @@ export function pushFile(
     );
 }
 
-export function pull(
+function _pushFile(
     adbHelper: AdbHelper,
     deviceId: string,
     app: string,
-    path: string,
+    destFilepath: string,
+    sourceFilepath: string,
     logger?: OutputChannelLogger,
-): Promise<string> {
-    return validateAppName(app).then(validApp =>
-        validateFilePath(path).then(validPath =>
-            _pull(adbHelper, deviceId, validApp, validPath, logger),
-        ),
-    );
+): Promise<void> {
+    const destFileName = path.basename(destFilepath);
+    const tmpFilePath = deviceTmpDir + destFileName;
+    return adbHelper
+        .executeQuery(deviceId, `push ${sourceFilepath} ${tmpFilePath}`)
+        .then(res => {
+            logger?.debug(res);
+            const command = `cp "${tmpFilePath}" "${destFilepath}" && chmod 644 "${destFilepath}"`;
+            return executeCommandAsApp(adbHelper, deviceId, app, command);
+        })
+        .then(res => {
+            logger?.debug(res);
+        })
+        .finally(() => adbHelper.executeShellCommand(deviceId, `rm ${tmpFilePath}`));
 }
+
+/**
+ * @preserve
+ * Start region: the code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/utils/androidContainerUtilityInternal.tsx
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @format
+ */
 
 function validateAppName(app: string): Promise<string> {
     if (app.match(allowedAppNameRegex)) {
@@ -121,29 +173,6 @@ function _push(
             }
             throw error;
         });
-}
-
-function _pushFile(
-    adbHelper: AdbHelper,
-    deviceId: string,
-    app: string,
-    destFilepath: string,
-    sourceFilepath: string,
-    logger?: OutputChannelLogger,
-): Promise<void> {
-    const destFileName = path.basename(destFilepath);
-    const tmpFilePath = deviceTmpDir + destFileName;
-    return adbHelper
-        .executeQuery(deviceId, `push ${sourceFilepath} ${tmpFilePath}`)
-        .then(res => {
-            logger?.debug(res);
-            const command = `cp "${tmpFilePath}" "${destFilepath}" && chmod 644 "${destFilepath}"`;
-            return executeCommandAsApp(adbHelper, deviceId, app, command);
-        })
-        .then(res => {
-            logger?.debug(res);
-        })
-        .finally(() => adbHelper.executeShellCommand(deviceId, `rm ${tmpFilePath}`));
 }
 
 function _pull(
@@ -214,3 +243,8 @@ function _executeCommandWithRunner(
         return output;
     });
 }
+
+/**
+ * @preserve
+ * End region: https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/utils/androidContainerUtilityInternal.tsx
+ */

@@ -61,6 +61,17 @@ export class RequestBodyFormatter {
     }
 }
 
+/**
+ * @preserve
+ * Start region: the code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/plugins/network/utils.tsx#L23-L60
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @format
+ */
 export function decodeBody(container: Request | Response, logger?: OutputChannelLogger): string {
     if (!container.data) {
         return "";
@@ -101,6 +112,22 @@ export function decodeBody(container: Request | Response, logger?: OutputChannel
     }
 }
 
+/**
+ * @preserve
+ * End region: https://github.com/facebook/flipper/blob/v0.79.1/desktop/plugins/network/utils.tsx#L23-L60
+ */
+
+/**
+ * @preserve
+ * Start region: the code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/plugins/network/utils.tsx#L14-L21
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @format
+ */
 export function getHeaderValue(headers: Array<Header>, key: string): string {
     for (const header of headers) {
         if (header.key.toLowerCase() === key.toLowerCase()) {
@@ -109,3 +136,8 @@ export function getHeaderValue(headers: Array<Header>, key: string): string {
     }
     return "";
 }
+
+/**
+ * @preserve
+ * End region: https://github.com/facebook/flipper/blob/v0.79.1/desktop/plugins/network/utils.tsx#L14-L21
+ */

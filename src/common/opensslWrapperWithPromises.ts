@@ -1,5 +1,12 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for details.
+/* eslint-disable header/header */
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @format
+ */
 
 import { exec as opensslWithCallback, Action } from "openssl-wrapper";
 import * as child_process from "child_process";
@@ -19,3 +26,4 @@ export function openssl(action: Action, options: Record<string, any>): Promise<s
 export function isInstalled(): boolean {
     return !child_process.spawnSync("openssl", ["version"]).error;
 }
+/* eslint-enable header/header */

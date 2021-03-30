@@ -9,7 +9,17 @@ import { DeviceType } from "../launchArgs";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { promises, constants } from "fs";
 
-// The code is borrowed from https://github.com/facebook/flipper/blob/master/desktop/app/src/utils/iOSContainerUtility.tsx
+/**
+ * @preserve
+ * Start region: the code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/utils/iOSContainerUtility.tsx
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @format
+ */
 
 export const idbPath = "/usr/local/bin/idb";
 // Use debug to get helpful logs when idb fails
@@ -175,3 +185,8 @@ export default {
     push,
     pull,
 };
+
+/**
+ * @preserve
+ * End region: https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/utils/iOSContainerUtility.tsx
+ */

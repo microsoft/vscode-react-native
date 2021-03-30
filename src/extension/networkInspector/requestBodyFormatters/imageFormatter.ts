@@ -4,6 +4,18 @@
 import { IFormatter, FormattedBody } from "./requestBodyFormatter";
 import { Response } from "../networkMessageData";
 
+/**
+ * @preserve
+ * Start region: the code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/plugins/network/RequestDetails.tsx#L482-L497
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @format
+ */
+
 export class ImageFormatter implements IFormatter {
     public formatResponse(response: Response, contentType: string): FormattedBody | null {
         if (contentType.startsWith("image/") && response.data) {
@@ -12,3 +24,8 @@ export class ImageFormatter implements IFormatter {
         return null;
     }
 }
+
+/**
+ * @preserve
+ * End region: https://github.com/facebook/flipper/blob/v0.79.1/desktop/plugins/network/RequestDetails.tsx#L482-L497
+ */
