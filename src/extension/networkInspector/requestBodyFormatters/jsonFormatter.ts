@@ -5,18 +5,6 @@ import { OutputChannelLogger } from "../../log/OutputChannelLogger";
 import { Request, Response } from "../networkMessageData";
 import { IFormatter, decodeBody, FormattedBody } from "./requestBodyFormatter";
 
-/**
- * @preserve
- * Start region: the code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/plugins/network/RequestDetails.tsx#L609-L653
- *
- * Copyright (c) Facebook, Inc. and its affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- * @format
- */
-
 export class JSONFormatter implements IFormatter {
     constructor(private logger: OutputChannelLogger) {}
 
@@ -45,8 +33,3 @@ export class JSONFormatter implements IFormatter {
         return null;
     }
 }
-
-/**
- * @preserve
- * End region: https://github.com/facebook/flipper/blob/v0.79.1/desktop/plugins/network/RequestDetails.tsx#L609-L653
- */

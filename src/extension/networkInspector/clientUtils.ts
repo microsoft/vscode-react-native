@@ -11,17 +11,6 @@ export enum ClientOS {
     MacOS = "MacOS",
 }
 
-/**
- * @preserve
- * Start region: the code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/utils/clientUtils.tsx#L60-L78
- *
- * Copyright (c) Facebook, Inc. and its affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- * @format
- */
 export function buildClientId(
     clientInfo: {
         app: string;
@@ -40,22 +29,6 @@ export function buildClientId(
     return `${escapedName}#${clientInfo.os}#${clientInfo.device}#${clientInfo.device_id}`;
 }
 
-/**
- * @preserve
- * End region: https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/utils/clientUtils.tsx#L60-L78
- */
-
-/**
- * @preserve
- * Start region: the code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/server.tsx#L74-L83
- *
- * Copyright (c) Facebook, Inc. and its affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- * @format
- */
 export function appNameWithUpdateHint(query: ClientQuery): string {
     // in previous version (before 3), app may not appear in correct device
     // section because it refers to the name given by client which is not fixed
@@ -66,8 +39,3 @@ export function appNameWithUpdateHint(query: ClientQuery): string {
     }
     return query.app;
 }
-
-/**
- * @preserve
- * End region: https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/server.tsx#L74-L83
- */
