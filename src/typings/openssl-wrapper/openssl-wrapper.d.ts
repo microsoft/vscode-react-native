@@ -1,3 +1,12 @@
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @format
+ */
+
 // Type definitions for openssl-wrapper 0.3.4
 // Project: https://github.com/mgcrea/node-openssl-wrapper
 // Definitions by: facebook/flipper <https://github.com/facebook/flipper>

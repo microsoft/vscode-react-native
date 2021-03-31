@@ -141,6 +141,17 @@ export class InspectorConsoleView extends InspectorView {
         }
     }
 
+    /**
+     * @preserve
+     * Start region: the code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/plugins/network/index.tsx#L276-L324
+     *
+     * Copyright (c) Facebook, Inc. and its affiliates.
+     *
+     * This source code is licensed under the MIT license found in the
+     * LICENSE file in the root directory of this source tree.
+     *
+     * @format
+     */
     private assembleChunksIfResponseIsComplete(
         partialResponseEntry: PartialResponse,
     ): Response | null {
@@ -176,6 +187,11 @@ export class InspectorConsoleView extends InspectorView {
 
         return newResponse;
     }
+
+    /**
+     * @preserve
+     * End region: https://github.com/facebook/flipper/blob/v0.79.1/desktop/plugins/network/index.tsx#L276-L324
+     */
 
     private createNetworkRequestData(
         request: Request,

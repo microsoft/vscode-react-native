@@ -25,7 +25,17 @@ nls.config({
 })();
 const localize = nls.loadMessageBundle();
 
-// The code is borrowed from https://github.com/facebook/flipper/blob/master/desktop/app/src/server.tsx
+/**
+ * @preserve
+ * Start region: the code is borrowed from https://github.com/facebook/flipper/blob/master/desktop/app/src/server.tsx
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @format
+ */
 
 function transformCertificateExchangeMediumToType(
     medium: number | undefined,
@@ -367,6 +377,11 @@ export class NetworkInspectorServer {
             return client;
         });
     }
+
+    /**
+     * @preserve
+     * End region: https://github.com/facebook/flipper/blob/master/desktop/app/src/server.tsx
+     */
 
     private removeConnection(id: string) {
         const clientDevice = this.connections.get(id);
