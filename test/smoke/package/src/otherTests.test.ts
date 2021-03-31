@@ -128,6 +128,8 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
                 launchConfigurationManager.updateLaunchScenario(IosRNDebugConfigName, {
                     target: "simulator",
                 });
+                await sleep(10000);
+                await IosSimulatorManager.shutdownAllSimulators();
                 SmokeTestLogger.info(
                     "iOS simulator save test: Starting debugging at the first time",
                 );

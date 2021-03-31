@@ -416,6 +416,7 @@ export default class IosSimulatorManager {
                 throw IosSimulatorManager.getRunError(cmd, result.FailedState);
             }
         }
+        SmokeTestLogger.success(`*** iOS simulators with name "${simulatorName}" has been terminated.`);
     }
 
     public static async waitUntilAllIosSimulatorsTerminating(): Promise<boolean> {
