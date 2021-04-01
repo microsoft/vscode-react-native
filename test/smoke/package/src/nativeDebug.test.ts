@@ -100,6 +100,7 @@ export function startReactNativeTests(
                 SmokeTestLogger.info(
                     'Android Debug test: Searching for "Test output from debuggee" string in console',
                 );
+                await automationHelper.runCommandWithRetry("Debug: Focus on Debug Console View");
                 let found = await app.workbench.debug.waitForOutput(output =>
                     output.some(line => line.indexOf("Test output from debuggee") >= 0),
                 );
@@ -166,6 +167,7 @@ export function startReactNativeTests(
                 SmokeTestLogger.info(
                     'iOS Debug test: Searching for "Test output from debuggee" string in console',
                 );
+                await automationHelper.runCommandWithRetry("Debug: Focus on Debug Console View");
                 let found = await app.workbench.debug.waitForOutput(output =>
                     output.some(line => line.indexOf("Test output from debuggee") >= 0),
                 );
