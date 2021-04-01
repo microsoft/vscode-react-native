@@ -111,7 +111,9 @@ export function startDebugRNWTests(project: TestProject, testParameters: TestRun
                     SmokeTestLogger.info(
                         'Windows Debug test: Searching for "Test output from debuggee" string in console',
                     );
-                    await automationHelper.runCommandWithRetry("Debug: Focus on Debug Console View");
+                    await automationHelper.runCommandWithRetry(
+                        "Debug: Focus on Debug Console View",
+                    );
                     let found = await app.workbench.debug.waitForOutput(output =>
                         output.some(line => line.indexOf("Test output from debuggee") >= 0),
                     );
