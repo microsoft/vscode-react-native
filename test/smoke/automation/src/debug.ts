@@ -172,6 +172,7 @@ export class Debug extends Viewlet {
     }
 
     public async waitForOutput(fn: (output: string[]) => boolean): Promise<string[]> {
+        await this.commands.runCommand("Output: Focus on Output View");
         const elements = await this.code.waitForElements(CONSOLE_OUTPUT, false, elements => fn(elements.map(e => e.textContent)));
         return elements.map(e => e.textContent);
     }

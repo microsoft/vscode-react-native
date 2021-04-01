@@ -291,6 +291,9 @@ export default class AndroidEmulatorManager {
     }
 
     public static closeApp(packageName: string): void {
+        SmokeTestLogger.info(
+            `*** Clearing installed application with package name ${packageName}...`,
+        );
         cp.execSync(`adb shell pm clear ${packageName}`);
     }
 
