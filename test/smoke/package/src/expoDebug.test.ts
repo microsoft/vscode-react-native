@@ -12,8 +12,9 @@ import { TestRunArguments } from "./helpers/testConfigProcessor";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 import TestProject from "./helpers/testProject";
 import AutomationHelper from "./helpers/AutomationHelper";
+import AndroidEmulatorManager from "./helpers/androidEmulatorManager";
 
-const EXPO_APP_LAUNCH_TIMEOUT = 240_000;
+const EXPO_APP_LAUNCH_TIMEOUT = 120_000;
 const ExpoSuccessPattern = "Tunnel ready";
 const ExpoFailurePattern = "XDLError";
 
@@ -54,16 +55,29 @@ export function startExpoTests(
         }
 
         async function disposeAll() {
-            SmokeTestLogger.info("Dispose all ...");
-            if (app) {
-                SmokeTestLogger.info("Stopping React Native packager ...");
-                await automationHelper.runCommandWithRetry(SmokeTestsConstants.stopPackagerCommand);
-                await sleep(3000);
-                await app.stop();
-            }
-            if (client) {
-                await client.closeApp();
-                await client.deleteSession();
+            try {
+                SmokeTestLogger.info("Dispose all ...");
+                if (app) {
+                    SmokeTestLogger.info("Stopping React Native packager ...");
+                    await automationHelper.runCommandWithRetry(
+                        SmokeTestsConstants.stopPackagerCommand,
+                    );
+                    await sleep(3000);
+                    SmokeTestLogger.info("Stopping application ...");
+                    await app.stop();
+                }
+                if (client) {
+                    SmokeTestLogger.info("Closing application ...");
+                    await client.closeApp();
+                    SmokeTestLogger.info("Deleting session ...");
+                    await client.deleteSession();
+                }
+                SmokeTestLogger.info("Clearing android application ...");
+                AndroidEmulatorManager.closeApp(EXPO_APP_PACKAGE_NAME);
+            } catch (error) {
+                SmokeTestLogger.error("Error while disposeAll:");
+                SmokeTestLogger.error(error);
+                // throw error;
             }
         }
 

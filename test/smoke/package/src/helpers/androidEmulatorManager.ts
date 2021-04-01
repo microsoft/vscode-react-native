@@ -163,7 +163,11 @@ export default class AndroidEmulatorManager {
         proc.stderr.on("data", chunk => {
             process.stderr.write(chunk);
         });
-        return this.waitUntilEmulatorStarting();
+        return this.waitUntilEmulatorStarting().then(async result => {
+            // Waiting for all services to start
+            await sleep(60_000);
+            return result;
+        });
     }
 
     public async terminateAndroidEmulator(): Promise<boolean> {
@@ -284,6 +288,10 @@ export default class AndroidEmulatorManager {
                 return result;
             },
         );
+    }
+
+    public static closeApp(packageName: string): void {
+        cp.execSync(`adb shell pm clear ${packageName}`);
     }
 
     private static getOnlineDevices(): IDevice[] {

@@ -39,6 +39,7 @@ export function startDebugRNWTests(project: TestProject, testParameters: TestRun
                 SmokeTestLogger.info("Stopping React Native packager ...");
                 await automationHelper.runCommandWithRetry(SmokeTestsConstants.stopPackagerCommand);
                 await sleep(3000);
+                SmokeTestLogger.info("Stopping application ...");
                 await app.stop();
             }
         }
