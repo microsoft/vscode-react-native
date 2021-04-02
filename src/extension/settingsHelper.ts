@@ -6,6 +6,7 @@ import { ConfigurationReader } from "../common/configurationReader";
 import { Packager } from "../common/packager";
 import { LogLevel } from "./log/LogHelper";
 import { PackagerStatusIndicator } from "./packagerStatusIndicator";
+// import { getProjectRoot } from "../../src/debugger/debugSessionBase"
 
 export class SettingsHelper {
     /**
@@ -47,9 +48,18 @@ export class SettingsHelper {
      * Get the React Native project root path
      */
     public static getReactNativeProjectRoot(fsPath: string): string {
-        const uri = vscode.Uri.file(fsPath);
-        const workspaceFolder = <vscode.WorkspaceFolder>vscode.workspace.getWorkspaceFolder(uri);
-        const workspaceConfiguration = vscode.workspace.getConfiguration("react-native-tools", uri);
+        const folderUri = vscode.Uri.parse(fsPath);
+        const folderName = path.basename(fsPath);
+        const newFolder = {
+            uri: folderUri,
+            name: folderName,
+            index: 999,
+        };
+        const workspaceFolder = <vscode.WorkspaceFolder>newFolder;
+        const workspaceConfiguration = vscode.workspace.getConfiguration(
+            "react-native-tools",
+            folderUri,
+        );
         if (workspaceConfiguration.has("projectRoot")) {
             let projectRoot: string = ConfigurationReader.readString(
                 workspaceConfiguration.get("projectRoot"),

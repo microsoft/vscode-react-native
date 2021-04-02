@@ -27,6 +27,7 @@ import { MultipleLifetimesAppWorker } from "../debugger/appWorker";
 import { PlatformType } from "./launchArgs";
 import { LaunchScenariosManager } from "./launchScenariosManager";
 import { IVirtualDevice } from "./VirtualDeviceManager";
+import { createAdditionalWorkspaceFolder, onFolderAdded } from "./rn-extension";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -49,11 +50,19 @@ export class AppLauncher {
     private launchScenariosManager: LaunchScenariosManager;
 
     public static getAppLauncherByProjectRootPath(projectRootPath: string): AppLauncher {
-        const appLauncher = ProjectsStorage.projectsCache[projectRootPath.toLowerCase()];
+        let appLauncher = ProjectsStorage.projectsCache[projectRootPath.toLowerCase()];
         if (!appLauncher) {
-            throw new Error(
-                `Could not find AppLauncher by the project root path ${projectRootPath}`,
-            );
+            const appLauncherFolder = createAdditionalWorkspaceFolder(projectRootPath);
+            if (appLauncherFolder) {
+                onFolderAdded(appLauncherFolder);
+                appLauncher =
+                    ProjectsStorage.projectsCache[appLauncherFolder.uri.fsPath.toLocaleLowerCase()];
+            }
+            if (!appLauncher) {
+                throw new Error(
+                    `Could not find AppLauncher by the project root path ${projectRootPath}`,
+                );
+            }
         }
 
         return appLauncher;
@@ -327,7 +336,8 @@ export class AppLauncher {
                                 ) {
                                     // If we disable debugging mode for iOS scenarios, we'll we ignore the error and run the 'run-ios' command anyway,
                                     // since the error doesn't affects an application launch process
-                                    return resolve();
+                                    // return resolve();
+                                    return resolve(void 0);
                                 }
                                 generator.addError(error);
                                 this.logger.error(error);
@@ -478,6 +488,7 @@ export class AppLauncher {
         return mobilePlatformOptions;
     }
 
+    // !!! private
     private getProjectRoot(args: any): string {
         return SettingsHelper.getReactNativeProjectRoot(args.cwd || args.program);
     }
