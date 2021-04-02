@@ -14,6 +14,7 @@ import TestProject from "./helpers/testProject";
 import { sleep } from "./helpers/utilities";
 import { androidEmulatorManager, iosSimulatorManager, vscodeManager } from "./main";
 
+const RN_APP_PACKAGE_NAME = "com.latestrnapp";
 const AndroidRNDebugConfigName = "Debug Android";
 
 const IosRNDebugConfigName = "Debug classic iOS";
@@ -39,12 +40,23 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
         }
 
         async function disposeAll() {
-            SmokeTestLogger.info("Dispose all ...");
-            if (app) {
-                SmokeTestLogger.info("Stopping React Native packager ...");
-                await automationHelper.runCommandWithRetry(SmokeTestsConstants.stopPackagerCommand);
-                await sleep(3000);
-                await app.stop();
+            try {
+                SmokeTestLogger.info("Dispose all ...");
+                if (app) {
+                    SmokeTestLogger.info("Stopping React Native packager ...");
+                    await automationHelper.runCommandWithRetry(
+                        SmokeTestsConstants.stopPackagerCommand,
+                    );
+                    await sleep(3000);
+                    SmokeTestLogger.info("Stopping application ...");
+                    await app.stop();
+                }
+                SmokeTestLogger.info("Clearing android application ...");
+                AndroidEmulatorManager.closeApp(RN_APP_PACKAGE_NAME);
+            } catch (error) {
+                SmokeTestLogger.error("Error while disposeAll:");
+                SmokeTestLogger.error(error);
+                // throw error;
             }
         }
 
@@ -128,6 +140,8 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
                 launchConfigurationManager.updateLaunchScenario(IosRNDebugConfigName, {
                     target: "simulator",
                 });
+                await sleep(10000);
+                await IosSimulatorManager.shutdownAllSimulators();
                 SmokeTestLogger.info(
                     "iOS simulator save test: Starting debugging at the first time",
                 );

@@ -439,13 +439,13 @@ export class TestApplicationSetupManager {
 
     private prepareExpoApplication(project: TestProject, expoSdkMajorVersion?: string) {
         const useSpecificSdk = expoSdkMajorVersion ? `@sdk-${expoSdkMajorVersion}` : "";
-        const command = `echo -ne '\\n' | expo init -t tabs${useSpecificSdk} --name ${project.appName} ${project.appName}`;
+        const initCommand = `echo -ne '\\n' | expo init -t tabs${useSpecificSdk} --name ${project.appName} ${project.appName}`;
 
         SmokeTestLogger.projectInstallLog(
-            `*** Creating Expo app via '${command}' in ${project.workspaceDirectory}...`,
+            `*** Creating Expo app via '${initCommand}' in ${project.workspaceDirectory}...`,
         );
         utilities.execSync(
-            command,
+            initCommand,
             { cwd: project.parentPathForWorkspace },
             vscodeManager.getSetupEnvironmentLogDir(),
         );
@@ -467,6 +467,18 @@ export class TestApplicationSetupManager {
 
         this.patchMetroConfig(project);
         this.patchExpoSettingsFile(project);
+
+        // We should install @expo/ngrok locally for Debug in Exponent (Tunnel)
+        this.installPackagesForProject(project, true, "@expo/ngrok");
+        const npmInstallCommand = `${utilities.npmCommand} install`;
+        SmokeTestLogger.projectInstallLog(
+            `*** Update node_modules for project in ${project.workspaceDirectory} via '${npmInstallCommand}' ...`,
+        );
+        utilities.execSync(
+            npmInstallCommand,
+            { cwd: project.workspaceDirectory },
+            vscodeManager.getSetupEnvironmentLogDir(),
+        );
     }
 
     private preparePureExpoApplication(
@@ -500,16 +512,8 @@ export class TestApplicationSetupManager {
 
     private addExpoDependencyToRNProject(project: TestProject, version?: string) {
         let expoPackage: string = version ? `expo@${version}` : "expo";
-        const command = `${utilities.npmCommand} install ${expoPackage} --save-dev`;
 
-        SmokeTestLogger.projectPatchingLog(
-            `*** Adding expo dependency to ${project.workspaceDirectory} via '${command}' command...`,
-        );
-        utilities.execSync(
-            command,
-            { cwd: project.workspaceDirectory },
-            vscodeManager.getSetupEnvironmentLogDir(),
-        );
+        this.installPackagesForProject(project, true, expoPackage);
 
         SmokeTestLogger.projectPatchingLog(
             `*** Copying  ${project.sampleEntryPointPath} into ${project.projectEntryPointPath}...`,
@@ -636,6 +640,26 @@ module.exports.watchFolders = ['.vscode'];`;
             useCachedApp = false;
         }
         return useCachedApp;
+    }
+
+    private installPackagesForProject(
+        project: TestProject,
+        isDev: boolean = false,
+        ...packages: string[]
+    ): void {
+        const command = `${utilities.npmCommand} install ${packages.join(" ")} ${
+            isDev ? "--save-dev" : ""
+        }`;
+        SmokeTestLogger.projectInstallLog(
+            `*** Adding ${packages.join(", ")} package${
+                packages.length > 1 ? "s" : ""
+            } to project in ${project.workspaceDirectory} via '${command}' ...`,
+        );
+        utilities.execSync(
+            command,
+            { cwd: project.workspaceDirectory },
+            vscodeManager.getSetupEnvironmentLogDir(),
+        );
     }
 
     private execGradlewCleanCommand(project: TestProject): void {

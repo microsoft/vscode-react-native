@@ -3,6 +3,7 @@
 
 import * as assert from "assert";
 import { Application } from "../../automation";
+import AndroidEmulatorManager from "./helpers/androidEmulatorManager";
 import AutomationHelper from "./helpers/AutomationHelper";
 import { LaunchConfigurationManager } from "./helpers/launchConfigurationManager";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
@@ -44,12 +45,23 @@ export function startReactNativeTests(
         }
 
         async function disposeAll() {
-            SmokeTestLogger.info("Dispose all ...");
-            if (app) {
-                SmokeTestLogger.info("Stopping React Native packager ...");
-                await automationHelper.runCommandWithRetry(SmokeTestsConstants.stopPackagerCommand);
-                await sleep(3000);
-                await app.stop();
+            try {
+                SmokeTestLogger.info("Dispose all ...");
+                if (app) {
+                    SmokeTestLogger.info("Stopping React Native packager ...");
+                    await automationHelper.runCommandWithRetry(
+                        SmokeTestsConstants.stopPackagerCommand,
+                    );
+                    await sleep(3000);
+                    SmokeTestLogger.info("Stopping application ...");
+                    await app.stop();
+                }
+                SmokeTestLogger.info("Clearing android application ...");
+                AndroidEmulatorManager.closeApp(RN_APP_PACKAGE_NAME);
+            } catch (error) {
+                SmokeTestLogger.error("Error while disposeAll:");
+                SmokeTestLogger.error(error);
+                // throw error;
             }
         }
 
@@ -88,6 +100,7 @@ export function startReactNativeTests(
                 SmokeTestLogger.info(
                     'Android Debug test: Searching for "Test output from debuggee" string in console',
                 );
+                await automationHelper.runCommandWithRetry("Debug: Focus on Debug Console View");
                 let found = await app.workbench.debug.waitForOutput(output =>
                     output.some(line => line.indexOf("Test output from debuggee") >= 0),
                 );
@@ -154,6 +167,7 @@ export function startReactNativeTests(
                 SmokeTestLogger.info(
                     'iOS Debug test: Searching for "Test output from debuggee" string in console',
                 );
+                await automationHelper.runCommandWithRetry("Debug: Focus on Debug Console View");
                 let found = await app.workbench.debug.waitForOutput(output =>
                     output.some(line => line.indexOf("Test output from debuggee") >= 0),
                 );

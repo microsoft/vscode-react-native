@@ -47,6 +47,7 @@ export function startDebugMacOSTests(
                 SmokeTestLogger.info("Stopping React Native packager ...");
                 await automationHelper.runCommandWithRetry(SmokeTestsConstants.stopPackagerCommand);
                 await sleep(3000);
+                SmokeTestLogger.info("Stopping application ...");
                 await app.stop();
             }
             terminateMacOSapp(currentMacOSAppName);
@@ -129,6 +130,7 @@ export function startDebugMacOSTests(
             SmokeTestLogger.info(
                 `${testname}: Searching for "Test output from debuggee" string in console`,
             );
+            await automationHelper.runCommandWithRetry("Debug: Focus on Debug Console View");
             let found = await app.workbench.debug.waitForOutput(output =>
                 output.some(line => line.indexOf("Test output from debuggee") >= 0),
             );

@@ -3,6 +3,7 @@
 
 import * as assert from "assert";
 import { Application } from "../../automation";
+import AndroidEmulatorManager from "./helpers/androidEmulatorManager";
 import { AppiumClient, AppiumHelper, Platform } from "./helpers/appiumHelper";
 import AutomationHelper from "./helpers/AutomationHelper";
 import IosSimulatorManager from "./helpers/iosSimulatorManager";
@@ -61,6 +62,8 @@ export function startDirectDebugTests(
                     await client.deleteSession();
                     client = null;
                 }
+                SmokeTestLogger.info("Clearing android application ...");
+                AndroidEmulatorManager.closeApp(HERMES_APP_PACKAGE_NAME);
             } catch (error) {
                 SmokeTestLogger.error("Error while disposeAll:");
                 SmokeTestLogger.error(error);

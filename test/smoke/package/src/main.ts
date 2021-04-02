@@ -51,8 +51,6 @@ async function setUp(useCachedApplications: boolean): Promise<void> {
 
     SmokeTestLogger.info("*** Preparing Android emulator...");
     await androidEmulatorManager.runAndroidEmulator();
-    // Waiting for all services to start
-    await sleep(60_000);
     await androidEmulatorManager.installExpoAppOnAndroid();
 
     if (process.platform === "darwin") {
