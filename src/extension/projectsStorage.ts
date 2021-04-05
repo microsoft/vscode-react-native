@@ -11,13 +11,6 @@ export class ProjectsStorage {
         this.projectsCache[workspaceFolder.toLowerCase()] = appLauncher;
     }
 
-    // public static addFolder(
-    //     workspaceFolder: vscode.WorkspaceFolder,
-    //     appLauncher: AppLauncher,
-    // ): void {
-    //     this.projectsCache[workspaceFolder.uri.fsPath.toLowerCase()] = appLauncher;
-    // }
-
     public static getFolder(workspaceFolder: vscode.WorkspaceFolder): AppLauncher {
         return this.projectsCache[workspaceFolder.uri.fsPath.toLowerCase()];
     }

@@ -341,8 +341,7 @@ export class AppLauncher {
                                 ) {
                                     // If we disable debugging mode for iOS scenarios, we'll we ignore the error and run the 'run-ios' command anyway,
                                     // since the error doesn't affects an application launch process
-                                    // return resolve();
-                                    return resolve(void 0);
+                                    return resolve();
                                 }
                                 generator.addError(error);
                                 this.logger.error(error);
@@ -493,7 +492,6 @@ export class AppLauncher {
         return mobilePlatformOptions;
     }
 
-    // !!! private
     private getProjectRoot(args: any): string {
         return SettingsHelper.getReactNativeProjectRoot(args.cwd || args.program);
     }

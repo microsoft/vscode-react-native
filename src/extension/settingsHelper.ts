@@ -6,7 +6,6 @@ import { ConfigurationReader } from "../common/configurationReader";
 import { Packager } from "../common/packager";
 import { LogLevel } from "./log/LogHelper";
 import { PackagerStatusIndicator } from "./packagerStatusIndicator";
-// import { getProjectRoot } from "../../src/debugger/debugSessionBase"
 
 export class SettingsHelper {
     /**
