@@ -53,13 +53,10 @@ export class AppLauncher {
         projectRootPath: string,
     ): Promise<AppLauncher> {
         let appLauncher = ProjectsStorage.projectsCache[projectRootPath.toLowerCase()];
-        console.log(ProjectsStorage.projectsCache);
         if (!appLauncher) {
             const appLauncherFolder = createAdditionalWorkspaceFolder(projectRootPath);
-            console.log(appLauncherFolder);
             if (appLauncherFolder) {
                 await onFolderAdded(appLauncherFolder);
-                console.log(ProjectsStorage.projectsCache);
                 appLauncher =
                     ProjectsStorage.projectsCache[appLauncherFolder.uri.fsPath.toLocaleLowerCase()];
             }
