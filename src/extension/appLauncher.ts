@@ -49,12 +49,17 @@ export class AppLauncher {
     private mobilePlatform: GeneralMobilePlatform;
     private launchScenariosManager: LaunchScenariosManager;
 
-    public static getAppLauncherByProjectRootPath(projectRootPath: string): AppLauncher {
+    public static async getAppLauncherByProjectRootPath(
+        projectRootPath: string,
+    ): Promise<AppLauncher> {
         let appLauncher = ProjectsStorage.projectsCache[projectRootPath.toLowerCase()];
+        console.log(ProjectsStorage.projectsCache);
         if (!appLauncher) {
             const appLauncherFolder = createAdditionalWorkspaceFolder(projectRootPath);
+            console.log(appLauncherFolder);
             if (appLauncherFolder) {
-                onFolderAdded(appLauncherFolder);
+                await onFolderAdded(appLauncherFolder);
+                console.log(ProjectsStorage.projectsCache);
                 appLauncher =
                     ProjectsStorage.projectsCache[appLauncherFolder.uri.fsPath.toLocaleLowerCase()];
             }

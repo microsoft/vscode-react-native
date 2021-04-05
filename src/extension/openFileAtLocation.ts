@@ -54,8 +54,8 @@ const localize = nls.loadMessageBundle();
     }
 
     getReactNativeWorkspaceForFile(filename, workspace)
-        .then(projectRootPath => {
-            const appLauncher = AppLauncher.getAppLauncherByProjectRootPath(projectRootPath);
+        .then(async projectRootPath => {
+            const appLauncher = await AppLauncher.getAppLauncherByProjectRootPath(projectRootPath);
             return appLauncher.openFileAtLocation(filename, lineNumber);
         })
         .catch(reason => {

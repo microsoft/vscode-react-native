@@ -231,7 +231,7 @@ function onChangeConfiguration(context: vscode.ExtensionContext) {
 
 export function createAdditionalWorkspaceFolder(folderPath: string): vscode.WorkspaceFolder | null {
     if (fs.existsSync(folderPath)) {
-        const folderUri = vscode.Uri.parse(folderPath);
+        const folderUri = vscode.Uri.file(folderPath);
         const folderName = path.basename(folderPath);
         const newFolder = {
             uri: folderUri,
@@ -245,7 +245,6 @@ export function createAdditionalWorkspaceFolder(folderPath: string): vscode.Work
 }
 
 export function onFolderAdded(folder: vscode.WorkspaceFolder): Promise<void> {
-    // should be changed root
     let rootPath = folder.uri.fsPath;
     let projectRootPath = SettingsHelper.getReactNativeProjectRoot(rootPath);
     outputChannelLogger.debug(`Add project: ${projectRootPath}`);
