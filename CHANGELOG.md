@@ -5,7 +5,7 @@
 * Migrated from `@expo/xdl` package to `xdl` package for debugging Expo applications [#1532](https://github.com/microsoft/vscode-react-native/pull/1532)
 * Added multiroot project support [#1540](https://github.com/microsoft/vscode-react-native/pull/1540)
 * Internal changes:
-    * Improve sending error events to Telemetry [#1526](https://github.com/microsoft/vscode-react-native/pull/1526)
+    * Improved sending error events to Telemetry [#1526](https://github.com/microsoft/vscode-react-native/pull/1526)
     * Improved smoke tests security [#1527](https://github.com/microsoft/vscode-react-native/pull/1527)
 
 
