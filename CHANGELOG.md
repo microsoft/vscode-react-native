@@ -1,5 +1,5 @@
 ## 1.4.2
-* Added debugging support for AppleTV [#1498](https://github.com/microsoft/vscode-react-native/pull/1498)
+* Added support for debugging AppleTV apps [#1498](https://github.com/microsoft/vscode-react-native/pull/1498)
 * Improved extension security [#1538](https://github.com/microsoft/vscode-react-native/pull/1538)
 * Resolved confict with [vscode-jest](https://github.com/jest-community/vscode-jest) extension while fast refreshing React Native apps [#1530](https://github.com/microsoft/vscode-react-native/pull/1530)
 * Migrated from `@expo/xdl` package to `xdl` package for debugging Expo applications [#1532](https://github.com/microsoft/vscode-react-native/pull/1532)
