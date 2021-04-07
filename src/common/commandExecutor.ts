@@ -12,6 +12,7 @@ import { ErrorHelper } from "./error/errorHelper";
 import { InternalErrorCode } from "./error/internalErrorCode";
 import * as nls from "vscode-nls";
 import { Node } from "./node/node";
+import { getNodeModulesInFolderHierarhy } from "./extensionHelper";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -198,7 +199,12 @@ export class CommandExecutor {
     public selectReactNativeCLI(): string {
         return (
             CommandExecutor.ReactNativeCommand ||
-            path.resolve(this.currentWorkingDirectory, "node_modules", ".bin", "react-native")
+            path.resolve(
+                getNodeModulesInFolderHierarhy(this.currentWorkingDirectory),
+                "node_modules",
+                ".bin",
+                "react-native",
+            )
         );
     }
 

@@ -18,7 +18,7 @@ import * as path from "path";
 import * as XDL from "../extension/exponent/xdlInterface";
 import * as semver from "semver";
 import * as nls from "vscode-nls";
-import { findFileInFolderHierarchy } from "./extensionHelper";
+import { findFileInFolderHierarchy, getNodeModulesInFolderHierarhy } from "./extensionHelper";
 import { FileSystem } from "./node/fileSystem";
 import { PromiseUtil } from "./node/promise";
 nls.config({
@@ -412,15 +412,18 @@ export class Packager {
             } else {
                 OPN_PACKAGE_NAME = Packager.OPN_PACKAGE_NAME.old;
             }
+
+            const nodeModulesParentPath = getNodeModulesInFolderHierarhy(this.projectPath);
+
             let flatDependencyPackagePath = path.resolve(
-                this.projectPath,
+                nodeModulesParentPath,
                 Packager.NODE_MODULES_FODLER_NAME,
                 OPN_PACKAGE_NAME,
                 Packager.OPN_PACKAGE_MAIN_FILENAME,
             );
 
             let nestedDependencyPackagePath = path.resolve(
-                this.projectPath,
+                nodeModulesParentPath,
                 Packager.NODE_MODULES_FODLER_NAME,
                 Packager.REACT_NATIVE_PACKAGE_NAME,
                 Packager.NODE_MODULES_FODLER_NAME,

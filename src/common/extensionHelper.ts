@@ -50,3 +50,8 @@ export function findFileInFolderHierarchy(dir: string, filename: string): string
 export function generateRandomPortNumber(): number {
     return Math.round(Math.random() * 40000 + 3000);
 }
+
+export function getNodeModulesInFolderHierarhy(projectRoot: string): string {
+    const nodeModulesPath = findFileInFolderHierarchy(projectRoot, "node_modules");
+    return nodeModulesPath ? path.resolve(nodeModulesPath, "..") : projectRoot;
+}

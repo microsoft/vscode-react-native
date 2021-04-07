@@ -9,6 +9,7 @@ import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { ParsedPackage } from "./reactNativeProjectHelper";
 import { RN_VERSION_ERRORS } from "./error/versionError";
 import { ILaunchArgs, PlatformType } from "../extension/launchArgs";
+import { getNodeModulesInFolderHierarhy } from "./extensionHelper";
 
 export interface PackageVersion {
     [packageName: string]: string;
@@ -77,9 +78,14 @@ export class ProjectVersionHelper {
 
         let versionPromises: Promise<PackageVersion>[] = [];
 
+        const nodeModulesRoot = getNodeModulesInFolderHierarhy(projectRoot);
+
         parsedPackages.forEach(parsedPackage => {
             versionPromises.push(
-                ProjectVersionHelper.getProcessedVersionFromNodeModules(projectRoot, parsedPackage),
+                ProjectVersionHelper.getProcessedVersionFromNodeModules(
+                    nodeModulesRoot,
+                    parsedPackage,
+                ),
             );
         });
 
