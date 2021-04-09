@@ -1,12 +1,11 @@
 ## 1.4.2
 * Added support for debugging AppleTV apps, thanks to [Michele Bonazza(@micheleb)](https://github.com/micheleb) [#1498](https://github.com/microsoft/vscode-react-native/pull/1498)
-* Improved extension security [#1538](https://github.com/microsoft/vscode-react-native/pull/1538)
+* Improved extension security [#1538](https://github.com/microsoft/vscode-react-native/pull/1538), [#1527](https://github.com/microsoft/vscode-react-native/pull/1527)
 * Resolved a conflict with [vscode-jest](https://github.com/jest-community/vscode-jest) extension while fast refreshing React Native apps [#1530](https://github.com/microsoft/vscode-react-native/pull/1530)
 * Migrated from `@expo/xdl` package to `xdl` package for debugging Expo applications [#1532](https://github.com/microsoft/vscode-react-native/pull/1532)
 * Added multiroot project support [#1540](https://github.com/microsoft/vscode-react-native/pull/1540)
 * Internal changes:
     * Improved sending error events to Telemetry [#1526](https://github.com/microsoft/vscode-react-native/pull/1526)
-    * Improved smoke tests security [#1527](https://github.com/microsoft/vscode-react-native/pull/1527)
 
 
 ## 1.4.1
