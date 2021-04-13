@@ -44,7 +44,7 @@ export function generateRandomPortNumber(): number {
     return Math.round(Math.random() * 40000 + 3000);
 }
 
-export function getNodeModulesInFolderHierarhy(projectRoot: string): string {
+export function getNodeModulesInFolderHierarhy(projectRoot: string): string | null {
     const NODE_MODULES_FOLDER: string = "node_modules";
     const REACT_NATIVE_MODULE: string = "react-native";
     const pathToReactNativeModule: string = path.join(NODE_MODULES_FOLDER, REACT_NATIVE_MODULE);
@@ -53,5 +53,5 @@ export function getNodeModulesInFolderHierarhy(projectRoot: string): string {
         projectRoot,
         pathToReactNativeModule,
     );
-    return nodeModulesPath ? path.resolve(nodeModulesPath, "..", "..") : projectRoot;
+    return nodeModulesPath ? path.resolve(nodeModulesPath, "..", "..") : null;
 }

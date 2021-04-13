@@ -18,6 +18,7 @@ import { TelemetryHelper } from "../common/telemetryHelper";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { TargetPlatformHelper } from "../common/targetPlatformHelper";
+import { getNodeModulesInFolderHierarhy } from "../common/extensionHelper";
 import { ProjectsStorage } from "./projectsStorage";
 import { ReactNativeCDPProxy } from "../cdp-proxy/reactNativeCDPProxy";
 import { generateRandomPortNumber } from "../common/extensionHelper";
@@ -93,6 +94,7 @@ export class AppLauncher {
         this.reactDirManager = reactDirManager;
         this.workspaceFolder = workspaceFolder;
         this.rnCdpProxy = new ReactNativeCDPProxy(this.cdpProxyHostAddress, this.cdpProxyPort);
+        this.nodeModulesRoot = null;
     }
 
     public getCdpProxyPort(): number {
@@ -143,11 +145,22 @@ export class AppLauncher {
         return this.mobilePlatform;
     }
 
-    public getNodeModulesRoot(): string | null {
-        return this.nodeModulesRoot;
+    public getNodeModulesRoot(projectRoot: string): string {
+        if (!this.nodeModulesRoot) {
+            this.setNodeModulesRoot(projectRoot)
+        }
+        return <string>this.nodeModulesRoot;
     }
 
-    public setNodeModulesRoot(nodeModulesRoot: string): void {
+    public setNodeModulesRoot(projectRoot: string): void {
+        let nodeModulesRoot: string | null = getNodeModulesInFolderHierarhy(projectRoot);
+
+        if (!nodeModulesRoot) {
+            throw ErrorHelper.getInternalError(
+                InternalErrorCode.ReactNativePackageIsNotInstalled,
+            );
+        }
+
         this.nodeModulesRoot = nodeModulesRoot;
     }
 

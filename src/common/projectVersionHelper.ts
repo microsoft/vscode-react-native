@@ -84,24 +84,12 @@ export class ProjectVersionHelper {
             projectRoot,
         );
 
-        let nodeModulesRoot: string | null = appLauncher.getNodeModulesRoot();
-
-        if (!nodeModulesRoot) {
-            nodeModulesRoot = getNodeModulesInFolderHierarhy(projectRoot);
-
-            if (!nodeModulesRoot) {
-                throw ErrorHelper.getInternalError(
-                    InternalErrorCode.ReactNativePackageIsNotInstalled,
-                );
-            }
-
-            appLauncher.setNodeModulesRoot(nodeModulesRoot);
-        }
+        const nodeModulesRoot: string = appLauncher.getNodeModulesRoot(projectRoot);
 
         parsedPackages.forEach(parsedPackage => {
             versionPromises.push(
                 ProjectVersionHelper.getProcessedVersionFromNodeModules(
-                    <string>nodeModulesRoot,
+                    nodeModulesRoot,
                     parsedPackage,
                 ),
             );

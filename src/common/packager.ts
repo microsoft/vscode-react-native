@@ -414,29 +414,20 @@ export class Packager {
                 OPN_PACKAGE_NAME = Packager.OPN_PACKAGE_NAME.old;
             }
 
-            let nodeModulesParentPath: string;
-
             const appLauncher: AppLauncher = await AppLauncher.getAppLauncherByProjectRootPath(
                 this.projectPath,
             );
-            const nodeModulesRoot: string | null = appLauncher.getNodeModulesRoot();
-
-            if (nodeModulesRoot) {
-                nodeModulesParentPath = nodeModulesRoot;
-            } else {
-                nodeModulesParentPath = getNodeModulesInFolderHierarhy(this.projectPath);
-                appLauncher.setNodeModulesRoot(this.projectPath);
-            }
+            const nodeModulesRoot: string = appLauncher.getNodeModulesRoot(this.projectPath);
 
             let flatDependencyPackagePath = path.resolve(
-                nodeModulesParentPath,
+                nodeModulesRoot,
                 Packager.NODE_MODULES_FODLER_NAME,
                 OPN_PACKAGE_NAME,
                 Packager.OPN_PACKAGE_MAIN_FILENAME,
             );
 
             let nestedDependencyPackagePath = path.resolve(
-                nodeModulesParentPath,
+                nodeModulesRoot,
                 Packager.NODE_MODULES_FODLER_NAME,
                 Packager.REACT_NATIVE_PACKAGE_NAME,
                 Packager.NODE_MODULES_FODLER_NAME,
