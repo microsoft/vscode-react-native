@@ -4,6 +4,7 @@
 import { IFormatter, decodeBody, FormattedBody } from "./requestBodyFormatter";
 import { OutputChannelLogger } from "../../log/OutputChannelLogger";
 import { Request } from "../networkMessageData";
+import * as querystring from "querystring";
 
 /**
  * @preserve
@@ -26,7 +27,7 @@ export class FormUrlencodedFormatter implements IFormatter {
             if (!decoded) {
                 return null;
             }
-            return decoded;
+            return querystring.parse(decoded);
         }
         return null;
     }
