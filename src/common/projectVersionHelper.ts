@@ -30,7 +30,6 @@ export class ProjectVersionHelper {
     public static getReactNativeVersions(
         projectRoot: string,
         additionalPackagesToCheck?: ParsedPackage[],
-        nodeModulesRoot?: string | null,
     ): Promise<RNPackageVersions> {
         return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
             projectRoot,
@@ -82,8 +81,7 @@ export class ProjectVersionHelper {
         const appLauncher: AppLauncher = await AppLauncher.getAppLauncherByProjectRootPath(
             projectRoot,
         );
-
-        const nodeModulesRoot: string = appLauncher.getNodeModulesRoot(projectRoot);
+        const nodeModulesRoot: string = appLauncher.getNodeModulesRoot();
 
         parsedPackages.forEach(parsedPackage => {
             versionPromises.push(

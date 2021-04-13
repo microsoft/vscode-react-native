@@ -145,21 +145,22 @@ export class AppLauncher {
         return this.mobilePlatform;
     }
 
-    public getNodeModulesRoot(projectRoot: string): string {
+    public getNodeModulesRoot(): string {
+        const projectRoot: string = this.packager.getProjectPath();
+
         if (!this.nodeModulesRoot) {
-            this.setNodeModulesRoot(projectRoot);
+            const nodeModulesRootPath: string | null = getNodeModulesInFolderHierarhy(projectRoot);
+
+            if (!nodeModulesRootPath) {
+                throw ErrorHelper.getInternalError(
+                    InternalErrorCode.ReactNativePackageIsNotInstalled,
+                );
+            }
+
+            this.nodeModulesRoot = nodeModulesRootPath;
         }
+
         return <string>this.nodeModulesRoot;
-    }
-
-    public setNodeModulesRoot(projectRoot: string): void {
-        let nodeModulesRoot: string | null = getNodeModulesInFolderHierarhy(projectRoot);
-
-        if (!nodeModulesRoot) {
-            throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativePackageIsNotInstalled);
-        }
-
-        this.nodeModulesRoot = nodeModulesRoot;
     }
 
     public dispose(): void {

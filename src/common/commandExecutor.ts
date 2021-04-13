@@ -202,12 +202,7 @@ export class CommandExecutor {
         );
         return (
             CommandExecutor.ReactNativeCommand ||
-            path.resolve(
-                appLauncher.getNodeModulesRoot(this.currentWorkingDirectory),
-                "node_modules",
-                ".bin",
-                "react-native",
-            )
+            path.resolve(appLauncher.getNodeModulesRoot(), "node_modules", ".bin", "react-native")
         );
     }
 

@@ -228,7 +228,7 @@ export class PlistBuddy {
         const appLauncher: AppLauncher = await AppLauncher.getAppLauncherByProjectRootPath(
             projectRoot,
         );
-        const nodeModulesRoot: string = appLauncher.getNodeModulesRoot(projectRoot);
+        const nodeModulesRoot: string = appLauncher.getNodeModulesRoot();
 
         const findXcodeProject = customRequire(
             path.join(

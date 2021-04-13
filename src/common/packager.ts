@@ -417,7 +417,7 @@ export class Packager {
             const appLauncher: AppLauncher = await AppLauncher.getAppLauncherByProjectRootPath(
                 this.projectPath,
             );
-            const nodeModulesRoot: string = appLauncher.getNodeModulesRoot(this.projectPath);
+            const nodeModulesRoot: string = appLauncher.getNodeModulesRoot();
 
             let flatDependencyPackagePath = path.resolve(
                 nodeModulesRoot,
