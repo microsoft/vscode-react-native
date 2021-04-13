@@ -414,10 +414,7 @@ export class Packager {
                 OPN_PACKAGE_NAME = Packager.OPN_PACKAGE_NAME.old;
             }
 
-            const appLauncher: AppLauncher = await AppLauncher.getAppLauncherByProjectRootPath(
-                this.projectPath,
-            );
-            const nodeModulesRoot: string = appLauncher.getNodeModulesRoot();
+            const nodeModulesRoot: string = await AppLauncher.getNodeModulesRoot(this.projectPath);
 
             let flatDependencyPackagePath = path.resolve(
                 nodeModulesRoot,

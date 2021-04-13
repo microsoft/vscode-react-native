@@ -78,10 +78,7 @@ export class ProjectVersionHelper {
 
         let versionPromises: Promise<PackageVersion>[] = [];
 
-        const appLauncher: AppLauncher = await AppLauncher.getAppLauncherByProjectRootPath(
-            projectRoot,
-        );
-        const nodeModulesRoot: string = appLauncher.getNodeModulesRoot();
+        const nodeModulesRoot: string = await AppLauncher.getNodeModulesRoot(projectRoot);
 
         parsedPackages.forEach(parsedPackage => {
             versionPromises.push(

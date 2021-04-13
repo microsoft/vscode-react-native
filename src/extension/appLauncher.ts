@@ -72,6 +72,28 @@ export class AppLauncher {
         return appLauncher;
     }
 
+    public static async getNodeModulesRoot(projectRootPath: string): Promise<string> {
+        const appLauncher: AppLauncher = await AppLauncher.getAppLauncherByProjectRootPath(
+            projectRootPath,
+        );
+
+        if (!appLauncher.nodeModulesRoot) {
+            const nodeModulesRootPath: string | null = getNodeModulesInFolderHierarhy(
+                projectRootPath,
+            );
+
+            if (!nodeModulesRootPath) {
+                throw ErrorHelper.getInternalError(
+                    InternalErrorCode.ReactNativePackageIsNotInstalled,
+                );
+            }
+
+            appLauncher.nodeModulesRoot = nodeModulesRootPath;
+        }
+
+        return <string>appLauncher.nodeModulesRoot;
+    }
+
     constructor(reactDirManager: ReactDirManager, workspaceFolder: vscode.WorkspaceFolder) {
         // constants definition
         this.cdpProxyPort = generateRandomPortNumber();
@@ -143,24 +165,6 @@ export class AppLauncher {
 
     public getMobilePlatform(): GeneralMobilePlatform {
         return this.mobilePlatform;
-    }
-
-    public getNodeModulesRoot(): string {
-        const projectRoot: string = this.packager.getProjectPath();
-
-        if (!this.nodeModulesRoot) {
-            const nodeModulesRootPath: string | null = getNodeModulesInFolderHierarhy(projectRoot);
-
-            if (!nodeModulesRootPath) {
-                throw ErrorHelper.getInternalError(
-                    InternalErrorCode.ReactNativePackageIsNotInstalled,
-                );
-            }
-
-            this.nodeModulesRoot = nodeModulesRootPath;
-        }
-
-        return <string>this.nodeModulesRoot;
     }
 
     public dispose(): void {

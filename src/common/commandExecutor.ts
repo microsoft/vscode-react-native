@@ -197,12 +197,14 @@ export class CommandExecutor {
     }
 
     public async selectReactNativeCLI(): Promise<string> {
-        const appLauncher: AppLauncher = await AppLauncher.getAppLauncherByProjectRootPath(
-            this.currentWorkingDirectory,
-        );
         return (
             CommandExecutor.ReactNativeCommand ||
-            path.resolve(appLauncher.getNodeModulesRoot(), "node_modules", ".bin", "react-native")
+            path.resolve(
+                await AppLauncher.getNodeModulesRoot(this.currentWorkingDirectory),
+                "node_modules",
+                ".bin",
+                "react-native",
+            )
         );
     }
 

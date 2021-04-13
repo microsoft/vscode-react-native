@@ -225,10 +225,8 @@ export class PlistBuddy {
         } else {
             iOSCliFolderName = "cli";
         }
-        const appLauncher: AppLauncher = await AppLauncher.getAppLauncherByProjectRootPath(
-            projectRoot,
-        );
-        const nodeModulesRoot: string = appLauncher.getNodeModulesRoot();
+
+        const nodeModulesRoot: string = await AppLauncher.getNodeModulesRoot(projectRoot);
 
         const findXcodeProject = customRequire(
             path.join(
