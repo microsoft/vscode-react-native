@@ -19,7 +19,7 @@ import * as path from "path";
 import * as XDL from "../extension/exponent/xdlInterface";
 import * as semver from "semver";
 import * as nls from "vscode-nls";
-import { findFileInFolderHierarchy, getNodeModulesInFolderHierarhy } from "./extensionHelper";
+import { findFileInFolderHierarchy } from "./extensionHelper";
 import { FileSystem } from "./node/fileSystem";
 import { PromiseUtil } from "./node/promise";
 nls.config({
@@ -178,7 +178,7 @@ export class Packager {
                     .then(() => {
                         return this.getPackagerArgs(this.projectPath, rnVersion, resetCache);
                     })
-                    .then(args => {
+                    .then(async args => {
                         //  There is a bug with launching VSCode editor for file from stack frame in 0.38, 0.39, 0.40 versions:
                         //  https://github.com/facebook/react-native/commit/f49093f39710173620fead6230d62cc670570210
                         //  This bug will be fixed in 0.41
@@ -213,7 +213,7 @@ export class Packager {
 
                         let spawnOptions = { env: reactEnv };
 
-                        const packagerSpawnResult = new CommandExecutor(
+                        const packagerSpawnResult = await new CommandExecutor(
                             this.projectPath,
                             this.logger,
                         ).spawnReactPackager(args, spawnOptions);

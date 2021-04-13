@@ -39,7 +39,7 @@ export class MacOSPlatform extends GeneralMobilePlatform {
             extProps,
         );
 
-        return TelemetryHelper.generate("MacOSPlatform.runApp", extProps, () => {
+        return TelemetryHelper.generate("MacOSPlatform.runApp", extProps, async () => {
             const env = GeneralMobilePlatform.getEnvArgument(
                 process.env,
                 this.runOptions.env,
@@ -58,7 +58,7 @@ export class MacOSPlatform extends GeneralMobilePlatform {
                 this.runArguments.push("--no-packager");
             }
 
-            const runmacOSSpawn = new CommandExecutor(
+            const runmacOSSpawn = await new CommandExecutor(
                 this.projectPath,
                 this.logger,
             ).spawnReactCommand(`run-${this.platformName}`, this.runArguments, { env });

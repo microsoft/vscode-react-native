@@ -12,7 +12,7 @@ import { ErrorHelper } from "./error/errorHelper";
 import { InternalErrorCode } from "./error/internalErrorCode";
 import * as nls from "vscode-nls";
 import { Node } from "./node/node";
-import { getNodeModulesInFolderHierarhy } from "./extensionHelper";
+import { AppLauncher } from "../extension/appLauncher";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -78,8 +78,8 @@ export class CommandExecutor {
     /**
      * Spawns the React Native packager in a child process.
      */
-    public spawnReactPackager(args: string[], options: Options = {}): ISpawnResult {
-        return this.spawnReactCommand("start", args, options);
+    public async spawnReactPackager(args: string[], options: Options = {}): Promise<ISpawnResult> {
+        return await this.spawnReactCommand("start", args, options);
     }
 
     public getReactNativeVersion(): Promise<string> {
@@ -116,12 +116,12 @@ export class CommandExecutor {
     /**
      * Executes a react native command and waits for its completion.
      */
-    public spawnReactCommand(
+    public async spawnReactCommand(
         command: string,
         args: string[] = [],
         options: Options = {},
-    ): ISpawnResult {
-        const reactCommand = HostPlatform.getNpmCliCommand(this.selectReactNativeCLI());
+    ): Promise<ISpawnResult> {
+        const reactCommand = HostPlatform.getNpmCliCommand(await this.selectReactNativeCLI());
         return this.spawnChildProcess(reactCommand, [command, ...args], options);
     }
 
@@ -196,11 +196,14 @@ export class CommandExecutor {
         });
     }
 
-    public selectReactNativeCLI(): string {
+    public async selectReactNativeCLI(): Promise<string> {
+        const appLauncher: AppLauncher = await AppLauncher.getAppLauncherByProjectRootPath(
+            this.currentWorkingDirectory,
+        );
         return (
             CommandExecutor.ReactNativeCommand ||
             path.resolve(
-                getNodeModulesInFolderHierarhy(this.currentWorkingDirectory),
+                appLauncher.getNodeModulesRoot(this.currentWorkingDirectory),
                 "node_modules",
                 ".bin",
                 "react-native",

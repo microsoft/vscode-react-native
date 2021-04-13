@@ -13,7 +13,7 @@ import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
 import { getFileNameWithoutExtension } from "../../common/utils";
 import customRequire from "../../common/customRequire";
-import { getNodeModulesInFolderHierarhy } from "../../common/extensionHelper";
+import { AppLauncher } from "../appLauncher";
 
 export interface ConfigurationData {
     fullProductName: string;
@@ -40,12 +40,12 @@ export class PlistBuddy {
         productName?: string,
         scheme?: string,
     ): Promise<string> {
-        return ProjectVersionHelper.getReactNativeVersions(projectRoot).then(rnVersions => {
+        return ProjectVersionHelper.getReactNativeVersions(projectRoot).then(async rnVersions => {
             let productsFolder;
             if (semver.gte(rnVersions.reactNativeVersion, "0.59.0")) {
                 if (!scheme) {
                     // If no scheme were provided via runOptions.scheme or via runArguments then try to get scheme using the way RN CLI does.
-                    scheme = this.getInferredScheme(
+                    scheme = await this.getInferredScheme(
                         iosProjectRoot,
                         projectRoot,
                         rnVersions.reactNativeVersion,
@@ -62,7 +62,7 @@ export class PlistBuddy {
             if (productName) {
                 executable = `${productName}.app`;
                 if (!fs.existsSync(path.join(configurationFolder, executable))) {
-                    const configurationData = this.getConfigurationData(
+                    const configurationData = await this.getConfigurationData(
                         projectRoot,
                         rnVersions.reactNativeVersion,
                         iosProjectRoot,
@@ -77,7 +77,7 @@ export class PlistBuddy {
             } else {
                 const executableList = this.findExecutable(configurationFolder);
                 if (!executableList.length) {
-                    const configurationData = this.getConfigurationData(
+                    const configurationData = await this.getConfigurationData(
                         projectRoot,
                         rnVersions.reactNativeVersion,
                         iosProjectRoot,
@@ -183,12 +183,12 @@ export class PlistBuddy {
         };
     }
 
-    public getInferredScheme(
+    public async getInferredScheme(
         iosProjectRoot: string,
         projectRoot: string,
         rnVersion: string,
-    ): string {
-        const projectWorkspaceConfigName = this.getProjectWorkspaceConfigName(
+    ): Promise<string> {
+        const projectWorkspaceConfigName = await this.getProjectWorkspaceConfigName(
             iosProjectRoot,
             projectRoot,
             rnVersion,
@@ -203,11 +203,11 @@ export class PlistBuddy {
         return `${deviceType}${sdkSuffix}`;
     }
 
-    public getProjectWorkspaceConfigName(
+    public async getProjectWorkspaceConfigName(
         iosProjectRoot: string,
         projectRoot: string,
         rnVersion: string,
-    ): string {
+    ): Promise<string> {
         // Portion of code was taken from https://github.com/react-native-community/cli/blob/master/packages/platform-ios/src/commands/runIOS/index.js
         // and modified a little bit
         /**
@@ -225,10 +225,14 @@ export class PlistBuddy {
         } else {
             iOSCliFolderName = "cli";
         }
-        const nodeModulesParentPath = getNodeModulesInFolderHierarhy(projectRoot);
+        const appLauncher: AppLauncher = await AppLauncher.getAppLauncherByProjectRootPath(
+            projectRoot,
+        );
+        const nodeModulesRoot: string = appLauncher.getNodeModulesRoot(projectRoot);
+
         const findXcodeProject = customRequire(
             path.join(
-                nodeModulesParentPath,
+                nodeModulesRoot,
                 `node_modules/@react-native-community/${iOSCliFolderName}/build/commands/runIOS/findXcodeProject`,
             ),
         ).default;
@@ -240,7 +244,7 @@ export class PlistBuddy {
         return xcodeProject.name;
     }
 
-    public getConfigurationData(
+    public async getConfigurationData(
         projectRoot: string,
         reactNativeVersion: string,
         iosProjectRoot: string,
@@ -248,14 +252,14 @@ export class PlistBuddy {
         scheme: string | undefined,
         sdkType: string,
         oldConfigurationFolder: string,
-    ): ConfigurationData {
+    ): Promise<ConfigurationData> {
         if (!scheme) {
             throw ErrorHelper.getInternalError(
                 InternalErrorCode.IOSCouldNotFoundExecutableInFolder,
                 oldConfigurationFolder,
             );
         }
-        const projectWorkspaceConfigName = this.getProjectWorkspaceConfigName(
+        const projectWorkspaceConfigName = await this.getProjectWorkspaceConfigName(
             iosProjectRoot,
             projectRoot,
             reactNativeVersion,

@@ -9,7 +9,6 @@ import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { ParsedPackage } from "./reactNativeProjectHelper";
 import { RN_VERSION_ERRORS } from "./error/versionError";
 import { ILaunchArgs, PlatformType } from "../extension/launchArgs";
-import { getNodeModulesInFolderHierarhy } from "./extensionHelper";
 import { AppLauncher } from "../extension/appLauncher";
 
 export interface PackageVersion {

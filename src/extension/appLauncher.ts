@@ -147,7 +147,7 @@ export class AppLauncher {
 
     public getNodeModulesRoot(projectRoot: string): string {
         if (!this.nodeModulesRoot) {
-            this.setNodeModulesRoot(projectRoot)
+            this.setNodeModulesRoot(projectRoot);
         }
         return <string>this.nodeModulesRoot;
     }
@@ -156,9 +156,7 @@ export class AppLauncher {
         let nodeModulesRoot: string | null = getNodeModulesInFolderHierarhy(projectRoot);
 
         if (!nodeModulesRoot) {
-            throw ErrorHelper.getInternalError(
-                InternalErrorCode.ReactNativePackageIsNotInstalled,
-            );
+            throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativePackageIsNotInstalled);
         }
 
         this.nodeModulesRoot = nodeModulesRoot;
@@ -360,7 +358,7 @@ export class AppLauncher {
                                 ) {
                                     // If we disable debugging mode for iOS scenarios, we'll we ignore the error and run the 'run-ios' command anyway,
                                     // since the error doesn't affects an application launch process
-                                    return resolve();
+                                    return resolve(void 0);
                                 }
                                 generator.addError(error);
                                 this.logger.error(error);
