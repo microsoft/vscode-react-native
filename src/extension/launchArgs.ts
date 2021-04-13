@@ -20,6 +20,7 @@ export interface ILaunchArgs {
     envFile?: string;
     isDirect?: boolean;
     enableDebug?: boolean;
+    nodeModulesRoot?: string | null;
 }
 
 export enum PlatformType {
@@ -40,6 +41,7 @@ export interface IAndroidRunOptions extends ILaunchArgs {
     variant?: string;
     logCatArguments?: any;
     debugLaunchActivity?: string;
+    nodeModulesRoot?: string | null;
 }
 
 export interface IIOSRunOptions extends ILaunchArgs {
@@ -47,6 +49,7 @@ export interface IIOSRunOptions extends ILaunchArgs {
     iosRelativeProjectPath?: string; // TODO Remove deprecated
     productName?: string;
     configuration?: string;
+    nodeModulesRoot?: string | null;
 }
 
 export interface IExponentRunOptions extends IAndroidRunOptions, IIOSRunOptions {

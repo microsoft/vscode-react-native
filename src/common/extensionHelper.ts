@@ -25,7 +25,6 @@ export function getExtensionName(): string | null {
 export function findFileInFolderHierarchy(dir: string, filename: string): string | null {
     let parentPath: string;
     let projectRoot: string = dir;
-    let atFsRoot: boolean = false;
 
     while (!fs.existsSync(path.join(projectRoot, filename))) {
         // Navigate up one level until either config.xml is found
@@ -34,14 +33,8 @@ export function findFileInFolderHierarchy(dir: string, filename: string): string
             projectRoot = parentPath;
         } else {
             // we have reached the filesystem root
-            atFsRoot = true;
-            break;
+            return null;
         }
-    }
-
-    if (atFsRoot) {
-        // We reached the fs root
-        return null;
     }
 
     return path.join(projectRoot, filename);
@@ -52,6 +45,13 @@ export function generateRandomPortNumber(): number {
 }
 
 export function getNodeModulesInFolderHierarhy(projectRoot: string): string {
-    const nodeModulesPath = findFileInFolderHierarchy(projectRoot, "node_modules");
-    return nodeModulesPath ? path.resolve(nodeModulesPath, "..") : projectRoot;
+    const NODE_MODULES_FOLDER: string = "node_modules";
+    const REACT_NATIVE_MODULE: string = "react-native";
+    const pathToReactNativeModule: string = path.join(NODE_MODULES_FOLDER, REACT_NATIVE_MODULE);
+
+    const nodeModulesPath: string | null = findFileInFolderHierarchy(
+        projectRoot,
+        pathToReactNativeModule,
+    );
+    return nodeModulesPath ? path.resolve(nodeModulesPath, "..", "..") : projectRoot;
 }

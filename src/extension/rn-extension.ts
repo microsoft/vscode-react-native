@@ -248,44 +248,46 @@ export function onFolderAdded(folder: vscode.WorkspaceFolder): Promise<void> {
     let rootPath = folder.uri.fsPath;
     let projectRootPath = SettingsHelper.getReactNativeProjectRoot(rootPath);
     outputChannelLogger.debug(`Add project: ${projectRootPath}`);
-    return ProjectVersionHelper.getReactNativeVersions(projectRootPath).then(versions => {
-        outputChannelLogger.debug(`React Native version: ${versions.reactNativeVersion}`);
-        let promises = [];
-        if (ProjectVersionHelper.isVersionError(versions.reactNativeVersion)) {
-            outputChannelLogger.debug(
-                `react-native package version is not found in ${projectRootPath}. Reason: ${versions.reactNativeVersion}`,
-            );
-            TelemetryHelper.sendErrorEvent(
-                "AddProjectReactNativeVersionIsEmpty",
-                ErrorHelper.getInternalError(InternalErrorCode.CouldNotFindProjectVersion),
-                versions.reactNativeVersion,
-            );
-        } else if (isSupportedVersion(versions.reactNativeVersion)) {
-            promises.push(
-                entryPointHandler.runFunction(
-                    "debugger.setupLauncherStub",
-                    ErrorHelper.getInternalError(InternalErrorCode.DebuggerStubLauncherFailed),
-                    () => {
-                        let reactDirManager = new ReactDirManager(rootPath);
-                        return setupAndDispose(reactDirManager, EXTENSION_CONTEXT).then(() => {
-                            ProjectsStorage.addFolder(
-                                projectRootPath,
-                                new AppLauncher(reactDirManager, folder),
-                            );
+    return ProjectVersionHelper.getReactNativeVersionsFromProjectPackage(projectRootPath).then(
+        versions => {
+            outputChannelLogger.debug(`React Native version: ${versions.reactNativeVersion}`);
+            let promises = [];
+            if (ProjectVersionHelper.isVersionError(versions.reactNativeVersion)) {
+                outputChannelLogger.debug(
+                    `react-native package version is not found in ${projectRootPath}. Reason: ${versions.reactNativeVersion}`,
+                );
+                TelemetryHelper.sendErrorEvent(
+                    "AddProjectReactNativeVersionIsEmpty",
+                    ErrorHelper.getInternalError(InternalErrorCode.CouldNotFindProjectVersion),
+                    versions.reactNativeVersion,
+                );
+            } else if (isSupportedVersion(versions.reactNativeVersion)) {
+                promises.push(
+                    entryPointHandler.runFunction(
+                        "debugger.setupLauncherStub",
+                        ErrorHelper.getInternalError(InternalErrorCode.DebuggerStubLauncherFailed),
+                        () => {
+                            let reactDirManager = new ReactDirManager(rootPath);
+                            return setupAndDispose(reactDirManager, EXTENSION_CONTEXT).then(() => {
+                                ProjectsStorage.addFolder(
+                                    projectRootPath,
+                                    new AppLauncher(reactDirManager, folder),
+                                );
 
-                            return void 0;
-                        });
-                    },
-                ),
-            );
-        } else {
-            outputChannelLogger.debug(
-                `react-native@${versions.reactNativeVersion} isn't supported`,
-            );
-        }
+                                return void 0;
+                            });
+                        },
+                    ),
+                );
+            } else {
+                outputChannelLogger.debug(
+                    `react-native@${versions.reactNativeVersion} isn't supported`,
+                );
+            }
 
-        return Promise.all(promises).then(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
-    });
+            return Promise.all(promises).then(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
+        },
+    );
 }
 
 function onFolderRemoved(folder: vscode.WorkspaceFolder): void {

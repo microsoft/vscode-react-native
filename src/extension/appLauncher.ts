@@ -48,6 +48,7 @@ export class AppLauncher {
     private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
     private mobilePlatform: GeneralMobilePlatform;
     private launchScenariosManager: LaunchScenariosManager;
+    private nodeModulesRoot: string | null;
 
     public static async getAppLauncherByProjectRootPath(
         projectRootPath: string,
@@ -140,6 +141,14 @@ export class AppLauncher {
 
     public getMobilePlatform(): GeneralMobilePlatform {
         return this.mobilePlatform;
+    }
+
+    public getNodeModulesRoot(): string | null {
+        return this.nodeModulesRoot;
+    }
+
+    public setNodeModulesRoot(nodeModulesRoot: string): void {
+        this.nodeModulesRoot = nodeModulesRoot;
     }
 
     public dispose(): void {

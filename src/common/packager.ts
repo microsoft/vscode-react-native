@@ -14,6 +14,7 @@ import { Request } from "./node/request";
 import { ProjectVersionHelper } from "./projectVersionHelper";
 import { PackagerStatusIndicator, PackagerStatus } from "../extension/packagerStatusIndicator";
 import { SettingsHelper } from "../extension/settingsHelper";
+import { AppLauncher } from "../extension/appLauncher";
 import * as path from "path";
 import * as XDL from "../extension/exponent/xdlInterface";
 import * as semver from "semver";
@@ -156,7 +157,7 @@ export class Packager {
             });
     }
 
-    public start(resetCache: boolean = false): Promise<void> {
+    public async start(resetCache: boolean = false): Promise<void> {
         this.packagerStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTING);
         let executedStartPackagerCmd = false;
         let rnVersion: string;
@@ -404,7 +405,7 @@ export class Packager {
         );
     }
 
-    private findOpnPackage(ReactNativeVersion: string): Promise<string> {
+    private async findOpnPackage(ReactNativeVersion: string): Promise<string> {
         try {
             let OPN_PACKAGE_NAME: string;
             if (semver.gte(ReactNativeVersion, Packager.RN_VERSION_WITH_OPEN_PKG)) {
@@ -413,7 +414,19 @@ export class Packager {
                 OPN_PACKAGE_NAME = Packager.OPN_PACKAGE_NAME.old;
             }
 
-            const nodeModulesParentPath = getNodeModulesInFolderHierarhy(this.projectPath);
+            let nodeModulesParentPath: string;
+
+            const appLauncher: AppLauncher = await AppLauncher.getAppLauncherByProjectRootPath(
+                this.projectPath,
+            );
+            const nodeModulesRoot: string | null = appLauncher.getNodeModulesRoot();
+
+            if (nodeModulesRoot) {
+                nodeModulesParentPath = nodeModulesRoot;
+            } else {
+                nodeModulesParentPath = getNodeModulesInFolderHierarhy(this.projectPath);
+                appLauncher.setNodeModulesRoot(this.projectPath);
+            }
 
             let flatDependencyPackagePath = path.resolve(
                 nodeModulesParentPath,
@@ -464,12 +477,12 @@ export class Packager {
         }
     }
 
-    private monkeyPatchOpnForRNPackager(ReactNativeVersion: string): Promise<void> {
+    private async monkeyPatchOpnForRNPackager(ReactNativeVersion: string): Promise<void> {
         let opnPackage: Package;
         let destnFilePath: string;
 
         // Finds the 'opn' or 'open' package
-        return this.findOpnPackage(ReactNativeVersion)
+        return await this.findOpnPackage(ReactNativeVersion)
             .then(opnIndexFilePath => {
                 destnFilePath = opnIndexFilePath;
                 // Read the package's "package.json"

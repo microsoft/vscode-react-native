@@ -10,6 +10,7 @@ import { ParsedPackage } from "./reactNativeProjectHelper";
 import { RN_VERSION_ERRORS } from "./error/versionError";
 import { ILaunchArgs, PlatformType } from "../extension/launchArgs";
 import { getNodeModulesInFolderHierarhy } from "./extensionHelper";
+import { AppLauncher } from "../extension/appLauncher";
 
 export interface PackageVersion {
     [packageName: string]: string;
@@ -30,6 +31,7 @@ export class ProjectVersionHelper {
     public static getReactNativeVersions(
         projectRoot: string,
         additionalPackagesToCheck?: ParsedPackage[],
+        nodeModulesRoot?: string | null,
     ): Promise<RNPackageVersions> {
         return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
             projectRoot,
@@ -61,7 +63,7 @@ export class ProjectVersionHelper {
         return additionalPackages;
     }
 
-    public static getReactNativePackageVersionsFromNodeModules(
+    public static async getReactNativePackageVersionsFromNodeModules(
         projectRoot: string,
         additionalPackagesToCheck?: ParsedPackage[],
     ): Promise<RNPackageVersions> {
@@ -78,12 +80,28 @@ export class ProjectVersionHelper {
 
         let versionPromises: Promise<PackageVersion>[] = [];
 
-        const nodeModulesRoot = getNodeModulesInFolderHierarhy(projectRoot);
+        const appLauncher: AppLauncher = await AppLauncher.getAppLauncherByProjectRootPath(
+            projectRoot,
+        );
+
+        let nodeModulesRoot: string | null = appLauncher.getNodeModulesRoot();
+
+        if (!nodeModulesRoot) {
+            nodeModulesRoot = getNodeModulesInFolderHierarhy(projectRoot);
+
+            if (!nodeModulesRoot) {
+                throw ErrorHelper.getInternalError(
+                    InternalErrorCode.ReactNativePackageIsNotInstalled,
+                );
+            }
+
+            appLauncher.setNodeModulesRoot(nodeModulesRoot);
+        }
 
         parsedPackages.forEach(parsedPackage => {
             versionPromises.push(
                 ProjectVersionHelper.getProcessedVersionFromNodeModules(
-                    nodeModulesRoot,
+                    <string>nodeModulesRoot,
                     parsedPackage,
                 ),
             );
