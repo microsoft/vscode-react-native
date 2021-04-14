@@ -3,6 +3,7 @@
 
 import { InspectorConsoleView } from "../../../src/extension/networkInspector/views/inspectorConsoleView";
 import { OutputChannelLogger } from "../../../src/extension/log/OutputChannelLogger";
+import { Response, Request } from "../../../src/extension/networkInspector/networkMessageData";
 import { URL } from "url";
 import * as assert from "assert";
 import * as querystring from "querystring";
@@ -14,7 +15,7 @@ suite("inspectorConsoleView", function () {
         );
 
         test("should return network request data with text response body", () => {
-            const request = {
+            const request: Request = {
                 headers: [
                     { key: "Accept-Encoding", value: "gzip" },
                     { key: "Connection", value: "Keep-Alive" },
@@ -24,7 +25,7 @@ suite("inspectorConsoleView", function () {
                 timestamp: 1617959200269,
                 url: "https://test.org",
             };
-            const response = {
+            const response: Response = {
                 headers: [
                     { key: "Content-Encoding", value: "gzip" },
                     { key: "x-frame-options", value: "deny" },
@@ -36,6 +37,7 @@ suite("inspectorConsoleView", function () {
                 status: 200,
                 timestamp: 1617959201269,
                 totalChunks: 1,
+                reason: "",
             };
 
             const url = new URL(request.url);
@@ -70,7 +72,7 @@ suite("inspectorConsoleView", function () {
         });
 
         test("should return network request data with JSON response body", () => {
-            const request = {
+            const request: Request = {
                 headers: [
                     { key: "Accept-Encoding", value: "gzip" },
                     { key: "Connection", value: "Keep-Alive" },
@@ -83,7 +85,7 @@ suite("inspectorConsoleView", function () {
                 timestamp: 1617959200269,
                 url: "https://test.org",
             };
-            const response = {
+            const response: Response = {
                 headers: [
                     { key: "server", value: "nginx" },
                     { key: "x-frame-options", value: "deny" },
@@ -96,6 +98,7 @@ suite("inspectorConsoleView", function () {
                 status: 200,
                 timestamp: 1617959201269,
                 totalChunks: 1,
+                reason: "",
             };
 
             const url = new URL(request.url);
@@ -134,7 +137,7 @@ suite("inspectorConsoleView", function () {
         });
 
         test("should correctly process a graphQL request", () => {
-            const request = {
+            const request: Request = {
                 headers: [
                     { key: "Accept-Encoding", value: "gzip" },
                     { key: "Connection", value: "Keep-Alive" },
@@ -147,7 +150,7 @@ suite("inspectorConsoleView", function () {
                 timestamp: 1617959200269,
                 url: "https://test.org",
             };
-            const response = {
+            const response: Response = {
                 headers: [
                     { key: "content-encoding", value: "gzip" },
                     { key: "server", value: "cloudflare" },
@@ -161,6 +164,7 @@ suite("inspectorConsoleView", function () {
                 status: 200,
                 timestamp: 1617959201269,
                 totalChunks: 1,
+                reason: "",
             };
 
             const url = new URL(request.url);
@@ -198,7 +202,7 @@ suite("inspectorConsoleView", function () {
         });
 
         test("should correctly process a request with URL search parameters", () => {
-            const request = {
+            const request: Request = {
                 headers: [
                     { key: "Accept-Encoding", value: "gzip" },
                     { key: "Connection", value: "Keep-Alive" },
@@ -209,7 +213,7 @@ suite("inspectorConsoleView", function () {
                 url:
                     "https://test.org?query=query%20aTest(%24arg1%3A%20String!)%20%7B%20test(who%3A%20%24arg1)%20%7D&operationName=aTest&variables=%7B%22arg1%22%3A%22me%22%7D",
             };
-            const response = {
+            const response: Response = {
                 headers: [
                     { key: "vary", value: "Accept-Encoding" },
                     { key: "content-type", value: "application/json;charset=utf-8" },
@@ -221,6 +225,7 @@ suite("inspectorConsoleView", function () {
                 status: 400,
                 timestamp: 1617959201269,
                 totalChunks: 1,
+                reason: "",
             };
 
             const url = new URL(request.url);
@@ -259,7 +264,7 @@ suite("inspectorConsoleView", function () {
         });
 
         test("should correctly process a request with form data", () => {
-            const request = {
+            const request: Request = {
                 headers: [
                     { key: "Accept-Encoding", value: "gzip" },
                     { key: "Connection", value: "Keep-Alive" },
@@ -274,7 +279,7 @@ suite("inspectorConsoleView", function () {
                 timestamp: 1617959200269,
                 url: "https://test.org",
             };
-            const response = {
+            const response: Response = {
                 headers: [
                     { key: "server", value: "nginx" },
                     { key: "content-type", value: "application/json;charset=utf-8" },
@@ -286,6 +291,7 @@ suite("inspectorConsoleView", function () {
                 status: 200,
                 timestamp: 1617959201269,
                 totalChunks: 1,
+                reason: "",
             };
 
             const url = new URL(request.url);

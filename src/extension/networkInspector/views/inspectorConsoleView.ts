@@ -225,7 +225,7 @@ export class InspectorConsoleView extends InspectorView {
     }
 
     private retrieveURLSearchParams(searchParams: URLSearchParams): Record<string, string> {
-        let formattedSearchParams = {};
+        let formattedSearchParams: Record<string, string> = {};
         searchParams.forEach((value: string, key: string) => {
             formattedSearchParams[key] = value;
         });
