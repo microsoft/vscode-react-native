@@ -3,7 +3,7 @@
 
 import { InspectorView } from "./inspectorView";
 import { RequestParams } from "../clientDevice";
-import { URL } from "url";
+import { URL, URLSearchParams } from "url";
 import * as vscode from "vscode";
 import {
     Request,
@@ -28,6 +28,7 @@ interface ConsoleNetworkRequestDataView {
         "Request Headers": Record<string, string>;
         "Response Headers": Record<string, string>;
         "Request Body": FormattedBody | null | undefined;
+        "Request Query Parameters"?: Record<string, string> | undefined;
         "Response Body": FormattedBody | null | undefined;
     };
 }
@@ -198,7 +199,7 @@ export class InspectorConsoleView extends InspectorView {
         response: Response,
     ): ConsoleNetworkRequestDataView {
         const url = new URL(request.url);
-        const networkRequestData = {
+        const networkRequestConsoleView = {
             title: `%cNetwork request: ${request.method} ${
                 url ? url.host + url.pathname : "<unknown>"
             }`,
@@ -213,7 +214,22 @@ export class InspectorConsoleView extends InspectorView {
                 "Response Body": this.requestBodyDecoder.formatBody(response),
             },
         };
-        return networkRequestData;
+
+        if (url.search) {
+            networkRequestConsoleView.networkRequestData[
+                "Request Query Parameters"
+            ] = this.retrieveURLSearchParams(url.searchParams);
+        }
+
+        return networkRequestConsoleView;
+    }
+
+    private retrieveURLSearchParams(searchParams: URLSearchParams): Record<string, string> {
+        let formattedSearchParams: Record<string, string> = {};
+        searchParams.forEach((value: string, key: string) => {
+            formattedSearchParams[key] = value;
+        });
+        return formattedSearchParams;
     }
 
     private getRequestDurationString(requestTimestamp: number, responseTimestamp: number): string {

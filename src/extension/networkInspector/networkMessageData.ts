@@ -54,7 +54,7 @@ export type Request = {
     method: string;
     url: string;
     headers: Array<Header>;
-    data: string | null | undefined;
+    data?: string | null;
 };
 
 export type Response = {
@@ -63,9 +63,9 @@ export type Response = {
     status: number;
     reason: string;
     headers: Array<Header>;
-    data: string | null | undefined;
+    data?: string | null;
     isMock: boolean;
-    insights: Insights | null | undefined;
+    insights?: Insights | null;
     totalChunks?: number;
     index?: number;
 };
