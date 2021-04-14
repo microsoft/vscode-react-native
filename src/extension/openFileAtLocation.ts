@@ -53,18 +53,19 @@ const localize = nls.loadMessageBundle();
         lineNumber = parseInt(fileInfo[1], 10);
     }
 
-    getReactNativeWorkspaceForFile(filename, workspace)
-        .then(async projectRootPath => {
+    try {
+        (async () => {
+            const projectRootPath = await getReactNativeWorkspaceForFile(filename, workspace);
             const appLauncher = await AppLauncher.getAppLauncherByProjectRootPath(projectRootPath);
-            return appLauncher.openFileAtLocation(filename, lineNumber);
-        })
-        .catch(reason => {
-            throw ErrorHelper.getNestedError(
-                reason,
-                InternalErrorCode.CommandFailed,
-                "Unable to communicate with VSCode. Please make sure it is open in the appropriate workspace.",
-            );
-        });
+            return await appLauncher.openFileAtLocation(filename, lineNumber);
+        })();
+    } catch (reason) {
+        throw ErrorHelper.getNestedError(
+            reason,
+            InternalErrorCode.CommandFailed,
+            "Unable to communicate with VSCode. Please make sure it is open in the appropriate workspace.",
+        );
+    }
 }
 
 function getReactNativeWorkspaceForFile(file: string, workspace: string): Promise<string> {
