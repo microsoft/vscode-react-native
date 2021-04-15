@@ -17,6 +17,7 @@ import { testApplicationSetupManager } from "./main";
 import { startReactNativeTests } from "./nativeDebug.test";
 import { startDebugScenariosCreationTests } from "./debugScenariosCreation.test";
 import { startOtherTests } from "./otherTests.test";
+import { startNetworkInspectorTests } from "./networkInspector.test";
 
 export function startSmokeTests(
     args: TestRunArguments,
@@ -74,6 +75,7 @@ export function startSmokeTests(
             args,
         );
         startDebugRNWTests(testApplicationSetupManager.getWindowsRnWorkspaceDirectory(), args);
+        startNetworkInspectorTests(testApplicationSetupManager.getHermesWorkspaceDirectory(), args);
         startOtherTests(testApplicationSetupManager.getRnWorkspaceDirectory(), args);
     });
 }

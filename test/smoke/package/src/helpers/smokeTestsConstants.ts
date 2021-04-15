@@ -38,6 +38,8 @@ export class SmokeTestsConstants {
     public static androidTestTimeout = 400 * 1000;
     // Timeout for Android testing
     public static hermesTestTimeout = 15 * 60 * 1000;
+    // Timeout for Network inspector testing
+    public static networkInspectorTestTimeout = 10 * 60 * 1000;
     // Timeout for smoke tests setup
     public static smokeTestSetupAwaitTimeout = 30 * 60 * 1000;
 
@@ -90,10 +92,14 @@ export class SmokeTestsConstants {
     public static artifactsDir = "SmokeTestLogs";
     // Name of the VS Code user data directory
     public static VSCodeUserDataDir = "VSCodeUserData";
+    // Name of Express server project directory
+    public static ExpressServerDir = "TestExpressServer";
     // Name of application entry point .js file
     public static AppjsFileName = "App.js";
     // Name of application entry point .tsx file
     public static ApptsxFileName = "App.tsx";
+    // Name of Express server entry point
+    public static ExpressServerFileName = "server.js";
     // Name of file where tests environment variables are stored
     public static EnvConfigFileName = "config.json";
     // Name of file where tests environment variables are stored for development environment
@@ -108,6 +114,8 @@ export class SmokeTestsConstants {
     public static ChromeDebugCoreLogFileName = "ChromeDebugCoreLogs.txt";
     // File name where logs from VS Code driver will be saved
     public static VSCodeDriverLogFileName = "VSCodeDriverLogs.txt";
+    // File name where logs from Network Inspector output channel will be saved
+    public static NetworkInspectorLogFileName = "NetworkInspector.txt";
     // Expo client app Android package name
     public static expoPackageName = "host.exp.exponent";
 }

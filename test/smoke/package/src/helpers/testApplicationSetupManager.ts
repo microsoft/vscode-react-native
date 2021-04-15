@@ -690,7 +690,47 @@ export class TestApplicationSetupManager {
             : this.hermesTestProject.sampleDirectory;
 
         this.prepareReactNativeApplication(workspacePath, undefined, rnVersion);
+        this.prepareTestExpressServer(
+            path.join(workspacePath, SmokeTestsConstants.ExpressServerFileName),
+            path.join(sampleWorkspaceDirectory, SmokeTestsConstants.ExpressServerFileName),
+        );
         this.prepareReactNativeProjectForHermesTesting(workspacePath, sampleWorkspaceDirectory);
+    }
+
+    private prepareTestExpressServer(workspacePath: string, sampleWorkspace: string) {
+        if (fs.existsSync(workspacePath)) {
+            fs.mkdirSync(workspacePath);
+        }
+        const resServerFilePath = path.join(
+            sampleWorkspace,
+            SmokeTestsConstants.ExpressServerFileName,
+        );
+        const appServerFilePath = path.join(
+            workspacePath,
+            SmokeTestsConstants.ExpressServerFileName,
+        );
+        const resPackageFilePath = path.join(sampleWorkspace, "package.json");
+        const appPackageFilePath = path.join(workspacePath, "package.json");
+
+        SmokeTestLogger.projectPatchingLog(
+            `*** Copying  ${resServerFilePath} into ${appServerFilePath}...`,
+        );
+        fs.writeFileSync(appServerFilePath, fs.readFileSync(resServerFilePath));
+        SmokeTestLogger.projectPatchingLog(
+            `*** Copying  ${resPackageFilePath} into ${appPackageFilePath}...`,
+        );
+        fs.writeFileSync(appPackageFilePath, fs.readFileSync(resPackageFilePath));
+
+        const command = `${utilities.npmCommand} install`;
+
+        SmokeTestLogger.projectInstallLog(
+            `*** Installing dependencies to ${workspacePath} via '${command}' command...`,
+        );
+        utilities.execSync(
+            command,
+            { cwd: workspacePath },
+            vscodeManager.getSetupEnvironmentLogDir(),
+        );
     }
 
     private addExpoDependencyToRNProject(

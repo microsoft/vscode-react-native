@@ -260,5 +260,13 @@ export class InspectorConsoleView extends InspectorView {
             `color: ${this.consoleLogsColor}`,
             networkRequestData.networkRequestData,
         );
+
+        this.logger.debug(
+            `${networkRequestData.title}\ncolor: ${this.consoleLogsColor}\n${JSON.stringify(
+                networkRequestData.networkRequestData,
+                null,
+                2,
+            )}`,
+        );
     }
 }

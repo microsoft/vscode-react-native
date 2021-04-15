@@ -216,6 +216,15 @@ export function findStringInFile(filePath: string, strToFind: string): boolean {
     return false;
 }
 
+export async function findStringInFileWithTimeout(
+    filePath: string,
+    strToFind: string,
+    timeout?: number,
+): Promise<boolean> {
+    const condition = () => findStringInFile(filePath, strToFind);
+    return waitUntil(condition, timeout, 3000);
+}
+
 export function objectsContains(object: any, subObject: any): boolean {
     for (let i = 0; i < Object.keys(subObject).length; i++) {
         const key = Object.keys(subObject)[i];

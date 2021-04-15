@@ -357,6 +357,23 @@ export class AppiumHelper {
         await testButton.click();
     }
 
+    public static async clickTestNetworkButton(
+        client: AppiumClient,
+        platform: Platform,
+    ): Promise<void> {
+        SmokeTestLogger.info(`*** Pressing button with text "Test Network Button"...`);
+        let testButton: any;
+        switch (platform) {
+            case Platform.Android:
+                testButton = await client.$("//*[@text='TEST NETWORK BUTTON']");
+                break;
+            case Platform.iOS:
+                testButton = await client.$('//XCUIElementTypeButton[@name="Test Network Button"]');
+                break;
+        }
+        await testButton.click();
+    }
+
     public static async isHermesWorking(
         client: AppiumClient,
         platform: Platform,
