@@ -498,6 +498,26 @@ export class TestApplicationSetupManager {
                 `*** Copying ${testButtonPath} into ${workspaceDirectory}`,
             );
             fs.copyFileSync(testButtonPath, path.join(workspaceDirectory, "AppTestButton.js"));
+
+            const testNetworkButtonPath = path.join(
+                sampleWorkspaceDirectory,
+                "AppTestNetworkButton.js",
+            );
+            SmokeTestLogger.projectPatchingLog(
+                `*** Copying ${testNetworkButtonPath} into ${workspaceDirectory}`,
+            );
+            fs.copyFileSync(
+                testNetworkButtonPath,
+                path.join(workspaceDirectory, "AppTestNetworkButton.js"),
+            );
+            const settingsJsonPath = path.join(sampleWorkspaceDirectory, "settings.json");
+            SmokeTestLogger.projectPatchingLog(
+                `*** Copying ${settingsJsonPath} into ${path.join(workspaceDirectory, ".vscode")}`,
+            );
+            fs.copyFileSync(
+                testNetworkButtonPath,
+                path.join(settingsJsonPath, ".vscode", "settings.json"),
+            );
         }
     }
 
@@ -691,14 +711,14 @@ export class TestApplicationSetupManager {
 
         this.prepareReactNativeApplication(workspacePath, undefined, rnVersion);
         this.prepareTestExpressServer(
-            path.join(workspacePath, SmokeTestsConstants.ExpressServerFileName),
-            path.join(sampleWorkspaceDirectory, SmokeTestsConstants.ExpressServerFileName),
+            path.join(workspacePath, SmokeTestsConstants.ExpressServerDir),
+            path.join(sampleWorkspaceDirectory, SmokeTestsConstants.ExpressServerDir),
         );
         this.prepareReactNativeProjectForHermesTesting(workspacePath, sampleWorkspaceDirectory);
     }
 
     private prepareTestExpressServer(workspacePath: string, sampleWorkspace: string) {
-        if (fs.existsSync(workspacePath)) {
+        if (!fs.existsSync(workspacePath)) {
             fs.mkdirSync(workspacePath);
         }
         const resServerFilePath = path.join(

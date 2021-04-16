@@ -10,7 +10,7 @@ export default class AppTestNetworkButton extends Component {
       fetch('http://localhost:7321/post_sample',{
         method: "POST",
         headers: {
-        'Content-Type': 'application/json;charset=utf-8'
+        'Content-Type': 'application/json; charset=utf-8'
         },
         body: JSON.stringify({testStr: "test", testObj: {testNum: 1234, testStr1: "test1"}})
       })

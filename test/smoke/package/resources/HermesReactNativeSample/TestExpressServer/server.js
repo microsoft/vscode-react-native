@@ -9,13 +9,13 @@ app.get("/", function (req, res) {
 });
 
 app.get("/get_sample", function (req, res) {
-   console.log("Got a GET request for /list_user");
+   console.log("Got a GET request for /get_sample");
    res.send("GET request success");
 });
 
-app.post("/post_sample", function(req, res) {   
+app.post("/post_sample", function(req, res) {
    console.log("Got a POST request for /post_sample", req.body);
-   res.json({ 
+   res.json({
        testStr: req.body.testStr + "Success",
        testNun: 123,
        testArr: [1, 2],
@@ -25,6 +25,6 @@ app.post("/post_sample", function(req, res) {
 const server = app.listen(7321, function () {
    const host = server.address().address;
    const port = server.address().port;
-   
+
    console.log("Express app is listening at http://%s:%s", host, port);
 });

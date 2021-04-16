@@ -11,12 +11,17 @@ import IosSimulatorManager from "./helpers/iosSimulatorManager";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { TestRunArguments } from "./helpers/testConfigProcessor";
-import { sleep, findStringInFileWithTimeout } from "./helpers/utilities";
+import {
+    sleep,
+    findStringInFileWithTimeout,
+    retrieveStringsFromLogFileWithTimeout,
+} from "./helpers/utilities";
 import { androidEmulatorManager, iosSimulatorManager, vscodeManager } from "./main";
 
 const RunNetworkInspectorCommand = "Run Network Inspector";
-// const StopNetworkInspectorCommand = "Stop Network Inspector";
+const StopNetworkInspectorCommand = "Stop Network Inspector";
 const RunAndroidOnEmulatorCommand = "Run Android on Emulator";
+const RunIOSOnSimulatorCommand = "Run iOS on Simulator";
 
 const HERMES_APP_PACKAGE_NAME = `com.${SmokeTestsConstants.HermesAppName.toLocaleLowerCase()}`;
 const HERMES_APP_BUNDLE_ID = `org.reactjs.native.example.${SmokeTestsConstants.HermesAppName}`;
@@ -25,6 +30,8 @@ const HERMES_APP_ACTIVITY_NAME = `com.${SmokeTestsConstants.HermesAppName.toLoca
 const NI_FIND_PATTERN_TIMEOUT = 30000;
 const NIDeviceConnectedPattern = "Device connected";
 const ExpressServerPort = 7321;
+
+const postRequestPattern = /%cNetwork request:(.*?)\scolor: #0000ff\s\{(.*?)\}\s\}/gs;
 
 export function startNetworkInspectorTests(
     rnHermesWorkspace: string,
@@ -46,6 +53,9 @@ export function startNetworkInspectorTests(
                 expressServerProcess.kill();
                 expressServerProcess = null;
             }
+            SmokeTestLogger.info("Stopping Network inspector");
+            await app.workbench.quickaccess.runCommand(StopNetworkInspectorCommand);
+            await sleep(3000);
             if (app) {
                 SmokeTestLogger.info("Stopping React Native packager ...");
                 await app.workbench.quickaccess.runCommand(SmokeTestsConstants.stopPackagerCommand);
@@ -69,19 +79,45 @@ export function startNetworkInspectorTests(
             });
         }
 
+        function validatePostRequestResult(postRequestResult: RegExpMatchArray): boolean {
+            const postRequestData = postRequestResult[0];
+            const requestTitle = "POST localhost:7321/post_sample";
+            const requestBodyStr =
+                '  "Request Body": {\n    "testStr": "test",\n    "testObj": {\n      "testNum": 1234,\n      "testStr1": "test1"\n    }\n  }';
+            const responseBodyStr =
+                '  "Response Body": {\n    "testStr": "testSuccess",\n    "testNun": 123,\n    "testArr": [\n      1,\n      2\n    ]\n  }';
+            const requestHeadersPattern = /"Request Headers".*?"Content-Type": "application\/json; charset=utf-8".*?\}/s;
+            const responseHeadersPattern = /"Response Headers".*?"Content-Type": "application\/json; charset=utf-8".*?\}/s;
+
+            console.log(postRequestData.includes(requestTitle));
+            console.log(postRequestData.includes(requestBodyStr));
+            console.log(postRequestData.includes(responseBodyStr));
+            console.log(requestHeadersPattern.test(postRequestData));
+            console.log(responseHeadersPattern.test(postRequestData));
+
+            return (
+                postRequestData.includes(requestTitle) &&
+                postRequestData.includes(requestBodyStr) &&
+                postRequestData.includes(responseBodyStr) &&
+                requestHeadersPattern.test(postRequestData) &&
+                responseHeadersPattern.test(postRequestData)
+            );
+        }
+
         async function networkInspectorTest(testname: string, platform: Platform) {
             if (platform !== Platform.Android && platform !== Platform.iOS) {
                 return assert.fail(`Passed unsupported platform: ${platform}`);
             }
 
             app = await vscodeManager.runVSCode(rnHermesWorkspace, testname);
+            const runApplicationCommand =
+                platform === Platform.Android
+                    ? RunAndroidOnEmulatorCommand
+                    : RunIOSOnSimulatorCommand;
             SmokeTestLogger.info(
-                `${testname}: Launching an Android emulator via the command ${RunAndroidOnEmulatorCommand}`,
+                `${testname}: Launching the application on an ${platform} emulator via the command ${runApplicationCommand}`,
             );
-            await app.workbench.quickaccess.runCommand(RunAndroidOnEmulatorCommand);
-            SmokeTestLogger.info(`${testname}: Wait until emulator starting`);
-            await androidEmulatorManager.waitUntilEmulatorStarting();
-
+            await app.workbench.quickaccess.runCommand(runApplicationCommand);
             let appiumOpts: any;
             switch (platform) {
                 case Platform.Android: {
@@ -115,7 +151,7 @@ export function startNetworkInspectorTests(
 
             SmokeTestLogger.info(`${testname}: Starting Express server`);
             startExpressServer();
-            sleep(2000);
+            await sleep(2000);
 
             AndroidEmulatorManager.adbReversePort(ExpressServerPort);
             SmokeTestLogger.info(`${testname}: Starting Network inspector`);
@@ -138,13 +174,26 @@ export function startNetworkInspectorTests(
                 return assert.fail(`Couldn't find a connected device`);
             }
             SmokeTestLogger.info(
-                `${testname}: an Android emulator is connected to the Network inspector`,
+                `${testname}: an ${platform} emulator is connected to the Network inspector`,
             );
             await sleep(2000);
-            SmokeTestLogger.info(`${testname}: Click Test Network Button`);
             await AppiumHelper.clickTestNetworkButton(client, platform);
-
-            sleep(20000);
+            SmokeTestLogger.info(
+                `${testname}: searching for the post request pattern in Network inspector log file...`,
+            );
+            const postRequestResult = await retrieveStringsFromLogFileWithTimeout(
+                logFilePath,
+                postRequestPattern,
+                NI_FIND_PATTERN_TIMEOUT,
+            );
+            if (!postRequestResult || postRequestResult.length === 0) {
+                return assert.fail(`Couldn't find request data in logs`);
+            }
+            SmokeTestLogger.info(
+                `${testname}: logged Network request ${postRequestResult.toString()}`,
+            );
+            assert.strictEqual(validatePostRequestResult(postRequestResult), true);
+            SmokeTestLogger.success(`${testname}: logged Network request is correct`);
         }
 
         // Android tests
@@ -161,6 +210,10 @@ export function startNetworkInspectorTests(
 
         // iOS tests
         if (process.platform === "darwin" && (!testParameters || testParameters.RunIosTests)) {
+            it("Network inspector should process GET and POST requests on an iOS emulator", async function () {
+                this.timeout(SmokeTestsConstants.networkInspectorTestTimeout);
+                await networkInspectorTest.call(this, "Network inspector iOS test", Platform.iOS);
+            });
         }
     });
 }
