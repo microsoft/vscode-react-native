@@ -21,8 +21,12 @@ export class MacOSPlatform extends GeneralMobilePlatform {
         },
     ];
 
-    constructor(protected runOptions: ImacOSRunOptions, platformDeps: MobilePlatformDeps = {}) {
-        super(runOptions, platformDeps);
+    constructor(
+        protected runOptions: ImacOSRunOptions,
+        platformDeps: MobilePlatformDeps = {},
+        nodeModulesRoot: string,
+    ) {
+        super(runOptions, platformDeps, nodeModulesRoot);
     }
 
     public runApp(): Promise<void> {
@@ -59,6 +63,7 @@ export class MacOSPlatform extends GeneralMobilePlatform {
             }
 
             const runmacOSSpawn = await new CommandExecutor(
+                this.nodeModulesRoot,
                 this.projectPath,
                 this.logger,
             ).spawnReactCommand(`run-${this.platformName}`, this.runArguments, { env });

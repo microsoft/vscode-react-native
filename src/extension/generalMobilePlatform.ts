@@ -27,6 +27,7 @@ export class GeneralMobilePlatform {
     protected platformName: string;
     protected packager: Packager;
     protected logger: OutputChannelLogger;
+    protected nodeModulesRoot: string;
 
     protected static deviceString: TargetType = "device";
     protected static simulatorString: TargetType = "simulator";
@@ -34,9 +35,14 @@ export class GeneralMobilePlatform {
 
     public runArguments: string[];
 
-    constructor(protected runOptions: IRunOptions, platformDeps: MobilePlatformDeps = {}) {
+    constructor(
+        protected runOptions: IRunOptions,
+        platformDeps: MobilePlatformDeps = {},
+        nodeModulesRoot: string,
+    ) {
         this.platformName = this.runOptions.platform;
         this.projectPath = this.runOptions.projectRoot;
+        this.nodeModulesRoot = nodeModulesRoot;
         this.packager =
             platformDeps.packager ||
             new Packager(

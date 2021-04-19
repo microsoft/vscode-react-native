@@ -7,6 +7,7 @@ import { Node } from "../../src/common/node/node";
 import { ChildProcess } from "../../src/common/node/childProcess";
 import { EventEmitter } from "events";
 import { Crypto } from "../../src/common/node/crypto";
+import { AppLauncher } from "../../src/extension/appLauncher";
 import * as assert from "assert";
 import * as semver from "semver";
 import * as sinon from "sinon";
@@ -25,6 +26,8 @@ suite("commandExecutor", function () {
             "sampleReactNative022Project",
         );
 
+        let nodeModulesRoot: string;
+
         teardown(function () {
             let mockedMethods = [Log.log, ...Object.keys(childProcessStubInstance)];
 
@@ -41,10 +44,12 @@ suite("commandExecutor", function () {
             childProcessStub = sinon
                 .stub(Node, "ChildProcess")
                 .returns(childProcessStubInstance) as ChildProcess & Sinon.SinonStub;
+
+            nodeModulesRoot = AppLauncher.getNodeModulesRoot(sampleReactNative022ProjectDir);
         });
 
         test("should execute a command", function () {
-            let ce = new CommandExecutor(process.cwd(), Log);
+            let ce = new CommandExecutor(nodeModulesRoot, process.cwd(), Log);
             let loggedOutput: string = "";
 
             sinon.stub(Log, "log", function (message: string, formatMessage: boolean = true) {
@@ -58,7 +63,7 @@ suite("commandExecutor", function () {
         });
 
         test("should reject on bad command", () => {
-            let ce = new CommandExecutor();
+            let ce = new CommandExecutor(nodeModulesRoot);
 
             return ce
                 .execute("bar")
@@ -73,7 +78,7 @@ suite("commandExecutor", function () {
         });
 
         test("should reject on good command that fails", () => {
-            let ce = new CommandExecutor();
+            let ce = new CommandExecutor(nodeModulesRoot);
 
             return ce
                 .execute("node install bad-package")
@@ -88,7 +93,7 @@ suite("commandExecutor", function () {
         });
 
         test("should spawn a command", () => {
-            let ce = new CommandExecutor();
+            let ce = new CommandExecutor(nodeModulesRoot);
 
             sinon.stub(Log, "log", function (message: string, formatMessage: boolean = true) {
                 console.log(message);
@@ -100,7 +105,7 @@ suite("commandExecutor", function () {
         });
 
         test("spawn should reject a bad command", () => {
-            let ce = new CommandExecutor();
+            let ce = new CommandExecutor(nodeModulesRoot);
             sinon.stub(Log, "log", function (message: string, formatMessage: boolean = true) {
                 console.log(message);
             });
@@ -123,12 +128,11 @@ suite("commandExecutor", function () {
                 outcome: Promise.resolve(),
             });
 
-            return (await new CommandExecutor().spawnReactCommand("run-ios")).outcome.then(
-                null,
-                err => {
-                    assert.fail("react-native command was not expected to fail");
-                },
-            );
+            return (
+                await new CommandExecutor(nodeModulesRoot).spawnReactCommand("run-ios")
+            ).outcome.then(null, err => {
+                assert.fail("react-native command was not expected to fail");
+            });
         });
 
         suite("getReactNativeVersion", () => {
@@ -151,6 +155,7 @@ suite("commandExecutor", function () {
 
             test("getReactNativeVersion should return version string if 'version' field is found in react-native package package.json file from node_modules", () => {
                 const commandExecutor: CommandExecutor = new CommandExecutor(
+                    nodeModulesRoot,
                     sampleReactNative022ProjectDir,
                 );
                 const versionObj = {
@@ -169,6 +174,7 @@ suite("commandExecutor", function () {
 
             test("getReactNativeVersion should return version string if there isn't 'version' field in react-native package's package.json file", () => {
                 const commandExecutor: CommandExecutor = new CommandExecutor(
+                    nodeModulesRoot,
                     sampleReactNative022ProjectDir,
                 );
                 const testObj = {
@@ -199,6 +205,7 @@ suite("commandExecutor", function () {
                     "react-native",
                 );
                 let commandExecutor: CommandExecutor = new CommandExecutor(
+                    nodeModulesRoot,
                     sampleReactNative022ProjectDir,
                 );
                 CommandExecutor.ReactNativeCommand =
@@ -213,6 +220,7 @@ suite("commandExecutor", function () {
                     "react-native-tools.reactNativeGlobalCommandName"
                 ] = randomHash;
                 let commandExecutor: CommandExecutor = new CommandExecutor(
+                    nodeModulesRoot,
                     sampleReactNative022ProjectDir,
                 );
                 CommandExecutor.ReactNativeCommand =

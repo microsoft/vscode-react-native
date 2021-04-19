@@ -20,7 +20,7 @@ export interface ILaunchArgs {
     envFile?: string;
     isDirect?: boolean;
     enableDebug?: boolean;
-    nodeModulesRoot?: string | null;
+    nodeModulesRoot: string;
 }
 
 export enum PlatformType {

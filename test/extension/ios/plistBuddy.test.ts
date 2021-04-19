@@ -38,7 +38,7 @@ suite("plistBuddy", function () {
             const mockChildProcess: any = {
                 exec: mockedExecFunc,
             };
-            const plistBuddy = new PlistBuddy({ nodeChildProcess: mockChildProcess });
+            const plistBuddy = new PlistBuddy({ nodeChildProcess: mockChildProcess }, "");
 
             return plistBuddy
                 .setPlistProperty(plistFileName, plistProperty, plistValue)
@@ -71,7 +71,7 @@ suite("plistBuddy", function () {
             const mockChildProcess: any = {
                 exec: mockedExecFunc,
             };
-            const plistBuddy = new PlistBuddy({ nodeChildProcess: mockChildProcess });
+            const plistBuddy = new PlistBuddy({ nodeChildProcess: mockChildProcess }, "");
 
             return plistBuddy
                 .setPlistProperty(plistFileName, plistProperty, plistValue)
@@ -231,7 +231,7 @@ suite("plistBuddy", function () {
                 "auxiliaryFiles",
                 "buildSettings.txt",
             );
-            const plistBuddy = new PlistBuddy();
+            const plistBuddy = new PlistBuddy(undefined, "");
             let buildSettings: string | Buffer;
 
             suiteSetup(() => {
@@ -337,7 +337,7 @@ suite("plistBuddy", function () {
                 exec: mockedExecFunc,
             };
 
-            return new PlistBuddy({ nodeChildProcess: mockChildProcess });
+            return new PlistBuddy({ nodeChildProcess: mockChildProcess }, "");
         }
     });
 });

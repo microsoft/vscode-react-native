@@ -16,6 +16,7 @@ import * as rimraf from "rimraf";
 import "should";
 import * as sinon from "sinon";
 import { SettingsHelper } from "../../../src/extension/settingsHelper";
+import { AppLauncher } from "../../../src/extension/appLauncher";
 
 suite("androidPlatform", function () {
     suite("extensionContext", function () {
@@ -31,15 +32,18 @@ suite("androidPlatform", function () {
         const androidProjectPath = path.join(projectRoot, "android");
         const applicationName = "SampleApplication";
         const androidPackageName = "com.sampleapplication";
+
+        let nodeModulesRoot: string = AppLauncher.getNodeModulesRoot(projectRoot);
         const genericRunOptions: IAndroidRunOptions = {
             platform: PlatformType.Android,
             workspaceRoot: projectRoot,
-            projectRoot: projectRoot,
+            projectRoot,
             reactNativeVersions: {
                 reactNativeVersion: "^0.19.0",
                 reactNativeWindowsVersion: "",
                 reactNativeMacOSVersion: "",
             },
+            nodeModulesRoot,
         };
 
         const rnProjectContent = fs.readFileSync(ReactNative022.DEFAULT_PROJECT_FILE, "utf8");
@@ -52,7 +56,7 @@ suite("androidPlatform", function () {
         let adbHelper: adb.AdbHelper;
 
         function createAndroidPlatform(runOptions: IAndroidRunOptions): AndroidPlatform {
-            return new AndroidPlatform(runOptions);
+            return new AndroidPlatform(runOptions, undefined, <string>nodeModulesRoot);
         }
 
         setup(() => {
@@ -61,7 +65,7 @@ suite("androidPlatform", function () {
             // Configure all the dependencies we'll use in our tests
             fileSystem = new FileSystem();
 
-            adbHelper = new adb.AdbHelper(genericRunOptions.projectRoot);
+            adbHelper = new adb.AdbHelper(genericRunOptions.projectRoot, <string>nodeModulesRoot);
             sandbox.stub(
                 adbHelper,
                 "launchApp",
@@ -489,7 +493,7 @@ suite("androidPlatform", function () {
         });
 
         test("AdbHelper should correctly parse Android Sdk Location from local.properties file content", () => {
-            const adbHelper = new adb.AdbHelper("");
+            const adbHelper = new adb.AdbHelper("", nodeModulesRoot);
             function testPaths(inputPath: string, expectedPath: string) {
                 const resultPath = adbHelper.parseSdkLocation(`sdk.dir=${inputPath}`);
                 assert.strictEqual(resultPath, expectedPath);
@@ -534,7 +538,7 @@ suite("androidPlatform", function () {
 
         test("AdbHelper getAdbPath function should correctly parse Android Sdk Location from local.properties and wrap with quotes", () => {
             function testPaths(expectedPath: string, projectRoot: string) {
-                const adbHelper = new adb.AdbHelper(projectRoot);
+                const adbHelper = new adb.AdbHelper(projectRoot, nodeModulesRoot);
                 const resultPath = adbHelper.getAdbPath(projectRoot);
                 assert.strictEqual(resultPath, expectedPath);
             }

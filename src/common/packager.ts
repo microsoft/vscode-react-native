@@ -213,7 +213,12 @@ export class Packager {
 
                         let spawnOptions = { env: reactEnv };
 
+                        const nodeModulesRoot: string = AppLauncher.getNodeModulesRoot(
+                            this.projectPath,
+                        );
+
                         const packagerSpawnResult = await new CommandExecutor(
+                            nodeModulesRoot,
                             this.projectPath,
                             this.logger,
                         ).spawnReactPackager(args, spawnOptions);
@@ -414,7 +419,7 @@ export class Packager {
                 OPN_PACKAGE_NAME = Packager.OPN_PACKAGE_NAME.old;
             }
 
-            const nodeModulesRoot: string = await AppLauncher.getNodeModulesRoot(this.projectPath);
+            const nodeModulesRoot: string = AppLauncher.getNodeModulesRoot(this.projectPath);
 
             let flatDependencyPackagePath = path.resolve(
                 nodeModulesRoot,
@@ -512,7 +517,10 @@ export class Packager {
 
     private killPackagerProcess(): Promise<void> {
         this.logger.info(localize("StoppingPackager", "Stopping Packager"));
-        return new CommandExecutor(this.projectPath, this.logger)
+
+        const nodeModulesRoot: string = AppLauncher.getNodeModulesRoot(this.projectPath);
+
+        return new CommandExecutor(nodeModulesRoot, this.projectPath, this.logger)
             .killReactPackager(this.packagerProcess)
             .then(() => {
                 this.packagerProcess = undefined;

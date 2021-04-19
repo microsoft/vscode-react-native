@@ -7,6 +7,7 @@ import customRequire from "./customRequire";
 import { findFileInFolderHierarchy } from "./extensionHelper";
 import { HostPlatform } from "./hostPlatform";
 import * as path from "path";
+import { AppLauncher } from "../extension/appLauncher";
 
 export interface PackageConfig {
     packageName: string;
@@ -117,8 +118,15 @@ export default class PackageLoader {
         this.requireQueue.push(tryToRequire);
         if (!this.isCommandsExecuting) {
             this.isCommandsExecuting = true;
+
+            const currentWorkingDirectory: string = path.dirname(
+                findFileInFolderHierarchy(__dirname, "package.json") || __dirname,
+            );
+            const nodeModulesRoot: string = AppLauncher.getNodeModulesRoot(currentWorkingDirectory);
+
             const commandExecutor = new CommandExecutor(
-                path.dirname(findFileInFolderHierarchy(__dirname, "package.json") || __dirname),
+                nodeModulesRoot,
+                currentWorkingDirectory,
                 this.logger,
             );
             while (this.packagesQueue.length) {

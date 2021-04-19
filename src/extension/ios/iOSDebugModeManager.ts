@@ -23,10 +23,17 @@ export class IOSDebugModeManager {
     private projectRoot: string;
     private iosProjectRoot: string;
     private simulatorPlist: SimulatorPlist;
+    private nodeModulesRoot: string;
 
-    constructor(iosProjectRoot: string, projectRoot: string, scheme?: string) {
+    constructor(
+        iosProjectRoot: string,
+        projectRoot: string,
+        nodeModulesRoot: string,
+        scheme?: string,
+    ) {
         this.projectRoot = projectRoot;
         this.iosProjectRoot = iosProjectRoot;
+        this.nodeModulesRoot = nodeModulesRoot;
         this.simulatorPlist = new SimulatorPlist(this.iosProjectRoot, this.projectRoot, scheme);
     }
 
@@ -35,7 +42,7 @@ export class IOSDebugModeManager {
         configuration?: string,
         productName?: string,
     ): Promise<void> {
-        const plistBuddy = new PlistBuddy();
+        const plistBuddy = new PlistBuddy(undefined, this.nodeModulesRoot);
 
         // Find the plistFile with the configuration setting
         // There is a race here between us checking for the plist file, and the application starting up.
@@ -70,11 +77,11 @@ export class IOSDebugModeManager {
         return this.findPListFile(configuration, productName).then((plistFile: string) => {
             // Attempt to read from the file, but if the property is not defined then return the empty string
             return Promise.all([
-                new PlistBuddy().readPlistProperty(
+                new PlistBuddy(undefined, this.nodeModulesRoot).readPlistProperty(
                     plistFile,
                     IOSDebugModeManager.EXECUTOR_CLASS_SETTING_NAME,
                 ),
-                new PlistBuddy().readPlistProperty(
+                new PlistBuddy(undefined, this.nodeModulesRoot).readPlistProperty(
                     plistFile,
                     IOSDebugModeManager.REMOTE_DEBUGGING_SETTING_NAME,
                 ),

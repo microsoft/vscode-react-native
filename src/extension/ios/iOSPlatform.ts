@@ -25,7 +25,7 @@ const localize = nls.loadMessageBundle();
 export class IOSPlatform extends GeneralMobilePlatform {
     public static DEFAULT_IOS_PROJECT_RELATIVE_PATH = "ios";
 
-    private plistBuddy = new PlistBuddy();
+    private plistBuddy = new PlistBuddy(undefined, this.nodeModulesRoot);
     private targetType: TargetType = "simulator";
     private iosProjectRoot: string;
     private iosDebugModeManager: IOSDebugModeManager;
@@ -69,8 +69,12 @@ export class IOSPlatform extends GeneralMobilePlatform {
         return Promise.resolve();
     }
 
-    constructor(protected runOptions: IIOSRunOptions, platformDeps: MobilePlatformDeps = {}) {
-        super(runOptions, platformDeps);
+    constructor(
+        protected runOptions: IIOSRunOptions,
+        platformDeps: MobilePlatformDeps = {},
+        nodeModulesRoot: string,
+    ) {
+        super(runOptions, platformDeps, nodeModulesRoot);
 
         this.simulatorManager = new IOSSimulatorManager();
         this.runOptions.configuration = this.getConfiguration();
@@ -100,6 +104,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
         this.iosDebugModeManager = new IOSDebugModeManager(
             this.iosProjectRoot,
             this.projectPath,
+            nodeModulesRoot,
             schemeFromArgs ? schemeFromArgs : this.runOptions.scheme,
         );
 
@@ -204,6 +209,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
                 this.runArguments.push("--verbose");
             }
             const runIosSpawn = await new CommandExecutor(
+                this.nodeModulesRoot,
                 this.projectPath,
                 this.logger,
             ).spawnReactCommand("run-ios", this.runArguments, { env });

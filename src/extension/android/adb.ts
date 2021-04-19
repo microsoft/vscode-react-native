@@ -50,13 +50,21 @@ const AndroidSDKEmulatorPattern = /^emulator-\d{1,5}$/;
 
 export class AdbHelper {
     private childProcess: ChildProcess = new ChildProcess();
-    private commandExecutor: CommandExecutor = new CommandExecutor();
+    private commandExecutor: CommandExecutor;
     private adbExecutable: string = "";
     private launchActivity: string;
+    private nodeModulesRoot: string;
 
-    constructor(projectRoot: string, logger?: ILogger, launchActivity: string = "MainActivity") {
+    constructor(
+        projectRoot: string,
+        nodeModulesRoot: string,
+        logger?: ILogger,
+        launchActivity: string = "MainActivity",
+    ) {
         this.adbExecutable = this.getAdbPath(projectRoot, logger);
+        this.nodeModulesRoot = nodeModulesRoot;
         this.launchActivity = launchActivity;
+        this.commandExecutor = new CommandExecutor(this.nodeModulesRoot);
     }
 
     /**
@@ -85,7 +93,7 @@ export class AdbHelper {
         let enableDebugCommand = `${this.adbExecutable} ${
             debugTarget ? "-s " + debugTarget : ""
         } shell am broadcast -a "${packageName}.RELOAD_APP_ACTION" --ez jsproxy ${enable}`;
-        return new CommandExecutor(projectRoot)
+        return new CommandExecutor(this.nodeModulesRoot, projectRoot)
             .execute(enableDebugCommand)
             .then(() => {
                 // We should stop and start application again after RELOAD_APP_ACTION, otherwise app going to hangs up
@@ -93,7 +101,7 @@ export class AdbHelper {
                     setTimeout(() => {
                         this.stopApp(projectRoot, packageName, debugTarget, appIdSuffix).then(
                             () => {
-                                return resolve();
+                                return resolve(void 0);
                             },
                         );
                     }, 200); // We need a little delay after broadcast command

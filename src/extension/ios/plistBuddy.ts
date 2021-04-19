@@ -13,7 +13,6 @@ import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
 import { getFileNameWithoutExtension } from "../../common/utils";
 import customRequire from "../../common/customRequire";
-import { AppLauncher } from "../appLauncher";
 
 export interface ConfigurationData {
     fullProductName: string;
@@ -27,9 +26,11 @@ export class PlistBuddy {
     private readonly FULL_PRODUCT_NAME_SEARCH_KEY = "FULL_PRODUCT_NAME";
 
     private nodeChildProcess: ChildProcess;
+    private nodeModulesRoot: string;
 
-    constructor({ nodeChildProcess = new Node.ChildProcess() } = {}) {
+    constructor({ nodeChildProcess = new Node.ChildProcess() } = {}, nodeModulesRoot: string) {
         this.nodeChildProcess = nodeChildProcess;
+        this.nodeModulesRoot = nodeModulesRoot;
     }
 
     public getBundleId(
@@ -226,11 +227,9 @@ export class PlistBuddy {
             iOSCliFolderName = "cli";
         }
 
-        const nodeModulesRoot: string = await AppLauncher.getNodeModulesRoot(projectRoot);
-
         const findXcodeProject = customRequire(
             path.join(
-                nodeModulesRoot,
+                this.nodeModulesRoot,
                 `node_modules/@react-native-community/${iOSCliFolderName}/build/commands/runIOS/findXcodeProject`,
             ),
         ).default;

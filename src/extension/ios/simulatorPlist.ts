@@ -10,6 +10,7 @@ import { ChildProcess } from "../../common/node/childProcess";
 
 import { TelemetryHelper } from "../../common/telemetryHelper";
 import * as nls from "vscode-nls";
+import { AppLauncher } from "../appLauncher";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -32,7 +33,7 @@ export class SimulatorPlist {
         scheme?: string,
         {
             nodeFileSystem = new FileSystem(),
-            plistBuddy = new PlistBuddy(),
+            plistBuddy = undefined,
             nodeChildProcess = new ChildProcess(),
         } = {},
     ) {
@@ -40,7 +41,8 @@ export class SimulatorPlist {
         this.iosProjectRoot = iosProjectRoot;
 
         this.nodeFileSystem = nodeFileSystem;
-        this.plistBuddy = plistBuddy;
+        const nodeModulesRoot: string = AppLauncher.getNodeModulesRoot(this.projectRoot);
+        this.plistBuddy = plistBuddy || new PlistBuddy(undefined, nodeModulesRoot);
         this.nodeChildProcess = nodeChildProcess;
         this.scheme = scheme;
     }

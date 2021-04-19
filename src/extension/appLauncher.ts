@@ -49,9 +49,20 @@ export class AppLauncher {
     private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
     private mobilePlatform: GeneralMobilePlatform;
     private launchScenariosManager: LaunchScenariosManager;
-    private nodeModulesRoot: string | null;
+    private nodeModulesRoot: string | null | undefined;
 
-    public static async getAppLauncherByProjectRootPath(
+    public static getAppLauncherByProjectRootPath(projectRootPath: string): AppLauncher {
+        const appLauncher = ProjectsStorage.projectsCache[projectRootPath.toLowerCase()];
+        if (!appLauncher) {
+            throw new Error(
+                `Could not find AppLauncher by the project root path ${projectRootPath}`,
+            );
+        }
+
+        return appLauncher;
+    }
+
+    public static async getOrCreateAppLauncherByProjectRootPath(
         projectRootPath: string,
     ): Promise<AppLauncher> {
         let appLauncher = ProjectsStorage.projectsCache[projectRootPath.toLowerCase()];
@@ -72,8 +83,8 @@ export class AppLauncher {
         return appLauncher;
     }
 
-    public static async getNodeModulesRoot(projectRootPath: string): Promise<string> {
-        const appLauncher: AppLauncher = await AppLauncher.getAppLauncherByProjectRootPath(
+    public static getNodeModulesRoot(projectRootPath: string): string {
+        const appLauncher: AppLauncher = AppLauncher.getAppLauncherByProjectRootPath(
             projectRootPath,
         );
 
@@ -116,7 +127,6 @@ export class AppLauncher {
         this.reactDirManager = reactDirManager;
         this.workspaceFolder = workspaceFolder;
         this.rnCdpProxy = new ReactNativeCDPProxy(this.cdpProxyHostAddress, this.cdpProxyPort);
-        this.nodeModulesRoot = null;
     }
 
     public getCdpProxyPort(): number {
@@ -232,6 +242,7 @@ export class AppLauncher {
             launchArgs.platform,
             mobilePlatformOptions,
             platformDeps,
+            <string>this.nodeModulesRoot,
         );
         return new Promise((resolve, reject) => {
             let extProps: any = {
