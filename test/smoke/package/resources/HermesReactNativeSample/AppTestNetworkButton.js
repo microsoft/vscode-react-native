@@ -22,6 +22,18 @@ export default class AppTestNetworkButton extends Component {
       })
       .catch(err => {
         console.log(err);
+      })
+      .then(() =>
+        fetch('http://localhost:7321/get_sample?param1=test&param2=123')
+      )
+      .then(response => {
+        return response.text();
+      })
+      .then(data => {
+        console.log(data);
+      })
+      .catch(err => {
+        console.log(err);
       });
     }
     render() {

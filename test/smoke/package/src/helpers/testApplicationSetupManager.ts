@@ -515,8 +515,8 @@ export class TestApplicationSetupManager {
                 `*** Copying ${settingsJsonPath} into ${path.join(workspaceDirectory, ".vscode")}`,
             );
             fs.copyFileSync(
-                testNetworkButtonPath,
-                path.join(settingsJsonPath, ".vscode", "settings.json"),
+                settingsJsonPath,
+                path.join(workspaceDirectory, ".vscode", "settings.json"),
             );
         }
     }

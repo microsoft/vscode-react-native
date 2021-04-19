@@ -31,7 +31,7 @@ const NI_FIND_PATTERN_TIMEOUT = 30000;
 const NIDeviceConnectedPattern = "Device connected";
 const ExpressServerPort = 7321;
 
-const postRequestPattern = /%cNetwork request:(.*?)\scolor: #0000ff\s\{(.*?)\}\s\}/gs;
+const requestPattern = /%cNetwork request:(.*?)\scolor: #0000ff\s\{(.*?)\}\s\}/gs;
 
 export function startNetworkInspectorTests(
     rnHermesWorkspace: string,
@@ -79,8 +79,7 @@ export function startNetworkInspectorTests(
             });
         }
 
-        function validatePostRequestResult(postRequestResult: RegExpMatchArray): boolean {
-            const postRequestData = postRequestResult[0];
+        function validatePostRequestResult(postRequestData: string): boolean {
             const requestTitle = "POST localhost:7321/post_sample";
             const requestBodyStr =
                 '  "Request Body": {\n    "testStr": "test",\n    "testObj": {\n      "testNum": 1234,\n      "testStr1": "test1"\n    }\n  }';
@@ -101,6 +100,26 @@ export function startNetworkInspectorTests(
                 postRequestData.includes(responseBodyStr) &&
                 requestHeadersPattern.test(postRequestData) &&
                 responseHeadersPattern.test(postRequestData)
+            );
+        }
+
+        function validateGetRequestResult(getRequestData: string): boolean {
+            const requestTitle = "GET localhost:7321/get_sample";
+            const requestQueryParameters =
+                '  "Request Query Parameters": {\n    "param1": "test",\n    "param2": "123"\n  }';
+            const responseBodyStr = '  "Response Body": "GET request success: testSuccess"';
+            const responseHeadersPattern = /"Response Headers".*?"Content-Type": "text\/html; charset=utf-8".*?\}/s;
+
+            console.log(getRequestData.includes(requestTitle));
+            console.log(getRequestData.includes(requestQueryParameters));
+            console.log(getRequestData.includes(responseBodyStr));
+            console.log(responseHeadersPattern.test(getRequestData));
+
+            return (
+                getRequestData.includes(requestTitle) &&
+                getRequestData.includes(requestQueryParameters) &&
+                getRequestData.includes(responseBodyStr) &&
+                responseHeadersPattern.test(getRequestData)
             );
         }
 
@@ -181,18 +200,19 @@ export function startNetworkInspectorTests(
             SmokeTestLogger.info(
                 `${testname}: searching for the post request pattern in Network inspector log file...`,
             );
-            const postRequestResult = await retrieveStringsFromLogFileWithTimeout(
+            const requestResults = await retrieveStringsFromLogFileWithTimeout(
                 logFilePath,
-                postRequestPattern,
+                requestPattern,
                 NI_FIND_PATTERN_TIMEOUT,
             );
-            if (!postRequestResult || postRequestResult.length === 0) {
+            if (!requestResults || requestResults.length < 2) {
                 return assert.fail(`Couldn't find request data in logs`);
             }
             SmokeTestLogger.info(
-                `${testname}: logged Network request ${postRequestResult.toString()}`,
+                `${testname}: logged Network request ${requestResults.toString()}`,
             );
-            assert.strictEqual(validatePostRequestResult(postRequestResult), true);
+            assert.strictEqual(validatePostRequestResult(requestResults[0]), true);
+            assert.strictEqual(validateGetRequestResult(requestResults[1]), true);
             SmokeTestLogger.success(`${testname}: logged Network request is correct`);
         }
 

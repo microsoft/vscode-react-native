@@ -10,7 +10,8 @@ app.get("/", function (req, res) {
 
 app.get("/get_sample", function (req, res) {
    console.log("Got a GET request for /get_sample");
-   res.send("GET request success");
+   res.set("Cache-Control", "no-store");
+   res.send(`GET request success: ${req.query.param1}Success`);
 });
 
 app.post("/post_sample", function(req, res) {
