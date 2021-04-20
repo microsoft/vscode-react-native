@@ -30,6 +30,7 @@ const HERMES_APP_ACTIVITY_NAME = `com.${SmokeTestsConstants.HermesAppName.toLoca
 const NI_FIND_PATTERN_TIMEOUT = 30000;
 const NIDeviceConnectedPattern = "Device connected";
 const ExpressServerPort = 7321;
+const TestNetworkButtonName = "Test Network Button";
 
 const requestPattern = /%cNetwork request:(.*?)\scolor: #0000ff\s\{(.*?)\}\s\}/gs;
 
@@ -88,12 +89,6 @@ export function startNetworkInspectorTests(
             const requestHeadersPattern = /"Request Headers".*?"Content-Type": "application\/json; charset=utf-8".*?\}/s;
             const responseHeadersPattern = /"Response Headers".*?"Content-Type": "application\/json; charset=utf-8".*?\}/s;
 
-            console.log(postRequestData.includes(requestTitle));
-            console.log(postRequestData.includes(requestBodyStr));
-            console.log(postRequestData.includes(responseBodyStr));
-            console.log(requestHeadersPattern.test(postRequestData));
-            console.log(responseHeadersPattern.test(postRequestData));
-
             return (
                 postRequestData.includes(requestTitle) &&
                 postRequestData.includes(requestBodyStr) &&
@@ -109,11 +104,6 @@ export function startNetworkInspectorTests(
                 '  "Request Query Parameters": {\n    "param1": "test",\n    "param2": "123"\n  }';
             const responseBodyStr = '  "Response Body": "GET request success: testSuccess"';
             const responseHeadersPattern = /"Response Headers".*?"Content-Type": "text\/html; charset=utf-8".*?\}/s;
-
-            console.log(getRequestData.includes(requestTitle));
-            console.log(getRequestData.includes(requestQueryParameters));
-            console.log(getRequestData.includes(responseBodyStr));
-            console.log(responseHeadersPattern.test(getRequestData));
 
             return (
                 getRequestData.includes(requestTitle) &&
@@ -196,7 +186,7 @@ export function startNetworkInspectorTests(
                 `${testname}: an ${platform} emulator is connected to the Network inspector`,
             );
             await sleep(2000);
-            await AppiumHelper.clickTestNetworkButton(client, platform);
+            await AppiumHelper.clickTestButton(client, TestNetworkButtonName, platform);
             SmokeTestLogger.info(
                 `${testname}: searching for the post request pattern in Network inspector log file...`,
             );

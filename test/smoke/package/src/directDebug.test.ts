@@ -18,6 +18,7 @@ const HERMES_APP_ACTIVITY_NAME = `com.${SmokeTestsConstants.HermesAppName.toLoca
 const RNAndroidHermesDebugConfigName = "Debug Android Hermes - Experimental";
 const RNIosHermesDebugConfigName = "Debug iOS Hermes - Experimental";
 const RNHermesAttachConfigName = "Attach to Hermes application - Experimental";
+const TestHermesButtonName = "Test Button";
 
 const RNHermesSetBreakpointOnLine = 11;
 // Time for Android Debug Test before it reaches timeout
@@ -141,7 +142,7 @@ export function startDirectDebugTests(workspace: string, testParameters: TestRun
                 SmokeTestLogger.info(`${testname}: Reattached successfully`);
                 await sleep(7000);
                 SmokeTestLogger.info(`${testname}: Click Test Button`);
-                await AppiumHelper.clickTestButtonHermes(client, platform);
+                await AppiumHelper.clickTestButton(client, TestHermesButtonName, platform);
                 await app.workbench.debug.waitForStackFrame(
                     sf =>
                         sf.name === "AppTestButton.js" &&
