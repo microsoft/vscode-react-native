@@ -49,7 +49,7 @@ export class AppLauncher {
     private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
     private mobilePlatform: GeneralMobilePlatform;
     private launchScenariosManager: LaunchScenariosManager;
-    private nodeModulesRoot: string | null | undefined;
+    private nodeModulesRoot?: string;
 
     public static getAppLauncherByProjectRootPath(projectRootPath: string): AppLauncher {
         const appLauncher = ProjectsStorage.projectsCache[projectRootPath.toLowerCase()];
