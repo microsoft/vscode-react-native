@@ -147,7 +147,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
             return AppLauncher.getOrCreateAppLauncherByProjectRootPath(projectRootPath).then(
                 (appLauncher: AppLauncher) => {
                     return ReactNativeProjectHelper.isReactNativeProject(projectRootPath).then(
-                        async result => {
+                        result => {
                             if (!result) {
                                 throw ErrorHelper.getInternalError(
                                     InternalErrorCode.NotInReactNativeFolderError,

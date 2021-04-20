@@ -56,7 +56,7 @@ suite("androidPlatform", function () {
         let adbHelper: adb.AdbHelper;
 
         function createAndroidPlatform(runOptions: IAndroidRunOptions): AndroidPlatform {
-            return new AndroidPlatform(runOptions, undefined, <string>nodeModulesRoot);
+            return new AndroidPlatform(runOptions, undefined, nodeModulesRoot);
         }
 
         setup(() => {
@@ -65,7 +65,7 @@ suite("androidPlatform", function () {
             // Configure all the dependencies we'll use in our tests
             fileSystem = new FileSystem();
 
-            adbHelper = new adb.AdbHelper(genericRunOptions.projectRoot, <string>nodeModulesRoot);
+            adbHelper = new adb.AdbHelper(genericRunOptions.projectRoot, nodeModulesRoot);
             sandbox.stub(
                 adbHelper,
                 "launchApp",

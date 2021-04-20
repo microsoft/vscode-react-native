@@ -47,9 +47,7 @@ export class CommandExecutor {
         private nodeModulesRoot: string,
         private currentWorkingDirectory: string = process.cwd(),
         private logger: ILogger = new NullLogger(),
-    ) {
-        this.nodeModulesRoot = nodeModulesRoot;
-    }
+    ) {}
 
     public execute(command: string, options: Options = {}): Promise<void> {
         this.logger.debug(CommandExecutor.getCommandStatusString(command, CommandStatus.Start));
@@ -80,8 +78,8 @@ export class CommandExecutor {
     /**
      * Spawns the React Native packager in a child process.
      */
-    public async spawnReactPackager(args: string[], options: Options = {}): Promise<ISpawnResult> {
-        return await this.spawnReactCommand("start", args, options);
+    public spawnReactPackager(args: string[], options: Options = {}): ISpawnResult {
+        return this.spawnReactCommand("start", args, options);
     }
 
     public getReactNativeVersion(): Promise<string> {
@@ -118,12 +116,12 @@ export class CommandExecutor {
     /**
      * Executes a react native command and waits for its completion.
      */
-    public async spawnReactCommand(
+    public spawnReactCommand(
         command: string,
         args: string[] = [],
         options: Options = {},
-    ): Promise<ISpawnResult> {
-        const reactCommand = HostPlatform.getNpmCliCommand(await this.selectReactNativeCLI());
+    ): ISpawnResult {
+        const reactCommand = HostPlatform.getNpmCliCommand(this.selectReactNativeCLI());
         return this.spawnChildProcess(reactCommand, [command, ...args], options);
     }
 
@@ -198,7 +196,7 @@ export class CommandExecutor {
         });
     }
 
-    public async selectReactNativeCLI(): Promise<string> {
+    public selectReactNativeCLI(): string {
         return (
             CommandExecutor.ReactNativeCommand ||
             path.resolve(this.nodeModulesRoot, "node_modules", ".bin", "react-native")

@@ -62,7 +62,7 @@ export class MacOSPlatform extends GeneralMobilePlatform {
                 this.runArguments.push("--no-packager");
             }
 
-            const runmacOSSpawn = await new CommandExecutor(
+            const runmacOSSpawn = new CommandExecutor(
                 this.nodeModulesRoot,
                 this.projectPath,
                 this.logger,

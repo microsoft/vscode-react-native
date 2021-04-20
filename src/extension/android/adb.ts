@@ -52,18 +52,14 @@ export class AdbHelper {
     private childProcess: ChildProcess = new ChildProcess();
     private commandExecutor: CommandExecutor;
     private adbExecutable: string = "";
-    private launchActivity: string;
-    private nodeModulesRoot: string;
 
     constructor(
         projectRoot: string,
-        nodeModulesRoot: string,
+        private nodeModulesRoot: string,
         logger?: ILogger,
-        launchActivity: string = "MainActivity",
+        private launchActivity: string = "MainActivity",
     ) {
         this.adbExecutable = this.getAdbPath(projectRoot, logger);
-        this.nodeModulesRoot = nodeModulesRoot;
-        this.launchActivity = launchActivity;
         this.commandExecutor = new CommandExecutor(this.nodeModulesRoot);
     }
 

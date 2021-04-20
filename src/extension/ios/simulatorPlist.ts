@@ -18,33 +18,25 @@ nls.config({
 const localize = nls.loadMessageBundle();
 
 export class SimulatorPlist {
-    private projectRoot: string;
-    private iosProjectRoot: string;
-    private scheme?: string;
     private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
-
     private nodeFileSystem: FileSystem;
     private plistBuddy: PlistBuddy;
     private nodeChildProcess: ChildProcess;
 
     constructor(
-        iosProjectRoot: string,
-        projectRoot: string,
-        scheme?: string,
+        private iosProjectRoot: string,
+        private projectRoot: string,
+        private scheme?: string,
         {
             nodeFileSystem = new FileSystem(),
             plistBuddy = undefined,
             nodeChildProcess = new ChildProcess(),
         } = {},
     ) {
-        this.projectRoot = projectRoot;
-        this.iosProjectRoot = iosProjectRoot;
-
         this.nodeFileSystem = nodeFileSystem;
         const nodeModulesRoot: string = AppLauncher.getNodeModulesRoot(this.projectRoot);
         this.plistBuddy = plistBuddy || new PlistBuddy(undefined, nodeModulesRoot);
         this.nodeChildProcess = nodeChildProcess;
-        this.scheme = scheme;
     }
 
     public findPlistFile(configuration?: string, productName?: string): Promise<string> {

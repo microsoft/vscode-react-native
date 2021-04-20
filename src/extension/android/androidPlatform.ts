@@ -132,7 +132,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
             extProps,
         );
 
-        return TelemetryHelper.generate("AndroidPlatform.runApp", extProps, async () => {
+        return TelemetryHelper.generate("AndroidPlatform.runApp", extProps, () => {
             const env = GeneralMobilePlatform.getEnvArgument(
                 process.env,
                 this.runOptions.env,
@@ -163,7 +163,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                 this.adbHelper.setLaunchActivity(this.runOptions.debugLaunchActivity);
             }
 
-            const runAndroidSpawn = await new CommandExecutor(
+            const runAndroidSpawn = new CommandExecutor(
                 this.nodeModulesRoot,
                 this.projectPath,
                 this.logger,

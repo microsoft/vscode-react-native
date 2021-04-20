@@ -157,7 +157,7 @@ export class Packager {
             });
     }
 
-    public async start(resetCache: boolean = false): Promise<void> {
+    public start(resetCache: boolean = false): Promise<void> {
         this.packagerStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTING);
         let executedStartPackagerCmd = false;
         let rnVersion: string;
@@ -178,7 +178,7 @@ export class Packager {
                     .then(() => {
                         return this.getPackagerArgs(this.projectPath, rnVersion, resetCache);
                     })
-                    .then(async args => {
+                    .then(args => {
                         //  There is a bug with launching VSCode editor for file from stack frame in 0.38, 0.39, 0.40 versions:
                         //  https://github.com/facebook/react-native/commit/f49093f39710173620fead6230d62cc670570210
                         //  This bug will be fixed in 0.41
@@ -217,7 +217,7 @@ export class Packager {
                             this.projectPath,
                         );
 
-                        const packagerSpawnResult = await new CommandExecutor(
+                        const packagerSpawnResult = new CommandExecutor(
                             nodeModulesRoot,
                             this.projectPath,
                             this.logger,
@@ -410,7 +410,7 @@ export class Packager {
         );
     }
 
-    private async findOpnPackage(ReactNativeVersion: string): Promise<string> {
+    private findOpnPackage(ReactNativeVersion: string): Promise<string> {
         try {
             let OPN_PACKAGE_NAME: string;
             if (semver.gte(ReactNativeVersion, Packager.RN_VERSION_WITH_OPEN_PKG)) {
@@ -470,12 +470,12 @@ export class Packager {
         }
     }
 
-    private async monkeyPatchOpnForRNPackager(ReactNativeVersion: string): Promise<void> {
+    private monkeyPatchOpnForRNPackager(ReactNativeVersion: string): Promise<void> {
         let opnPackage: Package;
         let destnFilePath: string;
 
         // Finds the 'opn' or 'open' package
-        return await this.findOpnPackage(ReactNativeVersion)
+        return this.findOpnPackage(ReactNativeVersion)
             .then(opnIndexFilePath => {
                 destnFilePath = opnIndexFilePath;
                 // Read the package's "package.json"

@@ -121,18 +121,18 @@ suite("commandExecutor", function () {
                 });
         });
 
-        test("should not fail on react-native command without arguments", async () => {
+        test("should not fail on react-native command without arguments", () => {
             (sinon.stub(childProcessStubInstance, "spawn") as Sinon.SinonStub).returns({
                 stdout: new EventEmitter(),
                 stderr: new EventEmitter(),
                 outcome: Promise.resolve(),
             });
 
-            return (
-                await new CommandExecutor(nodeModulesRoot).spawnReactCommand("run-ios")
-            ).outcome.then(null, err => {
-                assert.fail("react-native command was not expected to fail");
-            });
+            return new CommandExecutor(nodeModulesRoot)
+                .spawnReactCommand("run-ios")
+                .outcome.then(null, err => {
+                    assert.fail("react-native command was not expected to fail");
+                });
         });
 
         suite("getReactNativeVersion", () => {
@@ -197,7 +197,7 @@ suite("commandExecutor", function () {
                 ["react-native-tools.reactNativeGlobalCommandName"]: "",
             };
 
-            test("selectReactNativeCLI should return local CLI", async (done: Mocha.Done) => {
+            test("selectReactNativeCLI should return local CLI", (done: Mocha.Done) => {
                 const localCLIPath = path.join(
                     sampleReactNative022ProjectDir,
                     "node_modules",
@@ -210,11 +210,11 @@ suite("commandExecutor", function () {
                 );
                 CommandExecutor.ReactNativeCommand =
                     RNGlobalCLINameContent["react-native-tools.reactNativeGlobalCommandName"];
-                assert.strictEqual(await commandExecutor.selectReactNativeCLI(), localCLIPath);
+                assert.strictEqual(commandExecutor.selectReactNativeCLI(), localCLIPath);
                 done();
             });
 
-            test("selectReactNativeCLI should return global CLI", async (done: Mocha.Done) => {
+            test("selectReactNativeCLI should return global CLI", (done: Mocha.Done) => {
                 const randomHash = new Crypto().hash(Math.random().toString(36).substring(2, 15));
                 RNGlobalCLINameContent[
                     "react-native-tools.reactNativeGlobalCommandName"
@@ -225,7 +225,7 @@ suite("commandExecutor", function () {
                 );
                 CommandExecutor.ReactNativeCommand =
                     RNGlobalCLINameContent["react-native-tools.reactNativeGlobalCommandName"];
-                assert.strictEqual(await commandExecutor.selectReactNativeCLI(), randomHash);
+                assert.strictEqual(commandExecutor.selectReactNativeCLI(), randomHash);
                 done();
             });
         });

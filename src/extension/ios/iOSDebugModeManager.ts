@@ -23,17 +23,15 @@ export class IOSDebugModeManager {
     private projectRoot: string;
     private iosProjectRoot: string;
     private simulatorPlist: SimulatorPlist;
-    private nodeModulesRoot: string;
 
     constructor(
         iosProjectRoot: string,
         projectRoot: string,
-        nodeModulesRoot: string,
+        private nodeModulesRoot: string,
         scheme?: string,
     ) {
         this.projectRoot = projectRoot;
         this.iosProjectRoot = iosProjectRoot;
-        this.nodeModulesRoot = nodeModulesRoot;
         this.simulatorPlist = new SimulatorPlist(this.iosProjectRoot, this.projectRoot, scheme);
     }
 
