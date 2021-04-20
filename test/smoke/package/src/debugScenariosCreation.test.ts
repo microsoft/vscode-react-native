@@ -2,35 +2,43 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as assert from "assert";
-import * as path from "path";
 import { vscodeManager } from "./main";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 import { Application } from "../../automation";
 import { testApplicationSetupManager } from "./main";
 import { LaunchConfigurationManager } from "./helpers/launchConfigurationManager";
+import TestProject from "./helpers/testProject";
+import AutomationHelper from "./helpers/AutomationHelper";
 
-export function startDebugScenariosCreationTests(workspace: string): void {
+export function startDebugScenariosCreationTests(project: TestProject): void {
     describe("Debugging scenarios creation test", () => {
         let app: Application;
         let launchConfigurationManager: LaunchConfigurationManager;
         let previousConfigurationsCount: number;
+        let automationHelper: AutomationHelper;
+
+        async function initApp(
+            workspaceOrFolder: string,
+            sessionName?: string,
+            locale?: string,
+        ): Promise<Application> {
+            app = await vscodeManager.runVSCode(workspaceOrFolder, sessionName, locale);
+            automationHelper = new AutomationHelper(app);
+            return app;
+        }
 
         before(async () => {
-            app = await vscodeManager.runVSCode(workspace, "DebuggingScenariosCreationTest");
-            launchConfigurationManager = new LaunchConfigurationManager(workspace);
-            await app.workbench.debug.openDebugViewlet();
-            await app.workbench.debug.configure();
+            app = await initApp(project.workspaceDirectory, "DebuggingScenariosCreationTest");
+            launchConfigurationManager = new LaunchConfigurationManager(project.workspaceDirectory);
+            await automationHelper.prepareForDebugScenarioCreactionTestWithRetry();
             SmokeTestLogger.info("Debugging scenarios creation test: launch.json file is opened");
-            await app.workbench.terminal.showTerminalWithoutNecessaryFocus();
         });
 
         after(async () => {
             if (app) {
                 await app.stop();
             }
-            testApplicationSetupManager.copyDebuggingConfigurationsToProject(
-                path.join(workspace, ".vscode"),
-            );
+            testApplicationSetupManager.copyDebuggingConfigurationsToProject(project);
         });
 
         beforeEach(async () => {

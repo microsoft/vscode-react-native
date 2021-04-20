@@ -154,7 +154,7 @@ export class TestConfigProcessor {
             RunBasicTests: process.argv.includes("--basic-only"),
             SkipSetup: process.argv.includes("--skip-setup"),
             DontDeleteVSIX: process.argv.includes("--dont-delete-vsix"),
-            UseCachedApplications: process.argv.includes("--use-cache"),
+            UseCachedApplications: !process.argv.includes("--reset-cache"),
             SkipUnstableTests: process.argv.includes("--skip-unstable-tests"),
         };
 

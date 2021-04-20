@@ -27,7 +27,7 @@ export class QuickOpen {
             }
 
             try {
-                await this.waitForQuickOpenOpened(10);
+                await this.waitForQuickOpenOpened();
                 break;
             } catch (err) {
                 if (++retries > 5) {
@@ -57,8 +57,8 @@ export class QuickOpen {
         await this.editors.waitForEditorFocus(fileName);
     }
 
-    public async waitForQuickOpenOpened(retryCount?: number): Promise<void> {
-        await this.code.waitForActiveElement(QuickOpen.QUICK_OPEN_INPUT, retryCount);
+    public async waitForQuickOpenOpened(): Promise<void> {
+        await this.code.waitForActiveElement(QuickOpen.QUICK_OPEN_INPUT);
     }
 
     public async submit(text: string): Promise<void> {

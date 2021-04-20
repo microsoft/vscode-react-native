@@ -3,7 +3,7 @@
 
 import * as os from "os";
 import { join } from "path";
-const XDL = require("@expo/xdl");
+const XDLFsCache = require("xdl/build/tools/FsCache");
 
 export class SmokeTestsConstants {
     // Default code of android platform version which is being targeted during the tests.
@@ -18,20 +18,22 @@ export class SmokeTestsConstants {
     // Expo application cache for iOS platform
     public static iOSExpoAppsCacheDir = join(os.homedir(), ".expo", "ios-simulator-app-cache");
     // Expo versions cache
-    public static ExpoVersionsJsonFilePath = join(XDL.FsCache.getCacheDir(), "versions.json");
+    public static ExpoVersionsJsonFilePath = join(XDLFsCache.getCacheDir(), "versions.json");
     // Timeout for driver to wait for UI elements response to interaction (in seconds)
     public static elementResponseTimeout = 250;
     // Timeout for enabling Remote JS Debugging while testing RN app
     public static enableRemoteJSTimeout = 120 * 1000;
     // Command for stop React Native Packager
     public static stopPackagerCommand = "Stop Packager";
+    // Command for realod React Native application
+    public static reloadAppCommand = "Reload App";
 
     // Timeout for macOS smoke test
     public static macOSTestTimeout = 500 * 1000;
     // Timeout for Windows smoke test
     public static windowsTestTimeout = 700 * 1000;
     // Timeout for Expo testing
-    public static expoTestTimeout = 460 * 1000;
+    public static expoTestTimeout = 700 * 1000;
     // Timeout for iOS testing
     public static iosTestTimeout = 700 * 1000;
     // Timeout for Android testing

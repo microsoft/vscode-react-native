@@ -7,18 +7,31 @@ import * as assert from "assert";
 import { sleep } from "./helpers/utilities";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
+import TestProject from "./helpers/testProject";
+import AutomationHelper from "./helpers/AutomationHelper";
 
 const startPackagerCommand = "Start Packager";
 const packagerStartedCheck = "Запуск упаковщика";
-export function startLocalizationTests(workspace: string): void {
+export function startLocalizationTests(project: TestProject): void {
     describe("Localization test", () => {
         let app: Application;
+        let automationHelper: AutomationHelper;
+
+        async function initApp(
+            workspaceOrFolder: string,
+            sessionName?: string,
+            locale?: string,
+        ): Promise<Application> {
+            app = await vscodeManager.runVSCode(workspaceOrFolder, sessionName, locale);
+            automationHelper = new AutomationHelper(app);
+            return app;
+        }
 
         afterEach(async () => {
             SmokeTestLogger.info("Dispose all ...");
             if (app) {
                 SmokeTestLogger.info("Stopping React Native packager ...");
-                await app.workbench.quickaccess.runCommand(SmokeTestsConstants.stopPackagerCommand);
+                await automationHelper.runCommandWithRetry(SmokeTestsConstants.stopPackagerCommand);
                 await sleep(3000);
                 await app.stop();
             }
@@ -26,9 +39,9 @@ export function startLocalizationTests(workspace: string): void {
 
         it("Test localization", async function () {
             try {
-                app = await vscodeManager.runVSCode(workspace, "LocalizationTest", "ru");
+                app = await initApp(project.workspaceDirectory, "LocalizationTest", "ru");
                 SmokeTestLogger.info("Localization test: Starting packager");
-                await app.workbench.quickaccess.runCommand(startPackagerCommand);
+                await automationHelper.runCommandWithRetry(startPackagerCommand);
                 await sleep(10 * 1000);
                 SmokeTestLogger.info(
                     `Localization test: Search for '${packagerStartedCheck}' string output`,

@@ -190,10 +190,10 @@ export class VsCodeManager {
                 }
                 const extensionFullPath = path.join(this.extensionDirectory, extensionDirName);
 
-                const command = `${utilities.npmCommand} install @expo/xdl@${process.env.EXPO_XDL_VERSION} --no-save`;
+                const command = `${utilities.npmCommand} install xdl@${process.env.EXPO_XDL_VERSION} --no-save`;
 
                 SmokeTestLogger.projectPatchingLog(
-                    `*** Adding @expo/xdl dependency to ${extensionFullPath} via '${command}' command...`,
+                    `*** Adding xdl dependency to ${extensionFullPath} via '${command}' command...`,
                 );
                 utilities.execSync(
                     command,
@@ -202,7 +202,7 @@ export class VsCodeManager {
                 );
             } else {
                 SmokeTestLogger.warn(
-                    `*** EXPO_XDL_VERSION variable is not set, skipping installation of @expo/xdl package to the extension directory`,
+                    `*** EXPO_XDL_VERSION variable is not set, skipping installation of xdl package to the extension directory`,
                 );
             }
         } else {

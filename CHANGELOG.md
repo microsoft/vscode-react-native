@@ -1,3 +1,11 @@
+## 1.4.1
+* Fixed resolving of custom file extensions while starting the packager for Expo [#1502](https://github.com/microsoft/vscode-react-native/pull/1502)
+* Updated documentation for debugging RNW apps [#1513](https://github.com/microsoft/vscode-react-native/pull/1513)
+* Enhanced extension security [#1521](https://github.com/microsoft/vscode-react-native/pull/1521), [#1505](https://github.com/microsoft/vscode-react-native/pull/1505), [#1520](https://github.com/microsoft/vscode-react-native/pull/1520)
+* Internal changes:
+    * Smoke tests refactoring [#1507](https://github.com/microsoft/vscode-react-native/pull/1507)
+
+
 ## 1.4.0
 * Added support of debugging of React Native macOS Hermes applications: [more info](https://github.com/microsoft/vscode-react-native#macos-hermes-debugging) [#1495](https://github.com/microsoft/vscode-react-native/pull/1495)
 * Added support of debugging of React Native iOS Hermes applications: [more info](https://github.com/microsoft/vscode-react-native#ios-hermes-debugging) [#1488](https://github.com/microsoft/vscode-react-native/pull/1488)
