@@ -235,6 +235,9 @@ export class AppLauncher {
         mobilePlatformOptions.packagerPort = SettingsHelper.getPackagerPort(
             launchArgs.cwd || launchArgs.program,
         );
+
+        mobilePlatformOptions.nodeModulesRoot = <string>this.nodeModulesRoot;
+
         const platformDeps: MobilePlatformDeps = {
             packager: this.packager,
         };
@@ -242,7 +245,6 @@ export class AppLauncher {
             launchArgs.platform,
             mobilePlatformOptions,
             platformDeps,
-            <string>this.nodeModulesRoot,
         );
         return new Promise((resolve, reject) => {
             let extProps: any = {

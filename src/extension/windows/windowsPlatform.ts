@@ -23,12 +23,8 @@ export class WindowsPlatform extends GeneralMobilePlatform {
         },
     ];
 
-    constructor(
-        protected runOptions: IWindowsRunOptions,
-        platformDeps: MobilePlatformDeps = {},
-        nodeModulesRoot: string,
-    ) {
-        super(runOptions, platformDeps, nodeModulesRoot);
+    constructor(protected runOptions: IWindowsRunOptions, platformDeps: MobilePlatformDeps = {}) {
+        super(runOptions, platformDeps);
     }
 
     public runApp(enableDebug: boolean = true): Promise<void> {
@@ -74,7 +70,7 @@ export class WindowsPlatform extends GeneralMobilePlatform {
             }
 
             const runWindowsSpawn = new CommandExecutor(
-                this.nodeModulesRoot,
+                this.runOptions.nodeModulesRoot,
                 this.projectPath,
                 this.logger,
             ).spawnReactCommand(`run-${this.platformName}`, this.runArguments, { env });

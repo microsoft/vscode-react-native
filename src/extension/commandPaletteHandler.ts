@@ -470,15 +470,11 @@ export class CommandPaletteHandler {
         const runOptions = CommandPaletteHandler.getRunOptions(appLauncher, platform, target);
 
         const projectRoot: string = appLauncher.getPackager().getProjectPath();
-        const nodeModulesRoot: string = AppLauncher.getNodeModulesRoot(projectRoot);
+        runOptions.nodeModulesRoot = AppLauncher.getNodeModulesRoot(projectRoot);
 
-        return new platformClass(
-            runOptions,
-            {
-                packager: appLauncher.getPackager(),
-            },
-            nodeModulesRoot,
-        );
+        return new platformClass(runOptions, {
+            packager: appLauncher.getPackager(),
+        });
     }
 
     private static runRestartPackagerCommandAndUpdateStatus(

@@ -77,13 +77,13 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     }
 
     // We set remoteExtension = null so that if there is an instance of androidPlatform that wants to have it's custom remoteExtension it can. This is specifically useful for tests.
-    constructor(
-        protected runOptions: IAndroidRunOptions,
-        platformDeps: MobilePlatformDeps = {},
-        nodeModulesRoot: string,
-    ) {
-        super(runOptions, platformDeps, nodeModulesRoot);
-        this.adbHelper = new AdbHelper(this.runOptions.projectRoot, nodeModulesRoot, this.logger);
+    constructor(protected runOptions: IAndroidRunOptions, platformDeps: MobilePlatformDeps = {}) {
+        super(runOptions, platformDeps);
+        this.adbHelper = new AdbHelper(
+            this.runOptions.projectRoot,
+            runOptions.nodeModulesRoot,
+            this.logger,
+        );
         this.emulatorManager = new AndroidEmulatorManager(this.adbHelper);
     }
 
@@ -164,7 +164,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
             }
 
             const runAndroidSpawn = new CommandExecutor(
-                this.nodeModulesRoot,
+                this.runOptions.nodeModulesRoot,
                 this.projectPath,
                 this.logger,
             ).spawnReactCommand("run-android", this.runArguments, { env });

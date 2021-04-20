@@ -17,23 +17,22 @@ export class PlatformResolver {
         mobilePlatformString: string,
         runOptions: IRunOptions,
         platformDeps: MobilePlatformDeps,
-        nodeModulesRoot: string,
     ): GeneralMobilePlatform {
         switch (mobilePlatformString) {
             // We lazyly load the strategies, because some components might be
             // missing on some platforms (like XCode in Windows)
             case PlatformType.iOS:
-                return new IOSPlatform(runOptions, platformDeps, nodeModulesRoot);
+                return new IOSPlatform(runOptions, platformDeps);
             case PlatformType.Android:
-                return new AndroidPlatform(runOptions, platformDeps, nodeModulesRoot);
+                return new AndroidPlatform(runOptions, platformDeps);
             case PlatformType.Exponent:
-                return new ExponentPlatform(runOptions, platformDeps, nodeModulesRoot);
+                return new ExponentPlatform(runOptions, platformDeps);
             case PlatformType.Windows:
-                return new WindowsPlatform(runOptions, platformDeps, nodeModulesRoot);
+                return new WindowsPlatform(runOptions, platformDeps);
             case PlatformType.macOS:
-                return new MacOSPlatform(runOptions, platformDeps, nodeModulesRoot);
+                return new MacOSPlatform(runOptions, platformDeps);
             default:
-                return new GeneralMobilePlatform(runOptions, platformDeps, nodeModulesRoot);
+                return new GeneralMobilePlatform(runOptions, platformDeps);
         }
     }
 }

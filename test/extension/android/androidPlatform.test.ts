@@ -33,7 +33,7 @@ suite("androidPlatform", function () {
         const applicationName = "SampleApplication";
         const androidPackageName = "com.sampleapplication";
 
-        let nodeModulesRoot: string = AppLauncher.getNodeModulesRoot(projectRoot);
+        const nodeModulesRoot: string = AppLauncher.getNodeModulesRoot(projectRoot);
         const genericRunOptions: IAndroidRunOptions = {
             platform: PlatformType.Android,
             workspaceRoot: projectRoot,
@@ -56,7 +56,7 @@ suite("androidPlatform", function () {
         let adbHelper: adb.AdbHelper;
 
         function createAndroidPlatform(runOptions: IAndroidRunOptions): AndroidPlatform {
-            return new AndroidPlatform(runOptions, undefined, nodeModulesRoot);
+            return new AndroidPlatform(runOptions);
         }
 
         setup(() => {
@@ -288,6 +288,7 @@ suite("androidPlatform", function () {
                         reactNativeVersion: "^0.19.0",
                         reactNativeWindowsVersion: "",
                     },
+                    nodeModulesRoot,
                 };
                 const platform = createAndroidPlatform(runOptions);
                 platform.setAdbHelper(adbHelper);
@@ -333,6 +334,7 @@ suite("androidPlatform", function () {
                         reactNativeVersion: "^0.19.0",
                         reactNativeWindowsVersion: "",
                     },
+                    nodeModulesRoot,
                 };
                 const platform = createAndroidPlatform(runOptions);
                 platform.setAdbHelper(adbHelper);
@@ -440,6 +442,7 @@ suite("androidPlatform", function () {
                 workspaceRoot: projectRoot,
                 projectRoot: projectRoot,
                 target: "Nexus_12",
+                nodeModulesRoot,
             };
             const platform = createAndroidPlatform(runOptions);
             const runArgs = platform.getRunArguments();
@@ -454,6 +457,7 @@ suite("androidPlatform", function () {
                 workspaceRoot: projectRoot,
                 projectRoot: projectRoot,
                 target: "simulator",
+                nodeModulesRoot,
             };
             const platform = createAndroidPlatform(runOptions);
             const runArgs = platform.getRunArguments();
@@ -468,6 +472,7 @@ suite("androidPlatform", function () {
                 workspaceRoot: projectRoot,
                 projectRoot: projectRoot,
                 target: "device",
+                nodeModulesRoot,
             };
             const platform = createAndroidPlatform(runOptions);
             const runArgs = platform.getRunArguments();
@@ -484,6 +489,7 @@ suite("androidPlatform", function () {
                 projectRoot: projectRoot,
                 runArguments: args,
                 target: "Nexus_12",
+                nodeModulesRoot,
             };
             const platform = createAndroidPlatform(runOptions);
             const runArgs = platform.getRunArguments();

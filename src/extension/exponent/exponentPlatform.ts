@@ -24,12 +24,8 @@ export class ExponentPlatform extends GeneralMobilePlatform {
     private exponentHelper: ExponentHelper;
     private qrCodeContentProvider: QRCodeContentProvider = new QRCodeContentProvider();
 
-    constructor(
-        runOptions: IExponentRunOptions,
-        platformDeps: MobilePlatformDeps = {},
-        nodeModulesRoot: string,
-    ) {
-        super(runOptions, platformDeps, nodeModulesRoot);
+    constructor(runOptions: IExponentRunOptions, platformDeps: MobilePlatformDeps = {}) {
+        super(runOptions, platformDeps);
         this.exponentHelper = this.packager.getExponentHelper();
         this.exponentTunnelPath = null;
     }

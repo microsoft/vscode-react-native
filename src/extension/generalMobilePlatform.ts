@@ -34,11 +34,7 @@ export class GeneralMobilePlatform {
 
     public runArguments: string[];
 
-    constructor(
-        protected runOptions: IRunOptions,
-        platformDeps: MobilePlatformDeps = {},
-        protected nodeModulesRoot: string,
-    ) {
+    constructor(protected runOptions: IRunOptions, platformDeps: MobilePlatformDeps = {}) {
         this.platformName = this.runOptions.platform;
         this.projectPath = this.runOptions.projectRoot;
         this.packager =
