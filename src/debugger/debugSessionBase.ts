@@ -152,11 +152,15 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
                             InternalErrorCode.NotInReactNativeFolderError,
                         );
                     }
-                    this.appLauncher = AppLauncher.getAppLauncherByProjectRootPath(projectRootPath);
-                    this.projectRootPath = projectRootPath;
-                    this.isSettingsInitialized = true;
+                    return AppLauncher.getOrCreateAppLauncherByProjectRootPath(
+                        projectRootPath,
+                    ).then((appLauncher: AppLauncher) => {
+                        this.appLauncher = appLauncher;
+                        this.projectRootPath = projectRootPath;
+                        this.isSettingsInitialized = true;
 
-                    return void 0;
+                        return void 0;
+                    });
                 },
             );
         } else {

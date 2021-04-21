@@ -236,6 +236,7 @@ export class AppLauncher {
             launchArgs.cwd || launchArgs.program,
         );
 
+        this.nodeModulesRoot = AppLauncher.getNodeModulesRoot(this.packager.getProjectPath());
         mobilePlatformOptions.nodeModulesRoot = <string>this.nodeModulesRoot;
 
         const platformDeps: MobilePlatformDeps = {
