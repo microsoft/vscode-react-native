@@ -60,6 +60,10 @@ export function getExpoSdkVersions(): Promise<XDLPackage.SDKVersions> {
     return getXDLPackage().then(xdl => xdl.Versions.sdkVersionsAsync());
 }
 
+export function getReleasedExpoSdkVersions(): Promise<XDLPackage.SDKVersions> {
+    return getXDLPackage().then(xdl => xdl.Versions.releasedSdkVersionsAsync());
+}
+
 export function publish(
     projectRoot: string,
     options?: XDLPackage.IPublishOptions,

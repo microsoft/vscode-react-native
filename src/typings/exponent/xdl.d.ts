@@ -97,7 +97,8 @@ declare module xdl {
     }
 
     var Versions: {
-        sdkVersionsAsync(): Promise<SDKVersions>
+        sdkVersionsAsync(): Promise<SDKVersions>;
+        releasedSdkVersionsAsync(): Promise<SDKVersions>;
     }
 
     var Android: {

@@ -348,7 +348,7 @@ var entryPoint = require('${entryPoint}');`;
             );
         }
 
-        return XDL.getExpoSdkVersions().then(sdkVersions => {
+        return XDL.getReleasedExpoSdkVersions().then(sdkVersions => {
             let currentSdkVersion: string | null = null;
 
             for (const [version, { facebookReactNativeVersion }] of Object.entries(sdkVersions)) {
