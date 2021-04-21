@@ -53,6 +53,31 @@ declare module xdl {
         url: string
     }
 
+    interface SDKVersion {
+        androidExpoViewUrl?: string;
+        expoReactNativeTag: string;
+        /* deprecated */ exponentReactNativeTag?: string;
+        expokitNpmPackage?: string;
+        facebookReactNativeVersion: string;
+        facebookReactVersion?: string;
+        iosExpoViewUrl?: string;
+        /* deprecated */ iosExponentViewUrl?: string;
+        iosVersion?: string;
+        isDeprecated?: boolean;
+        packagesToInstallWhenEjecting?: { [name: string]: string };
+        releaseNoteUrl?: string;
+        iosClientUrl?: string;
+        iosClientVersion?: string;
+        androidClientUrl?: string;
+        androidClientVersion?: string;
+        relatedPackages?: { [name: string]: string };
+        beta?: boolean;
+    }
+
+    interface SDKVersions {
+        [version: string]: SDKVersion;
+    }
+
     var Project: {
         startAsync(projectRoot: string, options?: IStartOptions): Promise<void>;
         stopAsync(projectRoot: string): Promise<void>;
@@ -72,8 +97,7 @@ declare module xdl {
     }
 
     var Versions: {
-        facebookReactNativeVersionsAsync(): Promise<string[]>;
-        facebookReactNativeVersionToExpoVersionAsync(facebookReactNativeVersion: string): Promise<string>;
+        sdkVersionsAsync(): Promise<SDKVersions>
     }
 
     var Android: {

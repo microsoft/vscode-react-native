@@ -4,6 +4,7 @@
 /// <reference path="exponentHelper.d.ts" />
 
 import * as path from "path";
+import * as semver from "semver";
 import * as XDL from "./xdlInterface";
 import { Package, IPackageInformation } from "../../common/node/package";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
@@ -307,9 +308,11 @@ var entryPoint = require('${entryPoint}');`;
 
         return ProjectVersionHelper.getReactNativeVersions(this.projectRootPath).then(versions => {
             if (showProgress) this.logger.logStream(".");
-            return XDL.mapVersion(versions.reactNativeVersion).then(sdkVersion => {
+            return this.mapFacebookReactNativeVersionToExpoVersion(
+                versions.reactNativeVersion,
+            ).then(sdkVersion => {
                 if (!sdkVersion) {
-                    return XDL.supportedVersions().then(versions => {
+                    return this.getFacebookReactNativeVersions().then(versions => {
                         return Promise.reject<string>(
                             ErrorHelper.getInternalError(
                                 InternalErrorCode.RNVersionNotSupportedByExponent,
@@ -320,6 +323,47 @@ var entryPoint = require('${entryPoint}');`;
                 }
                 return sdkVersion;
             });
+        });
+    }
+
+    private getFacebookReactNativeVersions(): Promise<string[]> {
+        return XDL.getExpoSdkVersions().then(sdkVersions => {
+            const facebookReactNativeVersions = new Set(
+                Object.values(sdkVersions)
+                    .map(data => data.facebookReactNativeVersion)
+                    .filter(version => version),
+            );
+            return Array.from(facebookReactNativeVersions);
+        });
+    }
+
+    private mapFacebookReactNativeVersionToExpoVersion(
+        outerFacebookReactNativeVersion: string,
+    ): Promise<string | null> {
+        if (!semver.valid(outerFacebookReactNativeVersion)) {
+            Promise.reject(
+                new Error(
+                    `${outerFacebookReactNativeVersion} is not a valid version. It must be in the form of x.y.z`,
+                ),
+            );
+        }
+
+        return XDL.getExpoSdkVersions().then(sdkVersions => {
+            let currentSdkVersion: string | null = null;
+
+            for (const [version, { facebookReactNativeVersion }] of Object.entries(sdkVersions)) {
+                if (
+                    semver.major(outerFacebookReactNativeVersion) ===
+                        semver.major(facebookReactNativeVersion) &&
+                    semver.minor(outerFacebookReactNativeVersion) ===
+                        semver.minor(facebookReactNativeVersion) &&
+                    (!currentSdkVersion || semver.gt(version, currentSdkVersion))
+                ) {
+                    currentSdkVersion = version;
+                }
+            }
+
+            return currentSdkVersion;
         });
     }
 
