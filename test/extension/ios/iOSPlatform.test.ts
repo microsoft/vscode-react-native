@@ -14,7 +14,7 @@ import { AppLauncher } from "../../../src/extension/appLauncher";
 suite("iOSPlatform", function () {
     const workspaceRoot: string = "/User/test/react-native/AwesomeProject";
     const projectRoot = "/User/test/react-native/AwesomeProject";
-    const nodeModulesRoot: string = AppLauncher.getNodeModulesRoot(projectRoot);
+    const nodeModulesRoot: string = AppLauncher.getNodeModulesRootByProjectPath(projectRoot);
 
     let runOptions: any = {
         platform: PlatformType.iOS,

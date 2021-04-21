@@ -9,6 +9,7 @@ import * as assert from "assert";
 import * as path from "path";
 import * as fs from "fs";
 import { ParsedPackage } from "../../src/common/reactNativeProjectHelper";
+import { AppLauncher } from "../../src/extension/appLauncher";
 
 suite("projectVersionHelper", function () {
     const sampleReactNative022ProjectDir = path.join(
@@ -16,6 +17,10 @@ suite("projectVersionHelper", function () {
         "..",
         "resources",
         "sampleReactNative022Project",
+    );
+
+    const nodeModulesRoot: string = AppLauncher.getNodeModulesRootByProjectPath(
+        sampleReactNative022ProjectDir,
     );
 
     test("getReactNativeVersionsFromProjectPackage should return object containing version strings if 'version' field is found in project's package.json file", () => {
@@ -118,7 +123,7 @@ suite("projectVersionHelper", function () {
                 useSemverCoerce: false,
             });
             ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
-                sampleReactNative022ProjectDir,
+                nodeModulesRoot,
                 additionalPackages,
             ).then(versions => {
                 assert.strictEqual(versions.reactNativeVersion, "0.20.0");
@@ -138,7 +143,7 @@ suite("projectVersionHelper", function () {
             );
 
             return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
-                sampleReactNative022ProjectDir,
+                nodeModulesRoot,
             ).then(versions => {
                 assert.strictEqual(versions.reactNativeVersion, "SemverInvalid: URL");
             });
@@ -147,7 +152,7 @@ suite("projectVersionHelper", function () {
 
     test("getReactNativePackageVersionsFromNodeModules should throw ReactNativePackageIsNotInstalled error if the package is not installed", () => {
         return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
-            sampleReactNative022ProjectDir,
+            nodeModulesRoot,
         ).catch(error => {
             assert.strictEqual(error.errorCode, 606);
         });

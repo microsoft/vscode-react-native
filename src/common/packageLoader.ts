@@ -122,7 +122,9 @@ export default class PackageLoader {
             const currentWorkingDirectory: string = path.dirname(
                 findFileInFolderHierarchy(__dirname, "package.json") || __dirname,
             );
-            const nodeModulesRoot: string = AppLauncher.getNodeModulesRoot(currentWorkingDirectory);
+            const nodeModulesRoot: string = AppLauncher.getNodeModulesRootByProjectPath(
+                currentWorkingDirectory,
+            );
 
             const commandExecutor = new CommandExecutor(
                 nodeModulesRoot,

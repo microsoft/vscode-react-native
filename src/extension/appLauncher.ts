@@ -83,7 +83,7 @@ export class AppLauncher {
         return appLauncher;
     }
 
-    public static getNodeModulesRoot(projectRootPath: string): string {
+    public static getNodeModulesRootByProjectPath(projectRootPath: string): string {
         const appLauncher: AppLauncher = AppLauncher.getAppLauncherByProjectRootPath(
             projectRootPath,
         );
@@ -177,6 +177,10 @@ export class AppLauncher {
         return this.mobilePlatform;
     }
 
+    public getNodeModulesRoot(): string | undefined {
+        return this.nodeModulesRoot;
+    }
+
     public dispose(): void {
         this.packager.getStatusIndicator().dispose();
         this.packager.stop(true);
@@ -236,7 +240,9 @@ export class AppLauncher {
             launchArgs.cwd || launchArgs.program,
         );
 
-        this.nodeModulesRoot = AppLauncher.getNodeModulesRoot(this.packager.getProjectPath());
+        this.nodeModulesRoot = AppLauncher.getNodeModulesRootByProjectPath(
+            this.packager.getProjectPath(),
+        );
         mobilePlatformOptions.nodeModulesRoot = <string>this.nodeModulesRoot;
 
         const platformDeps: MobilePlatformDeps = {
@@ -262,8 +268,12 @@ export class AppLauncher {
                 };
             }
 
-            return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
+            const nodeModulesRoot: string = AppLauncher.getNodeModulesRootByProjectPath(
                 mobilePlatformOptions.projectRoot,
+            );
+
+            return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
+                nodeModulesRoot,
                 ProjectVersionHelper.generateAdditionalPackagesToCheckByPlatform(launchArgs),
             )
                 .then(versions => {

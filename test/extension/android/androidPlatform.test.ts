@@ -33,7 +33,7 @@ suite("androidPlatform", function () {
         const applicationName = "SampleApplication";
         const androidPackageName = "com.sampleapplication";
 
-        const nodeModulesRoot: string = AppLauncher.getNodeModulesRoot(projectRoot);
+        const nodeModulesRoot: string = AppLauncher.getNodeModulesRootByProjectPath(projectRoot);
         const genericRunOptions: IAndroidRunOptions = {
             platform: PlatformType.Android,
             workspaceRoot: projectRoot,

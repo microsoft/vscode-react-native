@@ -34,7 +34,9 @@ export class SimulatorPlist {
         } = {},
     ) {
         this.nodeFileSystem = nodeFileSystem;
-        const nodeModulesRoot: string = AppLauncher.getNodeModulesRoot(this.projectRoot);
+        const nodeModulesRoot: string = AppLauncher.getNodeModulesRootByProjectPath(
+            this.projectRoot,
+        );
         this.plistBuddy = plistBuddy || new PlistBuddy(undefined, nodeModulesRoot);
         this.nodeChildProcess = nodeChildProcess;
     }

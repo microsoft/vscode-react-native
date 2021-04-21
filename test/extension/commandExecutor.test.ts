@@ -45,7 +45,9 @@ suite("commandExecutor", function () {
                 .stub(Node, "ChildProcess")
                 .returns(childProcessStubInstance) as ChildProcess & Sinon.SinonStub;
 
-            nodeModulesRoot = AppLauncher.getNodeModulesRoot(sampleReactNative022ProjectDir);
+            nodeModulesRoot = AppLauncher.getNodeModulesRootByProjectPath(
+                sampleReactNative022ProjectDir,
+            );
         });
 
         test("should execute a command", function () {
