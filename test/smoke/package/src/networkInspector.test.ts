@@ -6,6 +6,7 @@ import * as path from "path";
 import * as cp from "child_process";
 import { Application } from "../../automation";
 import AndroidEmulatorManager from "./helpers/androidEmulatorManager";
+import TestProject from "./helpers/testProject";
 import { AppiumClient, AppiumHelper, Platform } from "./helpers/appiumHelper";
 import IosSimulatorManager from "./helpers/iosSimulatorManager";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
@@ -35,12 +36,12 @@ const TestNetworkButtonName = "Test Network Button";
 const requestPattern = /%cNetwork request:(.*?)\scolor: #0000ff\s\{(.*?)\}\s\}/gs;
 
 export function startNetworkInspectorTests(
-    rnHermesWorkspace: string,
+    project: TestProject,
     testParameters?: TestRunArguments,
 ): void {
     describe("Network inspector tests", () => {
         const expressServerWorkspace = path.join(
-            rnHermesWorkspace,
+            project.workspaceDirectory,
             SmokeTestsConstants.ExpressServerDir,
         );
 
@@ -118,7 +119,7 @@ export function startNetworkInspectorTests(
                 return assert.fail(`Passed unsupported platform: ${platform}`);
             }
 
-            app = await vscodeManager.runVSCode(rnHermesWorkspace, testname);
+            app = await vscodeManager.runVSCode(project.workspaceDirectory, testname);
             const runApplicationCommand =
                 platform === Platform.Android
                     ? RunAndroidOnEmulatorCommand
@@ -140,7 +141,7 @@ export function startNetworkInspectorTests(
                 }
                 case Platform.iOS: {
                     const buildPath = IosSimulatorManager.getIOSBuildPath(
-                        `${rnHermesWorkspace}/ios`,
+                        `${project.workspaceDirectory}/ios`,
                         `${SmokeTestsConstants.HermesAppName}.xcworkspace`,
                         "Debug",
                         SmokeTestsConstants.HermesAppName,

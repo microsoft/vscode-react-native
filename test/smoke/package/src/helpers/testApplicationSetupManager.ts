@@ -397,25 +397,18 @@ export class TestApplicationSetupManager {
         );
         fs.copyFileSync(project.testButtonFileForSample, project.testButtonFileForWorkspace);
 
-        const testNetworkButtonPath = path.join(
-            project.sampleDirectory,
-            "AppTestNetworkButton.js",
-        );
         SmokeTestLogger.projectPatchingLog(
-            `*** Copying ${testNetworkButtonPath} into ${project.workspaceDirectory}`,
+            `*** Copying ${project.testNetworkButtonFileForSample} into ${project.testNetworkButtonFileForWorkspace}`,
         );
         fs.copyFileSync(
-            testNetworkButtonPath,
-            path.join(project.workspaceDirectory, "AppTestNetworkButton.js"),
+            project.testNetworkButtonFileForSample,
+            project.testNetworkButtonFileForWorkspace,
         );
-        const settingsJsonPath = path.join(project.sampleDirectory, "settings.json");
+
         SmokeTestLogger.projectPatchingLog(
-            `*** Copying ${settingsJsonPath} into ${path.join(project.workspaceDirectory, ".vscode")}`,
+            `*** Copying ${project.settingsJsonSamplePath} into ${project.settingsJsonPath}`,
         );
-        fs.copyFileSync(
-            settingsJsonPath,
-            path.join(project.workspaceDirectory, ".vscode", "settings.json"),
-        );
+        fs.copyFileSync(project.settingsJsonSamplePath, project.settingsJsonPath);
     }
 
     private generateReactNativeInitCommand(appName: string, version?: string): string {

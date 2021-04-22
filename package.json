@@ -839,7 +839,7 @@
     "sinon": "^1.17.3",
     "source-map-support": "^0.4.0",
     "through2": "^2.0.1",
-    "ts-loader": "^7.0.5",
+    "ts-loader": "^9.0.2",
     "typescript": "^3.9.7",
     "vsce": "^1.77.0",
     "vscode-debugprotocol": "^1.40.0",

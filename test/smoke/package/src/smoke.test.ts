@@ -70,7 +70,7 @@ export function startSmokeTests(
             args,
         );
         startDebugRNWTests(testApplicationSetupManager.getWindowsRnProject(), args);
-        startNetworkInspectorTests(testApplicationSetupManager.getHermesProject().workspaceDirectory, args);
+        startNetworkInspectorTests(testApplicationSetupManager.getHermesProject(), args);
         startOtherTests(testApplicationSetupManager.getRnProject(), args);
     });
 }
