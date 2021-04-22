@@ -43,7 +43,7 @@ export class CommandPaletteHandler {
      */
     public static startPackager(): Promise<void> {
         return this.selectProject().then((appLauncher: AppLauncher) => {
-            const nodeModulesRoot: string = <string>appLauncher.getNodeModulesRoot();
+            const nodeModulesRoot: string = appLauncher.getOrUpdateNodeModulesRoot();
             return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
                 nodeModulesRoot,
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -99,7 +99,7 @@ export class CommandPaletteHandler {
      */
     public static restartPackager(): Promise<void> {
         return this.selectProject().then((appLauncher: AppLauncher) => {
-            const nodeModulesRoot: string = <string>appLauncher.getNodeModulesRoot();
+            const nodeModulesRoot: string = appLauncher.getOrUpdateNodeModulesRoot();
             return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
                 nodeModulesRoot,
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -140,7 +140,7 @@ export class CommandPaletteHandler {
     public static async launchAndroidEmulator(): Promise<void> {
         const appLauncher = await this.selectProject();
         const projectPath = appLauncher.getPackager().getProjectPath();
-        const nodeModulesRoot: string = <string>appLauncher.getNodeModulesRoot();
+        const nodeModulesRoot: string = appLauncher.getOrUpdateNodeModulesRoot();
         const adbHelper = new AdbHelper(projectPath, nodeModulesRoot);
         const androidEmulatorManager = new AndroidEmulatorManager(adbHelper);
         const emulator = await androidEmulatorManager.startSelection();
@@ -155,7 +155,7 @@ export class CommandPaletteHandler {
     public static runAndroid(target: TargetType = "simulator"): Promise<void> {
         return this.selectProject().then((appLauncher: AppLauncher) => {
             TargetPlatformHelper.checkTargetPlatformSupport(PlatformType.Android);
-            const nodeModulesRoot: string = <string>appLauncher.getNodeModulesRoot();
+            const nodeModulesRoot: string = appLauncher.getOrUpdateNodeModulesRoot();
             return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
                 nodeModulesRoot,
             ).then(versions => {
@@ -195,7 +195,7 @@ export class CommandPaletteHandler {
      */
     public static runIos(target: TargetType = "simulator"): Promise<void> {
         return this.selectProject().then((appLauncher: AppLauncher) => {
-            const nodeModulesRoot: string = <string>appLauncher.getNodeModulesRoot();
+            const nodeModulesRoot: string = appLauncher.getOrUpdateNodeModulesRoot();
             return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
                 nodeModulesRoot,
             ).then(versions => {
@@ -236,7 +236,7 @@ export class CommandPaletteHandler {
      */
     public static runExponent(): Promise<void> {
         return this.selectProject().then((appLauncher: AppLauncher) => {
-            const nodeModulesRoot: string = <string>appLauncher.getNodeModulesRoot();
+            const nodeModulesRoot: string = appLauncher.getOrUpdateNodeModulesRoot();
             return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
                 nodeModulesRoot,
             ).then(versions => {
@@ -378,7 +378,7 @@ export class CommandPaletteHandler {
     public static startLogCatMonitor(): Promise<void> {
         return this.selectProject().then(appLauncher => {
             const projectPath = appLauncher.getPackager().getProjectPath();
-            const nodeModulesRoot: string = <string>appLauncher.getNodeModulesRoot();
+            const nodeModulesRoot: string = appLauncher.getOrUpdateNodeModulesRoot();
             const adbHelper = new AdbHelper(projectPath, nodeModulesRoot);
 
             const avdManager = new AndroidEmulatorManager(adbHelper);
@@ -474,7 +474,7 @@ export class CommandPaletteHandler {
         target?: TargetType,
     ): GeneralMobilePlatform {
         const runOptions = CommandPaletteHandler.getRunOptions(appLauncher, platform, target);
-        runOptions.nodeModulesRoot = <string>appLauncher.getNodeModulesRoot();
+        runOptions.nodeModulesRoot = appLauncher.getOrUpdateNodeModulesRoot();
 
         return new platformClass(runOptions, {
             packager: appLauncher.getPackager(),
@@ -666,7 +666,7 @@ export class CommandPaletteHandler {
             appLauncher.getWorkspaceFolderUri().fsPath,
         );
 
-        const nodeModulesRoot: string = <string>appLauncher.getNodeModulesRoot();
+        const nodeModulesRoot: string = appLauncher.getOrUpdateNodeModulesRoot();
         const runOptions: IAndroidRunOptions | IIOSRunOptions = {
             platform: platform,
             workspaceRoot: appLauncher.getWorkspaceFolderUri().fsPath,

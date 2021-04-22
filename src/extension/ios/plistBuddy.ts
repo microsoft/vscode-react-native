@@ -13,6 +13,7 @@ import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
 import { getFileNameWithoutExtension } from "../../common/utils";
 import customRequire from "../../common/customRequire";
+import { AppLauncher } from "../appLauncher";
 
 export interface ConfigurationData {
     fullProductName: string;
@@ -27,10 +28,7 @@ export class PlistBuddy {
 
     private nodeChildProcess: ChildProcess;
 
-    constructor(
-        { nodeChildProcess = new Node.ChildProcess() } = {},
-        private nodeModulesRoot: string,
-    ) {
+    constructor({ nodeChildProcess = new Node.ChildProcess() } = {}) {
         this.nodeChildProcess = nodeChildProcess;
     }
 
@@ -230,7 +228,7 @@ export class PlistBuddy {
 
         const findXcodeProject = customRequire(
             path.join(
-                this.nodeModulesRoot,
+                AppLauncher.getNodeModulesRootByProjectPath(projectRoot),
                 `node_modules/@react-native-community/${iOSCliFolderName}/build/commands/runIOS/findXcodeProject`,
             ),
         ).default;

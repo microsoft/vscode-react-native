@@ -177,8 +177,13 @@ export class AppLauncher {
         return this.mobilePlatform;
     }
 
-    public getNodeModulesRoot(): string | undefined {
-        return this.nodeModulesRoot;
+    public getOrUpdateNodeModulesRoot(forceUpdate: boolean = false): string {
+        if (!this.nodeModulesRoot || forceUpdate) {
+            this.nodeModulesRoot = AppLauncher.getNodeModulesRootByProjectPath(
+                this.packager.getProjectPath(),
+            );
+        }
+        return <string>this.nodeModulesRoot;
     }
 
     public dispose(): void {
@@ -240,11 +245,6 @@ export class AppLauncher {
             launchArgs.cwd || launchArgs.program,
         );
 
-        this.nodeModulesRoot = AppLauncher.getNodeModulesRootByProjectPath(
-            this.packager.getProjectPath(),
-        );
-        mobilePlatformOptions.nodeModulesRoot = <string>this.nodeModulesRoot;
-
         const platformDeps: MobilePlatformDeps = {
             packager: this.packager,
         };
@@ -268,12 +268,8 @@ export class AppLauncher {
                 };
             }
 
-            const nodeModulesRoot: string = AppLauncher.getNodeModulesRootByProjectPath(
-                mobilePlatformOptions.projectRoot,
-            );
-
             return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
-                nodeModulesRoot,
+                mobilePlatformOptions.nodeModulesRoot,
                 ProjectVersionHelper.generateAdditionalPackagesToCheckByPlatform(launchArgs),
             )
                 .then(versions => {
@@ -512,6 +508,7 @@ export class AppLauncher {
             envFile: args.envFile,
             target: args.target || "simulator",
             enableDebug: args.enableDebug,
+            nodeModulesRoot: this.getOrUpdateNodeModulesRoot(),
         };
 
         if (args.platform === PlatformType.Exponent) {

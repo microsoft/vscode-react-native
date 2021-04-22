@@ -39,7 +39,7 @@ export class MacOSPlatform extends GeneralMobilePlatform {
             extProps,
         );
 
-        return TelemetryHelper.generate("MacOSPlatform.runApp", extProps, async () => {
+        return TelemetryHelper.generate("MacOSPlatform.runApp", extProps, () => {
             const env = GeneralMobilePlatform.getEnvArgument(
                 process.env,
                 this.runOptions.env,

@@ -25,7 +25,7 @@ const localize = nls.loadMessageBundle();
 export class IOSPlatform extends GeneralMobilePlatform {
     public static DEFAULT_IOS_PROJECT_RELATIVE_PATH = "ios";
 
-    private plistBuddy = new PlistBuddy(undefined, this.runOptions.nodeModulesRoot);
+    private plistBuddy = new PlistBuddy();
     private targetType: TargetType = "simulator";
     private iosProjectRoot: string;
     private iosDebugModeManager: IOSDebugModeManager;
@@ -100,7 +100,6 @@ export class IOSPlatform extends GeneralMobilePlatform {
         this.iosDebugModeManager = new IOSDebugModeManager(
             this.iosProjectRoot,
             this.projectPath,
-            this.runOptions.nodeModulesRoot,
             schemeFromArgs ? schemeFromArgs : this.runOptions.scheme,
         );
 
