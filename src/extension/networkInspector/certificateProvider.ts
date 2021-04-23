@@ -49,8 +49,8 @@ const csrFileName = "app.csr";
 const deviceCAcertFile = "sonarCA.crt";
 const deviceClientCertFile = "device.crt";
 
-const caSubject = "/C=US/ST=CA/L=Test/O=Test/CN=TestCA";
-const serverSubject = "/C=US/ST=CA/L=Test/O=Test/CN=localhost";
+const caSubject = "/C=US/ST=CA/L=Redmond/O=Microsoft/CN=ReactNativeExtensionCA";
+const serverSubject = "/C=US/ST=CA/L=Redmond/O=Microsoft/CN=localhost";
 const minCertExpiryWindowSeconds = 24 * 60 * 60;
 const allowedAppNameRegex = /^[\w.-]+$/;
 
