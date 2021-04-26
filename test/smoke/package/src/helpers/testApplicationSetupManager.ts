@@ -470,15 +470,6 @@ export class TestApplicationSetupManager {
 
         // We should install @expo/ngrok locally for Debug in Exponent (Tunnel)
         this.installPackagesForProject(project, true, true, "@expo/ngrok");
-        const npmInstallCommand = `${utilities.npmCommand} install`;
-        SmokeTestLogger.projectInstallLog(
-            `*** Update node_modules for project in ${project.workspaceDirectory} via '${npmInstallCommand}' ...`,
-        );
-        utilities.execSync(
-            npmInstallCommand,
-            { cwd: project.workspaceDirectory },
-            vscodeManager.getSetupEnvironmentLogDir(),
-        );
     }
 
     private preparePureExpoApplication(

@@ -341,7 +341,7 @@ var entryPoint = require('${entryPoint}');`;
         outerFacebookReactNativeVersion: string,
     ): Promise<string | null> {
         if (!semver.valid(outerFacebookReactNativeVersion)) {
-            Promise.reject(
+            return Promise.reject(
                 new Error(
                     `${outerFacebookReactNativeVersion} is not a valid version. It must be in the form of x.y.z`,
                 ),
