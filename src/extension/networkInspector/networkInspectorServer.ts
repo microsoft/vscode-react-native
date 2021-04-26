@@ -88,7 +88,7 @@ export class NetworkInspectorServer {
             this.logger.info(localize("NetworkInspectorWorking", "Network inspector is working"));
             resolve();
         });
-        return await this.initialisePromise;
+        return this.initialisePromise;
     }
 
     public async stop(): Promise<void> {
@@ -273,6 +273,7 @@ export class NetworkInspectorServer {
                                 });
                             })
                             .catch(e => {
+                                this.logger.error(e.toString());
                                 subscriber.onError(e);
                             });
                     });

@@ -151,7 +151,7 @@ export class CertificateProvider {
                     return uuid();
                 }
             })
-            .then(async deviceId => {
+            .then(deviceId => {
                 return {
                     deviceId,
                 };

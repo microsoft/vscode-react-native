@@ -153,7 +153,7 @@ export async function checkIdbIsInstalled(): Promise<void> {
     const isInstalled = await isIdbAvailable();
     if (!isInstalled) {
         throw new Error(
-            `idb is required to use iOS devices. Install it with instructions from https://github.com/facebook/idb and set the installation path in Flipper settings.`,
+            `idb is required to use iOS devices. Please install it with instructions from https://github.com/facebook/idb.`,
         );
     }
 }
@@ -174,7 +174,7 @@ function wrapWithErrorMessage<T>(p: Promise<T>, logger?: OutputChannelLogger): P
         logger?.error(e.message);
         // Give the user instructions. Don't embed the error because it's unique per invocation so won't be deduped.
         throw new Error(
-            "A problem with idb has ocurred. Please run `sudo rm -rf /tmp/idb*` and `sudo yum install -y fb-idb` to update it, if that doesn't fix it, post in Flipper Support.",
+            "A problem with idb has ocurred. Please run `sudo rm -rf /tmp/idb*` and `sudo yum install -y fb-idb` to update it, if that doesn't fix it, post in https://github.com/microsoft/vscode-react-native.",
         );
     });
 }

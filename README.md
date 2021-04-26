@@ -706,13 +706,13 @@ To have better understanding on how LogCat filtering works take into account tha
 
 # Network Inspector
 
-The extenison provides `Network inspector` feature to inspect outgoing network traffic in your apps. You can browse all requests being made and their responses in VS Code DevTools console.
+The extension provides `Network inspector` feature to inspect outgoing network traffic in your apps. You can browse all requests being made and their responses in VS Code DevTools console.
 
 ![image](images/network-inspector.png)
 
 ### Network inspector requirements
 
-Before using the Network inspector, please, make sure that your system meets the following requirements:
+Before using the Network inspector, please make sure that your system meets the following requirements:
 
 - `OpenSSL` utility is installed and added to PATH. You can install `OpenSSL` the following way:
   - Windows: `choco install openssl`

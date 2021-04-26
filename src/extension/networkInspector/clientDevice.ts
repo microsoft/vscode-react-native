@@ -33,8 +33,8 @@ export interface UninitializedClient {
 }
 
 export interface ClientCsrQuery {
-    csr?: string | undefined;
-    csr_path?: string | undefined;
+    csr?: string;
+    csr_path?: string;
 }
 
 export interface ClientQuery extends ClientIdConstituents {
