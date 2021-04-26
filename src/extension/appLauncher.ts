@@ -88,21 +88,7 @@ export class AppLauncher {
             projectRootPath,
         );
 
-        if (!appLauncher.nodeModulesRoot) {
-            const nodeModulesRootPath: string | null = getNodeModulesInFolderHierarhy(
-                projectRootPath,
-            );
-
-            if (!nodeModulesRootPath) {
-                throw ErrorHelper.getInternalError(
-                    InternalErrorCode.ReactNativePackageIsNotInstalled,
-                );
-            }
-
-            appLauncher.nodeModulesRoot = nodeModulesRootPath;
-        }
-
-        return <string>appLauncher.nodeModulesRoot;
+        return appLauncher.getOrUpdateNodeModulesRoot();
     }
 
     constructor(reactDirManager: ReactDirManager, workspaceFolder: vscode.WorkspaceFolder) {
@@ -179,9 +165,17 @@ export class AppLauncher {
 
     public getOrUpdateNodeModulesRoot(forceUpdate: boolean = false): string {
         if (!this.nodeModulesRoot || forceUpdate) {
-            this.nodeModulesRoot = AppLauncher.getNodeModulesRootByProjectPath(
+            const nodeModulesRootPath: string | null = getNodeModulesInFolderHierarhy(
                 this.packager.getProjectPath(),
             );
+
+            if (!nodeModulesRootPath) {
+                throw ErrorHelper.getInternalError(
+                    InternalErrorCode.ReactNativePackageIsNotInstalled,
+                );
+            }
+
+            this.nodeModulesRoot = nodeModulesRootPath;
         }
         return <string>this.nodeModulesRoot;
     }
