@@ -310,7 +310,7 @@ You can debug UWP React Native for Windows applications by changing the `platfor
 
 ```json
 {
-  "name": "Debug UWP",
+  "name": "Debug Windows",
   "cwd": "${workspaceFolder}",
   "type": "reactnative",
   "request": "launch",
