@@ -15,6 +15,7 @@ import { SmokeTestLogger } from "./smokeTestLogger";
 
 export const npxCommand = process.platform === "win32" ? "npx.cmd" : "npx";
 export const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
+export const yarnCommand = process.platform === "win32" ? "yarn.cmd" : "yarn";
 
 // eslint-disable-next-line
 export function nfcall<R>(fn: Function, ...args): Promise<R> {
