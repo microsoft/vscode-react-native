@@ -39,10 +39,6 @@ export function attachLoggerStream(
     return getXDLPackage().then(xdl => xdl.ProjectUtils.attachLoggerStream(rootPath, options));
 }
 
-export function supportedVersions(): Promise<string[]> {
-    return getXDLPackage().then(xdl => xdl.Versions.facebookReactNativeVersionsAsync());
-}
-
 export function currentUser(): Promise<XDLPackage.IUser> {
     return getXDLPackage().then(xdl =>
         xdl.User ? xdl.User.getCurrentUserAsync() : xdl.UserManager.getCurrentUserAsync(),
@@ -60,10 +56,12 @@ export function login(username: string, password: string): Promise<XDLPackage.IU
     );
 }
 
-export function mapVersion(reactNativeVersion: string): Promise<string> {
-    return getXDLPackage().then(xdl =>
-        xdl.Versions.facebookReactNativeVersionToExpoVersionAsync(reactNativeVersion),
-    );
+export function getExpoSdkVersions(): Promise<XDLPackage.SDKVersions> {
+    return getXDLPackage().then(xdl => xdl.Versions.sdkVersionsAsync());
+}
+
+export function getReleasedExpoSdkVersions(): Promise<XDLPackage.SDKVersions> {
+    return getXDLPackage().then(xdl => xdl.Versions.releasedSdkVersionsAsync());
 }
 
 export function publish(

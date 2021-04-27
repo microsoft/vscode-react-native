@@ -420,10 +420,10 @@ export class AppiumHelper {
         SmokeTestLogger.info(`*** Opening Expo app via XDL.Simulator function`);
         SmokeTestLogger.info(`*** Searching for the "Explore" button...`);
 
-        const exploreElement = await client.$(
-            `//XCUIElementTypeButton[@name="Explore, tab, 2 of 4"]`,
+        const projectsElement = await client.$(
+            `//XCUIElementTypeButton[@name="Projects, tab, 1 of 3"]`,
         );
-        await exploreElement.waitForExist({ timeout: SmokeTestsConstants.waitForElementTimeout });
+        await projectsElement.waitForExist({ timeout: SmokeTestsConstants.waitForElementTimeout });
 
         await XDL.Simulator.openProjectAsync({ projectRoot: projectFolder });
 

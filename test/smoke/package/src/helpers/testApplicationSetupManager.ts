@@ -469,16 +469,7 @@ export class TestApplicationSetupManager {
         this.patchExpoSettingsFile(project);
 
         // We should install @expo/ngrok locally for Debug in Exponent (Tunnel)
-        this.installPackagesForProject(project, true, "@expo/ngrok");
-        const npmInstallCommand = `${utilities.npmCommand} install`;
-        SmokeTestLogger.projectInstallLog(
-            `*** Update node_modules for project in ${project.workspaceDirectory} via '${npmInstallCommand}' ...`,
-        );
-        utilities.execSync(
-            npmInstallCommand,
-            { cwd: project.workspaceDirectory },
-            vscodeManager.getSetupEnvironmentLogDir(),
-        );
+        this.installPackagesForProject(project, true, true, "@expo/ngrok");
     }
 
     private preparePureExpoApplication(
@@ -513,7 +504,7 @@ export class TestApplicationSetupManager {
     private addExpoDependencyToRNProject(project: TestProject, version?: string) {
         let expoPackage: string = version ? `expo@${version}` : "expo";
 
-        this.installPackagesForProject(project, true, expoPackage);
+        this.installPackagesForProject(project, true, false, expoPackage);
 
         SmokeTestLogger.projectPatchingLog(
             `*** Copying  ${project.sampleEntryPointPath} into ${project.projectEntryPointPath}...`,
@@ -645,11 +636,17 @@ module.exports.watchFolders = ['.vscode'];`;
     private installPackagesForProject(
         project: TestProject,
         isDev: boolean = false,
+        isYarn: boolean = false,
         ...packages: string[]
     ): void {
-        const command = `${utilities.npmCommand} install ${packages.join(" ")} ${
-            isDev ? "--save-dev" : ""
-        }`;
+        let command = "";
+        if (isYarn) {
+            command = `${utilities.yarnCommand} add ${packages.join(" ")} ${isDev ? "--dev" : ""}`;
+        } else {
+            command = `${utilities.npmCommand} install ${packages.join(" ")} ${
+                isDev ? "--save-dev" : ""
+            }`;
+        }
         SmokeTestLogger.projectInstallLog(
             `*** Adding ${packages.join(", ")} package${
                 packages.length > 1 ? "s" : ""
