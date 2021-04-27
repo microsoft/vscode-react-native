@@ -241,7 +241,6 @@
                   "android",
                   "exponent",
                   "windows",
-                  "wpf",
                   "macos"
                 ],
                 "description": "%reactNative.launch.platform.description%"
