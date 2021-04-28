@@ -46,7 +46,7 @@
   "reactNative.attach.skipFiles.description": "An array of file or folder names, or glob patterns, to skip when debugging.",
   "reactNative.attach.debuggerWorkerUrlPath.description": "Path to the app debugger worker to override. For example, if debugger tries to attach to http://localhost:8081/debugger-ui/debuggerWorker.js and you get 404 error from packager output then you may want to change debuggerWorkerUrlPath to another value suitable for your packager (\"debugger-ui\" will be replaced with the value you provide).",
   "reactNative.launch.direct.platform.description": "The platform to target. Possible values: 'android', 'ios'",
-  "reactNative.launch.platform.description": "The platform to target. Possible values: 'android', 'ios', 'exponent', 'windows', 'wpf', 'macos",
+  "reactNative.launch.platform.description": "The platform to target. Possible values: 'android', 'ios', 'exponent', 'windows', 'macos",
   "reactNative.launch.program.description": "[DEPRECATED. USE cwd INSTEAD] The path to launchReactNative.js in the vscode folder",
   "reactNative.launch.cwd.description": "The path to the project root folder",
   "reactNative.launch.target.description": "Target to run on. Possible values: 'simulator', 'device', 'device=<iOS device name>', '<Android emulator/device id>', '<iOS simulator name>'",
