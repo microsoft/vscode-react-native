@@ -468,8 +468,15 @@ export class TestApplicationSetupManager {
         this.patchMetroConfig(project);
         this.patchExpoSettingsFile(project);
 
+        const nodeModulesPath = utilities.execSync(
+            "npm root -g",
+            { cwd: project.parentPathForWorkspace },
+            vscodeManager.getSetupEnvironmentLogDir(),
+        );
+
+        console.log(nodeModulesPath);
         // We should install @expo/ngrok locally for Debug in Exponent (Tunnel)
-        this.installPackagesForProject(project, true, true, "@expo/ngrok");
+        // this.installPackagesForProject(project, true, true, "@expo/ngrok");
     }
 
     private preparePureExpoApplication(
