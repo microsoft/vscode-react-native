@@ -726,7 +726,7 @@ Before using the Network inspector, please make sure that your system meets the 
   When the Network inspector detects a React Native application and connects to it, VS Code DevTools window will be opened automatically. But you can also open it manually, by opening `Help` menu and clicking `Toggle Developer Tools` option. After that you just need to open `Console` tab in DevTools, where network requests will be printed.
 - To stop the Network inspector you can use `Stop Network Inspector` Command Palette command
 
-For now Network inspector doesn't support iOS physical devices and Expo applications.
+For now the Network inspector doesn't support Expo applications.
 
 # Developing inside a Docker Container
 
