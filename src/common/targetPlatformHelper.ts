@@ -30,7 +30,6 @@ export class TargetPlatformHelper {
             case PlatformType.Exponent:
                 return TargetPlatformId.EXPONENT;
             case PlatformType.Windows:
-            case PlatformType.WPF:
                 return TargetPlatformId.WINDOWS;
             case PlatformType.macOS:
                 return TargetPlatformId.MACOS;
