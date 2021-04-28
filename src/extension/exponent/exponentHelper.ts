@@ -5,6 +5,7 @@
 
 import * as path from "path";
 import * as semver from "semver";
+import * as vscode from "vscode";
 import * as XDL from "./xdlInterface";
 import { Package, IPackageInformation } from "../../common/node/package";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
@@ -12,6 +13,8 @@ import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import stripJSONComments = require("strip-json-comments");
 import * as nls from "vscode-nls";
 import { ErrorHelper } from "../../common/error/errorHelper";
+import { getNodeModulesGlobalPath } from "../../common/utils";
+import PackageLoader from "../../common/packageLoader";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { FileSystem } from "../../common/node/fileSystem";
 nls.config({
@@ -30,12 +33,15 @@ const DEFAULT_ANDROID_INDEX = "index.android.js";
 
 const DBL_SLASHES = /\\/g;
 
+const NGROK_PACKAGE = "@expo/ngrok";
+
 export class ExponentHelper {
     private workspaceRootPath: string;
     private projectRootPath: string;
     private fs: FileSystem;
     private hasInitialized: boolean;
     private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
+    private nodeModulesGlobalPathAddedToEnv: boolean;
 
     public constructor(
         workspaceRootPath: string,
@@ -50,6 +56,7 @@ export class ExponentHelper {
         // to the initialization of the extension. If a public method is added, make sure
         // to call this.lazilyInitialize() at the begining of the code to be sure all variables
         // are correctly initialized.
+        this.nodeModulesGlobalPathAddedToEnv = false;
     }
 
     public configureExponentEnvironment(): Promise<void> {
@@ -126,12 +133,6 @@ export class ExponentHelper {
             });
     }
 
-    private async getArgumentsFromExpoMetroConfig(projectRoot: string): Promise<ExpMetroConfig> {
-        return XDL.getMetroConfig(projectRoot).then(config => {
-            return { sourceExts: config.resolver.sourceExts };
-        });
-    }
-
     public async getExpPackagerOptions(projectRoot: string): Promise<ExpMetroConfig> {
         this.lazilyInitialize();
         const options = await this.getFromExpConfig<any>("packagerOpts").then(opts => opts || {});
@@ -192,6 +193,66 @@ export class ExponentHelper {
                 // Not in a react-native project
                 return false;
             });
+    }
+
+    public findOrInstallNgrokGlobally(): Promise<void> {
+        return this.addNodeModulesPathToEnvIfNotPresent()
+            .then(() => XDL.isNgrokInstalled(this.projectRootPath))
+            .catch(() => false)
+            .then(ngrokInstalled => {
+                if (!ngrokInstalled) {
+                    const outputMessage = localize(
+                        "ExpoInstallNgrokGlobally",
+                        'It seems that "@expo/ngrok" package isn\'t installed globally. This package is required to use Expo tunnels, would you like to install it globally?',
+                    );
+                    const installButton = localize("InstallNgrokGloballyButtonOK", "Install");
+                    const cancelButton = localize("InstallNgrokGloballyButtonCancel", "Cancel");
+
+                    return vscode.window
+                        .showWarningMessage(outputMessage, installButton, cancelButton)
+                        .then(selectedItem => {
+                            if (selectedItem === installButton) {
+                                return PackageLoader.getInstance()
+                                    .installGlobalPackage(NGROK_PACKAGE, this.projectRootPath)
+                                    .then(() => {
+                                        this.logger.info(
+                                            localize(
+                                                "NgrokInstalledGlobally",
+                                                '"@expo/ngrok" package has been successfully installed globally.',
+                                            ),
+                                        );
+                                    });
+                            }
+                            throw ErrorHelper.getInternalError(
+                                InternalErrorCode.NgrokIsNotInstalledGlobally,
+                            );
+                        });
+                }
+                return void 0;
+            });
+    }
+
+    public removeNodeModulesPathFromEnvIfWasSet(): void {
+        if (this.nodeModulesGlobalPathAddedToEnv) {
+            delete process.env["NODE_MODULES"];
+            this.nodeModulesGlobalPathAddedToEnv = false;
+        }
+    }
+
+    public addNodeModulesPathToEnvIfNotPresent(): Promise<void> {
+        if (!process.env["NODE_MODULES"]) {
+            return getNodeModulesGlobalPath().then(nodeModulesGlobalPath => {
+                process.env["NODE_MODULES"] = nodeModulesGlobalPath;
+                this.nodeModulesGlobalPathAddedToEnv = true;
+            });
+        }
+        return Promise.resolve();
+    }
+
+    private async getArgumentsFromExpoMetroConfig(projectRoot: string): Promise<ExpMetroConfig> {
+        return XDL.getMetroConfig(projectRoot).then(config => {
+            return { sourceExts: config.resolver.sourceExts };
+        });
     }
 
     /**

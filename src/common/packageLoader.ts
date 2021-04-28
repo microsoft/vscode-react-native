@@ -8,6 +8,11 @@ import { findFileInFolderHierarchy } from "./extensionHelper";
 import { HostPlatform } from "./hostPlatform";
 import * as path from "path";
 
+export interface PackageConfig {
+    packageName: string;
+    requirePath?: string;
+}
+
 export default class PackageLoader {
     private logger: OutputChannelLogger;
     private packagesQueue: string[];
@@ -30,8 +35,20 @@ export default class PackageLoader {
         return this.instance;
     }
 
+    public installGlobalPackage(packageName: string, projectRoot: string): Promise<void> {
+        const commandExecutor = new CommandExecutor(projectRoot, this.logger);
+
+        return commandExecutor.spawnWithProgress(
+            HostPlatform.getNpmCliCommand("npm"),
+            ["install", "-g", packageName, "--verbose"],
+            {
+                verbosity: CommandVerbosity.PROGRESS,
+            },
+        );
+    }
+
     public generateGetPackageFunction<T>(
-        packageName: string,
+        packageConfig: PackageConfig,
         ...additionalDependencies: string[]
     ): () => Promise<T> {
         let promise: Promise<T>;
@@ -40,7 +57,7 @@ export default class PackageLoader {
             if (promise) {
                 return promise;
             } else {
-                promise = this.loadPackage<T>(packageName, ...additionalDependencies);
+                promise = this.loadPackage<T>(packageConfig, ...additionalDependencies);
                 return promise;
             }
         };
@@ -51,29 +68,32 @@ export default class PackageLoader {
     }
 
     private getTryToRequireFunction<T>(
-        packageName: string,
+        packageConfig: PackageConfig,
         resolve: (value: T | PromiseLike<T>) => void,
         reject: (reason?: any) => void,
     ): (load?: string[]) => boolean {
         return (load?: string[]) => {
             let itWasInstalled = false;
             // Throw exception if we could not find package after installing
-            if (load && load.includes(packageName)) {
+            if (load && load.includes(packageConfig.packageName)) {
                 itWasInstalled = true;
             }
-            return this.tryToRequire<T>(packageName, resolve, reject, itWasInstalled);
+            return this.tryToRequire<T>(packageConfig, resolve, reject, itWasInstalled);
         };
     }
 
     private tryToRequire<T>(
-        packageName: string,
+        packageConfig: PackageConfig,
         resolve: (value: T | PromiseLike<T>) => void,
         reject: (reason?: any) => void,
         itWasInstalled: boolean,
     ): boolean {
+        const requiredPackage =
+            packageConfig.packageName +
+            (packageConfig.requirePath ? `/${packageConfig.requirePath}` : "");
         try {
-            this.logger.debug(`Getting ${packageName} dependency.`);
-            const module = customRequire(packageName);
+            this.logger.debug(`Getting ${requiredPackage} dependency.`);
+            const module = customRequire(requiredPackage);
             resolve(module);
             return true;
         } catch (e) {
@@ -81,17 +101,19 @@ export default class PackageLoader {
                 reject(e);
                 return true;
             }
-            this.logger.debug(`Dependency ${packageName} is not present. Retry after install...`);
+            this.logger.debug(
+                `Dependency ${requiredPackage} is not present. Retry after install...`,
+            );
             return false;
         }
     }
 
     private async tryToRequireAfterInstall(
         tryToRequire: (load?: string[]) => boolean,
-        packageName: string,
+        packageConfig: PackageConfig,
         ...additionalDependencies: string[]
-    ) {
-        this.packagesQueue.push(packageName, ...additionalDependencies);
+    ): Promise<void> {
+        this.packagesQueue.push(packageConfig.packageName, ...additionalDependencies);
         this.requireQueue.push(tryToRequire);
         if (!this.isCommandsExecuting) {
             this.isCommandsExecuting = true;
@@ -143,13 +165,17 @@ export default class PackageLoader {
     }
 
     private async loadPackage<T>(
-        packageName: string,
+        packageConfig: PackageConfig,
         ...additionalDependencies: string[]
     ): Promise<T> {
         return new Promise(async (resolve: (value: T) => void, reject) => {
-            const tryToRequire = this.getTryToRequireFunction(packageName, resolve, reject);
+            const tryToRequire = this.getTryToRequireFunction(packageConfig, resolve, reject);
             if (!tryToRequire()) {
-                this.tryToRequireAfterInstall(tryToRequire, packageName, ...additionalDependencies);
+                this.tryToRequireAfterInstall(
+                    tryToRequire,
+                    packageConfig,
+                    ...additionalDependencies,
+                );
             }
         });
     }

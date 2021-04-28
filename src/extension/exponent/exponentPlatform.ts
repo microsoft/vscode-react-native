@@ -58,7 +58,12 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                             // we added this to be sure that our Expo launching logic doesn't have any negative side effects
                             return XDL.stopAdbReverse(this.projectPath);
                         }
-                        return XDL.startTunnels(this.projectPath);
+                        return this.exponentHelper
+                            .findOrInstallNgrokGlobally()
+                            .then(() => XDL.startTunnels(this.projectPath))
+                            .finally(() =>
+                                this.exponentHelper.removeNodeModulesPathFromEnvIfWasSet(),
+                            );
                     })
                     .then(() => {
                         if (this.runOptions.expoHostType !== "local") return false;
