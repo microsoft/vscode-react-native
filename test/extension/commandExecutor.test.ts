@@ -18,6 +18,7 @@ suite("commandExecutor", function () {
     suite("extensionContext", function () {
         let childProcessStubInstance = new ChildProcess();
         let childProcessStub: Sinon.SinonStub & ChildProcess;
+        const sandbox = sinon.sandbox.create();
         let Log = new ConsoleLogger();
         const sampleReactNative022ProjectDir = path.join(
             __dirname,
@@ -38,12 +39,19 @@ suite("commandExecutor", function () {
             });
 
             childProcessStub.restore();
+            sandbox.restore();
         });
 
         setup(() => {
             childProcessStub = sinon
                 .stub(Node, "ChildProcess")
                 .returns(childProcessStubInstance) as ChildProcess & Sinon.SinonStub;
+
+            sandbox.stub(
+                AppLauncher,
+                "getNodeModulesRootByProjectPath",
+                (projectRoot: string) => nodeModulesRoot,
+            );
 
             nodeModulesRoot = sampleReactNative022ProjectDir;
         });
@@ -167,12 +175,8 @@ suite("commandExecutor", function () {
                     JSON.stringify(versionObj, null, 2),
                 );
 
-                return AppLauncher.getOrCreateAppLauncherByProjectRootPath(
-                    sampleReactNative022ProjectDir,
-                ).then(() => {
-                    commandExecutor.getReactNativeVersion().then(version => {
-                        assert.strictEqual(version, "0.22.0");
-                    });
+                return commandExecutor.getReactNativeVersion().then(version => {
+                    assert.strictEqual(version, "0.22.0");
                 });
             });
 

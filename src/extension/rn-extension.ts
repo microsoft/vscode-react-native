@@ -332,10 +332,9 @@ function isSupportedVersion(version: string): boolean {
         vscode.window.showWarningMessage(shortMessage);
         outputChannelLogger.warning(longMessage);
         return false;
-    } else {
-        // !!semver.valid(version) === false is OK for us, someone can use custom RN implementation with custom version e.g. -> "0.2018.0107-v1"
-        return true;
     }
+    // !!semver.valid(version) === false is OK for us, someone can use custom RN implementation with custom version e.g. -> "0.2018.0107-v1"
+    return true;
 }
 
 function registerReactNativeCommands(): void {
