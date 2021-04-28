@@ -9,12 +9,11 @@ import { IOSPlatform } from "../../../src/extension/ios/iOSPlatform";
 import "should";
 import { SettingsHelper } from "../../../src/extension/settingsHelper";
 import { PlatformType } from "../../../src/extension/launchArgs";
-import { AppLauncher } from "../../../src/extension/appLauncher";
 
 suite("iOSPlatform", function () {
     const workspaceRoot: string = "/User/test/react-native/AwesomeProject";
     const projectRoot = "/User/test/react-native/AwesomeProject";
-    const nodeModulesRoot: string = AppLauncher.getNodeModulesRootByProjectPath(projectRoot);
+    const nodeModulesRoot: string = projectRoot;
 
     let runOptions: any = {
         platform: PlatformType.iOS,

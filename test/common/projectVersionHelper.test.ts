@@ -9,7 +9,6 @@ import * as assert from "assert";
 import * as path from "path";
 import * as fs from "fs";
 import { ParsedPackage } from "../../src/common/reactNativeProjectHelper";
-import { AppLauncher } from "../../src/extension/appLauncher";
 
 suite("projectVersionHelper", function () {
     const sampleReactNative022ProjectDir = path.join(
@@ -19,9 +18,7 @@ suite("projectVersionHelper", function () {
         "sampleReactNative022Project",
     );
 
-    const nodeModulesRoot: string = AppLauncher.getNodeModulesRootByProjectPath(
-        sampleReactNative022ProjectDir,
-    );
+    const nodeModulesRoot: string = sampleReactNative022ProjectDir;
 
     test("getReactNativeVersionsFromProjectPackage should return object containing version strings if 'version' field is found in project's package.json file", () => {
         let additionalPackages: ParsedPackage[] = [];

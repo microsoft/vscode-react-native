@@ -239,9 +239,8 @@ export function createAdditionalWorkspaceFolder(folderPath: string): vscode.Work
             index: COUNT_WORKSPACE_FOLDERS + 1,
         };
         return newFolder;
-    } else {
-        return null;
     }
+    return null;
 }
 
 export function onFolderAdded(folder: vscode.WorkspaceFolder): Promise<void> {

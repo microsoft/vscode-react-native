@@ -11,6 +11,7 @@ export interface ILaunchArgs {
     platform: string;
     workspaceRoot: string;
     projectRoot: string;
+    nodeModulesRoot: string;
     reactNativeVersions: RNPackageVersions;
     target?: "simulator" | "device";
     debugAdapterPort?: number;
@@ -20,7 +21,6 @@ export interface ILaunchArgs {
     envFile?: string;
     isDirect?: boolean;
     enableDebug?: boolean;
-    nodeModulesRoot: string;
 }
 
 export enum PlatformType {

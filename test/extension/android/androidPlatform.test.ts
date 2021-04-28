@@ -16,7 +16,6 @@ import * as rimraf from "rimraf";
 import "should";
 import * as sinon from "sinon";
 import { SettingsHelper } from "../../../src/extension/settingsHelper";
-import { AppLauncher } from "../../../src/extension/appLauncher";
 
 suite("androidPlatform", function () {
     suite("extensionContext", function () {
@@ -33,7 +32,7 @@ suite("androidPlatform", function () {
         const applicationName = "SampleApplication";
         const androidPackageName = "com.sampleapplication";
 
-        const nodeModulesRoot: string = AppLauncher.getNodeModulesRootByProjectPath(projectRoot);
+        const nodeModulesRoot: string = projectRoot;
         const genericRunOptions: IAndroidRunOptions = {
             platform: PlatformType.Android,
             workspaceRoot: projectRoot,

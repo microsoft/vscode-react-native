@@ -7,12 +7,12 @@ import { Node } from "../../src/common/node/node";
 import { ChildProcess } from "../../src/common/node/childProcess";
 import { EventEmitter } from "events";
 import { Crypto } from "../../src/common/node/crypto";
-import { AppLauncher } from "../../src/extension/appLauncher";
 import * as assert from "assert";
 import * as semver from "semver";
 import * as sinon from "sinon";
 import * as path from "path";
 import * as fs from "fs";
+import { AppLauncher } from "../../src/extension/appLauncher";
 
 suite("commandExecutor", function () {
     suite("extensionContext", function () {
@@ -45,9 +45,7 @@ suite("commandExecutor", function () {
                 .stub(Node, "ChildProcess")
                 .returns(childProcessStubInstance) as ChildProcess & Sinon.SinonStub;
 
-            nodeModulesRoot = AppLauncher.getNodeModulesRootByProjectPath(
-                sampleReactNative022ProjectDir,
-            );
+            nodeModulesRoot = sampleReactNative022ProjectDir;
         });
 
         test("should execute a command", function () {
@@ -169,8 +167,12 @@ suite("commandExecutor", function () {
                     JSON.stringify(versionObj, null, 2),
                 );
 
-                return commandExecutor.getReactNativeVersion().then(version => {
-                    assert.strictEqual(version, "0.22.0");
+                return AppLauncher.getOrCreateAppLauncherByProjectRootPath(
+                    sampleReactNative022ProjectDir,
+                ).then(() => {
+                    commandExecutor.getReactNativeVersion().then(version => {
+                        assert.strictEqual(version, "0.22.0");
+                    });
                 });
             });
 
