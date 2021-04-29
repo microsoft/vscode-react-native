@@ -88,6 +88,7 @@ export enum InternalErrorCode {
     // Exponent errors
     RNVersionNotSupportedByExponent = 1101,
     UserCancelledExpoLogin = 1102,
+    NgrokIsNotInstalledGlobally = 1103,
 
     // Android errors
     AndroidCouldNotInstallTheAppOnAnyAvailibleDevice = 1201,

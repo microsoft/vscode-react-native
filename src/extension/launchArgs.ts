@@ -28,7 +28,6 @@ export enum PlatformType {
     Android = "android",
     iOS = "ios",
     Windows = "windows",
-    WPF = "wpf",
     Exponent = "exponent",
     macOS = "macos",
 }
