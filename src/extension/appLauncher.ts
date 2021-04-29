@@ -455,7 +455,7 @@ export class AppLauncher {
         };
 
         if (args.platform === PlatformType.Exponent) {
-            mobilePlatformOptions.expoHostType = args.expoHostType || "tunnel";
+            mobilePlatformOptions.expoHostType = args.expoHostType || "lan";
             mobilePlatformOptions.openExpoQR =
                 typeof args.openExpoQR !== "boolean" ? true : args.openExpoQR;
         }

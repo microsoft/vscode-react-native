@@ -58,7 +58,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                             // we added this to be sure that our Expo launching logic doesn't have any negative side effects
                             return XDL.stopAdbReverse(this.projectPath);
                         }
-                        return XDL.startTunnels(this.projectPath);
+                        return this.prepareExpoTunnels();
                     })
                     .then(() => {
                         if (this.runOptions.expoHostType !== "local") return false;
@@ -203,5 +203,12 @@ export class ExponentPlatform extends GeneralMobilePlatform {
 
     public getRunArguments(): string[] {
         return [];
+    }
+
+    private prepareExpoTunnels(): Promise<void> {
+        return this.exponentHelper
+            .findOrInstallNgrokGlobally()
+            .then(() => XDL.startTunnels(this.projectPath))
+            .finally(() => this.exponentHelper.removeNodeModulesPathFromEnvIfWasSet());
     }
 }
