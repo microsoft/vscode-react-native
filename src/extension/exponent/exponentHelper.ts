@@ -40,8 +40,8 @@ export class ExponentHelper {
     private projectRootPath: string;
     private fs: FileSystem;
     private hasInitialized: boolean;
-    private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
     private nodeModulesGlobalPathAddedToEnv: boolean;
+    private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
 
     public constructor(
         workspaceRootPath: string,
