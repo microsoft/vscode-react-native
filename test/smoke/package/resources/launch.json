@@ -57,11 +57,12 @@
       "trace": "verbose"
     },
     {
-      "name": "Debug in Exponent",
+      "name": "Debug in Exponent (Tunnel)",
       "cwd": "${workspaceFolder}",
       "type": "reactnative",
       "request": "launch",
       "platform": "exponent",
+      "expoHostType": "tunnel",
       "trace": "verbose"
     },
     {
@@ -70,7 +71,6 @@
       "type": "reactnative",
       "request": "launch",
       "platform": "exponent",
-      "expoHostType": "lan",
       "trace": "verbose"
     },
     {

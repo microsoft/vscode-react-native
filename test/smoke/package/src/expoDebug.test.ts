@@ -20,7 +20,7 @@ const ExpoFailurePattern = "XDLError";
 
 const EXPO_APP_PACKAGE_NAME = SmokeTestsConstants.expoPackageName;
 const EXPO_APP_ACTIVITY_NAME = `${SmokeTestsConstants.expoPackageName}.experience.HomeActivity`;
-const ExpoDebugConfigName = "Debug in Exponent";
+const ExpoTunnelDebugConfigName = "Debug in Exponent (Tunnel)";
 const ExpoLanDebugConfigName = "Debug in Exponent (LAN)";
 const ExpoLocalDebugConfigName = "Debug in Exponent (Local)";
 
@@ -320,7 +320,7 @@ export function startExpoTests(
                 await expoTest(
                     expoProject,
                     "Android Expo Debug test(Tunnel)",
-                    ExpoDebugConfigName,
+                    ExpoTunnelDebugConfigName,
                     Platform.AndroidExpo,
                     5,
                 );
@@ -366,7 +366,7 @@ export function startExpoTests(
                 await expoTest(
                     expoProject,
                     "iOS Expo Debug test(Tunnel)",
-                    ExpoDebugConfigName,
+                    ExpoTunnelDebugConfigName,
                     Platform.iOSExpo,
                     5,
                 );

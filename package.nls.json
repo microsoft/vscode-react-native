@@ -63,7 +63,7 @@
   "reactNative.launch.trace.description": "Logging level in debugger process. May be useful for diagnostics. If set to \"Trace\" all debugger process logs will be available in 'Debug Console' output window.",
   "reactNative.launch.debuggerWorkerUrlPath.description": "Path to the app debugger worker to override. For example, if debugger tries to attach to http://localhost:8081/debugger-ui/debuggerWorker.js and you get 404 error from packager output then you may want to change debuggerWorkerUrlPath to another value suitable for your packager (\"debugger-ui\" will be replaced with the value you provide).",
   "reactNative.launch.launchActivity.description": "The activity to be launched for debugging. Default is 'MainActivity'.",
-  "reactNative.launch.expoHostType.description": "The connection type to be used on Expo debugging to communicate with a device or an emulator. Default is 'tunnel'.",
+  "reactNative.launch.expoHostType.description": "The connection type to be used on Expo debugging to communicate with a device or an emulator. Default is 'lan'.",
   "reactNative.launch.enableDebug.description": "Whether to enable debug mode. If set to \"false\", an application will be launched without debugging.",
   "reactNative.launch.openExpoQR.description": "Determines whether to open a tab with a QR code after launching the Expo server. If set to \"false\", a new tab with a QR code won't be opened after the Expo server starts.",
   "reactNative.configuration.title": "React Native configuration",

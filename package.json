@@ -350,7 +350,7 @@
                   "lan",
                   "local"
                 ],
-                "default": "tunnel",
+                "default": "lan",
                 "description": "%reactNative.launch.expoHostType.description%"
               },
               "enableDebug": {
