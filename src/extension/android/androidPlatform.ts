@@ -208,6 +208,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
             this.packageName,
             true,
             this.debugTarget.id,
+            this.getAppIdSuffixFromRunArgumentsIfExists(),
         );
     }
 
@@ -217,6 +218,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
             this.packageName,
             false,
             this.debugTarget.id,
+            this.getAppIdSuffixFromRunArgumentsIfExists(),
         );
     }
 
@@ -258,6 +260,14 @@ export class AndroidPlatform extends GeneralMobilePlatform {
             LogCatMonitorManager.delMonitor(this.logCatMonitor.deviceId);
             this.logCatMonitor = null;
         }
+    }
+
+    private getAppIdSuffixFromRunArgumentsIfExists(): string | undefined {
+        const appIdSuffixIndex = this.runArguments.indexOf("--appIdSuffix");
+        if (appIdSuffixIndex > -1) {
+            return this.runArguments[appIdSuffixIndex + 1];
+        }
+        return undefined;
     }
 
     private initializeTargetDevicesAndPackageName(): Promise<void> {

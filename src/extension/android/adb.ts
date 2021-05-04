@@ -80,6 +80,7 @@ export class AdbHelper {
         packageName: string,
         enable: boolean,
         debugTarget?: string,
+        appIdSuffix?: string,
     ): Promise<void> {
         let enableDebugCommand = `${this.adbExecutable} ${
             debugTarget ? "-s " + debugTarget : ""
@@ -90,14 +91,16 @@ export class AdbHelper {
                 // We should stop and start application again after RELOAD_APP_ACTION, otherwise app going to hangs up
                 return new Promise(resolve => {
                     setTimeout(() => {
-                        this.stopApp(projectRoot, packageName, debugTarget).then(() => {
-                            return resolve();
-                        });
+                        this.stopApp(projectRoot, packageName, debugTarget, appIdSuffix).then(
+                            () => {
+                                return resolve();
+                            },
+                        );
                     }, 200); // We need a little delay after broadcast command
                 });
             })
             .then(() => {
-                return this.launchApp(projectRoot, packageName, debugTarget);
+                return this.launchApp(projectRoot, packageName, debugTarget, appIdSuffix);
             });
     }
 
@@ -108,17 +111,25 @@ export class AdbHelper {
         projectRoot: string,
         packageName: string,
         debugTarget?: string,
+        appIdSuffix?: string,
     ): Promise<void> {
         let launchAppCommand = `${this.adbExecutable} ${
             debugTarget ? "-s " + debugTarget : ""
-        } shell am start -n ${packageName}/.${this.launchActivity}`;
+        } shell am start -n ${packageName}${appIdSuffix ? "." + appIdSuffix : ""}/${packageName}.${
+            this.launchActivity
+        }`;
         return new CommandExecutor(projectRoot).execute(launchAppCommand);
     }
 
-    public stopApp(projectRoot: string, packageName: string, debugTarget?: string): Promise<void> {
+    public stopApp(
+        projectRoot: string,
+        packageName: string,
+        debugTarget?: string,
+        appIdSuffix?: string,
+    ): Promise<void> {
         let stopAppCommand = `${this.adbExecutable} ${
             debugTarget ? "-s " + debugTarget : ""
-        } shell am force-stop ${packageName}`;
+        } shell am force-stop ${packageName}${appIdSuffix ? "." + appIdSuffix : ""}`;
         return new CommandExecutor(projectRoot).execute(stopAppCommand);
     }
 
