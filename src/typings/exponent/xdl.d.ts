@@ -144,6 +144,17 @@ declare module xdl {
     var ProjectUtils: {
         attachLoggerStream(rootPath: string, options?: IBunyanStream): void;
     }
+
+    interface ResolveNgrok
+    {
+        resolveNgrokAsync(
+            projectRoot: string,
+            {
+                shouldPrompt = true,
+                autoInstall = false,
+            }: { shouldPrompt?: boolean; autoInstall?: boolean } = {},
+        ): Promise<any>;
+    };
 }
 
 declare module "xdl" {

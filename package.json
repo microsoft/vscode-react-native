@@ -241,7 +241,6 @@
                   "android",
                   "exponent",
                   "windows",
-                  "wpf",
                   "macos"
                 ],
                 "description": "%reactNative.launch.platform.description%"
@@ -351,7 +350,7 @@
                   "lan",
                   "local"
                 ],
-                "default": "tunnel",
+                "default": "lan",
                 "description": "%reactNative.launch.expoHostType.description%"
               },
               "enableDebug": {
