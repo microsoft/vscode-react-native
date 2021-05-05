@@ -61,7 +61,7 @@ interface ISetupableDisposable extends vscode.Disposable {
 }
 
 let EXTENSION_CONTEXT: vscode.ExtensionContext;
-let COUNT_WORKSPACE_FOLDERS = 0;
+let COUNT_WORKSPACE_FOLDERS: number = 0;
 
 export function activate(context: vscode.ExtensionContext): Promise<void> {
     const extensionName = getExtensionName();
@@ -113,9 +113,7 @@ export function activate(context: vscode.ExtensionContext): Promise<void> {
                 ),
             );
             EXTENSION_CONTEXT.subscriptions.push(
-                vscode.workspace.onDidChangeConfiguration(() =>
-                    onChangeConfiguration(EXTENSION_CONTEXT),
-                ),
+                vscode.workspace.onDidChangeConfiguration(() => onChangeConfiguration()),
             );
 
             EXTENSION_CONTEXT.subscriptions.push(
@@ -225,7 +223,7 @@ function onChangeWorkspaceFolders(event: vscode.WorkspaceFoldersChangeEvent) {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function onChangeConfiguration(context: vscode.ExtensionContext) {
+function onChangeConfiguration() {
     // TODO implements
 }
 
@@ -236,11 +234,15 @@ export function createAdditionalWorkspaceFolder(folderPath: string): vscode.Work
         const newFolder = {
             uri: folderUri,
             name: folderName,
-            index: COUNT_WORKSPACE_FOLDERS + 1,
+            index: ++COUNT_WORKSPACE_FOLDERS,
         };
         return newFolder;
     }
     return null;
+}
+
+export function getCountOfWorkspaceFolders(): number {
+    return COUNT_WORKSPACE_FOLDERS;
 }
 
 export function onFolderAdded(folder: vscode.WorkspaceFolder): Promise<void> {
@@ -267,7 +269,7 @@ export function onFolderAdded(folder: vscode.WorkspaceFolder): Promise<void> {
                         ErrorHelper.getInternalError(InternalErrorCode.DebuggerStubLauncherFailed),
                         () => {
                             let reactDirManager = new ReactDirManager(rootPath);
-                            return setupAndDispose(reactDirManager, EXTENSION_CONTEXT).then(() => {
+                            return setupAndDispose(reactDirManager).then(() => {
                                 ProjectsStorage.addFolder(
                                     projectRootPath,
                                     new AppLauncher(reactDirManager, folder),
@@ -311,12 +313,9 @@ function onFolderRemoved(folder: vscode.WorkspaceFolder): void {
     }
 }
 
-function setupAndDispose<T extends ISetupableDisposable>(
-    setuptableDisposable: T,
-    context: vscode.ExtensionContext,
-): Promise<T> {
+function setupAndDispose<T extends ISetupableDisposable>(setuptableDisposable: T): Promise<T> {
     return setuptableDisposable.setup().then(() => {
-        context.subscriptions.push(setuptableDisposable);
+        EXTENSION_CONTEXT.subscriptions.push(setuptableDisposable);
         return setuptableDisposable;
     });
 }
