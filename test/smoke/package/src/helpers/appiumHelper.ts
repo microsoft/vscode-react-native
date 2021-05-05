@@ -13,10 +13,10 @@ import { SmokeTestLogger } from "./smokeTestLogger";
 let appiumProcess: null | cp.ChildProcess;
 export type AppiumClient = wdio.BrowserObject;
 export enum Platform {
-    Android,
-    AndroidExpo,
-    iOS,
-    iOSExpo,
+    Android = "Android",
+    AndroidExpo = "AndroidExpo",
+    iOS = "iOS",
+    iOSExpo = "iOSExpo",
 }
 const XDL = require("xdl");
 
