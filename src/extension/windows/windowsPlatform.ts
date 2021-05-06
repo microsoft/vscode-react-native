@@ -21,6 +21,10 @@ export class WindowsPlatform extends GeneralMobilePlatform {
             pattern: "Unrecognized command 'run-windows'",
             errorCode: InternalErrorCode.WinRNMPPluginIsNotInstalled,
         },
+        {
+            pattern: /×.+\s/g,
+            errorCode: InternalErrorCode.WinProcessError,
+        },
     ];
 
     constructor(protected runOptions: IWindowsRunOptions, platformDeps: MobilePlatformDeps = {}) {
