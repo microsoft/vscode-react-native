@@ -49,11 +49,10 @@ export class OutputVerifier {
                         const internalError = this.findAnyFailurePattern(patterns);
                         if (internalError) {
                             if (processError) {
-                                return Promise.reject<string[]>(
-                                    ErrorHelper.wrapError(processError, internalError),
-                                );
+                                processError.message += internalError.message;
+                                return Promise.reject(processError);
                             }
-                            return Promise.reject<string[]>(internalError);
+                            return Promise.reject(internalError);
                         } else {
                             return this.generatePatternsForSuccess(); // If not we generate the success patterns
                         }
