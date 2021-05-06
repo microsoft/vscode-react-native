@@ -97,9 +97,14 @@ export class OutputVerifier {
         const errorCode = patternThatAppeared ? patternThatAppeared.errorCode : null;
 
         if (errorCode) {
-            return matches && matches.length
-                ? ErrorHelper.getInternalError(errorCode, matches.join("\n"))
-                : ErrorHelper.getInternalError(errorCode);
+            if (matches && matches.length) {
+                matches = matches.map(value =>
+                    value.endsWith("\n") ? value.slice(0, value.length - 1) : value,
+                );
+                return ErrorHelper.getInternalError(errorCode, matches.join("\n"));
+            } else {
+                return ErrorHelper.getInternalError(errorCode);
+            }
         }
         return null;
     }
