@@ -23,7 +23,7 @@ export class WindowsPlatform extends GeneralMobilePlatform {
         },
         {
             pattern: /×.+\s/g,
-            errorCode: InternalErrorCode.WinProcessError,
+            errorCode: InternalErrorCode.WinRunCommandFailed,
         },
     ];
 
