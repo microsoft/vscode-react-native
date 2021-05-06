@@ -63,22 +63,22 @@ suite("appLauncher", function () {
                 subscriptions: [{}],
             });
 
-            AppLauncher.getOrCreateAppLauncherByProjectRootPath(sampleReactNativeProjectDir).then(
-                (appLauncher: AppLauncher) => {
-                    appLauncherTest = appLauncher;
+            return AppLauncher.getOrCreateAppLauncherByProjectRootPath(
+                sampleReactNativeProjectDir,
+            ).then((appLauncher: AppLauncher) => {
+                appLauncherTest = appLauncher;
 
-                    assert.strictEqual(
-                        appLauncher.getPackager().getProjectPath(),
-                        sampleReactNativeProjectDir,
-                    );
+                assert.strictEqual(
+                    appLauncher.getPackager().getProjectPath(),
+                    sampleReactNativeProjectDir,
+                );
 
-                    isAppLauncherExist = !!ProjectsStorage.projectsCache[
-                        sampleReactNativeProjectDir.toLowerCase()
-                    ];
+                isAppLauncherExist = !!ProjectsStorage.projectsCache[
+                    sampleReactNativeProjectDir.toLowerCase()
+                ];
 
-                    assert.strictEqual(isAppLauncherExist, true);
-                },
-            );
+                assert.strictEqual(isAppLauncherExist, true);
+            });
         });
     });
 
@@ -167,6 +167,8 @@ suite("appLauncher", function () {
             return AppLauncher.getOrCreateAppLauncherByProjectRootPath(innerProjectDir).then(
                 (appLauncher: AppLauncher) => {
                     nodeModulesRoot1 = appLauncher.getOrUpdateNodeModulesRoot();
+                    assert.deepStrictEqual(nodeModulesRoot1, innerProjectDir);
+
                     fsHelper.removePathRecursivelySync(innerProjectDir);
                     appLauncherTest = appLauncher;
                     fsHelper.makeDirectoryRecursiveSync(reactNativePackageDir1);
@@ -177,6 +179,7 @@ suite("appLauncher", function () {
                     );
 
                     nodeModulesRoot2 = appLauncher.getOrUpdateNodeModulesRoot(true);
+                    assert.deepStrictEqual(nodeModulesRoot2, sampleTestProjectDir);
                     assert.notStrictEqual(nodeModulesRoot1, nodeModulesRoot2);
                 },
             );

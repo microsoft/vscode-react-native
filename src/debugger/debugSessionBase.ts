@@ -117,7 +117,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         resolve?: (value?: void | PromiseLike<void> | undefined) => void,
     ): void;
 
-    protected initializeSettings(args: any): Promise<any> {
+    protected initializeSettings(args: any): Promise<void> {
         if (!this.isSettingsInitialized) {
             let chromeDebugCoreLogs = getLoggingDirectory();
             if (chromeDebugCoreLogs) {
@@ -159,8 +159,6 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
                         this.projectRootPath = projectRootPath;
                         this.isSettingsInitialized = true;
                         this.appLauncher.getOrUpdateNodeModulesRoot(true);
-
-                        return void 0;
                     });
                 },
             );
