@@ -37,7 +37,8 @@ export default class PackageLoader {
     }
 
     public installGlobalPackage(packageName: string, projectRoot: string): Promise<void> {
-        const commandExecutor = new CommandExecutor(projectRoot, this.logger);
+        const nodeModulesRoot: string = AppLauncher.getNodeModulesRootByProjectPath(projectRoot);
+        const commandExecutor = new CommandExecutor(nodeModulesRoot, projectRoot, this.logger);
 
         return commandExecutor.spawnWithProgress(
             HostPlatform.getNpmCliCommand("npm"),
