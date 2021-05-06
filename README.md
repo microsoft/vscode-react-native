@@ -51,6 +51,7 @@ Using this extension, you can **debug your code and quickly run `react-native` c
   - [Setting up the React Native packager](#setting-up-the-react-native-packager)
   - [Change project root](#change-project-root)
   - [Configure an Android LogCat Monitor](#configure-an-android-logcat-monitor)
+- [Network Inspector](#network-inspector)
 - [Developing inside a Docker Container](#developing-inside-a-docker-container)
 - [Contributing](#contributing)
 - [Known Issues](#known-issues)
@@ -96,6 +97,8 @@ The full list of commands is:
 | Run Element Inspector            | Load development tools for inspect application UI elements                                                                                                                                                                                 |
 | Run React Native LogCat Monitor  | Creates a LogCat Monitor for the chosen online Android device to see the device LogCat logs. Default filtering arguments: ["*:S", "ReactNative:V", "ReactNativeJS:V"]. [How to configure filtering.](#configure-an-Android-LogCat-Monitor) |
 | Stop React Native LogCat Monitor | Stops an existing LogCat Monitor and removes its output channel                                                                                                                                                                            |
+| Run Network Inspector            | Run [Network inspector](#network-inspector)                                                                                                                                                                                                |
+| Stop Network Inspector           | Stop [Network inspector](#network-inspector)                                                                                                                                                                                               |
 
 # Debugging React Native applications
 
@@ -686,6 +689,30 @@ There are two ways to filter your LogCat Monitor output depending on how LogCat 
 ```
 
 To have better understanding on how LogCat filtering works take into account that the extension launches LogCat with flag `-s` and then adds user-provided filters as arguments. Please see the [official instruction on how does LogCat filtering works](https://developer.android.com/studio/command-line/logcat#filteringOutput).
+
+# Network Inspector
+
+The extension provides `Network inspector` feature to inspect outgoing network traffic in your apps. You can browse all requests being made and their responses in VS Code DevTools console.
+
+![image](images/network-inspector.png)
+
+### Network inspector requirements
+
+Before using the Network inspector, please make sure that your system meets the following requirements:
+
+- `OpenSSL` utility is installed and added to PATH. You can install `OpenSSL` the following way:
+  - Windows: `choco install openssl`
+  - macOS: `brew install openssl`
+  - Linux: `sudo apt-get install openssl`
+- (macOS only) [`idb`](https://fbidb.io/docs/installation/) utility is installed. It's required to interact with iOS physical devices
+
+### Network inspector usage
+
+- To run the Network inspector you can use `Run Network Inspector` Command Palette command</br>
+  When the Network inspector detects a React Native application and connects to it, VS Code DevTools window will be opened automatically. But you can also open it manually, by opening `Help` menu and clicking `Toggle Developer Tools` option. After that you just need to open `Console` tab in DevTools, where network requests will be printed.
+- To stop the Network inspector you can use `Stop Network Inspector` Command Palette command
+
+For now the Network inspector doesn't support Expo applications.
 
 # Developing inside a Docker Container
 

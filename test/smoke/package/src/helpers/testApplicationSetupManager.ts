@@ -396,6 +396,19 @@ export class TestApplicationSetupManager {
             `*** Copying ${project.testButtonFileForSample} into ${project.workspaceDirectory}`,
         );
         fs.copyFileSync(project.testButtonFileForSample, project.testButtonFileForWorkspace);
+
+        SmokeTestLogger.projectPatchingLog(
+            `*** Copying ${project.testNetworkButtonFileForSample} into ${project.testNetworkButtonFileForWorkspace}`,
+        );
+        fs.copyFileSync(
+            project.testNetworkButtonFileForSample,
+            project.testNetworkButtonFileForWorkspace,
+        );
+
+        SmokeTestLogger.projectPatchingLog(
+            `*** Copying ${project.settingsJsonSamplePath} into ${project.settingsJsonPath}`,
+        );
+        fs.copyFileSync(project.settingsJsonSamplePath, project.settingsJsonPath);
     }
 
     private generateReactNativeInitCommand(appName: string, version?: string): string {
@@ -495,7 +508,47 @@ export class TestApplicationSetupManager {
 
     private prepareHermesApplication(project: TestProject, rnVersion?: string) {
         this.prepareReactNativeApplication(project, rnVersion);
+        this.prepareTestExpressServer(
+            path.join(project.workspaceDirectory, SmokeTestsConstants.ExpressServerDir),
+            path.join(project.sampleDirectory, SmokeTestsConstants.ExpressServerDir),
+        );
         this.prepareReactNativeProjectForHermesTesting(project);
+    }
+
+    private prepareTestExpressServer(workspacePath: string, sampleWorkspace: string) {
+        if (!fs.existsSync(workspacePath)) {
+            fs.mkdirSync(workspacePath);
+        }
+        const resServerFilePath = path.join(
+            sampleWorkspace,
+            SmokeTestsConstants.ExpressServerFileName,
+        );
+        const appServerFilePath = path.join(
+            workspacePath,
+            SmokeTestsConstants.ExpressServerFileName,
+        );
+        const resPackageFilePath = path.join(sampleWorkspace, "package.json");
+        const appPackageFilePath = path.join(workspacePath, "package.json");
+
+        SmokeTestLogger.projectPatchingLog(
+            `*** Copying  ${resServerFilePath} into ${appServerFilePath}...`,
+        );
+        fs.writeFileSync(appServerFilePath, fs.readFileSync(resServerFilePath));
+        SmokeTestLogger.projectPatchingLog(
+            `*** Copying  ${resPackageFilePath} into ${appPackageFilePath}...`,
+        );
+        fs.writeFileSync(appPackageFilePath, fs.readFileSync(resPackageFilePath));
+
+        const command = `${utilities.npmCommand} install`;
+
+        SmokeTestLogger.projectInstallLog(
+            `*** Installing dependencies to ${workspacePath} via '${command}' command...`,
+        );
+        utilities.execSync(
+            command,
+            { cwd: workspacePath },
+            vscodeManager.getSetupEnvironmentLogDir(),
+        );
     }
 
     private addExpoDependencyToRNProject(project: TestProject, version?: string) {

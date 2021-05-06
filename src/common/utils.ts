@@ -17,6 +17,10 @@ export function isNullOrUndefined(value: any): boolean {
     return typeof value === "undefined" || value === null;
 }
 
+export function notNullOrUndefined<T>(value: T | null | undefined): value is T {
+    return !isNullOrUndefined(value);
+}
+
 export function getFormattedTimeString(date: Date): string {
     const hourString = padZeroes(2, String(date.getUTCHours()));
     const minuteString = padZeroes(2, String(date.getUTCMinutes()));

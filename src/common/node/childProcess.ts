@@ -4,6 +4,8 @@
 import * as nodeChildProcess from "child_process";
 import { ErrorHelper } from "../error/errorHelper";
 import { InternalErrorCode } from "../error/internalErrorCode";
+import { notNullOrUndefined } from "../utils";
+import { kill } from "process";
 
 // Uncomment the following lines to record all spawned processes executions
 // import {Recorder} from "../../../test/resources/processExecution/recorder";
@@ -156,5 +158,34 @@ export class ChildProcess {
             stderr: spawnedProcess.stderr,
             outcome: outcome,
         };
+    }
+
+    // Kills any orphaned Instruments processes belonging to the user.
+    //
+    // In some cases, we've seen interactions between Instruments and the iOS
+    // simulator that cause hung instruments and DTServiceHub processes. If
+    // enough instances pile up, the host machine eventually becomes
+    // unresponsive. Until the underlying issue is resolved, manually kill any
+    // orphaned instances (where the parent process has died and PPID is 1)
+    // before launching another instruments run.
+    public async killOrphanedInstrumentsProcesses(): Promise<void> {
+        const result = await this.execToString("ps -e -o user,ppid,pid,comm");
+        if (result) {
+            result
+                .split("\n")
+                .filter(notNullOrUndefined)
+                .map(a => /^(\S+)\s+1\s+(\d+)\s+(.+)$/.exec(a))
+                .filter(notNullOrUndefined)
+                .filter(m => m[1] === process.env.USER)
+                .filter(
+                    m =>
+                        m[3] && ["/instruments", "/DTServiceHub"].some(name => m[3].endsWith(name)),
+                )
+                .forEach(m => {
+                    const pid = m[2];
+                    console.debug(`Killing orphaned Instruments process: ${pid}`);
+                    kill(parseInt(pid, 10), "SIGKILL");
+                });
+        }
     }
 }

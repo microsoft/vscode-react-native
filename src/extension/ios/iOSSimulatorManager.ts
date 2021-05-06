@@ -17,7 +17,7 @@ export interface IiOSSimulator extends IVirtualDevice {
 }
 
 export class IOSSimulatorManager extends VirtualDeviceManager {
-    private static SIMULATORS_LIST_COMMAND = "xcrun simctl list --json devices available";
+    private static SIMULATORS_LIST_COMMAND = "xcrun simctl list --json devices";
 
     private childProcess: ChildProcess;
     private simulators: IiOSSimulator[];
@@ -53,10 +53,14 @@ export class IOSSimulatorManager extends VirtualDeviceManager {
         return foundSimulator;
     }
 
-    public async collectSimulators(): Promise<IiOSSimulator[]> {
+    public async collectSimulators(
+        selectionType: "available" | "booted" = "available",
+    ): Promise<IiOSSimulator[]> {
         const simulators: IiOSSimulator[] = [];
         const res = JSON.parse(
-            await this.childProcess.execToString(IOSSimulatorManager.SIMULATORS_LIST_COMMAND),
+            await this.childProcess.execToString(
+                `${IOSSimulatorManager.SIMULATORS_LIST_COMMAND} ${selectionType}`,
+            ),
         );
 
         Object.keys(res.devices).forEach(rawSystem => {

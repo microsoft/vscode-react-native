@@ -18,6 +18,7 @@ const es = require("event-stream");
 const remapIstanbul = require("remap-istanbul/lib/gulpRemapIstanbul");
 const nls = require("vscode-nls-dev");
 const webpack = require("webpack");
+const TerserPlugin = require("terser-webpack-plugin");
 const filter = require("gulp-filter");
 const del = require("del");
 const vscodeTest = require("vscode-test");
@@ -128,6 +129,19 @@ async function runWebpack({
                             },
                         ],
                     },
+                ],
+            },
+            optimization: {
+                minimize: true,
+                minimizer: [
+                    new TerserPlugin({
+                        terserOptions: {
+                            format: {
+                                comments: /^\**!|@preserve/i,
+                            },
+                        },
+                        extractComments: false,
+                    }),
                 ],
             },
             node: {
