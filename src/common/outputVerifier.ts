@@ -79,14 +79,13 @@ export class OutputVerifier {
     // We check the failure patterns one by one, to see if any of those appeared on the errors. If they did, we return the associated error
     private findAnyFailurePattern(patterns: PatternToFailure[]): InternalError | null {
         const errorsAndOutput = this.errors + this.output;
-        let matches: RegExpMatchArray | null = [];
+        let matches: RegExpMatchArray | null | undefined;
         const patternThatAppeared = patterns.find(pattern => {
             if (pattern.pattern instanceof RegExp) {
                 matches = errorsAndOutput.match(pattern.pattern);
                 return matches && matches.length;
             } else {
-                const indexMatch = errorsAndOutput.indexOf(pattern.pattern as string);
-                return indexMatch !== -1;
+                return errorsAndOutput.indexOf(pattern.pattern as string) !== -1;
             }
         });
 
