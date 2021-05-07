@@ -206,6 +206,10 @@ export const ERROR_STRINGS = {
         "UserCancelledExpoLogin",
         "User canceled login.",
     ),
+    [InternalErrorCode.NgrokIsNotInstalledGlobally]: localize(
+        "NgrokIsNotInstalledGlobally",
+        'It seems that "@expo/ngrok" package isn\'t installed globally. This package is required to use Expo tunnels. Please run "npm i -g @expo/ngrok" to install it globally.',
+    ),
     [InternalErrorCode.CannotAttachToPackagerCheckPackagerRunningOnPort]: localize(
         "CannotAttachToPackagerCheckPackagerRunningOnPort",
         "Cannot attach to packager. Are you sure there is a packager and it is running in the port {0}? If your packager is configured to run in another port make sure to add that to the settings.json.",
@@ -333,5 +337,13 @@ export const ERROR_STRINGS = {
     [InternalErrorCode.CouldNotDirectDebugWithoutHermesEngine]: localize(
         "CouldNotDirectDebugWithoutHermesEngine",
         "Could not start direct debugging of the {0} application without Hermes engine enabled. Please check if Hermes engine is enabled in your project and your debugging configuration contains 'useHermesEngine' prop set to 'true'",
+    ),
+    [InternalErrorCode.CouldNotStartNetworkInspector]: localize(
+        "ErrorWhileStartNetworkInspector",
+        "Error while starting Network inspector",
+    ),
+    [InternalErrorCode.CouldNotStopNetworkInspector]: localize(
+        "ErrorWhileStopNetworkInspector",
+        "Error while stopping Network inspector",
     ),
 };

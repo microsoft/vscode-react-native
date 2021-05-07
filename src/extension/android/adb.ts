@@ -3,6 +3,7 @@
 
 import { ChildProcess, ISpawnResult } from "../../common/node/childProcess";
 import { CommandExecutor } from "../../common/commandExecutor";
+import { IDevice } from "../../common/device";
 import * as path from "path";
 import * as fs from "fs";
 import { ILogger } from "../log/LogHelper";
@@ -35,15 +36,14 @@ enum KeyEvents {
     KEYCODE_MENU = 82,
 }
 
-export enum DeviceType {
+export enum AdbDeviceType {
     AndroidSdkEmulator, // These seem to have emulator-<port> ids
     Other,
 }
 
-export interface IDevice {
-    id: string;
+export interface IAdbDevice extends IDevice {
     isOnline: boolean;
-    type: DeviceType;
+    type: AdbDeviceType;
 }
 
 const AndroidSDKEmulatorPattern = /^emulator-\d{1,5}$/;
@@ -62,7 +62,7 @@ export class AdbHelper {
     /**
      * Gets the list of Android connected devices and emulators.
      */
-    public getConnectedDevices(): Promise<IDevice[]> {
+    public getConnectedDevices(): Promise<IAdbDevice[]> {
         return this.childProcess.execToString(`${this.adbExecutable} devices`).then(output => {
             return this.parseConnectedDevices(output);
         });
@@ -80,6 +80,7 @@ export class AdbHelper {
         packageName: string,
         enable: boolean,
         debugTarget?: string,
+        appIdSuffix?: string,
     ): Promise<void> {
         let enableDebugCommand = `${this.adbExecutable} ${
             debugTarget ? "-s " + debugTarget : ""
@@ -90,14 +91,16 @@ export class AdbHelper {
                 // We should stop and start application again after RELOAD_APP_ACTION, otherwise app going to hangs up
                 return new Promise(resolve => {
                     setTimeout(() => {
-                        this.stopApp(projectRoot, packageName, debugTarget).then(() => {
-                            return resolve();
-                        });
+                        this.stopApp(projectRoot, packageName, debugTarget, appIdSuffix).then(
+                            () => {
+                                return resolve();
+                            },
+                        );
                     }, 200); // We need a little delay after broadcast command
                 });
             })
             .then(() => {
-                return this.launchApp(projectRoot, packageName, debugTarget);
+                return this.launchApp(projectRoot, packageName, debugTarget, appIdSuffix);
             });
     }
 
@@ -108,17 +111,25 @@ export class AdbHelper {
         projectRoot: string,
         packageName: string,
         debugTarget?: string,
+        appIdSuffix?: string,
     ): Promise<void> {
         let launchAppCommand = `${this.adbExecutable} ${
             debugTarget ? "-s " + debugTarget : ""
-        } shell am start -n ${packageName}/.${this.launchActivity}`;
+        } shell am start -n ${packageName}${appIdSuffix ? "." + appIdSuffix : ""}/${packageName}.${
+            this.launchActivity
+        }`;
         return new CommandExecutor(projectRoot).execute(launchAppCommand);
     }
 
-    public stopApp(projectRoot: string, packageName: string, debugTarget?: string): Promise<void> {
+    public stopApp(
+        projectRoot: string,
+        packageName: string,
+        debugTarget?: string,
+        appIdSuffix?: string,
+    ): Promise<void> {
         let stopAppCommand = `${this.adbExecutable} ${
             debugTarget ? "-s " + debugTarget : ""
-        } shell am force-stop ${packageName}`;
+        } shell am force-stop ${packageName}${appIdSuffix ? "." + appIdSuffix : ""}`;
         return new CommandExecutor(projectRoot).execute(stopAppCommand);
     }
 
@@ -128,8 +139,8 @@ export class AdbHelper {
         );
     }
 
-    public reverseAdb(deviceId: string, packagerPort: number): Promise<void> {
-        return this.execute(deviceId, `reverse tcp:${packagerPort} tcp:${packagerPort}`);
+    public reverseAdb(deviceId: string, port: number): Promise<void> {
+        return this.execute(deviceId, `reverse tcp:${port} tcp:${port}`);
     }
 
     public showDevMenu(deviceId?: string): Promise<void> {
@@ -146,7 +157,7 @@ export class AdbHelper {
         return this.commandExecutor.execute(command);
     }
 
-    public getOnlineDevices(): Promise<IDevice[]> {
+    public getOnlineDevices(): Promise<IAdbDevice[]> {
         return this.getConnectedDevices().then(devices => {
             return devices.filter(device => device.isOnline);
         });
@@ -195,8 +206,16 @@ export class AdbHelper {
         return sdkLocation ? `"${path.join(sdkLocation, "platform-tools", "adb")}"` : "adb";
     }
 
-    private parseConnectedDevices(input: string): IDevice[] {
-        let result: IDevice[] = [];
+    public executeShellCommand(deviceId: string, command: string): Promise<string> {
+        return this.executeQuery(deviceId, `shell "${command}"`);
+    }
+
+    public executeQuery(deviceId: string, command: string): Promise<string> {
+        return this.childProcess.execToString(this.generateCommandForDevice(deviceId, command));
+    }
+
+    private parseConnectedDevices(input: string): IAdbDevice[] {
+        let result: IAdbDevice[] = [];
         let regex = new RegExp("^(\\S+)\\t(\\S+)$", "mg");
         let match = regex.exec(input);
         while (match != null) {
@@ -210,14 +229,10 @@ export class AdbHelper {
         return result;
     }
 
-    private extractDeviceType(id: string): DeviceType {
+    private extractDeviceType(id: string): AdbDeviceType {
         return id.match(AndroidSDKEmulatorPattern)
-            ? DeviceType.AndroidSdkEmulator
-            : DeviceType.Other;
-    }
-
-    private executeQuery(deviceId: string, command: string): Promise<string> {
-        return this.childProcess.execToString(this.generateCommandForDevice(deviceId, command));
+            ? AdbDeviceType.AndroidSdkEmulator
+            : AdbDeviceType.Other;
     }
 
     private execute(deviceId: string, command: string): Promise<void> {

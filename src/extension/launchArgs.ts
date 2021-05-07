@@ -12,7 +12,7 @@ export interface ILaunchArgs {
     workspaceRoot: string;
     projectRoot: string;
     reactNativeVersions: RNPackageVersions;
-    target?: "simulator" | "device";
+    target?: DeviceType;
     debugAdapterPort?: number;
     packagerPort?: any;
     runArguments?: string[];
@@ -22,11 +22,12 @@ export interface ILaunchArgs {
     enableDebug?: boolean;
 }
 
+export type DeviceType = "simulator" | "device";
+
 export enum PlatformType {
     Android = "android",
     iOS = "ios",
     Windows = "windows",
-    WPF = "wpf",
     Exponent = "exponent",
     macOS = "macos",
 }

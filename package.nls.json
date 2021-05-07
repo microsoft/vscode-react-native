@@ -17,6 +17,8 @@
   "reactNative.command.runInspector.title": "Run Element Inspector",
   "reactNative.command.startLogCatMonitor.title": "Run React Native LogCat Monitor",
   "reactNative.command.stopLogCatMonitor.title": "Stop React Native LogCat Monitor",
+  "reactNative.command.startNetworkInspector.title": "Run Network Inspector",
+  "reactNative.command.stopNetworkInspector.title": "Stop Network Inspector",
   "reactNative.snippets.debugAndroid.description": "A new configuration for launching React Native app on Android with debugging enabled",
   "reactNative.snippets.runAndroid.description": "A new configuration for launching React Native app on Android without debugging",
   "reactNative.snippets.debugAndroidHermes.description": "A new configuration for launching React Native Hermes app on Android with debugging enabled",
@@ -46,7 +48,7 @@
   "reactNative.attach.skipFiles.description": "An array of file or folder names, or glob patterns, to skip when debugging.",
   "reactNative.attach.debuggerWorkerUrlPath.description": "Path to the app debugger worker to override. For example, if debugger tries to attach to http://localhost:8081/debugger-ui/debuggerWorker.js and you get 404 error from packager output then you may want to change debuggerWorkerUrlPath to another value suitable for your packager (\"debugger-ui\" will be replaced with the value you provide).",
   "reactNative.launch.direct.platform.description": "The platform to target. Possible values: 'android', 'ios'",
-  "reactNative.launch.platform.description": "The platform to target. Possible values: 'android', 'ios', 'exponent', 'windows', 'wpf', 'macos",
+  "reactNative.launch.platform.description": "The platform to target. Possible values: 'android', 'ios', 'exponent', 'windows', 'macos",
   "reactNative.launch.program.description": "[DEPRECATED. USE cwd INSTEAD] The path to launchReactNative.js in the vscode folder",
   "reactNative.launch.cwd.description": "The path to the project root folder",
   "reactNative.launch.target.description": "Target to run on. Possible values: 'simulator', 'device', 'device=<iOS device name>', '<Android emulator/device id>', '<iOS simulator name>'",
@@ -63,7 +65,7 @@
   "reactNative.launch.trace.description": "Logging level in debugger process. May be useful for diagnostics. If set to \"Trace\" all debugger process logs will be available in 'Debug Console' output window.",
   "reactNative.launch.debuggerWorkerUrlPath.description": "Path to the app debugger worker to override. For example, if debugger tries to attach to http://localhost:8081/debugger-ui/debuggerWorker.js and you get 404 error from packager output then you may want to change debuggerWorkerUrlPath to another value suitable for your packager (\"debugger-ui\" will be replaced with the value you provide).",
   "reactNative.launch.launchActivity.description": "The activity to be launched for debugging. Default is 'MainActivity'.",
-  "reactNative.launch.expoHostType.description": "The connection type to be used on Expo debugging to communicate with a device or an emulator. Default is 'tunnel'.",
+  "reactNative.launch.expoHostType.description": "The connection type to be used on Expo debugging to communicate with a device or an emulator. Default is 'lan'.",
   "reactNative.launch.enableDebug.description": "Whether to enable debug mode. If set to \"false\", an application will be launched without debugging.",
   "reactNative.launch.openExpoQR.description": "Determines whether to open a tab with a QR code after launching the Expo server. If set to \"false\", a new tab with a QR code won't be opened after the Expo server starts.",
   "reactNative.configuration.title": "React Native configuration",
@@ -83,5 +85,6 @@
   "reactNative.configuration.properties.react-native.packager.status-indicator.description": "React Native Packager status representation in the VS Code status bar",
   "reactNative.configuration.properties.react-native-tools.projectRoot.description": "Subfolder in which the React Native project is located",
   "reactNative.configuration.properties.react-native-tools.logLevel.description": "Logging level in extension",
-  "reactNative.configuration.properties.react-native-tools.reactNativeGlobalCommandName.description": "The command name to be used to execute React Native CLI commands."
+  "reactNative.configuration.properties.react-native-tools.reactNativeGlobalCommandName.description": "The command name to be used to execute React Native CLI commands.",
+  "reactNative.configuration.properties.react-native-tools.consoleLogsColorTheme.description": "The color theme for Network inspector logs in VS Code DevTools console"
 }

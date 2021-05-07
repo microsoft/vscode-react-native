@@ -7,20 +7,26 @@ import PackageLoader from "../../common/packageLoader";
 
 const XDL_PACKAGE = "xdl";
 const METRO_CONFIG_PACKAGE = "@expo/metro-config";
-const NGROK_PACKAGE = "@expo/ngrok";
 
-const EXPO_DEPS: string[] = [XDL_PACKAGE, NGROK_PACKAGE];
+const EXPO_DEPS: string[] = [XDL_PACKAGE];
 
 let getXDLPackage: () => Promise<
     typeof XDLPackage
 > = PackageLoader.getInstance().generateGetPackageFunction<typeof XDLPackage>(
-    XDL_PACKAGE,
+    { packageName: XDL_PACKAGE },
     ...EXPO_DEPS,
 );
 let getMetroConfigPackage: () => Promise<
     typeof MetroConfigPackage
 > = PackageLoader.getInstance().generateGetPackageFunction<typeof MetroConfigPackage>(
-    METRO_CONFIG_PACKAGE,
+    { packageName: METRO_CONFIG_PACKAGE },
+    ...EXPO_DEPS,
+);
+let getNgrokResolver: () => Promise<XDLPackage.ResolveNgrok> = PackageLoader.getInstance().generateGetPackageFunction<XDLPackage.ResolveNgrok>(
+    {
+        packageName: XDL_PACKAGE,
+        requirePath: "build/start/resolveNgrok",
+    },
     ...EXPO_DEPS,
 );
 
@@ -105,4 +111,15 @@ export function getMetroConfig(projectRoot: string): Promise<MetroConfigPackage.
     return getMetroConfigPackage().then(metroConfigPackage =>
         metroConfigPackage.loadAsync(projectRoot),
     );
+}
+
+export function isNgrokInstalled(projectRoot: string): Promise<boolean> {
+    return getNgrokResolver()
+        .then(ngrokResolver =>
+            ngrokResolver.resolveNgrokAsync(projectRoot, {
+                shouldPrompt: false,
+                autoInstall: false,
+            }),
+        )
+        .then(ngrok => !!ngrok);
 }

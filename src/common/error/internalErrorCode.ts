@@ -88,6 +88,7 @@ export enum InternalErrorCode {
     // Exponent errors
     RNVersionNotSupportedByExponent = 1101,
     UserCancelledExpoLogin = 1102,
+    NgrokIsNotInstalledGlobally = 1103,
 
     // Android errors
     AndroidCouldNotInstallTheAppOnAnyAvailibleDevice = 1201,
@@ -118,4 +119,8 @@ export enum InternalErrorCode {
 
     // CDP Proxy errors
     CouldNotConnectToDebugTarget = 1501,
+
+    // Network Inspector errors
+    CouldNotStartNetworkInspector = 1601,
+    CouldNotStopNetworkInspector = 1602,
 }
