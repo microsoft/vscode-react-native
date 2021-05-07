@@ -42,34 +42,31 @@ export class OutputVerifier {
             .catch(error => {
                 processError = error;
             })
-            .finally(() => {
-                return Promise.resolve()
-                    .then(this.generatePatternToFailure)
-                    .then(patterns => {
-                        const internalError = this.findAnyFailurePattern(patterns);
-                        if (internalError) {
-                            if (processError) {
-                                processError.message += internalError.message;
-                                return Promise.reject(processError);
-                            }
-                            return Promise.reject(internalError);
-                        } else {
-                            return this.generatePatternsForSuccess(); // If not we generate the success patterns
-                        }
-                    })
-                    .then(successPatterns => {
-                        if (!this.areAllSuccessPatternsPresent(successPatterns)) {
-                            // If we don't find all the success patterns, we also fail
-                            return Promise.reject<void>(
-                                ErrorHelper.getInternalError(
-                                    InternalErrorCode.NotAllSuccessPatternsMatched,
-                                    this.platformName,
-                                    this.platformName,
-                                ),
-                            );
-                        } // else we found all the success patterns, so we succeed
-                        return Promise.resolve();
-                    });
+            .then(this.generatePatternToFailure)
+            .then(patterns => {
+                const internalError = this.findAnyFailurePattern(patterns);
+                if (internalError) {
+                    if (processError) {
+                        processError.message += internalError.message;
+                        return Promise.reject(processError);
+                    }
+                    return Promise.reject(internalError);
+                } else {
+                    return this.generatePatternsForSuccess(); // If not we generate the success patterns
+                }
+            })
+            .then(successPatterns => {
+                if (!this.areAllSuccessPatternsPresent(successPatterns)) {
+                    // If we don't find all the success patterns, we also fail
+                    return Promise.reject<void>(
+                        ErrorHelper.getInternalError(
+                            InternalErrorCode.NotAllSuccessPatternsMatched,
+                            this.platformName,
+                            this.platformName,
+                        ),
+                    );
+                } // else we found all the success patterns, so we succeed
+                return Promise.resolve();
             });
     }
 
