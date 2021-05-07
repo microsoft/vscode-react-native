@@ -856,7 +856,7 @@
     "through2": "2.0.1",
     "ts-loader": "9.0.2",
     "typescript": "3.9.7",
-    "vsce": "1.77.0",
+    "vsce": "^1.88.0",
     "vscode-debugprotocol": "1.40.0",
     "vscode-nls-dev": "3.3.2",
     "vscode-test": "1.4.0",

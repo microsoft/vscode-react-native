@@ -537,7 +537,10 @@ export class CommandPaletteHandler {
         }
     }
 
-    private static trustedWorkspaceRequired(projectRoot: string, limitedItemName: string) {
+    private static trustedWorkspaceRequired(
+        projectRoot: string,
+        limitedItemName: string,
+    ): Promise<void> {
         if (isWorkspaceTrusted()) {
             return Promise.resolve();
         } else {
