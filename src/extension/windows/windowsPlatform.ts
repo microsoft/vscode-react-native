@@ -22,7 +22,7 @@ export class WindowsPlatform extends GeneralMobilePlatform {
             errorCode: InternalErrorCode.WinRNMPPluginIsNotInstalled,
         },
         {
-            pattern: /×.+/gm,
+            pattern: /×.+$/gm,
             errorCode: InternalErrorCode.WinRunCommandFailed,
         },
     ];
