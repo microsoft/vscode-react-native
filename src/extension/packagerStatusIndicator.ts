@@ -99,7 +99,7 @@ export class PackagerStatusIndicator implements Disposable {
             case PackagerStatusIndicator.SHORT_VERSION:
                 this.togglePackagerItem.text = `${icon}`;
                 this.togglePackagerItem.show();
-                this.restartPackagerItem.hide();
+                this.restartPackagerItem.show();
                 break;
         }
     }
