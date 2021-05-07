@@ -20,6 +20,7 @@ import { HostPlatform } from "../common/hostPlatform";
 import { LaunchJsonCompletionHelper } from "../common/launchJsonCompletionHelper";
 import { ReactNativeDebugConfigProvider } from "./debuggingConfiguration/reactNativeDebugConfigProvider";
 import { CommandExecutor } from "../common/commandExecutor";
+import { isWorkspaceTrusted } from "../common/extensionHelper";
 import * as nls from "vscode-nls";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
@@ -54,25 +55,34 @@ export class CommandPaletteHandler {
      */
     public static startPackager(): Promise<void> {
         return this.selectProject().then((appLauncher: AppLauncher) => {
-            return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
-                appLauncher.getPackager().getProjectPath(),
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            ).then(versions => {
-                return this.executeCommandInContext(
-                    "startPackager",
-                    appLauncher.getWorkspaceFolder(),
-                    () => {
-                        return appLauncher
-                            .getPackager()
-                            .isRunning()
-                            .then(running => {
-                                return running
-                                    ? appLauncher.getPackager().stop()
-                                    : Promise.resolve();
-                            });
-                    },
-                ).then(() => appLauncher.getPackager().start());
-            });
+            return (
+                this.trustedWorkspaceRequired(
+                    appLauncher.getPackager().getProjectPath(),
+                    "Start Packager",
+                )
+                    .then(() =>
+                        ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
+                            appLauncher.getPackager().getProjectPath(),
+                        ),
+                    )
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    .then(versions => {
+                        return this.executeCommandInContext(
+                            "startPackager",
+                            appLauncher.getWorkspaceFolder(),
+                            () => {
+                                return appLauncher
+                                    .getPackager()
+                                    .isRunning()
+                                    .then(running => {
+                                        return running
+                                            ? appLauncher.getPackager().stop()
+                                            : Promise.resolve();
+                                    });
+                            },
+                        ).then(() => appLauncher.getPackager().start());
+                    })
+            );
         });
     }
 
@@ -81,10 +91,13 @@ export class CommandPaletteHandler {
      */
     public static stopPackager(): Promise<void> {
         return this.selectProject().then((appLauncher: AppLauncher) => {
-            return this.executeCommandInContext(
-                "stopPackager",
-                appLauncher.getWorkspaceFolder(),
-                () => appLauncher.getPackager().stop(),
+            return this.trustedWorkspaceRequired(
+                appLauncher.getPackager().getProjectPath(),
+                "Stop Packager",
+            ).then(() =>
+                this.executeCommandInContext("stopPackager", appLauncher.getWorkspaceFolder(), () =>
+                    appLauncher.getPackager().stop(),
+                ),
             );
         });
     }
@@ -109,16 +122,25 @@ export class CommandPaletteHandler {
      */
     public static restartPackager(): Promise<void> {
         return this.selectProject().then((appLauncher: AppLauncher) => {
-            return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
-                appLauncher.getPackager().getProjectPath(),
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            ).then(versions => {
-                return this.executeCommandInContext(
-                    "restartPackager",
-                    appLauncher.getWorkspaceFolder(),
-                    () => this.runRestartPackagerCommandAndUpdateStatus(appLauncher),
-                );
-            });
+            return (
+                this.trustedWorkspaceRequired(
+                    appLauncher.getPackager().getProjectPath(),
+                    "Restart Packager",
+                )
+                    .then(() =>
+                        ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
+                            appLauncher.getPackager().getProjectPath(),
+                        ),
+                    )
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    .then(versions => {
+                        return this.executeCommandInContext(
+                            "restartPackager",
+                            appLauncher.getWorkspaceFolder(),
+                            () => this.runRestartPackagerCommandAndUpdateStatus(appLauncher),
+                        );
+                    })
+            );
         });
     }
 
@@ -512,6 +534,20 @@ export class CommandPaletteHandler {
                     () => {}, // eslint-disable-line @typescript-eslint/no-empty-function
                 );
             }
+        }
+    }
+
+    private static trustedWorkspaceRequired(projectRoot: string, limitedItemName: string) {
+        if (isWorkspaceTrusted()) {
+            return Promise.resolve();
+        } else {
+            return Promise.reject(
+                ErrorHelper.getInternalError(
+                    InternalErrorCode.WorkspaceIsNotTrusted,
+                    projectRoot,
+                    limitedItemName,
+                ),
+            );
         }
     }
 
