@@ -49,18 +49,22 @@ export interface IDevice {
 const AndroidSDKEmulatorPattern = /^emulator-\d{1,5}$/;
 
 export class AdbHelper {
+    private nodeModulesRoot: string;
+    private launchActivity: string;
     private childProcess: ChildProcess = new ChildProcess();
     private commandExecutor: CommandExecutor;
     private adbExecutable: string = "";
 
     constructor(
         projectRoot: string,
-        private nodeModulesRoot: string,
+        nodeModulesRoot: string,
         logger?: ILogger,
-        private launchActivity: string = "MainActivity",
+        launchActivity: string = "MainActivity",
     ) {
+        this.nodeModulesRoot = nodeModulesRoot;
         this.adbExecutable = this.getAdbPath(projectRoot, logger);
         this.commandExecutor = new CommandExecutor(this.nodeModulesRoot);
+        this.launchActivity = launchActivity;
     }
 
     /**

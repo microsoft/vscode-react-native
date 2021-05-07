@@ -120,7 +120,7 @@ suite("appLauncher", function () {
         });
 
         test("getOrUpdateNodeModulesRoot force updates a node modules root", function () {
-            const SAMPLE_TEST_PROJECT_NAME: string = "sample003";
+            const SAMPLE_TEST_PROJECT_NAME: string = "sampleGetOrUpdateNodeModulesRootProject";
             const sampleTestProjectDir = path.join(
                 __dirname,
                 "..",

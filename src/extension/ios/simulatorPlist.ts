@@ -17,21 +17,27 @@ nls.config({
 const localize = nls.loadMessageBundle();
 
 export class SimulatorPlist {
+    private iosProjectRoot: string;
+    private projectRoot: string;
+    private scheme?: string;
     private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
     private nodeFileSystem: FileSystem;
     private plistBuddy: PlistBuddy;
     private nodeChildProcess: ChildProcess;
 
     constructor(
-        private iosProjectRoot: string,
-        private projectRoot: string,
-        private scheme?: string,
+        iosProjectRoot: string,
+        projectRoot: string,
+        scheme?: string,
         {
             nodeFileSystem = new FileSystem(),
             plistBuddy = undefined,
             nodeChildProcess = new ChildProcess(),
         } = {},
     ) {
+        this.iosProjectRoot = iosProjectRoot;
+        this.projectRoot = projectRoot;
+        this.scheme = scheme;
         this.nodeFileSystem = nodeFileSystem;
         this.plistBuddy = plistBuddy || new PlistBuddy();
         this.nodeChildProcess = nodeChildProcess;
