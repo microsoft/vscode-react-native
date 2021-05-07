@@ -371,7 +371,10 @@ export class CommandPaletteHandler {
     public static async startNetworkInspector(): Promise<void> {
         if (!CommandPaletteHandler.networkInspectorModule) {
             const appLauncher = await this.selectProject();
-            const adbHelper = new AdbHelper(appLauncher.getPackager().getProjectPath());
+            const adbHelper = new AdbHelper(
+                appLauncher.getPackager().getProjectPath(),
+                appLauncher.getOrUpdateNodeModulesRoot(),
+            );
             const networkInspector = new NetworkInspectorServer();
             const androidDeviceTracker = new AndroidDeviceTracker(adbHelper);
             let iOSDeviceTracker = null;
