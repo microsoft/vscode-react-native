@@ -398,6 +398,16 @@ function registerReactNativeCommands(): void {
         () => CommandPaletteHandler.stopLogCatMonitor(),
     );
     registerVSCodeCommand(
+        "startNetworkInspector",
+        ErrorHelper.getInternalError(InternalErrorCode.CouldNotStartNetworkInspector),
+        () => CommandPaletteHandler.startNetworkInspector(),
+    );
+    registerVSCodeCommand(
+        "stopNetworkInspector",
+        ErrorHelper.getInternalError(InternalErrorCode.CouldNotStopNetworkInspector),
+        () => CommandPaletteHandler.stopNetworkInspector(),
+    );
+    registerVSCodeCommand(
         "showDevMenu",
         ErrorHelper.getInternalError(
             InternalErrorCode.CommandFailed,

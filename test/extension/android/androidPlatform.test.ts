@@ -589,7 +589,7 @@ function fillDevices(ids: string[]): any[] {
             isOnline: true,
             installedApplications: {},
             runningApplications: {},
-            type: adb.DeviceType.AndroidSdkEmulator,
+            type: adb.AdbDeviceType.AndroidSdkEmulator,
             id: id,
         });
     });

@@ -1,4 +1,3 @@
-console.log('Test output from debuggee');
 /**
  * Sample React Native App
  * https://github.com/facebook/react-native
@@ -11,6 +10,7 @@ import React from 'react';
 import { SafeAreaView, StyleSheet, ScrollView, View, Text, StatusBar } from 'react-native';
 import { Header, LearnMoreLinks, Colors, DebugInstructions, ReloadInstructions } from 'react-native/Libraries/NewAppScreen';
 import AppTestButton from './AppTestButton';
+import AppTestNetworkButton from './AppTestNetworkButton';
 
 const App: () => React$Node = () => {
   return (
@@ -27,6 +27,7 @@ const App: () => React$Node = () => {
             </View>
           )}
           <AppTestButton />
+          <AppTestNetworkButton />
         </ScrollView>
       </SafeAreaView>
     </>

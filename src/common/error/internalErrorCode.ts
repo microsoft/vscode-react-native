@@ -118,4 +118,8 @@ export enum InternalErrorCode {
 
     // CDP Proxy errors
     CouldNotConnectToDebugTarget = 1501,
+
+    // Network Inspector errors
+    CouldNotStartNetworkInspector = 1601,
+    CouldNotStopNetworkInspector = 1602,
 }
