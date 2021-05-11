@@ -56,18 +56,18 @@ export class OutputVerifier {
                 }
             })
             .then(successPatterns => {
+                if (processError) {
+                    return Promise.reject(processError);
+                }
                 if (!this.areAllSuccessPatternsPresent(successPatterns)) {
                     // If we don't find all the success patterns, we also fail
-                    const patternsError = ErrorHelper.getInternalError(
-                        InternalErrorCode.NotAllSuccessPatternsMatched,
-                        this.platformName,
-                        this.platformName,
+                    return Promise.reject(
+                        ErrorHelper.getInternalError(
+                            InternalErrorCode.NotAllSuccessPatternsMatched,
+                            this.platformName,
+                            this.platformName,
+                        ),
                     );
-                    if (processError) {
-                        processError.message += "\n" + patternsError.message;
-                        return Promise.reject(processError);
-                    }
-                    return Promise.reject<void>(patternsError);
                 } // else we found all the success patterns, so we succeed
                 return Promise.resolve();
             });
