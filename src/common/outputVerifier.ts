@@ -44,13 +44,13 @@ export class OutputVerifier {
             })
             .then(this.generatePatternToFailure)
             .then(patterns => {
-                const internalError = this.findAnyFailurePattern(patterns);
-                if (internalError) {
+                const patternsError = this.findAnyFailurePattern(patterns);
+                if (patternsError) {
                     if (processError) {
-                        processError.message += internalError.message;
+                        processError.message += "\n" + patternsError.message;
                         return Promise.reject(processError);
                     }
-                    return Promise.reject(internalError);
+                    return Promise.reject(patternsError);
                 } else {
                     return this.generatePatternsForSuccess(); // If not we generate the success patterns
                 }
@@ -58,13 +58,16 @@ export class OutputVerifier {
             .then(successPatterns => {
                 if (!this.areAllSuccessPatternsPresent(successPatterns)) {
                     // If we don't find all the success patterns, we also fail
-                    return Promise.reject<void>(
-                        ErrorHelper.getInternalError(
-                            InternalErrorCode.NotAllSuccessPatternsMatched,
-                            this.platformName,
-                            this.platformName,
-                        ),
+                    const patternsError = ErrorHelper.getInternalError(
+                        InternalErrorCode.NotAllSuccessPatternsMatched,
+                        this.platformName,
+                        this.platformName,
                     );
+                    if (processError) {
+                        processError.message += "\n" + patternsError.message;
+                        return Promise.reject(processError);
+                    }
+                    return Promise.reject<void>(patternsError);
                 } // else we found all the success patterns, so we succeed
                 return Promise.resolve();
             });
@@ -93,9 +96,7 @@ export class OutputVerifier {
 
         if (errorCode) {
             if (matches && matches.length) {
-                matches = matches.map(value =>
-                    value.endsWith("\n") ? value.slice(0, value.length - 1) : value,
-                );
+                matches = matches.map(value => value.trim());
                 return ErrorHelper.getInternalError(errorCode, matches.join("\n"));
             } else {
                 return ErrorHelper.getInternalError(errorCode);

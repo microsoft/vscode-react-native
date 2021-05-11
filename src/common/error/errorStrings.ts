@@ -260,7 +260,7 @@ export const ERROR_STRINGS = {
     ),
     [InternalErrorCode.WinRunCommandFailed]: localize(
         "WinRunCommandFailed",
-        "\n{0}\nPlease check the 'React Native: Run Windows' output channel for detales",
+        "{0}\nPlease check the 'React Native: Run Windows' output channel for detales",
     ),
     [InternalErrorCode.ReactDevtoolsIsNotInstalled]: localize(
         "ReactDevtoolsIsNotInstalled",
