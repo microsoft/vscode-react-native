@@ -258,6 +258,10 @@ export const ERROR_STRINGS = {
         "WinRNMPPluginIsNotInstalled",
         "'rnpm-plugin-windows' is not installed.",
     ),
+    [InternalErrorCode.WinRunCommandFailed]: localize(
+        "WinRunCommandFailed",
+        "{0}\nPlease check the 'React Native: Run Windows' output channel for detales",
+    ),
     [InternalErrorCode.ReactDevtoolsIsNotInstalled]: localize(
         "ReactDevtoolsIsNotInstalled",
         "React Devtools is not installed. Run `npm install -g react-devtools` command in your terminal to install it.",
