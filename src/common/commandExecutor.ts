@@ -235,7 +235,9 @@ export class CommandExecutor {
 
     private generateRejectionForCommand(command: string, reason: any): Promise<void> {
         return Promise.reject<void>(
-            ErrorHelper.getNestedError(reason, InternalErrorCode.CommandFailed, command),
+            reason.errorCode === InternalErrorCode.CommandFailed
+                ? reason
+                : ErrorHelper.getNestedError(reason, InternalErrorCode.CommandFailed, command),
         );
     }
 

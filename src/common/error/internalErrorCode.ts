@@ -103,6 +103,7 @@ export enum InternalErrorCode {
 
     // Windows Phone errors
     WinRNMPPluginIsNotInstalled = 1301,
+    WinRunCommandFailed = 1302,
 
     // Debugger errors
     SourcesStoragePathIsNullOrEmpty = 1401,
