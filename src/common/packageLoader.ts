@@ -136,7 +136,7 @@ export default class PackageLoader {
                 const packagesForInstall = this.packagesQueue.slice(0, load);
                 await commandExecutor.spawnWithProgress(
                     HostPlatform.getNpmCliCommand("npm"),
-                    ["install", ...packagesForInstall, "--verbose", "--no-save"],
+                    ["install", ...packagesForInstall, "--verbose", "--no-save", "--global-style"],
                     {
                         verbosity: CommandVerbosity.PROGRESS,
                     },

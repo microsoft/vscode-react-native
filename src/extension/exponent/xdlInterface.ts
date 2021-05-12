@@ -8,7 +8,7 @@ import PackageLoader from "../../common/packageLoader";
 const XDL_PACKAGE = "xdl";
 const METRO_CONFIG_PACKAGE = "@expo/metro-config";
 
-const EXPO_DEPS: string[] = [XDL_PACKAGE];
+const EXPO_DEPS: string[] = [XDL_PACKAGE, METRO_CONFIG_PACKAGE];
 
 let getXDLPackage: () => Promise<
     typeof XDLPackage
