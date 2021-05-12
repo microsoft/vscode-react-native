@@ -30,8 +30,11 @@ export class ProjectVersionHelper {
     public static getReactNativeVersions(
         projectRoot: string,
         additionalPackagesToCheck?: ParsedPackage[],
+        nodeModulesRoot?: string,
     ): Promise<RNPackageVersions> {
-        const nodeModulesRoot: string = AppLauncher.getNodeModulesRootByProjectPath(projectRoot);
+        if (!nodeModulesRoot) {
+            nodeModulesRoot = AppLauncher.getNodeModulesRootByProjectPath(projectRoot);
+        }
         return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
             nodeModulesRoot,
             additionalPackagesToCheck,

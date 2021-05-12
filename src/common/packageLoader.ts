@@ -120,16 +120,13 @@ export default class PackageLoader {
         if (!this.isCommandsExecuting) {
             this.isCommandsExecuting = true;
 
-            const currentWorkingDirectory: string = path.dirname(
+            const extensionDirectory: string = path.dirname(
                 findFileInFolderHierarchy(__dirname, "package.json") || __dirname,
-            );
-            const nodeModulesRoot: string = AppLauncher.getNodeModulesRootByProjectPath(
-                currentWorkingDirectory,
             );
 
             const commandExecutor = new CommandExecutor(
-                nodeModulesRoot,
-                currentWorkingDirectory,
+                path.join(extensionDirectory, "node_modules"),
+                extensionDirectory,
                 this.logger,
             );
             while (this.packagesQueue.length) {

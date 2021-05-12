@@ -19,11 +19,13 @@ export class ReactNativeProjectHelper {
         if (!projectRoot || !fs.existsSync(path.join(projectRoot, "package.json"))) {
             return Promise.resolve(false);
         }
-        return ProjectVersionHelper.getReactNativeVersionsFromProjectPackage(projectRoot).then(
-            versions => {
-                return !ProjectVersionHelper.isVersionError(versions.reactNativeVersion);
-            },
-        );
+        return ProjectVersionHelper.getReactNativeVersions(
+            projectRoot,
+            undefined,
+            projectRoot,
+        ).then(versions => {
+            return !ProjectVersionHelper.isVersionError(versions.reactNativeVersion);
+        });
     }
 
     public static isHaulProject(projectRoot: string): boolean {
