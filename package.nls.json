@@ -1,6 +1,7 @@
 {
   "reactNative.description": "Debugging and integrated commands for React Native",
   "reactNative.license": "SEE LICENSE IN LICENSE.txt",
+  "reactNative.workspaceTrust.description": "Trust is required to debug code in this workspace.",
   "reactNative.command.launchAndroidSimulator.title": "Launch Android Emulator",
   "reactNative.command.selectAndInsertDebugConfiguration.title": "Select a React Native debug configuration",
   "reactNative.command.runAndroidSimulator.title": "Run Android on Emulator",
