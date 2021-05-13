@@ -135,12 +135,13 @@ export function startExpoTests(
             SmokeTestLogger.info(`${testName}: Starting debugging`);
             // Scan logs only if launch retries provided (Expo Tunnel scenarios)
             if (triesToLaunchApp <= 1) {
+                await automationHelper.runCommandWithRetry("Output: Focus on Output View");
                 await automationHelper.runDebugScenarioWithRetry(debugConfigName);
             } else {
                 for (let retry = 1; retry <= triesToLaunchApp; retry++) {
                     let expoLaunchStatus: ExpoLaunch;
-                    await automationHelper.runDebugScenarioWithRetry(debugConfigName);
                     await automationHelper.runCommandWithRetry("Output: Focus on Output View");
+                    await automationHelper.runDebugScenarioWithRetry(debugConfigName);
                     expoLaunchStatus = await findExpoSuccessAndFailurePatterns(
                         logFilePath,
                         ExpoSuccessPattern,
