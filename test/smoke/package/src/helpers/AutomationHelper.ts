@@ -108,14 +108,28 @@ export default class AutomationHelper {
         pollRetryInterval: number = 1000,
         beforeWaitForStackFrame?: () => Promise<any>,
     ): Promise<any> {
+        let stackFrame: IStackFrame;
         const fun = async () => {
             if (beforeWaitForStackFrame) {
                 await beforeWaitForStackFrame();
             }
-            await this.app.workbench.debug.waitForStackFrame(func, message);
+            // We cant find stack frame if Debug viewlet did not opened
+            await this.app.workbench.debug.openDebugViewlet();
+            await this.app.workbench.debug.waitForStackFrame((sf: IStackFrame) => {
+                stackFrame = sf;
+                return func(sf);
+            }, message);
         };
-        const catchFun = async () =>
+        const catchFun = async () => {
+            // Sometimes, when you start debugging,
+            // the first breakpoint is triggered in some other 'js' file
+            // that is not related to the testing project.
+            // Click 'continue' to workaround this error.
+            if (stackFrame && !func(stackFrame)) {
+                await this.app.workbench.debug.continue();
+            }
             await this.runCommandWithRetry(SmokeTestsConstants.reloadAppCommand);
+        };
         await this.retryWithSpecifiedPollRetryParameters(
             fun,
             retryCount,
