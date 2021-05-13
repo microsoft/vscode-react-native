@@ -18,6 +18,7 @@ import {
     retrieveStringsFromLogFileWithTimeout,
 } from "./helpers/utilities";
 import { androidEmulatorManager, iosSimulatorManager, vscodeManager } from "./main";
+import AutomationHelper from "./helpers/AutomationHelper";
 
 const RunNetworkInspectorCommand = "Run Network Inspector";
 const StopNetworkInspectorCommand = "Stop Network Inspector";
@@ -48,6 +49,17 @@ export function startNetworkInspectorTests(
         let app: Application;
         let client: AppiumClient | null;
         let expressServerProcess: cp.ChildProcess | null;
+        let automationHelper: AutomationHelper;
+
+        async function initApp(
+            workspaceOrFolder: string,
+            sessionName?: string,
+            locale?: string,
+        ): Promise<Application> {
+            app = await vscodeManager.runVSCode(workspaceOrFolder, sessionName, locale);
+            automationHelper = new AutomationHelper(app);
+            return app;
+        }
 
         async function disposeAll() {
             SmokeTestLogger.info("Dispose all ...");
@@ -56,11 +68,11 @@ export function startNetworkInspectorTests(
                 expressServerProcess = null;
             }
             SmokeTestLogger.info("Stopping Network inspector");
-            await app.workbench.quickaccess.runCommand(StopNetworkInspectorCommand);
+            await automationHelper.runCommandWithRetry(StopNetworkInspectorCommand);
             await sleep(3000);
             if (app) {
                 SmokeTestLogger.info("Stopping React Native packager ...");
-                await app.workbench.quickaccess.runCommand(SmokeTestsConstants.stopPackagerCommand);
+                await automationHelper.runCommandWithRetry(SmokeTestsConstants.stopPackagerCommand);
                 await sleep(3000);
                 await app.stop();
             }
@@ -119,7 +131,7 @@ export function startNetworkInspectorTests(
                 return assert.fail(`Passed unsupported platform: ${platform}`);
             }
 
-            app = await vscodeManager.runVSCode(project.workspaceDirectory, testname);
+            app = await initApp(project.workspaceDirectory, testname);
             const runApplicationCommand =
                 platform === Platform.Android
                     ? RunAndroidOnEmulatorCommand
@@ -127,7 +139,7 @@ export function startNetworkInspectorTests(
             SmokeTestLogger.info(
                 `${testname}: Launching the application on an ${platform} emulator via the command ${runApplicationCommand}`,
             );
-            await app.workbench.quickaccess.runCommand(runApplicationCommand);
+            await automationHelper.runCommandWithRetry(runApplicationCommand);
             let appiumOpts: any;
             switch (platform) {
                 case Platform.Android: {
@@ -165,7 +177,7 @@ export function startNetworkInspectorTests(
 
             AndroidEmulatorManager.adbReversePort(ExpressServerPort);
             SmokeTestLogger.info(`${testname}: Starting Network inspector`);
-            await app.workbench.quickaccess.runCommand(RunNetworkInspectorCommand);
+            await automationHelper.runCommandWithRetry(RunNetworkInspectorCommand);
             let logFilePath = "";
             if (process.env.REACT_NATIVE_TOOLS_LOGS_DIR) {
                 logFilePath = path.join(
