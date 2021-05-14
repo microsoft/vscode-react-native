@@ -355,7 +355,9 @@ export class AppiumHelper {
                 testButton = await client.$(`//XCUIElementTypeButton[@name="${testButtonName}"]`);
                 break;
         }
-        await waitUntil(() => testButton.isDisplayed());
+        await testButton.waitForExist({
+            timeout: SmokeTestsConstants.waitForElementTimeout,
+        });
         await testButton.click();
     }
 
