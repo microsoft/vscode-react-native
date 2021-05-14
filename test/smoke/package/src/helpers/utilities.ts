@@ -81,7 +81,7 @@ export function isLoggedInExpo(): boolean {
     const loggedInPattern = /Logged in as \w+$/g;
     const unloggedPattern = "Not logged in";
     const command = "expo w";
-    const commandResult = execSync(command);
+    const commandResult = execSync(command, { cwd: __dirname });
     if (commandResult.indexOf(unloggedPattern) !== -1) {
         SmokeTestLogger.warn(`Expo account is not logged in`);
         return false;
@@ -104,7 +104,7 @@ export function execSync(
     options?: cp.ExecSyncOptions | undefined,
     logFilePath?: string,
 ): string {
-    options = Object.assign(options, { stdio: "pipe" });
+    options = Object.assign(options ? options : { cwd: __dirname }, { stdio: "pipe" });
     let output = "";
     try {
         output = cp.execSync(command, options).toString();

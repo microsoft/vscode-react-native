@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { sleep, smokeTestFail } from "./helpers/utilities";
+import { isLoggedInExpo, sleep, smokeTestFail } from "./helpers/utilities";
 import * as path from "path";
 import AndroidEmulatorManager from "./helpers/androidEmulatorManager";
 import { AppiumHelper } from "./helpers/appiumHelper";
@@ -18,6 +18,8 @@ import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 if (parseInt(process.version.substr(1), 10) < 10) {
     smokeTestFail("Please update your Node version to greater than 10 to run the smoke test.");
 }
+
+isLoggedInExpo();
 
 //Paths
 const repoRoot = path.join(__dirname, "..", "..", "..", "..", "..", "..");
