@@ -6,7 +6,7 @@ import * as path from "path";
 import { Application } from "../../automation";
 import { AppiumClient, AppiumHelper, Platform } from "./helpers/appiumHelper";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
-import { findFile, findStringInFile, sleep, waitUntil } from "./helpers/utilities";
+import { findFile, findStringInFile, isLoggedInExpo, sleep, waitUntil } from "./helpers/utilities";
 import { androidEmulatorManager, iosSimulatorManager, vscodeManager } from "./main";
 import { TestRunArguments } from "./helpers/testConfigProcessor";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
@@ -317,6 +317,10 @@ export function startExpoTests(
             });
 
             it("Android Expo app Debug test(Tunnel)", async function () {
+                if (!isLoggedInExpo()) {
+                    SmokeTestLogger.warn("To successfully pass the Expo Tunnel test, you must be logged in Expo");
+                    this.skip();
+                }
                 this.timeout(debugExpoTestTime);
                 await expoTest(
                     expoProject,
@@ -363,6 +367,10 @@ export function startExpoTests(
             });
 
             it("iOS Expo app Debug test(Tunnel)", async function () {
+                if (!isLoggedInExpo()) {
+                    SmokeTestLogger.warn("To successfully pass the Expo Tunnel test, you must be logged in Expo");
+                    this.skip();
+                }
                 this.timeout(debugExpoTestTime);
                 await expoTest(
                     expoProject,
