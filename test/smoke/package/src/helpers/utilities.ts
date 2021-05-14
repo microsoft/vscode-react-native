@@ -78,6 +78,8 @@ export function spawnSync(command: string, args?: string[], options?: SpawnSyncO
 }
 
 export function isLoggedInExpo(): boolean {
+    const loggedInPattern = /Logged in as \w+$/g;
+    const loginPattern = /\w+$/g;
     const unloggedPattern = "Not logged in";
     const command = "expo w";
     const commandResult = execSync(command, { cwd: __dirname });
@@ -85,8 +87,23 @@ export function isLoggedInExpo(): boolean {
         SmokeTestLogger.warn(`Expo account is not logged in`);
         return false;
     }
-    SmokeTestLogger.success(`Logged in Expo as ${commandResult}`);
-    return true;
+    let matches = commandResult.match(loggedInPattern);
+    if (matches && matches.length) {
+        const tmp = matches[0].split(" ");
+        const login = tmp[tmp.length - 1];
+        SmokeTestLogger.success(`Logged in Expo as ${login}`);
+        return true;
+    }
+    matches = commandResult.match(loginPattern);
+    if (matches && matches.length) {
+        const login = matches[0];
+        SmokeTestLogger.success(`Logged in Expo as ${login}`);
+        return true;
+    }
+    SmokeTestLogger.error(
+        `There is unrecognize command '${command}' result. Output of command: ${commandResult}`,
+    );
+    return false;
 }
 
 export function execSync(
