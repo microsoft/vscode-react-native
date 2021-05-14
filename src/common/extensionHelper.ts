@@ -3,6 +3,7 @@
 
 import * as path from "path";
 import * as fs from "fs";
+import * as vscode from "vscode";
 
 export function getExtensionVersion(): string | null {
     const packageJsonPath = findFileInFolderHierarchy(__dirname, "package.json");
@@ -54,4 +55,11 @@ export function getNodeModulesInFolderHierarhy(projectRoot: string): string | nu
         pathToReactNativeModule,
     );
     return nodeModulesPath ? path.resolve(nodeModulesPath, "..", "..") : null;
+}
+
+export function isWorkspaceTrusted() {
+    if (typeof (vscode.workspace as any).isTrusted === "boolean") {
+        return (vscode.workspace as any).isTrusted;
+    }
+    return true;
 }

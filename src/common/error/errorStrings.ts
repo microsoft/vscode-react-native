@@ -270,6 +270,10 @@ export const ERROR_STRINGS = {
         "CancellationTokenTriggered",
         "Operation canceled",
     ),
+    [InternalErrorCode.WorkspaceIsNotTrusted]: localize(
+        "WorkspaceIsNotTrusted",
+        'The workspace by the project path "{0}" should be trusted to use "{1}"',
+    ),
     [InternalErrorCode.DebuggingWontWorkReloadJSAndReconnect]: localize(
         "DebuggingWontWorkReloadJSAndReconnect",
         "{0}. Debugging won't work: Try reloading the JS from inside the app, or Reconnect the VS Code debugger",
