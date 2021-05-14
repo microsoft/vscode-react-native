@@ -78,8 +78,8 @@ export function spawnSync(command: string, args?: string[], options?: SpawnSyncO
 }
 
 export function isLoggedInExpo(): boolean {
-    const loggedInPattern = /Logged in as \w+$/g;
-    const loginPattern = /\w+$/g;
+    const loggedInPattern = /Logged in as \w+\s?$/g;
+    const loginPattern = /\w+\s?$/g;
     const unloggedPattern = "Not logged in";
     const command = "expo w";
     const commandResult = execSync(command, { cwd: __dirname });
