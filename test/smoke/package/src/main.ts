@@ -19,8 +19,6 @@ if (parseInt(process.version.substr(1), 10) < 10) {
     smokeTestFail("Please update your Node version to greater than 10 to run the smoke test.");
 }
 
-isLoggedInExpo();
-
 //Paths
 const repoRoot = path.join(__dirname, "..", "..", "..", "..", "..", "..");
 const envConfigFilePath = path.resolve(__dirname, "..", SmokeTestsConstants.EnvConfigFileName);
