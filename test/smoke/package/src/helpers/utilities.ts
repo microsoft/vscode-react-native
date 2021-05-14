@@ -93,7 +93,9 @@ export function isLoggedInExpo(): boolean {
         SmokeTestLogger.success(`Logged in Expo as ${login}`);
         return true;
     }
-    SmokeTestLogger.error(`There is unrecognize command '${command}' result. Output of command: ${commandResult}`);
+    SmokeTestLogger.error(
+        `There is unrecognize command '${command}' result. Output of command: ${commandResult}`,
+    );
     return false;
 }
 
