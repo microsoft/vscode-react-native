@@ -198,13 +198,7 @@ export function startNetworkInspectorTests(
             SmokeTestLogger.info(
                 `${testname}: an ${platform} emulator is connected to the Network inspector`,
             );
-            await sleep(5000);
-            try {
-                await AppiumHelper.clickTestButton(client, TestNetworkButtonName, platform);
-            } catch (err) {
-                await sleep(3000);
-                await AppiumHelper.clickTestButton(client, TestNetworkButtonName, platform);
-            }
+            await AppiumHelper.clickTestButton(client, TestNetworkButtonName, platform);
             SmokeTestLogger.info(
                 `${testname}: searching for the post request pattern in Network inspector log file...`,
             );
