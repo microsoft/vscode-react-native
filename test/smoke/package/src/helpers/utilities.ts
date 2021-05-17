@@ -82,7 +82,7 @@ export function isLoggedInExpo(): boolean {
     const unloggedPattern = "Not logged in";
     const command = "expo w";
     const commandResult = execSync(command);
-    if (commandResult.indexOf(unloggedPattern) !== -1) {
+    if (commandResult.includes(unloggedPattern)) {
         SmokeTestLogger.warn(`Expo account is not logged in`);
         return false;
     }
