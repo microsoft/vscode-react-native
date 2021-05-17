@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { isLoggedInExpo, sleep, smokeTestFail } from "./helpers/utilities";
+import { sleep, smokeTestFail } from "./helpers/utilities";
 import * as path from "path";
 import AndroidEmulatorManager from "./helpers/androidEmulatorManager";
 import { AppiumHelper } from "./helpers/appiumHelper";
