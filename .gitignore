@@ -2,6 +2,7 @@
 node_modules/
 .vscode-test/
 coverage/
+.nyc_output/
 .idea
 out
 src/**/nodeDebugLocation.json
