@@ -318,10 +318,9 @@ export function startExpoTests(
 
             it("Android Expo app Debug test(Tunnel)", async function () {
                 if (!isLoggedInExpo()) {
-                    SmokeTestLogger.warn(
-                        "To successfully pass the Expo Tunnel test, you must be logged in Expo",
+                    assert.fail(
+                        "It seems you are not currently logged into Expo account. To successfully pass this test, you must be logged into Expo account",
                     );
-                    this.skip();
                 }
                 this.timeout(debugExpoTestTime);
                 await expoTest(
@@ -370,10 +369,9 @@ export function startExpoTests(
 
             it("iOS Expo app Debug test(Tunnel)", async function () {
                 if (!isLoggedInExpo()) {
-                    SmokeTestLogger.warn(
-                        "To successfully pass the Expo Tunnel test, you must be logged in Expo",
+                    assert.fail(
+                        "It seems you are not currently logged into Expo account. To successfully pass this test, you must be logged into Expo account",
                     );
-                    this.skip();
                 }
                 this.timeout(debugExpoTestTime);
                 await expoTest(
