@@ -6,8 +6,9 @@
 import * as path from "path";
 import * as Mocha from "mocha";
 import * as glob from "glob";
+import NYCPackage from "nyc";
 
-function setupCoverage() {
+function setupCoverage(): NYCPackage {
     const NYC = require("nyc");
     const nyc = new NYC({
         cwd: path.join(__dirname, ".."),
@@ -74,5 +75,6 @@ export function run(): Promise<void> {
             nyc.writeCoverageFile();
             return nyc.report();
         }
+        return void 0;
     });
 }
