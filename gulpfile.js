@@ -255,7 +255,7 @@ async function test(inspectCodeCoverage = false) {
         console.log(extensionTestsPath);
         // Download VS Code, unzip it and run the integration test
 
-        let testOptions = {
+        const testOptions = {
             extensionDevelopmentPath,
             extensionTestsPath,
             version: vscodeVersionForTests,
