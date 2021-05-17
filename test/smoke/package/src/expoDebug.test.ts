@@ -135,13 +135,13 @@ export function startExpoTests(
             SmokeTestLogger.info(`${testName}: Starting debugging`);
             // Scan logs only if launch retries provided (Expo Tunnel scenarios)
             if (triesToLaunchApp <= 1) {
-                await automationHelper.runCommandWithRetry("Output: Focus on Output View");
                 await automationHelper.runDebugScenarioWithRetry(debugConfigName);
+                await automationHelper.runCommandWithRetry("Output: Focus on Output View");
             } else {
                 for (let retry = 1; retry <= triesToLaunchApp; retry++) {
                     let expoLaunchStatus: ExpoLaunch;
-                    await automationHelper.runCommandWithRetry("Output: Focus on Output View");
                     await automationHelper.runDebugScenarioWithRetry(debugConfigName);
+                    await automationHelper.runCommandWithRetry("Output: Focus on Output View");
                     expoLaunchStatus = await findExpoSuccessAndFailurePatterns(
                         logFilePath,
                         ExpoSuccessPattern,
@@ -317,12 +317,10 @@ export function startExpoTests(
             });
 
             it("Android Expo app Debug test(Tunnel)", async function () {
-                if (!isLoggedInExpo()) {
-                    assert.fail(
-                        "It seems you are not currently logged into Expo account. To successfully pass this test, you must be logged into Expo account",
-                    );
-                }
                 this.timeout(debugExpoTestTime);
+                if (!isLoggedInExpo()) {
+                    assert.fail(SmokeTestsConstants.expoLogginError);
+                }
                 await expoTest(
                     expoProject,
                     "Android Expo Debug test(Tunnel)",
@@ -368,12 +366,10 @@ export function startExpoTests(
             });
 
             it("iOS Expo app Debug test(Tunnel)", async function () {
-                if (!isLoggedInExpo()) {
-                    assert.fail(
-                        "It seems you are not currently logged into Expo account. To successfully pass this test, you must be logged into Expo account",
-                    );
-                }
                 this.timeout(debugExpoTestTime);
+                if (!isLoggedInExpo()) {
+                    assert.fail(SmokeTestsConstants.expoLogginError);
+                }
                 await expoTest(
                     expoProject,
                     "iOS Expo Debug test(Tunnel)",
