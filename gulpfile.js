@@ -3,8 +3,6 @@
 
 const gulp = require("gulp");
 const log = require("fancy-log");
-const istanbul = require("gulp-istanbul");
-const isparta = require("isparta");
 const sourcemaps = require("gulp-sourcemaps");
 const path = require("path");
 const preprocess = require("gulp-preprocess");
@@ -15,7 +13,6 @@ const minimist = require("minimist");
 const os = require("os");
 const fs = require("fs");
 const es = require("event-stream");
-const remapIstanbul = require("remap-istanbul/lib/gulpRemapIstanbul");
 const nls = require("vscode-nls-dev");
 const webpack = require("webpack");
 const TerserPlugin = require("terser-webpack-plugin");
@@ -33,6 +30,8 @@ const tsProject = ts.createProject("tsconfig.json");
  * Whether we're running a nightly build.
  */
 const isNightly = process.argv.includes("--nightly");
+
+const vscodeVersionForTests = "1.48.0";
 
 const fullExtensionName = isNightly
     ? "msjsdiag.vscode-react-native-preview"
@@ -237,7 +236,7 @@ function build(failOnError, buildNls) {
         });
 }
 
-async function test() {
+async function test(inspectCodeCoverage = false) {
     // Check if arguments were passed
     if (options.pattern) {
         log(`\nTesting cases that match pattern: ${options.pattern}`);
@@ -255,10 +254,21 @@ async function test() {
         const extensionTestsPath = path.resolve(__dirname, "test", "index");
         console.log(extensionTestsPath);
         // Download VS Code, unzip it and run the integration test
-        await vscodeTest.runTests({
+
+        const testOptions = {
             extensionDevelopmentPath,
             extensionTestsPath,
-        });
+            version: vscodeVersionForTests,
+        };
+
+        // Activate inspection of code coverage with unit tests
+        if (inspectCodeCoverage) {
+            testOptions.extensionTestsEnv = {
+                COVERAGE: "true",
+            };
+        }
+
+        await vscodeTest.runTests(testOptions);
     } catch (err) {
         console.error(err);
         console.error("Failed to run tests");
@@ -398,52 +408,13 @@ gulp.task("default", gulp.series("prod-build"));
 
 gulp.task("test", gulp.series("build", "lint", test));
 
-gulp.task("coverage:instrument", () => {
-    return (
-        gulp
-            .src(["src/**/*.js", "!test/**"])
-            .pipe(
-                istanbul({
-                    // Use the isparta instrumenter (code coverage for ES6)
-                    instrumenter: isparta.Instrumenter,
-                    includeUntested: true,
-                }),
-            )
-            // Force `require` to return covered files
-            .pipe(istanbul.hookRequire())
-    );
-});
-
-gulp.task("coverage:report", () => {
-    return gulp.src(["src/**/*.js", "!test/**"], { read: false }).pipe(
-        istanbul.writeReports({
-            reporters: ["json", "text-summary"],
-        }),
-    );
-});
-
-gulp.task("coverage:remap", () => {
-    return gulp.src("coverage/coverage-final.json").pipe(
-        remapIstanbul({
-            reports: {
-                json: "coverage/coverage.json",
-                html: "coverage/html-report",
-            },
-        }),
-    );
-});
-
 gulp.task("test-no-build", test);
 
 gulp.task(
     "test:coverage",
-    gulp.series(
-        "quick-build",
-        "coverage:instrument",
-        "test-no-build",
-        "coverage:report",
-        "coverage:remap",
-    ),
+    gulp.series("quick-build", async function () {
+        await test(true);
+    }),
 );
 
 gulp.task(
