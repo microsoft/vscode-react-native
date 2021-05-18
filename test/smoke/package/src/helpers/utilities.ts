@@ -100,7 +100,7 @@ export function isLoggedInExpo(): boolean {
 
 export function execSync(
     command: string,
-    options: cp.ExecSyncOptions = { cwd: __dirname },
+    options: cp.ExecSyncOptions = {},
     logFilePath?: string,
 ): string {
     options = Object.assign(options, { stdio: "pipe" });

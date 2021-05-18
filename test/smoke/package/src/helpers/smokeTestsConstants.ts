@@ -120,7 +120,4 @@ export class SmokeTestsConstants {
     public static NetworkInspectorLogFileName = "NetworkInspector.txt";
     // Expo client app Android package name
     public static expoPackageName = "host.exp.exponent";
-    // Error message for case then machine is not logged into Expo account
-    public static expoLogginError =
-        "It seems you are not currently logged into Expo account. To successfully pass this test, you must be logged into Expo account";
 }

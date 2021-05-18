@@ -27,6 +27,8 @@ const ExpoLocalDebugConfigName = "Debug in Exponent (Local)";
 const ExpoSetBreakpointOnLine = 1;
 // Time for Android Expo Debug Test before it reaches timeout
 const debugExpoTestTime = SmokeTestsConstants.expoTestTimeout;
+const expoLogginErrorMessage =
+    "It seems you are not currently logged into Expo account. To successfully pass this test, you must be logged into Expo account";
 
 interface ExpoLaunch {
     successful: boolean;
@@ -319,7 +321,7 @@ export function startExpoTests(
             it("Android Expo app Debug test(Tunnel)", async function () {
                 this.timeout(debugExpoTestTime);
                 if (!isLoggedInExpo()) {
-                    assert.fail(SmokeTestsConstants.expoLogginError);
+                    assert.fail(expoLogginErrorMessage);
                 }
                 await expoTest(
                     expoProject,
@@ -368,7 +370,7 @@ export function startExpoTests(
             it("iOS Expo app Debug test(Tunnel)", async function () {
                 this.timeout(debugExpoTestTime);
                 if (!isLoggedInExpo()) {
-                    assert.fail(SmokeTestsConstants.expoLogginError);
+                    assert.fail(expoLogginErrorMessage);
                 }
                 await expoTest(
                     expoProject,
