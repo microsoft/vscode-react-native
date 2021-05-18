@@ -86,7 +86,7 @@ export function isLoggedInExpo(): boolean {
         SmokeTestLogger.warn(`Expo account is not logged in`);
         return false;
     }
-    let matches = commandResult.match(loginPattern);
+    const matches = commandResult.match(loginPattern);
     if (matches && matches.length) {
         const login = matches[0].trim();
         SmokeTestLogger.success(`Logged in Expo as ${login}`);
