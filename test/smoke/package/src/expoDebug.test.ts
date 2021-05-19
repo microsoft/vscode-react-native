@@ -6,7 +6,7 @@ import * as path from "path";
 import { Application } from "../../automation";
 import { AppiumClient, AppiumHelper, Platform } from "./helpers/appiumHelper";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
-import { findFile, findStringInFile, sleep, waitUntil } from "./helpers/utilities";
+import { findFile, findStringInFile, isLoggedInExpo, sleep, waitUntil } from "./helpers/utilities";
 import { androidEmulatorManager, iosSimulatorManager, vscodeManager } from "./main";
 import { TestRunArguments } from "./helpers/testConfigProcessor";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
@@ -27,6 +27,8 @@ const ExpoLocalDebugConfigName = "Debug in Exponent (Local)";
 const ExpoSetBreakpointOnLine = 1;
 // Time for Android Expo Debug Test before it reaches timeout
 const debugExpoTestTime = SmokeTestsConstants.expoTestTimeout;
+const expoLogginErrorMessage =
+    "It seems you are not currently logged into Expo account. To successfully pass this test, you must be logged into Expo account";
 
 interface ExpoLaunch {
     successful: boolean;
@@ -136,6 +138,7 @@ export function startExpoTests(
             // Scan logs only if launch retries provided (Expo Tunnel scenarios)
             if (triesToLaunchApp <= 1) {
                 await automationHelper.runDebugScenarioWithRetry(debugConfigName);
+                await automationHelper.runCommandWithRetry("Output: Focus on Output View");
             } else {
                 for (let retry = 1; retry <= triesToLaunchApp; retry++) {
                     let expoLaunchStatus: ExpoLaunch;
@@ -317,6 +320,9 @@ export function startExpoTests(
 
             it("Android Expo app Debug test(Tunnel)", async function () {
                 this.timeout(debugExpoTestTime);
+                if (!isLoggedInExpo()) {
+                    assert.fail(expoLogginErrorMessage);
+                }
                 await expoTest(
                     expoProject,
                     "Android Expo Debug test(Tunnel)",
@@ -363,6 +369,9 @@ export function startExpoTests(
 
             it("iOS Expo app Debug test(Tunnel)", async function () {
                 this.timeout(debugExpoTestTime);
+                if (!isLoggedInExpo()) {
+                    assert.fail(expoLogginErrorMessage);
+                }
                 await expoTest(
                     expoProject,
                     "iOS Expo Debug test(Tunnel)",

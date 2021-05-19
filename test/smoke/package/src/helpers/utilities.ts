@@ -77,9 +77,30 @@ export function spawnSync(command: string, args?: string[], options?: SpawnSyncO
     }
 }
 
+export function isLoggedInExpo(): boolean {
+    const loginPattern = /^\w+\s?$/g;
+    const unloggedPattern = "Not logged in";
+    const command = "expo w";
+    const commandResult = execSync(command);
+    if (commandResult.includes(unloggedPattern)) {
+        SmokeTestLogger.warn(`Expo account is not logged in`);
+        return false;
+    }
+    const matches = commandResult.match(loginPattern);
+    if (matches && matches.length) {
+        const login = matches[0].trim();
+        SmokeTestLogger.success(`Logged in Expo as ${login}`);
+        return true;
+    }
+    SmokeTestLogger.error(
+        `There is an unrecognized command '${command}' result. Output of command: ${commandResult}`,
+    );
+    return false;
+}
+
 export function execSync(
     command: string,
-    options?: cp.ExecSyncOptions | undefined,
+    options: cp.ExecSyncOptions = {},
     logFilePath?: string,
 ): string {
     options = Object.assign(options, { stdio: "pipe" });

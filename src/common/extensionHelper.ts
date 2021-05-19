@@ -57,7 +57,7 @@ export function getNodeModulesInFolderHierarhy(projectRoot: string): string | nu
     return nodeModulesPath ? path.resolve(nodeModulesPath, "..", "..") : null;
 }
 
-export function isWorkspaceTrusted() {
+export function isWorkspaceTrusted(): boolean {
     if (typeof (vscode.workspace as any).isTrusted === "boolean") {
         return (vscode.workspace as any).isTrusted;
     }
