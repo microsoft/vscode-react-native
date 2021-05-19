@@ -64,12 +64,7 @@ export class DirectDebugSession extends DebugSessionBase {
                         `Launching the application: ${JSON.stringify(launchArgs, null, 2)}`,
                     );
 
-                    return ProjectVersionHelper.getReactNativeVersions(
-                        launchArgs.cwd,
-                        ProjectVersionHelper.generateAdditionalPackagesToCheckByPlatform(
-                            launchArgs,
-                        ),
-                    );
+                    return ProjectVersionHelper.getReactNativeVersions(launchArgs.cwd);
                 })
                 .then(versions => {
                     extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(
@@ -134,12 +129,7 @@ export class DirectDebugSession extends DebugSessionBase {
                     logger.verbose(
                         `Attaching to the application: ${JSON.stringify(attachArgs, null, 2)}`,
                     );
-                    return ProjectVersionHelper.getReactNativeVersions(
-                        attachArgs.cwd,
-                        ProjectVersionHelper.generateAdditionalPackagesToCheckByPlatform(
-                            attachArgs,
-                        ),
-                    );
+                    return ProjectVersionHelper.getReactNativeVersions(attachArgs.cwd);
                 })
                 .then(versions => {
                     extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(

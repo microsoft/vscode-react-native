@@ -8,7 +8,6 @@ import { Node } from "../../src/common/node/node";
 import * as assert from "assert";
 import * as path from "path";
 import * as fs from "fs";
-import { ParsedPackage } from "../../src/common/reactNativeProjectHelper";
 
 suite("projectVersionHelper", function () {
     const sampleReactNative022ProjectDir = path.join(
@@ -19,14 +18,8 @@ suite("projectVersionHelper", function () {
     );
 
     test("getReactNativeVersionsFromProjectPackage should return object containing version strings if 'version' field is found in project's package.json file", () => {
-        let additionalPackages: ParsedPackage[] = [];
-        additionalPackages.push({
-            packageName: "react-native-windows",
-            useSemverCoerce: false,
-        });
         return ProjectVersionHelper.getReactNativeVersionsFromProjectPackage(
             sampleReactNative022ProjectDir,
-            additionalPackages,
         ).then(versions => {
             assert.strictEqual(versions.reactNativeVersion, "0.22.2");
             assert.strictEqual(versions.reactNativeWindowsVersion, "0.60.0-vnext.68");
@@ -49,14 +42,8 @@ suite("projectVersionHelper", function () {
         });
 
         test("getReactNativeVersionsFromProjectPackage should return containing empty version strings if 'version' field isn't found in project's package.json file", () => {
-            let additionalPackages: ParsedPackage[] = [];
-            additionalPackages.push({
-                packageName: "react-native-windows",
-                useSemverCoerce: false,
-            });
             return ProjectVersionHelper.getReactNativeVersionsFromProjectPackage(
                 sampleReactNative022ProjectDir,
-                additionalPackages,
             ).then(versions => {
                 assert.strictEqual(
                     versions.reactNativeVersion,
@@ -112,14 +99,8 @@ suite("projectVersionHelper", function () {
                 JSON.stringify(reactNativeWindowsVersionObj, null, 2),
             );
 
-            let additionalPackages: ParsedPackage[] = [];
-            additionalPackages.push({
-                packageName: "react-native-windows",
-                useSemverCoerce: false,
-            });
             ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
                 sampleReactNative022ProjectDir,
-                additionalPackages,
             ).then(versions => {
                 assert.strictEqual(versions.reactNativeVersion, "0.20.0");
                 assert.strictEqual(versions.reactNativeWindowsVersion, "0.60.0-vnext.68");

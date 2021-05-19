@@ -8,7 +8,7 @@ import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { ParsedPackage } from "./reactNativeProjectHelper";
 import { RN_VERSION_ERRORS } from "./error/versionError";
-import { ILaunchArgs, PlatformType } from "../extension/launchArgs";
+import { ExtensionConfigManager } from "../extension/extensionConfigManager";
 
 export interface PackageVersion {
     [packageName: string]: string;
@@ -26,54 +26,31 @@ export class ProjectVersionHelper {
         return ["0.54.0", "0.54.1", "0.54.2", "0.54.3", "0.54.4"];
     }
 
-    public static getReactNativeVersions(
-        projectRoot: string,
-        additionalPackagesToCheck?: ParsedPackage[],
-    ): Promise<RNPackageVersions> {
-        return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
-            projectRoot,
-            additionalPackagesToCheck,
-        ).catch(() => {
-            return ProjectVersionHelper.getReactNativeVersionsFromProjectPackage(
-                projectRoot,
-                additionalPackagesToCheck,
-            );
-        });
-    }
-
-    public static generateAdditionalPackagesToCheckByPlatform(args: ILaunchArgs): ParsedPackage[] {
-        let additionalPackages: ParsedPackage[] = [];
-        if (args.platform === PlatformType.Windows) {
-            additionalPackages.push({
-                packageName: "react-native-windows",
-                useSemverCoerce: false,
-            });
-        }
-
-        if (args.platform === PlatformType.macOS) {
-            additionalPackages.push({
-                packageName: "react-native-macos",
-                useSemverCoerce: false,
-            });
-        }
-
-        return additionalPackages;
+    public static getReactNativeVersions(projectRoot: string): Promise<RNPackageVersions> {
+        return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(projectRoot).catch(
+            () => {
+                return ProjectVersionHelper.getReactNativeVersionsFromProjectPackage(projectRoot);
+            },
+        );
     }
 
     public static getReactNativePackageVersionsFromNodeModules(
         projectRoot: string,
-        additionalPackagesToCheck?: ParsedPackage[],
     ): Promise<RNPackageVersions> {
         let parsedPackages: ParsedPackage[] = [
             {
                 packageName: "react-native",
                 useSemverCoerce: true,
             },
+            {
+                packageName: "react-native-windows",
+                useSemverCoerce: false,
+            },
+            {
+                packageName: "react-native-macos",
+                useSemverCoerce: false,
+            },
         ];
-
-        if (additionalPackagesToCheck) {
-            parsedPackages.push(...additionalPackagesToCheck);
-        }
 
         let versionPromises: Promise<PackageVersion>[] = [];
 
@@ -95,6 +72,16 @@ export class ProjectVersionHelper {
                         InternalErrorCode.ReactNativePackageIsNotInstalled,
                     );
                 }
+
+                ExtensionConfigManager.config.set(
+                    "isReactNativeWindows",
+                    !!packageVersions["react-native-windows"].match(/\d/g),
+                );
+                ExtensionConfigManager.config.set(
+                    "isReactNativeMacOS",
+                    !!packageVersions["react-native-macos"].match(/\d/g),
+                );
+
                 return {
                     reactNativeVersion: packageVersions["react-native"],
                     reactNativeWindowsVersion:
@@ -109,18 +96,21 @@ export class ProjectVersionHelper {
 
     public static getReactNativeVersionsFromProjectPackage(
         cwd: string,
-        additionalPackagesToCheck?: ParsedPackage[],
     ): Promise<RNPackageVersions> {
         let parsedPackages: ParsedPackage[] = [
             {
                 packageName: "react-native",
                 useSemverCoerce: true,
             },
+            {
+                packageName: "react-native-windows",
+                useSemverCoerce: false,
+            },
+            {
+                packageName: "react-native-macos",
+                useSemverCoerce: false,
+            },
         ];
-
-        if (additionalPackagesToCheck) {
-            parsedPackages.push(...additionalPackagesToCheck);
-        }
 
         const rootProjectPackageJson = new Package(cwd);
 
@@ -155,6 +145,15 @@ export class ProjectVersionHelper {
                                 RN_VERSION_ERRORS.MISSING_DEPENDENCIES_FIELDS_IN_PROJECT_PACKAGE_FILE;
                         }
                     });
+
+                    ExtensionConfigManager.config.set(
+                        "isReactNativeWindows",
+                        !!parsedPackageVersions["react-native-windows"].match(/\d/g),
+                    );
+                    ExtensionConfigManager.config.set(
+                        "isReactNativeMacOS",
+                        !!parsedPackageVersions["react-native-macos"].match(/\d/g),
+                    );
 
                     return {
                         reactNativeVersion: parsedPackageVersions["react-native"],

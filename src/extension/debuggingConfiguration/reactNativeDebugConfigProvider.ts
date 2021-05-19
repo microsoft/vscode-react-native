@@ -8,6 +8,7 @@ import { PlatformType } from "../launchArgs";
 import { IWDPHelper } from "../../debugger/direct/IWDPHelper";
 import { DebugScenarioNameGenerator } from "./debugScenarioNameGenerator";
 import { ILaunchRequestArgs } from "../../debugger/debugSessionBase";
+import { ExtensionConfigManager } from "../extensionConfigManager";
 import {
     DEBUG_TYPES,
     DebugScenarioType,
@@ -172,14 +173,6 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
         {
             label: "Run iOS",
             description: localize("RuniOSConfigDesc", "Run iOS application"),
-        },
-        {
-            label: "Debug Windows",
-            description: localize("DebugWindowsConfigDesc", "Run and debug Windows application"),
-        },
-        {
-            label: "Debug macOS",
-            description: localize("DebugmacOSConfigDesc", "Run and debug macOS application"),
         },
         {
             label: "Attach to packager",
@@ -375,6 +368,27 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             "Pick debug configurations",
         );
         debugConfigPicker.items = this.initialPickConfig;
+        if (
+            ExtensionConfigManager.config.has("isReactNativeWindows") &&
+            !!ExtensionConfigManager.config.get("isReactNativeWindows")
+        ) {
+            debugConfigPicker.items = debugConfigPicker.items.concat({
+                label: "Debug Windows",
+                description: localize(
+                    "DebugWindowsConfigDesc",
+                    "Run and debug Windows application",
+                ),
+            });
+        }
+        if (
+            ExtensionConfigManager.config.has("isReactNativeMacOS") &&
+            !!ExtensionConfigManager.config.get("isReactNativeMacOS")
+        ) {
+            debugConfigPicker.items = debugConfigPicker.items.concat({
+                label: "Debug macOS",
+                description: localize("DebugmacOSConfigDesc", "Run and debug macOS application"),
+            });
+        }
         // QuickPickItem property `picked` doesn't work, so this line will check first item in the list
         // which is supposed to be Debug Android
         debugConfigPicker.selectedItems = [this.initialPickConfig[0]];

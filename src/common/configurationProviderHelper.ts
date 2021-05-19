@@ -14,6 +14,8 @@ import {
     expoHostTypePickConfig,
     shouldUseHermesEngine,
 } from "../extension/debuggingConfiguration/debugConfigTypesAndConstants";
+import { ExtensionConfigManager } from "../extension/extensionConfigManager";
+import { PlatformType } from "../extension/launchArgs";
 import * as nls from "vscode-nls";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -29,6 +31,25 @@ export class ConfigurationProviderHelper {
         step: number,
         totalSteps: number,
     ): Promise<Partial<ILaunchRequestArgs>> {
+        let items: DebugConfigurationQuickPickItem[] = platformTypePickConfig;
+        if (
+            ExtensionConfigManager.config.has("isReactNativeWindows") &&
+            !!ExtensionConfigManager.config.get("isReactNativeWindows")
+        ) {
+            items = items.concat({
+                label: "Windows",
+                type: PlatformType.Windows,
+            });
+        }
+        if (
+            ExtensionConfigManager.config.has("isReactNativeMacOS") &&
+            !!ExtensionConfigManager.config.get("isReactNativeMacOS")
+        ) {
+            items = items.concat({
+                label: "MacOS",
+                type: PlatformType.macOS,
+            });
+        }
         let pick = await input.showQuickPick<
             DebugConfigurationQuickPickItem,
             IQuickPickParameters<DebugConfigurationQuickPickItem>
@@ -37,8 +58,8 @@ export class ConfigurationProviderHelper {
             placeholder: localize("PlatformSelectionPrompt", "Platform to run on"),
             step,
             totalSteps,
-            items: platformTypePickConfig,
-            activeItem: platformTypePickConfig[0],
+            items,
+            activeItem: items[0],
         });
 
         if (!pick) {

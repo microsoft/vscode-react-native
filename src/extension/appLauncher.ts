@@ -214,7 +214,6 @@ export class AppLauncher {
 
             return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
                 mobilePlatformOptions.projectRoot,
-                ProjectVersionHelper.generateAdditionalPackagesToCheckByPlatform(launchArgs),
             )
                 .then(versions => {
                     mobilePlatformOptions.reactNativeVersions = versions;

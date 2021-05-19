@@ -124,12 +124,7 @@ export class RNDebugSession extends DebugSessionBase {
                     logger.verbose(
                         `Attaching to the application: ${JSON.stringify(attachArgs, null, 2)}`,
                     );
-                    return ProjectVersionHelper.getReactNativeVersions(
-                        attachArgs.cwd,
-                        ProjectVersionHelper.generateAdditionalPackagesToCheckByPlatform(
-                            attachArgs,
-                        ),
-                    );
+                    return ProjectVersionHelper.getReactNativeVersions(attachArgs.cwd);
                 })
                 .then(versions => {
                     extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(

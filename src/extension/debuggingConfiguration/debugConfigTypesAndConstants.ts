@@ -40,14 +40,6 @@ export const platformTypeRunPickConfig: DebugConfigurationQuickPickItem[] = [
         label: "iOS",
         type: PlatformType.iOS,
     },
-    {
-        label: "MacOS",
-        type: PlatformType.macOS,
-    },
-    {
-        label: "Windows",
-        type: PlatformType.Windows,
-    },
 ];
 
 export const platformTypeDebugPickConfig: DebugConfigurationQuickPickItem[] = [
