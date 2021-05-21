@@ -195,7 +195,7 @@ The extension provides experimental support of iOS direct debugging. See more in
 
 For now the extension supports iOS direct debugging only on real iOS devices.
 
-To be able to debug an iOS app directly, you need to instal [ios-webkit-debug-proxy](https://github.com/google/ios-webkit-debug-proxy):
+To be able to debug an iOS app directly, you need to install [ios-webkit-debug-proxy](https://github.com/google/ios-webkit-debug-proxy):
 
 - Install [HomeBrew](https://brew.sh) on your Mac.
 - Open a Terminal and run `brew install ideviceinstaller ios-webkit-debug-proxy`
