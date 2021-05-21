@@ -1,3 +1,17 @@
+## 1.5.0
+* Removed support of WPF platform [#1554](https://github.com/microsoft/vscode-react-native/pull/1554)
+* Improved Expo tunnel debugging and set default Expo host type as `lan` [#1556](https://github.com/microsoft/vscode-react-native/pull/1556)
+* Improved iOS direct CDP message handler [#1557](https://github.com/microsoft/vscode-react-native/pull/1557)
+* Added support of "--appIdSuffix" flag for Android apps [#1549](https://github.com/microsoft/vscode-react-native/pull/1549)
+* Implemented Network Inspector feature [#1550](https://github.com/microsoft/vscode-react-native/pull/1550)
+* Improved surface error messages from run-windows command [#1560](https://github.com/microsoft/vscode-react-native/pull/1560)
+* Improved extension security [#1565](https://github.com/microsoft/vscode-react-native/pull/1565)
+* Implemented support of Workspace Trust feature [#1563](https://github.com/microsoft/vscode-react-native/pull/1563)
+* Internal changes:
+    *  Updated code coverage checking functional [#1570](https://github.com/microsoft/vscode-react-native/pull/1570)
+    *  Stabilized Expo smoke tests [#1568](https://github.com/microsoft/vscode-react-native/pull/1568)
+
+
 ## 1.4.2
 * Added support for debugging AppleTV apps, thanks to [Michele Bonazza(@micheleb)](https://github.com/micheleb) [#1498](https://github.com/microsoft/vscode-react-native/pull/1498)
 * Improved extension security [#1538](https://github.com/microsoft/vscode-react-native/pull/1538), [#1527](https://github.com/microsoft/vscode-react-native/pull/1527), [#1547](https://github.com/microsoft/vscode-react-native/pull/1547)
