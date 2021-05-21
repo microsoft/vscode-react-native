@@ -52,61 +52,61 @@
         "command": "reactNative.launchAndroidSimulator",
         "title": "%reactNative.command.launchAndroidSimulator.title%",
         "category": "React Native",
-        "enablement": "isWorkspaceTrusted"
+        "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       },
       {
         "command": "reactNative.runAndroidSimulator",
         "title": "%reactNative.command.runAndroidSimulator.title%",
         "category": "React Native",
-        "enablement": "isWorkspaceTrusted"
+        "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       },
       {
         "command": "reactNative.runAndroidDevice",
         "title": "%reactNative.command.runAndroidDevice.title%",
         "category": "React Native",
-        "enablement": "isWorkspaceTrusted"
+        "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       },
       {
         "command": "reactNative.runIosSimulator",
         "title": "%reactNative.command.runIosSimulator.title%",
         "category": "React Native",
-        "enablement": "isWorkspaceTrusted"
+        "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       },
       {
         "command": "reactNative.runIosDevice",
         "title": "%reactNative.command.runIosDevice.title%",
         "category": "React Native",
-        "enablement": "isWorkspaceTrusted"
+        "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       },
       {
         "command": "reactNative.runExponent",
         "title": "%reactNative.command.runExponent.title%",
         "category": "React Native",
-        "enablement": "isWorkspaceTrusted"
+        "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       },
       {
         "command": "reactNative.startPackager",
         "title": "%reactNative.command.startPackager.title%",
         "category": "React Native",
-        "enablement": "isWorkspaceTrusted"
+        "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       },
       {
         "command": "reactNative.stopPackager",
         "title": "%reactNative.command.stopPackager.title%",
         "category": "React Native",
-        "enablement": "isWorkspaceTrusted"
+        "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       },
       {
         "command": "reactNative.restartPackager",
         "title": "%reactNative.command.restartPackager.title%",
         "category": "React Native",
-        "enablement": "isWorkspaceTrusted"
+        "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       },
       {
         "command": "reactNative.publishToExpHost",
         "title": "%reactNative.command.publishToExpHost.title%",
         "category": "React Native",
-        "enablement": "isWorkspaceTrusted"
+        "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       },
       {
         "command": "reactNative.showDevMenu",
