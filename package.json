@@ -1,7 +1,7 @@
 {
   "name": "vscode-react-native",
   "displayName": "React Native Tools",
-  "version": "1.4.2",
+  "version": "1.5.0",
   "private": true,
   "publisher": "msjsdiag",
   "icon": "images/icon.png",
