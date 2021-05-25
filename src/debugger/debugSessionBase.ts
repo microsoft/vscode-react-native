@@ -159,6 +159,11 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
                         this.projectRootPath = projectRootPath;
                         this.isSettingsInitialized = true;
                         this.appLauncher.getOrUpdateNodeModulesRoot(true);
+                        if (this.session.workspaceFolder) {
+                            this.appLauncher.updateDebugConfigurationRoot(
+                                this.session.workspaceFolder.uri.fsPath,
+                            );
+                        }
                     });
                 },
             );

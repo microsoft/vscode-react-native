@@ -49,6 +49,7 @@ export class AppLauncher {
     private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
     private mobilePlatform: GeneralMobilePlatform;
     private launchScenariosManager: LaunchScenariosManager;
+    private debugConfigurationRoot: string;
     private nodeModulesRoot?: string;
 
     public static getAppLauncherByProjectRootPath(projectRootPath: string): AppLauncher {
@@ -97,7 +98,8 @@ export class AppLauncher {
         this.cdpProxyHostAddress = "127.0.0.1"; // localhost
 
         const rootPath = workspaceFolder.uri.fsPath;
-        this.launchScenariosManager = new LaunchScenariosManager(rootPath);
+        this.debugConfigurationRoot = rootPath;
+        this.launchScenariosManager = new LaunchScenariosManager(this.debugConfigurationRoot);
         const projectRootPath = SettingsHelper.getReactNativeProjectRoot(rootPath);
         this.exponentHelper = new ExponentHelper(rootPath, projectRootPath);
         const packagerStatusIndicator: PackagerStatusIndicator = new PackagerStatusIndicator(
@@ -113,6 +115,13 @@ export class AppLauncher {
         this.reactDirManager = reactDirManager;
         this.workspaceFolder = workspaceFolder;
         this.rnCdpProxy = new ReactNativeCDPProxy(this.cdpProxyHostAddress, this.cdpProxyPort);
+    }
+
+    public updateDebugConfigurationRoot(debugConfigurationRoot: string): void {
+        if (this.debugConfigurationRoot !== debugConfigurationRoot) {
+            this.debugConfigurationRoot = debugConfigurationRoot;
+            this.launchScenariosManager = new LaunchScenariosManager(this.debugConfigurationRoot);
+        }
     }
 
     public getCdpProxyPort(): number {
