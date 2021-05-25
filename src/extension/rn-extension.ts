@@ -254,7 +254,7 @@ export function onFolderAdded(folder: vscode.WorkspaceFolder): Promise<void> {
     let rootPath = folder.uri.fsPath;
     let projectRootPath = SettingsHelper.getReactNativeProjectRoot(rootPath);
     outputChannelLogger.debug(`Add project: ${projectRootPath}`);
-    return ProjectVersionHelper.getReactNativeVersions(
+    return ProjectVersionHelper.tryToGetRNSemverValidVersionsFromProjectPackage(
         projectRootPath,
         undefined,
         projectRootPath,
