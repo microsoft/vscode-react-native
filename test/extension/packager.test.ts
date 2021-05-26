@@ -14,6 +14,9 @@ suite("packager", function () {
         let isExpoAppStub: Sinon.SinonStub;
         let getExpPackagerOptionsStub: Sinon.SinonStub;
 
+        const WORKSPACE_PATH: string = "/workspace";
+        const PROJECT_PATH: string = "/workspace";
+
         setup(() => {
             requestStub = sinon.stub(Request, "request");
             isExpoAppStub = sinon.stub(ExponentHelper.prototype, "isExpoApp");
@@ -32,7 +35,7 @@ suite("packager", function () {
         test("isRunning should check correct status URL", function (done) {
             requestStub.returns(Promise.resolve("packager-status:running"));
 
-            new Packager("/workspace", "/workspace", Packager.DEFAULT_PORT)
+            new Packager(WORKSPACE_PATH, PROJECT_PATH, Packager.DEFAULT_PORT)
                 .isRunning()
                 .then(isRunning => {
                     assert(isRunning);
@@ -51,7 +54,7 @@ suite("packager", function () {
         test("isRunning should report false if server doesn't respond", function (done) {
             requestStub.returns(Promise.reject(void 0));
 
-            new Packager("/workspace", "/workspace", 9091)
+            new Packager(WORKSPACE_PATH, PROJECT_PATH, 9091)
                 .isRunning()
                 .then(isRunning => assert(!isRunning))
                 .then(done, () => {
@@ -63,7 +66,7 @@ suite("packager", function () {
         test("isRunning should report false if request fails", function (done) {
             requestStub.returns(Promise.resolve("some_random_string"));
 
-            new Packager("/workspace", "/workspace", 10001)
+            new Packager(WORKSPACE_PATH, PROJECT_PATH, 10001)
                 .isRunning()
                 .then(isRunning => assert(!isRunning))
                 .then(done, () => {
@@ -76,8 +79,8 @@ suite("packager", function () {
             isExpoAppStub.returns(Promise.resolve(false));
             const rnVersion = "0.56.0";
             const expected = ["--port", "10001"];
-            new Packager("/workspace", "/workspace", 10001)
-                .getPackagerArgs("/workspace", rnVersion)
+            new Packager(WORKSPACE_PATH, PROJECT_PATH, 10001)
+                .getPackagerArgs(PROJECT_PATH, rnVersion)
                 .then(args => {
                     assert.deepEqual(args, expected);
                     done();
@@ -91,8 +94,8 @@ suite("packager", function () {
             isExpoAppStub.returns(Promise.resolve(false));
             const rnVersion = "0.57.0";
             const expected = ["--port", "10001", "--resetCache"];
-            new Packager("/workspace", "/workspace", 10001)
-                .getPackagerArgs("/workspace", rnVersion, true)
+            new Packager(WORKSPACE_PATH, PROJECT_PATH, 10001)
+                .getPackagerArgs(PROJECT_PATH, rnVersion, true)
                 .then(args => {
                     assert.deepEqual(args, expected);
                     done();
@@ -107,8 +110,8 @@ suite("packager", function () {
             getExpPackagerOptionsStub.returns(Promise.resolve({}));
             const rnVersion = "0.56.0";
             const expected = ["--port", "10001", "--resetCache", "--root", ".vscode"];
-            new Packager("/workspace", "/workspace", 10001)
-                .getPackagerArgs("/workspace", rnVersion, true)
+            new Packager(WORKSPACE_PATH, PROJECT_PATH, 10001)
+                .getPackagerArgs(PROJECT_PATH, rnVersion, true)
                 .then(args => {
                     assert.deepEqual(args, expected);
                     done();
@@ -127,8 +130,8 @@ suite("packager", function () {
             );
             const rnVersion = "0.57.0";
             const expected = ["--port", "10001", "--assetExts", ["txt", "md"]];
-            new Packager("/workspace", "/workspace", 10001)
-                .getPackagerArgs("/workspace", rnVersion)
+            new Packager(WORKSPACE_PATH, PROJECT_PATH, 10001)
+                .getPackagerArgs(PROJECT_PATH, rnVersion)
                 .then(args => {
                     assert.deepEqual(args, expected);
                     done();

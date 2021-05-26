@@ -19,7 +19,11 @@ export class ReactNativeProjectHelper {
         if (!projectRoot || !fs.existsSync(path.join(projectRoot, "package.json"))) {
             return Promise.resolve(false);
         }
-        return ProjectVersionHelper.getReactNativeVersions(projectRoot).then(versions => {
+        return ProjectVersionHelper.getReactNativeVersions(
+            projectRoot,
+            undefined,
+            projectRoot,
+        ).then(versions => {
             return !ProjectVersionHelper.isVersionError(versions.reactNativeVersion);
         });
     }
