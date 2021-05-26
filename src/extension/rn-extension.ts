@@ -358,6 +358,12 @@ function registerReactNativeCommands(context: vscode.ExtensionContext): void {
     );
     registerVSCodeCommand(
         context,
+        "runWindows",
+        ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnWindows),
+        () => CommandPaletteHandler.runWindows(),
+    );
+    registerVSCodeCommand(
+        context,
         "startPackager",
         ErrorHelper.getInternalError(InternalErrorCode.FailedToStartPackager),
         () => CommandPaletteHandler.startPackager(),

@@ -9,11 +9,11 @@ import { TargetType, GeneralMobilePlatform } from "./generalMobilePlatform";
 import { AndroidPlatform } from "./android/androidPlatform";
 import { IOSPlatform } from "./ios/iOSPlatform";
 import { ProjectVersionHelper } from "../common/projectVersionHelper";
-import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
+import { ParsedPackage, ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
 import { TargetPlatformHelper } from "../common/targetPlatformHelper";
 import { TelemetryHelper } from "../common/telemetryHelper";
 import { ProjectsStorage } from "./projectsStorage";
-import { IAndroidRunOptions, IIOSRunOptions, PlatformType } from "./launchArgs";
+import { IAndroidRunOptions, IIOSRunOptions, IWindowsRunOptions, PlatformType } from "./launchArgs";
 import { ExponentPlatform } from "./exponent/exponentPlatform";
 import { spawn, ChildProcess } from "child_process";
 import { HostPlatform } from "../common/hostPlatform";
@@ -33,6 +33,7 @@ import { LogCatMonitor } from "./android/logCatMonitor";
 import { LogCatMonitorManager } from "./android/logCatMonitorManager";
 import { NetworkInspectorServer } from "./networkInspector/networkInspectorServer";
 import { InspectorViewFactory } from "./networkInspector/views/inspectorViewFactory";
+import { WindowsPlatform } from "./windows/windowsPlatform";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -290,6 +291,41 @@ export class CommandPaletteHandler {
                         },
                     );
                 });
+            });
+        });
+    }
+
+    public static runWindows(): Promise<void> {
+        const additionalPackagesToCheck: ParsedPackage[] = [
+            {
+                packageName: "react-native-windows",
+                useSemverCoerce: false,
+            },
+        ];
+        return this.selectProject().then((appLauncher: AppLauncher) => {
+            TargetPlatformHelper.checkTargetPlatformSupport(PlatformType.Android);
+            return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
+                appLauncher.getPackager().getProjectPath(),
+                additionalPackagesToCheck,
+            ).then(versions => {
+                appLauncher.setReactNativeVersions(versions);
+                return this.executeCommandInContext(
+                    "runWindows",
+                    appLauncher.getWorkspaceFolder(),
+                    () => {
+                        const platform = <WindowsPlatform>(
+                            this.createPlatform(appLauncher, PlatformType.Windows, WindowsPlatform)
+                        );
+                        return platform
+                            .beforeStartPackager()
+                            .then(() => {
+                                return platform.startPackager();
+                            })
+                            .then(() => {
+                                return platform.runApp();
+                            });
+                    },
+                );
             });
         });
     }
@@ -556,7 +592,11 @@ export class CommandPaletteHandler {
 
     private static createPlatform(
         appLauncher: AppLauncher,
-        platform: PlatformType.iOS | PlatformType.Android | PlatformType.Exponent,
+        platform:
+            | PlatformType.iOS
+            | PlatformType.Android
+            | PlatformType.Exponent
+            | PlatformType.Windows,
         platformClass: typeof GeneralMobilePlatform,
         target?: TargetType,
     ): GeneralMobilePlatform {
@@ -726,9 +766,13 @@ export class CommandPaletteHandler {
 
     private static getRunOptions(
         appLauncher: AppLauncher,
-        platform: PlatformType.iOS | PlatformType.Android | PlatformType.Exponent,
+        platform:
+            | PlatformType.iOS
+            | PlatformType.Android
+            | PlatformType.Exponent
+            | PlatformType.Windows,
         target: TargetType = "simulator",
-    ): IAndroidRunOptions | IIOSRunOptions {
+    ): IAndroidRunOptions | IIOSRunOptions | IWindowsRunOptions {
         const packagerPort = SettingsHelper.getPackagerPort(
             appLauncher.getWorkspaceFolderUri().fsPath,
         );
@@ -750,7 +794,7 @@ export class CommandPaletteHandler {
         const projectRoot = SettingsHelper.getReactNativeProjectRoot(
             appLauncher.getWorkspaceFolderUri().fsPath,
         );
-        const runOptions: IAndroidRunOptions | IIOSRunOptions = {
+        const runOptions: IAndroidRunOptions | IIOSRunOptions | IWindowsRunOptions = {
             platform: platform,
             workspaceRoot: appLauncher.getWorkspaceFolderUri().fsPath,
             projectRoot: projectRoot,
