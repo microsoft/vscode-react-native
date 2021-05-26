@@ -11,11 +11,15 @@ import { SettingsHelper } from "../../../src/extension/settingsHelper";
 import { PlatformType } from "../../../src/extension/launchArgs";
 
 suite("iOSPlatform", function () {
+    const workspaceRoot: string = "/User/test/react-native/AwesomeProject";
     const projectRoot = "/User/test/react-native/AwesomeProject";
+    const nodeModulesRoot: string = projectRoot;
+
     let runOptions: any = {
         platform: PlatformType.iOS,
-        workspaceRoot: "/User/test/react-native/AwesomeProject",
-        projectRoot: projectRoot,
+        workspaceRoot,
+        projectRoot,
+        nodeModulesRoot,
     };
 
     const sandbox = sinon.sandbox.create();
@@ -27,8 +31,9 @@ suite("iOSPlatform", function () {
     teardown(() => {
         runOptions = {
             platform: PlatformType.iOS,
-            workspaceRoot: "/User/test/react-native/AwesomeProject",
-            projectRoot: "/User/test/react-native/AwesomeProject",
+            workspaceRoot,
+            projectRoot,
+            nodeModulesRoot,
         };
         sandbox.restore();
     });

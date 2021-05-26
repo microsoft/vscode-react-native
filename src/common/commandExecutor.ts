@@ -44,6 +44,7 @@ export class CommandExecutor {
     private childProcess = new Node.ChildProcess();
 
     constructor(
+        private nodeModulesRoot: string,
         private currentWorkingDirectory: string = process.cwd(),
         private logger: ILogger = new NullLogger(),
     ) {}
@@ -101,7 +102,7 @@ export class CommandExecutor {
                     );
                 } else {
                     packagerProcess.kill();
-                    return resolve();
+                    return resolve(void 0);
                 }
             }).then(() => {
                 this.logger.info(localize("PackagerStopped", "Packager stopped"));
@@ -198,7 +199,7 @@ export class CommandExecutor {
     public selectReactNativeCLI(): string {
         return (
             CommandExecutor.ReactNativeCommand ||
-            path.resolve(this.currentWorkingDirectory, "node_modules", ".bin", "react-native")
+            path.resolve(this.nodeModulesRoot, "node_modules", ".bin", "react-native")
         );
     }
 

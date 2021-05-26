@@ -18,6 +18,7 @@ import { TelemetryHelper } from "../common/telemetryHelper";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { TargetPlatformHelper } from "../common/targetPlatformHelper";
+import { getNodeModulesInFolderHierarhy } from "../common/extensionHelper";
 import { ProjectsStorage } from "./projectsStorage";
 import { ReactNativeCDPProxy } from "../cdp-proxy/reactNativeCDPProxy";
 import { generateRandomPortNumber } from "../common/extensionHelper";
@@ -27,6 +28,7 @@ import { MultipleLifetimesAppWorker } from "../debugger/appWorker";
 import { PlatformType } from "./launchArgs";
 import { LaunchScenariosManager } from "./launchScenariosManager";
 import { IVirtualDevice } from "./VirtualDeviceManager";
+import { createAdditionalWorkspaceFolder, onFolderAdded } from "./rn-extension";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -47,6 +49,8 @@ export class AppLauncher {
     private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
     private mobilePlatform: GeneralMobilePlatform;
     private launchScenariosManager: LaunchScenariosManager;
+    private debugConfigurationRoot: string;
+    private nodeModulesRoot?: string;
 
     public static getAppLauncherByProjectRootPath(projectRootPath: string): AppLauncher {
         const appLauncher = ProjectsStorage.projectsCache[projectRootPath.toLowerCase()];
@@ -59,13 +63,43 @@ export class AppLauncher {
         return appLauncher;
     }
 
+    public static async getOrCreateAppLauncherByProjectRootPath(
+        projectRootPath: string,
+    ): Promise<AppLauncher> {
+        let appLauncher = ProjectsStorage.projectsCache[projectRootPath.toLowerCase()];
+        if (!appLauncher) {
+            const appLauncherFolder = createAdditionalWorkspaceFolder(projectRootPath);
+            if (appLauncherFolder) {
+                await onFolderAdded(appLauncherFolder);
+                appLauncher =
+                    ProjectsStorage.projectsCache[appLauncherFolder.uri.fsPath.toLocaleLowerCase()];
+            }
+            if (!appLauncher) {
+                throw new Error(
+                    `Could not find AppLauncher by the project root path ${projectRootPath}`,
+                );
+            }
+        }
+
+        return appLauncher;
+    }
+
+    public static getNodeModulesRootByProjectPath(projectRootPath: string): string {
+        const appLauncher: AppLauncher = AppLauncher.getAppLauncherByProjectRootPath(
+            projectRootPath,
+        );
+
+        return appLauncher.getOrUpdateNodeModulesRoot();
+    }
+
     constructor(reactDirManager: ReactDirManager, workspaceFolder: vscode.WorkspaceFolder) {
         // constants definition
         this.cdpProxyPort = generateRandomPortNumber();
         this.cdpProxyHostAddress = "127.0.0.1"; // localhost
 
         const rootPath = workspaceFolder.uri.fsPath;
-        this.launchScenariosManager = new LaunchScenariosManager(rootPath);
+        this.debugConfigurationRoot = rootPath;
+        this.launchScenariosManager = new LaunchScenariosManager(this.debugConfigurationRoot);
         const projectRootPath = SettingsHelper.getReactNativeProjectRoot(rootPath);
         this.exponentHelper = new ExponentHelper(rootPath, projectRootPath);
         const packagerStatusIndicator: PackagerStatusIndicator = new PackagerStatusIndicator(
@@ -81,6 +115,13 @@ export class AppLauncher {
         this.reactDirManager = reactDirManager;
         this.workspaceFolder = workspaceFolder;
         this.rnCdpProxy = new ReactNativeCDPProxy(this.cdpProxyHostAddress, this.cdpProxyPort);
+    }
+
+    public updateDebugConfigurationRoot(debugConfigurationRoot: string): void {
+        if (this.debugConfigurationRoot !== debugConfigurationRoot) {
+            this.debugConfigurationRoot = debugConfigurationRoot;
+            this.launchScenariosManager = new LaunchScenariosManager(this.debugConfigurationRoot);
+        }
     }
 
     public getCdpProxyPort(): number {
@@ -129,6 +170,23 @@ export class AppLauncher {
 
     public getMobilePlatform(): GeneralMobilePlatform {
         return this.mobilePlatform;
+    }
+
+    public getOrUpdateNodeModulesRoot(forceUpdate: boolean = false): string {
+        if (!this.nodeModulesRoot || forceUpdate) {
+            const nodeModulesRootPath: string | null = getNodeModulesInFolderHierarhy(
+                this.packager.getProjectPath(),
+            );
+
+            if (!nodeModulesRootPath) {
+                throw ErrorHelper.getInternalError(
+                    InternalErrorCode.ReactNativePackageIsNotInstalled,
+                );
+            }
+
+            this.nodeModulesRoot = nodeModulesRootPath;
+        }
+        return <string>this.nodeModulesRoot;
     }
 
     public dispose(): void {
@@ -189,6 +247,7 @@ export class AppLauncher {
         mobilePlatformOptions.packagerPort = SettingsHelper.getPackagerPort(
             launchArgs.cwd || launchArgs.program,
         );
+
         const platformDeps: MobilePlatformDeps = {
             packager: this.packager,
         };
@@ -213,7 +272,7 @@ export class AppLauncher {
             }
 
             return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
-                mobilePlatformOptions.projectRoot,
+                mobilePlatformOptions.nodeModulesRoot,
                 ProjectVersionHelper.generateAdditionalPackagesToCheckByPlatform(launchArgs),
             )
                 .then(versions => {
@@ -327,7 +386,7 @@ export class AppLauncher {
                                 ) {
                                     // If we disable debugging mode for iOS scenarios, we'll we ignore the error and run the 'run-ios' command anyway,
                                     // since the error doesn't affects an application launch process
-                                    return resolve();
+                                    return resolve(void 0);
                                 }
                                 generator.addError(error);
                                 this.logger.error(error);
@@ -452,6 +511,7 @@ export class AppLauncher {
             envFile: args.envFile,
             target: args.target || "simulator",
             enableDebug: args.enableDebug,
+            nodeModulesRoot: this.getOrUpdateNodeModulesRoot(),
         };
 
         if (args.platform === PlatformType.Exponent) {

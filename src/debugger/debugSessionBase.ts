@@ -117,7 +117,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         resolve?: (value?: void | PromiseLike<void> | undefined) => void,
     ): void;
 
-    protected initializeSettings(args: any): Promise<any> {
+    protected initializeSettings(args: any): Promise<void> {
         if (!this.isSettingsInitialized) {
             let chromeDebugCoreLogs = getLoggingDirectory();
             if (chromeDebugCoreLogs) {
@@ -144,18 +144,29 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
             }
 
             const projectRootPath = getProjectRoot(args);
-            return ReactNativeProjectHelper.isReactNativeProject(projectRootPath).then(result => {
-                if (!result) {
-                    throw ErrorHelper.getInternalError(
-                        InternalErrorCode.NotInReactNativeFolderError,
-                    );
-                }
-                this.projectRootPath = projectRootPath;
-                this.appLauncher = AppLauncher.getAppLauncherByProjectRootPath(projectRootPath);
-                this.isSettingsInitialized = true;
 
-                return void 0;
-            });
+            return ReactNativeProjectHelper.isReactNativeProject(projectRootPath).then(
+                (result: boolean) => {
+                    if (!result) {
+                        throw ErrorHelper.getInternalError(
+                            InternalErrorCode.NotInReactNativeFolderError,
+                        );
+                    }
+                    return AppLauncher.getOrCreateAppLauncherByProjectRootPath(
+                        projectRootPath,
+                    ).then((appLauncher: AppLauncher) => {
+                        this.appLauncher = appLauncher;
+                        this.projectRootPath = projectRootPath;
+                        this.isSettingsInitialized = true;
+                        this.appLauncher.getOrUpdateNodeModulesRoot(true);
+                        if (this.session.workspaceFolder) {
+                            this.appLauncher.updateDebugConfigurationRoot(
+                                this.session.workspaceFolder.uri.fsPath,
+                            );
+                        }
+                    });
+                },
+            );
         } else {
             return Promise.resolve();
         }

@@ -59,6 +59,7 @@ export class MacOSPlatform extends GeneralMobilePlatform {
             }
 
             const runmacOSSpawn = new CommandExecutor(
+                this.runOptions.nodeModulesRoot,
                 this.projectPath,
                 this.logger,
             ).spawnReactCommand(`run-${this.platformName}`, this.runArguments, { env });

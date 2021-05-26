@@ -18,6 +18,8 @@ suite("projectVersionHelper", function () {
         "sampleReactNative022Project",
     );
 
+    const nodeModulesRoot: string = sampleReactNative022ProjectDir;
+
     test("getReactNativeVersionsFromProjectPackage should return object containing version strings if 'version' field is found in project's package.json file", () => {
         let additionalPackages: ParsedPackage[] = [];
         additionalPackages.push({
@@ -118,7 +120,7 @@ suite("projectVersionHelper", function () {
                 useSemverCoerce: false,
             });
             ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
-                sampleReactNative022ProjectDir,
+                nodeModulesRoot,
                 additionalPackages,
             ).then(versions => {
                 assert.strictEqual(versions.reactNativeVersion, "0.20.0");
@@ -138,7 +140,7 @@ suite("projectVersionHelper", function () {
             );
 
             return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
-                sampleReactNative022ProjectDir,
+                nodeModulesRoot,
             ).then(versions => {
                 assert.strictEqual(versions.reactNativeVersion, "SemverInvalid: URL");
             });
@@ -147,7 +149,7 @@ suite("projectVersionHelper", function () {
 
     test("getReactNativePackageVersionsFromNodeModules should throw ReactNativePackageIsNotInstalled error if the package is not installed", () => {
         return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
-            sampleReactNative022ProjectDir,
+            nodeModulesRoot,
         ).catch(error => {
             assert.strictEqual(error.errorCode, 606);
         });
