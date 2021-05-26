@@ -9,8 +9,8 @@
 * Implemented support of [Workspace Trust feature](https://github.com/microsoft/vscode-react-native/issues/1559) [#1563](https://github.com/microsoft/vscode-react-native/pull/1563)
 * Configured support of [virtual workspaces](https://github.com/microsoft/vscode-react-native/issues/1562) [#1570](https://github.com/microsoft/vscode-react-native/pull/1570)
 * Internal changes:
-    *  Updated code coverage checking functional [#1570](https://github.com/microsoft/vscode-react-native/pull/1570)
-    *  Stabilized Expo smoke tests [#1568](https://github.com/microsoft/vscode-react-native/pull/1568)
+    * Updated code coverage checking functional [#1570](https://github.com/microsoft/vscode-react-native/pull/1570)
+    * Stabilized Expo smoke tests [#1568](https://github.com/microsoft/vscode-react-native/pull/1568)
 
 
 ## 1.4.2
