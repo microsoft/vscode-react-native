@@ -38,6 +38,7 @@ enum KeyEvents {
 
 export enum AdbDeviceType {
     AndroidSdkEmulator, // These seem to have emulator-<port> ids
+    RemoteDevice,
     Other,
 }
 
@@ -46,7 +47,10 @@ export interface IAdbDevice extends IDevice {
     type: AdbDeviceType;
 }
 
-const AndroidSDKEmulatorPattern = /^emulator-\d{1,5}$/;
+interface AdbDeviceTypePattern {
+    pattern: RegExp;
+    adbDeviceType: AdbDeviceType;
+}
 
 export class AdbHelper {
     private nodeModulesRoot: string;
@@ -54,6 +58,17 @@ export class AdbHelper {
     private childProcess: ChildProcess = new ChildProcess();
     private commandExecutor: CommandExecutor;
     private adbExecutable: string = "";
+
+    private static ADB_DEVICE_TYPE_PATTERNS: AdbDeviceTypePattern[] = [
+        {
+            pattern: /^emulator-\d{1,5}$/,
+            adbDeviceType: AdbDeviceType.AndroidSdkEmulator,
+        },
+        {
+            pattern: /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}$/,
+            adbDeviceType: AdbDeviceType.RemoteDevice,
+        },
+    ];
 
     constructor(
         projectRoot: string,
@@ -238,9 +253,12 @@ export class AdbHelper {
     }
 
     private extractDeviceType(id: string): AdbDeviceType {
-        return id.match(AndroidSDKEmulatorPattern)
-            ? AdbDeviceType.AndroidSdkEmulator
-            : AdbDeviceType.Other;
+        for (let pattern of AdbHelper.ADB_DEVICE_TYPE_PATTERNS) {
+            if (id.match(pattern.pattern)) {
+                return pattern.adbDeviceType;
+            }
+        }
+        return AdbDeviceType.Other;
     }
 
     private execute(deviceId: string, command: string): Promise<void> {
