@@ -77,7 +77,6 @@ export function getVersionFromExtensionNodeModules(packageName: string): Promise
             .catch(() => {
                 return null;
             });
-    } else {
-        return Promise.resolve(null);
     }
+    return Promise.resolve(null);
 }
