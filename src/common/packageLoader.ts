@@ -93,10 +93,10 @@ export default class PackageLoader {
         try {
             this.logger.debug(`Getting ${requiredPackage} dependency.`);
             if (packageConfig.version) {
-                const istalledVersion = await getVersionFromExtensionNodeModules(
+                const installedVersion = await getVersionFromExtensionNodeModules(
                     packageConfig.packageName,
                 );
-                if (packageConfig.version !== istalledVersion) {
+                if (packageConfig.version !== installedVersion) {
                     throw WRONG_VERSION_ERROR;
                 }
             }
