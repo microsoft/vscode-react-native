@@ -364,6 +364,12 @@ function registerReactNativeCommands(context: vscode.ExtensionContext): void {
     );
     registerVSCodeCommand(
         context,
+        "runMacos",
+        ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnMacos),
+        () => CommandPaletteHandler.runMacos(),
+    );
+    registerVSCodeCommand(
+        context,
         "startPackager",
         ErrorHelper.getInternalError(InternalErrorCode.FailedToStartPackager),
         () => CommandPaletteHandler.startPackager(),

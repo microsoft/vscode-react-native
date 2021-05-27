@@ -10,6 +10,7 @@
   "reactNative.command.runIosDevice.title": "Run iOS on Device",
   "reactNative.command.runExponent.title": "Run Expo",
   "reactNative.command.runWindows.title": "Run Windows",
+  "reactNative.command.runMacos.title": "Run Macos",
   "reactNative.command.startPackager.title": "Start Packager",
   "reactNative.command.stopPackager.title": "Stop Packager",
   "reactNative.command.restartPackager.title": "Restart Packager",

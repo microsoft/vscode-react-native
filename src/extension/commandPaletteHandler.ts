@@ -13,7 +13,13 @@ import { ParsedPackage, ReactNativeProjectHelper } from "../common/reactNativePr
 import { TargetPlatformHelper } from "../common/targetPlatformHelper";
 import { TelemetryHelper } from "../common/telemetryHelper";
 import { ProjectsStorage } from "./projectsStorage";
-import { IAndroidRunOptions, IIOSRunOptions, IWindowsRunOptions, PlatformType } from "./launchArgs";
+import {
+    IAndroidRunOptions,
+    IIOSRunOptions,
+    ImacOSRunOptions,
+    IWindowsRunOptions,
+    PlatformType,
+} from "./launchArgs";
 import { ExponentPlatform } from "./exponent/exponentPlatform";
 import { spawn, ChildProcess } from "child_process";
 import { HostPlatform } from "../common/hostPlatform";
@@ -34,6 +40,7 @@ import { LogCatMonitorManager } from "./android/logCatMonitorManager";
 import { NetworkInspectorServer } from "./networkInspector/networkInspectorServer";
 import { InspectorViewFactory } from "./networkInspector/views/inspectorViewFactory";
 import { WindowsPlatform } from "./windows/windowsPlatform";
+import { MacOSPlatform } from "./macos/macOSPlatform";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -330,6 +337,41 @@ export class CommandPaletteHandler {
         });
     }
 
+    public static runMacos(): Promise<void> {
+        const additionalPackagesToCheck: ParsedPackage[] = [
+            {
+                packageName: "react-native-macos",
+                useSemverCoerce: false,
+            },
+        ];
+        return this.selectProject().then((appLauncher: AppLauncher) => {
+            TargetPlatformHelper.checkTargetPlatformSupport(PlatformType.Android);
+            return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
+                appLauncher.getPackager().getProjectPath(),
+                additionalPackagesToCheck,
+            ).then(versions => {
+                appLauncher.setReactNativeVersions(versions);
+                return this.executeCommandInContext(
+                    "runMacos",
+                    appLauncher.getWorkspaceFolder(),
+                    () => {
+                        const platform = <MacOSPlatform>(
+                            this.createPlatform(appLauncher, PlatformType.macOS, MacOSPlatform)
+                        );
+                        return platform
+                            .beforeStartPackager()
+                            .then(() => {
+                                return platform.startPackager();
+                            })
+                            .then(() => {
+                                return platform.runApp();
+                            });
+                    },
+                );
+            });
+        });
+    }
+
     public static showDevMenu(): Promise<void> {
         return this.selectProject().then((appLauncher: AppLauncher) => {
             const androidPlatform = <AndroidPlatform>(
@@ -596,7 +638,8 @@ export class CommandPaletteHandler {
             | PlatformType.iOS
             | PlatformType.Android
             | PlatformType.Exponent
-            | PlatformType.Windows,
+            | PlatformType.Windows
+            | PlatformType.macOS,
         platformClass: typeof GeneralMobilePlatform,
         target?: TargetType,
     ): GeneralMobilePlatform {
@@ -770,9 +813,10 @@ export class CommandPaletteHandler {
             | PlatformType.iOS
             | PlatformType.Android
             | PlatformType.Exponent
-            | PlatformType.Windows,
+            | PlatformType.Windows
+            | PlatformType.macOS,
         target: TargetType = "simulator",
-    ): IAndroidRunOptions | IIOSRunOptions | IWindowsRunOptions {
+    ): IAndroidRunOptions | IIOSRunOptions | IWindowsRunOptions | ImacOSRunOptions {
         const packagerPort = SettingsHelper.getPackagerPort(
             appLauncher.getWorkspaceFolderUri().fsPath,
         );
@@ -794,7 +838,11 @@ export class CommandPaletteHandler {
         const projectRoot = SettingsHelper.getReactNativeProjectRoot(
             appLauncher.getWorkspaceFolderUri().fsPath,
         );
-        const runOptions: IAndroidRunOptions | IIOSRunOptions | IWindowsRunOptions = {
+        const runOptions:
+            | IAndroidRunOptions
+            | IIOSRunOptions
+            | IWindowsRunOptions
+            | ImacOSRunOptions = {
             platform: platform,
             workspaceRoot: appLauncher.getWorkspaceFolderUri().fsPath,
             projectRoot: projectRoot,
