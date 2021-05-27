@@ -68,7 +68,7 @@ export function isWorkspaceTrusted(): boolean {
 export function getVersionFromExtensionNodeModules(packageName: string): Promise<string | null> {
     const packageJsonPath = findFileInFolderHierarchy(__dirname, "package.json");
     if (packageJsonPath) {
-        let rootDirecory = path.resolve(packageJsonPath, "..");
+        const rootDirecory = path.resolve(packageJsonPath, "..");
         return new Package(rootDirecory)
             .getPackageVersionFromNodeModules(packageName)
             .then(version => {
