@@ -183,7 +183,7 @@ export class SettingsHelper {
         return undefined;
     }
 
-    public static getExtensionDependency(packageName: string): PackageConfig | undefined {
+    public static getExtensionDependency(packageName: string): PackageConfig {
         const workspaceConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(
             "react-native-tools.dependencies",
         );
@@ -194,6 +194,6 @@ export class SettingsHelper {
                 version: config.version,
             };
         }
-        return undefined;
+        return { packageName };
     }
 }

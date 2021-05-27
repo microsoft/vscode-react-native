@@ -10,6 +10,8 @@ import * as path from "path";
 import { AppLauncher } from "../extension/appLauncher";
 import { PromiseUtil } from "./node/promise";
 
+const WRONG_VERSION_ERROR = "WRONG_VERSION_ERROR";
+
 export interface PackageConfig {
     packageName: string;
     requirePath?: string;
@@ -85,20 +87,24 @@ export default class PackageLoader {
         reject: (reason?: any) => void,
         itWasInstalled: boolean,
     ): Promise<boolean> {
-        const istalledVersion = await getVersionFromExtensionNodeModules(packageConfig.packageName);
-        if (packageConfig.version && packageConfig.version !== istalledVersion) {
-            return false;
-        }
         const requiredPackage =
             packageConfig.packageName +
             (packageConfig.requirePath ? `/${packageConfig.requirePath}` : "");
         try {
             this.logger.debug(`Getting ${requiredPackage} dependency.`);
+            if (packageConfig.version) {
+                const istalledVersion = await getVersionFromExtensionNodeModules(
+                    packageConfig.packageName,
+                );
+                if (packageConfig.version !== istalledVersion) {
+                    throw WRONG_VERSION_ERROR;
+                }
+            }
             const module = customRequire(requiredPackage);
             resolve(module);
             return true;
         } catch (e) {
-            if (itWasInstalled || e.code !== "MODULE_NOT_FOUND") {
+            if (itWasInstalled && (e.code !== "MODULE_NOT_FOUND" || e === WRONG_VERSION_ERROR)) {
                 reject(e);
                 return true;
             }
@@ -114,7 +120,9 @@ export default class PackageLoader {
         packageConfig: PackageConfig,
         ...additionalDependencies: string[]
     ): Promise<void> {
-        this.packagesQueue.push(packageConfig.packageName, ...additionalDependencies);
+        const packageWithVersion =
+            packageConfig.packageName + (packageConfig.version ? `@${packageConfig.version}` : "");
+        this.packagesQueue.push(packageWithVersion, ...additionalDependencies);
         this.requireQueue.push(tryToRequire);
         if (!this.isCommandsExecuting) {
             this.isCommandsExecuting = true;

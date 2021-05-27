@@ -11,12 +11,10 @@ const METRO_CONFIG_PACKAGE = "@expo/metro-config";
 
 const EXPO_DEPS: string[] = [XDL_PACKAGE, METRO_CONFIG_PACKAGE];
 
-const xdlPackageConfig: PackageConfig = SettingsHelper.getExtensionDependency(XDL_PACKAGE) || {
-    packageName: XDL_PACKAGE,
-};
+const xdlPackageConfig: PackageConfig = SettingsHelper.getExtensionDependency(XDL_PACKAGE);
 const metroConfigPackageConfig: PackageConfig = SettingsHelper.getExtensionDependency(
     METRO_CONFIG_PACKAGE,
-) || { packageName: METRO_CONFIG_PACKAGE };
+);
 const ngrokPackageConfig: PackageConfig = Object.assign(Object.assign({}, xdlPackageConfig), {
     requirePath: "build/start/resolveNgrok",
 });

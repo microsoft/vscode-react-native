@@ -491,7 +491,7 @@ var entryPoint = require('${entryPoint}');`;
         if (!this.hasInitialized) {
             this.hasInitialized = true;
 
-            XDL.configReactNativeVersionWargnings();
+            XDL.configReactNativeVersionWarnings();
             XDL.attachLoggerStream(this.projectRootPath, {
                 stream: {
                     write: (chunk: any) => {
