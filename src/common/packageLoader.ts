@@ -4,20 +4,22 @@
 import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
 import { CommandExecutor, CommandVerbosity } from "./commandExecutor";
 import customRequire from "./customRequire";
-import { findFileInFolderHierarchy } from "./extensionHelper";
+import { findFileInFolderHierarchy, getVersionFromExtensionNodeModules } from "./extensionHelper";
 import { HostPlatform } from "./hostPlatform";
 import * as path from "path";
 import { AppLauncher } from "../extension/appLauncher";
+import { PromiseUtil } from "./node/promise";
 
 export interface PackageConfig {
     packageName: string;
     requirePath?: string;
+    version?: string;
 }
 
 export default class PackageLoader {
     private logger: OutputChannelLogger;
     private packagesQueue: string[];
-    private requireQueue: ((load?: string[]) => boolean)[];
+    private requireQueue: ((load?: string[]) => Promise<boolean>)[];
     private isCommandsExecuting: boolean;
 
     private static instance: PackageLoader;
@@ -53,16 +55,9 @@ export default class PackageLoader {
         packageConfig: PackageConfig,
         ...additionalDependencies: string[]
     ): () => Promise<T> {
-        let promise: Promise<T>;
-        return (): Promise<T> => {
-            // Using the promise saved in lexical environment to prevent module reloading
-            if (promise) {
-                return promise;
-            } else {
-                promise = this.loadPackage<T>(packageConfig, ...additionalDependencies);
-                return promise;
-            }
-        };
+        return PromiseUtil.promiseCacheDecorator<T>(() =>
+            this.loadPackage<T>(packageConfig, ...additionalDependencies),
+        );
     }
 
     private getUniquePackages(packages: string[]): string[] {
@@ -73,7 +68,7 @@ export default class PackageLoader {
         packageConfig: PackageConfig,
         resolve: (value: T | PromiseLike<T>) => void,
         reject: (reason?: any) => void,
-    ): (load?: string[]) => boolean {
+    ): (load?: string[]) => Promise<boolean> {
         return (load?: string[]) => {
             let itWasInstalled = false;
             // Throw exception if we could not find package after installing
@@ -84,12 +79,16 @@ export default class PackageLoader {
         };
     }
 
-    private tryToRequire<T>(
+    private async tryToRequire<T>(
         packageConfig: PackageConfig,
         resolve: (value: T | PromiseLike<T>) => void,
         reject: (reason?: any) => void,
         itWasInstalled: boolean,
-    ): boolean {
+    ): Promise<boolean> {
+        const istalledVersion = await getVersionFromExtensionNodeModules(packageConfig.packageName);
+        if (packageConfig.version && packageConfig.version !== istalledVersion) {
+            return false;
+        }
         const requiredPackage =
             packageConfig.packageName +
             (packageConfig.requirePath ? `/${packageConfig.requirePath}` : "");
@@ -111,7 +110,7 @@ export default class PackageLoader {
     }
 
     private async tryToRequireAfterInstall(
-        tryToRequire: (load?: string[]) => boolean,
+        tryToRequire: (load?: string[]) => Promise<boolean>,
         packageConfig: PackageConfig,
         ...additionalDependencies: string[]
     ): Promise<void> {
@@ -142,9 +141,9 @@ export default class PackageLoader {
                     },
                 );
                 // Try to require all pending packages after every 'npm install ...' command
-                const requiresToRemove: ((load?: string[]) => boolean)[] = [];
-                this.requireQueue.forEach(tryToRequire => {
-                    if (tryToRequire(packagesForInstall)) {
+                const requiresToRemove: ((load?: string[]) => Promise<boolean>)[] = [];
+                this.requireQueue.forEach(async tryToRequire => {
+                    if (await tryToRequire(packagesForInstall)) {
                         requiresToRemove.push(tryToRequire);
                     }
                 });
@@ -178,7 +177,7 @@ export default class PackageLoader {
     ): Promise<T> {
         return new Promise(async (resolve: (value: T) => void, reject) => {
             const tryToRequire = this.getTryToRequireFunction(packageConfig, resolve, reject);
-            if (!tryToRequire()) {
+            if (!(await tryToRequire())) {
                 this.tryToRequireAfterInstall(
                     tryToRequire,
                     packageConfig,

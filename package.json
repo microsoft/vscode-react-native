@@ -738,6 +738,12 @@
           ],
           "default": "Light",
           "scope": "resource"
+        },
+        "react-native-tools.dependencies.xdl.version": {
+          "description": "%reactNative.configuration.properties.react-native-tools.dependencies.xdl.description%",
+          "type": "string",
+          "default": "59.0.34",
+          "scope": "resource"
         }
       }
     }

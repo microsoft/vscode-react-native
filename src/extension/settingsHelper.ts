@@ -7,6 +7,7 @@ import { Packager } from "../common/packager";
 import { LogLevel } from "./log/LogHelper";
 import { SystemColorTheme } from "../common/editorColorThemesHelper";
 import { PackagerStatusIndicator } from "./packagerStatusIndicator";
+import { PackageConfig } from "../common/packageLoader";
 
 export class SettingsHelper {
     /**
@@ -178,6 +179,20 @@ export class SettingsHelper {
             return ConfigurationReader.readArray(
                 workspaceConfiguration.get("android.logCatArguments"),
             );
+        }
+        return undefined;
+    }
+
+    public static getExtensionDependency(packageName: string): PackageConfig | undefined {
+        const workspaceConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(
+            "react-native-tools.dependencies",
+        );
+        if (workspaceConfiguration.has(packageName)) {
+            const config = ConfigurationReader.readObject(workspaceConfiguration.get(packageName));
+            return {
+                packageName,
+                version: config.version,
+            };
         }
         return undefined;
     }

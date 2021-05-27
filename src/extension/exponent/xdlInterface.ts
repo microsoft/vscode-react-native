@@ -3,36 +3,44 @@
 
 import * as XDLPackage from "xdl";
 import * as MetroConfigPackage from "metro-config";
-import PackageLoader from "../../common/packageLoader";
+import PackageLoader, { PackageConfig } from "../../common/packageLoader";
+import { SettingsHelper } from "../settingsHelper";
 
 const XDL_PACKAGE = "xdl";
 const METRO_CONFIG_PACKAGE = "@expo/metro-config";
 
 const EXPO_DEPS: string[] = [XDL_PACKAGE, METRO_CONFIG_PACKAGE];
 
+const xdlPackageConfig: PackageConfig = SettingsHelper.getExtensionDependency(XDL_PACKAGE) || {
+    packageName: XDL_PACKAGE,
+};
+const metroConfigPackageConfig: PackageConfig = SettingsHelper.getExtensionDependency(
+    METRO_CONFIG_PACKAGE,
+) || { packageName: METRO_CONFIG_PACKAGE };
+const ngrokPackageConfig: PackageConfig = Object.assign(Object.assign({}, xdlPackageConfig), {
+    requirePath: "build/start/resolveNgrok",
+});
+
 let getXDLPackage: () => Promise<
     typeof XDLPackage
 > = PackageLoader.getInstance().generateGetPackageFunction<typeof XDLPackage>(
-    { packageName: XDL_PACKAGE },
+    xdlPackageConfig,
     ...EXPO_DEPS,
 );
 let getMetroConfigPackage: () => Promise<
     typeof MetroConfigPackage
 > = PackageLoader.getInstance().generateGetPackageFunction<typeof MetroConfigPackage>(
-    { packageName: METRO_CONFIG_PACKAGE },
+    metroConfigPackageConfig,
     ...EXPO_DEPS,
 );
 let getNgrokResolver: () => Promise<XDLPackage.ResolveNgrok> = PackageLoader.getInstance().generateGetPackageFunction<XDLPackage.ResolveNgrok>(
-    {
-        packageName: XDL_PACKAGE,
-        requirePath: "build/start/resolveNgrok",
-    },
+    ngrokPackageConfig,
     ...EXPO_DEPS,
 );
 
 export type IUser = XDLPackage.IUser;
 
-export function configReactNativeVersionWargnings(): Promise<void> {
+export function configReactNativeVersionWarnings(): Promise<void> {
     return getXDLPackage().then(xdl => {
         xdl.Config.validation.reactNativeVersionWarnings = false;
     });
