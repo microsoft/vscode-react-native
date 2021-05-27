@@ -11,6 +11,7 @@ export interface ILaunchArgs {
     platform: string;
     workspaceRoot: string;
     projectRoot: string;
+    nodeModulesRoot: string;
     reactNativeVersions: RNPackageVersions;
     target?: DeviceType;
     debugAdapterPort?: number;

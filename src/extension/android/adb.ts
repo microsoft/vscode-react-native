@@ -49,13 +49,21 @@ export interface IAdbDevice extends IDevice {
 const AndroidSDKEmulatorPattern = /^emulator-\d{1,5}$/;
 
 export class AdbHelper {
-    private childProcess: ChildProcess = new ChildProcess();
-    private commandExecutor: CommandExecutor = new CommandExecutor();
-    private adbExecutable: string = "";
+    private nodeModulesRoot: string;
     private launchActivity: string;
+    private childProcess: ChildProcess = new ChildProcess();
+    private commandExecutor: CommandExecutor;
+    private adbExecutable: string = "";
 
-    constructor(projectRoot: string, logger?: ILogger, launchActivity: string = "MainActivity") {
+    constructor(
+        projectRoot: string,
+        nodeModulesRoot: string,
+        logger?: ILogger,
+        launchActivity: string = "MainActivity",
+    ) {
+        this.nodeModulesRoot = nodeModulesRoot;
         this.adbExecutable = this.getAdbPath(projectRoot, logger);
+        this.commandExecutor = new CommandExecutor(this.nodeModulesRoot);
         this.launchActivity = launchActivity;
     }
 
@@ -85,7 +93,7 @@ export class AdbHelper {
         let enableDebugCommand = `${this.adbExecutable} ${
             debugTarget ? "-s " + debugTarget : ""
         } shell am broadcast -a "${packageName}.RELOAD_APP_ACTION" --ez jsproxy ${enable}`;
-        return new CommandExecutor(projectRoot)
+        return new CommandExecutor(this.nodeModulesRoot, projectRoot)
             .execute(enableDebugCommand)
             .then(() => {
                 // We should stop and start application again after RELOAD_APP_ACTION, otherwise app going to hangs up
@@ -93,7 +101,7 @@ export class AdbHelper {
                     setTimeout(() => {
                         this.stopApp(projectRoot, packageName, debugTarget, appIdSuffix).then(
                             () => {
-                                return resolve();
+                                return resolve(void 0);
                             },
                         );
                     }, 200); // We need a little delay after broadcast command

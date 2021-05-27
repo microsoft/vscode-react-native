@@ -9,6 +9,7 @@ import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { ParsedPackage } from "./reactNativeProjectHelper";
 import { RN_VERSION_ERRORS } from "./error/versionError";
 import { ILaunchArgs, PlatformType } from "../extension/launchArgs";
+import { AppLauncher } from "../extension/appLauncher";
 
 export interface PackageVersion {
     [packageName: string]: string;
@@ -21,6 +22,8 @@ export interface RNPackageVersions {
 }
 
 export class ProjectVersionHelper {
+    private static SEMVER_INVALID = "SemverInvalid";
+
     public static getRNVersionsWithBrokenMetroBundler(): string[] {
         // https://github.com/microsoft/vscode-react-native/issues/660 for details
         return ["0.54.0", "0.54.1", "0.54.2", "0.54.3", "0.54.4"];
@@ -29,15 +32,46 @@ export class ProjectVersionHelper {
     public static getReactNativeVersions(
         projectRoot: string,
         additionalPackagesToCheck?: ParsedPackage[],
+        nodeModulesRoot?: string,
     ): Promise<RNPackageVersions> {
+        if (!nodeModulesRoot) {
+            nodeModulesRoot = AppLauncher.getNodeModulesRootByProjectPath(projectRoot);
+        }
         return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
-            projectRoot,
+            nodeModulesRoot,
             additionalPackagesToCheck,
         ).catch(() => {
             return ProjectVersionHelper.getReactNativeVersionsFromProjectPackage(
                 projectRoot,
                 additionalPackagesToCheck,
             );
+        });
+    }
+
+    public static tryToGetRNSemverValidVersionsFromProjectPackage(
+        projectRoot: string,
+        additionalPackagesToCheck?: ParsedPackage[],
+        nodeModulesRoot?: string,
+    ): Promise<RNPackageVersions> {
+        return ProjectVersionHelper.getReactNativeVersionsFromProjectPackage(
+            projectRoot,
+            additionalPackagesToCheck,
+        ).then(versions => {
+            if (
+                Object.values(versions).findIndex(packageVersion =>
+                    packageVersion.includes(this.SEMVER_INVALID),
+                ) !== -1
+            ) {
+                if (!nodeModulesRoot) {
+                    nodeModulesRoot = AppLauncher.getNodeModulesRootByProjectPath(projectRoot);
+                }
+                return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
+                    nodeModulesRoot,
+                    additionalPackagesToCheck,
+                ).catch(() => versions);
+            } else {
+                return versions;
+            }
         });
     }
 
@@ -61,7 +95,7 @@ export class ProjectVersionHelper {
     }
 
     public static getReactNativePackageVersionsFromNodeModules(
-        projectRoot: string,
+        nodeModulesRoot: string,
         additionalPackagesToCheck?: ParsedPackage[],
     ): Promise<RNPackageVersions> {
         let parsedPackages: ParsedPackage[] = [
@@ -79,7 +113,10 @@ export class ProjectVersionHelper {
 
         parsedPackages.forEach(parsedPackage => {
             versionPromises.push(
-                ProjectVersionHelper.getProcessedVersionFromNodeModules(projectRoot, parsedPackage),
+                ProjectVersionHelper.getProcessedVersionFromNodeModules(
+                    nodeModulesRoot,
+                    parsedPackage,
+                ),
             );
         });
 
@@ -180,7 +217,7 @@ export class ProjectVersionHelper {
 
     public static processVersion(version: string, useSemverCoerce: boolean = true): string {
         try {
-            return new URL(version) && "SemverInvalid: URL";
+            return new URL(version) && `${this.SEMVER_INVALID}: URL`;
         } catch (err) {
             let versionObj;
             // As some of 'react-native-windows' versions contain postfixes we cannot use 'coerce' function to parse them
@@ -190,7 +227,7 @@ export class ProjectVersionHelper {
             } else {
                 versionObj = semver.clean(version.replace(/[\^~<>]/g, ""), { loose: true });
             }
-            return (versionObj && versionObj.toString()) || "SemverInvalid";
+            return (versionObj && versionObj.toString()) || this.SEMVER_INVALID;
         }
     }
 

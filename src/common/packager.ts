@@ -14,6 +14,7 @@ import { Request } from "./node/request";
 import { ProjectVersionHelper } from "./projectVersionHelper";
 import { PackagerStatusIndicator, PackagerStatus } from "../extension/packagerStatusIndicator";
 import { SettingsHelper } from "../extension/settingsHelper";
+import { AppLauncher } from "../extension/appLauncher";
 import * as path from "path";
 import * as XDL from "../extension/exponent/xdlInterface";
 import * as semver from "semver";
@@ -212,7 +213,12 @@ export class Packager {
 
                         let spawnOptions = { env: reactEnv };
 
+                        const nodeModulesRoot: string = AppLauncher.getNodeModulesRootByProjectPath(
+                            this.projectPath,
+                        );
+
                         const packagerSpawnResult = new CommandExecutor(
+                            nodeModulesRoot,
                             this.projectPath,
                             this.logger,
                         ).spawnReactPackager(args, spawnOptions);
@@ -412,15 +418,20 @@ export class Packager {
             } else {
                 OPN_PACKAGE_NAME = Packager.OPN_PACKAGE_NAME.old;
             }
-            let flatDependencyPackagePath = path.resolve(
+
+            const nodeModulesRoot: string = AppLauncher.getNodeModulesRootByProjectPath(
                 this.projectPath,
+            );
+
+            let flatDependencyPackagePath = path.resolve(
+                nodeModulesRoot,
                 Packager.NODE_MODULES_FODLER_NAME,
                 OPN_PACKAGE_NAME,
                 Packager.OPN_PACKAGE_MAIN_FILENAME,
             );
 
             let nestedDependencyPackagePath = path.resolve(
-                this.projectPath,
+                nodeModulesRoot,
                 Packager.NODE_MODULES_FODLER_NAME,
                 Packager.REACT_NATIVE_PACKAGE_NAME,
                 Packager.NODE_MODULES_FODLER_NAME,
@@ -508,7 +519,12 @@ export class Packager {
 
     private killPackagerProcess(): Promise<void> {
         this.logger.info(localize("StoppingPackager", "Stopping Packager"));
-        return new CommandExecutor(this.projectPath, this.logger)
+
+        const nodeModulesRoot: string = AppLauncher.getNodeModulesRootByProjectPath(
+            this.projectPath,
+        );
+
+        return new CommandExecutor(nodeModulesRoot, this.projectPath, this.logger)
             .killReactPackager(this.packagerProcess)
             .then(() => {
                 this.packagerProcess = undefined;

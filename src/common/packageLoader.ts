@@ -7,6 +7,7 @@ import customRequire from "./customRequire";
 import { findFileInFolderHierarchy } from "./extensionHelper";
 import { HostPlatform } from "./hostPlatform";
 import * as path from "path";
+import { AppLauncher } from "../extension/appLauncher";
 
 export interface PackageConfig {
     packageName: string;
@@ -36,7 +37,8 @@ export default class PackageLoader {
     }
 
     public installGlobalPackage(packageName: string, projectRoot: string): Promise<void> {
-        const commandExecutor = new CommandExecutor(projectRoot, this.logger);
+        const nodeModulesRoot: string = AppLauncher.getNodeModulesRootByProjectPath(projectRoot);
+        const commandExecutor = new CommandExecutor(nodeModulesRoot, projectRoot, this.logger);
 
         return commandExecutor.spawnWithProgress(
             HostPlatform.getNpmCliCommand("npm"),
@@ -117,8 +119,14 @@ export default class PackageLoader {
         this.requireQueue.push(tryToRequire);
         if (!this.isCommandsExecuting) {
             this.isCommandsExecuting = true;
+
+            const extensionDirectory: string = path.dirname(
+                findFileInFolderHierarchy(__dirname, "package.json") || __dirname,
+            );
+
             const commandExecutor = new CommandExecutor(
-                path.dirname(findFileInFolderHierarchy(__dirname, "package.json") || __dirname),
+                path.join(extensionDirectory, "node_modules"),
+                extensionDirectory,
                 this.logger,
             );
             while (this.packagesQueue.length) {
@@ -128,7 +136,7 @@ export default class PackageLoader {
                 const packagesForInstall = this.packagesQueue.slice(0, load);
                 await commandExecutor.spawnWithProgress(
                     HostPlatform.getNpmCliCommand("npm"),
-                    ["install", ...packagesForInstall, "--verbose", "--no-save"],
+                    ["install", ...packagesForInstall, "--verbose", "--no-save", "--global-style"],
                     {
                         verbosity: CommandVerbosity.PROGRESS,
                     },

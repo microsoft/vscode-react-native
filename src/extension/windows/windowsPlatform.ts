@@ -74,6 +74,7 @@ export class WindowsPlatform extends GeneralMobilePlatform {
             }
 
             const runWindowsSpawn = new CommandExecutor(
+                this.runOptions.nodeModulesRoot,
                 this.projectPath,
                 this.logger,
             ).spawnReactCommand(`run-${this.platformName}`, this.runArguments, { env });

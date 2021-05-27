@@ -48,8 +48,7 @@ export class SettingsHelper {
      * Get the React Native project root path
      */
     public static getReactNativeProjectRoot(fsPath: string): string {
-        const uri = vscode.Uri.file(fsPath);
-        const workspaceFolder = <vscode.WorkspaceFolder>vscode.workspace.getWorkspaceFolder(uri);
+        let uri = vscode.Uri.file(fsPath);
         const workspaceConfiguration = vscode.workspace.getConfiguration("react-native-tools", uri);
         if (workspaceConfiguration.has("projectRoot")) {
             let projectRoot: string = ConfigurationReader.readString(
@@ -58,10 +57,10 @@ export class SettingsHelper {
             if (path.isAbsolute(projectRoot)) {
                 return projectRoot;
             } else {
-                return path.resolve(workspaceFolder.uri.fsPath, projectRoot);
+                return path.resolve(uri.fsPath, projectRoot);
             }
         }
-        return workspaceFolder.uri.fsPath;
+        return uri.fsPath;
     }
 
     /**
