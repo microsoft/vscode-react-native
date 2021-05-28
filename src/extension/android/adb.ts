@@ -61,11 +61,11 @@ export class AdbHelper {
 
     private static ADB_DEVICE_TYPE_PATTERNS: AdbDeviceTypePattern[] = [
         {
-            pattern: /^emulator-\d{1,5}$/,
+            pattern: /^emulator-\d{1,5}$/gm,
             adbDeviceType: AdbDeviceType.AndroidSdkEmulator,
         },
         {
-            pattern: /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}$/,
+            pattern: /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}|.*_adb-tls-connect\._tcp.*)$/gm,
             adbDeviceType: AdbDeviceType.RemoteDevice,
         },
     ];

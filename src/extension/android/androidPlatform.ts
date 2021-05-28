@@ -310,16 +310,16 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                     return this.adbHelper
                         .reverseAdb(device.id, Number(this.runOptions.packagerPort))
                         .catch(err => {
-                            // "adb reverse" command could work incorrectly with remote devices and
-                            // throw an error about multiple connected devices, even if the only one is connected
+                            // "adb reverse" command could work incorrectly with remote devices, then skip the error and try to go on
                             if (
                                 device.type === AdbDeviceType.RemoteDevice &&
-                                this.devices.length === 1 &&
                                 err.message.includes(
                                     AndroidPlatform.RUN_ANDROID_FAILURE_PATTERNS[3].pattern,
                                 )
                             ) {
                                 this.logger.warning(err.message);
+                            } else {
+                                throw err;
                             }
                         });
                 } else {
