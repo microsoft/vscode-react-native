@@ -381,9 +381,9 @@ function registerReactNativeCommands(): void {
         () => CommandPaletteHandler.runWindows(),
     );
     registerVSCodeCommand(
-        "runMacos",
+        "runMacOS",
         ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnMacos),
-        () => CommandPaletteHandler.runMacos(),
+        () => CommandPaletteHandler.runMacOS(),
     );
     registerVSCodeCommand(
         "startPackager",

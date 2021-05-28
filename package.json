@@ -91,8 +91,8 @@
         "enablement": "isWorkspaceTrusted"
       },
       {
-        "command": "reactNative.runMacos",
-        "title": "%reactNative.command.runMacos.title%",
+        "command": "reactNative.runMacOS",
+        "title": "%reactNative.command.runMacOS.title%",
         "category": "React Native",
         "enablement": "isWorkspaceTrusted"
       },

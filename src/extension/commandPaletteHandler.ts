@@ -336,7 +336,7 @@ export class CommandPaletteHandler {
                                 return platform.startPackager();
                             })
                             .then(() => {
-                                return platform.runApp();
+                                return platform.runApp(false);
                             });
                     },
                 );
@@ -344,7 +344,7 @@ export class CommandPaletteHandler {
         });
     }
 
-    public static runMacos(): Promise<void> {
+    public static runMacOS(): Promise<void> {
         const additionalPackagesToCheck: ParsedPackage[] = [
             {
                 packageName: "react-native-macos",
@@ -352,14 +352,14 @@ export class CommandPaletteHandler {
             },
         ];
         return this.selectProject().then((appLauncher: AppLauncher) => {
-            TargetPlatformHelper.checkTargetPlatformSupport(PlatformType.Android);
+            TargetPlatformHelper.checkTargetPlatformSupport(PlatformType.macOS);
             return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
                 appLauncher.getPackager().getProjectPath(),
                 additionalPackagesToCheck,
             ).then(versions => {
                 appLauncher.setReactNativeVersions(versions);
                 return this.executeCommandInContext(
-                    "runMacos",
+                    "runMacOS",
                     appLauncher.getWorkspaceFolder(),
                     () => {
                         const platform = <MacOSPlatform>(
