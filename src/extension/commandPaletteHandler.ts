@@ -317,9 +317,9 @@ export class CommandPaletteHandler {
             },
         ];
         return this.selectProject().then((appLauncher: AppLauncher) => {
-            TargetPlatformHelper.checkTargetPlatformSupport(PlatformType.Android);
+            TargetPlatformHelper.checkTargetPlatformSupport(PlatformType.Windows);
             return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
-                appLauncher.getPackager().getProjectPath(),
+                appLauncher.getOrUpdateNodeModulesRoot(),
                 additionalPackagesToCheck,
             ).then(versions => {
                 appLauncher.setReactNativeVersions(versions);
@@ -354,7 +354,7 @@ export class CommandPaletteHandler {
         return this.selectProject().then((appLauncher: AppLauncher) => {
             TargetPlatformHelper.checkTargetPlatformSupport(PlatformType.macOS);
             return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
-                appLauncher.getPackager().getProjectPath(),
+                appLauncher.getOrUpdateNodeModulesRoot(),
                 additionalPackagesToCheck,
             ).then(versions => {
                 appLauncher.setReactNativeVersions(versions);
