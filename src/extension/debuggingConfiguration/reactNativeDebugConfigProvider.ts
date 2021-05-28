@@ -128,22 +128,6 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             platform: PlatformType.iOS,
             enableDebug: false,
         },
-        "Run Windows": {
-            name: "Run Windows",
-            cwd: "${workspaceFolder}",
-            type: DEBUG_TYPES.REACT_NATIVE,
-            request: "launch",
-            platform: PlatformType.Windows,
-            enableDebug: false,
-        },
-        "Run Macos": {
-            name: "Run Macos",
-            cwd: "${workspaceFolder}",
-            type: DEBUG_TYPES.REACT_NATIVE,
-            request: "launch",
-            platform: PlatformType.macOS,
-            enableDebug: false,
-        },
         "Run Android Hermes - Experimental": {
             name: "Run Android Hermes - Experimental",
             cwd: "${workspaceFolder}",

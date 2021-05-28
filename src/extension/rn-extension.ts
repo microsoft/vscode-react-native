@@ -382,7 +382,7 @@ function registerReactNativeCommands(): void {
     );
     registerVSCodeCommand(
         "runMacOS",
-        ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnMacos),
+        ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnMacOS),
         () => CommandPaletteHandler.runMacOS(),
     );
     registerVSCodeCommand(
