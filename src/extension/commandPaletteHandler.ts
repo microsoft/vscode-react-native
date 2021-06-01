@@ -8,7 +8,7 @@ import { OutputChannelLogger } from "./log/OutputChannelLogger";
 import { TargetType, GeneralMobilePlatform } from "./generalMobilePlatform";
 import { AndroidPlatform } from "./android/androidPlatform";
 import { IOSPlatform } from "./ios/iOSPlatform";
-import { ProjectVersionHelper } from "../common/projectVersionHelper";
+import { ProjectVersionHelper, REACT_NATIVE_PACKAGES } from "../common/projectVersionHelper";
 import { ParsedPackage, ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
 import { TargetPlatformHelper } from "../common/targetPlatformHelper";
 import { TelemetryHelper } from "../common/telemetryHelper";
@@ -311,10 +311,7 @@ export class CommandPaletteHandler {
 
     public static runWindows(): Promise<void> {
         const additionalPackagesToCheck: ParsedPackage[] = [
-            {
-                packageName: "react-native-windows",
-                useSemverCoerce: false,
-            },
+            REACT_NATIVE_PACKAGES.REACT_NATIVE_WINDOWS,
         ];
         return this.selectProject().then((appLauncher: AppLauncher) => {
             TargetPlatformHelper.checkTargetPlatformSupport(PlatformType.Windows);
@@ -346,10 +343,7 @@ export class CommandPaletteHandler {
 
     public static runMacOS(): Promise<void> {
         const additionalPackagesToCheck: ParsedPackage[] = [
-            {
-                packageName: "react-native-macos",
-                useSemverCoerce: false,
-            },
+            REACT_NATIVE_PACKAGES.REACT_NATIVE_MACOS,
         ];
         return this.selectProject().then((appLauncher: AppLauncher) => {
             TargetPlatformHelper.checkTargetPlatformSupport(PlatformType.macOS);
@@ -647,12 +641,7 @@ export class CommandPaletteHandler {
 
     private static createPlatform(
         appLauncher: AppLauncher,
-        platform:
-            | PlatformType.iOS
-            | PlatformType.Android
-            | PlatformType.Exponent
-            | PlatformType.Windows
-            | PlatformType.macOS,
+        platform: PlatformType,
         platformClass: typeof GeneralMobilePlatform,
         target?: TargetType,
     ): GeneralMobilePlatform {
@@ -824,12 +813,7 @@ export class CommandPaletteHandler {
 
     private static getRunOptions(
         appLauncher: AppLauncher,
-        platform:
-            | PlatformType.iOS
-            | PlatformType.Android
-            | PlatformType.Exponent
-            | PlatformType.Windows
-            | PlatformType.macOS,
+        platform: PlatformType,
         target: TargetType = "simulator",
     ): IAndroidRunOptions | IIOSRunOptions | IWindowsRunOptions | ImacOSRunOptions {
         const packagerPort = SettingsHelper.getPackagerPort(

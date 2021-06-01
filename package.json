@@ -88,13 +88,13 @@
         "command": "reactNative.runWindows",
         "title": "%reactNative.command.runWindows.title%",
         "category": "React Native",
-        "enablement": "!config.security.workspace.trust.enabled && IsRNWindowsProject || isWorkspaceTrusted && IsRNWindowsProject"
+        "enablement": "!config.security.workspace.trust.enabled && isRNWindowsProject || isWorkspaceTrusted && isRNWindowsProject"
       },
       {
         "command": "reactNative.runMacOS",
         "title": "%reactNative.command.runMacOS.title%",
         "category": "React Native",
-        "enablement": "!config.security.workspace.trust.enabled && IsRNMacOSProject || isWorkspaceTrusted && IsRNMacOSProject"
+        "enablement": "!config.security.workspace.trust.enabled && isRNMacOSProject || isWorkspaceTrusted && isRNMacOSProject"
       },
       {
         "command": "reactNative.startPackager",

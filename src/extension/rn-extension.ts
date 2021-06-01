@@ -297,13 +297,13 @@ export function onFolderAdded(folder: vscode.WorkspaceFolder): Promise<void> {
 
         vscode.commands.executeCommand(
             "setContext",
-            "IsRNWindowsProject",
+            "isRNWindowsProject",
             !ProjectVersionHelper.isVersionError(versions.reactNativeWindowsVersion),
         );
 
         vscode.commands.executeCommand(
             "setContext",
-            "IsRNMacOSProject",
+            "isRNMacOSProject",
             !ProjectVersionHelper.isVersionError(versions.reactNativeMacOSVersion),
         );
 
