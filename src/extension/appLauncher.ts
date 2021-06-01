@@ -18,7 +18,7 @@ import { TelemetryHelper } from "../common/telemetryHelper";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { TargetPlatformHelper } from "../common/targetPlatformHelper";
-import { getNodeModulesInFolderHierarhy } from "../common/extensionHelper";
+import { getNodeModulesInFolderHierarchy } from "../common/extensionHelper";
 import { ProjectsStorage } from "./projectsStorage";
 import { ReactNativeCDPProxy } from "../cdp-proxy/reactNativeCDPProxy";
 import { generateRandomPortNumber } from "../common/extensionHelper";
@@ -174,7 +174,7 @@ export class AppLauncher {
 
     public getOrUpdateNodeModulesRoot(forceUpdate: boolean = false): string {
         if (!this.nodeModulesRoot || forceUpdate) {
-            const nodeModulesRootPath: string | null = getNodeModulesInFolderHierarhy(
+            const nodeModulesRootPath: string | null = getNodeModulesInFolderHierarchy(
                 this.packager.getProjectPath(),
             );
 

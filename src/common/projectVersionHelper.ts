@@ -21,6 +21,10 @@ export interface RNPackageVersions {
     reactNativeMacOSVersion: string;
 }
 
+interface PackagesDictionary {
+    [index: string]: ParsedPackage;
+}
+
 export class ProjectVersionHelper {
     private static SEMVER_INVALID = "SemverInvalid";
 
@@ -28,6 +32,22 @@ export class ProjectVersionHelper {
         // https://github.com/microsoft/vscode-react-native/issues/660 for details
         return ["0.54.0", "0.54.1", "0.54.2", "0.54.3", "0.54.4"];
     }
+
+    private static reactNativePackage: ParsedPackage = {
+        packageName: "react-native",
+        useSemverCoerce: true,
+    };
+
+    private static allAdditionalPackages: PackagesDictionary = {
+        Windows: {
+            packageName: "react-native-windows",
+            useSemverCoerce: false,
+        },
+        MacOS: {
+            packageName: "react-native-macos",
+            useSemverCoerce: false,
+        },
+    };
 
     public static getReactNativeVersions(
         projectRoot: string,
@@ -78,32 +98,25 @@ export class ProjectVersionHelper {
     public static generateAdditionalPackagesToCheckByPlatform(args: ILaunchArgs): ParsedPackage[] {
         let additionalPackages: ParsedPackage[] = [];
         if (args.platform === PlatformType.Windows) {
-            additionalPackages.push({
-                packageName: "react-native-windows",
-                useSemverCoerce: false,
-            });
+            additionalPackages.push(this.allAdditionalPackages["Windows"]);
         }
 
         if (args.platform === PlatformType.macOS) {
-            additionalPackages.push({
-                packageName: "react-native-macos",
-                useSemverCoerce: false,
-            });
+            additionalPackages.push(this.allAdditionalPackages["MacOS"]);
         }
 
         return additionalPackages;
+    }
+
+    public static generateAllAdditionalPackages(): ParsedPackage[] {
+        return Object.values(this.allAdditionalPackages);
     }
 
     public static getReactNativePackageVersionsFromNodeModules(
         nodeModulesRoot: string,
         additionalPackagesToCheck?: ParsedPackage[],
     ): Promise<RNPackageVersions> {
-        let parsedPackages: ParsedPackage[] = [
-            {
-                packageName: "react-native",
-                useSemverCoerce: true,
-            },
-        ];
+        let parsedPackages: ParsedPackage[] = [this.reactNativePackage];
 
         if (additionalPackagesToCheck) {
             parsedPackages.push(...additionalPackagesToCheck);
@@ -148,12 +161,7 @@ export class ProjectVersionHelper {
         cwd: string,
         additionalPackagesToCheck?: ParsedPackage[],
     ): Promise<RNPackageVersions> {
-        let parsedPackages: ParsedPackage[] = [
-            {
-                packageName: "react-native",
-                useSemverCoerce: true,
-            },
-        ];
+        let parsedPackages: ParsedPackage[] = [this.reactNativePackage];
 
         if (additionalPackagesToCheck) {
             parsedPackages.push(...additionalPackagesToCheck);

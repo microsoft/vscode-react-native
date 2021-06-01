@@ -256,7 +256,7 @@ export function onFolderAdded(folder: vscode.WorkspaceFolder): Promise<void> {
     outputChannelLogger.debug(`Add project: ${projectRootPath}`);
     return ProjectVersionHelper.tryToGetRNSemverValidVersionsFromProjectPackage(
         projectRootPath,
-        undefined,
+        ProjectVersionHelper.generateAllAdditionalPackages(),
         projectRootPath,
     ).then(versions => {
         outputChannelLogger.debug(`React Native version: ${versions.reactNativeVersion}`);
@@ -294,6 +294,18 @@ export function onFolderAdded(folder: vscode.WorkspaceFolder): Promise<void> {
                 `react-native@${versions.reactNativeVersion} isn't supported`,
             );
         }
+
+        vscode.commands.executeCommand(
+            "setContext",
+            "IsRNWindowsProject",
+            !ProjectVersionHelper.isVersionError(versions.reactNativeWindowsVersion),
+        );
+
+        vscode.commands.executeCommand(
+            "setContext",
+            "IsRNMacOSProject",
+            !ProjectVersionHelper.isVersionError(versions.reactNativeMacOSVersion),
+        );
 
         return Promise.all(promises).then(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
     });
