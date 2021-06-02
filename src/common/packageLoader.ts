@@ -10,7 +10,8 @@ import * as path from "path";
 import { AppLauncher } from "../extension/appLauncher";
 import { PromiseUtil } from "./node/promise";
 
-const WRONG_VERSION_ERROR = "WRONG_VERSION_ERROR";
+const WRONG_VERSION_ERROR =
+    "After installing the package, its version is different from the required";
 
 export interface PackageConfig {
     packageName: string;
@@ -55,7 +56,7 @@ export default class PackageLoader {
 
     public generateGetPackageFunction<T>(
         packageConfig: PackageConfig,
-        ...additionalDependencies: string[]
+        ...additionalDependencies: PackageConfig[]
     ): () => Promise<T> {
         return PromiseUtil.promiseCacheDecorator<T>(() =>
             this.loadPackage<T>(packageConfig, ...additionalDependencies),
@@ -73,8 +74,11 @@ export default class PackageLoader {
     ): (load?: string[]) => Promise<boolean> {
         return (load?: string[]) => {
             let itWasInstalled = false;
+            const packageWithVersion =
+                packageConfig.packageName +
+                (packageConfig.version ? `@${packageConfig.version}` : "");
             // Throw exception if we could not find package after installing
-            if (load && load.includes(packageConfig.packageName)) {
+            if (load && load.includes(packageWithVersion)) {
                 itWasInstalled = true;
             }
             return this.tryToRequire<T>(packageConfig, resolve, reject, itWasInstalled);
@@ -92,19 +96,26 @@ export default class PackageLoader {
             (packageConfig.requirePath ? `/${packageConfig.requirePath}` : "");
         try {
             this.logger.debug(`Getting ${requiredPackage} dependency.`);
+            console.log(
+                `Try to require: ${requiredPackage} with version (${packageConfig.version})`,
+            );
             if (packageConfig.version) {
                 const installedVersion = await getVersionFromExtensionNodeModules(
                     packageConfig.packageName,
                 );
+                console.log(`Actual Version of ${requiredPackage} is (${installedVersion})`);
                 if (packageConfig.version !== installedVersion) {
-                    throw WRONG_VERSION_ERROR;
+                    if (itWasInstalled) {
+                        throw WRONG_VERSION_ERROR;
+                    }
+                    return false;
                 }
             }
             const module = customRequire(requiredPackage);
             resolve(module);
             return true;
         } catch (e) {
-            if (itWasInstalled && (e.code !== "MODULE_NOT_FOUND" || e === WRONG_VERSION_ERROR)) {
+            if (itWasInstalled || e.code !== "MODULE_NOT_FOUND") {
                 reject(e);
                 return true;
             }
@@ -118,11 +129,16 @@ export default class PackageLoader {
     private async tryToRequireAfterInstall(
         tryToRequire: (load?: string[]) => Promise<boolean>,
         packageConfig: PackageConfig,
-        ...additionalDependencies: string[]
+        ...additionalDependencies: PackageConfig[]
     ): Promise<void> {
         const packageWithVersion =
             packageConfig.packageName + (packageConfig.version ? `@${packageConfig.version}` : "");
-        this.packagesQueue.push(packageWithVersion, ...additionalDependencies);
+        this.packagesQueue.push(packageWithVersion);
+        additionalDependencies.forEach(dependency => {
+            const dependencyWithVersion =
+                dependency.packageName + (dependency.version ? `@${dependency.version}` : "");
+            this.packagesQueue.push(dependencyWithVersion);
+        });
         this.requireQueue.push(tryToRequire);
         if (!this.isCommandsExecuting) {
             this.isCommandsExecuting = true;
@@ -139,8 +155,16 @@ export default class PackageLoader {
             while (this.packagesQueue.length) {
                 // Install all packages in queue
                 this.packagesQueue = this.getUniquePackages(this.packagesQueue);
+
+                console.log("this.requireQueue before");
+                console.log(this.requireQueue);
+                console.log("this.packagesQueue before");
+                console.log(this.packagesQueue);
+
                 const load = this.packagesQueue.length;
                 const packagesForInstall = this.packagesQueue.slice(0, load);
+                console.log("Packages for install:");
+                console.log(packagesForInstall);
                 await commandExecutor.spawnWithProgress(
                     HostPlatform.getNpmCliCommand("npm"),
                     ["install", ...packagesForInstall, "--verbose", "--no-save", "--global-style"],
@@ -150,11 +174,11 @@ export default class PackageLoader {
                 );
                 // Try to require all pending packages after every 'npm install ...' command
                 const requiresToRemove: ((load?: string[]) => Promise<boolean>)[] = [];
-                this.requireQueue.forEach(async tryToRequire => {
+                for (tryToRequire of this.requireQueue) {
                     if (await tryToRequire(packagesForInstall)) {
                         requiresToRemove.push(tryToRequire);
                     }
-                });
+                }
                 // Remove resolved requires from queue
                 requiresToRemove.forEach(tryToRequire => {
                     const index = this.requireQueue.indexOf(tryToRequire);
@@ -174,6 +198,10 @@ export default class PackageLoader {
                 } else {
                     this.packagesQueue = [];
                 }
+                console.log("this.requireQueue after");
+                console.log(this.requireQueue);
+                console.log("this.packagesQueue after");
+                console.log(this.packagesQueue);
             }
             this.isCommandsExecuting = false;
         }
@@ -181,7 +209,7 @@ export default class PackageLoader {
 
     private async loadPackage<T>(
         packageConfig: PackageConfig,
-        ...additionalDependencies: string[]
+        ...additionalDependencies: PackageConfig[]
     ): Promise<T> {
         return new Promise(async (resolve: (value: T) => void, reject) => {
             const tryToRequire = this.getTryToRequireFunction(packageConfig, resolve, reject);
@@ -190,7 +218,7 @@ export default class PackageLoader {
                     tryToRequire,
                     packageConfig,
                     ...additionalDependencies,
-                );
+                ).catch(reason => reject(reason));
             }
         });
     }

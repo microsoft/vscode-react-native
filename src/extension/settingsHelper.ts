@@ -7,7 +7,6 @@ import { Packager } from "../common/packager";
 import { LogLevel } from "./log/LogHelper";
 import { SystemColorTheme } from "../common/editorColorThemesHelper";
 import { PackagerStatusIndicator } from "./packagerStatusIndicator";
-import { PackageConfig } from "../common/packageLoader";
 
 export class SettingsHelper {
     /**
@@ -183,17 +182,16 @@ export class SettingsHelper {
         return undefined;
     }
 
-    public static getExtensionDependency(packageName: string): PackageConfig {
+    public static getExpoDependencyVersion(packageName: string): string | undefined {
         const workspaceConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(
-            "react-native-tools.dependencies",
+            "react-native.expo.dependencies",
         );
         if (workspaceConfiguration.has(packageName)) {
-            const config = ConfigurationReader.readObject(workspaceConfiguration.get(packageName));
-            return {
-                packageName,
-                version: config.version,
-            };
+            const packageVersion = ConfigurationReader.readString(
+                workspaceConfiguration.get(packageName),
+            );
+            return packageVersion;
         }
-        return { packageName };
+        return undefined;
     }
 }

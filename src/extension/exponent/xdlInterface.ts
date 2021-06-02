@@ -9,29 +9,34 @@ import { SettingsHelper } from "../settingsHelper";
 const XDL_PACKAGE = "xdl";
 const METRO_CONFIG_PACKAGE = "@expo/metro-config";
 
-const EXPO_DEPS: string[] = [XDL_PACKAGE, METRO_CONFIG_PACKAGE];
-
-const xdlPackageConfig: PackageConfig = SettingsHelper.getExtensionDependency(XDL_PACKAGE);
-const metroConfigPackageConfig: PackageConfig = SettingsHelper.getExtensionDependency(
-    METRO_CONFIG_PACKAGE,
-);
-const ngrokPackageConfig: PackageConfig = Object.assign(Object.assign({}, xdlPackageConfig), {
+const xdlPackageConfig: PackageConfig = {
+    packageName: XDL_PACKAGE,
+    version: SettingsHelper.getExpoDependencyVersion(XDL_PACKAGE),
+};
+const metroConfigPackageConfig: PackageConfig = {
+    packageName: METRO_CONFIG_PACKAGE,
+    version: SettingsHelper.getExpoDependencyVersion("metro-config"),
+};
+const ngrokPackageConfig: PackageConfig = {
+    ...xdlPackageConfig,
     requirePath: "build/start/resolveNgrok",
-});
+};
 
-let getXDLPackage: () => Promise<
+const EXPO_DEPS: PackageConfig[] = [xdlPackageConfig, metroConfigPackageConfig];
+
+export let getXDLPackage: () => Promise<
     typeof XDLPackage
 > = PackageLoader.getInstance().generateGetPackageFunction<typeof XDLPackage>(
     xdlPackageConfig,
     ...EXPO_DEPS,
 );
-let getMetroConfigPackage: () => Promise<
+export let getMetroConfigPackage: () => Promise<
     typeof MetroConfigPackage
 > = PackageLoader.getInstance().generateGetPackageFunction<typeof MetroConfigPackage>(
     metroConfigPackageConfig,
     ...EXPO_DEPS,
 );
-let getNgrokResolver: () => Promise<XDLPackage.ResolveNgrok> = PackageLoader.getInstance().generateGetPackageFunction<XDLPackage.ResolveNgrok>(
+export let getNgrokResolver: () => Promise<XDLPackage.ResolveNgrok> = PackageLoader.getInstance().generateGetPackageFunction<XDLPackage.ResolveNgrok>(
     ngrokPackageConfig,
     ...EXPO_DEPS,
 );

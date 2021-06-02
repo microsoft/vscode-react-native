@@ -88,5 +88,6 @@
   "reactNative.configuration.properties.react-native-tools.logLevel.description": "Logging level in extension",
   "reactNative.configuration.properties.react-native-tools.reactNativeGlobalCommandName.description": "The command name to be used to execute React Native CLI commands.",
   "reactNative.configuration.properties.react-native-tools.consoleLogsColorTheme.description": "The color theme for Network inspector logs in VS Code DevTools console",
-  "reactNative.configuration.properties.react-native-tools.dependencies.xdl.description": "The version of the \"xdl\" package used for launching Expo applications"
+  "reactNative.configuration.properties.react-native.expo.dependencies.xdl.description": "The version of the \"xdl\" package used for launching Expo applications",
+  "reactNative.configuration.properties.react-native.expo.dependencies.metro-config.description": "The version of the \"@expo/metro-config\" package used for launching Expo applications"
 }

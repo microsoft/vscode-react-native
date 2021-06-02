@@ -739,10 +739,16 @@
           "default": "Light",
           "scope": "resource"
         },
-        "react-native-tools.dependencies.xdl.version": {
-          "description": "%reactNative.configuration.properties.react-native-tools.dependencies.xdl.description%",
+        "react-native.expo.dependencies.xdl": {
+          "description": "%reactNative.configuration.properties.react-native.expo.dependencies.xdl.description%",
           "type": "string",
           "default": "59.0.34",
+          "scope": "resource"
+        },
+        "react-native.expo.dependencies.metro-config": {
+          "description": "%reactNative.configuration.properties.react-native.expo.dependencies.metro-config.description%",
+          "type": "string",
+          "default": "0.1.70",
           "scope": "resource"
         }
       }
