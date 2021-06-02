@@ -219,9 +219,9 @@
                 "default": "localhost"
               },
               "port": {
-                "type": "string",
+                "type": "number",
                 "description": "%reactNative.attach.port.description%",
-                "default": "8081"
+                "default": 8081
               },
               "remoteRoot": {
                 "type": "string",
