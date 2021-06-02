@@ -17,7 +17,6 @@ import { getNodeModulesGlobalPath } from "../../common/utils";
 import PackageLoader from "../../common/packageLoader";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { FileSystem } from "../../common/node/fileSystem";
-import { ResolveNgrok } from "xdl";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -60,20 +59,14 @@ export class ExponentHelper {
         this.nodeModulesGlobalPathAddedToEnv = false;
     }
 
-    public async preloadExponentDependency(): Promise<
-        [typeof xdl, typeof metroConfig, ResolveNgrok]
-    > {
+    public async preloadExponentDependency(): Promise<[typeof xdl, typeof metroConfig]> {
         this.logger.info(
             localize(
                 "MakingSureYourProjectUsesCorrectExponentDependencies",
                 "Making sure your project uses the correct dependencies for Expo. This may take a while...",
             ),
         );
-        return Promise.all([
-            XDL.getXDLPackage(),
-            XDL.getMetroConfigPackage(),
-            XDL.getNgrokResolver(),
-        ]);
+        return Promise.all([XDL.getXDLPackage(), XDL.getMetroConfigPackage()]);
     }
 
     public configureExponentEnvironment(): Promise<void> {
