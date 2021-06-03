@@ -21,13 +21,7 @@ export interface RNPackageVersions {
     reactNativeMacOSVersion: string;
 }
 
-interface RNPackagesObject {
-    REACT_NATIVE: ParsedPackage;
-    REACT_NATIVE_WINDOWS: ParsedPackage;
-    REACT_NATIVE_MACOS: ParsedPackage;
-}
-
-export const REACT_NATIVE_PACKAGES: RNPackagesObject = {
+export const REACT_NATIVE_PACKAGES: Record<string, ParsedPackage> = {
     REACT_NATIVE: {
         packageName: "react-native",
         useSemverCoerce: true,

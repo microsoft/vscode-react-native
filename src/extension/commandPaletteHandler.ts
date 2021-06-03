@@ -406,6 +406,10 @@ export class CommandPaletteHandler {
                 // eslint-disable-next-line @typescript-eslint/no-empty-function
                 .catch(() => {}); // Ignore any errors
 
+            if (process.platform === "win32") {
+                // TODO: implement Reload App command for RNW
+            }
+
             if (process.platform === "darwin") {
                 const iosPlatform = <IOSPlatform>(
                     this.createPlatform(appLauncher, PlatformType.iOS, IOSPlatform)
