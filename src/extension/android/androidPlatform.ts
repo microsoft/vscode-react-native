@@ -5,7 +5,7 @@ import * as semver from "semver";
 
 import { GeneralMobilePlatform, MobilePlatformDeps } from "../generalMobilePlatform";
 import { IAndroidRunOptions, PlatformType } from "../launchArgs";
-import { AdbHelper, AndroidAPILevel, IAdbDevice } from "./adb";
+import { AdbHelper, AndroidAPILevel, IAdbDevice, AdbDeviceType } from "./adb";
 import { Package } from "../../common/node/package";
 import { PackageNameResolver } from "./packageNameResolver";
 import { OutputVerifier, PatternToFailure } from "../../common/outputVerifier";
@@ -186,7 +186,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                                 ErrorHelper.getInternalError(
                                     InternalErrorCode.AndroidMoreThanOneDeviceOrEmulator,
                                 ).message &&
-                            this.devices.length > 1 &&
+                            this.devices.length >= 1 &&
                             this.debugTarget
                         ) {
                             /* If it failed due to multiple devices, we'll apply this workaround to make it work anyways */
@@ -307,10 +307,21 @@ export class AndroidPlatform extends GeneralMobilePlatform {
             .then(apiVersion => {
                 if (apiVersion >= AndroidAPILevel.LOLLIPOP) {
                     // If we support adb reverse
-                    return this.adbHelper.reverseAdb(
-                        device.id,
-                        Number(this.runOptions.packagerPort),
-                    );
+                    return this.adbHelper
+                        .reverseAdb(device.id, Number(this.runOptions.packagerPort))
+                        .catch(err => {
+                            // "adb reverse" command could work incorrectly with remote devices, then skip the error and try to go on
+                            if (
+                                device.type === AdbDeviceType.RemoteDevice &&
+                                err.message.includes(
+                                    AndroidPlatform.RUN_ANDROID_FAILURE_PATTERNS[3].pattern,
+                                )
+                            ) {
+                                this.logger.warning(err.message);
+                            } else {
+                                throw err;
+                            }
+                        });
                 } else {
                     const message = localize(
                         "DeviceSupportsOnlyAPILevel",
