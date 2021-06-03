@@ -1,3 +1,9 @@
+## 1.5.1
+* Improved debugging on remote Android devices [#1577](https://github.com/microsoft/vscode-react-native/pull/1577)
+* Fixed getting React Native version in cases `projectRoot` has been customized [#1583](https://github.com/microsoft/vscode-react-native/pull/1583)
+* Improved extension security [#1581](https://github.com/microsoft/vscode-react-native/pull/1581), [#1579](https://github.com/microsoft/vscode-react-native/pull/1579)
+
+
 ## 1.5.0
 * Removed support of the deprecated WPF platform [#1554](https://github.com/microsoft/vscode-react-native/pull/1554)
 * Improved Expo tunnel debugging and set default Expo host type as `lan` [#1556](https://github.com/microsoft/vscode-react-native/pull/1556)
