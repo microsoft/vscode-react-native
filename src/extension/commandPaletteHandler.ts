@@ -41,6 +41,7 @@ import { NetworkInspectorServer } from "./networkInspector/networkInspectorServe
 import { InspectorViewFactory } from "./networkInspector/views/inspectorViewFactory";
 import { WindowsPlatform } from "./windows/windowsPlatform";
 import { MacOSPlatform } from "./macos/macOSPlatform";
+import { notStrictEqual } from "assert";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -392,6 +393,11 @@ export class CommandPaletteHandler {
                     // eslint-disable-next-line @typescript-eslint/no-empty-function
                     .catch(() => {}); // Ignore any errors
             }
+
+            if (process.platform === "win32") {
+                // TODO: implement Show DevMenu command for RNW
+            }
+
             return Promise.resolve();
         });
     }
@@ -407,7 +413,23 @@ export class CommandPaletteHandler {
                 .catch(() => {}); // Ignore any errors
 
             if (process.platform === "win32") {
-                // TODO: implement Reload App command for RNW
+                const nodeModulesRoot = appLauncher.getOrUpdateNodeModulesRoot();
+                ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(nodeModulesRoot, [
+                    REACT_NATIVE_PACKAGES.REACT_NATIVE_WINDOWS,
+                ]).then(RNPackageVersions => {
+                    const RNWPackageVersion = RNPackageVersions.reactNativeWindowsVersion;
+                    const isRNWProject = !ProjectVersionHelper.isVersionError(RNWPackageVersion);
+
+                    if (isRNWProject) {
+                        const windowsPlatform = <WindowsPlatform>(
+                            this.createPlatform(appLauncher, PlatformType.Windows, WindowsPlatform)
+                        );
+                        windowsPlatform
+                            .reloadApp(appLauncher)
+                            // eslint-disable-next-line @typescript-eslint/no-empty-function
+                            .catch(() => {}); // Ignore any errors
+                    }
+                });
             }
 
             if (process.platform === "darwin") {
