@@ -41,7 +41,6 @@ import { NetworkInspectorServer } from "./networkInspector/networkInspectorServe
 import { InspectorViewFactory } from "./networkInspector/views/inspectorViewFactory";
 import { WindowsPlatform } from "./windows/windowsPlatform";
 import { MacOSPlatform } from "./macos/macOSPlatform";
-import { notStrictEqual } from "assert";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
