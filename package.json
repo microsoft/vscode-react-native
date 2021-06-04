@@ -1,7 +1,7 @@
 {
   "name": "vscode-react-native",
   "displayName": "React Native Tools",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "private": true,
   "publisher": "msjsdiag",
   "icon": "images/icon.png",
@@ -231,9 +231,9 @@
                 "default": "localhost"
               },
               "port": {
-                "type": "string",
+                "type": "number",
                 "description": "%reactNative.attach.port.description%",
-                "default": "8081"
+                "default": 8081
               },
               "remoteRoot": {
                 "type": "string",
