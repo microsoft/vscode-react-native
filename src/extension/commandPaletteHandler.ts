@@ -416,8 +416,7 @@ export class CommandPaletteHandler {
                 ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(nodeModulesRoot, [
                     REACT_NATIVE_PACKAGES.REACT_NATIVE_WINDOWS,
                 ]).then(RNPackageVersions => {
-                    const RNWPackageVersion = RNPackageVersions.reactNativeWindowsVersion;
-                    const isRNWProject = !ProjectVersionHelper.isVersionError(RNWPackageVersion);
+                    const isRNWProject = !ProjectVersionHelper.isVersionError(RNPackageVersions.reactNativeWindowsVersion);
 
                     if (isRNWProject) {
                         const windowsPlatform = <WindowsPlatform>(
