@@ -147,6 +147,8 @@ export default class PackageLoader {
                 findFileInFolderHierarchy(__dirname, "package.json") || __dirname,
             );
 
+            console.log(`extensionDirectory = ${extensionDirectory}`);
+
             const commandExecutor = new CommandExecutor(
                 path.join(extensionDirectory, "node_modules"),
                 extensionDirectory,

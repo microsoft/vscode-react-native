@@ -15,7 +15,7 @@ const xdlPackageConfig: PackageConfig = {
 };
 const metroConfigPackageConfig: PackageConfig = {
     packageName: METRO_CONFIG_PACKAGE,
-    version: SettingsHelper.getExpoDependencyVersion("metro-config"),
+    version: SettingsHelper.getExpoDependencyVersion("metroConfig"),
 };
 const ngrokPackageConfig: PackageConfig = {
     ...xdlPackageConfig,
