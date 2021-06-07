@@ -11,7 +11,7 @@ import { AppLauncher } from "../extension/appLauncher";
 import { PromiseUtil } from "./node/promise";
 
 const WRONG_VERSION_ERROR =
-    "After installing the package, its version is different from the required";
+    "The installed version of the package is different from the required one";
 
 export interface PackageConfig {
     packageName: string;
