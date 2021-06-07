@@ -8,12 +8,18 @@ import { OutputChannelLogger } from "./log/OutputChannelLogger";
 import { TargetType, GeneralMobilePlatform } from "./generalMobilePlatform";
 import { AndroidPlatform } from "./android/androidPlatform";
 import { IOSPlatform } from "./ios/iOSPlatform";
-import { ProjectVersionHelper } from "../common/projectVersionHelper";
-import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
+import { ProjectVersionHelper, REACT_NATIVE_PACKAGES } from "../common/projectVersionHelper";
+import { ParsedPackage, ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
 import { TargetPlatformHelper } from "../common/targetPlatformHelper";
 import { TelemetryHelper } from "../common/telemetryHelper";
 import { ProjectsStorage } from "./projectsStorage";
-import { IAndroidRunOptions, IIOSRunOptions, PlatformType } from "./launchArgs";
+import {
+    IAndroidRunOptions,
+    IIOSRunOptions,
+    ImacOSRunOptions,
+    IWindowsRunOptions,
+    PlatformType,
+} from "./launchArgs";
 import { ExponentPlatform } from "./exponent/exponentPlatform";
 import { spawn, ChildProcess } from "child_process";
 import { HostPlatform } from "../common/hostPlatform";
@@ -33,6 +39,8 @@ import { LogCatMonitor } from "./android/logCatMonitor";
 import { LogCatMonitorManager } from "./android/logCatMonitorManager";
 import { NetworkInspectorServer } from "./networkInspector/networkInspectorServer";
 import { InspectorViewFactory } from "./networkInspector/views/inspectorViewFactory";
+import { WindowsPlatform } from "./windows/windowsPlatform";
+import { MacOSPlatform } from "./macos/macOSPlatform";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -301,6 +309,70 @@ export class CommandPaletteHandler {
         });
     }
 
+    public static runWindows(): Promise<void> {
+        const additionalPackagesToCheck: ParsedPackage[] = [
+            REACT_NATIVE_PACKAGES.REACT_NATIVE_WINDOWS,
+        ];
+        return this.selectProject().then((appLauncher: AppLauncher) => {
+            TargetPlatformHelper.checkTargetPlatformSupport(PlatformType.Windows);
+            return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
+                appLauncher.getOrUpdateNodeModulesRoot(),
+                additionalPackagesToCheck,
+            ).then(versions => {
+                appLauncher.setReactNativeVersions(versions);
+                return this.executeCommandInContext(
+                    "runWindows",
+                    appLauncher.getWorkspaceFolder(),
+                    () => {
+                        const platform = <WindowsPlatform>(
+                            this.createPlatform(appLauncher, PlatformType.Windows, WindowsPlatform)
+                        );
+                        return platform
+                            .beforeStartPackager()
+                            .then(() => {
+                                return platform.startPackager();
+                            })
+                            .then(() => {
+                                return platform.runApp(false);
+                            });
+                    },
+                );
+            });
+        });
+    }
+
+    public static runMacOS(): Promise<void> {
+        const additionalPackagesToCheck: ParsedPackage[] = [
+            REACT_NATIVE_PACKAGES.REACT_NATIVE_MACOS,
+        ];
+        return this.selectProject().then((appLauncher: AppLauncher) => {
+            TargetPlatformHelper.checkTargetPlatformSupport(PlatformType.macOS);
+            return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
+                appLauncher.getOrUpdateNodeModulesRoot(),
+                additionalPackagesToCheck,
+            ).then(versions => {
+                appLauncher.setReactNativeVersions(versions);
+                return this.executeCommandInContext(
+                    "runMacOS",
+                    appLauncher.getWorkspaceFolder(),
+                    () => {
+                        const platform = <MacOSPlatform>(
+                            this.createPlatform(appLauncher, PlatformType.macOS, MacOSPlatform)
+                        );
+                        return platform
+                            .beforeStartPackager()
+                            .then(() => {
+                                return platform.startPackager();
+                            })
+                            .then(() => {
+                                return platform.runApp();
+                            });
+                    },
+                );
+            });
+        });
+    }
+
     public static showDevMenu(): Promise<void> {
         return this.selectProject().then((appLauncher: AppLauncher) => {
             const androidPlatform = <AndroidPlatform>(
@@ -320,6 +392,11 @@ export class CommandPaletteHandler {
                     // eslint-disable-next-line @typescript-eslint/no-empty-function
                     .catch(() => {}); // Ignore any errors
             }
+
+            if (process.platform === "win32") {
+                // TODO: implement Show DevMenu command for RNW
+            }
+
             return Promise.resolve();
         });
     }
@@ -333,6 +410,27 @@ export class CommandPaletteHandler {
                 .reloadApp()
                 // eslint-disable-next-line @typescript-eslint/no-empty-function
                 .catch(() => {}); // Ignore any errors
+
+            if (process.platform === "win32") {
+                const nodeModulesRoot = appLauncher.getOrUpdateNodeModulesRoot();
+                ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(nodeModulesRoot, [
+                    REACT_NATIVE_PACKAGES.REACT_NATIVE_WINDOWS,
+                ]).then(RNPackageVersions => {
+                    const isRNWProject = !ProjectVersionHelper.isVersionError(
+                        RNPackageVersions.reactNativeWindowsVersion,
+                    );
+
+                    if (isRNWProject) {
+                        const windowsPlatform = <WindowsPlatform>(
+                            this.createPlatform(appLauncher, PlatformType.Windows, WindowsPlatform)
+                        );
+                        windowsPlatform
+                            .reloadApp(appLauncher)
+                            // eslint-disable-next-line @typescript-eslint/no-empty-function
+                            .catch(() => {}); // Ignore any errors
+                    }
+                });
+            }
 
             if (process.platform === "darwin") {
                 const iosPlatform = <IOSPlatform>(
@@ -569,7 +667,7 @@ export class CommandPaletteHandler {
 
     private static createPlatform(
         appLauncher: AppLauncher,
-        platform: PlatformType.iOS | PlatformType.Android | PlatformType.Exponent,
+        platform: PlatformType,
         platformClass: typeof GeneralMobilePlatform,
         target?: TargetType,
     ): GeneralMobilePlatform {
@@ -741,9 +839,9 @@ export class CommandPaletteHandler {
 
     private static getRunOptions(
         appLauncher: AppLauncher,
-        platform: PlatformType.iOS | PlatformType.Android | PlatformType.Exponent,
+        platform: PlatformType,
         target: TargetType = "simulator",
-    ): IAndroidRunOptions | IIOSRunOptions {
+    ): IAndroidRunOptions | IIOSRunOptions | IWindowsRunOptions | ImacOSRunOptions {
         const packagerPort = SettingsHelper.getPackagerPort(
             appLauncher.getWorkspaceFolderUri().fsPath,
         );
@@ -765,9 +863,12 @@ export class CommandPaletteHandler {
         const projectRoot = SettingsHelper.getReactNativeProjectRoot(
             appLauncher.getWorkspaceFolderUri().fsPath,
         );
-
         const nodeModulesRoot: string = appLauncher.getOrUpdateNodeModulesRoot();
-        const runOptions: IAndroidRunOptions | IIOSRunOptions = {
+        const runOptions:
+            | IAndroidRunOptions
+            | IIOSRunOptions
+            | IWindowsRunOptions
+            | ImacOSRunOptions = {
             platform: platform,
             workspaceRoot: appLauncher.getWorkspaceFolderUri().fsPath,
             projectRoot: projectRoot,

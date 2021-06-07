@@ -106,8 +106,8 @@ function getNativeModules() {
 var vscodeHandlers = {
     'vscode_reloadApp': function () {
         var NativeModules = getNativeModules();
-        if (NativeModules && NativeModules.DevMenu) {
-            NativeModules.DevMenu.reload();
+        if (NativeModules && NativeModules.DevSettings) {
+            NativeModules.DevSettings.reload();
         }
     },
     'vscode_showDevMenu': function () {

@@ -20,7 +20,7 @@ import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalError } from "../common/error/internalError";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { SettingsHelper } from "./settingsHelper";
-import { ProjectVersionHelper } from "../common/projectVersionHelper";
+import { ProjectVersionHelper, RNPackageVersions } from "../common/projectVersionHelper";
 import { ReactDirManager } from "./reactDirManager";
 import { Telemetry } from "../common/telemetry";
 import { TelemetryHelper, ICommandTelemetryProperties } from "../common/telemetryHelper";
@@ -256,7 +256,7 @@ export function onFolderAdded(folder: vscode.WorkspaceFolder): Promise<void> {
     outputChannelLogger.debug(`Add project: ${projectRootPath}`);
     return ProjectVersionHelper.tryToGetRNSemverValidVersionsFromProjectPackage(
         projectRootPath,
-        undefined,
+        ProjectVersionHelper.generateAllAdditionalPackages(),
         projectRootPath,
     ).then(versions => {
         outputChannelLogger.debug(`React Native version: ${versions.reactNativeVersion}`);
@@ -271,6 +271,8 @@ export function onFolderAdded(folder: vscode.WorkspaceFolder): Promise<void> {
                 versions.reactNativeVersion,
             );
         } else if (isSupportedVersion(versions.reactNativeVersion)) {
+            activateCommands(versions);
+
             promises.push(
                 entryPointHandler.runFunction(
                     "debugger.setupLauncherStub",
@@ -297,6 +299,16 @@ export function onFolderAdded(folder: vscode.WorkspaceFolder): Promise<void> {
 
         return Promise.all(promises).then(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
     });
+}
+
+function activateCommands(versions: RNPackageVersions): void {
+    if (!ProjectVersionHelper.isVersionError(versions.reactNativeWindowsVersion)) {
+        vscode.commands.executeCommand("setContext", "isRNWindowsProject", true);
+    }
+
+    if (!ProjectVersionHelper.isVersionError(versions.reactNativeMacOSVersion)) {
+        vscode.commands.executeCommand("setContext", "isRNMacOSProject", true);
+    }
 }
 
 function onFolderRemoved(folder: vscode.WorkspaceFolder): void {
@@ -374,6 +386,16 @@ function registerReactNativeCommands(): void {
         "runExponent",
         ErrorHelper.getInternalError(InternalErrorCode.FailedToRunExponent),
         () => CommandPaletteHandler.runExponent(),
+    );
+    registerVSCodeCommand(
+        "runWindows",
+        ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnWindows),
+        () => CommandPaletteHandler.runWindows(),
+    );
+    registerVSCodeCommand(
+        "runMacOS",
+        ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnMacOS),
+        () => CommandPaletteHandler.runMacOS(),
     );
     registerVSCodeCommand(
         "startPackager",

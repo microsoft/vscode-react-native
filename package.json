@@ -85,6 +85,18 @@
         "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       },
       {
+        "command": "reactNative.runWindows",
+        "title": "%reactNative.command.runWindows.title%",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled && isRNWindowsProject || isWorkspaceTrusted && isRNWindowsProject"
+      },
+      {
+        "command": "reactNative.runMacOS",
+        "title": "%reactNative.command.runMacOS.title%",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled && isRNMacOSProject || isWorkspaceTrusted && isRNMacOSProject"
+      },
+      {
         "command": "reactNative.startPackager",
         "title": "%reactNative.command.startPackager.title%",
         "category": "React Native",

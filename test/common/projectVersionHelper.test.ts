@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { ProjectVersionHelper } from "../../src/common/projectVersionHelper";
+import { ProjectVersionHelper, REACT_NATIVE_PACKAGES } from "../../src/common/projectVersionHelper";
 import { RN_VERSION_ERRORS } from "../../src/common/error/versionError";
 import { Node } from "../../src/common/node/node";
 
@@ -22,10 +22,7 @@ suite("projectVersionHelper", function () {
 
     test("getReactNativeVersionsFromProjectPackage should return object containing version strings if 'version' field is found in project's package.json file", () => {
         let additionalPackages: ParsedPackage[] = [];
-        additionalPackages.push({
-            packageName: "react-native-windows",
-            useSemverCoerce: false,
-        });
+        additionalPackages.push(REACT_NATIVE_PACKAGES.REACT_NATIVE_WINDOWS);
         return ProjectVersionHelper.getReactNativeVersionsFromProjectPackage(
             sampleReactNative022ProjectDir,
             additionalPackages,
@@ -52,10 +49,7 @@ suite("projectVersionHelper", function () {
 
         test("getReactNativeVersionsFromProjectPackage should return containing empty version strings if 'version' field isn't found in project's package.json file", () => {
             let additionalPackages: ParsedPackage[] = [];
-            additionalPackages.push({
-                packageName: "react-native-windows",
-                useSemverCoerce: false,
-            });
+            additionalPackages.push(REACT_NATIVE_PACKAGES.REACT_NATIVE_WINDOWS);
             return ProjectVersionHelper.getReactNativeVersionsFromProjectPackage(
                 sampleReactNative022ProjectDir,
                 additionalPackages,
@@ -115,10 +109,7 @@ suite("projectVersionHelper", function () {
             );
 
             let additionalPackages: ParsedPackage[] = [];
-            additionalPackages.push({
-                packageName: "react-native-windows",
-                useSemverCoerce: false,
-            });
+            additionalPackages.push(REACT_NATIVE_PACKAGES.REACT_NATIVE_WINDOWS);
             ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
                 nodeModulesRoot,
                 additionalPackages,
