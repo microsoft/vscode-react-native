@@ -2332,7 +2332,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ---------------------------------------------------------
 
-mkdirp 1.0.4 - MIT
+mkdirp 1.0.3 - MIT
 https://github.com/isaacs/node-mkdirp#readme
 
 Copyright James Halliday (mail@substack.net) and Isaac Z. Schlueter (i@izs.me)
@@ -2364,7 +2364,7 @@ THE SOFTWARE.
 
 ---------------------------------------------------------
 
-mkdirp 1.0.3 - MIT
+mkdirp 1.0.4 - MIT
 https://github.com/isaacs/node-mkdirp#readme
 
 Copyright James Halliday (mail@substack.net) and Isaac Z. Schlueter (i@izs.me)
@@ -3202,7 +3202,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ---------------------------------------------------------
 
-ws 7.3.0 - MIT
+ws 7.4.6 - MIT
 https://github.com/websockets/ws
 
 Copyright (c) 2011 Einar Otto Stangvik <einaros@gmail.com>

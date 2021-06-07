@@ -1,7 +1,7 @@
 {
   "name": "vscode-react-native",
   "displayName": "React Native Tools",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "private": true,
   "publisher": "msjsdiag",
   "icon": "images/icon.png",
@@ -83,6 +83,18 @@
         "title": "%reactNative.command.runExponent.title%",
         "category": "React Native",
         "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
+      },
+      {
+        "command": "reactNative.runWindows",
+        "title": "%reactNative.command.runWindows.title%",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled && isRNWindowsProject || isWorkspaceTrusted && isRNWindowsProject"
+      },
+      {
+        "command": "reactNative.runMacOS",
+        "title": "%reactNative.command.runMacOS.title%",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled && isRNMacOSProject || isWorkspaceTrusted && isRNMacOSProject"
       },
       {
         "command": "reactNative.startPackager",
@@ -219,9 +231,9 @@
                 "default": "localhost"
               },
               "port": {
-                "type": "string",
+                "type": "number",
                 "description": "%reactNative.attach.port.description%",
-                "default": "8081"
+                "default": 8081
               },
               "remoteRoot": {
                 "type": "string",
@@ -813,7 +825,7 @@
     "vscode-debugadapter": "1.39.1",
     "vscode-extension-telemetry": "0.0.5",
     "vscode-nls": "4.1.2",
-    "ws": "7.3.0"
+    "ws": "7.4.6"
   },
   "devDependencies": {
     "@mixer/parallel-prettier": "2.0.0",

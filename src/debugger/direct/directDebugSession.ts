@@ -65,7 +65,7 @@ export class DirectDebugSession extends DebugSessionBase {
                     );
 
                     return ProjectVersionHelper.getReactNativeVersions(
-                        launchArgs.cwd,
+                        this.projectRootPath,
                         ProjectVersionHelper.generateAdditionalPackagesToCheckByPlatform(
                             launchArgs,
                         ),
@@ -135,7 +135,7 @@ export class DirectDebugSession extends DebugSessionBase {
                         `Attaching to the application: ${JSON.stringify(attachArgs, null, 2)}`,
                     );
                     return ProjectVersionHelper.getReactNativeVersions(
-                        attachArgs.cwd,
+                        this.projectRootPath,
                         ProjectVersionHelper.generateAdditionalPackagesToCheckByPlatform(
                             attachArgs,
                         ),
