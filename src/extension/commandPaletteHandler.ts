@@ -359,14 +359,22 @@ export class CommandPaletteHandler {
                         const platform = <MacOSPlatform>(
                             this.createPlatform(appLauncher, PlatformType.macOS, MacOSPlatform)
                         );
-                        return platform
-                            .beforeStartPackager()
-                            .then(() => {
-                                return platform.startPackager();
-                            })
-                            .then(() => {
-                                return platform.runApp();
-                            });
+                        return (
+                            platform
+                                .beforeStartPackager()
+                                .then(() => {
+                                    return platform.startPackager();
+                                })
+                                .then(() => {
+                                    // Set the Debugging setting to disabled, because in macOS it persists across runs of the app
+                                    return platform.disableJSDebuggingMode();
+                                })
+                                // eslint-disable-next-line @typescript-eslint/no-empty-function
+                                .catch(() => {}) // If setting the debugging mode fails, we ignore the error and we run the run ios command anyways
+                                .then(() => {
+                                    return platform.runApp();
+                                })
+                        );
                     },
                 );
             });

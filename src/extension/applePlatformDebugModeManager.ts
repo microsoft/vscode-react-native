@@ -12,9 +12,9 @@ const localize = nls.loadMessageBundle();
 
 export abstract class ApplePlatformDebugModeManager {
     protected static REMOTE_DEBUGGING_SETTING_NAME = ":RCTDevMenu:isDebuggingRemotely";
-    protected logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
     protected static MAX_RETRIES = 5;
     protected static DELAY_UNTIL_RETRY = 2000;
+    protected logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
 
     protected projectRoot: string;
     protected platformProjectRoot: string;
