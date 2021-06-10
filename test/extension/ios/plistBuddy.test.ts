@@ -8,6 +8,7 @@ import * as fs from "fs";
 import * as sinon from "sinon";
 import { ConfigurationData } from "../../../src/extension/ios/plistBuddy";
 import { ProjectVersionHelper } from "../../../src/common/projectVersionHelper";
+import { PlatformType } from "../../../src/extension/launchArgs";
 
 suite("plistBuddy", function () {
     suite("extensionContext", function () {
@@ -107,19 +108,35 @@ suite("plistBuddy", function () {
             sandbox.stub(plistBuddy, "getConfigurationData", fakeGetConfigurationData);
 
             return Promise.all([
-                plistBuddy.getBundleId(iosProjectRoot, projectRoot, true, "Debug", appName),
                 plistBuddy.getBundleId(
                     iosProjectRoot,
                     projectRoot,
+                    PlatformType.iOS,
+                    true,
+                    "Debug",
+                    appName,
+                ),
+                plistBuddy.getBundleId(
+                    iosProjectRoot,
+                    projectRoot,
+                    PlatformType.iOS,
                     true,
                     "Debug",
                     appName,
                     "whateverScheme",
                 ),
-                plistBuddy.getBundleId(iosProjectRoot, projectRoot, false, undefined, appName),
                 plistBuddy.getBundleId(
                     iosProjectRoot,
                     projectRoot,
+                    PlatformType.iOS,
+                    false,
+                    undefined,
+                    appName,
+                ),
+                plistBuddy.getBundleId(
+                    iosProjectRoot,
+                    projectRoot,
+                    PlatformType.iOS,
                     false,
                     undefined,
                     appName,
@@ -158,12 +175,35 @@ suite("plistBuddy", function () {
             sandbox.stub(plistBuddy, "getInferredScheme").returns(scheme);
 
             return Promise.all([
-                plistBuddy.getBundleId(iosProjectRoot, projectRoot, true, "Debug", appName),
-                plistBuddy.getBundleId(iosProjectRoot, projectRoot, true, "Debug", appName, scheme),
-                plistBuddy.getBundleId(iosProjectRoot, projectRoot, false, undefined, appName),
                 plistBuddy.getBundleId(
                     iosProjectRoot,
                     projectRoot,
+                    PlatformType.iOS,
+                    true,
+                    "Debug",
+                    appName,
+                ),
+                plistBuddy.getBundleId(
+                    iosProjectRoot,
+                    projectRoot,
+                    PlatformType.iOS,
+                    true,
+                    "Debug",
+                    appName,
+                    scheme,
+                ),
+                plistBuddy.getBundleId(
+                    iosProjectRoot,
+                    projectRoot,
+                    PlatformType.iOS,
+                    false,
+                    undefined,
+                    appName,
+                ),
+                plistBuddy.getBundleId(
+                    iosProjectRoot,
+                    projectRoot,
+                    PlatformType.iOS,
                     false,
                     undefined,
                     appName,
@@ -203,12 +243,35 @@ suite("plistBuddy", function () {
             sandbox.stub(plistBuddy, "getInferredScheme").returns(scheme);
 
             return Promise.all([
-                plistBuddy.getBundleId(iosProjectRoot, projectRoot, true, "Debug", appName),
-                plistBuddy.getBundleId(iosProjectRoot, projectRoot, true, "Debug", appName, scheme),
-                plistBuddy.getBundleId(iosProjectRoot, projectRoot, false, undefined, appName),
                 plistBuddy.getBundleId(
                     iosProjectRoot,
                     projectRoot,
+                    PlatformType.iOS,
+                    true,
+                    "Debug",
+                    appName,
+                ),
+                plistBuddy.getBundleId(
+                    iosProjectRoot,
+                    projectRoot,
+                    PlatformType.iOS,
+                    true,
+                    "Debug",
+                    appName,
+                    scheme,
+                ),
+                plistBuddy.getBundleId(
+                    iosProjectRoot,
+                    projectRoot,
+                    PlatformType.iOS,
+                    false,
+                    undefined,
+                    appName,
+                ),
+                plistBuddy.getBundleId(
+                    iosProjectRoot,
+                    projectRoot,
+                    PlatformType.iOS,
                     false,
                     undefined,
                     appName,
