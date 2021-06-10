@@ -13,13 +13,33 @@ import { PromiseUtil } from "./node/promise";
 const WRONG_VERSION_ERROR =
     "The installed version of the package is different from the required one";
 
-export interface PackageConfig {
-    packageName: string;
-    requirePath?: string;
-    version?: string;
+export class PackageConfig {
+    constructor(
+        private packageName: string,
+        private version?: string,
+        private requirePath?: string,
+    ) {}
+
+    public getPackageName(): string {
+        return this.packageName;
+    }
+    public getRequirePath(): string | undefined {
+        return this.requirePath;
+    }
+    public getVersion(): string | undefined {
+        return this.version;
+    }
+
+    public getStringForInstall(): string {
+        return this.packageName + (this.version ? `@${this.version}` : "");
+    }
+
+    public getStringForRequire(): string {
+        return this.packageName + (this.requirePath ? `/${this.requirePath}` : "");
+    }
 }
 
-export default class PackageLoader {
+export class PackageLoader {
     private logger: OutputChannelLogger;
     private packagesQueue: string[];
     private requireQueue: ((load?: string[]) => Promise<boolean>)[];
@@ -74,11 +94,8 @@ export default class PackageLoader {
     ): (load?: string[]) => Promise<boolean> {
         return (load?: string[]) => {
             let itWasInstalled = false;
-            const packageWithVersion =
-                packageConfig.packageName +
-                (packageConfig.version ? `@${packageConfig.version}` : "");
             // Throw exception if we could not find package after installing
-            if (load && load.includes(packageWithVersion)) {
+            if (load && load.includes(packageConfig.getStringForInstall())) {
                 itWasInstalled = true;
             }
             return this.tryToRequire<T>(packageConfig, resolve, reject, itWasInstalled);
@@ -91,20 +108,15 @@ export default class PackageLoader {
         reject: (reason?: any) => void,
         itWasInstalled: boolean,
     ): Promise<boolean> {
-        const requiredPackage =
-            packageConfig.packageName +
-            (packageConfig.requirePath ? `/${packageConfig.requirePath}` : "");
+        const requiredPackage = packageConfig.getStringForRequire();
         try {
             this.logger.debug(`Getting ${requiredPackage} dependency.`);
-            console.log(
-                `Try to require: ${requiredPackage} with version (${packageConfig.version})`,
-            );
-            if (packageConfig.version) {
+            if (packageConfig.getVersion()) {
                 const installedVersion = await getVersionFromExtensionNodeModules(
-                    packageConfig.packageName,
+                    packageConfig.getPackageName(),
                 );
-                console.log(`Actual Version of ${requiredPackage} is (${installedVersion})`);
-                if (packageConfig.version !== installedVersion) {
+
+                if (packageConfig.getVersion() !== installedVersion) {
                     if (itWasInstalled) {
                         throw WRONG_VERSION_ERROR;
                     }
@@ -131,13 +143,9 @@ export default class PackageLoader {
         packageConfig: PackageConfig,
         ...additionalDependencies: PackageConfig[]
     ): Promise<void> {
-        const packageWithVersion =
-            packageConfig.packageName + (packageConfig.version ? `@${packageConfig.version}` : "");
-        this.packagesQueue.push(packageWithVersion);
+        this.packagesQueue.push(packageConfig.getStringForInstall());
         additionalDependencies.forEach(dependency => {
-            const dependencyWithVersion =
-                dependency.packageName + (dependency.version ? `@${dependency.version}` : "");
-            this.packagesQueue.push(dependencyWithVersion);
+            this.packagesQueue.push(dependency.getStringForInstall());
         });
         this.requireQueue.push(tryToRequire);
         if (!this.isCommandsExecuting) {
@@ -147,26 +155,19 @@ export default class PackageLoader {
                 findFileInFolderHierarchy(__dirname, "package.json") || __dirname,
             );
 
-            console.log(`extensionDirectory = ${extensionDirectory}`);
-
             const commandExecutor = new CommandExecutor(
                 path.join(extensionDirectory, "node_modules"),
                 extensionDirectory,
                 this.logger,
             );
+
             while (this.packagesQueue.length) {
                 // Install all packages in queue
                 this.packagesQueue = this.getUniquePackages(this.packagesQueue);
 
-                console.log("this.requireQueue before");
-                console.log(this.requireQueue);
-                console.log("this.packagesQueue before");
-                console.log(this.packagesQueue);
-
                 const load = this.packagesQueue.length;
                 const packagesForInstall = this.packagesQueue.slice(0, load);
-                console.log("Packages for install:");
-                console.log(packagesForInstall);
+
                 await commandExecutor.spawnWithProgress(
                     HostPlatform.getNpmCliCommand("npm"),
                     ["install", ...packagesForInstall, "--verbose", "--no-save", "--global-style"],
@@ -200,10 +201,6 @@ export default class PackageLoader {
                 } else {
                     this.packagesQueue = [];
                 }
-                console.log("this.requireQueue after");
-                console.log(this.requireQueue);
-                console.log("this.packagesQueue after");
-                console.log(this.packagesQueue);
             }
             this.isCommandsExecuting = false;
         }

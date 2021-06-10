@@ -14,7 +14,7 @@ import stripJSONComments = require("strip-json-comments");
 import * as nls from "vscode-nls";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { getNodeModulesGlobalPath } from "../../common/utils";
-import PackageLoader from "../../common/packageLoader";
+import { PackageLoader } from "../../common/packageLoader";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { FileSystem } from "../../common/node/fileSystem";
 nls.config({

@@ -3,25 +3,31 @@
 
 import * as XDLPackage from "xdl";
 import * as MetroConfigPackage from "metro-config";
-import PackageLoader, { PackageConfig } from "../../common/packageLoader";
+import { PackageLoader, PackageConfig } from "../../common/packageLoader";
 import { SettingsHelper } from "../settingsHelper";
 
 const XDL_PACKAGE = "xdl";
 const METRO_CONFIG_PACKAGE = "@expo/metro-config";
 
-const xdlPackageConfig: PackageConfig = {
-    packageName: XDL_PACKAGE,
-    version: SettingsHelper.getExpoDependencyVersion(XDL_PACKAGE),
-};
-const metroConfigPackageConfig: PackageConfig = {
-    packageName: METRO_CONFIG_PACKAGE,
-    version: SettingsHelper.getExpoDependencyVersion("metroConfig"),
-};
-const ngrokPackageConfig: PackageConfig = {
-    ...xdlPackageConfig,
-    requirePath: "build/start/resolveNgrok",
-};
+const xdlPackageConfig = new PackageConfig(
+    XDL_PACKAGE,
+    SettingsHelper.getExpoDependencyVersion(XDL_PACKAGE),
+);
+const metroConfigPackageConfig = new PackageConfig(
+    METRO_CONFIG_PACKAGE,
+    SettingsHelper.getExpoDependencyVersion("metroConfig"),
+);
 
+const ngrokPackageConfig = new PackageConfig(
+    xdlPackageConfig.getPackageName(),
+    xdlPackageConfig.getVersion(),
+    "build/start/resolveNgrok",
+);
+
+// There is the problem with '--no-save' flag for 'npm install' command for npm v6.
+// Installing npm dependencies with the `--no-save` flag will remove
+// other dependencies that were installed in the same manner (https://github.com/npm/cli/issues/1460).
+// So we should workaround it passing all packages for install to only one npm install command
 const EXPO_DEPS: PackageConfig[] = [xdlPackageConfig, metroConfigPackageConfig];
 
 export let getXDLPackage: () => Promise<
