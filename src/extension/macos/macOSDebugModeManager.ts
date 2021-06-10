@@ -87,7 +87,7 @@ export class MacOSDebugModeManager extends ApplePlatformDebugModeManager {
                 this.platformProjectRoot,
                 this.projectRoot,
                 PlatformType.macOS,
-                true,
+                false,
                 configuration,
                 productName,
                 this.scheme,

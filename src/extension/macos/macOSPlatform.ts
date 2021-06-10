@@ -175,7 +175,7 @@ export class MacOSPlatform extends GeneralMobilePlatform {
                 this.macosProjectRoot,
                 this.projectPath,
                 PlatformType.macOS,
-                true,
+                false,
                 this.runOptions.configuration,
                 this.runOptions.productName,
                 this.getSchemeFromDebuggingParameters(),
