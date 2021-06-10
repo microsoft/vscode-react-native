@@ -8,20 +8,22 @@ import rimraf = require("rimraf");
 import * as sinon from "sinon";
 import * as extensionHelper from "../../src/common/extensionHelper";
 import { Package } from "../../src/common/node/package";
-import PackageLoader, { PackageConfig } from "../../src/common/packageLoader";
+import * as XDL from "../../src/extension/exponent/xdlInterface";
+import { PackageLoader, PackageConfig } from "../../src/common/packageLoader";
+import { CommandExecutor } from "../../src/common/commandExecutor";
+import { HostPlatform } from "../../src/common/hostPlatform";
 
-const packageLoaderTestTimeout = 1000 * 60 * 3;
+const packageLoaderTestTimeout = 1000 * 60;
+console.log(XDL);
 
 suite("packageLoader", async () => {
     async function getPackageVersionsFromNodeModules(
         projectRoot: string,
         packageName: string,
-    ): Promise<string | undefined> {
-        try {
-            return new Package(projectRoot).getPackageVersionFromNodeModules(packageName);
-        } catch (e) {
-            return Promise.resolve(undefined);
-        }
+    ): Promise<string | null> {
+        return new Package(projectRoot)
+            .getPackageVersionFromNodeModules(packageName)
+            .catch(() => null);
     }
 
     suite("localNodeModules", async () => {
@@ -32,70 +34,185 @@ suite("packageLoader", async () => {
             "sampleReactNative022Project",
         );
         const sampleProjectNodeModulesPath = path.join(sampleProjectPath, "node_modules");
+        const sampleProjectPackageLockJsonPath = path.join(sampleProjectPath, "package-lock.json");
+
+        const commandExecutor = new CommandExecutor(
+            sampleProjectNodeModulesPath,
+            sampleProjectPath,
+        );
+
         let findFileInFolderHierarchyStub: Sinon.SinonStub | undefined;
+        let getVersionFromExtensionNodeModulesStub: Sinon.SinonStub | undefined;
 
-        const mkdirpPackageFirst: PackageConfig = { packageName: "mkdirp", version: "1.0.4" };
-        // const mkdirpPackageSecond: PackageConfig = { packageName: "mkdirp", version: "1.0.3" };
+        const mkdirpPackageConfig = new PackageConfig("mkdirp", "1.0.4");
 
-        const rimrafPackageFirst: PackageConfig = { packageName: "rimraf", version: "3.0.1" };
-        // const rimrafPackageSecond: PackageConfig = { packageName: "rimraf", version: "3.0.2" };
+        const rimrafPackageFirst = new PackageConfig("rimraf", "3.0.1");
+        const rimrafPackageSecond = new PackageConfig("rimraf", "3.0.2");
 
-        // const chalkPackageFirst: PackageConfig = { packageName: "chalk", version: "" };
-        // const chalkPackageSecond: PackageConfig = { packageName: "chalk", version: "" };
+        const chalkPackageConfig = new PackageConfig("chalk", "4.1.1", "./source/util.js");
 
-        suiteSetup(async () => {
+        setup(async function () {
             findFileInFolderHierarchyStub = sinon.stub(
                 extensionHelper,
                 "findFileInFolderHierarchy",
                 () => {
-                    return sampleProjectPath;
+                    return sampleProjectNodeModulesPath;
+                },
+            );
+            getVersionFromExtensionNodeModulesStub = sinon.stub(
+                extensionHelper,
+                "getVersionFromExtensionNodeModules",
+                (packageName: string) => {
+                    return getPackageVersionsFromNodeModules(sampleProjectPath, packageName);
                 },
             );
         });
-        suiteTeardown(async () => {
-            findFileInFolderHierarchyStub?.restore();
-        });
 
-        teardown(() => {
+        teardown(function () {
+            this.timeout(packageLoaderTestTimeout);
+            findFileInFolderHierarchyStub?.restore();
+            getVersionFromExtensionNodeModulesStub?.restore();
             rimraf.sync(sampleProjectNodeModulesPath);
+            rimraf.sync(sampleProjectPackageLockJsonPath);
             assert.strictEqual(
-                fs.existsSync(sampleProjectNodeModulesPath),
-                false,
+                !fs.existsSync(sampleProjectNodeModulesPath) &&
+                    !fs.existsSync(sampleProjectPackageLockJsonPath),
+                true,
                 "Node modules has not been uninstalled from sample directory",
             );
         });
 
-        test("The package loader should install packages in node_modules where these packages are not present", async () => {
+        test("The package loader should install packages in node_modules where these packages are not present", async function () {
+            this.timeout(packageLoaderTestTimeout);
+            // There is the problem with '--no-save' flag for 'npm install' command for npm v6.
+            // Installing npm dependencies with the `--no-save` flag will remove
+            // other dependencies that were installed in the same manner (https://github.com/npm/cli/issues/1460).
+            // So we should workaround it passing all packages for install to only one npm install command
             const getMkdrip = PackageLoader.getInstance().generateGetPackageFunction<any>(
-                mkdirpPackageFirst,
+                mkdirpPackageConfig,
+                rimrafPackageFirst,
             );
             const getRimraf = PackageLoader.getInstance().generateGetPackageFunction<any>(
                 rimrafPackageFirst,
+                mkdirpPackageConfig,
             );
             const packages = await Promise.all([getMkdrip(), getRimraf()]);
             assert.notStrictEqual(
                 packages[0] & packages[1],
                 undefined,
-                "Not all packages has been installed and requared",
+                "Not all packages has been installed and required",
             );
-            const installedVersionOfMkdrip = await getPackageVersionsFromNodeModules(
+            const installedVersionOfMkdirp = await getPackageVersionsFromNodeModules(
                 sampleProjectPath,
-                mkdirpPackageFirst.packageName,
+                mkdirpPackageConfig.getPackageName(),
             );
             const installedVersionOfRimraf = await getPackageVersionsFromNodeModules(
                 sampleProjectPath,
-                rimrafPackageFirst.packageName,
+                rimrafPackageFirst.getPackageName(),
             );
             assert.strictEqual(
-                installedVersionOfMkdrip,
-                mkdirpPackageFirst.version,
-                `Wrong installed version of ${mkdirpPackageFirst.packageName} package`,
+                installedVersionOfMkdirp,
+                mkdirpPackageConfig.getVersion(),
+                `Wrong installed version of ${mkdirpPackageConfig.getPackageName()} package`,
             );
             assert.strictEqual(
                 installedVersionOfRimraf,
-                rimrafPackageFirst.version,
-                `Wrong installed version of ${rimrafPackageFirst.packageName} package`,
+                rimrafPackageFirst.getVersion(),
+                `Wrong installed version of ${rimrafPackageFirst.getPackageName()} package`,
             );
         });
-    }).timeout(packageLoaderTestTimeout);
+
+        test("The package loader should not execute installation for packages that are already present in node_modules", async function () {
+            this.timeout(packageLoaderTestTimeout);
+
+            await commandExecutor.spawn(HostPlatform.getNpmCliCommand("npm"), [
+                "install",
+                rimrafPackageFirst.getStringForInstall(),
+                "--save-dev",
+            ]);
+            assert.strictEqual(
+                await getPackageVersionsFromNodeModules(
+                    sampleProjectPath,
+                    rimrafPackageFirst.getPackageName(),
+                ),
+                rimrafPackageFirst.getVersion(),
+                "Package was preinstall with wrong version",
+            );
+
+            const tryToRequireAfterInstallStub = sinon.spy(
+                PackageLoader.getInstance(),
+                "tryToRequireAfterInstall",
+            );
+            const getRimraf = PackageLoader.getInstance().generateGetPackageFunction<any>(
+                rimrafPackageFirst,
+            );
+            assert.notStrictEqual(await getRimraf(), undefined, "Package was not required");
+
+            assert.strictEqual(
+                tryToRequireAfterInstallStub.notCalled,
+                true,
+                "Package loader execute installation for packages that are already present in node_modules",
+            );
+            tryToRequireAfterInstallStub.restore();
+        });
+
+        test("The package loader should install package with specific version if the package already installed but with another version", async function () {
+            this.timeout(packageLoaderTestTimeout);
+
+            await commandExecutor.spawn(HostPlatform.getNpmCliCommand("npm"), [
+                "install",
+                rimrafPackageFirst.getStringForInstall(),
+                "--save-dev",
+            ]);
+            assert.strictEqual(
+                await getPackageVersionsFromNodeModules(
+                    sampleProjectPath,
+                    rimrafPackageFirst.getPackageName(),
+                ),
+                rimrafPackageFirst.getVersion(),
+                "Package was preinstall with wrong version",
+            );
+
+            const tryToRequireAfterInstallStub = sinon.spy(
+                PackageLoader.getInstance(),
+                "tryToRequireAfterInstall",
+            );
+            const getRimraf = PackageLoader.getInstance().generateGetPackageFunction<any>(
+                rimrafPackageSecond,
+            );
+            assert.notStrictEqual(await getRimraf(), undefined, "Package was not required");
+
+            assert.strictEqual(
+                tryToRequireAfterInstallStub.calledOnce,
+                true,
+                "Package loader not execute installation for packages that are already present in node_modules but with wrong version",
+            );
+            tryToRequireAfterInstallStub.restore();
+
+            const installedVersionOfRimraf = await getPackageVersionsFromNodeModules(
+                sampleProjectPath,
+                rimrafPackageSecond.getPackageName(),
+            );
+            assert.strictEqual(
+                installedVersionOfRimraf,
+                rimrafPackageSecond.getVersion(),
+                `Wrong installed version of ${rimrafPackageSecond.getPackageName()} package`,
+            );
+        });
+
+        test("The package loader should install package and require specific subpath for this package", async function () {
+            this.timeout(packageLoaderTestTimeout);
+
+            const getChalk = PackageLoader.getInstance().generateGetPackageFunction<any>(
+                chalkPackageConfig,
+            );
+            const chalkPackage = await getChalk();
+            assert.notStrictEqual(chalkPackage, undefined, "Package was not required");
+            assert.strictEqual(
+                !!(chalkPackage.stringReplaceAll && chalkPackage.stringEncaseCRLFWithFirstIndex),
+                true,
+                "Required package subpath does not contains all members. It means what there are problems with subpath requiring",
+            );
+        });
+    });
 });
