@@ -45,7 +45,6 @@ startSmokeTests(configProcessor.parseTestArguments(), setUp, cleanUp);
 async function setUp(useCachedApplications: boolean): Promise<void> {
     await vscodeManager.downloadVSCodeExecutable();
     await vscodeManager.installExtensionFromVSIX();
-    await vscodeManager.installExpoXdlPackageToExtensionDir();
     await testApplicationSetupManager.prepareTestApplications(useCachedApplications);
     await AppiumHelper.runAppium(vscodeManager.getAppiumLogDir());
 
