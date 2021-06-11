@@ -30,7 +30,7 @@ const ngrokPackageConfig = new PackageConfig(
 // So we should workaround it passing all packages for install to only one npm install command
 const EXPO_DEPS: PackageConfig[] = [xdlPackageConfig, metroConfigPackageConfig];
 
-export let getXDLPackage: () => Promise<
+export const getXDLPackage: () => Promise<
     typeof XDLPackage
 > = PackageLoader.getInstance().generateGetPackageFunction<typeof XDLPackage>(
     xdlPackageConfig,
