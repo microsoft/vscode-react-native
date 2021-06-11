@@ -42,7 +42,7 @@ export let getMetroConfigPackage: () => Promise<
     metroConfigPackageConfig,
     ...EXPO_DEPS,
 );
-export let getNgrokResolver: () => Promise<XDLPackage.ResolveNgrok> = PackageLoader.getInstance().generateGetPackageFunction<XDLPackage.ResolveNgrok>(
+export const getNgrokResolver: () => Promise<XDLPackage.ResolveNgrok> = PackageLoader.getInstance().generateGetPackageFunction<XDLPackage.ResolveNgrok>(
     ngrokPackageConfig,
     ...EXPO_DEPS,
 );
