@@ -307,6 +307,10 @@
                 "description": "%reactNative.launch.sourceMaps.description%",
                 "default": false
               },
+              "sourceMapPathOverrides": {
+                "type": "object",
+                "description": "%reactNative.launch.sourceMapsPathOverrides.description%"
+              },
               "logCatArguments": {
                 "type": "array",
                 "description": "%reactNative.launch.logCatArguments.description%",
@@ -540,6 +544,10 @@
                 "type": "boolean",
                 "description": "%reactNative.launch.sourceMaps.description%",
                 "default": false
+              },
+              "sourceMapPathOverrides": {
+                "type": "object",
+                "description": "%reactNative.launch.sourceMapsPathOverrides.description%"
               },
               "logCatArguments": {
                 "type": "array",
