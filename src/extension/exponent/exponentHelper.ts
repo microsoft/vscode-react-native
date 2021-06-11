@@ -74,7 +74,7 @@ export class ExponentHelper {
         return this.lazilyInitialize()
             .then(() => {
                 this.logger.logStream(
-                    localize("CheckingIfThisIsExpoApp", "Checking if this is Expo app."),
+                    localize("CheckingIfThisIsExpoApp", "Checking if this is an Expo app."),
                 );
                 return this.isExpoApp(true);
             })
