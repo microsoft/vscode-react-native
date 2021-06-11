@@ -151,7 +151,7 @@ suite("packageLoader", async () => {
             assert.strictEqual(
                 tryToRequireAfterInstallStub.notCalled,
                 true,
-                "Package loader execute installation for packages that are already present in node_modules",
+                "Package loader executes installation for packages that already exist in node_modules",
             );
             tryToRequireAfterInstallStub.restore();
         });
