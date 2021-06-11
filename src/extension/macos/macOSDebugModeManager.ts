@@ -6,7 +6,6 @@ import { homedir } from "os";
 import { ApplePlatformDebugModeManager } from "../applePlatformDebugModeManager";
 import { PlistBuddy } from "../ios/plistBuddy";
 import { FileSystem } from "../../common/node/fileSystem";
-import { ChildProcess } from "../../common/node/childProcess";
 import { PlatformType } from "../launchArgs";
 import { DefaultsHelper } from "./defaultsHelper";
 
@@ -17,25 +16,18 @@ export class MacOSDebugModeManager extends ApplePlatformDebugModeManager {
     private nodeFileSystem: FileSystem;
     private plistBuddy: PlistBuddy;
     private defaultsHelper: DefaultsHelper;
-    private nodeChildProcess: ChildProcess;
 
     constructor(
         macosProjectRoot: string,
         projectRoot: string,
         scheme?: string,
-        {
-            nodeFileSystem = new FileSystem(),
-            plistBuddy = undefined,
-            nodeChildProcess = new ChildProcess(),
-        } = {},
+        { nodeFileSystem = new FileSystem(), plistBuddy = undefined } = {},
     ) {
         super(macosProjectRoot, projectRoot);
         this.scheme = scheme;
         this.nodeFileSystem = nodeFileSystem;
         this.plistBuddy = plistBuddy || new PlistBuddy();
         this.defaultsHelper = new DefaultsHelper();
-        this.nodeChildProcess = nodeChildProcess;
-        console.log(this.nodeChildProcess);
     }
 
     public setAppRemoteDebuggingSetting(
