@@ -36,7 +36,7 @@ export const getXDLPackage: () => Promise<
     xdlPackageConfig,
     ...EXPO_DEPS,
 );
-export let getMetroConfigPackage: () => Promise<
+export const getMetroConfigPackage: () => Promise<
     typeof MetroConfigPackage
 > = PackageLoader.getInstance().generateGetPackageFunction<typeof MetroConfigPackage>(
     metroConfigPackageConfig,
