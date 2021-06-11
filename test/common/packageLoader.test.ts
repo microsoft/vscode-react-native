@@ -156,7 +156,7 @@ suite("packageLoader", async () => {
             tryToRequireAfterInstallStub.restore();
         });
 
-        test("The package loader should install package with specific version if the package already installed but with another version", async function () {
+        test("The package loader should install a package with the specific version if the package is already installed but with another version", async function () {
             this.timeout(packageLoaderTestTimeout);
 
             await commandExecutor.spawn(HostPlatform.getNpmCliCommand("npm"), [
