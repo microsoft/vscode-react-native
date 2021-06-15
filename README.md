@@ -700,6 +700,7 @@ To debug Expo applications the extension requires additional dependencies, such 
   "react-native.expo.dependencies.metroConfig": "0.1.72"
 }
 ```
+
 To enable new versions of the dependencies, it's required to restart VS Code editor. After that the extension will download the new versions of the packages on the next Expo debugging starting.
 
 # Network Inspector
