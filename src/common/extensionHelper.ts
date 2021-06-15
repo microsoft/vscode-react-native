@@ -4,6 +4,7 @@
 import * as path from "path";
 import * as fs from "fs";
 import * as vscode from "vscode";
+import { Package } from "./node/package";
 
 export function getExtensionVersion(): string | null {
     const packageJsonPath = findFileInFolderHierarchy(__dirname, "package.json");
@@ -62,4 +63,20 @@ export function isWorkspaceTrusted(): boolean {
         return (vscode.workspace as any).isTrusted;
     }
     return true;
+}
+
+export function getVersionFromExtensionNodeModules(packageName: string): Promise<string | null> {
+    const packageJsonPath = findFileInFolderHierarchy(__dirname, "package.json");
+    if (packageJsonPath) {
+        const rootDirecory = path.resolve(packageJsonPath, "..");
+        return new Package(rootDirecory)
+            .getPackageVersionFromNodeModules(packageName)
+            .then(version => {
+                return version;
+            })
+            .catch(() => {
+                return null;
+            });
+    }
+    return Promise.resolve(null);
 }

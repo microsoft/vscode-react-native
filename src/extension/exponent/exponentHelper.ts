@@ -14,7 +14,7 @@ import stripJSONComments = require("strip-json-comments");
 import * as nls from "vscode-nls";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { getNodeModulesGlobalPath } from "../../common/utils";
-import PackageLoader from "../../common/packageLoader";
+import { PackageLoader } from "../../common/packageLoader";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { FileSystem } from "../../common/node/fileSystem";
 nls.config({
@@ -59,17 +59,25 @@ export class ExponentHelper {
         this.nodeModulesGlobalPathAddedToEnv = false;
     }
 
-    public configureExponentEnvironment(): Promise<void> {
-        this.lazilyInitialize();
+    public async preloadExponentDependency(): Promise<[typeof xdl, typeof metroConfig]> {
         this.logger.info(
             localize(
                 "MakingSureYourProjectUsesCorrectExponentDependencies",
                 "Making sure your project uses the correct dependencies for Expo. This may take a while...",
             ),
         );
-        this.logger.logStream(localize("CheckingIfThisIsExpoApp", "Checking if this is Expo app."));
+        return Promise.all([XDL.getXDLPackage(), XDL.getMetroConfigPackage()]);
+    }
+
+    public configureExponentEnvironment(): Promise<void> {
         let isExpo: boolean;
-        return this.isExpoApp(true)
+        return this.lazilyInitialize()
+            .then(() => {
+                this.logger.logStream(
+                    localize("CheckingIfThisIsExpoApp", "Checking if this is an Expo app."),
+                );
+                return this.isExpoApp(true);
+            })
             .then(result => {
                 isExpo = result;
                 if (!isExpo) {
@@ -103,8 +111,8 @@ export class ExponentHelper {
         promptForInformation: (message: string, password: boolean) => Promise<string>,
         showMessage: (message: string) => Promise<string>,
     ): Promise<XDL.IUser> {
-        this.lazilyInitialize();
-        return XDL.currentUser()
+        return this.lazilyInitialize()
+            .then(() => XDL.currentUser())
             .then(user => {
                 if (!user) {
                     let username = "";
@@ -134,7 +142,7 @@ export class ExponentHelper {
     }
 
     public async getExpPackagerOptions(projectRoot: string): Promise<ExpMetroConfig> {
-        this.lazilyInitialize();
+        await this.lazilyInitialize();
         const options = await this.getFromExpConfig<any>("packagerOpts").then(opts => opts || {});
         const metroConfig = await this.getArgumentsFromExpoMetroConfig(projectRoot);
         return { ...options, ...metroConfig };
@@ -267,26 +275,30 @@ export class ExponentHelper {
     }
 
     private createExpoEntry(name: string): Promise<void> {
-        this.lazilyInitialize();
-        return this.detectEntry().then((entryPoint: string) => {
-            const content = this.generateFileContent(name, entryPoint);
-            return this.fs.writeFile(this.dotvscodePath(EXPONENT_INDEX, true), content);
-        });
+        return this.lazilyInitialize()
+            .then(() => this.detectEntry())
+            .then((entryPoint: string) => {
+                const content = this.generateFileContent(name, entryPoint);
+                return this.fs.writeFile(this.dotvscodePath(EXPONENT_INDEX, true), content);
+            });
     }
 
     private detectEntry(): Promise<string> {
-        this.lazilyInitialize();
-        return Promise.all([
-            this.fs.exists(this.pathToFileInWorkspace(DEFAULT_EXPONENT_INDEX)),
-            this.fs.exists(this.pathToFileInWorkspace(DEFAULT_IOS_INDEX)),
-            this.fs.exists(this.pathToFileInWorkspace(DEFAULT_ANDROID_INDEX)),
-        ]).then(([expo, ios]) => {
-            return expo
-                ? this.pathToFileInWorkspace(DEFAULT_EXPONENT_INDEX)
-                : ios
-                ? this.pathToFileInWorkspace(DEFAULT_IOS_INDEX)
-                : this.pathToFileInWorkspace(DEFAULT_ANDROID_INDEX);
-        });
+        return this.lazilyInitialize()
+            .then(() =>
+                Promise.all([
+                    this.fs.exists(this.pathToFileInWorkspace(DEFAULT_EXPONENT_INDEX)),
+                    this.fs.exists(this.pathToFileInWorkspace(DEFAULT_IOS_INDEX)),
+                    this.fs.exists(this.pathToFileInWorkspace(DEFAULT_ANDROID_INDEX)),
+                ]),
+            )
+            .then(([expo, ios]) => {
+                return expo
+                    ? this.pathToFileInWorkspace(DEFAULT_EXPONENT_INDEX)
+                    : ios
+                    ? this.pathToFileInWorkspace(DEFAULT_IOS_INDEX)
+                    : this.pathToFileInWorkspace(DEFAULT_ANDROID_INDEX);
+            });
     }
 
     private generateFileContent(name: string, entryPoint: string): string {
@@ -487,11 +499,11 @@ var entryPoint = require('${entryPoint}');`;
     /**
      * Works as a constructor but only initiliazes when it's actually needed.
      */
-    private lazilyInitialize(): void {
+    private async lazilyInitialize(): Promise<void> {
         if (!this.hasInitialized) {
             this.hasInitialized = true;
-
-            XDL.configReactNativeVersionWargnings();
+            await this.preloadExponentDependency();
+            XDL.configReactNativeVersionWarnings();
             XDL.attachLoggerStream(this.projectRootPath, {
                 stream: {
                     write: (chunk: any) => {

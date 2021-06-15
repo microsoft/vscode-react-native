@@ -178,38 +178,6 @@ export class VsCodeManager {
         }
     }
 
-    public installExpoXdlPackageToExtensionDir(): void {
-        if (this.clientIsInstalled) {
-            if (process.env.EXPO_XDL_VERSION) {
-                const extensionDirName = utilities.findFile(
-                    this.extensionDirectory,
-                    /msjsdiag\.vscode-react-native.*/,
-                );
-                if (!extensionDirName) {
-                    throw new Error("Couldn't find extension directory");
-                }
-                const extensionFullPath = path.join(this.extensionDirectory, extensionDirName);
-
-                const command = `${utilities.npmCommand} install xdl@${process.env.EXPO_XDL_VERSION} --no-save`;
-
-                SmokeTestLogger.projectPatchingLog(
-                    `*** Adding xdl dependency to ${extensionFullPath} via '${command}' command...`,
-                );
-                utilities.execSync(
-                    command,
-                    { cwd: extensionFullPath, stdio: "inherit" },
-                    this.setupEnvironmentLogDir,
-                );
-            } else {
-                SmokeTestLogger.warn(
-                    `*** EXPO_XDL_VERSION variable is not set, skipping installation of xdl package to the extension directory`,
-                );
-            }
-        } else {
-            throw new Error(VsCodeManager.VS_CODE_CLIENT_NOT_INSTALLED_ERROR);
-        }
-    }
-
     public killWinCodeProcesses(): void {
         if (process.platform !== "win32") {
             return;

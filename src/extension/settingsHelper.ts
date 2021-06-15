@@ -181,4 +181,17 @@ export class SettingsHelper {
         }
         return undefined;
     }
+
+    public static getExpoDependencyVersion(packageName: string): string | undefined {
+        const workspaceConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(
+            "react-native.expo.dependencies",
+        );
+        if (workspaceConfiguration.has(packageName)) {
+            const packageVersion = ConfigurationReader.readString(
+                workspaceConfiguration.get(packageName),
+            );
+            return packageVersion;
+        }
+        return undefined;
+    }
 }
