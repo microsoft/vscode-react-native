@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as assert from "assert";
-import * as fs from "fs";
 import * as path from "path";
 import rimraf = require("rimraf");
 import * as sinon from "sinon";
@@ -26,6 +25,10 @@ suite("packageLoader", async () => {
             .catch(() => null);
     }
 
+    function isNotEmptyPackage(pck: any): boolean {
+        return pck && (Object.keys(pck).length !== 0 || typeof pck === "function");
+    }
+
     suite("localNodeModules", async () => {
         const sampleProjectPath = path.resolve(
             __dirname,
@@ -43,6 +46,7 @@ suite("packageLoader", async () => {
 
         let findFileInFolderHierarchyStub: Sinon.SinonStub | undefined;
         let getVersionFromExtensionNodeModulesStub: Sinon.SinonStub | undefined;
+        let tryToRequireAfterInstallSpy: Sinon.SinonSpy | undefined;
 
         const mkdirpPackageConfig = new PackageConfig("mkdirp", "1.0.4");
 
@@ -51,7 +55,9 @@ suite("packageLoader", async () => {
 
         const chalkPackageConfig = new PackageConfig("chalk", "4.1.1", "./source/util.js");
 
-        setup(async function () {
+        suiteSetup(async function () {
+            rimraf.sync(sampleProjectNodeModulesPath);
+            rimraf.sync(sampleProjectPackageLockJsonPath);
             findFileInFolderHierarchyStub = sinon.stub(
                 extensionHelper,
                 "findFileInFolderHierarchy",
@@ -66,20 +72,28 @@ suite("packageLoader", async () => {
                     return getPackageVersionsFromNodeModules(sampleProjectPath, packageName);
                 },
             );
+            tryToRequireAfterInstallSpy = sinon.spy(
+                PackageLoader.getInstance(),
+                "tryToRequireAfterInstall",
+            );
+        });
+
+        suiteTeardown(function () {
+            findFileInFolderHierarchyStub?.restore();
+            getVersionFromExtensionNodeModulesStub?.restore();
+            tryToRequireAfterInstallSpy?.restore();
+
+            rimraf.sync(sampleProjectNodeModulesPath);
+            rimraf.sync(sampleProjectPackageLockJsonPath);
         });
 
         teardown(function () {
-            this.timeout(packageLoaderTestTimeout);
-            findFileInFolderHierarchyStub?.restore();
-            getVersionFromExtensionNodeModulesStub?.restore();
+            findFileInFolderHierarchyStub?.reset();
+            getVersionFromExtensionNodeModulesStub?.reset();
+            tryToRequireAfterInstallSpy?.reset();
+
             rimraf.sync(sampleProjectNodeModulesPath);
             rimraf.sync(sampleProjectPackageLockJsonPath);
-            assert.strictEqual(
-                !fs.existsSync(sampleProjectNodeModulesPath) &&
-                    !fs.existsSync(sampleProjectPackageLockJsonPath),
-                true,
-                "Node modules has not been uninstalled from sample directory",
-            );
         });
 
         test("The package loader should install packages in node_modules where these packages are not present", async function () {
@@ -96,12 +110,15 @@ suite("packageLoader", async () => {
                 rimrafPackageFirst,
                 mkdirpPackageConfig,
             );
-            const packages = await Promise.all([getMkdrip(), getRimraf()]);
-            assert.notStrictEqual(
-                packages[0] & packages[1],
-                undefined,
+
+            const [mkdirpPackage, rimrafPackage] = await Promise.all([getMkdrip(), getRimraf()]);
+
+            assert.strictEqual(
+                isNotEmptyPackage(rimrafPackage) && isNotEmptyPackage(mkdirpPackage),
+                true,
                 "Not all packages has been installed and required",
             );
+
             const installedVersionOfMkdirp = await getPackageVersionsFromNodeModules(
                 sampleProjectPath,
                 mkdirpPackageConfig.getPackageName(),
@@ -124,11 +141,10 @@ suite("packageLoader", async () => {
 
         test("The package loader should not execute installation for packages that are already present in node_modules", async function () {
             this.timeout(packageLoaderTestTimeout);
-
             await commandExecutor.spawn(HostPlatform.getNpmCliCommand("npm"), [
                 "install",
                 rimrafPackageFirst.getStringForInstall(),
-                "--save-dev",
+                "--no-save",
             ]);
             assert.strictEqual(
                 await getPackageVersionsFromNodeModules(
@@ -136,24 +152,24 @@ suite("packageLoader", async () => {
                     rimrafPackageFirst.getPackageName(),
                 ),
                 rimrafPackageFirst.getVersion(),
-                "Package was preinstall with wrong version",
+                "Package was preinstalled with wrong version",
             );
 
-            const tryToRequireAfterInstallStub = sinon.spy(
-                PackageLoader.getInstance(),
-                "tryToRequireAfterInstall",
-            );
             const getRimraf = PackageLoader.getInstance().generateGetPackageFunction<any>(
                 rimrafPackageFirst,
             );
-            assert.notStrictEqual(await getRimraf(), undefined, "Package was not required");
+            assert.strictEqual(
+                isNotEmptyPackage(await getRimraf()),
+                true,
+                "Package was not required",
+            );
 
             assert.strictEqual(
-                tryToRequireAfterInstallStub.notCalled,
+                tryToRequireAfterInstallSpy?.notCalled,
                 true,
                 "Package loader execute installation for packages that are already present in node_modules",
             );
-            tryToRequireAfterInstallStub.restore();
+            tryToRequireAfterInstallSpy?.reset();
         });
 
         test("The package loader should install package with specific version if the package already installed but with another version", async function () {
@@ -162,7 +178,7 @@ suite("packageLoader", async () => {
             await commandExecutor.spawn(HostPlatform.getNpmCliCommand("npm"), [
                 "install",
                 rimrafPackageFirst.getStringForInstall(),
-                "--save-dev",
+                "--no-save",
             ]);
             assert.strictEqual(
                 await getPackageVersionsFromNodeModules(
@@ -170,24 +186,24 @@ suite("packageLoader", async () => {
                     rimrafPackageFirst.getPackageName(),
                 ),
                 rimrafPackageFirst.getVersion(),
-                "Package was preinstall with wrong version",
+                "Package was preinstalled with wrong version",
             );
 
-            const tryToRequireAfterInstallStub = sinon.spy(
-                PackageLoader.getInstance(),
-                "tryToRequireAfterInstall",
-            );
             const getRimraf = PackageLoader.getInstance().generateGetPackageFunction<any>(
                 rimrafPackageSecond,
             );
-            assert.notStrictEqual(await getRimraf(), undefined, "Package was not required");
+            assert.strictEqual(
+                isNotEmptyPackage(await getRimraf()),
+                true,
+                "Package was not required",
+            );
 
             assert.strictEqual(
-                tryToRequireAfterInstallStub.calledOnce,
+                tryToRequireAfterInstallSpy?.calledOnce,
                 true,
                 "Package loader not execute installation for packages that are already present in node_modules but with wrong version",
             );
-            tryToRequireAfterInstallStub.restore();
+            tryToRequireAfterInstallSpy?.reset();
 
             const installedVersionOfRimraf = await getPackageVersionsFromNodeModules(
                 sampleProjectPath,
@@ -207,7 +223,7 @@ suite("packageLoader", async () => {
                 chalkPackageConfig,
             );
             const chalkPackage = await getChalk();
-            assert.notStrictEqual(chalkPackage, undefined, "Package was not required");
+            assert.strictEqual(isNotEmptyPackage(chalkPackage), true, "Package was not required");
             assert.strictEqual(
                 !!(chalkPackage.stringReplaceAll && chalkPackage.stringEncaseCRLFWithFirstIndex),
                 true,

@@ -93,12 +93,12 @@ export class PackageLoader {
         reject: (reason?: any) => void,
     ): (load?: string[]) => Promise<boolean> {
         return (load?: string[]) => {
-            let itWasInstalled = false;
+            let packageWasInstalled = false;
             // Throw exception if we could not find package after installing
             if (load && load.includes(packageConfig.getStringForInstall())) {
-                itWasInstalled = true;
+                packageWasInstalled = true;
             }
-            return this.tryToRequire<T>(packageConfig, resolve, reject, itWasInstalled);
+            return this.tryToRequire<T>(packageConfig, resolve, reject, packageWasInstalled);
         };
     }
 
@@ -106,7 +106,7 @@ export class PackageLoader {
         packageConfig: PackageConfig,
         resolve: (value: T | PromiseLike<T>) => void,
         reject: (reason?: any) => void,
-        itWasInstalled: boolean,
+        packageWasInstalled: boolean,
     ): Promise<boolean> {
         const requiredPackage = packageConfig.getStringForRequire();
         try {
@@ -117,9 +117,12 @@ export class PackageLoader {
                 );
 
                 if (packageConfig.getVersion() !== installedVersion) {
-                    if (itWasInstalled) {
+                    if (packageWasInstalled) {
                         throw WRONG_VERSION_ERROR;
                     }
+                    this.logger.debug(
+                        `Dependency ${requiredPackage} is present with another version. Retry after install this package with specific version...`,
+                    );
                     return false;
                 }
             }
@@ -127,7 +130,7 @@ export class PackageLoader {
             resolve(module);
             return true;
         } catch (e) {
-            if (itWasInstalled || e.code !== "MODULE_NOT_FOUND") {
+            if (packageWasInstalled || e.code !== "MODULE_NOT_FOUND") {
                 reject(e);
                 return true;
             }
