@@ -690,6 +690,22 @@ There are two ways to filter your LogCat Monitor output depending on how LogCat 
 
 To have better understanding on how LogCat filtering works take into account that the extension launches LogCat with flag `-s` and then adds user-provided filters as arguments. Please see the [official instruction on how does LogCat filtering works](https://developer.android.com/studio/command-line/logcat#filteringOutput).
 
+## Configure dependencies versions for debugging Expo projects
+
+To debug Expo applications, extension needs installed additional dependencies, which the extension will install itself while first starting of Expo debugging scenario. You can configure the dependencies versions by setting the `react-native.expo.dependencies.<package name>` parameter in `settings.json`:
+
+```json
+{
+  "react-native.expo.dependencies.xdl": "59.0.42"
+}
+```
+
+|Dependency|Default version|
+|---|---|
+|xdl|59.0.42|
+|@expo/metro-config|0.1.72|
+
+
 # Network Inspector
 
 The extension provides `Network inspector` feature to inspect outgoing network traffic in your apps. You can browse all requests being made and their responses in VS Code DevTools console.
