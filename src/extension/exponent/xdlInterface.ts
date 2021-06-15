@@ -26,23 +26,23 @@ const ngrokPackageConfig = new PackageConfig(
 
 // There is the problem with '--no-save' flag for 'npm install' command for npm v6.
 // Installing npm dependencies with the `--no-save` flag will remove
-// other dependencies that were installed in the same manner (https://github.com/npm/cli/issues/1460).
+// other dependencies that were installed previously in the same manner (https://github.com/npm/cli/issues/1460).
 // So we should workaround it passing all packages for install to only one npm install command
 const EXPO_DEPS: PackageConfig[] = [xdlPackageConfig, metroConfigPackageConfig];
 
-export let getXDLPackage: () => Promise<
+export const getXDLPackage: () => Promise<
     typeof XDLPackage
 > = PackageLoader.getInstance().generateGetPackageFunction<typeof XDLPackage>(
     xdlPackageConfig,
     ...EXPO_DEPS,
 );
-export let getMetroConfigPackage: () => Promise<
+export const getMetroConfigPackage: () => Promise<
     typeof MetroConfigPackage
 > = PackageLoader.getInstance().generateGetPackageFunction<typeof MetroConfigPackage>(
     metroConfigPackageConfig,
     ...EXPO_DEPS,
 );
-export let getNgrokResolver: () => Promise<XDLPackage.ResolveNgrok> = PackageLoader.getInstance().generateGetPackageFunction<XDLPackage.ResolveNgrok>(
+export const getNgrokResolver: () => Promise<XDLPackage.ResolveNgrok> = PackageLoader.getInstance().generateGetPackageFunction<XDLPackage.ResolveNgrok>(
     ngrokPackageConfig,
     ...EXPO_DEPS,
 );
