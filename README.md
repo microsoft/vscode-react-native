@@ -696,14 +696,10 @@ To debug Expo applications, extension needs installed additional dependencies, w
 
 ```json
 {
-  "react-native.expo.dependencies.xdl": "59.0.42"
+  "react-native.expo.dependencies.xdl": "59.0.42",
+  "react-native.expo.dependencies.metroConfig": "0.1.72"
 }
 ```
-
-| Dependency         | Default version |
-| ------------------ | --------------- |
-| xdl                | 59.0.42         |
-| @expo/metro-config | 0.1.72          |
 
 # Network Inspector
 

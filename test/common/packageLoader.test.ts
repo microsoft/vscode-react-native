@@ -82,6 +82,7 @@ suite("packageLoader", async () => {
             findFileInFolderHierarchyStub?.restore();
             getVersionFromExtensionNodeModulesStub?.restore();
             tryToRequireAfterInstallSpy?.restore();
+            sinon.restore(extensionHelper);
 
             rimraf.sync(sampleProjectNodeModulesPath);
             rimraf.sync(sampleProjectPackageLockJsonPath);
