@@ -692,7 +692,7 @@ To have better understanding on how LogCat filtering works take into account tha
 
 ## Configure dependencies versions for debugging Expo projects
 
-To debug Expo applications, extension needs installed additional dependencies, which the extension will install itself while first starting of Expo debugging scenario. You can configure the dependencies versions by setting the `react-native.expo.dependencies.<package name>` parameter in `settings.json`:
+To debug Expo applications the extension requires additional dependencies, such as `xdl` and `@expo/metro-config`. These packages are installed automatically on the first start of the Expo debugging scenario. You can configure the dependencies versions by setting the `react-native.expo.dependencies.<package name>` parameter in `settings.json`:
 
 ```json
 {
@@ -700,6 +700,7 @@ To debug Expo applications, extension needs installed additional dependencies, w
   "react-native.expo.dependencies.metroConfig": "0.1.72"
 }
 ```
+To enable new versions of the dependencies, it's required to restart VS Code editor. After that the extension will download the new versions of the packages on the next Expo debugging starting.
 
 # Network Inspector
 
