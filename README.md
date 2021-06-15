@@ -700,11 +700,10 @@ To debug Expo applications, extension needs installed additional dependencies, w
 }
 ```
 
-|Dependency|Default version|
-|---|---|
-|xdl|59.0.42|
-|@expo/metro-config|0.1.72|
-
+| Dependency         | Default version |
+| ------------------ | --------------- |
+| xdl                | 59.0.42         |
+| @expo/metro-config | 0.1.72          |
 
 # Network Inspector
 
