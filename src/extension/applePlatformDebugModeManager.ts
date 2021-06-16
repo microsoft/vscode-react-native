@@ -39,7 +39,7 @@ export abstract class ApplePlatformDebugModeManager {
         const pu = new PromiseUtil();
         const failureString = localize(
             "UnableToFindPlistFileToConfigureDebugging",
-            "Unable to find plist file to configure debugging",
+            "Unable to find a plist file to configure debugging",
         );
 
         return pu.retryAsync(
