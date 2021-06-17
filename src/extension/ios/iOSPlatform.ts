@@ -231,7 +231,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
 
         // Wait until the configuration file exists, and check to see if debugging is enabled
         return Promise.all<boolean | string>([
-            this.iosDebugModeManager.getSimulatorRemoteDebuggingSetting(
+            this.iosDebugModeManager.getAppRemoteDebuggingSetting(
                 this.runOptions.configuration,
                 this.runOptions.productName,
             ),
@@ -261,7 +261,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
                 })
                 .then(() => {
                     // Write to the settings file while the app is not running to avoid races
-                    return this.iosDebugModeManager.setSimulatorRemoteDebuggingSetting(
+                    return this.iosDebugModeManager.setAppRemoteDebuggingSetting(
                         /*enable=*/ true,
                         this.runOptions.configuration,
                         this.runOptions.productName,
@@ -278,7 +278,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
         if (this.targetType === IOSPlatform.deviceString) {
             return Promise.resolve();
         }
-        return this.iosDebugModeManager.setSimulatorRemoteDebuggingSetting(
+        return this.iosDebugModeManager.setAppRemoteDebuggingSetting(
             /*enable=*/ false,
             this.runOptions.configuration,
             this.runOptions.productName,
@@ -390,6 +390,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
         return this.plistBuddy.getBundleId(
             this.iosProjectRoot,
             this.projectPath,
+            PlatformType.iOS,
             true,
             this.runOptions.configuration,
             this.runOptions.productName,

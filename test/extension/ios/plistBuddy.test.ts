@@ -8,9 +8,16 @@ import * as fs from "fs";
 import * as sinon from "sinon";
 import { ConfigurationData } from "../../../src/extension/ios/plistBuddy";
 import { ProjectVersionHelper } from "../../../src/common/projectVersionHelper";
+import { PlatformType } from "../../../src/extension/launchArgs";
 
 suite("plistBuddy", function () {
     suite("extensionContext", function () {
+        enum AppleProjectType {
+            appleTV,
+            iOS,
+            macOS,
+        }
+
         const sandbox = sinon.sandbox.create();
         teardown(() => {
             sandbox.restore();
@@ -96,6 +103,7 @@ suite("plistBuddy", function () {
                 undefined,
                 simulatorBundleId,
                 deviceBundleId,
+                AppleProjectType.iOS,
             );
 
             sandbox.stub(ProjectVersionHelper, "getReactNativeVersions").returns(
@@ -107,19 +115,35 @@ suite("plistBuddy", function () {
             sandbox.stub(plistBuddy, "getConfigurationData", fakeGetConfigurationData);
 
             return Promise.all([
-                plistBuddy.getBundleId(iosProjectRoot, projectRoot, true, "Debug", appName),
                 plistBuddy.getBundleId(
                     iosProjectRoot,
                     projectRoot,
+                    PlatformType.iOS,
+                    true,
+                    "Debug",
+                    appName,
+                ),
+                plistBuddy.getBundleId(
+                    iosProjectRoot,
+                    projectRoot,
+                    PlatformType.iOS,
                     true,
                     "Debug",
                     appName,
                     "whateverScheme",
                 ),
-                plistBuddy.getBundleId(iosProjectRoot, projectRoot, false, undefined, appName),
                 plistBuddy.getBundleId(
                     iosProjectRoot,
                     projectRoot,
+                    PlatformType.iOS,
+                    false,
+                    undefined,
+                    appName,
+                ),
+                plistBuddy.getBundleId(
+                    iosProjectRoot,
+                    projectRoot,
+                    PlatformType.iOS,
                     false,
                     undefined,
                     appName,
@@ -146,6 +170,7 @@ suite("plistBuddy", function () {
                 "myCustomScheme",
                 simulatorBundleId,
                 deviceBundleId,
+                AppleProjectType.iOS,
             );
 
             sandbox.stub(ProjectVersionHelper, "getReactNativeVersions").returns(
@@ -158,12 +183,35 @@ suite("plistBuddy", function () {
             sandbox.stub(plistBuddy, "getInferredScheme").returns(scheme);
 
             return Promise.all([
-                plistBuddy.getBundleId(iosProjectRoot, projectRoot, true, "Debug", appName),
-                plistBuddy.getBundleId(iosProjectRoot, projectRoot, true, "Debug", appName, scheme),
-                plistBuddy.getBundleId(iosProjectRoot, projectRoot, false, undefined, appName),
                 plistBuddy.getBundleId(
                     iosProjectRoot,
                     projectRoot,
+                    PlatformType.iOS,
+                    true,
+                    "Debug",
+                    appName,
+                ),
+                plistBuddy.getBundleId(
+                    iosProjectRoot,
+                    projectRoot,
+                    PlatformType.iOS,
+                    true,
+                    "Debug",
+                    appName,
+                    scheme,
+                ),
+                plistBuddy.getBundleId(
+                    iosProjectRoot,
+                    projectRoot,
+                    PlatformType.iOS,
+                    false,
+                    undefined,
+                    appName,
+                ),
+                plistBuddy.getBundleId(
+                    iosProjectRoot,
+                    projectRoot,
+                    PlatformType.iOS,
                     false,
                     undefined,
                     appName,
@@ -190,7 +238,7 @@ suite("plistBuddy", function () {
                 scheme,
                 simulatorBundleId,
                 deviceBundleId,
-                true,
+                AppleProjectType.appleTV,
             );
 
             sandbox.stub(ProjectVersionHelper, "getReactNativeVersions").returns(
@@ -203,12 +251,35 @@ suite("plistBuddy", function () {
             sandbox.stub(plistBuddy, "getInferredScheme").returns(scheme);
 
             return Promise.all([
-                plistBuddy.getBundleId(iosProjectRoot, projectRoot, true, "Debug", appName),
-                plistBuddy.getBundleId(iosProjectRoot, projectRoot, true, "Debug", appName, scheme),
-                plistBuddy.getBundleId(iosProjectRoot, projectRoot, false, undefined, appName),
                 plistBuddy.getBundleId(
                     iosProjectRoot,
                     projectRoot,
+                    PlatformType.iOS,
+                    true,
+                    "Debug",
+                    appName,
+                ),
+                plistBuddy.getBundleId(
+                    iosProjectRoot,
+                    projectRoot,
+                    PlatformType.iOS,
+                    true,
+                    "Debug",
+                    appName,
+                    scheme,
+                ),
+                plistBuddy.getBundleId(
+                    iosProjectRoot,
+                    projectRoot,
+                    PlatformType.iOS,
+                    false,
+                    undefined,
+                    appName,
+                ),
+                plistBuddy.getBundleId(
+                    iosProjectRoot,
+                    projectRoot,
+                    PlatformType.iOS,
                     false,
                     undefined,
                     appName,
@@ -219,6 +290,55 @@ suite("plistBuddy", function () {
                 assert.strictEqual(simulatorBundleId, simulatorId2);
                 assert.strictEqual(deviceBundleId, deviceId1);
                 assert.strictEqual(deviceBundleId, deviceId2);
+            });
+        });
+
+        test("getBundleId should return the bundle ID for a macOS project using RN >=0.59", function () {
+            const projectRoot = path.join("/", "userHome", "rnProject");
+            const macosProjectRoot = path.join(projectRoot, "macos");
+            const appName = "myApp";
+            const scheme = "myCustomScheme-macOS";
+            const simulatorBundleId = "";
+            const deviceBundleId = "org.reactjs.native.rn-macos";
+            const plistBuddy = getPlistBuddy(
+                appName,
+                macosProjectRoot,
+                scheme,
+                simulatorBundleId,
+                deviceBundleId,
+                AppleProjectType.macOS,
+            );
+
+            sandbox.stub(ProjectVersionHelper, "getReactNativeVersions").returns(
+                Promise.resolve({
+                    reactNativeVersion: "0.61.0",
+                    reactNativeWindowsVersion: "",
+                }),
+            );
+            sandbox.stub(plistBuddy, "getConfigurationData", fakeGetConfigurationData);
+            sandbox.stub(plistBuddy, "getInferredScheme").returns("myCustomScheme");
+
+            return Promise.all([
+                plistBuddy.getBundleId(
+                    macosProjectRoot,
+                    projectRoot,
+                    PlatformType.macOS,
+                    false,
+                    undefined,
+                    appName,
+                ),
+                plistBuddy.getBundleId(
+                    macosProjectRoot,
+                    projectRoot,
+                    PlatformType.macOS,
+                    false,
+                    "Debug",
+                    appName,
+                    scheme,
+                ),
+            ]).then(([bundleId1, bundleId2]) => {
+                assert.strictEqual(deviceBundleId, bundleId1);
+                assert.strictEqual(deviceBundleId, bundleId2);
             });
         });
 
@@ -279,11 +399,11 @@ suite("plistBuddy", function () {
         function fakeGetConfigurationData(
             projectRoot: string,
             reactNativeVersion: string,
-            iosProjectRoot: string,
+            platformProjectRoot: string,
             configuration: string,
             scheme: string | undefined,
-            sdkType: string,
             oldConfigurationFolder: string,
+            sdkType?: string,
         ): ConfigurationData {
             return {
                 fullProductName: "",
@@ -293,34 +413,45 @@ suite("plistBuddy", function () {
 
         function getPlistBuddy(
             appName: string,
-            iosProjectRoot: string,
+            platformProjectRoot: string,
             scheme: string | undefined,
             simulatorBundleId: string,
             deviceBundleId: string,
-            isTV: boolean = false,
+            appType: AppleProjectType,
         ) {
-            const deviceType = isTV ? "appletv" : "iphone";
-            const infoPlistPath = (simulator: boolean) =>
-                scheme
-                    ? path.join(
-                          iosProjectRoot,
-                          "build",
-                          scheme,
-                          "Build",
-                          "Products",
-                          `Debug-${deviceType}${simulator ? "simulator" : "os"}`,
-                          `${appName}.app`,
-                          "Info.plist",
-                      )
-                    : path.join(
-                          iosProjectRoot,
-                          "build",
-                          "Build",
-                          "Products",
-                          `Debug-${deviceType}${simulator ? "simulator" : "os"}`,
-                          `${appName}.app`,
-                          "Info.plist",
-                      );
+            const infoPlistPath = (simulator: boolean) => {
+                let plistPath = scheme
+                    ? path.join(platformProjectRoot, "build", scheme, "Build", "Products")
+                    : path.join(platformProjectRoot, "build", "Build", "Products");
+                switch (appType) {
+                    case AppleProjectType.appleTV:
+                        plistPath = path.join(
+                            plistPath,
+                            `Debug-appletv${simulator ? "simulator" : "os"}`,
+                            `${appName}.app`,
+                            "Info.plist",
+                        );
+                        break;
+                    case AppleProjectType.iOS:
+                        plistPath = path.join(
+                            plistPath,
+                            `Debug-iphone${simulator ? "simulator" : "os"}`,
+                            `${appName}.app`,
+                            "Info.plist",
+                        );
+                        break;
+                    case AppleProjectType.macOS:
+                        plistPath = path.join(
+                            plistPath,
+                            "Debug",
+                            `${appName}.app`,
+                            "Contents",
+                            "Info.plist",
+                        );
+                        break;
+                }
+                return plistPath;
+            };
 
             const printExecCall = (simulator: boolean) =>
                 `/usr/libexec/PlistBuddy -c 'Print:CFBundleIdentifier' '${infoPlistPath(

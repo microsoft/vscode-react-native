@@ -7,9 +7,9 @@ import { PlistBuddy } from "./plistBuddy";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { FileSystem } from "../../common/node/fileSystem";
 import { ChildProcess } from "../../common/node/childProcess";
-
 import { TelemetryHelper } from "../../common/telemetryHelper";
 import * as nls from "vscode-nls";
+import { PlatformType } from "../launchArgs";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -48,6 +48,7 @@ export class SimulatorPlist {
             this.plistBuddy.getBundleId(
                 this.iosProjectRoot,
                 this.projectRoot,
+                PlatformType.iOS,
                 true,
                 configuration,
                 productName,

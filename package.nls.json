@@ -56,6 +56,7 @@
   "reactNative.launch.cwd.description": "The path to the project root folder",
   "reactNative.launch.target.description": "Target to run on. Possible values: 'simulator', 'device', 'device=<iOS device name>', '<Android emulator/device id>', '<iOS simulator name>'",
   "reactNative.launch.sourceMaps.description": "Whether to use JavaScript source maps to map the generated bundled code back to its original sources",
+  "reactNative.launch.sourceMapsPathOverrides.description": "A set of mappings for rewriting the locations of source files from what the source map says, to their locations on disk. See https://github.com/microsoft/vscode-react-native#typescript-and-haul for details",
   "reactNative.launch.logCatArguments.description": "Arguments to be used for LogCat (The LogCat output will appear on an Output Channel). It can be an array such as: [\":S\", \"ReactNative:V\", \"ReactNativeJS:V\"]",
   "reactNative.launch.outDir.description": "The location of the generated JavaScript code (the bundle file). Normally this should be \"${workspaceRoot}/.vscode/.react\"",
   "reactNative.launch.runArguments.description": "Run arguments to be passed to 'react-native run-<platform>' command (override all other configuration params)",

@@ -45,11 +45,14 @@ export interface IAndroidRunOptions extends ILaunchArgs {
     debugLaunchActivity?: string;
 }
 
-export interface IIOSRunOptions extends ILaunchArgs {
+export interface ImacOSRunOptions extends ILaunchArgs {
     scheme?: string;
-    iosRelativeProjectPath?: string; // TODO Remove deprecated
-    productName?: string;
     configuration?: string;
+    productName?: string;
+}
+
+export interface IIOSRunOptions extends ImacOSRunOptions {
+    iosRelativeProjectPath?: string; // TODO Remove deprecated
 }
 
 export interface IExponentRunOptions extends IAndroidRunOptions, IIOSRunOptions {
@@ -58,7 +61,6 @@ export interface IExponentRunOptions extends IAndroidRunOptions, IIOSRunOptions 
 }
 
 export type IWindowsRunOptions = ILaunchArgs;
-export type ImacOSRunOptions = ILaunchArgs;
 
 export interface IRunOptions
     extends IAndroidRunOptions,

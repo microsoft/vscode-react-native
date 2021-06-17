@@ -13,10 +13,16 @@ import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
 import { getFileNameWithoutExtension } from "../../common/utils";
 import customRequire from "../../common/customRequire";
+import { PlatformType } from "../launchArgs";
 import { AppLauncher } from "../appLauncher";
 
 export interface ConfigurationData {
     fullProductName: string;
+    configurationFolder: string;
+}
+
+export interface IOSBuildLocationData {
+    executable: string;
     configurationFolder: string;
 }
 
@@ -33,31 +39,72 @@ export class PlistBuddy {
     }
 
     public getBundleId(
-        iosProjectRoot: string,
+        platformProjectRoot: string,
         projectRoot: string,
+        platform: PlatformType.iOS | PlatformType.macOS,
         simulator: boolean = true,
         configuration: string = "Debug",
         productName?: string,
         scheme?: string,
     ): Promise<string> {
+        return this.getExecutableAndConfigurationFolder(
+            platformProjectRoot,
+            projectRoot,
+            platform,
+            simulator,
+            configuration,
+            productName,
+            scheme,
+        ).then((iOSBuildLocationData: IOSBuildLocationData) => {
+            const infoPlistPath = path.join(
+                iOSBuildLocationData.configurationFolder,
+                iOSBuildLocationData.executable,
+                platform === PlatformType.iOS ? "Info.plist" : path.join("Contents", "Info.plist"),
+            );
+            return this.invokePlistBuddy("Print:CFBundleIdentifier", infoPlistPath);
+        });
+    }
+
+    public getExecutableAndConfigurationFolder(
+        platformProjectRoot: string,
+        projectRoot: string,
+        platform: PlatformType.iOS | PlatformType.macOS,
+        simulator: boolean = true,
+        configuration: string = "Debug",
+        productName?: string,
+        scheme?: string,
+    ): Promise<IOSBuildLocationData> {
         return ProjectVersionHelper.getReactNativeVersions(projectRoot).then(rnVersions => {
             let productsFolder;
             if (semver.gte(rnVersions.reactNativeVersion, "0.59.0")) {
                 if (!scheme) {
                     // If no scheme were provided via runOptions.scheme or via runArguments then try to get scheme using the way RN CLI does.
                     scheme = this.getInferredScheme(
-                        iosProjectRoot,
+                        platformProjectRoot,
                         projectRoot,
                         rnVersions.reactNativeVersion,
                     );
+                    if (platform === PlatformType.macOS) {
+                        scheme = scheme + "-macOS";
+                    }
                 }
-                productsFolder = path.join(iosProjectRoot, "build", scheme, "Build", "Products");
+                productsFolder = path.join(
+                    platformProjectRoot,
+                    "build",
+                    scheme,
+                    "Build",
+                    "Products",
+                );
             } else {
-                productsFolder = path.join(iosProjectRoot, "build", "Build", "Products");
+                productsFolder = path.join(platformProjectRoot, "build", "Build", "Products");
             }
 
-            const sdkType = this.getSdkType(simulator, scheme);
-            let configurationFolder = path.join(productsFolder, `${configuration}-${sdkType}`);
+            let sdkType =
+                platform === PlatformType.iOS ? this.getSdkType(simulator, scheme) : undefined;
+            let configurationFolder = path.join(
+                productsFolder,
+                `${configuration}${sdkType ? `-${sdkType}` : ""}`,
+            );
             let executable = "";
             if (productName) {
                 executable = `${productName}.app`;
@@ -65,11 +112,11 @@ export class PlistBuddy {
                     const configurationData = this.getConfigurationData(
                         projectRoot,
                         rnVersions.reactNativeVersion,
-                        iosProjectRoot,
+                        platformProjectRoot,
                         configuration,
                         scheme,
-                        sdkType,
                         configurationFolder,
+                        sdkType,
                     );
 
                     configurationFolder = configurationData.configurationFolder;
@@ -80,11 +127,11 @@ export class PlistBuddy {
                     const configurationData = this.getConfigurationData(
                         projectRoot,
                         rnVersions.reactNativeVersion,
-                        iosProjectRoot,
+                        platformProjectRoot,
                         configuration,
                         scheme,
-                        sdkType,
                         configurationFolder,
+                        sdkType,
                     );
 
                     configurationFolder = configurationData.configurationFolder;
@@ -98,8 +145,10 @@ export class PlistBuddy {
                 executable = `${executableList[0]}`;
             }
 
-            const infoPlistPath = path.join(configurationFolder, executable, "Info.plist");
-            return this.invokePlistBuddy("Print:CFBundleIdentifier", infoPlistPath);
+            return {
+                executable,
+                configurationFolder,
+            };
         });
     }
 
@@ -136,30 +185,22 @@ export class PlistBuddy {
     }
 
     public getBuildPathAndProductName(
-        iosProjectRoot: string,
+        platformProjectRoot: string,
         projectWorkspaceConfigName: string,
         configuration: string,
         scheme: string,
-        sdkType: string,
+        sdkType?: string,
     ): ConfigurationData {
-        const buildSettings = this.nodeChildProcess.execFileSync(
-            "xcodebuild",
-            [
-                "-workspace",
-                projectWorkspaceConfigName,
-                "-scheme",
-                scheme,
-                "-sdk",
-                sdkType,
-                "-configuration",
-                configuration,
-                "-showBuildSettings",
-            ],
-            {
-                encoding: "utf8",
-                cwd: iosProjectRoot,
-            },
-        );
+        const xcodebuildParams = ["-workspace", projectWorkspaceConfigName, "-scheme", scheme];
+        if (sdkType) {
+            xcodebuildParams.push("-sdk", sdkType);
+        }
+        xcodebuildParams.push("-configuration", configuration, "-showBuildSettings");
+
+        const buildSettings = this.nodeChildProcess.execFileSync("xcodebuild", xcodebuildParams, {
+            encoding: "utf8",
+            cwd: platformProjectRoot,
+        });
 
         const targetBuildDir = this.fetchParameterFromBuildSettings(
             <string>buildSettings,
@@ -184,12 +225,12 @@ export class PlistBuddy {
     }
 
     public getInferredScheme(
-        iosProjectRoot: string,
+        platformProjectRoot: string,
         projectRoot: string,
         rnVersion: string,
     ): string {
         const projectWorkspaceConfigName = this.getProjectWorkspaceConfigName(
-            iosProjectRoot,
+            platformProjectRoot,
             projectRoot,
             rnVersion,
         );
@@ -204,7 +245,7 @@ export class PlistBuddy {
     }
 
     public getProjectWorkspaceConfigName(
-        iosProjectRoot: string,
+        platformProjectRoot: string,
         projectRoot: string,
         rnVersion: string,
     ): string {
@@ -232,9 +273,11 @@ export class PlistBuddy {
                 `node_modules/@react-native-community/${iOSCliFolderName}/build/commands/runIOS/findXcodeProject`,
             ),
         ).default;
-        const xcodeProject = findXcodeProject(fs.readdirSync(iosProjectRoot));
+        const xcodeProject = findXcodeProject(fs.readdirSync(platformProjectRoot));
         if (!xcodeProject) {
-            throw new Error(`Could not find Xcode project files in "${iosProjectRoot}" folder`);
+            throw new Error(
+                `Could not find Xcode project files in "${platformProjectRoot}" folder`,
+            );
         }
 
         return xcodeProject.name;
@@ -243,11 +286,11 @@ export class PlistBuddy {
     public getConfigurationData(
         projectRoot: string,
         reactNativeVersion: string,
-        iosProjectRoot: string,
+        platformProjectRoot: string,
         configuration: string,
         scheme: string | undefined,
-        sdkType: string,
         oldConfigurationFolder: string,
+        sdkType?: string,
     ): ConfigurationData {
         if (!scheme) {
             throw ErrorHelper.getInternalError(
@@ -256,12 +299,12 @@ export class PlistBuddy {
             );
         }
         const projectWorkspaceConfigName = this.getProjectWorkspaceConfigName(
-            iosProjectRoot,
+            platformProjectRoot,
             projectRoot,
             reactNativeVersion,
         );
         return this.getBuildPathAndProductName(
-            iosProjectRoot,
+            platformProjectRoot,
             projectWorkspaceConfigName,
             configuration,
             scheme,

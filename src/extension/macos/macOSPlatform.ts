@@ -2,12 +2,16 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as semver from "semver";
+import * as path from "path";
 import { GeneralMobilePlatform, MobilePlatformDeps } from "../generalMobilePlatform";
+import { MacOSDebugModeManager } from "./macOSDebugModeManager";
 import { ImacOSRunOptions, PlatformType } from "../launchArgs";
 import { OutputVerifier, PatternToFailure } from "../../common/outputVerifier";
 import { TelemetryHelper } from "../../common/telemetryHelper";
 import { CommandExecutor } from "../../common/commandExecutor";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
+import { PlistBuddy, IOSBuildLocationData } from "../ios/plistBuddy";
+import { ChildProcess } from "../../common/node/childProcess";
 
 /**
  * macOS specific platform implementation for debugging RN applications.
@@ -21,8 +25,36 @@ export class MacOSPlatform extends GeneralMobilePlatform {
         },
     ];
 
+    public static DEFAULT_MACOS_PROJECT_RELATIVE_PATH = "macos";
+
+    private macosProjectRoot: string;
+    private plistBuddy: PlistBuddy;
+    private macOSDebugModeManager: MacOSDebugModeManager;
+
     constructor(protected runOptions: ImacOSRunOptions, platformDeps: MobilePlatformDeps = {}) {
         super(runOptions, platformDeps);
+
+        const macosProjectFolderPath = MacOSPlatform.getOptFromRunArgs(
+            this.runArguments,
+            "--project-path",
+            false,
+        );
+        this.macosProjectRoot = path.join(
+            this.projectPath,
+            macosProjectFolderPath || MacOSPlatform.DEFAULT_MACOS_PROJECT_RELATIVE_PATH,
+        );
+        this.plistBuddy = new PlistBuddy();
+
+        const schemeFromArgs = MacOSPlatform.getOptFromRunArgs(
+            this.runArguments,
+            "--scheme",
+            false,
+        );
+        this.macOSDebugModeManager = new MacOSDebugModeManager(
+            this.macosProjectRoot,
+            this.projectPath,
+            schemeFromArgs ? schemeFromArgs : this.runOptions.scheme,
+        );
     }
 
     public runApp(): Promise<void> {
@@ -91,5 +123,111 @@ export class MacOSPlatform extends GeneralMobilePlatform {
         }
 
         return runArguments;
+    }
+
+    public enableJSDebuggingMode(): Promise<void> {
+        // Configure the app for debugging
+        // Wait until the configuration file exists, and check to see if debugging is enabled
+        return Promise.all<boolean | string>([
+            this.macOSDebugModeManager.getAppRemoteDebuggingSetting(
+                this.runOptions.configuration,
+                this.runOptions.productName,
+            ),
+            this.getApplicationName(),
+        ]).then(([debugModeEnabled, appName]) => {
+            if (debugModeEnabled) {
+                return Promise.resolve();
+            }
+
+            // Debugging must still be enabled
+            // We enable debugging by writing to a plist file that backs a NSUserDefaults object,
+            // but that file is written to by the app on occasion. To avoid races, we shut the app
+            // down before writing to the file.
+            return (
+                this.terminateMacOSapp(<string>appName)
+                    // Write to the settings file while the app is not running to avoid races
+                    .then(() =>
+                        this.macOSDebugModeManager.setAppRemoteDebuggingSetting(
+                            /*enable=*/ true,
+                            this.runOptions.configuration,
+                            this.runOptions.productName,
+                        ),
+                    )
+                    .then(() => {
+                        // Relaunch the app
+                        return this.runApp();
+                    })
+            );
+        });
+    }
+
+    public disableJSDebuggingMode(): Promise<void> {
+        return this.macOSDebugModeManager.setAppRemoteDebuggingSetting(
+            /*enable=*/ false,
+            this.runOptions.configuration,
+            this.runOptions.productName,
+        );
+    }
+
+    private getApplicationName(): Promise<string> {
+        return this.plistBuddy
+            .getExecutableAndConfigurationFolder(
+                this.macosProjectRoot,
+                this.projectPath,
+                PlatformType.macOS,
+                false,
+                this.runOptions.configuration,
+                this.runOptions.productName,
+                this.getSchemeFromDebuggingParameters(),
+            )
+            .then((iOSBuildLocationData: IOSBuildLocationData) => {
+                return iOSBuildLocationData.executable;
+            });
+    }
+
+    private getSchemeFromDebuggingParameters(): string | undefined {
+        let scheme = this.runOptions.scheme;
+        if (!scheme) {
+            const schemeFromArgs = MacOSPlatform.getOptFromRunArgs(
+                this.runArguments,
+                "--scheme",
+                false,
+            );
+            if (schemeFromArgs) {
+                scheme = schemeFromArgs;
+            }
+        }
+        return scheme;
+    }
+
+    private terminateMacOSapp(appName: string): Promise<void> {
+        let childProcess = new ChildProcess();
+        return (
+            childProcess
+                .execToString(`ps -ax | grep ${appName}`)
+                // An example of the output from the command above:
+                // 40943 ??         4:13.97 node /Users/user/Documents/rn_for_mac_proj/node_modules/.bin/react-native start --port 8081
+                // 40959 ??         0:10.36 /Users/user/.nvm/versions/node/v10.19.0/bin/node /Users/user/Documents/rn_for_mac_proj/node_modules/metro/node_modules/jest-worker/build/workers/processChild.js
+                // 41004 ??         0:21.34 /Users/user/Library/Developer/Xcode/DerivedData/rn_for_mac_proj-ghuavabiztosiqfqkrityjoxqfmv/Build/Products/Debug/rn_for_mac_proj.app/Contents/MacOS/rn_for_mac_proj
+                // 75514 ttys007    0:00.00 grep --color=auto --exclude-dir=.bzr --exclude-dir=CVS --exclude-dir=.git --exclude-dir=.hg --exclude-dir=.svn rn_for_mac_proj
+                .then(searchResults => {
+                    if (searchResults) {
+                        const processIdRgx = /(^\d*)\s\?\?/g;
+                        //  We are looking for a process whose path contains the "appName.app" part
+                        const processData = searchResults
+                            .split("\n")
+                            .find(str => str.includes(appName));
+
+                        if (processData) {
+                            const match = processIdRgx.exec(processData.trim());
+                            if (match && match[1]) {
+                                // eslint-disable-next-line @typescript-eslint/no-empty-function
+                                return childProcess.execToString(`kill ${match[1]}`).then(() => {});
+                            }
+                        }
+                    }
+                    return void 0;
+                })
+        );
     }
 }
