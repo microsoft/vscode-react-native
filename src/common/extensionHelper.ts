@@ -59,6 +59,7 @@ export function getNodeModulesInFolderHierarchy(projectRoot: string): string | n
 }
 
 export function isWorkspaceTrusted(): boolean {
+    // Remove after updating supported VS Code engine version to 1.57.0
     if (typeof (vscode.workspace as any).isTrusted === "boolean") {
         return (vscode.workspace as any).isTrusted;
     }
