@@ -59,14 +59,14 @@ export class ExponentHelper {
         this.nodeModulesGlobalPathAddedToEnv = false;
     }
 
-    public async preloadExponentDependency(): Promise<[typeof xdl, typeof metroConfig]> {
+    public async preloadExponentDependency(): Promise<typeof metroConfig> {
         this.logger.info(
             localize(
                 "MakingSureYourProjectUsesCorrectExponentDependencies",
                 "Making sure your project uses the correct dependencies for Expo. This may take a while...",
             ),
         );
-        return Promise.all([XDL.getXDLPackage(), XDL.getMetroConfigPackage()]);
+        return XDL.getMetroConfigPackage();
     }
 
     public configureExponentEnvironment(): Promise<void> {
@@ -110,7 +110,7 @@ export class ExponentHelper {
     public loginToExponent(
         promptForInformation: (message: string, password: boolean) => Promise<string>,
         showMessage: (message: string) => Promise<string>,
-    ): Promise<XDL.IUser> {
+    ): Promise<xdl.IUser> {
         return this.lazilyInitialize()
             .then(() => XDL.currentUser())
             .then(user => {
@@ -137,7 +137,7 @@ export class ExponentHelper {
                 return user;
             })
             .catch(error => {
-                return Promise.reject<XDL.IUser>(error);
+                return Promise.reject<xdl.IUser>(error);
             });
     }
 
@@ -441,10 +441,15 @@ var entryPoint = require('${entryPoint}');`;
     }
 
     /**
-     * Name specified on user's package.json
+     * Name specified on user's package.json or project root folder name
      */
     private getPackageName(): Promise<string> {
-        return new Package(this.projectRootPath, { fileSystem: this.fs }).name();
+        return new Package(this.projectRootPath, { fileSystem: this.fs }).name().then(name => {
+            if (!name) {
+                return path.basename(this.projectRootPath);
+            }
+            return name;
+        });
     }
 
     private getExpConfig(): Promise<ExpConfig> {
@@ -503,7 +508,6 @@ var entryPoint = require('${entryPoint}');`;
         if (!this.hasInitialized) {
             this.hasInitialized = true;
             await this.preloadExponentDependency();
-            XDL.configReactNativeVersionWarnings();
             XDL.attachLoggerStream(this.projectRootPath, {
                 stream: {
                     write: (chunk: any) => {

@@ -8,34 +8,55 @@ import { SettingsHelper } from "../settingsHelper";
 
 const XDL_PACKAGE = "xdl";
 const METRO_CONFIG_PACKAGE = "@expo/metro-config";
+const xdlVersion = SettingsHelper.getExpoDependencyVersion(XDL_PACKAGE);
 
-const xdlPackageConfig = new PackageConfig(
+const xdlPackageUserFileConfig = new PackageConfig(XDL_PACKAGE, xdlVersion, "build/User");
+const xdlPackageVersionsFileConfig = new PackageConfig(XDL_PACKAGE, xdlVersion, "build/Versions");
+const xdlPackageProjectFileConfig = new PackageConfig(XDL_PACKAGE, xdlVersion, "build/Project");
+const xdlPackageUrlUtilsFileConfig = new PackageConfig(XDL_PACKAGE, xdlVersion, "build/UrlUtils");
+const xdlPackageAndroidFileConfig = new PackageConfig(XDL_PACKAGE, xdlVersion, "build/Android");
+const ngrokPackageConfig = new PackageConfig(XDL_PACKAGE, xdlVersion, "build/start/resolveNgrok");
+const xdlPackageProjectUtilsFileConfig = new PackageConfig(
     XDL_PACKAGE,
-    SettingsHelper.getExpoDependencyVersion(XDL_PACKAGE),
+    xdlVersion,
+    "build/project/ProjectUtils",
 );
 const metroConfigPackageConfig = new PackageConfig(
     METRO_CONFIG_PACKAGE,
     SettingsHelper.getExpoDependencyVersion("metroConfig"),
 );
 
-const ngrokPackageConfig = new PackageConfig(
-    xdlPackageConfig.getPackageName(),
-    xdlPackageConfig.getVersion(),
-    "build/start/resolveNgrok",
-);
-
 // There is the problem with '--no-save' flag for 'npm install' command for npm v6.
 // Installing npm dependencies with the `--no-save` flag will remove
 // other dependencies that were installed previously in the same manner (https://github.com/npm/cli/issues/1460).
 // So we should workaround it passing all packages for install to only one npm install command
-const EXPO_DEPS: PackageConfig[] = [xdlPackageConfig, metroConfigPackageConfig];
+const EXPO_DEPS: PackageConfig[] = [ngrokPackageConfig, metroConfigPackageConfig];
 
-export const getXDLPackage: () => Promise<
-    typeof XDLPackage
-> = PackageLoader.getInstance().generateGetPackageFunction<typeof XDLPackage>(
-    xdlPackageConfig,
+export const getProjectUtilsPackage: () => Promise<XDLPackage.IProjectUtils> = PackageLoader.getInstance().generateGetPackageFunction<XDLPackage.IProjectUtils>(
+    xdlPackageProjectUtilsFileConfig,
     ...EXPO_DEPS,
 );
+export const getUserPackage: () => Promise<XDLPackage.IUserManager> = PackageLoader.getInstance().generateGetPackageFunction<XDLPackage.IUserManager>(
+    xdlPackageUserFileConfig,
+    ...EXPO_DEPS,
+);
+export const getVersionsPackage: () => Promise<XDLPackage.IVersions> = PackageLoader.getInstance().generateGetPackageFunction<XDLPackage.IVersions>(
+    xdlPackageVersionsFileConfig,
+    ...EXPO_DEPS,
+);
+export const getProjectPackage: () => Promise<XDLPackage.IProject> = PackageLoader.getInstance().generateGetPackageFunction<XDLPackage.IProject>(
+    xdlPackageProjectFileConfig,
+    ...EXPO_DEPS,
+);
+export const getUrlUtilsPackage: () => Promise<XDLPackage.IUrlUtils> = PackageLoader.getInstance().generateGetPackageFunction<XDLPackage.IUrlUtils>(
+    xdlPackageUrlUtilsFileConfig,
+    ...EXPO_DEPS,
+);
+export const getAndroidPackage: () => Promise<XDLPackage.IAndroid> = PackageLoader.getInstance().generateGetPackageFunction<XDLPackage.IAndroid>(
+    xdlPackageAndroidFileConfig,
+    ...EXPO_DEPS,
+);
+
 export const getMetroConfigPackage: () => Promise<
     typeof MetroConfigPackage
 > = PackageLoader.getInstance().generateGetPackageFunction<typeof MetroConfigPackage>(
@@ -47,81 +68,73 @@ export const getNgrokResolver: () => Promise<XDLPackage.ResolveNgrok> = PackageL
     ...EXPO_DEPS,
 );
 
-export type IUser = XDLPackage.IUser;
-
-export function configReactNativeVersionWarnings(): Promise<void> {
-    return getXDLPackage().then(xdl => {
-        xdl.Config.validation.reactNativeVersionWarnings = false;
-    });
-}
-
 export function attachLoggerStream(
     rootPath: string,
     options?: XDLPackage.IBunyanStream | any,
 ): Promise<void> {
-    return getXDLPackage().then(xdl => xdl.ProjectUtils.attachLoggerStream(rootPath, options));
-}
-
-export function currentUser(): Promise<XDLPackage.IUser> {
-    return getXDLPackage().then(xdl =>
-        xdl.User ? xdl.User.getCurrentUserAsync() : xdl.UserManager.getCurrentUserAsync(),
+    return getProjectUtilsPackage().then(projectUtils =>
+        projectUtils.attachLoggerStream(rootPath, options),
     );
 }
 
+export function currentUser(): Promise<XDLPackage.IUser> {
+    return getUserPackage().then(userManager => {
+        return userManager.default.getCurrentUserAsync();
+    });
+}
+
 export function login(username: string, password: string): Promise<XDLPackage.IUser> {
-    return getXDLPackage().then(xdl =>
-        xdl.User
-            ? xdl.User.loginAsync("user-pass", { username: username, password: password })
-            : xdl.UserManager.loginAsync("user-pass", {
-                  username: username,
-                  password: password,
-              }),
+    return getUserPackage().then(userManager =>
+        userManager.default.loginAsync("user-pass", {
+            username: username,
+            password: password,
+        }),
     );
 }
 
 export function getExpoSdkVersions(): Promise<XDLPackage.SDKVersions> {
-    return getXDLPackage().then(xdl => xdl.Versions.sdkVersionsAsync());
+    return getVersionsPackage().then(versions => versions.sdkVersionsAsync());
 }
 
 export function getReleasedExpoSdkVersions(): Promise<XDLPackage.SDKVersions> {
-    return getXDLPackage().then(xdl => xdl.Versions.releasedSdkVersionsAsync());
+    return getVersionsPackage().then(versions => versions.releasedSdkVersionsAsync());
 }
 
 export function publish(
     projectRoot: string,
     options?: XDLPackage.IPublishOptions,
 ): Promise<XDLPackage.IPublishResponse> {
-    return getXDLPackage().then(xdl => xdl.Project.publishAsync(projectRoot, options));
+    return getProjectPackage().then(project => project.publishAsync(projectRoot, options));
 }
 
 export function setOptions(projectRoot: string, options?: XDLPackage.IOptions): Promise<void> {
-    return getXDLPackage().then(xdl => xdl.Project.setOptionsAsync(projectRoot, options));
+    return getProjectPackage().then(project => project.setOptionsAsync(projectRoot, options));
 }
 
 export function startExponentServer(projectRoot: string): Promise<void> {
-    return getXDLPackage().then(xdl => xdl.Project.startExpoServerAsync(projectRoot));
+    return getProjectPackage().then(project => project.startExpoServerAsync(projectRoot));
 }
 
 export function startTunnels(projectRoot: string): Promise<void> {
-    return getXDLPackage().then(xdl => xdl.Project.startTunnelsAsync(projectRoot));
+    return getProjectPackage().then(project => project.startTunnelsAsync(projectRoot));
 }
 
 export function getUrl(projectRoot: string, options?: XDLPackage.IUrlOptions): Promise<string> {
-    return getXDLPackage().then(xdl =>
-        xdl.UrlUtils.constructManifestUrlAsync(projectRoot, options),
+    return getUrlUtilsPackage().then(urlUtils =>
+        urlUtils.constructManifestUrlAsync(projectRoot, options),
     );
 }
 
 export function stopAll(projectRoot: string): Promise<void> {
-    return getXDLPackage().then(xdl => xdl.Project.stopAsync(projectRoot));
+    return getProjectPackage().then(project => project.stopAsync(projectRoot));
 }
 
 export function startAdbReverse(projectRoot: string): Promise<boolean> {
-    return getXDLPackage().then(xdl => xdl.Android.startAdbReverseAsync(projectRoot));
+    return getAndroidPackage().then(android => android.startAdbReverseAsync(projectRoot));
 }
 
 export function stopAdbReverse(projectRoot: string): Promise<void> {
-    return getXDLPackage().then(xdl => xdl.Android.stopAdbReverseAsync(projectRoot));
+    return getAndroidPackage().then(android => android.stopAdbReverseAsync(projectRoot));
 }
 
 export function getMetroConfig(projectRoot: string): Promise<MetroConfigPackage.IMetroConfig> {

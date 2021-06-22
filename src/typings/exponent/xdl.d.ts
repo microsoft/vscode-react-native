@@ -13,16 +13,12 @@ declare module xdl {
         username: string
     }
 
-    var User: {
-        loginAsync(loginType: string, options: ILoginOptions): Promise<IUser>;
-        logoutAsync(): Promise<void>;
-        getCurrentUserAsync(): Promise<IUser>;
-    }
-
-    var UserManager: {
-        loginAsync(loginType: string, options: ILoginOptions): Promise<IUser>;
-        logoutAsync(): Promise<void>;
-        getCurrentUserAsync(): Promise<IUser>;
+    interface IUserManager {
+        default: {
+            loginAsync(loginType: string, options: ILoginOptions): Promise<IUser>,
+            logoutAsync(): Promise<void>,
+            getCurrentUserAsync(): Promise<IUser>,
+        }
     }
 
     interface IStartOptions {
@@ -78,7 +74,12 @@ declare module xdl {
         [version: string]: SDKVersion;
     }
 
-    var Project: {
+    interface IVersions {
+        sdkVersionsAsync(): Promise<SDKVersions>;
+        releasedSdkVersionsAsync(): Promise<SDKVersions>;
+    }
+
+    interface IProject {
         startAsync(projectRoot: string, options?: IStartOptions): Promise<void>;
         stopAsync(projectRoot: string): Promise<void>;
         getUrlAsync(projectRoot: string, options?: IUrlOptions): Promise<string>;
@@ -92,16 +93,11 @@ declare module xdl {
         setOptionsAsync(projectRoot: string, options?: IOptions): Promise<void>;
     }
 
-    var UrlUtils: {
+    interface IUrlUtils {
         constructManifestUrlAsync(projectRoot: string, opts?: any, requestHostname?: string): Promise<string>;
     }
 
-    var Versions: {
-        sdkVersionsAsync(): Promise<SDKVersions>;
-        releasedSdkVersionsAsync(): Promise<SDKVersions>;
-    }
-
-    var Android: {
+    interface IAndroid {
         startAdbReverseAsync(projectRoot: string): Promise<boolean>;
         stopAdbReverseAsync(projectRoot: string): Promise<void>;
     }
@@ -129,8 +125,6 @@ declare module xdl {
         validation: IValidationConfig
     }
 
-    var Config: IConfig;
-
     interface IBunyanStream {
         type?: string;
         level?: number | string;
@@ -141,7 +135,7 @@ declare module xdl {
         count?: number;
     }
 
-    var ProjectUtils: {
+    interface IProjectUtils {
         attachLoggerStream(rootPath: string, options?: IBunyanStream): void;
     }
 

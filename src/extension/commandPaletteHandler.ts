@@ -766,7 +766,7 @@ export class CommandPaletteHandler {
         });
     }
 
-    private static loginToExponent(appLauncher: AppLauncher): Promise<XDL.IUser> {
+    private static loginToExponent(appLauncher: AppLauncher): Promise<xdl.IUser> {
         return appLauncher
             .getExponentHelper()
             .loginToExponent(
