@@ -213,6 +213,11 @@
                 "type": "object",
                 "description": "%reactNative.attach.sourceMapsPathOverrides.description%"
               },
+              "sourceMapRenames": {
+                "type": "boolean",
+                "description": "%reactNative.attach.sourceMapRenames.description%",
+                "default": false
+              },
               "trace": {
                 "type": "string",
                 "enum": [
