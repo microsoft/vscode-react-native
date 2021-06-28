@@ -53,18 +53,13 @@ export class JsDebugConfigAdapter {
             existingExtraArgs.envFile = attachArgs.envFile;
         }
         existingExtraArgs.sourceMaps = attachArgs.sourceMaps;
+        existingExtraArgs.sourceMapRenames = attachArgs.sourceMapRenames;
         if (attachArgs.sourceMapPathOverrides) {
             existingExtraArgs.sourceMapPathOverrides = attachArgs.sourceMapPathOverrides;
         }
         if (attachArgs.skipFiles) {
             existingExtraArgs.skipFiles = attachArgs.skipFiles;
         }
-
-        // There is problem with processing time of 'createFromSourceMap' function of js-debug
-        // So we disable this functionality by default https://github.com/microsoft/vscode-js-debug/issues/1033
-        existingExtraArgs.sourceMapRenames = attachArgs.sourceMapRenames
-            ? attachArgs.sourceMapRenames
-            : false;
 
         return existingExtraArgs;
     }

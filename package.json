@@ -316,6 +316,11 @@
                 "type": "object",
                 "description": "%reactNative.launch.sourceMapsPathOverrides.description%"
               },
+              "sourceMapRenames": {
+                "type": "boolean",
+                "description": "%reactNative.attach.sourceMapRenames.description%",
+                "default": false
+              },
               "logCatArguments": {
                 "type": "array",
                 "description": "%reactNative.launch.logCatArguments.description%",
@@ -438,6 +443,11 @@
                 "type": "object",
                 "description": "%reactNative.attach.sourceMapsPathOverrides.description%"
               },
+              "sourceMapRenames": {
+                "type": "boolean",
+                "description": "%reactNative.attach.sourceMapRenames.description%",
+                "default": false
+              },
               "platform": {
                 "type": "string",
                 "enum": [
@@ -553,6 +563,11 @@
               "sourceMapPathOverrides": {
                 "type": "object",
                 "description": "%reactNative.launch.sourceMapsPathOverrides.description%"
+              },
+              "sourceMapRenames": {
+                "type": "boolean",
+                "description": "%reactNative.attach.sourceMapRenames.description%",
+                "default": false
               },
               "logCatArguments": {
                 "type": "array",
