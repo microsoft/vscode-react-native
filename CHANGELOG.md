@@ -5,7 +5,7 @@
 * Adapted Command Palette commands for running RNW and RNmacOS apps [#1576](https://github.com/microsoft/vscode-react-native/pull/1576)
 * Improved extension security [#1587](https://github.com/microsoft/vscode-react-native/pull/1587), [#1592](https://github.com/microsoft/vscode-react-native/pull/1592), [#1593](https://github.com/microsoft/vscode-react-native/pull/1593), [#1594](https://github.com/microsoft/vscode-react-native/pull/1594)
 * Internal changes:
-    * Uses new vscode API version for creating Packager status indicator on the status bar [#1597](https://github.com/microsoft/vscode-react-native/pull/1597)
+    * Adapted new vscode API version for creating Packager status indicator on the status bar [#1597](https://github.com/microsoft/vscode-react-native/pull/1597)
 
 
 ## 1.5.1
