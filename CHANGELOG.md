@@ -2,7 +2,7 @@
 * Added high CPU load while import `xdl` package to the known issues [#1601](https://github.com/microsoft/vscode-react-native/pull/1601)
 * Implemented debugging mode control for macOS and added the `sourceMapPathOverrides` parameter to launch debugging configurations [#1589](https://github.com/microsoft/vscode-react-native/pull/1589)
 * Implemented settings parameters for controlling versions of the `xdl` and `@expo/metro-config` packages [#1578](https://github.com/microsoft/vscode-react-native/pull/1578)
-* Adapted Command Palette commands for RNW and RNmacOS [#1576](https://github.com/microsoft/vscode-react-native/pull/1576)
+* Adapted Command Palette commands for running RNW and RNmacOS apps [#1576](https://github.com/microsoft/vscode-react-native/pull/1576)
 * Improved extension security [#1587](https://github.com/microsoft/vscode-react-native/pull/1587), [#1592](https://github.com/microsoft/vscode-react-native/pull/1592), [#1593](https://github.com/microsoft/vscode-react-native/pull/1593), [#1594](https://github.com/microsoft/vscode-react-native/pull/1594)
 * Internal changes:
     * Uses new vscode API version for creating Packager status indicator on the status bar [#1597](https://github.com/microsoft/vscode-react-native/pull/1597)
