@@ -762,13 +762,13 @@
         "react-native.expo.dependencies.xdl": {
           "description": "%reactNative.configuration.properties.react-native.expo.dependencies.xdl.description%",
           "type": "string",
-          "default": "59.0.42",
+          "default": "59.0.47",
           "scope": "resource"
         },
         "react-native.expo.dependencies.metroConfig": {
           "description": "%reactNative.configuration.properties.react-native.expo.dependencies.metro-config.description%",
           "type": "string",
-          "default": "0.1.72",
+          "default": "0.1.77",
           "scope": "resource"
         }
       }
