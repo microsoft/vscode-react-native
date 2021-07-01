@@ -143,6 +143,12 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
                 args.enableDebug = true;
             }
 
+            // Now there is a problem with processing time of 'createFromSourceMap' function of js-debug
+            // So we disable this functionality by default https://github.com/microsoft/vscode-js-debug/issues/1033
+            if (typeof args.sourceMapRenames !== "boolean") {
+                args.sourceMapRenames = false;
+            }
+
             const projectRootPath = getProjectRoot(args);
 
             return ReactNativeProjectHelper.isReactNativeProject(projectRootPath).then(
