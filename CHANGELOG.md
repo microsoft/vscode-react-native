@@ -1,4 +1,5 @@
 ## 1.5.2
+* Added the `sourceMapRenames` parameter to debugging configurations [#1602](https://github.com/microsoft/vscode-react-native/pull/1602)
 * Implemented debugging mode control for macOS and added the `sourceMapPathOverrides` parameter to launch debugging configurations [#1589](https://github.com/microsoft/vscode-react-native/pull/1589)
 * Implemented settings parameters for controlling versions of the `xdl` and `@expo/metro-config` packages [#1578](https://github.com/microsoft/vscode-react-native/pull/1578)
 * Adapted Command Palette commands for running RNW and RNmacOS apps [#1576](https://github.com/microsoft/vscode-react-native/pull/1576)
