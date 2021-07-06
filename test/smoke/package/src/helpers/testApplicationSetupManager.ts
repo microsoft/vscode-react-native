@@ -357,7 +357,7 @@ export class TestApplicationSetupManager {
     }
 
     private prepareReactNativeProjectForMacOSHermesApplication(project: TestProject): void {
-        const hermesEngineDarwinInstallCommand = "yarn add hermes-engine-darwin@^0.4.3";
+        const hermesEngineDarwinInstallCommand = "yarn add hermes-engine-darwin@~0.5.3";
         SmokeTestLogger.projectPatchingLog(
             `*** Installing the hermes-engine-darwin package via '${hermesEngineDarwinInstallCommand}' in ${project.workspaceDirectory}...`,
         );
