@@ -26,7 +26,7 @@
     "gulp-gunzip": "1.0.0",
     "gulp-remote-src-vscode": "^0.5.1",
     "gulp-untar": "^0.0.7",
-    "gulp-vinyl-zip": "^2.1.2",
+    "gulp-vinyl-zip": "2.5.0",
     "mkdirp": "^1.0.3",
     "mocha": "6.2.3",
     "mocha-junit-reporter": "^1.18.0",
@@ -40,7 +40,7 @@
     "vinyl-fs": "^3.0.3",
     "vinyl-source-stream": "^1.1.0",
     "webdriverio": "6.10.0",
-    "xdl": "59.0.37"
+    "xdl": "59.0.48"
   },
   "resolutions": {
     "lodash": "^4.17.21"
