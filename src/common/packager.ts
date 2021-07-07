@@ -18,6 +18,7 @@ import { AppLauncher } from "../extension/appLauncher";
 import * as path from "path";
 import * as XDL from "../extension/exponent/xdlInterface";
 import * as semver from "semver";
+import * as vscode from "vscode";
 import * as nls from "vscode-nls";
 import { findFileInFolderHierarchy } from "./extensionHelper";
 import { FileSystem } from "./node/fileSystem";
@@ -240,6 +241,7 @@ export class Packager {
                 if (executedStartPackagerCmd) {
                     this.logger.info(localize("PackagerStarted", "Packager started."));
                     this.packagerStatus = PackagerStatus.PACKAGER_STARTED;
+                    vscode.commands.executeCommand("setContext", "isRnPackagerRunning", true);
                 } else {
                     this.logger.info(
                         localize("PackagerIsAlreadyRunning", "Packager is already running."),
@@ -293,6 +295,7 @@ export class Packager {
             })
             .then(() => {
                 this.setPackagerStopStateUI();
+                vscode.commands.executeCommand("setContext", "isRnPackagerRunning", false);
             });
     }
 

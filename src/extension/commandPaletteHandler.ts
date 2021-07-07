@@ -520,6 +520,7 @@ export class CommandPaletteHandler {
                 }
                 await androidDeviceTracker.start();
                 await networkInspector.start(adbHelper);
+                vscode.commands.executeCommand("setContext", "isRNTNetworkInspectorRunning", true);
             } catch (err) {
                 await CommandPaletteHandler.stopNetworkInspector();
                 throw err;
@@ -544,6 +545,7 @@ export class CommandPaletteHandler {
             CommandPaletteHandler.networkInspectorModule = null;
             InspectorViewFactory.clearCache();
         }
+        vscode.commands.executeCommand("setContext", "isRNTNetworkInspectorRunning", false);
     }
 
     public static getPlatformByCommandName(commandName: string): string {
