@@ -23,6 +23,7 @@ import * as nls from "vscode-nls";
 import { findFileInFolderHierarchy } from "./extensionHelper";
 import { FileSystem } from "./node/fileSystem";
 import { PromiseUtil } from "./node/promise";
+import { CONTEXT_VARIABLES_NAMES } from "./contextVariablesNames";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -241,7 +242,11 @@ export class Packager {
                 if (executedStartPackagerCmd) {
                     this.logger.info(localize("PackagerStarted", "Packager started."));
                     this.packagerStatus = PackagerStatus.PACKAGER_STARTED;
-                    vscode.commands.executeCommand("setContext", "isRnPackagerRunning", true);
+                    vscode.commands.executeCommand(
+                        "setContext",
+                        CONTEXT_VARIABLES_NAMES.IS_RN_PACKAGER_RUNNING,
+                        true,
+                    );
                 } else {
                     this.logger.info(
                         localize("PackagerIsAlreadyRunning", "Packager is already running."),
@@ -295,7 +300,11 @@ export class Packager {
             })
             .then(() => {
                 this.setPackagerStopStateUI();
-                vscode.commands.executeCommand("setContext", "isRnPackagerRunning", false);
+                vscode.commands.executeCommand(
+                    "setContext",
+                    CONTEXT_VARIABLES_NAMES.IS_RN_PACKAGER_RUNNING,
+                    false,
+                );
             });
     }
 

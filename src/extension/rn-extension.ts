@@ -35,6 +35,7 @@ import { DebugSessionBase } from "../debugger/debugSessionBase";
 import { ReactNativeSessionManager } from "./reactNativeSessionManager";
 import { ProjectsStorage } from "./projectsStorage";
 import { AppLauncher } from "./appLauncher";
+import { CONTEXT_VARIABLES_NAMES } from "../common/contextVariablesNames";
 import * as nls from "vscode-nls";
 import {
     getExtensionVersion,
@@ -303,11 +304,19 @@ export function onFolderAdded(folder: vscode.WorkspaceFolder): Promise<void> {
 
 function activateCommands(versions: RNPackageVersions): void {
     if (!ProjectVersionHelper.isVersionError(versions.reactNativeWindowsVersion)) {
-        vscode.commands.executeCommand("setContext", "isRNWindowsProject", true);
+        vscode.commands.executeCommand(
+            "setContext",
+            CONTEXT_VARIABLES_NAMES.IS_RN_WINDOWS_PROJECT,
+            true,
+        );
     }
 
     if (!ProjectVersionHelper.isVersionError(versions.reactNativeMacOSVersion)) {
-        vscode.commands.executeCommand("setContext", "isRNMacOSProject", true);
+        vscode.commands.executeCommand(
+            "setContext",
+            CONTEXT_VARIABLES_NAMES.IS_RN_MACOS_PROJECT,
+            true,
+        );
     }
 }
 
