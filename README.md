@@ -51,6 +51,7 @@ Using this extension, you can **debug your code and quickly run `react-native` c
   - [Setting up the React Native packager](#setting-up-the-react-native-packager)
   - [Change project root](#change-project-root)
   - [Configure an Android LogCat Monitor](#configure-an-android-logcat-monitor)
+  - [Configure dependencies versions for debugging Expo projects](#configure-dependencies-versions-for-debugging-expo-projects)
 - [Network Inspector](#network-inspector)
 - [Developing inside a Docker Container](#developing-inside-a-docker-container)
 - [Contributing](#contributing)

@@ -397,12 +397,4 @@ export class IOSPlatform extends GeneralMobilePlatform {
             scheme,
         );
     }
-
-    /*private static remote(fsPath: string): RemoteExtension { // TODO replace with a new implementation from appLauncher
-        if (this.remoteExtension) {
-            return this.remoteExtension;
-        } else {
-            return this.remoteExtension = RemoteExtension.atProjectRootPath(SettingsHelper.getReactNativeProjectRoot(fsPath));
-        }
-    }*/
 }
