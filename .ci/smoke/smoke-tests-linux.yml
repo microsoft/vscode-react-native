@@ -13,7 +13,7 @@ jobs:
   - job: Linux
     pool:
       name: "React Native smoke tests - Linux"
-    timeoutInMinutes: 45
+    timeoutInMinutes: 50
     steps:
       - checkout: self
         clean: true
