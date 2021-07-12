@@ -795,7 +795,10 @@
     }
   },
   "capabilities": {
-    "virtualWorkspaces": false,
+    "virtualWorkspaces": {
+      "supported": false,
+      "description": "%reactNative.virtualWorkspaces.description%"
+    },
     "untrustedWorkspaces": {
       "supported": "limited",
       "description": "%reactNative.workspaceTrust.description%"

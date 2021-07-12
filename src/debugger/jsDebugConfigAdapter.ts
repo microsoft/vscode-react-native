@@ -40,7 +40,7 @@ export class JsDebugConfigAdapter {
             // in vscode.debug API methods "onDidStartDebugSession" and "onDidTerminateDebugSession".
             rnDebugSessionId: sessionId,
             // We need to provide js-debug with the "**" pattern, so that it can get source maps over a http URL
-            resolveSourceMapLocations: ["**", "!**/node_modules/**"],
+            resolveSourceMapLocations: ["**", "!**/node_modules/!(expo)/**"],
         });
     }
 
