@@ -39,7 +39,8 @@ export class JsDebugConfigAdapter {
             // debug sessions from other ones. So we can save and process only the extension's debug sessions
             // in vscode.debug API methods "onDidStartDebugSession" and "onDidTerminateDebugSession".
             rnDebugSessionId: sessionId,
-            // We need to provide js-debug with the "**" pattern, so that it can get source maps over a http URL
+            // We need to provide js-debug with the "**" pattern, so that it can get source maps over a http URL.
+            // We need to allow "**/node_modules/expo/**" path, since Expo source maps URL contains it.
             resolveSourceMapLocations: ["**", "!**/node_modules/!(expo)/**"],
         });
     }
