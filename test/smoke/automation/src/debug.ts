@@ -175,5 +175,4 @@ export class Debug extends Viewlet {
         const elements = await this.code.waitForElements(CONSOLE_OUTPUT, false, elements => fn(elements.map(e => e.textContent)));
         return elements.map(e => e.textContent);
     }
-
 }

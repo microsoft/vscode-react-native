@@ -21,7 +21,7 @@ export class QuickAccess {
             }
 
             try {
-                await this.quickInput.waitForQuickInputOpened();
+                await this.quickInput.waitForQuickInputOpened(10);
                 break;
             } catch (err) {
                 if (++retries > 5) {

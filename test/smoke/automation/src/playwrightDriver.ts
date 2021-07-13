@@ -14,16 +14,17 @@ const width = 1200;
 const height = 800;
 
 const vscodeToPlaywrightKey: { [key: string]: string } = {
-	cmd: "Meta",
-	ctrl: "Control",
-	shift: "Shift",
-	enter: "Enter",
-	escape: "Escape",
-	right: "ArrowRight",
-	up: "ArrowUp",
-	down: "ArrowDown",
-	left: "ArrowLeft",
-	home: "Home"
+	cmd: 'Meta',
+	ctrl: 'Control',
+	shift: 'Shift',
+	enter: 'Enter',
+	escape: 'Escape',
+	right: 'ArrowRight',
+	up: 'ArrowUp',
+	down: 'ArrowDown',
+	left: 'ArrowLeft',
+	home: 'Home',
+	esc: 'Escape'
 };
 
 function buildDriver(browser: playwright.Browser, page: playwright.Page): IDriver {
@@ -32,17 +33,20 @@ function buildDriver(browser: playwright.Browser, page: playwright.Page): IDrive
 		getWindowIds: () => {
 			return Promise.resolve([1]);
 		},
-		capturePage: () => Promise.resolve(""),
+		capturePage: () => Promise.resolve(''),
 		reloadWindow: (windowId) => Promise.resolve(),
-		exitApplication: () => browser.close(),
+		exitApplication: async () => {
+			await browser.close();
+			await teardown();
+		},
 		dispatchKeybinding: async (windowId, keybinding) => {
-			const chords = keybinding.split(" ");
+			const chords = keybinding.split(' ');
 			for (let i = 0; i < chords.length; i++) {
 				const chord = chords[i];
 				if (i > 0) {
 					await timeout(100);
 				}
-				const keys = chord.split("+");
+				const keys = chord.split('+');
 				const keysDown: string[] = [];
 				for (let i = 0; i < keys.length; i++) {
 					if (keys[i] in vscodeToPlaywrightKey) {
@@ -75,7 +79,8 @@ function buildDriver(browser: playwright.Browser, page: playwright.Page): IDrive
 		getElementXY: (windowId, selector, xoffset?, yoffset?) => page.evaluate(`window.driver.getElementXY('${selector}', ${xoffset}, ${yoffset})`),
 		typeInEditor: (windowId, selector, text) => page.evaluate(`window.driver.typeInEditor('${selector}', '${text}')`),
 		getTerminalBuffer: (windowId, selector) => page.evaluate(`window.driver.getTerminalBuffer('${selector}')`),
-		writeInTerminal: (windowId, selector, text) => page.evaluate(`window.driver.writeInTerminal('${selector}', '${text}')`)
+		writeInTerminal: (windowId, selector, text) => page.evaluate(`window.driver.writeInTerminal('${selector}', '${text}')`),
+		getLocalizedStrings: (windowId) => page.evaluate(`window.driver.getLocalizedStrings()`)
 	};
 	return driver;
 }
@@ -84,11 +89,12 @@ function timeout(ms: number): Promise<void> {
 	return new Promise<void>(r => setTimeout(r, ms));
 }
 
+let port = 9000;
 let server: ChildProcess | undefined;
 let endpoint: string | undefined;
 let workspacePath: string | undefined;
 
-export async function launch(userDataDir: string, _workspacePath: string, codeServerPath = process.env.VSCODE_REMOTE_SERVER_PATH): Promise<void> {
+export async function launch(userDataDir: string, _workspacePath: string, codeServerPath = process.env.VSCODE_REMOTE_SERVER_PATH, extPath: string, verbose: boolean): Promise<void> {
 	workspacePath = _workspacePath;
 
 	const agentFolder = userDataDir;
@@ -98,30 +104,52 @@ export async function launch(userDataDir: string, _workspacePath: string, codeSe
 		VSCODE_REMOTE_SERVER_PATH: codeServerPath,
 		...process.env
 	};
+
+	const root = join(__dirname, '..', '..', '..');
+	const logsPath = join(root, '.build', 'logs', 'smoke-tests-browser');
+
+	const args = ['--port', `${port++}`, '--browser', 'none', '--driver', 'web', '--extensions-dir', extPath];
+
 	let serverLocation: string | undefined;
 	if (codeServerPath) {
-		serverLocation = join(codeServerPath, `server.${process.platform === "win32" ? "cmd" : "sh"}`);
-		console.log(`Starting built server from "${serverLocation}"`);
+		serverLocation = join(codeServerPath, `server.${process.platform === 'win32' ? 'cmd' : 'sh'}`);
+		args.push(`--logsPath=${logsPath}`);
+
+		if (verbose) {
+			console.log(`Starting built server from '${serverLocation}'`);
+			console.log(`Storing log files into '${logsPath}'`);
+		}
 	} else {
-		serverLocation = join(__dirname, "..", "..", "..", `resources/server/web.${process.platform === "win32" ? "bat" : "sh"}`);
-		console.log(`Starting server out of sources from "${serverLocation}"`);
+		serverLocation = join(root, `resources/server/web.${process.platform === 'win32' ? 'bat' : 'sh'}`);
+		args.push('--logsPath', logsPath);
+
+		if (verbose) {
+			console.log(`Starting server out of sources from '${serverLocation}'`);
+			console.log(`Storing log files into '${logsPath}'`);
+		}
 	}
+
 	server = spawn(
 		serverLocation,
-		["--browser", "none", "--driver", "web"],
+		args,
 		{ env }
 	);
-	server.stderr?.on("data", error => console.log(`Server stderr: ${error}`));
-	server.stdout?.on("data", data => console.log(`Server stdout: ${data}`));
-	process.on("exit", teardown);
-	process.on("SIGINT", teardown);
-	process.on("SIGTERM", teardown);
+
+	if (verbose) {
+		server.stderr?.on('data', error => console.log(`Server stderr: ${error}`));
+		server.stdout?.on('data', data => console.log(`Server stdout: ${data}`));
+	}
+
+	process.on('exit', teardown);
+	process.on('SIGINT', teardown);
+	process.on('SIGTERM', teardown);
+
 	endpoint = await waitForEndpoint();
 }
 
-function teardown(): void {
+async function teardown(): Promise<void> {
 	if (server) {
-		kill(server.pid);
+		await new Promise((c, e) => kill(server!.pid, error => error ? e(error) : c(null)));
 		server = undefined;
 	}
 }
@@ -137,13 +165,13 @@ function waitForEndpoint(): Promise<string> {
 	});
 }
 
-export function connect(browserType: "chromium" | "webkit" | "firefox" = "chromium"): Promise<{ client: IDisposable, driver: IDriver }> {
+export function connect(browserType: 'chromium' | 'webkit' | 'firefox' = 'chromium'): Promise<{ client: IDisposable, driver: IDriver }> {
 	return new Promise(async (c) => {
 		const browser = await playwright[browserType].launch({ headless: false });
 		const context = await browser.newContext();
 		const page = await context.newPage();
 		await page.setViewportSize({ width, height });
-		const payloadParam = `[["enableProposedApi",""]]`;
+		const payloadParam = `[["enableProposedApi",""],["skipWelcome","true"]]`;
 		await page.goto(`${endpoint}&folder=vscode-remote://localhost:9888${URI.file(workspacePath!).path}&payload=${payloadParam}`);
 		const result = {
 			client: { dispose: () => browser.close() && teardown() },
