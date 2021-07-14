@@ -38,8 +38,12 @@ export class Editors {
         );
     }
 
-    public async waitForTab(fileName: string, isDirty: boolean = false, isWebview?: boolean): Promise<void> {
-        await this.code.waitForElement(`.tabs-container div.tab${isDirty ? ".dirty" : ""}[${isWebview ? "title" : "data-resource-name$"}="${fileName}"]`);
+    public async waitForTab(fileName: string, isDirty: boolean = false, isWebview?: boolean, retryCount?: number): Promise<void> {
+        await this.code.waitForElement(
+            `.tabs-container div.tab${isDirty ? ".dirty" : ""}[${isWebview ? "title" : "data-resource-name$"}="${fileName}"]`,
+            undefined,
+            retryCount,
+        );
     }
 
     public async newUntitledFile(): Promise<void> {

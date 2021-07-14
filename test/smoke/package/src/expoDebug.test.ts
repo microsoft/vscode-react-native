@@ -192,7 +192,7 @@ export function startExpoTests(
             }
             await runExpoDebugScenario(logFilePath, testName, debugConfigName, triesToLaunchApp);
 
-            await app.workbench.editors.waitForTab("Expo QR Code", false, true);
+            await app.workbench.editors.waitForTab("Expo QR Code", false, true, 2000);
             await app.workbench.editors.waitForActiveTab("Expo QR Code", false, true);
             SmokeTestLogger.info(`${testName}: 'Expo QR Code' tab found`);
 
