@@ -218,7 +218,7 @@ export default class AndroidEmulatorManager {
         });
     }
 
-    public static adbReversePort(port: number) {
+    public static adbReversePort(port: number): void {
         SmokeTestLogger.info(`*** Forwarding port ${port} on an Android emulator.`);
         cp.execSync(`adb reverse tcp:${port} tcp:${port}`);
     }
