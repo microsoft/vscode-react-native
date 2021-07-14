@@ -30,8 +30,12 @@ export class Editors {
         await this.waitForActiveEditor(fileName);
     }
 
-    public async waitForActiveTab(fileName: string, isDirty: boolean = false, isWebview?: boolean): Promise<void> {
-        await this.code.waitForElement(`.tabs-container div.tab.active${isDirty ? ".dirty" : ""}[aria-selected="true"][${isWebview ? "title" : "data-resource-name$"}="${fileName}"]`);
+    public async waitForActiveTab(fileName: string, isDirty: boolean = false, isWebview?: boolean, retryCount?: number): Promise<void> {
+        await this.code.waitForElement(
+            `.tabs-container div.tab.active${isDirty ? ".dirty" : ""}[aria-selected="true"][${isWebview ? "title" : "data-resource-name$"}="${fileName}"]`,
+            undefined,
+            retryCount,
+        );
     }
 
     public async waitForTab(fileName: string, isDirty: boolean = false, isWebview?: boolean): Promise<void> {

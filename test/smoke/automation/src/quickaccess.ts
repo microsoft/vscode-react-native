@@ -42,7 +42,7 @@ export class QuickAccess {
 
         await this.quickInput.waitForQuickInputElements(names => names[0] === fileName);
         await this.code.dispatchKeybinding("enter");
-        await this.editors.waitForActiveTab(fileName);
+        await this.editors.waitForActiveTab(fileName, undefined, undefined, 40);
         await this.editors.waitForEditorFocus(fileName);
     }
 
