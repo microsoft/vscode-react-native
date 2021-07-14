@@ -64,7 +64,7 @@ export class VsCodeManager {
         );
         this.vsCodeClientDirectory = path.join(
             vscodeTestDirectory,
-            `vscode-${process.platform}-${this.clientVersion}`,
+            `vscode-${this.downloadPlatform}-${this.clientVersion}`,
         );
         this.extensionDirectory = path.join(this.vsCodeClientDirectory, "extension");
         this.vsixDirectory = path.join(this.resourcesDirectory, "drop-win");
