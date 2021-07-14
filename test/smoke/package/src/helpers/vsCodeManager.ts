@@ -62,7 +62,10 @@ export class VsCodeManager {
             projectRoot,
             SmokeTestsConstants.VSCodeUserDataDir,
         );
-        this.vsCodeClientDirectory = path.join(vscodeTestDirectory, `vscode-${this.clientVersion}`);
+        this.vsCodeClientDirectory = path.join(
+            vscodeTestDirectory,
+            `vscode-${process.platform}-${this.clientVersion}`,
+        );
         this.extensionDirectory = path.join(this.vsCodeClientDirectory, "extension");
         this.vsixDirectory = path.join(this.resourcesDirectory, "drop-win");
 
@@ -353,9 +356,7 @@ export class VsCodeManager {
 
     public findStringInLogs(string: string, logFile: string): boolean {
         if (this.currentSessionLogsDir) {
-            SmokeTestLogger.info(
-                `*** Searching for \"Test output from Hermes debuggee\" string in output file`,
-            );
+            SmokeTestLogger.info(`*** Searching for \"${string}\" string in output file`);
             return utilities.findStringInFile(
                 path.join(this.currentSessionLogsDir, logFile),
                 string,

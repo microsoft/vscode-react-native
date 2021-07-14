@@ -246,9 +246,9 @@ async function poll<T>(
             } else {
                 lastError = "Did not pass accept function";
             }
-        } catch (e) {
-            lastError = Array.isArray(e.stack) ? e.stack.join(os.EOL) : e.stack;
-        }
+		} catch (e: any) {
+			lastError = Array.isArray(e.stack) ? e.stack.join(os.EOL) : e.stack;
+		}
 
         await new Promise(resolve => setTimeout(resolve, retryInterval));
         trial++;

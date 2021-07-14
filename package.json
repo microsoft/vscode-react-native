@@ -913,7 +913,7 @@
     "vsce": "^1.88.0",
     "vscode-debugprotocol": "1.40.0",
     "vscode-nls-dev": "3.3.2",
-    "vscode-test": "1.4.0",
+    "vscode-test": "^1.5.2",
     "webpack": "5.28.0",
     "webpack-bundle-analyzer": "4.4.0"
   },
