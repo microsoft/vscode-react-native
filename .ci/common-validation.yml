@@ -1,8 +1,8 @@
 steps:
   - task: NodeTool@0
-    displayName: "Use Node 14.x"
+    displayName: "Use Node 12.x"
     inputs:
-      versionSpec: 14.x
+      versionSpec: 12.x
 
   - bash: npm install gulp react-devtools vsce -g --force
     displayName: "npm install gulp react-devtools vsce -g"
@@ -19,8 +19,9 @@ steps:
     displayName: Start xvfb
     condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
 
-  - bash: "npm test --verbose"
+  - bash: "npm test"
     displayName: "Run host tests"
+    timeoutInMinutes: 10
     env:
       DISPLAY: ":99.0"
 
