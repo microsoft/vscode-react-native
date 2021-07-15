@@ -63,6 +63,7 @@ export function run(): Promise<void> {
                     if (failures > 0) {
                         reject(new Error(`${failures} tests failed.`));
                     } else {
+                        console.log("unit tests fin");
                         resolve();
                     }
                 });
@@ -75,6 +76,7 @@ export function run(): Promise<void> {
             nyc.writeCoverageFile();
             return nyc.report();
         }
+        console.log("unit tests fin3");
         return void 0;
     });
 }
