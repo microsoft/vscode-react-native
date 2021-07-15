@@ -26,6 +26,7 @@ export default class AutomationHelper {
     ): Promise<void> {
         let tryes = retryCount;
         while (tryes > 0) {
+            console.log("retryWithSpecifiedPollRetryParameters: tryes=" + tryes);
             try {
                 await this.app.workbench.code.executeWithSpecifiedPollRetryParameters(
                     fun,
