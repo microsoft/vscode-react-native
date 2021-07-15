@@ -20,7 +20,7 @@ async function launchTests() {
             extensionDevelopmentPath,
             extensionTestsPath,
             launchArgs: ["--locale", "ru"],
-            version: "1.55.0",
+            version: "1.52.0",
         });
     } catch (err) {
         console.error(err);

@@ -19,7 +19,7 @@ async function launchTests() {
         await runTests({
             extensionDevelopmentPath,
             extensionTestsPath,
-            version: "1.55.0",
+            version: "1.52.0",
         });
     } catch (err) {
         console.error(err);

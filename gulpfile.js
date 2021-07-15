@@ -31,7 +31,7 @@ const tsProject = ts.createProject("tsconfig.json");
  */
 const isNightly = process.argv.includes("--nightly");
 
-const vscodeVersionForTests = "1.55.0";
+const vscodeVersionForTests = "1.52.0";
 
 const fullExtensionName = isNightly
     ? "msjsdiag.vscode-react-native-preview"
