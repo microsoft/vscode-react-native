@@ -10,10 +10,10 @@ export class KeybindingsEditor {
     constructor(private code: Code) { }
 
 	async updateKeybinding(command: string, commandName: string | undefined, keybinding: string, keybindingTitle: string): Promise<any> {
-		if (process.platform === 'darwin') {
-			await this.code.dispatchKeybinding('cmd+k cmd+s');
+		if (process.platform === "darwin") {
+			await this.code.dispatchKeybinding("cmd+k cmd+s");
 		} else {
-			await this.code.dispatchKeybinding('ctrl+k ctrl+s');
+			await this.code.dispatchKeybinding("ctrl+k ctrl+s");
 		}
 
 		await this.code.waitForActiveElement(SEARCH_INPUT);
@@ -22,11 +22,11 @@ export class KeybindingsEditor {
 		const commandTitle = commandName ? `${commandName} (${command})` : command;
 		await this.code.waitAndClick(`.keybindings-table-container .monaco-list-row .command[title="${commandTitle}"]`);
 		await this.code.waitForElement(`.keybindings-table-container .monaco-list-row.focused.selected .command[title="${commandTitle}"]`);
-		await this.code.dispatchKeybinding('enter');
+		await this.code.dispatchKeybinding("enter");
 
-		await this.code.waitForActiveElement('.defineKeybindingWidget .monaco-inputbox input');
+		await this.code.waitForActiveElement(".defineKeybindingWidget .monaco-inputbox input");
 		await this.code.dispatchKeybinding(keybinding);
-		await this.code.dispatchKeybinding('enter');
+		await this.code.dispatchKeybinding("enter");
 		await this.code.waitForElement(`.keybindings-table-container .keybinding-label div[title="${keybindingTitle}"]`);
 	}
 }

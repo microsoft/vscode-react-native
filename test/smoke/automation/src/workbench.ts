@@ -17,7 +17,7 @@ import { Editors } from "./editors";
 import { Code } from "./code";
 import { Terminal } from "./terminal";
 import { QuickAccess } from "./quickaccess";
-import { Localization } from './localization';
+import { Localization } from "./localization";
 
 export interface Commands {
     runCommand(command: string): Promise<any>;

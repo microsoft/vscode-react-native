@@ -1,63 +1,63 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as path from 'path';
-import * as cp from 'child_process';
-import * as os from 'os';
-import * as fs from 'fs';
-import * as mkdirp from 'mkdirp';
-import { tmpName } from 'tmp';
-import { IDriver, connect as connectElectronDriver, IDisposable, IElement, Thenable, ILocalizedStrings } from './driver';
-import { connect as connectPlaywrightDriver, launch } from './playwrightDriver';
-import { Logger } from './logger';
-import { ncp } from 'ncp';
-import { URI } from 'vscode-uri';
+import * as path from "path";
+import * as cp from "child_process";
+import * as os from "os";
+import * as fs from "fs";
+import * as mkdirp from "mkdirp";
+import { tmpName } from "tmp";
+import { IDriver, connect as connectElectronDriver, IDisposable, IElement, Thenable, ILocalizedStrings } from "./driver";
+import { connect as connectPlaywrightDriver, launch } from "./playwrightDriver";
+import { Logger } from "./logger";
+import { ncp } from "ncp";
+import { URI } from "vscode-uri";
 
-const repoPath = path.join(__dirname, '../../..');
+const repoPath = path.join(__dirname, "../../..");
 
 function getDevElectronPath(): string {
-	const buildPath = path.join(repoPath, '.build');
-	const product = require(path.join(repoPath, 'product.json'));
+	const buildPath = path.join(repoPath, ".build");
+	const product = require(path.join(repoPath, "product.json"));
 
 	switch (process.platform) {
-		case 'darwin':
-			return path.join(buildPath, 'electron', `${product.nameLong}.app`, 'Contents', 'MacOS', 'Electron');
-		case 'linux':
-			return path.join(buildPath, 'electron', `${product.applicationName}`);
-		case 'win32':
-			return path.join(buildPath, 'electron', `${product.nameShort}.exe`);
+		case "darwin":
+			return path.join(buildPath, "electron", `${product.nameLong}.app`, "Contents", "MacOS", "Electron");
+		case "linux":
+			return path.join(buildPath, "electron", `${product.applicationName}`);
+		case "win32":
+			return path.join(buildPath, "electron", `${product.nameShort}.exe`);
 		default:
-			throw new Error('Unsupported platform.');
+			throw new Error("Unsupported platform.");
 	}
 }
 
 function getBuildElectronPath(root: string): string {
 	switch (process.platform) {
-		case 'darwin':
-			return path.join(root, 'Contents', 'MacOS', 'Electron');
-		case 'linux': {
-			const product = require(path.join(root, 'resources', 'app', 'product.json'));
+		case "darwin":
+			return path.join(root, "Contents", "MacOS", "Electron");
+		case "linux": {
+			const product = require(path.join(root, "resources", "app", "product.json"));
 			return path.join(root, product.applicationName);
 		}
-		case 'win32': {
-			const product = require(path.join(root, 'resources', 'app', 'product.json'));
+		case "win32": {
+			const product = require(path.join(root, "resources", "app", "product.json"));
 			return path.join(root, `${product.nameShort}.exe`);
 		}
 		default:
-			throw new Error('Unsupported platform.');
+			throw new Error("Unsupported platform.");
 	}
 }
 
 function getDevOutPath(): string {
-	return path.join(repoPath, 'out');
+	return path.join(repoPath, "out");
 }
 
 function getBuildOutPath(root: string): string {
 	switch (process.platform) {
-		case 'darwin':
-			return path.join(root, 'Contents', 'Resources', 'app', 'out');
+		case "darwin":
+			return path.join(root, "Contents", "Resources", "app", "out");
 		default:
-			return path.join(root, 'resources', 'app', 'out');
+			return path.join(root, "resources", "app", "out");
 	}
 }
 
@@ -84,7 +84,7 @@ async function connect(connectDriver: typeof connectElectronDriver, child: cp.Ch
 
 // Kill all running instances, when dead
 const instances = new Set<cp.ChildProcess>();
-process.once('exit', () => instances.forEach(code => code.kill()));
+process.once("exit", () => instances.forEach(code => code.kill()));
 
 export interface SpawnOptions {
     codePath?: string;
@@ -106,8 +106,8 @@ export interface SpawnOptions {
 }
 
 async function createDriverHandle(): Promise<string> {
-	if ('win32' === os.platform()) {
-		const name = [...Array(15)].map(() => Math.random().toString(36)[3]).join('');
+	if ("win32" === os.platform()) {
+		const name = [...Array(15)].map(() => Math.random().toString(36)[3]).join("");
 		return `\\\\.\\pipe\\${name}`;
 	} else {
 		return await new Promise<string>((c, e) => tmpName((err, handlePath) => err ? e(err) : c(handlePath)));
@@ -120,12 +120,12 @@ export async function spawn(options: SpawnOptions): Promise<Code> {
 	let child: cp.ChildProcess | undefined;
 	let connectDriver: typeof connectElectronDriver;
 
-	copyExtension(options.extensionsPath, 'vscode-notebook-tests');
+	copyExtension(options.extensionsPath, "vscode-notebook-tests");
 
 	if (options.web) {
 		await launch(options.userDataDir, options.workspacePath, options.codePath, options.extensionsPath, Boolean(options.verbose));
 		connectDriver = connectPlaywrightDriver.bind(connectPlaywrightDriver, options.browser);
-		return connect(connectDriver, child, '', handle, options.logger);
+		return connect(connectDriver, child, "", handle, options.logger);
 	}
 
 	const env = { ...process.env };
@@ -134,59 +134,59 @@ export async function spawn(options: SpawnOptions): Promise<Code> {
 
 	const args = [
 		options.workspacePath,
-		'--skip-release-notes',
-		'--skip-welcome',
-		'--disable-telemetry',
-		'--no-cached-data',
-		'--disable-updates',
-		'--disable-keytar',
-		'--disable-crash-reporter',
-		'--disable-workspace-trust',
+		"--skip-release-notes",
+		"--skip-welcome",
+		"--disable-telemetry",
+		"--no-cached-data",
+		"--disable-updates",
+		"--disable-keytar",
+		"--disable-crash-reporter",
+		"--disable-workspace-trust",
 		`--extensions-dir=${options.extensionsPath}`,
 		`--user-data-dir=${options.userDataDir}`,
-		`--logsPath=${path.join(repoPath, '.build', 'logs', 'smoke-tests')}`,
-		'--driver', handle
+		`--logsPath=${path.join(repoPath, ".build", "logs", "smoke-tests")}`,
+		"--driver", handle
 	];
 
-	if (process.platform === 'linux') {
-		args.push('--disable-gpu'); // Linux has trouble in VMs to render properly with GPU enabled
+	if (process.platform === "linux") {
+		args.push("--disable-gpu"); // Linux has trouble in VMs to render properly with GPU enabled
 	}
 
 	if (options.remote) {
 		// Replace workspace path with URI
-		args[0] = `--${options.workspacePath.endsWith('.code-workspace') ? 'file' : 'folder'}-uri=vscode-remote://test+test/${URI.file(options.workspacePath).path}`;
+		args[0] = `--${options.workspacePath.endsWith(".code-workspace") ? "file" : "folder"}-uri=vscode-remote://test+test/${URI.file(options.workspacePath).path}`;
 
 		if (codePath) {
 			// running against a build: copy the test resolver extension
-			copyExtension(options.extensionsPath, 'vscode-test-resolver');
+			copyExtension(options.extensionsPath, "vscode-test-resolver");
 		}
-		args.push('--enable-proposed-api=vscode.vscode-test-resolver');
+		args.push("--enable-proposed-api=vscode.vscode-test-resolver");
 		const remoteDataDir = `${options.userDataDir}-server`;
 		mkdirp.sync(remoteDataDir);
 
 		if (codePath) {
 			// running against a build: copy the test resolver extension into remote extensions dir
-			const remoteExtensionsDir = path.join(remoteDataDir, 'extensions');
+			const remoteExtensionsDir = path.join(remoteDataDir, "extensions");
 			mkdirp.sync(remoteExtensionsDir);
-			copyExtension(remoteExtensionsDir, 'vscode-notebook-tests');
+			copyExtension(remoteExtensionsDir, "vscode-notebook-tests");
 		}
 
-		env['TESTRESOLVER_DATA_FOLDER'] = remoteDataDir;
+		env["TESTRESOLVER_DATA_FOLDER"] = remoteDataDir;
 	}
 
 
-	args.push('--enable-proposed-api=vscode.vscode-notebook-tests');
+	args.push("--enable-proposed-api=vscode.vscode-notebook-tests");
 
 	if (!codePath) {
 		args.unshift(repoPath);
 	}
 
 	if (options.verbose) {
-		args.push('--driver-verbose');
+		args.push("--driver-verbose");
 	}
 
 	if (options.log) {
-		args.push('--log', options.log);
+		args.push("--log", options.log);
 	}
 
 	if (options.extraArgs) {
@@ -197,7 +197,7 @@ export async function spawn(options: SpawnOptions): Promise<Code> {
 	const spawnOptions: cp.SpawnOptions = { env };
 	child = cp.spawn(electronPath, args, spawnOptions);
 	instances.add(child);
-	child.once('exit', () => instances.delete(child!));
+	child.once("exit", () => instances.delete(child!));
 	connectDriver = connectElectronDriver;
 	return connect(connectDriver, child, outPath, handle, options.logger);
 }
@@ -205,7 +205,7 @@ export async function spawn(options: SpawnOptions): Promise<Code> {
 async function copyExtension(extensionsPath: string, extId: string): Promise<void> {
 	const dest = path.join(extensionsPath, extId);
 	if (!fs.existsSync(dest)) {
-		const orig = path.join(repoPath, 'extensions', extId);
+		const orig = path.join(repoPath, "extensions", extId);
 		await new Promise<void>((c, e) => ncp(orig, dest, err => err ? e(err) : c()));
 	}
 }
@@ -319,8 +319,8 @@ export class Code {
 		accept = accept || (result => textContent !== undefined ? textContent === result : !!result);
 
 		return await poll(
-			() => this.driver.getElements(windowId, selector).then(els => els.length > 0 ? Promise.resolve(els[0].textContent) : Promise.reject(new Error('Element not found for textContent'))),
-			s => accept!(typeof s === 'string' ? s : ''),
+			() => this.driver.getElements(windowId, selector).then(els => els.length > 0 ? Promise.resolve(els[0].textContent) : Promise.reject(new Error("Element not found for textContent"))),
+			s => accept!(typeof s === "string" ? s : ""),
 			`get text content '${selector}'`,
 			retryCount
 		);

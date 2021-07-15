@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as fs from 'fs';
-import * as path from 'path';
-import { Workbench } from './workbench';
-import { Code, spawn, SpawnOptions } from './code';
-import { Logger } from './logger';
+import * as fs from "fs";
+import * as path from "path";
+import { Workbench } from "./workbench";
+import { Code, spawn, SpawnOptions } from "./code";
+import { Logger } from "./logger";
 
 export const enum Quality {
 	Dev,
@@ -70,7 +70,7 @@ export class Application {
 
 	async start(expectWalkthroughPart = true): Promise<any> {
 		await this._start();
-		await this.code.waitForElement('.explorer-folders-view');
+		await this.code.waitForElement(".explorer-folders-view");
 
 		// https://github.com/microsoft/vscode/issues/118748
 		// if (expectWalkthroughPart) {
@@ -110,10 +110,10 @@ export class Application {
 	async captureScreenshot(name: string): Promise<void> {
 		if (this.options.screenshotsPath) {
 			const raw = await this.code.capturePage();
-			const buffer = Buffer.from(raw, 'base64');
+			const buffer = Buffer.from(raw, "base64");
 			const screenshotPath = path.join(this.options.screenshotsPath, `${name}.png`);
 			if (this.options.log) {
-				this.logger.log('*** Screenshot recorded:', screenshotPath);
+				this.logger.log("*** Screenshot recorded:", screenshotPath);
 			}
 			fs.writeFileSync(screenshotPath, buffer);
 		}
@@ -130,15 +130,15 @@ export class Application {
 
 	private async checkWindowReady(): Promise<any> {
 		if (!this.code) {
-			console.error('No code instance found');
+			console.error("No code instance found");
 			return;
 		}
 
 		await this.code.waitForWindowIds(ids => ids.length > 0);
-		await this.code.waitForElement('.monaco-workbench');
+		await this.code.waitForElement(".monaco-workbench");
 
 		if (this.remote) {
-			await this.code.waitForTextContent('.monaco-workbench .statusbar-item[id="status.host"]', ' TestResolver', undefined, 2000);
+			await this.code.waitForTextContent('.monaco-workbench .statusbar-item[id="status.host"]', " TestResolver", undefined, 2000);
 		}
 
 		// wait a bit, since focus might be stolen off widgets

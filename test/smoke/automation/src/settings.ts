@@ -14,22 +14,22 @@ export class SettingsEditor {
 
 	async addUserSetting(setting: string, value: string): Promise<void> {
 		await this.openSettings();
-		await this.editor.waitForEditorFocus('settings.json', 1);
+		await this.editor.waitForEditorFocus("settings.json", 1);
 
-		await this.code.dispatchKeybinding('right');
-		await this.editor.waitForTypeInEditor('settings.json', `"${setting}": ${value},`);
+		await this.code.dispatchKeybinding("right");
+		await this.editor.waitForTypeInEditor("settings.json", `"${setting}": ${value},`);
 		await this.editors.saveOpenedFile();
 	}
 
 	async clearUserSettings(): Promise<void> {
-		const settingsPath = path.join(this.userDataPath, 'User', 'settings.json');
-		await new Promise<void>((c, e) => fs.writeFile(settingsPath, '{\n}', 'utf8', err => err ? e(err) : c()));
+		const settingsPath = path.join(this.userDataPath, "User", "settings.json");
+		await new Promise<void>((c, e) => fs.writeFile(settingsPath, "{\n}", "utf8", err => err ? e(err) : c()));
 
 		await this.openSettings();
-		await this.editor.waitForEditorContents('settings.json', c => c === '{}');
+		await this.editor.waitForEditorContents("settings.json", c => c === "{}");
 	}
 
 	private async openSettings(): Promise<void> {
-		await this.quickaccess.runCommand('workbench.action.openSettingsJson');
+		await this.quickaccess.runCommand("workbench.action.openSettingsJson");
 	}
 }

@@ -14,17 +14,17 @@ const width = 1200;
 const height = 800;
 
 const vscodeToPlaywrightKey: { [key: string]: string } = {
-	cmd: 'Meta',
-	ctrl: 'Control',
-	shift: 'Shift',
-	enter: 'Enter',
-	escape: 'Escape',
-	right: 'ArrowRight',
-	up: 'ArrowUp',
-	down: 'ArrowDown',
-	left: 'ArrowLeft',
-	home: 'Home',
-	esc: 'Escape'
+	cmd: "Meta",
+	ctrl: "Control",
+	shift: "Shift",
+	enter: "Enter",
+	escape: "Escape",
+	right: "ArrowRight",
+	up: "ArrowUp",
+	down: "ArrowDown",
+	left: "ArrowLeft",
+	home: "Home",
+	esc: "Escape"
 };
 
 function buildDriver(browser: playwright.Browser, page: playwright.Page): IDriver {
@@ -33,20 +33,20 @@ function buildDriver(browser: playwright.Browser, page: playwright.Page): IDrive
 		getWindowIds: () => {
 			return Promise.resolve([1]);
 		},
-		capturePage: () => Promise.resolve(''),
+		capturePage: () => Promise.resolve(""),
 		reloadWindow: (windowId) => Promise.resolve(),
 		exitApplication: async () => {
 			await browser.close();
 			await teardown();
 		},
 		dispatchKeybinding: async (windowId, keybinding) => {
-			const chords = keybinding.split(' ');
+			const chords = keybinding.split(" ");
 			for (let i = 0; i < chords.length; i++) {
 				const chord = chords[i];
 				if (i > 0) {
 					await timeout(100);
 				}
-				const keys = chord.split('+');
+				const keys = chord.split("+");
 				const keysDown: string[] = [];
 				for (let i = 0; i < keys.length; i++) {
 					if (keys[i] in vscodeToPlaywrightKey) {
@@ -105,14 +105,14 @@ export async function launch(userDataDir: string, _workspacePath: string, codeSe
 		...process.env
 	};
 
-	const root = join(__dirname, '..', '..', '..');
-	const logsPath = join(root, '.build', 'logs', 'smoke-tests-browser');
+	const root = join(__dirname, "..", "..", "..");
+	const logsPath = join(root, ".build", "logs", "smoke-tests-browser");
 
-	const args = ['--port', `${port++}`, '--browser', 'none', '--driver', 'web', '--extensions-dir', extPath];
+	const args = ["--port", `${port++}`, "--browser", "none", "--driver", "web", "--extensions-dir", extPath];
 
 	let serverLocation: string | undefined;
 	if (codeServerPath) {
-		serverLocation = join(codeServerPath, `server.${process.platform === 'win32' ? 'cmd' : 'sh'}`);
+		serverLocation = join(codeServerPath, `server.${process.platform === "win32" ? "cmd" : "sh"}`);
 		args.push(`--logsPath=${logsPath}`);
 
 		if (verbose) {
@@ -120,8 +120,8 @@ export async function launch(userDataDir: string, _workspacePath: string, codeSe
 			console.log(`Storing log files into '${logsPath}'`);
 		}
 	} else {
-		serverLocation = join(root, `resources/server/web.${process.platform === 'win32' ? 'bat' : 'sh'}`);
-		args.push('--logsPath', logsPath);
+		serverLocation = join(root, `resources/server/web.${process.platform === "win32" ? "bat" : "sh"}`);
+		args.push("--logsPath", logsPath);
 
 		if (verbose) {
 			console.log(`Starting server out of sources from '${serverLocation}'`);
@@ -136,13 +136,13 @@ export async function launch(userDataDir: string, _workspacePath: string, codeSe
 	);
 
 	if (verbose) {
-		server.stderr?.on('data', error => console.log(`Server stderr: ${error}`));
-		server.stdout?.on('data', data => console.log(`Server stdout: ${data}`));
+		server.stderr?.on("data", error => console.log(`Server stderr: ${error}`));
+		server.stdout?.on("data", data => console.log(`Server stdout: ${data}`));
 	}
 
-	process.on('exit', teardown);
-	process.on('SIGINT', teardown);
-	process.on('SIGTERM', teardown);
+	process.on("exit", teardown);
+	process.on("SIGINT", teardown);
+	process.on("SIGTERM", teardown);
 
 	endpoint = await waitForEndpoint();
 }
@@ -165,7 +165,7 @@ function waitForEndpoint(): Promise<string> {
 	});
 }
 
-export function connect(browserType: 'chromium' | 'webkit' | 'firefox' = 'chromium'): Promise<{ client: IDisposable, driver: IDriver }> {
+export function connect(browserType: "chromium" | "webkit" | "firefox" = "chromium"): Promise<{ client: IDisposable, driver: IDriver }> {
 	return new Promise(async (c) => {
 		const browser = await playwright[browserType].launch({ headless: false });
 		const context = await browser.newContext();
