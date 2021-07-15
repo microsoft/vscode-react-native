@@ -326,7 +326,7 @@ export class Code {
 		);
 	}
 
-	async waitAndClick(selector: string, xoffset?: number, yoffset?: number, retryCount: number = 200): Promise<void> {
+	async waitAndClick(selector: string, xoffset?: number, yoffset?: number, retryCount?: number): Promise<void> {
 		const windowId = await this.getActiveWindowId();
 		await poll(() => this.driver.click(windowId, selector, xoffset, yoffset), () => true, `click '${selector}'`, retryCount);
 	}
@@ -346,12 +346,12 @@ export class Code {
         return await poll(() => this.driver.getElements(windowId, selector, recursive), accept, `get elements '${selector}'`);
     }
 
-	async waitForElement(selector: string, accept: (result: IElement | undefined) => boolean = result => !!result, retryCount: number = 200): Promise<IElement> {
+	async waitForElement(selector: string, accept: (result: IElement | undefined) => boolean = result => !!result, retryCount?: number): Promise<IElement> {
 		const windowId = await this.getActiveWindowId();
 		return await poll<IElement>(() => this.driver.getElements(windowId, selector).then(els => els[0]), accept, `get element '${selector}'`, retryCount);
 	}
 
-	async waitForActiveElement(selector: string, retryCount: number = 200): Promise<void> {
+	async waitForActiveElement(selector: string, retryCount?: number): Promise<void> {
 		const windowId = await this.getActiveWindowId();
 		await poll(() => this.driver.isActiveElement(windowId, selector), r => r, `is active element '${selector}'`, retryCount);
 	}
