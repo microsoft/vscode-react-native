@@ -19,11 +19,8 @@ steps:
     displayName: Start xvfb
     condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
 
-  - task: CmdLine@2
-    displayName: Run host tests
-    inputs:
-      script: npm test
-    timeoutInMinutes: 10
+  - bash: "npm test --verbose"
+    displayName: "Run host tests"
     env:
       DISPLAY: ":99.0"
 
