@@ -336,9 +336,9 @@ export class Code {
         await poll(() => this.driver.doubleClick(windowId, selector), () => true, `double click '${selector}'`);
     }
 
-    public async waitForSetValue(selector: string, value: string): Promise<void> {
+    public async waitForSetValue(selector: string, value: string, retryCount?: number): Promise<void> {
         const windowId = await this.getActiveWindowId();
-        await poll(() => this.driver.setValue(windowId, selector, value), () => true, `set value '${selector}'`);
+        await poll(() => this.driver.setValue(windowId, selector, value), () => true, `set value '${selector}'`, retryCount);
     }
 
     public async waitForElements(selector: string, recursive: boolean, accept: (result: IElement[]) => boolean = result => result.length > 0): Promise<IElement[]> {

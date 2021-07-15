@@ -21,7 +21,7 @@ export class QuickAccess {
             }
 
             try {
-                await this.quickInput.waitForQuickInputOpened(10);
+                await this.quickInput.waitForQuickInputOpened(/*10*/);
                 break;
             } catch (err) {
                 if (++retries > 5) {
@@ -33,7 +33,7 @@ export class QuickAccess {
         }
 
         if (value) {
-            await this.code.waitForSetValue(QuickInput.QUICK_INPUT_INPUT, value);
+            await this.code.waitForSetValue(QuickInput.QUICK_INPUT_INPUT, value, 20);
         }
     }
 
@@ -42,7 +42,7 @@ export class QuickAccess {
 
         await this.quickInput.waitForQuickInputElements(names => names[0] === fileName);
         await this.code.dispatchKeybinding("enter");
-        await this.editors.waitForActiveTab(fileName, undefined, undefined, 40);
+        await this.editors.waitForActiveTab(fileName);
         await this.editors.waitForEditorFocus(fileName);
     }
 
