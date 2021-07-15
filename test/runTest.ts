@@ -26,7 +26,7 @@ async function launchTests() {
         console.error("Failed to run tests");
         process.exit(1);
     }
-    process.exit();
+    process.exit(1);
 }
 
 launchTests();
