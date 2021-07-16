@@ -274,7 +274,9 @@ export function startExpoTests(
             SmokeTestLogger.info(
                 `${testName}: Searching for \"Test output from debuggee\" string in console`,
             );
-            await automationHelper.runCommandWithRetry("Debug: Focus on Debug Console View");
+            if (process.platform !== "win32") {
+                await automationHelper.runCommandWithRetry("Debug: Focus on Debug Console View");
+            }
             let found = await app.workbench.debug.waitForOutput(output =>
                 output.some(line => line.indexOf("Test output from debuggee") >= 0),
             );
