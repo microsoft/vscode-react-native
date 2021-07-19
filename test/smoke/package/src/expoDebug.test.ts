@@ -263,9 +263,7 @@ export function startExpoTests(
             SmokeTestLogger.info(`${testName}: Debugging started`);
 
             console.log("app.workbench.editor.waitForEditorFocus");
-            await sleep(10 * 1000);
             await app.workbench.editor.waitForEditorFocus(project.projectEntryPointFile, 1);
-            await sleep(10 * 1000);
 
             await automationHelper.waitForStackFrameWithRetry(
                 sf =>
