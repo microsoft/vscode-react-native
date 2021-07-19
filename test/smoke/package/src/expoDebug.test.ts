@@ -70,7 +70,12 @@ export function startExpoTests(
                 }
                 if (client) {
                     SmokeTestLogger.info("Closing application ...");
-                    await client.closeApp();
+                    try {
+                        await client.closeApp();
+                    } catch (err) {
+                        SmokeTestLogger.error("Error while closing Appium client:");
+                        SmokeTestLogger.error(err);
+                    }
                     SmokeTestLogger.info("Deleting session ...");
                     await client.deleteSession();
                 }
@@ -261,10 +266,9 @@ export function startExpoTests(
             }
 
             SmokeTestLogger.info(`${testName}: Debugging started`);
-
-            console.log("app.workbench.editor.waitForEditorFocus");
+            // Workaround for Windows platform to avoid incorrect work of dispatching keybindings
+            // after opening "Expo QR Code" tab
             await app.workbench.editor.waitForEditorFocus(project.projectEntryPointFile, 1);
-
             await automationHelper.waitForStackFrameWithRetry(
                 sf =>
                     sf.name === project.projectEntryPointFile &&
