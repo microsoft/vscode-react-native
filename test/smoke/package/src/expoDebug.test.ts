@@ -30,6 +30,8 @@ const debugExpoTestTime = SmokeTestsConstants.expoTestTimeout;
 const expoLogginErrorMessage =
     "It seems you are not currently logged into Expo account. To successfully pass this test, you must be logged into Expo account";
 
+const afterEachTimeout = 5 * 60 * 1000;
+
 interface ExpoLaunch {
     successful: boolean;
     failed: boolean;
@@ -69,15 +71,14 @@ export function startExpoTests(
                     await app.stop();
                 }
                 if (client) {
-                    SmokeTestLogger.info("Closing application ...");
                     try {
+                        SmokeTestLogger.info("Closing application ...");
                         await client.closeApp();
+                        SmokeTestLogger.info("Deleting session ...");
+                        await client.deleteSession();
                     } catch (err) {
-                        SmokeTestLogger.error("Error while closing Appium client:");
                         SmokeTestLogger.error(err);
                     }
-                    SmokeTestLogger.info("Deleting session ...");
-                    await client.deleteSession();
                 }
                 SmokeTestLogger.info("Clearing android application ...");
                 AndroidEmulatorManager.closeApp(EXPO_APP_PACKAGE_NAME);
@@ -88,7 +89,10 @@ export function startExpoTests(
             }
         }
 
-        afterEach(disposeAll);
+        afterEach(async () => {
+            this.timeout(afterEachTimeout);
+            await disposeAll();
+        });
 
         async function findExpoSuccessAndFailurePatterns(
             filePath: string,
