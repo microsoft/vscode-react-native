@@ -261,6 +261,12 @@ export function startExpoTests(
             }
 
             SmokeTestLogger.info(`${testName}: Debugging started`);
+
+            console.log("app.workbench.editor.waitForEditorFocus");
+            await sleep(10 * 1000);
+            await app.workbench.editor.waitForEditorFocus(project.projectEntryPointFile, 1);
+            await sleep(10 * 1000);
+
             await automationHelper.waitForStackFrameWithRetry(
                 sf =>
                     sf.name === project.projectEntryPointFile &&
@@ -277,10 +283,6 @@ export function startExpoTests(
             if (process.platform !== "win32") {
                 await automationHelper.runCommandWithRetry("Debug: Focus on Debug Console View");
             }
-            console.log("app.workbench.editor.waitForEditorFocus");
-            await sleep(10 * 1000);
-            await app.workbench.editor.waitForEditorFocus(project.projectEntryPointFile, 1);
-            await sleep(10 * 1000);
             let found = await app.workbench.debug.waitForOutput(output =>
                 output.some(line => line.indexOf("Test output from debuggee") >= 0),
             );
