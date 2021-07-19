@@ -89,7 +89,7 @@ export function startExpoTests(
             }
         }
 
-        afterEach(async () => {
+        afterEach(async function () {
             this.timeout(afterEachTimeout);
             await disposeAll();
         });
