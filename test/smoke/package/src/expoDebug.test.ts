@@ -147,16 +147,12 @@ export function startExpoTests(
             // Scan logs only if launch retries provided (Expo Tunnel scenarios)
             if (triesToLaunchApp <= 1) {
                 await automationHelper.runDebugScenarioWithRetry(debugConfigName);
-                if (process.platform !== "win32") {
-                    await automationHelper.runCommandWithRetry("Output: Focus on Output View");
-                }
+                await automationHelper.runCommandWithRetry("Output: Focus on Output View");
             } else {
                 for (let retry = 1; retry <= triesToLaunchApp; retry++) {
                     let expoLaunchStatus: ExpoLaunch;
                     await automationHelper.runDebugScenarioWithRetry(debugConfigName);
-                    if (process.platform !== "win32") {
-                        await automationHelper.runCommandWithRetry("Output: Focus on Output View");
-                    }
+                    await automationHelper.runCommandWithRetry("Output: Focus on Output View");
                     expoLaunchStatus = await findExpoSuccessAndFailurePatterns(
                         logFilePath,
                         ExpoSuccessPattern,
@@ -286,9 +282,7 @@ export function startExpoTests(
             SmokeTestLogger.info(
                 `${testName}: Searching for \"Test output from debuggee\" string in console`,
             );
-            if (process.platform !== "win32") {
-                await automationHelper.runCommandWithRetry("Debug: Focus on Debug Console View");
-            }
+            await automationHelper.runCommandWithRetry("Debug: Focus on Debug Console View");
             let found = await app.workbench.debug.waitForOutput(output =>
                 output.some(line => line.indexOf("Test output from debuggee") >= 0),
             );
