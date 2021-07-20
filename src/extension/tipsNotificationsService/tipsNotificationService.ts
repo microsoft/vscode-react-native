@@ -354,7 +354,7 @@ export class TipNotificationService implements vscode.Disposable {
         tipKey: string,
         tipNotificationAction: TipNotificationAction,
     ): void {
-        const showTipNotificationEvent = TelemetryHelper.createTelemetryEvent(
+        const tipNotificationActionEvent = TelemetryHelper.createTelemetryEvent(
             "tipNotificationAction",
             {
                 tipKey,
@@ -362,6 +362,6 @@ export class TipNotificationService implements vscode.Disposable {
             },
         );
 
-        Telemetry.send(showTipNotificationEvent);
+        Telemetry.send(tipNotificationActionEvent);
     }
 }
