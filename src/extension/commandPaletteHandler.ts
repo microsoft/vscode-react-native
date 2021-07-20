@@ -40,6 +40,7 @@ import { LogCatMonitorManager } from "./android/logCatMonitorManager";
 import { NetworkInspectorServer } from "./networkInspector/networkInspectorServer";
 import { InspectorViewFactory } from "./networkInspector/views/inspectorViewFactory";
 import { WindowsPlatform } from "./windows/windowsPlatform";
+import { CONTEXT_VARIABLES_NAMES } from "../common/contextVariablesNames";
 import { MacOSPlatform } from "./macos/macOSPlatform";
 import { TipNotificationService } from "../extension/tipsNotificationsService/tipsNotificationService";
 nls.config({
@@ -525,6 +526,11 @@ export class CommandPaletteHandler {
                 }
                 await androidDeviceTracker.start();
                 await networkInspector.start(adbHelper);
+                vscode.commands.executeCommand(
+                    "setContext",
+                    CONTEXT_VARIABLES_NAMES.IS_RNT_NETWORK_INSPECTOR_RUNNING,
+                    true,
+                );
             } catch (err) {
                 await CommandPaletteHandler.stopNetworkInspector();
                 throw err;
@@ -549,6 +555,11 @@ export class CommandPaletteHandler {
             CommandPaletteHandler.networkInspectorModule = null;
             InspectorViewFactory.clearCache();
         }
+        vscode.commands.executeCommand(
+            "setContext",
+            CONTEXT_VARIABLES_NAMES.IS_RNT_NETWORK_INSPECTOR_RUNNING,
+            false,
+        );
     }
 
     public static getPlatformByCommandName(commandName: string): string {

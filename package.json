@@ -1,7 +1,7 @@
 {
   "name": "vscode-react-native",
   "displayName": "React Native Tools",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "private": true,
   "publisher": "msjsdiag",
   "icon": "images/icon.png",
@@ -213,6 +213,11 @@
                 "type": "object",
                 "description": "%reactNative.attach.sourceMapsPathOverrides.description%"
               },
+              "sourceMapRenames": {
+                "type": "boolean",
+                "description": "%reactNative.attach.sourceMapRenames.description%",
+                "default": false
+              },
               "trace": {
                 "type": "string",
                 "enum": [
@@ -310,6 +315,11 @@
               "sourceMapPathOverrides": {
                 "type": "object",
                 "description": "%reactNative.launch.sourceMapsPathOverrides.description%"
+              },
+              "sourceMapRenames": {
+                "type": "boolean",
+                "description": "%reactNative.attach.sourceMapRenames.description%",
+                "default": false
               },
               "logCatArguments": {
                 "type": "array",
@@ -433,6 +443,11 @@
                 "type": "object",
                 "description": "%reactNative.attach.sourceMapsPathOverrides.description%"
               },
+              "sourceMapRenames": {
+                "type": "boolean",
+                "description": "%reactNative.attach.sourceMapRenames.description%",
+                "default": false
+              },
               "platform": {
                 "type": "string",
                 "enum": [
@@ -548,6 +563,11 @@
               "sourceMapPathOverrides": {
                 "type": "object",
                 "description": "%reactNative.launch.sourceMapsPathOverrides.description%"
+              },
+              "sourceMapRenames": {
+                "type": "boolean",
+                "description": "%reactNative.attach.sourceMapRenames.description%",
+                "default": false
               },
               "logCatArguments": {
                 "type": "array",
@@ -762,20 +782,23 @@
         "react-native.expo.dependencies.xdl": {
           "description": "%reactNative.configuration.properties.react-native.expo.dependencies.xdl.description%",
           "type": "string",
-          "default": "59.0.42",
+          "default": "59.0.47",
           "scope": "resource"
         },
         "react-native.expo.dependencies.metroConfig": {
           "description": "%reactNative.configuration.properties.react-native.expo.dependencies.metro-config.description%",
           "type": "string",
-          "default": "0.1.72",
+          "default": "0.1.77",
           "scope": "resource"
         }
       }
     }
   },
   "capabilities": {
-    "virtualWorkspaces": false,
+    "virtualWorkspaces": {
+      "supported": false,
+      "description": "%reactNative.virtualWorkspaces.description%"
+    },
     "untrustedWorkspaces": {
       "supported": "limited",
       "description": "%reactNative.workspaceTrust.description%"

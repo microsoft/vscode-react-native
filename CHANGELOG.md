@@ -1,3 +1,14 @@
+## 1.5.2
+* Added the `sourceMapRenames` parameter to debugging configurations [#1602](https://github.com/microsoft/vscode-react-native/pull/1602)
+* Implemented debugging mode control for macOS apps [#1589](https://github.com/microsoft/vscode-react-native/pull/1589)
+* Added the `sourceMapPathOverrides` parameter to launch debugging configurations [#1589](https://github.com/microsoft/vscode-react-native/pull/1589)
+* Implemented settings parameters for controlling versions of the `xdl` and `@expo/metro-config` packages [#1578](https://github.com/microsoft/vscode-react-native/pull/1578)
+* Added `Run Windows` and `Run MacOS` Command Palette commands for running RNW and RNmacOS apps [#1576](https://github.com/microsoft/vscode-react-native/pull/1576)
+* Improved extension security [#1587](https://github.com/microsoft/vscode-react-native/pull/1587), [#1592](https://github.com/microsoft/vscode-react-native/pull/1592), [#1593](https://github.com/microsoft/vscode-react-native/pull/1593), [#1594](https://github.com/microsoft/vscode-react-native/pull/1594)
+* Internal changes:
+    * Adapted new VS Code API version for creating Packager status indicator on the status bar [#1597](https://github.com/microsoft/vscode-react-native/pull/1597)
+
+
 ## 1.5.1
 * Improved debugging on remote Android devices [#1577](https://github.com/microsoft/vscode-react-native/pull/1577)
 * Fixed getting React Native version in cases `projectRoot` has been customized [#1583](https://github.com/microsoft/vscode-react-native/pull/1583)
