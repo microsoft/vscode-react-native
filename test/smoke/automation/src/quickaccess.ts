@@ -33,7 +33,7 @@ export class QuickAccess {
         }
 
         if (value) {
-            await this.code.waitForSetValue(QuickInput.QUICK_INPUT_INPUT, value, 20);
+            await this.code.waitForSetValue(QuickInput.QUICK_INPUT_INPUT, value);
         }
     }
 
