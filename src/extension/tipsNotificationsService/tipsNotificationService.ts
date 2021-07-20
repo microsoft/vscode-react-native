@@ -50,7 +50,7 @@ export interface TipsConfig extends TipNotificationConfig {
 }
 
 export interface GeneratedTipResponse {
-    selection: Thenable<string | undefined>;
+    selection: string | undefined;
     tipKey: string;
 }
 
@@ -138,37 +138,36 @@ export class TipNotificationService implements vscode.Disposable {
         }
 
         if (!isGeneralTip || config.daysLeftBeforeGeneralTip === 0) {
-            const { selection: selectedButton, tipKey } = isGeneralTip
-                ? this.showRandomGeneralTipNotification(config)
-                : this.showSpecificTipNotification(config, <string>specificTipKey);
+            const { selection, tipKey } = isGeneralTip
+                ? await this.showRandomGeneralTipNotification(config)
+                : await this.showSpecificTipNotification(config, <string>specificTipKey);
 
-            selectedButton.then(selection => {
-                if (selection === getMoreInfoButtonText) {
-                    this.sendTipNotificationTelemetry(
-                        tipKey,
-                        TipNotificationTelemetryEvents.GET_MORE_INFO,
-                    );
+            if (selection === getMoreInfoButtonText) {
+                this.sendTipNotificationTelemetry(
+                    tipKey,
+                    TipNotificationTelemetryEvents.GET_MORE_INFO,
+                );
 
-                    const anchorLink: string = isGeneralTip
-                        ? this.getGeneralTipNotificationAnchorLinkByKey(tipKey)
-                        : this.getSpecificTipNotificationAnchorLinkByKey(tipKey);
+                const anchorLink: string = isGeneralTip
+                    ? this.getGeneralTipNotificationAnchorLinkByKey(tipKey)
+                    : this.getSpecificTipNotificationAnchorLinkByKey(tipKey);
 
-                    const uriFile = vscode.Uri.parse(
-                        path.normalize(`file://${readmeFile}${anchorLink}`),
-                    );
+                const uriFile = vscode.Uri.parse(
+                    path.normalize(`file://${readmeFile}${anchorLink}`),
+                );
 
-                    vscode.commands.executeCommand("markdown.showPreview", uriFile);
-                }
-                if (selection === doNotShowTipsAgainButtonText) {
-                    this.sendTipNotificationTelemetry(
-                        tipKey,
-                        TipNotificationTelemetryEvents.DO_NOT_SHOW_AGAIN,
-                    );
+                vscode.commands.executeCommand("markdown.showPreview", uriFile);
+            }
 
-                    config.showTips = false;
-                    ExtensionConfigManager.config.set("tipsConfig", config);
-                }
-            });
+            if (selection === doNotShowTipsAgainButtonText) {
+                this.sendTipNotificationTelemetry(
+                    tipKey,
+                    TipNotificationTelemetryEvents.DO_NOT_SHOW_AGAIN,
+                );
+
+                config.showTips = false;
+                ExtensionConfigManager.config.set("tipsConfig", config);
+            }
         } else {
             const curDate: Date = new Date();
             if (
@@ -198,7 +197,9 @@ export class TipNotificationService implements vscode.Disposable {
         ExtensionConfigManager.config.set("tipsConfig", config);
     }
 
-    private showRandomGeneralTipNotification(config: TipsConfig): GeneratedTipResponse {
+    private async showRandomGeneralTipNotification(
+        config: TipsConfig,
+    ): Promise<GeneratedTipResponse> {
         let generalTipsForRandom: Array<string>;
         const generalTips: Tips = config.tips.generalTips;
         const generalTipsKeys: Array<string> = Object.keys(config.tips.generalTips);
@@ -221,7 +222,7 @@ export class TipNotificationService implements vscode.Disposable {
         switch (generalTipsForRandom.length) {
             case 0:
                 return {
-                    selection: new Promise(() => undefined),
+                    selection: undefined,
                     tipKey: "",
                 };
             case 1:
@@ -261,7 +262,7 @@ export class TipNotificationService implements vscode.Disposable {
         );
 
         return {
-            selection: vscode.window.showInformationMessage(
+            selection: await vscode.window.showInformationMessage(
                 tipNotificationText,
                 ...[getMoreInfoButtonText, doNotShowTipsAgainButtonText],
             ),
@@ -269,7 +270,10 @@ export class TipNotificationService implements vscode.Disposable {
         };
     }
 
-    private showSpecificTipNotification(config: TipsConfig, tipKey: string): GeneratedTipResponse {
+    private async showSpecificTipNotification(
+        config: TipsConfig,
+        tipKey: string,
+    ): Promise<GeneratedTipResponse> {
         const tipNotificationText = this.getSpecificTipNotificationTextByKey(tipKey);
 
         config.tips.specificTips[tipKey].shownDate = new Date();
@@ -280,7 +284,7 @@ export class TipNotificationService implements vscode.Disposable {
         this.sendTipNotificationTelemetry(tipKey, TipNotificationTelemetryEvents.SHOWN);
 
         return {
-            selection: vscode.window.showInformationMessage(
+            selection: await vscode.window.showInformationMessage(
                 tipNotificationText,
                 ...[getMoreInfoButtonText, doNotShowTipsAgainButtonText],
             ),
