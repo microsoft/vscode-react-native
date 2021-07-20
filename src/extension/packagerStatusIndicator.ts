@@ -1,7 +1,14 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { window, Disposable, StatusBarItem, StatusBarAlignment } from "vscode";
+import {
+    window,
+    Disposable,
+    StatusBarItem,
+    StatusBarAlignment,
+    version as vscodeVersion,
+} from "vscode";
+import * as semver from "semver";
 import * as nls from "vscode-nls";
 import { SettingsHelper } from "./settingsHelper";
 nls.config({
@@ -50,12 +57,29 @@ export class PackagerStatusIndicator implements Disposable {
     public constructor(projectRoot?: string) {
         this.projectRoot = projectRoot;
 
-        this.restartPackagerItem = window.createStatusBarItem(StatusBarAlignment.Left, 10);
+        // Remove after updating supported VS Code engine version to 1.57.0
+        if (semver.gte(vscodeVersion, "1.57.0")) {
+            this.restartPackagerItem = (window as any).createStatusBarItem(
+                "restartPackagerItem",
+                StatusBarAlignment.Left,
+                10,
+            );
+            (this.restartPackagerItem as any).name = PackagerStatusIndicator.RESTART_TOOLTIP;
+
+            this.togglePackagerItem = (window as any).createStatusBarItem(
+                "togglePackagerItem",
+                StatusBarAlignment.Left,
+                10,
+            );
+            (this.togglePackagerItem as any).name = PackagerStatusIndicator.PACKAGER_NAME;
+        } else {
+            this.restartPackagerItem = window.createStatusBarItem(StatusBarAlignment.Left, 10);
+            this.togglePackagerItem = window.createStatusBarItem(StatusBarAlignment.Left, 10);
+        }
         this.restartPackagerItem.text = PackagerStatusIndicator.RESTART_ICON;
         this.restartPackagerItem.command = PackagerStatusIndicator.RESTART_COMMAND;
         this.restartPackagerItem.tooltip = PackagerStatusIndicator.RESTART_TOOLTIP;
 
-        this.togglePackagerItem = window.createStatusBarItem(StatusBarAlignment.Left, 10);
         this.setupPackagerStatusIndicatorItems(
             PackagerStatusIndicator.START_ICON,
             PackagerStatusIndicator.START_COMMAND,
