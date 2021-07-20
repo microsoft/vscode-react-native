@@ -13,7 +13,7 @@ import * as path from "path";
 const getMoreInfoButtonText: string = "Get more info";
 const doNotShowTipsAgainButtonText: string = "Don't show tips again";
 
-enum TipNotificationTelemetryEvents {
+enum TipNotificationAction {
     GET_MORE_INFO = "tipsMoreInfo",
     DO_NOT_SHOW_AGAIN = "tipsDoNotShow",
     SHOWN = "tipShown",
@@ -143,9 +143,9 @@ export class TipNotificationService implements vscode.Disposable {
                 : await this.showSpecificTipNotification(config, <string>specificTipKey);
 
             if (selection === getMoreInfoButtonText) {
-                this.sendTipNotificationTelemetry(
+                this.sendTipNotificationActionTelemetry(
                     tipKey,
-                    TipNotificationTelemetryEvents.GET_MORE_INFO,
+                    TipNotificationAction.GET_MORE_INFO,
                 );
 
                 const anchorLink: string = isGeneralTip
@@ -160,9 +160,9 @@ export class TipNotificationService implements vscode.Disposable {
             }
 
             if (selection === doNotShowTipsAgainButtonText) {
-                this.sendTipNotificationTelemetry(
+                this.sendTipNotificationActionTelemetry(
                     tipKey,
-                    TipNotificationTelemetryEvents.DO_NOT_SHOW_AGAIN,
+                    TipNotificationAction.DO_NOT_SHOW_AGAIN,
                 );
 
                 config.showTips = false;
@@ -256,10 +256,7 @@ export class TipNotificationService implements vscode.Disposable {
 
         ExtensionConfigManager.config.set("tipsConfig", config);
 
-        this.sendTipNotificationTelemetry(
-            selectedGeneralTipKey,
-            TipNotificationTelemetryEvents.SHOWN,
-        );
+        this.sendShowTipNotificationTelemetry();
 
         return {
             selection: await vscode.window.showInformationMessage(
@@ -281,7 +278,7 @@ export class TipNotificationService implements vscode.Disposable {
 
         ExtensionConfigManager.config.set("tipsConfig", config);
 
-        this.sendTipNotificationTelemetry(tipKey, TipNotificationTelemetryEvents.SHOWN);
+        this.sendShowTipNotificationTelemetry();
 
         return {
             selection: await vscode.window.showInformationMessage(
@@ -345,19 +342,24 @@ export class TipNotificationService implements vscode.Disposable {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    private sendTipNotificationTelemetry(
-        tipKey: string,
-        tipNotificationResultStatus: TipNotificationTelemetryEvents,
-    ): void {
+    private sendShowTipNotificationTelemetry(): void {
         const showTipNotificationEvent = TelemetryHelper.createTelemetryEvent(
             "showTipNotification",
         );
 
-        TelemetryHelper.addTelemetryEventProperty(
-            showTipNotificationEvent,
-            tipKey,
-            tipNotificationResultStatus,
-            false,
+        Telemetry.send(showTipNotificationEvent);
+    }
+
+    private sendTipNotificationActionTelemetry(
+        tipKey: string,
+        tipNotificationAction: TipNotificationAction,
+    ): void {
+        const showTipNotificationEvent = TelemetryHelper.createTelemetryEvent(
+            "tipNotificationAction",
+            {
+                tipKey,
+                tipNotificationAction,
+            },
         );
 
         Telemetry.send(showTipNotificationEvent);
