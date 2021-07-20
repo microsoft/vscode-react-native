@@ -66,7 +66,7 @@ export default {
                 "TipNetworkInspectorDarkTheme",
                 "The extension provides “Dark” and “Light” color themes for Network Inspector logs. You can change the theme in the extension configuration in the Settings tab",
             ),
-            anchorLink: "#something",
+            anchorLink: "#network-inspector-logs-theme",
         },
     },
 };

@@ -19,7 +19,7 @@ import * as net from "net";
 import * as tls from "tls";
 import * as nls from "vscode-nls";
 import { InspectorViewType } from "./views/inspectorView";
-import { setKnownDateForFeatureGeneralTipByKey } from "../../extension/tipsNotificationsService/tipsNotificationService";
+import { TipNotificationService } from "../../extension/tipsNotificationsService/tipsNotificationService";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -70,7 +70,11 @@ export class NetworkInspectorServer {
 
     public async start(adbHelper: AdbHelper): Promise<void> {
         this.logger.info(localize("StartNetworkinspector", "Starting Network inspector"));
-        setKnownDateForFeatureGeneralTipByKey("networkInspector");
+        TipNotificationService.getInstance().setKnownDateForFeatureById("networkInspector");
+        TipNotificationService.getInstance().showTipNotification(
+            false,
+            "networkInspectorDarkTheme",
+        );
         this.initialisePromise = new Promise(async (resolve, reject) => {
             this.certificateProvider = new CertificateProvider(adbHelper);
 

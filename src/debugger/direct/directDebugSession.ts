@@ -17,7 +17,7 @@ import { IOSDirectCDPMessageHandler } from "../../cdp-proxy/CDPMessageHandlers/i
 import { PlatformType } from "../../extension/launchArgs";
 import { IWDPHelper } from "./IWDPHelper";
 import { BaseCDPMessageHandler } from "../../cdp-proxy/CDPMessageHandlers/baseCDPMessageHandler";
-import { setKnownDateForFeatureGeneralTipByKey } from "../../extension/tipsNotificationsService/tipsNotificationService";
+import { TipNotificationService } from "../../extension/tipsNotificationsService/tipsNotificationService";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -56,7 +56,9 @@ export class DirectDebugSession extends DebugSessionBase {
             },
         };
 
-        setKnownDateForFeatureGeneralTipByKey("directDebuggingWithHermes");
+        TipNotificationService.getInstance().setKnownDateForFeatureById(
+            "directDebuggingWithHermes",
+        );
 
         return new Promise<void>((resolve, reject) =>
             this.initializeSettings(launchArgs)
