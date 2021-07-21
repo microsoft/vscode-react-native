@@ -285,10 +285,11 @@ export class Code {
 
     }
 
-    public async executeWithSpecifiedPollRetryParameters(fn: () => Promise<any>, retryCount: number, retryInterval: number): Promise<void> {
+    public async executeWithSpecifiedPollRetryParameters(fn: () => Promise<any>, retryCount: number, retryInterval: number): Promise<any> {
         setPollRetryParameters(retryCount, retryInterval);
-        await fn();
+        const res = await fn();
         setPollRetryParameters();
+		return res;
     }
 
     public async capturePage(): Promise<string> {

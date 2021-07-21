@@ -23,16 +23,15 @@ export default class AutomationHelper {
         pollRetryCount: number = 2000,
         pollRetryInterval: number = 100,
         catchFun?: () => Promise<any>,
-    ): Promise<void> {
+    ): Promise<any> {
         let tryes = retryCount;
         while (tryes > 0) {
             try {
-                await this.app.workbench.code.executeWithSpecifiedPollRetryParameters(
+                return await this.app.workbench.code.executeWithSpecifiedPollRetryParameters(
                     fun,
                     pollRetryCount,
                     pollRetryInterval,
                 );
-                break;
             } catch (e) {
                 if (catchFun) {
                     await catchFun();
@@ -71,6 +70,26 @@ export default class AutomationHelper {
         const fun = async () => await this.app.workbench.quickaccess.runCommand(commandId);
         const catchFun = async () => await this.app.workbench.code.dispatchKeybinding("escape");
         await this.retryWithSpecifiedPollRetryParameters(
+            fun,
+            retryCount,
+            pollRetryCount,
+            pollRetryInterval,
+            catchFun,
+        );
+    }
+
+    public async waitForOutputWithRetry(
+        string: string,
+        retryCount: number = 2,
+        pollRetryCount: number = 100,
+        pollRetryInterval: number = 100,
+    ): Promise<boolean> {
+        const fun = async () =>
+            await this.app.workbench.debug.waitForOutput(output =>
+                output.some(line => line.indexOf(string) >= 0),
+            );
+        const catchFun = async () => await this.app.workbench.debug.stepOver();
+        return await this.retryWithSpecifiedPollRetryParameters(
             fun,
             retryCount,
             pollRetryCount,
