@@ -317,17 +317,6 @@ export function startExpoTests(
                 );
             });
 
-            it("Android Expo app Debug test(localhost)", async function () {
-                this.timeout(debugExpoTestTime);
-                await expoTest(
-                    expoProject,
-                    "Android Expo Debug test(localhost)",
-                    ExpoLocalDebugConfigName,
-                    Platform.AndroidExpo,
-                    1,
-                );
-            });
-
             it("Android Expo app Debug test(Tunnel)", async function () {
                 this.timeout(debugExpoTestTime);
                 if (!isLoggedInExpo()) {
@@ -339,6 +328,17 @@ export function startExpoTests(
                     ExpoTunnelDebugConfigName,
                     Platform.AndroidExpo,
                     5,
+                );
+            });
+
+            it("Android Expo app Debug test(localhost)", async function () {
+                this.timeout(debugExpoTestTime);
+                await expoTest(
+                    expoProject,
+                    "Android Expo Debug test(localhost)",
+                    ExpoLocalDebugConfigName,
+                    Platform.AndroidExpo,
+                    1,
                 );
             });
         }
