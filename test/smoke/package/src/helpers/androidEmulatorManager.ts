@@ -299,7 +299,7 @@ export default class AndroidEmulatorManager {
         SmokeTestLogger.info(
             `*** Clearing installed application with package name ${packageName}...`,
         );
-        cp.execSync(`adb shell pm clear ${packageName}`);
+        cp.execSync(`adb shell pm clear ${packageName}`, { timeout: 320_000 });
         SmokeTestLogger.info(
             `*** The application with package name ${packageName} has been cleared.`,
         );
