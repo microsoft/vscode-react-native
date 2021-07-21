@@ -300,6 +300,9 @@ export default class AndroidEmulatorManager {
             `*** Clearing installed application with package name ${packageName}...`,
         );
         cp.execSync(`adb shell pm clear ${packageName}`);
+        SmokeTestLogger.info(
+            `*** The application with package name ${packageName} has been cleared.`,
+        );
     }
 
     private static getOnlineDevices(): IDevice[] {

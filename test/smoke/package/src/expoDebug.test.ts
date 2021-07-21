@@ -30,7 +30,7 @@ const debugExpoTestTime = SmokeTestsConstants.expoTestTimeout;
 const expoLogginErrorMessage =
     "It seems you are not currently logged into Expo account. To successfully pass this test, you must be logged into Expo account";
 
-const afterEachTimeout = 5 * 60 * 1000;
+const afterEachTimeout = 10 * 60 * 1000;
 
 interface ExpoLaunch {
     successful: boolean;
