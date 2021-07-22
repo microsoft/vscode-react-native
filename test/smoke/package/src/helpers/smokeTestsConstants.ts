@@ -10,7 +10,7 @@ export class SmokeTestsConstants {
     // 10 = Android Q
     public static defaultTargetAndroidPlatformVersion = "10";
     // Default code of iOS platform version which is being targeted during the tests.
-    public static defaultTargetIosPlatformVersion = "14.2";
+    public static defaultTargetIosPlatformVersion = "14.5";
     // Default target emulator port
     public static defaultTargetAndroidPort = 5554;
     // Default target emulator name "emulator-" + port
@@ -60,6 +60,8 @@ export class SmokeTestsConstants {
     public static windowsTestTime = 800 * 1000;
     // Timeout before search string in debug console
     public static debugConsoleSearchTimeout = 0.5 * 1000;
+    // Timeout for "afterEach" function called after each test in a block
+    public static smokeTestAfterEachTimeout = 10 * 60 * 1000;
     // Default React Native app name
     public static RNAppName = "latestRNApp";
     // Default React Native Hermes app name

@@ -218,7 +218,7 @@ export default class AndroidEmulatorManager {
         });
     }
 
-    public static adbReversePort(port: number) {
+    public static adbReversePort(port: number): void {
         SmokeTestLogger.info(`*** Forwarding port ${port} on an Android emulator.`);
         cp.execSync(`adb reverse tcp:${port} tcp:${port}`);
     }
@@ -299,7 +299,10 @@ export default class AndroidEmulatorManager {
         SmokeTestLogger.info(
             `*** Clearing installed application with package name ${packageName}...`,
         );
-        cp.execSync(`adb shell pm clear ${packageName}`);
+        cp.execSync(`adb shell pm clear ${packageName}`, { timeout: 320_000 });
+        SmokeTestLogger.info(
+            `*** The application with package name ${packageName} has been cleared.`,
+        );
     }
 
     private static getOnlineDevices(): IDevice[] {

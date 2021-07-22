@@ -26,16 +26,30 @@ export class Extensions extends Viewlet {
         await this.code.waitForElement(SEARCH_BOX);
     }
 
-    public async searchForExtension(id: string): Promise<any> {
-        await this.code.waitAndClick(SEARCH_BOX);
-        await this.code.waitForActiveElement(SEARCH_BOX);
-        await this.code.waitForTypeInEditor(SEARCH_BOX, `@id:${id}`);
-    }
+	async searchForExtension(id: string): Promise<any> {
+		await this.code.waitAndClick(SEARCH_BOX);
+		await this.code.waitForActiveElement(SEARCH_BOX);
+		await this.code.waitForTypeInEditor(SEARCH_BOX, `@id:${id}`);
+		await this.code.waitForElement(`div.extensions-viewlet[id="workbench.view.extensions"] .monaco-list-row[data-extension-id="${id}"]`);
+	}
 
-    public async installExtension(id: string, name: string): Promise<void> {
-        await this.searchForExtension(id);
-        const ariaLabel = `${name}. Press enter for extension details.`;
-        await this.code.waitAndClick(`div.extensions-viewlet[id="workbench.view.extensions"] .monaco-list-row[aria-label="${ariaLabel}"] .extension-list-item li[class='action-item'] .extension-action.install`);
-        await this.code.waitForElement(`.extension-editor .monaco-action-bar .action-item:not(.disabled) .extension-action.uninstall`);
-    }
+	async installExtension(id: string, waitUntilEnabled: boolean): Promise<void> {
+		await this.searchForExtension(id);
+		await this.code.waitAndClick(`div.extensions-viewlet[id="workbench.view.extensions"] .monaco-list-row[data-extension-id="${id}"] .extension-list-item .monaco-action-bar .action-item:not(.disabled) .extension-action.install`);
+		await this.code.waitForElement(`.extension-editor .monaco-action-bar .action-item:not(.disabled) .extension-action.uninstall`);
+		if (waitUntilEnabled) {
+			await this.code.waitForElement(`.extension-editor .monaco-action-bar .action-item:not(.disabled) .extension-action[title="Disable this extension"]`);
+		}
+	}
+
+    async openExtension(id: string): Promise<any> {
+		await this.searchForExtension(id);
+		await this.code.waitAndClick(`div.extensions-viewlet[id="workbench.view.extensions"] .monaco-list-row[data-extension-id="${id}"]`);
+	}
+
+    async closeExtension(title: string): Promise<any> {
+		await this.code.waitAndClick(`.tabs-container div.tab[title="Extension: ${title}"] div.tab-actions a.action-label.codicon.codicon-close`);
+	}
+
+
 }

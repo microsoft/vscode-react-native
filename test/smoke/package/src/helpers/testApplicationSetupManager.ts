@@ -725,7 +725,7 @@ module.exports.watchFolders = ['.vscode'];`;
     }
 
     private execPodInstallCommand(project: TestProject, platform: string): void {
-        const commandInstall = "LANG=en_US.UTF-8 pod install --verbose";
+        const commandInstall = "LANG=en_US.UTF-8 pod install --repo-update --verbose";
 
         SmokeTestLogger.projectPatchingLog(
             `*** Executing '${commandInstall}' command in path ${project.getPlatformFolder(

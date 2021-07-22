@@ -20,13 +20,14 @@ async function launchTests() {
             extensionDevelopmentPath,
             extensionTestsPath,
             launchArgs: ["--locale", "ru"],
-            version: "1.48.0",
+            version: "1.58.1",
         });
     } catch (err) {
         console.error(err);
         console.error("Failed to run tests");
         process.exit(1);
     }
+    process.exit();
 }
 
 launchTests();

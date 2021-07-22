@@ -19,9 +19,9 @@ export class QuickInput {
         await this.waitForQuickInputClosed();
     }
 
-    public async waitForQuickInputOpened(): Promise<void> {
-        await this.code.waitForActiveElement(QuickInput.QUICK_INPUT_INPUT);
-    }
+	async waitForQuickInputOpened(retryCount?: number): Promise<void> {
+		await this.code.waitForActiveElement(QuickInput.QUICK_INPUT_INPUT, retryCount);
+	}
 
     public async selectQuickInputElement(index: number, close: boolean = true): Promise<void> {
         await this.waitForQuickInputOpened();
