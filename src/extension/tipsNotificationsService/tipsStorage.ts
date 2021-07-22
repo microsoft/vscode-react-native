@@ -61,9 +61,9 @@ export default {
         },
     },
     specificTips: {
-        networkInspectorDarkTheme: {
+        networkInspectorLogsColorTheme: {
             text: localize(
-                "TipNetworkInspectorDarkTheme",
+                "TipNetworkInspectorLogsColorTheme",
                 "The extension provides “Dark” and “Light” color themes for Network Inspector logs. You can change the theme in the extension configuration in the Settings tab",
             ),
             anchorLink: "#network-inspector-logs-theme",

@@ -73,7 +73,7 @@ export class NetworkInspectorServer {
         TipNotificationService.getInstance().setKnownDateForFeatureById("networkInspector");
         TipNotificationService.getInstance().showTipNotification(
             false,
-            "networkInspectorDarkTheme",
+            "networkInspectorLogsColorTheme",
         );
         this.initialisePromise = new Promise(async (resolve, reject) => {
             this.certificateProvider = new CertificateProvider(adbHelper);

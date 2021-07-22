@@ -2,16 +2,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as vscode from "vscode";
-import { IConfig, retryDownloadConfig } from "../serviceHelper";
+import { IConfig, retryDownloadConfig } from "../remoteConfigHelper";
 import { TelemetryHelper } from "../../common/telemetryHelper";
 import { Telemetry } from "../../common/telemetry";
 import { ExtensionConfigManager } from "../extensionConfigManager";
 import tipsStorage from "./tipsStorage";
 import { findFileInFolderHierarchy } from "../../common/extensionHelper";
+import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import * as path from "path";
-
-const getMoreInfoButtonText: string = "Get more info";
-const doNotShowTipsAgainButtonText: string = "Don't show tips again";
 
 enum TipNotificationAction {
     GET_MORE_INFO = "tipsMoreInfo",
@@ -61,6 +59,11 @@ export class TipNotificationService implements vscode.Disposable {
     private cancellationTokenSource: vscode.CancellationTokenSource;
 
     public readonly downloadConfigRequest: Promise<TipNotificationConfig>;
+    private logger: OutputChannelLogger;
+
+    private TIPS_NOTIFICATIONS_LOG_CHANNEL_NAME = "Tips Notifications";
+    private getMoreInfoButtonText: string = "Get more info";
+    private doNotShowTipsAgainButtonText: string = "Don't show tips again";
 
     public static getInstance(): TipNotificationService {
         if (!TipNotificationService.instance) {
@@ -83,6 +86,7 @@ export class TipNotificationService implements vscode.Disposable {
             this.endpointURL,
             this.cancellationTokenSource,
         );
+        this.logger = OutputChannelLogger.getChannel(this.TIPS_NOTIFICATIONS_LOG_CHANNEL_NAME);
     }
 
     private async getOrCreateDefaultTipsConfig(): Promise<TipsConfig> {
@@ -123,31 +127,58 @@ export class TipNotificationService implements vscode.Disposable {
         specificTipKey?: string,
     ): Promise<void> {
         if (!isGeneralTip && !specificTipKey) {
+            this.logger.debug(
+                "For specific tips, it is necessary to pass the tip key as a parameter",
+            );
             return;
         }
 
-        const readmeFile: string | null = findFileInFolderHierarchy(__dirname, "README.md");
         const config: TipsConfig = await this.getOrCreateDefaultTipsConfig();
 
-        if (!config.showTips || !readmeFile) {
+        if (!config.showTips) {
             return;
         }
+
+        const curDate: Date = new Date();
+        let tipResponse: GeneratedTipResponse | undefined;
 
         if (isGeneralTip) {
             this.deleteOutdatedKnownDate(config);
+            if (config.daysLeftBeforeGeneralTip === 0) {
+                tipResponse = await this.showRandomGeneralTipNotification(config);
+            } else {
+                if (
+                    config.lastExtensionUsageDate &&
+                    !this.areSameDates(curDate, new Date(config.lastExtensionUsageDate))
+                ) {
+                    config.daysLeftBeforeGeneralTip--;
+                }
+            }
+        } else {
+            tipResponse = await this.showSpecificTipNotification(config, <string>specificTipKey);
         }
 
-        if (!isGeneralTip || config.daysLeftBeforeGeneralTip === 0) {
-            const { selection, tipKey } = isGeneralTip
-                ? await this.showRandomGeneralTipNotification(config)
-                : await this.showSpecificTipNotification(config, <string>specificTipKey);
+        if (tipResponse) {
+            await this.handleUserActionOnTip(tipResponse, isGeneralTip, config);
+        }
 
-            if (selection === getMoreInfoButtonText) {
-                this.sendTipNotificationActionTelemetry(
-                    tipKey,
-                    TipNotificationAction.GET_MORE_INFO,
-                );
+        config.lastExtensionUsageDate = curDate;
+        ExtensionConfigManager.config.set("tipsConfig", config);
+    }
 
+    private async handleUserActionOnTip(
+        tipResponse: GeneratedTipResponse,
+        isGeneralTip: boolean,
+        config: TipsConfig,
+    ) {
+        const { selection, tipKey } = tipResponse;
+
+        if (selection === this.getMoreInfoButtonText) {
+            this.sendTipNotificationActionTelemetry(tipKey, TipNotificationAction.GET_MORE_INFO);
+
+            const readmeFile: string | null = findFileInFolderHierarchy(__dirname, "README.md");
+
+            if (readmeFile) {
                 const anchorLink: string = isGeneralTip
                     ? this.getGeneralTipNotificationAnchorLinkByKey(tipKey)
                     : this.getSpecificTipNotificationAnchorLinkByKey(tipKey);
@@ -158,27 +189,15 @@ export class TipNotificationService implements vscode.Disposable {
 
                 vscode.commands.executeCommand("markdown.showPreview", uriFile);
             }
+        }
 
-            if (selection === doNotShowTipsAgainButtonText) {
-                this.sendTipNotificationActionTelemetry(
-                    tipKey,
-                    TipNotificationAction.DO_NOT_SHOW_AGAIN,
-                );
-
-                config.showTips = false;
-                ExtensionConfigManager.config.set("tipsConfig", config);
-            }
-        } else {
-            const curDate: Date = new Date();
-            if (
-                config.lastExtensionUsageDate &&
-                !this.areSameDates(curDate, new Date(config.lastExtensionUsageDate))
-            ) {
-                config.daysLeftBeforeGeneralTip--;
-                config.lastExtensionUsageDate = curDate;
-
-                ExtensionConfigManager.config.set("tipsConfig", config);
-            }
+        if (selection === this.doNotShowTipsAgainButtonText) {
+            this.sendTipNotificationActionTelemetry(
+                tipKey,
+                TipNotificationAction.DO_NOT_SHOW_AGAIN,
+            );
+            config.showTips = false;
+            ExtensionConfigManager.config.set("tipsConfig", config);
         }
     }
 
@@ -251,17 +270,16 @@ export class TipNotificationService implements vscode.Disposable {
                   config.firstTimeMaxDaysToRemind,
               );
 
-        config.lastExtensionUsageDate = new Date();
         config.daysLeftBeforeGeneralTip = daysBeforeNextTip;
 
         ExtensionConfigManager.config.set("tipsConfig", config);
 
-        this.sendShowTipNotificationTelemetry();
+        this.sendShowTipNotificationTelemetry(selectedGeneralTipKey);
 
         return {
             selection: await vscode.window.showInformationMessage(
                 tipNotificationText,
-                ...[getMoreInfoButtonText, doNotShowTipsAgainButtonText],
+                ...[this.getMoreInfoButtonText, this.doNotShowTipsAgainButtonText],
             ),
             tipKey: selectedGeneralTipKey,
         };
@@ -270,20 +288,22 @@ export class TipNotificationService implements vscode.Disposable {
     private async showSpecificTipNotification(
         config: TipsConfig,
         tipKey: string,
-    ): Promise<GeneratedTipResponse> {
+    ): Promise<GeneratedTipResponse | undefined> {
+        if (config.tips.specificTips[tipKey].shownDate) {
+            return;
+        }
+
         const tipNotificationText = this.getSpecificTipNotificationTextByKey(tipKey);
 
         config.tips.specificTips[tipKey].shownDate = new Date();
-        config.lastExtensionUsageDate = new Date();
-
         ExtensionConfigManager.config.set("tipsConfig", config);
 
-        this.sendShowTipNotificationTelemetry();
+        this.sendShowTipNotificationTelemetry(tipKey);
 
         return {
             selection: await vscode.window.showInformationMessage(
                 tipNotificationText,
-                ...[getMoreInfoButtonText, doNotShowTipsAgainButtonText],
+                ...[this.getMoreInfoButtonText, this.doNotShowTipsAgainButtonText],
             ),
             tipKey,
         };
@@ -342,9 +362,12 @@ export class TipNotificationService implements vscode.Disposable {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    private sendShowTipNotificationTelemetry(): void {
+    private sendShowTipNotificationTelemetry(tipKey: string): void {
         const showTipNotificationEvent = TelemetryHelper.createTelemetryEvent(
             "showTipNotification",
+            {
+                tipKey,
+            },
         );
 
         Telemetry.send(showTipNotificationEvent);

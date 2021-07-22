@@ -745,7 +745,13 @@ For now the Network inspector doesn't support Expo applications.
 
 ### Network inspector logs theme
 
-The extension provides “Dark” and “Light” color themes for Network Inspector logs. You can configure the theme in the extension configuration in the Settings tab or in setting.json file.
+The extension provides “Dark” and “Light” color themes for Network Inspector logs. You can configure the theme in the extension configuration in the Settings tab or in `settings.json` file.
+
+```json
+{
+  "react-native-tools.networkInspector.consoleLogsColorTheme": "Dark"
+}
+```
 
 # Developing inside a Docker Container
 
