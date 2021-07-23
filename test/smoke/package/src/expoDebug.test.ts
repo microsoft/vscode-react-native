@@ -69,10 +69,14 @@ export function startExpoTests(
                     await app.stop();
                 }
                 if (client) {
-                    SmokeTestLogger.info("Closing application ...");
-                    await client.closeApp();
-                    SmokeTestLogger.info("Deleting session ...");
-                    await client.deleteSession();
+                    try {
+                        SmokeTestLogger.info("Closing application ...");
+                        await client.closeApp();
+                        SmokeTestLogger.info("Deleting session ...");
+                        await client.deleteSession();
+                    } catch (err) {
+                        SmokeTestLogger.error(err);
+                    }
                 }
                 SmokeTestLogger.info("Clearing android application ...");
                 AndroidEmulatorManager.closeApp(EXPO_APP_PACKAGE_NAME);
@@ -83,7 +87,10 @@ export function startExpoTests(
             }
         }
 
-        afterEach(disposeAll);
+        afterEach(async function () {
+            this.timeout(SmokeTestsConstants.smokeTestAfterEachTimeout);
+            await disposeAll();
+        });
 
         async function findExpoSuccessAndFailurePatterns(
             filePath: string,
@@ -192,7 +199,7 @@ export function startExpoTests(
             }
             await runExpoDebugScenario(logFilePath, testName, debugConfigName, triesToLaunchApp);
 
-            await app.workbench.editors.waitForTab("Expo QR Code", false, true);
+            await app.workbench.editors.waitForTab("Expo QR Code", false, true, 2000);
             await app.workbench.editors.waitForActiveTab("Expo QR Code", false, true);
             SmokeTestLogger.info(`${testName}: 'Expo QR Code' tab found`);
 
@@ -257,6 +264,9 @@ export function startExpoTests(
             }
 
             SmokeTestLogger.info(`${testName}: Debugging started`);
+            // Workaround for Windows platform to avoid incorrect work of dispatching keybindings
+            // after opening "Expo QR Code" tab
+            await app.workbench.editor.waitForEditorFocus(project.projectEntryPointFile, 1);
             await automationHelper.waitForStackFrameWithRetry(
                 sf =>
                     sf.name === project.projectEntryPointFile &&
@@ -271,9 +281,7 @@ export function startExpoTests(
                 `${testName}: Searching for \"Test output from debuggee\" string in console`,
             );
             await automationHelper.runCommandWithRetry("Debug: Focus on Debug Console View");
-            let found = await app.workbench.debug.waitForOutput(output =>
-                output.some(line => line.indexOf("Test output from debuggee") >= 0),
-            );
+            let found = await automationHelper.waitForOutputWithRetry("Test output from debuggee");
             assert.notStrictEqual(
                 found,
                 false,
@@ -307,17 +315,6 @@ export function startExpoTests(
                 );
             });
 
-            it("Android Expo app Debug test(localhost)", async function () {
-                this.timeout(debugExpoTestTime);
-                await expoTest(
-                    expoProject,
-                    "Android Expo Debug test(localhost)",
-                    ExpoLocalDebugConfigName,
-                    Platform.AndroidExpo,
-                    1,
-                );
-            });
-
             it("Android Expo app Debug test(Tunnel)", async function () {
                 this.timeout(debugExpoTestTime);
                 if (!isLoggedInExpo()) {
@@ -329,6 +326,17 @@ export function startExpoTests(
                     ExpoTunnelDebugConfigName,
                     Platform.AndroidExpo,
                     5,
+                );
+            });
+
+            it("Android Expo app Debug test(localhost)", async function () {
+                this.timeout(debugExpoTestTime);
+                await expoTest(
+                    expoProject,
+                    "Android Expo Debug test(localhost)",
+                    ExpoLocalDebugConfigName,
+                    Platform.AndroidExpo,
+                    1,
                 );
             });
         }

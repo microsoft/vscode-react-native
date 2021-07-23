@@ -21,5 +21,6 @@ export * from "./settings";
 export * from "./statusbar";
 export * from "./terminal";
 export * from "./viewlet";
+export * from "./localization";
 export * from "./workbench";
 export * from "./driver";
