@@ -58,7 +58,7 @@ export class TipNotificationService implements vscode.Disposable {
     private readonly endpointURL: string;
     private cancellationTokenSource: vscode.CancellationTokenSource;
 
-    public readonly downloadConfigRequest: Promise<TipNotificationConfig>;
+    private readonly downloadConfigRequest: Promise<TipNotificationConfig>;
     private logger: OutputChannelLogger;
 
     private TIPS_NOTIFICATIONS_LOG_CHANNEL_NAME = "Tips Notifications";
