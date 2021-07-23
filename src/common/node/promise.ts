@@ -78,12 +78,14 @@ export class PromiseUtil {
         delay: number,
         failure: string,
     ): Promise<T> {
-        const result = await operation();
-        const conditionResult = await condition(result);
 
-        if (conditionResult) {
-            return result;
-        }
+        try {
+            const result = await operation();
+            const conditionResult = await condition(result);
+            if (conditionResult) {
+                return result;
+            }
+        } catch (err) { /* Just ignore error and move to the next iteration */ }
 
         if (iteration < maxRetries) {
             await PromiseUtil.delay(delay);
