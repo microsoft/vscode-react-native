@@ -37,8 +37,7 @@ export class Package {
     }
 
     public async parsePackageInformation(): Promise<IPackageInformation> {
-        const data = await this.fileSystem
-            .readFile(this.informationJsonFilePath(), "utf8");
+        const data = await this.fileSystem.readFile(this.informationJsonFilePath(), "utf8");
         return <IPackageInformation>JSON.parse(data.toString());
     }
 

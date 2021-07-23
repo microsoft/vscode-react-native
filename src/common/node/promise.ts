@@ -5,7 +5,10 @@
  * Utilities for working with promises.
  */
 export class PromiseUtil {
-    public async forEach<T>(sources: T[], promiseGenerator: (source: T) => Promise<void>): Promise<void> {
+    public async forEach<T>(
+        sources: T[],
+        promiseGenerator: (source: T) => Promise<void>,
+    ): Promise<void> {
         await Promise.all(
             sources.map(source => {
                 return promiseGenerator(source);
