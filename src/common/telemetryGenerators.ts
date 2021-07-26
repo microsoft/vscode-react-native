@@ -66,22 +66,22 @@ export abstract class TelemetryGeneratorBase {
         return this;
     }
 
-    public time<T>(name: string, codeToMeasure: { (): Promise<T> | T }): Promise<T> {
+    public async time<T>(name: string, codeToMeasure: { (): Promise<T> | T }): Promise<T> {
         let startTime: [number, number] = process.hrtime();
 
-        return new Promise<T>((resolve, reject) => {
+        try {
             const code = codeToMeasure();
             if (code instanceof Promise) {
-                code.then(resolve, reject);
+                return await code;
             } else {
-                resolve();
+                return code;
             }
-        })
-            .finally(() => this.finishTime(name, startTime))
-            .catch((reason: any) => {
-                this.addError(reason);
-                return Promise.reject(reason);
-            });
+        } catch (error) {
+            this.addError(error);
+            return Promise.reject(error);
+        } finally {
+            this.finishTime(name, startTime);
+        }
     }
 
     public step(name: string): TelemetryGeneratorBase {

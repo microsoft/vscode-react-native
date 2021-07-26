@@ -49,19 +49,18 @@ export class CommandExecutor {
         private logger: ILogger = new NullLogger(),
     ) {}
 
-    public execute(command: string, options: Options = {}): Promise<void> {
+    public async execute(command: string, options: Options = {}): Promise<void> {
         this.logger.debug(CommandExecutor.getCommandStatusString(command, CommandStatus.Start));
-        return this.childProcess
-            .execToString(command, { cwd: this.currentWorkingDirectory, env: options.env })
-            .then(
-                stdout => {
-                    this.logger.info(stdout);
-                    this.logger.debug(
-                        CommandExecutor.getCommandStatusString(command, CommandStatus.End),
-                    );
-                },
-                (reason: Error) => this.generateRejectionForCommand(command, reason),
-            );
+        try {
+            const stdout = await this.childProcess.execToString(command, {
+                cwd: this.currentWorkingDirectory,
+                env: options.env,
+            });
+            this.logger.info(stdout);
+            this.logger.debug(CommandExecutor.getCommandStatusString(command, CommandStatus.End));
+        } catch (reason) {
+            this.generateRejectionForCommand(command, reason);
+        }
     }
 
     /**
@@ -82,34 +81,29 @@ export class CommandExecutor {
         return this.spawnReactCommand("start", args, options);
     }
 
-    public getReactNativeVersion(): Promise<string> {
-        return ProjectVersionHelper.getReactNativeVersions(this.currentWorkingDirectory).then(
-            versions => versions.reactNativeVersion,
+    public async getReactNativeVersion(): Promise<string> {
+        const versions = await ProjectVersionHelper.getReactNativeVersions(
+            this.currentWorkingDirectory,
         );
+        return versions.reactNativeVersion;
     }
 
     /**
      * Kills the React Native packager in a child process.
      */
-    public killReactPackager(packagerProcess?: cp.ChildProcess): Promise<void> {
+    public async killReactPackager(packagerProcess?: cp.ChildProcess): Promise<void> {
         if (packagerProcess) {
-            return new Promise(resolve => {
-                if (HostPlatform.getPlatformId() === HostPlatformId.WINDOWS) {
-                    return resolve(
-                        this.childProcess
-                            .exec("taskkill /pid " + packagerProcess.pid + " /T /F")
-                            .then(res => res.outcome),
-                    );
-                } else {
-                    packagerProcess.kill();
-                    return resolve(void 0);
-                }
-            }).then(() => {
-                this.logger.info(localize("PackagerStopped", "Packager stopped"));
-            });
+            if (HostPlatform.getPlatformId() === HostPlatformId.WINDOWS) {
+                const res = await this.childProcess.exec(
+                    "taskkill /pid " + packagerProcess.pid + " /T /F",
+                );
+                await res.outcome;
+            } else {
+                packagerProcess.kill();
+            }
+            this.logger.info(localize("PackagerStopped", "Packager stopped"));
         } else {
             this.logger.warning(localize("PackagerNotFound", "Packager not found"));
-            return Promise.resolve();
         }
     }
 
@@ -132,7 +126,7 @@ export class CommandExecutor {
      * {args} - Arguments to be passed to the command
      * {options} - additional options with which the child process needs to be spawned
      */
-    public spawnWithProgress(
+    public async spawnWithProgress(
         command: string,
         args: string[],
         options: Options = { verbosity: CommandVerbosity.OUTPUT },
@@ -174,26 +168,17 @@ export class CommandExecutor {
             }
         });
 
-        return new Promise((resolve, reject) => {
-            result.outcome = result.outcome.then(
-                () => {
-                    if (options.verbosity === CommandVerbosity.OUTPUT) {
-                        this.logger.debug(
-                            CommandExecutor.getCommandStatusString(
-                                commandWithArgs,
-                                CommandStatus.End,
-                            ),
-                        );
-                    }
-                    this.logger.logStream("\n", process.stdout);
-                    resolve();
-                },
-                reason => {
-                    reject(reason);
-                    return this.generateRejectionForCommand(commandWithArgs, reason);
-                },
-            );
-        });
+        try {
+            await result.outcome;
+            if (options.verbosity === CommandVerbosity.OUTPUT) {
+                this.logger.debug(
+                    CommandExecutor.getCommandStatusString(commandWithArgs, CommandStatus.End),
+                );
+            }
+            this.logger.logStream("\n", process.stdout);
+        } catch (reason) {
+            return this.generateRejectionForCommand(commandWithArgs, reason);
+        }
     }
 
     public selectReactNativeCLI(): string {

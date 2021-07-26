@@ -66,18 +66,17 @@ export function isWorkspaceTrusted(): boolean {
     return true;
 }
 
-export function getVersionFromExtensionNodeModules(packageName: string): Promise<string | null> {
+export async function getVersionFromExtensionNodeModules(
+    packageName: string,
+): Promise<string | null> {
     const packageJsonPath = findFileInFolderHierarchy(__dirname, "package.json");
     if (packageJsonPath) {
         const rootDirecory = path.resolve(packageJsonPath, "..");
-        return new Package(rootDirecory)
-            .getPackageVersionFromNodeModules(packageName)
-            .then(version => {
-                return version;
-            })
-            .catch(() => {
-                return null;
-            });
+        try {
+            return await new Package(rootDirecory).getPackageVersionFromNodeModules(packageName);
+        } catch (error) {
+            return null;
+        }
     }
-    return Promise.resolve(null);
+    return null;
 }
