@@ -54,7 +54,7 @@ export class PromiseUtil {
     }
 
     public static async delay(duration: number): Promise<void> {
-        await new Promise<void>(resolve => setTimeout(resolve, duration));
+        return new Promise<void>(resolve => setTimeout(resolve, duration));
     }
 
     public static promiseCacheDecorator<T>(
@@ -78,14 +78,10 @@ export class PromiseUtil {
         delay: number,
         failure: string,
     ): Promise<T> {
-        try {
-            const result = await operation();
-            const conditionResult = await condition(result);
-            if (conditionResult) {
-                return result;
-            }
-        } catch (err) {
-            /* Just ignore error and move to the next iteration */
+        const result = await operation();
+        const conditionResult = await condition(result);
+        if (conditionResult) {
+            return result;
         }
 
         if (iteration < maxRetries) {

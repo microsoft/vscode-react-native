@@ -15,8 +15,8 @@ export class FileSystem {
     public async ensureDirectory(dir: string): Promise<void> {
         try {
             const stat = await this.stat(dir);
-            if (stat.isDirectory()) {
-                return;
+            if (!stat.isDirectory()) {
+                throw new Error(`Expected ${dir} to be a directory`);
             }
         } catch (err) {
             if (err && err.code === "ENOENT") {
@@ -24,7 +24,6 @@ export class FileSystem {
             }
             throw err;
         }
-        throw new Error(`Expected ${dir} to be a directory`);
     }
 
     public async ensureFileWithContents(file: string, contents: string): Promise<void> {
@@ -35,6 +34,8 @@ export class FileSystem {
                 if (contents !== existingContents) {
                     return this.writeFile(file, contents);
                 }
+            } else {
+                throw new Error(`Expected ${file} to be a file`);
             }
         } catch (err) {
             if (err && err.code === "ENOENT") {
@@ -42,7 +43,6 @@ export class FileSystem {
             }
             throw err;
         }
-        throw new Error(`Expected ${file} to be a file`);
     }
 
     /**
