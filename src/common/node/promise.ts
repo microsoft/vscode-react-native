@@ -5,12 +5,15 @@
  * Utilities for working with promises.
  */
 export class PromiseUtil {
-    public forEach<T>(sources: T[], promiseGenerator: (source: T) => Promise<void>): Promise<void> {
-        return Promise.all(
+    public async forEach<T>(
+        sources: T[],
+        promiseGenerator: (source: T) => Promise<void>,
+    ): Promise<void> {
+        await Promise.all(
             sources.map(source => {
                 return promiseGenerator(source);
             }),
-        ).then(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
+        );
     }
     /**
      * Retries an operation a given number of times. For each retry, a condition is checked.
@@ -33,23 +36,21 @@ export class PromiseUtil {
         return this.retryAsyncIteration(operation, condition, maxRetries, 0, delay, failure);
     }
 
-    public reduce<T>(
+    public async reduce<T>(
         sources: T[] | Promise<T[]>,
         generateAsyncOperation: (value: T) => Promise<void>,
     ): Promise<void> {
-        let promisedSources: Promise<T[]>;
+        let arraySources: T[];
         if (sources instanceof Promise) {
-            promisedSources = sources;
+            arraySources = await sources;
         } else {
-            promisedSources = Promise.resolve(sources);
+            arraySources = sources;
         }
-        return promisedSources.then(resolvedSources => {
-            return resolvedSources.reduce((previousReduction: Promise<void>, newSource: T) => {
-                return previousReduction.then(() => {
-                    return generateAsyncOperation(newSource);
-                });
-            }, Promise.resolve());
-        });
+
+        return arraySources.reduce(async (previousReduction: Promise<void>, newSource: T) => {
+            await previousReduction;
+            return generateAsyncOperation(newSource);
+        }, Promise.resolve());
     }
 
     public static async delay(duration: number): Promise<void> {
@@ -62,16 +63,14 @@ export class PromiseUtil {
     ): (...args: any[]) => Promise<T> {
         let promise: Promise<T>;
         return (...args: any[]): Promise<T> => {
-            if (promise) {
-                return promise;
-            } else {
+            if (!promise) {
                 promise = func.apply(context, args);
-                return promise;
             }
+            return promise;
         };
     }
 
-    private retryAsyncIteration<T>(
+    private async retryAsyncIteration<T>(
         operation: () => Promise<T>,
         condition: (result: T) => boolean | Promise<boolean>,
         maxRetries: number,
@@ -79,29 +78,24 @@ export class PromiseUtil {
         delay: number,
         failure: string,
     ): Promise<T> {
-        return operation().then(result => {
-            return Promise.resolve(result)
-                .then(condition)
-                .then(conditionResult => {
-                    if (conditionResult) {
-                        return result;
-                    }
+        const result = await operation();
+        const conditionResult = await condition(result);
+        if (conditionResult) {
+            return result;
+        }
 
-                    if (iteration < maxRetries) {
-                        return PromiseUtil.delay(delay).then(() =>
-                            this.retryAsyncIteration(
-                                operation,
-                                condition,
-                                maxRetries,
-                                iteration + 1,
-                                delay,
-                                failure,
-                            ),
-                        );
-                    }
+        if (iteration < maxRetries) {
+            await PromiseUtil.delay(delay);
+            return this.retryAsyncIteration(
+                operation,
+                condition,
+                maxRetries,
+                iteration + 1,
+                delay,
+                failure,
+            );
+        }
 
-                    throw new Error(failure);
-                });
-        });
+        throw new Error(failure);
     }
 }
