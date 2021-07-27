@@ -206,9 +206,12 @@ export class Packager {
             ).spawnReactPackager(args, spawnOptions);
             this.packagerProcess = packagerSpawnResult.spawnedProcess;
 
-            try {
-                await packagerSpawnResult.outcome;
-            } catch (error) {} // We ignore all outcome errors
+            /* eslint-disable @typescript-eslint/no-empty-function */
+            packagerSpawnResult.outcome.then(
+                () => {},
+                () => {},
+            ); //We ignore all outcome errors
+            /* eslint-enable @typescript-eslint/no-empty-function */
         }
 
         await this.awaitStart();

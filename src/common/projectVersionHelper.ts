@@ -169,8 +169,8 @@ export class ProjectVersionHelper {
         const rootProjectPackageJson = new Package(cwd);
 
         try {
-            const dependencies = rootProjectPackageJson.dependencies();
-            const devDependencies = rootProjectPackageJson.devDependencies();
+            const dependencies = await rootProjectPackageJson.dependencies();
+            const devDependencies = await rootProjectPackageJson.devDependencies();
 
             let parsedPackageVersions: PackageVersion = {};
 
