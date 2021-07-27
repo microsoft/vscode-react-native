@@ -123,6 +123,7 @@ export function activate(context: vscode.ExtensionContext): Promise<void> {
             EXTENSION_CONTEXT.subscriptions.push(
                 vscode.workspace.onDidChangeConfiguration(() => onChangeConfiguration()),
             );
+            EXTENSION_CONTEXT.subscriptions.push(TipNotificationService.getInstance());
 
             EXTENSION_CONTEXT.subscriptions.push(
                 vscode.debug.registerDebugConfigurationProvider(

@@ -55,15 +55,14 @@ export interface GeneratedTipResponse {
 export class TipNotificationService implements vscode.Disposable {
     private static instance: TipNotificationService;
 
+    private readonly TIPS_NOTIFICATIONS_LOG_CHANNEL_NAME: string;
     private readonly endpointURL: string;
-    private cancellationTokenSource: vscode.CancellationTokenSource;
-
     private readonly downloadConfigRequest: Promise<TipNotificationConfig>;
-    private logger: OutputChannelLogger;
+    private readonly getMoreInfoButtonText: string;
+    private readonly doNotShowTipsAgainButtonText: string;
 
-    private TIPS_NOTIFICATIONS_LOG_CHANNEL_NAME = "Tips Notifications";
-    private getMoreInfoButtonText: string = "Get more info";
-    private doNotShowTipsAgainButtonText: string = "Don't show tips again";
+    private cancellationTokenSource: vscode.CancellationTokenSource;
+    private logger: OutputChannelLogger;
 
     public static getInstance(): TipNotificationService {
         if (!TipNotificationService.instance) {
@@ -81,7 +80,11 @@ export class TipNotificationService implements vscode.Disposable {
     private constructor() {
         this.endpointURL =
             "https://microsoft.github.io/vscode-react-native/tipsNotifications/tipsNotificationsConfig.json";
+        this.TIPS_NOTIFICATIONS_LOG_CHANNEL_NAME = "Tips Notifications";
+        this.getMoreInfoButtonText = "Get more info";
+        this.doNotShowTipsAgainButtonText = "Don't show tips again";
 
+        this.cancellationTokenSource = new vscode.CancellationTokenSource();
         this.downloadConfigRequest = retryDownloadConfig<TipNotificationConfig>(
             this.endpointURL,
             this.cancellationTokenSource,
@@ -89,47 +92,12 @@ export class TipNotificationService implements vscode.Disposable {
         this.logger = OutputChannelLogger.getChannel(this.TIPS_NOTIFICATIONS_LOG_CHANNEL_NAME);
     }
 
-    private async getOrCreateDefaultTipsConfig(): Promise<TipsConfig> {
-        if (ExtensionConfigManager.config.has("tipsConfig")) {
-            return ExtensionConfigManager.config.get("tipsConfig");
-        }
-
-        const tipNotificationService: TipNotificationService = TipNotificationService.getInstance();
-        const remoteConfig = await tipNotificationService.downloadConfigRequest;
-        const tipsConfig: TipsConfig = {
-            showTips: true,
-            daysLeftBeforeGeneralTip: 0,
-            firstTimeMinDaysToRemind: remoteConfig.firstTimeMinDaysToRemind,
-            firstTimeMaxDaysToRemind: remoteConfig.firstTimeMaxDaysToRemind,
-            minDaysToRemind: remoteConfig.minDaysToRemind,
-            maxDaysToRemind: remoteConfig.maxDaysToRemind,
-            daysAfterLastUsage: remoteConfig.daysAfterLastUsage,
-            allTipsShownFirstly: false,
-            tips: {
-                generalTips: {},
-                specificTips: {},
-            },
-        };
-
-        Object.keys(tipsStorage.generalTips).forEach(key => {
-            tipsConfig.tips.generalTips[key] = {};
-        });
-
-        Object.keys(tipsStorage.specificTips).forEach(key => {
-            tipsConfig.tips.specificTips[key] = {};
-        });
-
-        return tipsConfig;
-    }
-
     public async showTipNotification(
         isGeneralTip: boolean = true,
         specificTipKey?: string,
     ): Promise<void> {
         if (!isGeneralTip && !specificTipKey) {
-            this.logger.debug(
-                "For specific tips, it is necessary to pass the tip key as a parameter",
-            );
+            this.logger.debug("The specific tip key parameter isn't passed for a specific tip");
             return;
         }
 
@@ -166,11 +134,26 @@ export class TipNotificationService implements vscode.Disposable {
         ExtensionConfigManager.config.set("tipsConfig", config);
     }
 
+    public async setKnownDateForFeatureById(
+        key: string,
+        isGeneralTip: boolean = true,
+    ): Promise<void> {
+        const config: TipsConfig = await this.getOrCreateDefaultTipsConfig();
+
+        if (isGeneralTip) {
+            config.tips.generalTips[key].knownDate = new Date();
+        } else {
+            config.tips.specificTips[key].knownDate = new Date();
+        }
+
+        ExtensionConfigManager.config.set("tipsConfig", config);
+    }
+
     private async handleUserActionOnTip(
         tipResponse: GeneratedTipResponse,
         isGeneralTip: boolean,
         config: TipsConfig,
-    ) {
+    ): Promise<void> {
         const { selection, tipKey } = tipResponse;
 
         if (selection === this.getMoreInfoButtonText) {
@@ -201,19 +184,37 @@ export class TipNotificationService implements vscode.Disposable {
         }
     }
 
-    public async setKnownDateForFeatureById(
-        key: string,
-        isGeneralTip: boolean = true,
-    ): Promise<void> {
-        const config: TipsConfig = await this.getOrCreateDefaultTipsConfig();
-
-        if (isGeneralTip) {
-            config.tips.generalTips[key].knownDate = new Date();
-        } else {
-            config.tips.specificTips[key].knownDate = new Date();
+    private async getOrCreateDefaultTipsConfig(): Promise<TipsConfig> {
+        if (ExtensionConfigManager.config.has("tipsConfig")) {
+            return ExtensionConfigManager.config.get("tipsConfig");
         }
 
-        ExtensionConfigManager.config.set("tipsConfig", config);
+        let tipsConfig: TipsConfig = {
+            showTips: true,
+            daysLeftBeforeGeneralTip: 0,
+            firstTimeMinDaysToRemind: 3,
+            firstTimeMaxDaysToRemind: 6,
+            minDaysToRemind: 6,
+            maxDaysToRemind: 10,
+            daysAfterLastUsage: 30,
+            allTipsShownFirstly: false,
+            tips: {
+                generalTips: {},
+                specificTips: {},
+            },
+        };
+
+        tipsConfig = await this.mergeRemoteConfigToLocal(tipsConfig);
+
+        Object.keys(tipsStorage.generalTips).forEach(key => {
+            tipsConfig.tips.generalTips[key] = {};
+        });
+
+        Object.keys(tipsStorage.specificTips).forEach(key => {
+            tipsConfig.tips.specificTips[key] = {};
+        });
+
+        return tipsConfig;
     }
 
     private async showRandomGeneralTipNotification(
@@ -309,6 +310,16 @@ export class TipNotificationService implements vscode.Disposable {
         };
     }
 
+    private async mergeRemoteConfigToLocal(tipsConfig: TipsConfig): Promise<TipsConfig> {
+        const remoteConfig = await this.downloadConfigRequest;
+        tipsConfig.firstTimeMinDaysToRemind = remoteConfig.firstTimeMinDaysToRemind;
+        tipsConfig.firstTimeMaxDaysToRemind = remoteConfig.firstTimeMaxDaysToRemind;
+        tipsConfig.minDaysToRemind = remoteConfig.minDaysToRemind;
+        tipsConfig.maxDaysToRemind = remoteConfig.maxDaysToRemind;
+        tipsConfig.daysAfterLastUsage = remoteConfig.daysAfterLastUsage;
+        return tipsConfig;
+    }
+
     private getGeneralTipNotificationTextByKey(key: string): string {
         return tipsStorage.generalTips[key].text;
     }
@@ -325,7 +336,7 @@ export class TipNotificationService implements vscode.Disposable {
         return tipsStorage.specificTips[key].anchorLink;
     }
 
-    private deleteOutdatedKnownDate(config: TipsConfig) {
+    private deleteOutdatedKnownDate(config: TipsConfig): void {
         const dateNow: Date = new Date();
         const generalTips: Tips = config.tips.generalTips;
         const generalTipsKeys: Array<string> = Object.keys(config.tips.generalTips);
