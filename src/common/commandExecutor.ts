@@ -59,7 +59,7 @@ export class CommandExecutor {
             this.logger.info(stdout);
             this.logger.debug(CommandExecutor.getCommandStatusString(command, CommandStatus.End));
         } catch (reason) {
-            this.generateRejectionForCommand(command, reason);
+            return this.generateRejectionForCommand(command, reason);
         }
     }
 
