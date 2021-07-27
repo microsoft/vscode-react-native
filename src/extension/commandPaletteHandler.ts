@@ -84,9 +84,9 @@ export class CommandPaletteHandler {
                                 return appLauncher
                                     .getPackager()
                                     .isRunning()
-                                    .then(running => {
+                                    .then(async running => {
                                         return running
-                                            ? appLauncher.getPackager().stop()
+                                            ? appLauncher.getPackager().stop().then()
                                             : Promise.resolve();
                                     });
                             },
@@ -106,7 +106,7 @@ export class CommandPaletteHandler {
                 "Stop Packager",
             ).then(() =>
                 this.executeCommandInContext("stopPackager", appLauncher.getWorkspaceFolder(), () =>
-                    appLauncher.getPackager().stop(),
+                    appLauncher.getPackager().stop().then(),
                 ),
             );
         });
@@ -119,7 +119,7 @@ export class CommandPaletteHandler {
             let appLauncher = ProjectsStorage.projectsCache[key];
             promises.push(
                 this.executeCommandInContext("stopPackager", appLauncher.getWorkspaceFolder(), () =>
-                    appLauncher.getPackager().stop(),
+                    appLauncher.getPackager().stop().then(),
                 ),
             );
         });
