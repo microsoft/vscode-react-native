@@ -32,28 +32,11 @@ suite("tipNotificationService", function () {
     const tipsConfigName = "tipsConfig";
     const config = new Configstore(configName);
     let tipNotificationService: TipNotificationService;
-    let windowShowInformationMessageStub: Sinon.SinonStub;
-
-    suiteSetup(() => {
-        windowShowInformationMessageStub = sinon
-            .stub(window, "showInformationMessage")
-            .returns(Promise.resolve(undefined));
-    });
-
-    suiteTeardown(() => {
-        windowShowInformationMessageStub.restore();
-    });
 
     setup(() => {
         tipNotificationService = TipNotificationService.getInstance();
         config.delete(tipsConfigName);
     });
-
-    // suiteTeardown(() => {
-    //     if (tipNotificationService) {
-    //         tipNotificationService.dispose();
-    //     }
-    // });
 
     teardown(() => {
         if (tipNotificationService) {
@@ -65,7 +48,7 @@ suite("tipNotificationService", function () {
     suite("initializeTipsConfig", function () {
         test("should create correct tips config", async () => {
             await (<any>tipNotificationService).initializeTipsConfig();
-            const tipsConfig: TipsConfig = await (<any>tipNotificationService).tipsConfig;
+            const tipsConfig: TipsConfig = (<any>tipNotificationService).tipsConfig;
 
             const numberType = "number";
             assert.strictEqual(typeof tipsConfig.daysAfterLastUsage, numberType);
@@ -77,171 +60,261 @@ suite("tipNotificationService", function () {
     });
 
     suite("showTipNotification", function () {
-        test("should create config and fill shownDate into one of general tips", async () => {
-            // config.delete(tipsConfigName);
+        suite("without user actions", function () {
+            let windowShowInformationMessageStub: Sinon.SinonStub;
 
-            await tipNotificationService.showTipNotification();
-
-            assert.ok(config.has(tipsConfigName));
-
-            const tipsConfig: RawTipsConfig = config.get(tipsConfigName);
-            let shownTips = Object.values(tipsConfig.tips.generalTips).filter(tip => tip.shownDate);
-
-            assert.strictEqual(shownTips.length, 1);
-        });
-
-        test("should create config and fill shownDate into one of specific tips", async () => {
-            const specificTipKey = "networkInspectorLogsColorTheme";
-
-            // config.delete(tipsConfigName);
-
-            await tipNotificationService.showTipNotification(false, specificTipKey);
-
-            assert.ok(config.has(tipsConfigName));
-
-            const tipsConfig: RawTipsConfig = config.get(tipsConfigName);
-
-            assert.strictEqual(
-                typeof tipsConfig.tips.specificTips[specificTipKey].shownDate,
-                "string",
-                `shownDate of ${specificTipKey} isn't set`,
-            );
-        });
-
-        test("should decrease daysLeftBeforeGeneralTip by one and no tip is shown", async () => {
-            await (<any>tipNotificationService).initializeTipsConfig();
-            const tipsConfigBefore: TipsConfig = await (<any>tipNotificationService).tipsConfig;
-            tipsConfigBefore.daysLeftBeforeGeneralTip = 5;
-            tipsConfigBefore.lastExtensionUsageDate = new Date();
-            tipsConfigBefore.lastExtensionUsageDate.setDate(
-                tipsConfigBefore.lastExtensionUsageDate.getDate() - 1,
-            );
-            config.set(tipsConfigName, tipsConfigBefore);
-
-            await tipNotificationService.showTipNotification();
-
-            const tipsConfigAfter: RawTipsConfig = config.get(tipsConfigName);
-
-            assert.deepStrictEqual(tipsConfigBefore.tips, tipsConfigAfter.tips);
-            assert.deepStrictEqual(tipsConfigAfter.daysLeftBeforeGeneralTip, 4);
-        });
-
-        test("should show another tip from general tips for first round", async () => {
-            await (<any>tipNotificationService).initializeTipsConfig();
-            const tipsConfigBefore: TipsConfig = await (<any>tipNotificationService).tipsConfig;
-            tipsConfigBefore.tips.generalTips["networkInspector"].shownDate = new Date();
-            config.set(tipsConfigName, tipsConfigBefore);
-
-            await tipNotificationService.showTipNotification();
-
-            const tipsConfigAfter: RawTipsConfig = config.get(tipsConfigName);
-            let shownTips = Object.values(tipsConfigAfter.tips.generalTips).filter(
-                tip => tip.shownDate,
-            );
-
-            assert.strictEqual(shownTips.length, 2);
-
-            let assertCondition = () =>
-                tipsConfigAfter.daysLeftBeforeGeneralTip >=
-                    tipsConfigAfter.firstTimeMinDaysToRemind &&
-                tipsConfigAfter.daysLeftBeforeGeneralTip <=
-                    tipsConfigAfter.firstTimeMaxDaysToRemind;
-
-            assert.strictEqual(assertCondition(), true);
-        });
-
-        test("should show another tip from general tips for second round", async () => {
-            await (<any>tipNotificationService).initializeTipsConfig();
-            const tipsConfigBefore: TipsConfig = await (<any>tipNotificationService).tipsConfig;
-            const shownDate = new Date(2021, 6, 26);
-            Object.values(tipsConfigBefore.tips.generalTips).forEach(tip => {
-                tip.shownDate = shownDate;
+            suiteSetup(() => {
+                windowShowInformationMessageStub = sinon
+                    .stub(window, "showInformationMessage")
+                    .returns(Promise.resolve(undefined));
             });
-            tipsConfigBefore.allTipsShownFirstly = true;
-            tipsConfigBefore.daysLeftBeforeGeneralTip = 0;
-            config.set(tipsConfigName, tipsConfigBefore);
 
-            await tipNotificationService.showTipNotification();
+            suiteTeardown(() => {
+                windowShowInformationMessageStub.restore();
+            });
 
-            const tipsConfigAfter: RawTipsConfig = config.get(tipsConfigName);
-            let shownTips = Object.values(tipsConfigAfter.tips.generalTips).filter(
-                tip => Date.parse(tip.shownDate as string) > shownDate.getTime(),
-            );
+            test("should create config and fill shownDate into one of general tips", async () => {
+                await tipNotificationService.showTipNotification();
 
-            assert.strictEqual(shownTips.length, 1);
+                assert.ok(config.has(tipsConfigName));
 
-            let assertCondition = () =>
-                tipsConfigAfter.daysLeftBeforeGeneralTip >= tipsConfigAfter.minDaysToRemind &&
-                tipsConfigAfter.daysLeftBeforeGeneralTip <= tipsConfigAfter.maxDaysToRemind;
+                const tipsConfig: RawTipsConfig = config.get(tipsConfigName);
+                let shownTips = Object.values(tipsConfig.tips.generalTips).filter(
+                    tip => tip.shownDate,
+                );
 
-            assert.strictEqual(assertCondition(), true);
+                assert.strictEqual(shownTips.length, 1);
+            });
+
+            test("should create config and fill shownDate into one of specific tips", async () => {
+                const specificTipKey = "networkInspectorLogsColorTheme";
+
+                await tipNotificationService.showTipNotification(false, specificTipKey);
+
+                assert.ok(config.has(tipsConfigName));
+
+                const tipsConfig: RawTipsConfig = config.get(tipsConfigName);
+
+                assert.strictEqual(
+                    typeof tipsConfig.tips.specificTips[specificTipKey].shownDate,
+                    "string",
+                    `shownDate of ${specificTipKey} isn't set`,
+                );
+            });
+
+            test("should decrease daysLeftBeforeGeneralTip by one and no tip is shown", async () => {
+                await (<any>tipNotificationService).initializeTipsConfig();
+                const tipsConfigBefore: TipsConfig = (<any>tipNotificationService).tipsConfig;
+                tipsConfigBefore.daysLeftBeforeGeneralTip = 5;
+                tipsConfigBefore.lastExtensionUsageDate = new Date();
+                tipsConfigBefore.lastExtensionUsageDate.setDate(
+                    tipsConfigBefore.lastExtensionUsageDate.getDate() - 1,
+                );
+                config.set(tipsConfigName, tipsConfigBefore);
+
+                await tipNotificationService.showTipNotification();
+
+                const tipsConfigAfter: RawTipsConfig = config.get(tipsConfigName);
+
+                assert.deepStrictEqual(tipsConfigBefore.tips, tipsConfigAfter.tips);
+                assert.deepStrictEqual(tipsConfigAfter.daysLeftBeforeGeneralTip, 4);
+            });
+
+            test("should show another tip from general tips for the first round", async () => {
+                await (<any>tipNotificationService).initializeTipsConfig();
+                const tipsConfigBefore: TipsConfig = (<any>tipNotificationService).tipsConfig;
+                tipsConfigBefore.tips.generalTips["networkInspector"].shownDate = new Date();
+                config.set(tipsConfigName, tipsConfigBefore);
+
+                await tipNotificationService.showTipNotification();
+
+                const tipsConfigAfter: RawTipsConfig = config.get(tipsConfigName);
+                let shownTips = Object.values(tipsConfigAfter.tips.generalTips).filter(
+                    tip => tip.shownDate,
+                );
+
+                assert.strictEqual(shownTips.length, 2);
+
+                let assertCondition = () =>
+                    tipsConfigAfter.daysLeftBeforeGeneralTip >=
+                        tipsConfigAfter.firstTimeMinDaysToRemind &&
+                    tipsConfigAfter.daysLeftBeforeGeneralTip <=
+                        tipsConfigAfter.firstTimeMaxDaysToRemind;
+
+                assert.strictEqual(assertCondition(), true);
+            });
+
+            test("should show another tip from general tips for the second round", async () => {
+                await (<any>tipNotificationService).initializeTipsConfig();
+                const tipsConfigBefore: TipsConfig = (<any>tipNotificationService).tipsConfig;
+                const shownDate = new Date(2021, 6, 26);
+                Object.values(tipsConfigBefore.tips.generalTips).forEach(tip => {
+                    tip.shownDate = shownDate;
+                });
+                tipsConfigBefore.allTipsShownFirstly = true;
+                tipsConfigBefore.daysLeftBeforeGeneralTip = 0;
+                config.set(tipsConfigName, tipsConfigBefore);
+
+                await tipNotificationService.showTipNotification();
+
+                const tipsConfigAfter: RawTipsConfig = config.get(tipsConfigName);
+                let shownTips = Object.values(tipsConfigAfter.tips.generalTips).filter(
+                    tip => Date.parse(tip.shownDate as string) > shownDate.getTime(),
+                );
+
+                assert.strictEqual(shownTips.length, 1);
+
+                let assertCondition = () =>
+                    tipsConfigAfter.daysLeftBeforeGeneralTip >= tipsConfigAfter.minDaysToRemind &&
+                    tipsConfigAfter.daysLeftBeforeGeneralTip <= tipsConfigAfter.maxDaysToRemind;
+
+                assert.strictEqual(assertCondition(), true);
+            });
+
+            test("should change allTipsShownFirstly from false to true in case all general tips have been shown for the first time", async () => {
+                await (<any>tipNotificationService).initializeTipsConfig();
+                const tipsConfigBefore: TipsConfig = (<any>tipNotificationService).tipsConfig;
+                const shownDate = new Date(2021, 6, 26);
+                const generalTipsKeysBefore = Object.keys(tipsConfigBefore.tips.generalTips);
+
+                for (let i = 0; i < generalTipsKeysBefore.length - 1; i++) {
+                    tipsConfigBefore.tips.generalTips[
+                        generalTipsKeysBefore[i]
+                    ].shownDate = shownDate;
+                }
+
+                config.set(tipsConfigName, tipsConfigBefore);
+
+                await tipNotificationService.showTipNotification();
+
+                const tipsConfigAfter: RawTipsConfig = config.get(tipsConfigName);
+
+                const shownTips = Object.values(tipsConfigAfter.tips.generalTips).filter(
+                    tip => tip.shownDate,
+                );
+
+                assert.strictEqual(shownTips.length, generalTipsKeysBefore.length);
+                assert.strictEqual(tipsConfigAfter.allTipsShownFirstly, true);
+
+                let assertCondition = () =>
+                    tipsConfigAfter.daysLeftBeforeGeneralTip >= tipsConfigAfter.minDaysToRemind &&
+                    tipsConfigAfter.daysLeftBeforeGeneralTip <= tipsConfigAfter.maxDaysToRemind;
+
+                assert.strictEqual(assertCondition(), true);
+            });
+
+            test("should not show a general tip", async () => {
+                await (<any>tipNotificationService).initializeTipsConfig();
+                const tipsConfigBefore: TipsConfig = (<any>tipNotificationService).tipsConfig;
+                tipsConfigBefore.showTips = false;
+                config.set(tipsConfigName, tipsConfigBefore);
+
+                await tipNotificationService.showTipNotification();
+
+                const tipsConfigAfter: RawTipsConfig = config.get(tipsConfigName);
+
+                const shownGeneralTips = Object.values(tipsConfigAfter.tips.generalTips).filter(
+                    tip => tip.shownDate,
+                );
+                const shownSpecificTips = Object.values(tipsConfigAfter.tips.specificTips).filter(
+                    tip => tip.shownDate,
+                );
+
+                assert.strictEqual(shownGeneralTips.length, 0);
+                assert.strictEqual(shownSpecificTips.length, 0);
+            });
+
+            test("should not show a specific tip", async () => {
+                await (<any>tipNotificationService).initializeTipsConfig();
+                const tipsConfigBefore: TipsConfig = (<any>tipNotificationService).tipsConfig;
+                tipsConfigBefore.showTips = false;
+                config.set(tipsConfigName, tipsConfigBefore);
+
+                await tipNotificationService.showTipNotification(
+                    false,
+                    "networkInspectorLogsColorTheme",
+                );
+
+                const tipsConfigAfter: RawTipsConfig = config.get(tipsConfigName);
+
+                const shownGeneralTips = Object.values(tipsConfigAfter.tips.generalTips).filter(
+                    tip => tip.shownDate,
+                );
+                const shownSpecificTips = Object.values(tipsConfigAfter.tips.specificTips).filter(
+                    tip => tip.shownDate,
+                );
+
+                assert.strictEqual(shownGeneralTips.length, 0);
+                assert.strictEqual(shownSpecificTips.length, 0);
+            });
         });
 
-        test("should change allTipsShownFirstly from false to true", () => {
-            // Precondition:
-            // tipsConfig exists
-            // daysLeftBeforeGeneralTip is 0
-            // showTips is true
-            // only one of tipsConfig.tips.generalTips has not shownDate
-            // allTipsShownFirstly is false
-            //
-            // Action:
-            // call showTipNotification without parameters (to call showing a general random tip)
-            //
-            // Check:
-            // all tipsConfig.tips.generalTips have shownDate
-            // allTipsShownFirstly is true
-            // daysLeftBeforeGeneralTip is between tipsConfig.minDaysToRemind and tipsConfig.maxDaysToRemind
-        });
+        suite("with user actions", function () {
+            test("should not show tips after the user has disabled the display of tips", async () => {
+                let windowShowInformationMessageStub = sinon
+                    .stub(window, "showInformationMessage")
+                    .returns(Promise.resolve("Don't show tips again"));
 
-        test("should not show general tip", () => {
-            // Precondition:
-            // tipsConfig exists
-            // daysLeftBeforeGeneralTip is 0
-            // showTips is false
-            //
-            // Action:
-            // call showTipNotification without parameters (to call showing a general random tip)
-            //
-            // Check:
-            // reactNativeToolsConfig.tipsConfig.tips has not changed
-        });
+                await (<any>tipNotificationService).initializeTipsConfig();
 
-        test("should not show specific tip", () => {
-            // Precondition:
-            // tipsConfig exists
-            // daysLeftBeforeGeneralTip is 0
-            // showTips is false
-            //
-            // Action:
-            // call showTipNotification with parameters false (to call showing a specific tip) and specificTipKey
-            //
-            // Check:
-            // reactNativeToolsConfig.tipsConfig.tips has not changed
+                await tipNotificationService.showTipNotification();
+
+                const tipsConfigAfterDisplayingTip: RawTipsConfig = config.get(tipsConfigName);
+
+                const shownGeneralTipsAfterDisplayingTip = Object.values(
+                    tipsConfigAfterDisplayingTip.tips.generalTips,
+                ).filter(tip => tip.shownDate);
+
+                assert.strictEqual(shownGeneralTipsAfterDisplayingTip.length, 1);
+                assert.strictEqual(tipsConfigAfterDisplayingTip.showTips, false);
+
+                windowShowInformationMessageStub.restore();
+            });
         });
     });
 
     suite("setKnownDateForFeatureById", function () {
-        test("should add knownDate to general tip", () => {
-            // Precondition:
-            // tipsConfig exists
-            //
-            // Action:
-            // call setKnownDateForFeatureById with one parameter (key of general tip)
-            //
-            // Check:
-            // reactNativeToolsConfig.tipsConfig.tips.generalTips[key] has updated
+        test("should add knownDate to a general tip", async () => {
+            await (<any>tipNotificationService).initializeTipsConfig();
+            const tipKey = "debuggingRNWAndMacOSApps";
+
+            await tipNotificationService.setKnownDateForFeatureById(tipKey);
+
+            const tipsConfigAfterAddingKnownDate: RawTipsConfig = config.get(tipsConfigName);
+
+            assert.strictEqual(
+                typeof tipsConfigAfterAddingKnownDate.tips.generalTips[tipKey].knownDate,
+                "string",
+                `knownDate of ${tipKey} isn't set`,
+            );
+
+            await tipNotificationService.setKnownDateForFeatureById(tipKey);
+
+            const tipsConfigAfterUpdatingKnownDate: RawTipsConfig = config.get(tipsConfigName);
+
+            const addedKnownDate = new Date(
+                tipsConfigAfterAddingKnownDate.tips.generalTips[tipKey].knownDate as string,
+            );
+            const updatedKnownDate = new Date(
+                tipsConfigAfterUpdatingKnownDate.tips.generalTips[tipKey].knownDate as string,
+            );
+
+            assert.strictEqual(updatedKnownDate.getTime() > addedKnownDate.getTime(), true);
         });
 
-        test("should add knownDate to specific tip", () => {
-            // Precondition:
-            // tipsConfig exists
-            //
-            // Action:
-            // call setKnownDateForFeatureById with two parameters - key of specific tip and false (not general tip)
-            //
-            // Check:
-            // reactNativeToolsConfig.tipsConfig.tips.generalTips[key] has updated
+        test("should add knownDate to a specific tip", async () => {
+            await (<any>tipNotificationService).initializeTipsConfig();
+            const tipKey = "networkInspectorLogsColorTheme";
+
+            await tipNotificationService.setKnownDateForFeatureById(tipKey, false);
+
+            const tipsConfigAfter: RawTipsConfig = config.get(tipsConfigName);
+
+            assert.strictEqual(
+                typeof tipsConfigAfter.tips.specificTips[tipKey].knownDate,
+                "string",
+                `knownDate of ${tipKey} isn't set`,
+            );
         });
     });
 });

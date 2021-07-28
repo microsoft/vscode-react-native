@@ -251,6 +251,9 @@ export class TipNotificationService implements vscode.Disposable {
             generalTipsForRandom = generalTipsKeys.filter(
                 tipId => !generalTips[tipId].knownDate && !generalTips[tipId].shownDate,
             );
+            if (generalTipsForRandom.length === 1) {
+                this.tipsConfig.allTipsShownFirstly = true;
+            }
         } else {
             generalTipsForRandom = generalTipsKeys.sort((tipId1, tipId2) => {
                 return (
