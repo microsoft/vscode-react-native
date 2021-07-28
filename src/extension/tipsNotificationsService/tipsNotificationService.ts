@@ -26,8 +26,8 @@ export interface TipNotificationConfig extends IConfig {
 }
 
 export interface TipInfo {
-    knownDate?: Date;
-    shownDate?: Date;
+    knownDate?: Date | string;
+    shownDate?: Date | string;
 }
 
 export interface Tips {
@@ -42,7 +42,7 @@ export interface AllTips {
 export interface TipsConfig extends TipNotificationConfig {
     showTips: boolean;
     daysLeftBeforeGeneralTip: number;
-    lastExtensionUsageDate?: Date;
+    lastExtensionUsageDate?: Date | string;
     allTipsShownFirstly: boolean;
     tips: AllTips;
 }
@@ -224,7 +224,7 @@ export class TipNotificationService implements vscode.Disposable {
         const generalTips: Tips = config.tips.generalTips;
         const generalTipsKeys: Array<string> = Object.keys(config.tips.generalTips);
 
-        if (config.allTipsShownFirstly) {
+        if (!config.allTipsShownFirstly) {
             generalTipsForRandom = generalTipsKeys.filter(
                 tipId => !generalTips[tipId].knownDate && !generalTips[tipId].shownDate,
             );
