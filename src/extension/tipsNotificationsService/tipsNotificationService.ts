@@ -26,8 +26,8 @@ export interface TipNotificationConfig extends IConfig {
 }
 
 export interface TipInfo {
-    knownDate?: Date | string;
-    shownDate?: Date | string;
+    knownDate?: Date;
+    shownDate?: Date;
 }
 
 export interface Tips {
@@ -42,7 +42,7 @@ export interface AllTips {
 export interface TipsConfig extends TipNotificationConfig {
     showTips: boolean;
     daysLeftBeforeGeneralTip: number;
-    lastExtensionUsageDate?: Date | string;
+    lastExtensionUsageDate?: Date;
     allTipsShownFirstly: boolean;
     tips: AllTips;
 }
@@ -56,12 +56,14 @@ export class TipNotificationService implements vscode.Disposable {
     private static instance: TipNotificationService;
 
     private readonly TIPS_NOTIFICATIONS_LOG_CHANNEL_NAME: string;
+    private readonly TIPS_CONFIG_NAME: string;
     private readonly endpointURL: string;
     private readonly downloadConfigRequest: Promise<TipNotificationConfig>;
     private readonly getMoreInfoButtonText: string;
     private readonly doNotShowTipsAgainButtonText: string;
 
     private cancellationTokenSource: vscode.CancellationTokenSource;
+    private _tipsConfig: TipsConfig | null;
     private logger: OutputChannelLogger;
 
     public static getInstance(): TipNotificationService {
@@ -81,10 +83,12 @@ export class TipNotificationService implements vscode.Disposable {
         this.endpointURL =
             "https://microsoft.github.io/vscode-react-native/tipsNotifications/tipsNotificationsConfig.json";
         this.TIPS_NOTIFICATIONS_LOG_CHANNEL_NAME = "Tips Notifications";
+        this.TIPS_CONFIG_NAME = "tipsConfig";
         this.getMoreInfoButtonText = "Get more info";
         this.doNotShowTipsAgainButtonText = "Don't show tips again";
 
         this.cancellationTokenSource = new vscode.CancellationTokenSource();
+        this._tipsConfig = null;
         this.downloadConfigRequest = retryDownloadConfig<TipNotificationConfig>(
             this.endpointURL,
             this.cancellationTokenSource,
@@ -101,9 +105,9 @@ export class TipNotificationService implements vscode.Disposable {
             return;
         }
 
-        const config: TipsConfig = await this.getOrCreateDefaultTipsConfig();
+        await this.initializeTipsConfig();
 
-        if (!config.showTips) {
+        if (!this.tipsConfig.showTips) {
             return;
         }
 
@@ -111,48 +115,60 @@ export class TipNotificationService implements vscode.Disposable {
         let tipResponse: GeneratedTipResponse | undefined;
 
         if (isGeneralTip) {
-            this.deleteOutdatedKnownDate(config);
-            if (config.daysLeftBeforeGeneralTip === 0) {
-                tipResponse = await this.showRandomGeneralTipNotification(config);
+            this.deleteOutdatedKnownDate();
+            if (this.tipsConfig.daysLeftBeforeGeneralTip === 0) {
+                tipResponse = await this.showRandomGeneralTipNotification();
             } else {
                 if (
-                    config.lastExtensionUsageDate &&
-                    !this.areSameDates(curDate, new Date(config.lastExtensionUsageDate))
+                    this.tipsConfig.lastExtensionUsageDate &&
+                    !this.areSameDates(curDate, this.tipsConfig.lastExtensionUsageDate)
                 ) {
-                    config.daysLeftBeforeGeneralTip--;
+                    this.tipsConfig.daysLeftBeforeGeneralTip--;
                 }
             }
         } else {
-            tipResponse = await this.showSpecificTipNotification(config, <string>specificTipKey);
+            tipResponse = await this.showSpecificTipNotification(<string>specificTipKey);
         }
 
         if (tipResponse) {
-            await this.handleUserActionOnTip(tipResponse, isGeneralTip, config);
+            await this.handleUserActionOnTip(tipResponse, isGeneralTip);
         }
 
-        config.lastExtensionUsageDate = curDate;
-        ExtensionConfigManager.config.set("tipsConfig", config);
+        this.tipsConfig.lastExtensionUsageDate = curDate;
+        ExtensionConfigManager.config.set(this.TIPS_CONFIG_NAME, this.tipsConfig);
     }
 
     public async setKnownDateForFeatureById(
         key: string,
         isGeneralTip: boolean = true,
     ): Promise<void> {
-        const config: TipsConfig = await this.getOrCreateDefaultTipsConfig();
+        await this.initializeTipsConfig();
 
         if (isGeneralTip) {
-            config.tips.generalTips[key].knownDate = new Date();
+            this.tipsConfig.tips.generalTips[key].knownDate = new Date();
         } else {
-            config.tips.specificTips[key].knownDate = new Date();
+            this.tipsConfig.tips.specificTips[key].knownDate = new Date();
         }
 
-        ExtensionConfigManager.config.set("tipsConfig", config);
+        ExtensionConfigManager.config.set(this.TIPS_CONFIG_NAME, this.tipsConfig);
+    }
+
+    private get tipsConfig(): TipsConfig {
+        if (!this._tipsConfig) {
+            if (!ExtensionConfigManager.config.has(this.TIPS_CONFIG_NAME)) {
+                throw new Error("Could not find Tips config in the config store.");
+            } else {
+                this._tipsConfig = this.parseDatesInRawConfig(
+                    ExtensionConfigManager.config.get(this.TIPS_CONFIG_NAME),
+                );
+            }
+        }
+        return this._tipsConfig;
     }
 
     private async handleUserActionOnTip(
         tipResponse: GeneratedTipResponse,
         isGeneralTip: boolean,
-        config: TipsConfig,
     ): Promise<void> {
         const { selection, tipKey } = tipResponse;
 
@@ -179,60 +195,67 @@ export class TipNotificationService implements vscode.Disposable {
                 tipKey,
                 TipNotificationAction.DO_NOT_SHOW_AGAIN,
             );
-            config.showTips = false;
-            ExtensionConfigManager.config.set("tipsConfig", config);
+            this.tipsConfig.showTips = false;
+            ExtensionConfigManager.config.set(this.TIPS_CONFIG_NAME, this.tipsConfig);
         }
     }
 
-    private async getOrCreateDefaultTipsConfig(): Promise<TipsConfig> {
-        if (ExtensionConfigManager.config.has("tipsConfig")) {
-            return ExtensionConfigManager.config.get("tipsConfig");
+    private async initializeTipsConfig(): Promise<void> {
+        if (this._tipsConfig) {
+            return;
         }
 
-        let tipsConfig: TipsConfig = {
-            showTips: true,
-            daysLeftBeforeGeneralTip: 0,
-            firstTimeMinDaysToRemind: 3,
-            firstTimeMaxDaysToRemind: 6,
-            minDaysToRemind: 6,
-            maxDaysToRemind: 10,
-            daysAfterLastUsage: 30,
-            allTipsShownFirstly: false,
-            tips: {
-                generalTips: {},
-                specificTips: {},
-            },
-        };
+        let tipsConfig: TipsConfig;
+        if (!ExtensionConfigManager.config.has(this.TIPS_CONFIG_NAME)) {
+            tipsConfig = {
+                showTips: true,
+                daysLeftBeforeGeneralTip: 0,
+                firstTimeMinDaysToRemind: 3,
+                firstTimeMaxDaysToRemind: 6,
+                minDaysToRemind: 6,
+                maxDaysToRemind: 10,
+                daysAfterLastUsage: 30,
+                allTipsShownFirstly: false,
+                tips: {
+                    generalTips: {},
+                    specificTips: {},
+                },
+            };
 
-        tipsConfig = await this.mergeRemoteConfigToLocal(tipsConfig);
+            tipsConfig = await this.mergeRemoteConfigToLocal(tipsConfig);
 
-        Object.keys(tipsStorage.generalTips).forEach(key => {
-            tipsConfig.tips.generalTips[key] = {};
-        });
+            Object.keys(tipsStorage.generalTips).forEach(key => {
+                tipsConfig.tips.generalTips[key] = {};
+            });
 
-        Object.keys(tipsStorage.specificTips).forEach(key => {
-            tipsConfig.tips.specificTips[key] = {};
-        });
+            Object.keys(tipsStorage.specificTips).forEach(key => {
+                tipsConfig.tips.specificTips[key] = {};
+            });
 
-        return tipsConfig;
+            ExtensionConfigManager.config.set(this.TIPS_CONFIG_NAME, tipsConfig);
+        } else {
+            tipsConfig = this.parseDatesInRawConfig(
+                ExtensionConfigManager.config.get(this.TIPS_CONFIG_NAME),
+            );
+        }
+
+        this._tipsConfig = tipsConfig;
     }
 
-    private async showRandomGeneralTipNotification(
-        config: TipsConfig,
-    ): Promise<GeneratedTipResponse> {
+    private async showRandomGeneralTipNotification(): Promise<GeneratedTipResponse> {
         let generalTipsForRandom: Array<string>;
-        const generalTips: Tips = config.tips.generalTips;
-        const generalTipsKeys: Array<string> = Object.keys(config.tips.generalTips);
+        const generalTips: Tips = this.tipsConfig.tips.generalTips;
+        const generalTipsKeys: Array<string> = Object.keys(this.tipsConfig.tips.generalTips);
 
-        if (!config.allTipsShownFirstly) {
+        if (!this.tipsConfig.allTipsShownFirstly) {
             generalTipsForRandom = generalTipsKeys.filter(
                 tipId => !generalTips[tipId].knownDate && !generalTips[tipId].shownDate,
             );
         } else {
             generalTipsForRandom = generalTipsKeys.sort((tipId1, tipId2) => {
                 return (
-                    new Date(generalTips[tipId2].shownDate ?? "").getTime() -
-                    new Date(generalTips[tipId1].shownDate ?? "").getTime()
+                    (generalTips[tipId2].shownDate ?? new Date()).getTime() -
+                    (generalTips[tipId1].shownDate ?? new Date()).getTime()
                 );
             });
         }
@@ -262,18 +285,22 @@ export class TipNotificationService implements vscode.Disposable {
         const selectedGeneralTipKey: string = generalTipsForRandom[randIndex];
         const tipNotificationText = this.getGeneralTipNotificationTextByKey(selectedGeneralTipKey);
 
-        config.tips.generalTips[selectedGeneralTipKey].shownDate = new Date();
+        this.tipsConfig.tips.generalTips[selectedGeneralTipKey].shownDate = new Date();
 
-        const daysBeforeNextTip: number = config.allTipsShownFirstly
-            ? this.getRandomIntInclusive(config.minDaysToRemind, config.maxDaysToRemind)
+        this._tipsConfig = await this.mergeRemoteConfigToLocal(this.tipsConfig);
+        const daysBeforeNextTip: number = this.tipsConfig.allTipsShownFirstly
+            ? this.getRandomIntInclusive(
+                  this.tipsConfig.minDaysToRemind,
+                  this.tipsConfig.maxDaysToRemind,
+              )
             : this.getRandomIntInclusive(
-                  config.firstTimeMinDaysToRemind,
-                  config.firstTimeMaxDaysToRemind,
+                  this.tipsConfig.firstTimeMinDaysToRemind,
+                  this.tipsConfig.firstTimeMaxDaysToRemind,
               );
 
-        config.daysLeftBeforeGeneralTip = daysBeforeNextTip;
+        this.tipsConfig.daysLeftBeforeGeneralTip = daysBeforeNextTip;
 
-        ExtensionConfigManager.config.set("tipsConfig", config);
+        ExtensionConfigManager.config.set(this.TIPS_CONFIG_NAME, this.tipsConfig);
 
         this.sendShowTipNotificationTelemetry(selectedGeneralTipKey);
 
@@ -287,17 +314,16 @@ export class TipNotificationService implements vscode.Disposable {
     }
 
     private async showSpecificTipNotification(
-        config: TipsConfig,
         tipKey: string,
     ): Promise<GeneratedTipResponse | undefined> {
-        if (config.tips.specificTips[tipKey].shownDate) {
+        if (this.tipsConfig.tips.specificTips[tipKey].shownDate) {
             return;
         }
 
         const tipNotificationText = this.getSpecificTipNotificationTextByKey(tipKey);
 
-        config.tips.specificTips[tipKey].shownDate = new Date();
-        ExtensionConfigManager.config.set("tipsConfig", config);
+        this.tipsConfig.tips.specificTips[tipKey].shownDate = new Date();
+        ExtensionConfigManager.config.set(this.TIPS_CONFIG_NAME, this.tipsConfig);
 
         this.sendShowTipNotificationTelemetry(tipKey);
 
@@ -336,17 +362,18 @@ export class TipNotificationService implements vscode.Disposable {
         return tipsStorage.specificTips[key].anchorLink;
     }
 
-    private deleteOutdatedKnownDate(config: TipsConfig): void {
+    private deleteOutdatedKnownDate(): void {
         const dateNow: Date = new Date();
-        const generalTips: Tips = config.tips.generalTips;
-        const generalTipsKeys: Array<string> = Object.keys(config.tips.generalTips);
+        const generalTips: Tips = this.tipsConfig.tips.generalTips;
+        const generalTipsKeys: Array<string> = Object.keys(this.tipsConfig.tips.generalTips);
 
         generalTipsKeys
             .filter(tipKey => {
-                const knownDate = new Date(generalTips[tipKey].knownDate ?? "");
+                const knownDate = generalTips[tipKey].knownDate ?? new Date();
                 return (
                     generalTips[tipKey].knownDate &&
-                    this.getDifferenceInDays(knownDate, dateNow) > config.daysAfterLastUsage
+                    this.getDifferenceInDays(knownDate, dateNow) >
+                        this.tipsConfig.daysAfterLastUsage
                 );
             })
             .forEach(tipKey => {
@@ -371,6 +398,31 @@ export class TipNotificationService implements vscode.Disposable {
         min = Math.ceil(min);
         max = Math.floor(max);
         return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    private parseDatesInRawConfig(rawTipsConfig: TipsConfig): TipsConfig {
+        if (rawTipsConfig.lastExtensionUsageDate) {
+            rawTipsConfig.lastExtensionUsageDate = new Date(rawTipsConfig.lastExtensionUsageDate);
+        }
+
+        const parseDatesInTips = (tipsKeys: string[], tipsType: "generalTips" | "specificTips") => {
+            tipsKeys.forEach(tipKey => {
+                let tip = rawTipsConfig.tips[tipsType][tipKey];
+                if (tip.knownDate) {
+                    rawTipsConfig.tips[tipsType][tipKey].knownDate = new Date(tip.knownDate);
+                }
+                if (tip.shownDate) {
+                    if (tip.shownDate) {
+                        rawTipsConfig.tips[tipsType][tipKey].shownDate = new Date(tip.shownDate);
+                    }
+                }
+            });
+        };
+
+        parseDatesInTips(Object.keys(rawTipsConfig.tips.specificTips), "specificTips");
+        parseDatesInTips(Object.keys(rawTipsConfig.tips.generalTips), "generalTips");
+
+        return rawTipsConfig;
     }
 
     private sendShowTipNotificationTelemetry(tipKey: string): void {
