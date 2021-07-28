@@ -48,7 +48,7 @@ export class ScriptImporter {
         this.sourceMapUtil = new SourceMapUtil();
     }
 
-    public downloadAppScript(
+    public async downloadAppScript(
         scriptUrlString: string,
         projectRootPath: string,
     ): Promise<DownloadedScript> {
@@ -57,61 +57,50 @@ export class ScriptImporter {
             parsedScriptUrl.hostname === "localhost"
                 ? this.overridePackagerPort(scriptUrlString)
                 : scriptUrlString;
+
         // We'll get the source code, and store it locally to have a better debugging experience
-        return Request.request(overriddenScriptUrlString, true).then(scriptBody => {
-            return ProjectVersionHelper.getReactNativeVersions(projectRootPath).then(rnVersions => {
-                // unfortunatelly Metro Bundler is broken in RN 0.54.x versions, so use this workaround unless it will be fixed
-                // https://github.com/facebook/metro/issues/147
-                // https://github.com/microsoft/vscode-react-native/issues/660
-                if (
-                    ProjectVersionHelper.getRNVersionsWithBrokenMetroBundler().indexOf(
-                        rnVersions.reactNativeVersion,
-                    ) >= 0
-                ) {
-                    let noSourceMappingUrlGenerated =
-                        scriptBody.match(/sourceMappingURL=/g) === null;
-                    if (noSourceMappingUrlGenerated) {
-                        let sourceMapPathUrl = overriddenScriptUrlString.replace("bundle", "map");
-                        scriptBody = this.sourceMapUtil.appendSourceMapPaths(
-                            scriptBody,
-                            sourceMapPathUrl,
-                        );
-                    }
+        let scriptBody = await Request.request(overriddenScriptUrlString, true);
+
+        const rnVersions = await ProjectVersionHelper.getReactNativeVersions(projectRootPath);
+        // unfortunatelly Metro Bundler is broken in RN 0.54.x versions, so use this workaround unless it will be fixed
+        // https://github.com/facebook/metro/issues/147
+        // https://github.com/microsoft/vscode-react-native/issues/660
+        if (
+            ProjectVersionHelper.getRNVersionsWithBrokenMetroBundler().indexOf(
+                rnVersions.reactNativeVersion,
+            ) >= 0
+        ) {
+            let noSourceMappingUrlGenerated = scriptBody.match(/sourceMappingURL=/g) === null;
+            if (noSourceMappingUrlGenerated) {
+                let sourceMapPathUrl = overriddenScriptUrlString.replace("bundle", "map");
+                scriptBody = this.sourceMapUtil.appendSourceMapPaths(scriptBody, sourceMapPathUrl);
+            }
+        }
+
+        // Extract sourceMappingURL from body
+        let scriptUrl = <IStrictUrl>url.parse(overriddenScriptUrlString); // scriptUrl = "http://localhost:8081/index.ios.bundle?platform=ios&dev=true"
+        let sourceMappingUrl = this.sourceMapUtil.getSourceMapURL(scriptUrl, scriptBody); // sourceMappingUrl = "http://localhost:8081/index.ios.map?platform=ios&dev=true"
+
+        let waitForSourceMapping: Promise<void> = Promise.resolve();
+        if (sourceMappingUrl) {
+            /* handle source map - request it and store it locally */
+            waitForSourceMapping = this.writeAppSourceMap(sourceMappingUrl, scriptUrl).then(() => {
+                scriptBody = this.sourceMapUtil.updateScriptPaths(
+                    scriptBody,
+                    <IStrictUrl>sourceMappingUrl,
+                );
+                if (semver.gte(rnVersions.reactNativeVersion, "0.61.0")) {
+                    scriptBody = this.sourceMapUtil.removeSourceURL(scriptBody);
                 }
-
-                // Extract sourceMappingURL from body
-                let scriptUrl = <IStrictUrl>url.parse(overriddenScriptUrlString); // scriptUrl = "http://localhost:8081/index.ios.bundle?platform=ios&dev=true"
-                let sourceMappingUrl = this.sourceMapUtil.getSourceMapURL(scriptUrl, scriptBody); // sourceMappingUrl = "http://localhost:8081/index.ios.map?platform=ios&dev=true"
-
-                let waitForSourceMapping: Promise<void> = Promise.resolve();
-                if (sourceMappingUrl) {
-                    /* handle source map - request it and store it locally */
-                    waitForSourceMapping = this.writeAppSourceMap(sourceMappingUrl, scriptUrl).then(
-                        () => {
-                            scriptBody = this.sourceMapUtil.updateScriptPaths(
-                                scriptBody,
-                                <IStrictUrl>sourceMappingUrl,
-                            );
-                            if (semver.gte(rnVersions.reactNativeVersion, "0.61.0")) {
-                                scriptBody = this.sourceMapUtil.removeSourceURL(scriptBody);
-                            }
-                        },
-                    );
-                }
-
-                return waitForSourceMapping
-                    .then(() => this.writeAppScript(scriptBody, scriptUrl))
-                    .then((scriptFilePath: string) => {
-                        logger.verbose(
-                            `Script ${overriddenScriptUrlString} downloaded to ${scriptFilePath}`,
-                        );
-                        return { contents: scriptBody, filepath: scriptFilePath };
-                    });
             });
-        });
+        }
+        await waitForSourceMapping;
+        const scriptFilePath = await this.writeAppScript(scriptBody, scriptUrl);
+        logger.verbose(`Script ${overriddenScriptUrlString} downloaded to ${scriptFilePath}`);
+        return { contents: scriptBody, filepath: scriptFilePath };
     }
 
-    public downloadDebuggerWorker(
+    public async downloadDebuggerWorker(
         sourcesStoragePath: string,
         projectRootPath: string,
         debuggerWorkerUrlPath?: string,
@@ -120,27 +109,25 @@ export class ScriptImporter {
             InternalErrorCode.CannotAttachToPackagerCheckPackagerRunningOnPort,
             this.packagerPort,
         );
-        return ensurePackagerRunning(this.packagerAddress, this.packagerPort, errPackagerNotRunning)
-            .then(() => {
-                return ProjectVersionHelper.getReactNativeVersions(projectRootPath);
-            })
-            .then((rnVersions: RNPackageVersions) => {
-                let debuggerWorkerURL = this.prepareDebuggerWorkerURL(
-                    rnVersions.reactNativeVersion,
-                    debuggerWorkerUrlPath,
-                );
-                let debuggerWorkerLocalPath = path.join(
-                    sourcesStoragePath,
-                    ScriptImporter.DEBUGGER_WORKER_FILENAME,
-                );
-                logger.verbose(
-                    "About to download: " + debuggerWorkerURL + " to: " + debuggerWorkerLocalPath,
-                );
 
-                return Request.request(debuggerWorkerURL, true).then((body: string) => {
-                    return new FileSystem().writeFile(debuggerWorkerLocalPath, body);
-                });
-            });
+        await ensurePackagerRunning(this.packagerAddress, this.packagerPort, errPackagerNotRunning);
+
+        const rnVersions = await ProjectVersionHelper.getReactNativeVersions(projectRootPath);
+        let debuggerWorkerURL = this.prepareDebuggerWorkerURL(
+            rnVersions.reactNativeVersion,
+            debuggerWorkerUrlPath,
+        );
+        let debuggerWorkerLocalPath = path.join(
+            sourcesStoragePath,
+            ScriptImporter.DEBUGGER_WORKER_FILENAME,
+        );
+        logger.verbose(
+            "About to download: " + debuggerWorkerURL + " to: " + debuggerWorkerLocalPath,
+        );
+
+        const body = Request.request(debuggerWorkerURL, true);
+
+        return new FileSystem().writeFile(debuggerWorkerLocalPath, body);
     }
 
     public prepareDebuggerWorkerURL(rnVersion: string, debuggerWorkerUrlPath?: string): string {
@@ -166,30 +153,33 @@ export class ScriptImporter {
     /**
      * Writes the script file to the project temporary location.
      */
-    private writeAppScript(scriptBody: string, scriptUrl: IStrictUrl): Promise<string> {
+    private async writeAppScript(scriptBody: string, scriptUrl: IStrictUrl): Promise<string> {
         let scriptFilePath = path.join(this.sourcesStoragePath, path.basename(scriptUrl.pathname)); // scriptFilePath = "$TMPDIR/index.ios.bundle"
-        return new FileSystem().writeFile(scriptFilePath, scriptBody).then(() => scriptFilePath);
+        await new FileSystem().writeFile(scriptFilePath, scriptBody);
+        return scriptFilePath;
     }
 
     /**
      * Writes the source map file to the project temporary location.
      */
-    private writeAppSourceMap(sourceMapUrl: IStrictUrl, scriptUrl: IStrictUrl): Promise<void> {
-        return Request.request(sourceMapUrl.href, true).then((sourceMapBody: string) => {
-            let sourceMappingLocalPath = path.join(
-                this.sourcesStoragePath,
-                path.basename(sourceMapUrl.pathname),
-            ); // sourceMappingLocalPath = "$TMPDIR/index.ios.map"
-            let scriptFileRelativePath = path.basename(scriptUrl.pathname); // scriptFileRelativePath = "index.ios.bundle"
-            let updatedContent = this.sourceMapUtil.updateSourceMapFile(
-                sourceMapBody,
-                scriptFileRelativePath,
-                this.sourcesStoragePath,
-                this.packagerRemoteRoot,
-                this.packagerLocalRoot,
-            );
-            return new FileSystem().writeFile(sourceMappingLocalPath, updatedContent);
-        });
+    private async writeAppSourceMap(
+        sourceMapUrl: IStrictUrl,
+        scriptUrl: IStrictUrl,
+    ): Promise<void> {
+        const sourceMapBody = await Request.request(sourceMapUrl.href, true);
+        let sourceMappingLocalPath = path.join(
+            this.sourcesStoragePath,
+            path.basename(sourceMapUrl.pathname),
+        ); // sourceMappingLocalPath = "$TMPDIR/index.ios.map"
+        let scriptFileRelativePath = path.basename(scriptUrl.pathname); // scriptFileRelativePath = "index.ios.bundle"
+        let updatedContent = this.sourceMapUtil.updateSourceMapFile(
+            sourceMapBody,
+            scriptFileRelativePath,
+            this.sourcesStoragePath,
+            this.packagerRemoteRoot,
+            this.packagerLocalRoot,
+        );
+        return await new FileSystem().writeFile(sourceMappingLocalPath, updatedContent);
     }
 
     /**

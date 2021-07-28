@@ -251,18 +251,17 @@ function fetch(url) {
         );
     }
 
-    public start(retryAttempt: boolean = false): Promise<any> {
+    public async start(retryAttempt: boolean = false): Promise<void> {
         const errPackagerNotRunning = ErrorHelper.getInternalError(
             InternalErrorCode.CannotAttachToPackagerCheckPackagerRunningOnPort,
             this.packagerPort,
         );
 
-        return ensurePackagerRunning(this.packagerAddress, this.packagerPort, errPackagerNotRunning)
-            .then(() => {
-                // Don't fetch debugger worker on socket disconnect
-                return retryAttempt ? Promise.resolve() : this.downloadAndPatchDebuggerWorker();
-            })
-            .then(() => this.createSocketToApp(retryAttempt));
+        await ensurePackagerRunning(this.packagerAddress, this.packagerPort, errPackagerNotRunning);
+        if (!retryAttempt) {
+            await this.downloadAndPatchDebuggerWorker();
+        }
+        return this.createSocketToApp(retryAttempt);
     }
 
     public stop(): void {
@@ -276,32 +275,30 @@ function fetch(url) {
         }
     }
 
-    public downloadAndPatchDebuggerWorker(): Promise<void> {
+    public async downloadAndPatchDebuggerWorker(): Promise<void> {
         let scriptToRunPath = path.resolve(
             this.sourcesStoragePath,
             ScriptImporter.DEBUGGER_WORKER_FILENAME,
         );
-        return this.scriptImporter
-            .downloadDebuggerWorker(
-                this.sourcesStoragePath,
-                this.projectRootPath,
-                this.debuggerWorkerUrlPath,
-            )
-            .then(() => this.nodeFileSystem.readFile(scriptToRunPath, "utf8"))
-            .then((workerContent: string) => {
-                const isHaulProject = ReactNativeProjectHelper.isHaulProject(this.projectRootPath);
-                // Add our customizations to debugger worker to get it working smoothly
-                // in Node env and polyfill WebWorkers API over Node's IPC.
-                const modifiedDebuggeeContent = [
-                    MultipleLifetimesAppWorker.WORKER_BOOTSTRAP,
-                    MultipleLifetimesAppWorker.CONSOLE_TRACE_PATCH,
-                    MultipleLifetimesAppWorker.PROCESS_TO_STRING_PATCH,
-                    isHaulProject ? MultipleLifetimesAppWorker.FETCH_STUB : null,
-                    workerContent,
-                    MultipleLifetimesAppWorker.WORKER_DONE,
-                ].join("\n");
-                return this.nodeFileSystem.writeFile(scriptToRunPath, modifiedDebuggeeContent);
-            });
+
+        await this.scriptImporter.downloadDebuggerWorker(
+            this.sourcesStoragePath,
+            this.projectRootPath,
+            this.debuggerWorkerUrlPath,
+        );
+        const workerContent = await this.nodeFileSystem.readFile(scriptToRunPath, "utf8");
+        const isHaulProject = ReactNativeProjectHelper.isHaulProject(this.projectRootPath);
+        // Add our customizations to debugger worker to get it working smoothly
+        // in Node env and polyfill WebWorkers API over Node's IPC.
+        const modifiedDebuggeeContent = [
+            MultipleLifetimesAppWorker.WORKER_BOOTSTRAP,
+            MultipleLifetimesAppWorker.CONSOLE_TRACE_PATCH,
+            MultipleLifetimesAppWorker.PROCESS_TO_STRING_PATCH,
+            isHaulProject ? MultipleLifetimesAppWorker.FETCH_STUB : null,
+            workerContent,
+            MultipleLifetimesAppWorker.WORKER_DONE,
+        ].join("\n");
+        return this.nodeFileSystem.writeFile(scriptToRunPath, modifiedDebuggeeContent);
     }
 
     public showDevMenuCommand(): void {
@@ -320,7 +317,7 @@ function fetch(url) {
         }
     }
 
-    private startNewWorkerLifetime(): Promise<void> {
+    private async startNewWorkerLifetime(): Promise<void> {
         this.singleLifetimeWorker = new ForkedAppWorker(
             this.packagerAddress,
             this.packagerPort,
@@ -333,12 +330,11 @@ function fetch(url) {
             this.packagerLocalRoot,
         );
         logger.verbose("A new app worker lifetime was created.");
-        return this.singleLifetimeWorker.start().then(startedEvent => {
-            this.emit("connected", startedEvent);
-        });
+        const startedEvent = await this.singleLifetimeWorker.start();
+        this.emit("connected", startedEvent);
     }
 
-    private createSocketToApp(retryAttempt: boolean = false): Promise<void> {
+    private async createSocketToApp(retryAttempt: boolean = false): Promise<void> {
         return new Promise((resolve, reject) => {
             this.socketToApp = this.webSocketConstructor(this.debuggerProxyUrl());
             this.socketToApp.on("open", () => {
