@@ -5,7 +5,7 @@ import * as path from "path";
 import * as url from "url";
 import * as cp from "child_process";
 import * as fs from "fs";
-import { ScriptImporter, DownloadedScript } from "./scriptImporter";
+import { ScriptImporter } from "./scriptImporter";
 import { logger } from "vscode-debugadapter";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { IDebuggeeWorker, RNAppMessage } from "./appWorker";

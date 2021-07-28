@@ -412,8 +412,7 @@ export class Packager {
     }
 
     private awaitStart(retryCount = 60, delay = 3000): Promise<boolean> {
-        let pu: PromiseUtil = new PromiseUtil();
-        return pu.retryAsync(
+        return PromiseUtil.retryAsync(
             () => this.isRunning(),
             running => running,
             retryCount,

@@ -8,7 +8,7 @@ import { Request } from "../common/node/request";
 import { SourceMapUtil } from "./sourceMap";
 import url = require("url");
 import * as semver from "semver";
-import { ProjectVersionHelper, RNPackageVersions } from "../common/projectVersionHelper";
+import { ProjectVersionHelper } from "../common/projectVersionHelper";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { FileSystem } from "../common/node/fileSystem";
@@ -125,7 +125,7 @@ export class ScriptImporter {
             "About to download: " + debuggerWorkerURL + " to: " + debuggerWorkerLocalPath,
         );
 
-        const body = Request.request(debuggerWorkerURL, true);
+        const body = await Request.request(debuggerWorkerURL, true);
 
         return new FileSystem().writeFile(debuggerWorkerLocalPath, body);
     }
