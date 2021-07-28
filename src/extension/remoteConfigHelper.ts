@@ -19,14 +19,19 @@ export async function retryDownloadConfig<T extends IConfig | IConfig[]>(
     cancellationTokenSource: CancellationTokenSource,
     retryCount = 60,
 ): Promise<T> {
-    try {
-        return await downloadConfig<T>(endpointURL);
-    } catch (err) {
-        if (retryCount < 1 || cancellationTokenSource.token.isCancellationRequested) {
-            throw err;
-        }
-
-        await PromiseUtil.delay(2000);
-        return await retryDownloadConfig(endpointURL, cancellationTokenSource, --retryCount);
-    }
+    let pu: PromiseUtil = new PromiseUtil();
+    return pu.retryAsync(
+        async () => {
+            try {
+                return await downloadConfig<T>(endpointURL);
+            } catch (err) {
+                return;
+            }
+        },
+        (config: any) => !!config,
+        retryCount,
+        2000,
+        `Could not download remote config from ${endpointURL}`,
+        cancellationTokenSource,
+    );
 }
