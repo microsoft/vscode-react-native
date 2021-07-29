@@ -74,7 +74,7 @@ export async function getVersionFromExtensionNodeModules(
         const rootDirecory = path.resolve(packageJsonPath, "..");
         try {
             return await new Package(rootDirecory).getPackageVersionFromNodeModules(packageName);
-        } catch (error) {
+        } catch {
             return null;
         }
     }
