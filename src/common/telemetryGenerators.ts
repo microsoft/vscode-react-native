@@ -71,11 +71,7 @@ export abstract class TelemetryGeneratorBase {
 
         try {
             const code = codeToMeasure();
-            if (code instanceof Promise) {
-                return await code;
-            } else {
-                return code;
-            }
+            return await code;
         } catch (error) {
             this.addError(error);
             return Promise.reject(error);

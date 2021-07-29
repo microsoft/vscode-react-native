@@ -14,7 +14,7 @@ export async function ensurePackagerRunning(
         if (body !== "packager-status:running") {
             return Promise.reject();
         }
-    } catch (err) {
-        return Promise.reject(error);
+    } catch {
+        throw (error);
     }
 }

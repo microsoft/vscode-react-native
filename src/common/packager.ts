@@ -332,7 +332,7 @@ export class Packager {
                 this.logger.warning(
                     localize("BundleCacheWasPrewarmed", "The Bundle Cache was prewarmed."),
                 );
-            } catch (error) {
+            } catch {
                 // The attempt to prefetch the bundle failed. This may be because the bundle has
                 // a different name that the one we guessed so we shouldn't treat this as fatal.
             }
