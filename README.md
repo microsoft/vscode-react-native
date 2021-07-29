@@ -172,7 +172,7 @@ To attach to a running Hermes application use `Attach to Hermes application - Ex
 
 Debugging on an iOS device requires following manual steps:
 
-- Install [ios-deploy](https://www.npmjs.com/package/ios-deploy) `npm install -g ios-deploy`.
+- Install [ios-deploy](https://github.com/ios-control/ios-deploy) `brew install ios-deploy`.
 - Install a valid iOS development certificate.
 - In your project's `launch.json` file set `target` to `device`. If you need to specify the exact device to run, you can set `target` to `device=<iOS_device_name>`, or you can also use `runArguments` property to specify a particular device to run on in case multiple devices are connected (e.g. `"runArguments": [ "--device", "My iPhone" ]`)
 - Choose the **Debug iOS** option from the "Configuration" dropdown and press F5.
@@ -588,7 +588,7 @@ adb devices
 
 **NOTE:** If you want to run the application on an iOS device, make sure you have `ios-deploy` installed globally.
 
-`npm install -g ios-deploy`
+`brew install ios-deploy`
 
 ## Setting up the React Native packager
 
