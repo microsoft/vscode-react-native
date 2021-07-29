@@ -15,17 +15,17 @@ export class ReactNativeProjectHelper {
      * Ensures that we are in a React Native project
      * Otherwise, displays an error message banner
      */
-    public static isReactNativeProject(projectRoot: string): Promise<boolean> {
+    public static async isReactNativeProject(projectRoot: string): Promise<boolean> {
         if (!projectRoot || !fs.existsSync(path.join(projectRoot, "package.json"))) {
-            return Promise.resolve(false);
+            return false;
         }
-        return ProjectVersionHelper.getReactNativeVersions(
+
+        const versions = await ProjectVersionHelper.getReactNativeVersions(
             projectRoot,
             undefined,
             projectRoot,
-        ).then(versions => {
-            return !ProjectVersionHelper.isVersionError(versions.reactNativeVersion);
-        });
+        );
+        return !ProjectVersionHelper.isVersionError(versions.reactNativeVersion);
     }
 
     public static isHaulProject(projectRoot: string): boolean {
