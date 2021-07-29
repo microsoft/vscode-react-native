@@ -55,7 +55,7 @@ export class OutputVerifier {
         } else if (processError) {
             throw processError;
         } else {
-            const successPatterns = await this.generatePatternsForSuccess(); // If not we generate the success patterns
+            const successPatterns = await this.generatePatternsForSuccess(); // If not, we generate the success patterns
             if (!this.areAllSuccessPatternsPresent(successPatterns)) {
                 // If we don't find all the success patterns, we also fail
                 throw ErrorHelper.getInternalError(
