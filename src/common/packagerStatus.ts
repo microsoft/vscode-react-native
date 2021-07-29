@@ -15,6 +15,6 @@ export async function ensurePackagerRunning(
             return Promise.reject();
         }
     } catch {
-        throw (error);
+        throw error;
     }
 }
