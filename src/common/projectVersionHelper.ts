@@ -44,7 +44,7 @@ export class ProjectVersionHelper {
         return ["0.54.0", "0.54.1", "0.54.2", "0.54.3", "0.54.4"];
     }
 
-    public static getReactNativeVersions(
+    public static async getReactNativeVersions(
         projectRoot: string,
         additionalPackagesToCheck?: ParsedPackage[],
         nodeModulesRoot?: string,
@@ -52,42 +52,49 @@ export class ProjectVersionHelper {
         if (!nodeModulesRoot) {
             nodeModulesRoot = AppLauncher.getNodeModulesRootByProjectPath(projectRoot);
         }
-        return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
-            nodeModulesRoot,
-            additionalPackagesToCheck,
-        ).catch(() => {
+
+        try {
+            return await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
+                nodeModulesRoot,
+                additionalPackagesToCheck,
+            );
+        } catch (error) {
             return ProjectVersionHelper.getReactNativeVersionsFromProjectPackage(
                 projectRoot,
                 additionalPackagesToCheck,
             );
-        });
+        }
     }
 
-    public static tryToGetRNSemverValidVersionsFromProjectPackage(
+    public static async tryToGetRNSemverValidVersionsFromProjectPackage(
         projectRoot: string,
         additionalPackagesToCheck?: ParsedPackage[],
         nodeModulesRoot?: string,
     ): Promise<RNPackageVersions> {
-        return ProjectVersionHelper.getReactNativeVersionsFromProjectPackage(
+        const versions = await ProjectVersionHelper.getReactNativeVersionsFromProjectPackage(
             projectRoot,
             additionalPackagesToCheck,
-        ).then(versions => {
-            if (
-                Object.values(versions).findIndex(packageVersion =>
-                    packageVersion.includes(this.SEMVER_INVALID),
-                ) !== -1
-            ) {
-                if (!nodeModulesRoot) {
-                    nodeModulesRoot = AppLauncher.getNodeModulesRootByProjectPath(projectRoot);
-                }
-                return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
+        );
+        if (
+            Object.values(versions).findIndex(packageVersion =>
+                packageVersion.includes(this.SEMVER_INVALID),
+            ) !== -1
+        ) {
+            if (!nodeModulesRoot) {
+                nodeModulesRoot = AppLauncher.getNodeModulesRootByProjectPath(projectRoot);
+            }
+
+            try {
+                return await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
                     nodeModulesRoot,
                     additionalPackagesToCheck,
-                ).catch(() => versions);
-            } else {
+                );
+            } catch (error) {
                 return versions;
             }
-        });
+        } else {
+            return versions;
+        }
     }
 
     public static generateAdditionalPackagesToCheckByPlatform(args: ILaunchArgs): ParsedPackage[] {
@@ -110,7 +117,7 @@ export class ProjectVersionHelper {
         ];
     }
 
-    public static getReactNativePackageVersionsFromNodeModules(
+    public static async getReactNativePackageVersionsFromNodeModules(
         nodeModulesRoot: string,
         additionalPackagesToCheck?: ParsedPackage[],
     ): Promise<RNPackageVersions> {
@@ -131,31 +138,25 @@ export class ProjectVersionHelper {
             );
         });
 
-        return Promise.all(versionPromises)
-            .then(packageVersionArray => {
-                return packageVersionArray.reduce((allPackageVersions, packageVersion) => {
-                    return Object.assign(allPackageVersions, packageVersion);
-                }, {});
-            })
-            .then(packageVersions => {
-                if (ProjectVersionHelper.isVersionError(packageVersions["react-native"])) {
-                    throw ErrorHelper.getInternalError(
-                        InternalErrorCode.ReactNativePackageIsNotInstalled,
-                    );
-                }
-                return {
-                    reactNativeVersion: packageVersions["react-native"],
-                    reactNativeWindowsVersion:
-                        packageVersions["react-native-windows"] ||
-                        RN_VERSION_ERRORS.MISSING_PACKAGE_IN_NODE_MODULES,
-                    reactNativeMacOSVersion:
-                        packageVersions["react-native-macos"] ||
-                        RN_VERSION_ERRORS.MISSING_PACKAGE_IN_NODE_MODULES,
-                };
-            });
+        const packageVersionArray = await Promise.all(versionPromises);
+        const packageVersions = packageVersionArray.reduce((allPackageVersions, packageVersion) => {
+            return Object.assign(allPackageVersions, packageVersion);
+        }, {});
+        if (ProjectVersionHelper.isVersionError(packageVersions["react-native"])) {
+            throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativePackageIsNotInstalled);
+        }
+        return {
+            reactNativeVersion: packageVersions["react-native"],
+            reactNativeWindowsVersion:
+                packageVersions["react-native-windows"] ||
+                RN_VERSION_ERRORS.MISSING_PACKAGE_IN_NODE_MODULES,
+            reactNativeMacOSVersion:
+                packageVersions["react-native-macos"] ||
+                RN_VERSION_ERRORS.MISSING_PACKAGE_IN_NODE_MODULES,
+        };
     }
 
-    public static getReactNativeVersionsFromProjectPackage(
+    public static async getReactNativeVersionsFromProjectPackage(
         cwd: string,
         additionalPackagesToCheck?: ParsedPackage[],
     ): Promise<RNPackageVersions> {
@@ -167,54 +168,54 @@ export class ProjectVersionHelper {
 
         const rootProjectPackageJson = new Package(cwd);
 
-        return rootProjectPackageJson
-            .dependencies()
-            .then(dependencies => {
-                return rootProjectPackageJson.devDependencies().then(devDependencies => {
-                    let parsedPackageVersions: PackageVersion = {};
+        try {
+            const dependencies = await rootProjectPackageJson.dependencies();
+            const devDependencies = await rootProjectPackageJson.devDependencies();
 
-                    parsedPackages.forEach(parsedPackage => {
-                        try {
-                            if (dependencies[parsedPackage.packageName]) {
-                                parsedPackageVersions[
-                                    parsedPackage.packageName
-                                ] = ProjectVersionHelper.processVersion(
-                                    dependencies[parsedPackage.packageName],
-                                    parsedPackage.useSemverCoerce,
-                                );
-                            } else if (devDependencies[parsedPackage.packageName]) {
-                                parsedPackageVersions[
-                                    parsedPackage.packageName
-                                ] = ProjectVersionHelper.processVersion(
-                                    devDependencies[parsedPackage.packageName],
-                                    parsedPackage.useSemverCoerce,
-                                );
-                            } else {
-                                parsedPackageVersions[parsedPackage.packageName] =
-                                    RN_VERSION_ERRORS.MISSING_DEPENDENCY_IN_PROJECT_PACKAGE_FILE;
-                            }
-                        } catch (err) {
-                            parsedPackageVersions[parsedPackage.packageName] =
-                                RN_VERSION_ERRORS.MISSING_DEPENDENCIES_FIELDS_IN_PROJECT_PACKAGE_FILE;
-                        }
-                    });
+            let parsedPackageVersions: PackageVersion = {};
 
-                    return {
-                        reactNativeVersion: parsedPackageVersions["react-native"],
-                        reactNativeWindowsVersion:
-                            parsedPackageVersions["react-native-windows"] ||
-                            RN_VERSION_ERRORS.MISSING_PACKAGE_IN_NODE_MODULES,
-                        reactNativeMacOSVersion:
-                            parsedPackageVersions["react-native-macos"] ||
-                            RN_VERSION_ERRORS.MISSING_PACKAGE_IN_NODE_MODULES,
-                    };
-                });
-            })
-            .catch(() => ({
+            parsedPackages.forEach(parsedPackage => {
+                try {
+                    if (dependencies[parsedPackage.packageName]) {
+                        parsedPackageVersions[
+                            parsedPackage.packageName
+                        ] = ProjectVersionHelper.processVersion(
+                            dependencies[parsedPackage.packageName],
+                            parsedPackage.useSemverCoerce,
+                        );
+                    } else if (devDependencies[parsedPackage.packageName]) {
+                        parsedPackageVersions[
+                            parsedPackage.packageName
+                        ] = ProjectVersionHelper.processVersion(
+                            devDependencies[parsedPackage.packageName],
+                            parsedPackage.useSemverCoerce,
+                        );
+                    } else {
+                        parsedPackageVersions[parsedPackage.packageName] =
+                            RN_VERSION_ERRORS.MISSING_DEPENDENCY_IN_PROJECT_PACKAGE_FILE;
+                    }
+                } catch (err) {
+                    parsedPackageVersions[parsedPackage.packageName] =
+                        RN_VERSION_ERRORS.MISSING_DEPENDENCIES_FIELDS_IN_PROJECT_PACKAGE_FILE;
+                }
+            });
+
+            return {
+                reactNativeVersion: parsedPackageVersions["react-native"],
+                reactNativeWindowsVersion:
+                    parsedPackageVersions["react-native-windows"] ||
+                    RN_VERSION_ERRORS.MISSING_PACKAGE_IN_NODE_MODULES,
+                reactNativeMacOSVersion:
+                    parsedPackageVersions["react-native-macos"] ||
+                    RN_VERSION_ERRORS.MISSING_PACKAGE_IN_NODE_MODULES,
+            };
+        } catch (error) {
+            return {
                 reactNativeVersion: RN_VERSION_ERRORS.UNKNOWN_ERROR,
                 reactNativeWindowsVersion: RN_VERSION_ERRORS.UNKNOWN_ERROR,
                 reactNativeMacOSVersion: RN_VERSION_ERRORS.UNKNOWN_ERROR,
-            }));
+            };
+        }
     }
 
     public static isVersionError(version: string): boolean {
@@ -237,20 +238,24 @@ export class ProjectVersionHelper {
         }
     }
 
-    private static getProcessedVersionFromNodeModules(
+    private static async getProcessedVersionFromNodeModules(
         projectRoot: string,
         parsedPackage: ParsedPackage,
     ): Promise<PackageVersion> {
-        return new Package(projectRoot)
-            .getPackageVersionFromNodeModules(parsedPackage.packageName)
-            .then(version => ({
+        try {
+            const version = await new Package(projectRoot).getPackageVersionFromNodeModules(
+                parsedPackage.packageName,
+            );
+            return {
                 [parsedPackage.packageName]: ProjectVersionHelper.processVersion(
                     version,
                     parsedPackage.useSemverCoerce,
                 ),
-            }))
-            .catch(() => ({
+            };
+        } catch (error) {
+            return {
                 [parsedPackage.packageName]: RN_VERSION_ERRORS.MISSING_PACKAGE_IN_NODE_MODULES,
-            }));
+            };
+        }
     }
 }

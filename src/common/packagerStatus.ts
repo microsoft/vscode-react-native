@@ -3,17 +3,18 @@
 
 import { Request } from "./node/request";
 
-export function ensurePackagerRunning(
+export async function ensurePackagerRunning(
     packagerAddress: string,
     packagerPort: number,
     error: any,
 ): Promise<void> {
     let statusURL = `http://${packagerAddress}:${packagerPort}/status`;
-    return Request.request(statusURL, true)
-        .then((body: string) => {
-            return body === "packager-status:running" ? Promise.resolve() : Promise.reject();
-        })
-        .catch(() => {
-            return Promise.reject(error);
-        });
+    try {
+        const body = await Request.request(statusURL, true);
+        if (body !== "packager-status:running") {
+            return Promise.reject();
+        }
+    } catch {
+        throw error;
+    }
 }
