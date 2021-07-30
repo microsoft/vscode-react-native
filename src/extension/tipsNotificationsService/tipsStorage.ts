@@ -13,28 +13,28 @@ export default {
         elementInspector: {
             text: localize(
                 "TipElementInspector",
-                "You can use Element Inspector provided by the RNT extension to inspect application UI elements with development tools. To try it out, just start “Run Element Inspector” command in Command Palette",
+                'You can run React DevTools Element inspector to inspect your application\'s UI elements by starting "Run Element Inspector" command in Command Palette. Note, "react-devtools" package should be installed globally',
             ),
-            anchorLink: "#element-inspector",
+            anchorLink: "#react-native-commands-in-the-command-palette",
         },
         logCatMonitor: {
             text: localize(
                 "TipLogCatMonitor",
-                "You can create a LogCat Monitor provided by the RNT extension for the chosen online Android device to see the device LogCat logs. To try it out, just start “Run React Native LogCat Monitor” command in Command Palette",
+                'You can create a LogCat Monitor provided by the RNT extension for the chosen online Android device to see the device LogCat logs. To try it out, just start "Run React Native LogCat Monitor" command in Command Palette',
             ),
             anchorLink: "#configure-an-android-logcat-monitor",
         },
         networkInspector: {
             text: localize(
                 "TipNetworkInspector",
-                "You can use Network Inspector provided by the RNT extension to inspect network traffic of your app. To try it out, just start “Run Network Inspector” command in Command Palette",
+                'You can use Network Inspector provided by the RNT extension to inspect network traffic of your app. To try it out, just start "Run Network Inspector" command in Command Palette',
             ),
             anchorLink: "#network-inspector",
         },
         directDebuggingWithHermes: {
             text: localize(
                 "TipDirectDebuggingWithHermes",
-                "You can use direct debugging via the RNT extension for your apps with Hermes engine. To try it out, just add appropriate debug scenarios",
+                "RNT extension enables you to debug RN applications with Hermes engine. To try it out, just add appropriate debug scenarios",
             ),
             anchorLink: "#hermes-engine",
         },
@@ -48,14 +48,14 @@ export default {
         expoHostType: {
             text: localize(
                 "TipExpoHostType",
-                "You can configure the connection type (LAN, Tunnel or Local) to be used on Expo debugging to communicate with a device or an emulator by  specifying `expoHostType` parameter in your debug configuration",
+                "You can configure the connection type (LAN, Tunnel or Local) to be used on Expo debugging to communicate with a device or an emulator by specifying 'expoHostType' parameter in your debug configuration",
             ),
             anchorLink: "#expo-applications",
         },
         customEnvVariables: {
             text: localize(
                 "TipCustomEnvVariables",
-                "RNT extension supports passing custom environment variables to the RN Packager process context. You can do this by adding custom variables to `.env` file in the root folder of your project",
+                "RNT extension supports passing custom environment variables to the RN Packager process context. You can do this by adding custom variables to '.env' file in the root folder of your project",
             ),
             anchorLink: "#custom-environment-variables",
         },
@@ -64,7 +64,7 @@ export default {
         networkInspectorLogsColorTheme: {
             text: localize(
                 "TipNetworkInspectorLogsColorTheme",
-                "The extension provides “Dark” and “Light” color themes for Network Inspector logs. You can change the theme in the extension configuration in the Settings tab",
+                'The extension provides "Dark" and "Light" color themes for Network Inspector logs. You can change the theme in the extension configuration in the Settings tab',
             ),
             anchorLink: "#network-inspector-logs-theme",
         },

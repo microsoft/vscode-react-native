@@ -199,7 +199,6 @@ export class TipNotificationService implements vscode.Disposable {
             );
             this.showTips = false;
             await SettingsHelper.setShowTips(this.showTips);
-            ExtensionConfigManager.config.set(this.TIPS_CONFIG_NAME, this.tipsConfig);
         }
     }
 
