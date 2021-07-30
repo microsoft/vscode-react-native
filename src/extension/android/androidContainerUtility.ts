@@ -41,7 +41,7 @@ class RunAsError extends Error {
  * @format
  */
 
-export function push(
+export async function push(
     adbHelper: AdbHelper,
     deviceId: string,
     app: string,
@@ -49,27 +49,22 @@ export function push(
     contents: string,
     logger?: OutputChannelLogger,
 ): Promise<void> {
-    return validateAppName(app).then(validApp =>
-        validateFilePath(filepath).then(validFilepath =>
-            validateFileContent(contents).then(validContent =>
-                _push(adbHelper, deviceId, validApp, validFilepath, validContent, logger),
-            ),
-        ),
-    );
+    const validApp = await validateAppName(app);
+    const validFilepath = await validateFilePath(filepath);
+    const validContent = await validateFileContent(contents);
+    return await _push(adbHelper, deviceId, validApp, validFilepath, validContent, logger);
 }
 
-export function pull(
+export async function pull(
     adbHelper: AdbHelper,
     deviceId: string,
     app: string,
     path: string,
     logger?: OutputChannelLogger,
 ): Promise<string> {
-    return validateAppName(app).then(validApp =>
-        validateFilePath(path).then(validPath =>
-            _pull(adbHelper, deviceId, validApp, validPath, logger),
-        ),
-    );
+    const validApp = await validateAppName(app);
+    const validPath = await validateFilePath(path);
+    return await _pull(adbHelper, deviceId, validApp, validPath, logger);
 }
 
 /**
@@ -77,7 +72,7 @@ export function pull(
  * End region: https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/utils/androidContainerUtility.tsx#L19-L46
  */
 
-export function pushFile(
+export async function pushFile(
     adbHelper: AdbHelper,
     deviceId: string,
     app: string,
@@ -85,14 +80,12 @@ export function pushFile(
     sourceFilepath: string,
     logger?: OutputChannelLogger,
 ): Promise<void> {
-    return validateAppName(app).then(validApp =>
-        validateFilePath(destFilepath).then(validFilepath =>
-            _pushFile(adbHelper, deviceId, validApp, validFilepath, sourceFilepath, logger),
-        ),
-    );
+    const validApp = await validateAppName(app);
+    const validFilepath = await validateFilePath(destFilepath);
+    return await _pushFile(adbHelper, deviceId, validApp, validFilepath, sourceFilepath, logger);
 }
 
-function _pushFile(
+async function _pushFile(
     adbHelper: AdbHelper,
     deviceId: string,
     app: string,
@@ -102,17 +95,19 @@ function _pushFile(
 ): Promise<void> {
     const destFileName = path.basename(destFilepath);
     const tmpFilePath = deviceTmpDir + destFileName;
-    return adbHelper
-        .executeQuery(deviceId, `push ${sourceFilepath} ${tmpFilePath}`)
-        .then(res => {
-            logger?.debug(res);
-            const command = `cp "${tmpFilePath}" "${destFilepath}" && chmod 644 "${destFilepath}"`;
-            return executeCommandAsApp(adbHelper, deviceId, app, command);
-        })
-        .then(res => {
-            logger?.debug(res);
-        })
-        .finally(() => adbHelper.executeShellCommand(deviceId, `rm ${tmpFilePath}`));
+
+    try {
+        const pushRes = await adbHelper.executeQuery(
+            deviceId,
+            `push ${sourceFilepath} ${tmpFilePath}`,
+        );
+        logger?.debug(pushRes);
+        const command = `cp "${tmpFilePath}" "${destFilepath}" && chmod 644 "${destFilepath}"`;
+        const appCommandRes = await executeCommandAsApp(adbHelper, deviceId, app, command);
+        logger?.debug(appCommandRes);
+    } finally {
+        await adbHelper.executeShellCommand(deviceId, `rm ${tmpFilePath}`);
+    }
 }
 
 /**
@@ -127,28 +122,28 @@ function _pushFile(
  * @format
  */
 
-function validateAppName(app: string): Promise<string> {
+async function validateAppName(app: string): Promise<string> {
     if (app.match(allowedAppNameRegex)) {
-        return Promise.resolve(app);
+        return app;
     }
-    return Promise.reject(new Error(`Disallowed run-as user: ${app}`));
+    throw new Error(`Disallowed run-as user: ${app}`);
 }
 
-function validateFilePath(filePath: string): Promise<string> {
+async function validateFilePath(filePath: string): Promise<string> {
     if (!filePath.match(/[']/)) {
-        return Promise.resolve(filePath);
+        return filePath;
     }
-    return Promise.reject(new Error(`Disallowed escaping filepath: ${filePath}`));
+    throw new Error(`Disallowed escaping filepath: ${filePath}`);
 }
 
-function validateFileContent(content: string): Promise<string> {
+async function validateFileContent(content: string): Promise<string> {
     if (!content.match(/["]/)) {
-        return Promise.resolve(content);
+        return content;
     }
-    return Promise.reject(new Error(`Disallowed escaping file content: ${content}`));
+    throw new Error(`Disallowed escaping file content: ${content}`);
 }
 
-function _push(
+async function _push(
     adbHelper: AdbHelper,
     deviceId: string,
     app: string,
@@ -157,25 +152,25 @@ function _push(
     logger?: OutputChannelLogger,
 ): Promise<void> {
     const command = `echo \\"${contents}\\" > "${filename}" && chmod 644 "${filename}"`;
-    return executeCommandAsApp(adbHelper, deviceId, app, command)
-        .then(res => {
-            logger?.debug(res);
-        })
-        .catch(error => {
-            if (error instanceof RunAsError) {
-                // Fall back to running the command directly. This will work if adb is running as root.
-                return executeCommandWithSu(adbHelper, deviceId, app, command)
-                    .then(() => undefined)
-                    .catch(e => {
-                        logger?.debug(e.toString());
-                        throw error;
-                    });
+    try {
+        const res = await executeCommandAsApp(adbHelper, deviceId, app, command);
+        logger?.debug(res);
+    } catch (error) {
+        if (error instanceof RunAsError) {
+            // Fall back to running the command directly. This will work if adb is running as root.
+            try {
+                await executeCommandWithSu(adbHelper, deviceId, app, command);
+            } catch (innerError) {
+                logger?.debug(innerError.toString());
+                // Throw the original error.
+                throw error;
             }
-            throw error;
-        });
+        }
+        throw error;
+    }
 }
 
-function _pull(
+async function _pull(
     adbHelper: AdbHelper,
     deviceId: string,
     app: string,
@@ -183,17 +178,21 @@ function _pull(
     logger?: OutputChannelLogger,
 ): Promise<string> {
     const command = `cat "${path}"`;
-    return executeCommandAsApp(adbHelper, deviceId, app, command).catch(error => {
+    try {
+        return executeCommandAsApp(adbHelper, deviceId, app, command);
+    } catch (error) {
         if (error instanceof RunAsError) {
             // Fall back to running the command directly. This will work if adb is running as root.
-            return executeCommandWithSu(adbHelper, deviceId, app, command).catch(e => {
+            try {
+                await executeCommandWithSu(adbHelper, deviceId, app, command);
+            } catch (innerError) {
+                logger?.debug(innerError.toString());
                 // Throw the original error.
-                logger?.debug(e.toString());
                 throw error;
-            });
+            }
         }
         throw error;
-    });
+    }
 }
 
 // Keep this method private since it relies on pre-validated arguments
@@ -215,33 +214,32 @@ function executeCommandWithSu(
     return _executeCommandWithRunner(adbHelper, deviceId, app, command, "su");
 }
 
-function _executeCommandWithRunner(
+async function _executeCommandWithRunner(
     adbHelper: AdbHelper,
     deviceId: string,
     app: string,
     command: string,
     runner: string,
 ): Promise<string> {
-    return adbHelper.executeShellCommand(deviceId, `echo '${command}' | ${runner}`).then(output => {
-        if (output.match(appNotApplicationRegex)) {
-            throw new RunAsError(
-                RunAsErrorCode.NotAnApp,
-                `Android package ${app} is not an application. To use it with Flipper, either run adb as root or add an <application> tag to AndroidManifest.xml`,
-            );
-        }
-        if (output.match(appNotDebuggableRegex)) {
-            throw new RunAsError(
-                RunAsErrorCode.NotDebuggable,
-                `Android app ${app} is not debuggable. To use it with Flipper, add android:debuggable="true" to the application section of AndroidManifest.xml`,
-            );
-        }
-        if (output.toLowerCase().match(operationNotPermittedRegex)) {
-            throw new Error(
-                `Your android device (${deviceId}) does not support the adb shell run-as command. We're tracking this at https://github.com/facebook/flipper/issues/92`,
-            );
-        }
-        return output;
-    });
+    const output = await adbHelper.executeShellCommand(deviceId, `echo '${command}' | ${runner}`);
+    if (output.match(appNotApplicationRegex)) {
+        throw new RunAsError(
+            RunAsErrorCode.NotAnApp,
+            `Android package ${app} is not an application. To use it with Flipper, either run adb as root or add an <application> tag to AndroidManifest.xml`,
+        );
+    }
+    if (output.match(appNotDebuggableRegex)) {
+        throw new RunAsError(
+            RunAsErrorCode.NotDebuggable,
+            `Android app ${app} is not debuggable. To use it with Flipper, add android:debuggable="true" to the application section of AndroidManifest.xml`,
+        );
+    }
+    if (output.toLowerCase().match(operationNotPermittedRegex)) {
+        throw new Error(
+            `Your android device (${deviceId}) does not support the adb shell run-as command. We're tracking this at https://github.com/facebook/flipper/issues/92`,
+        );
+    }
+    return output;
 }
 
 /**

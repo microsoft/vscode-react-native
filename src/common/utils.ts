@@ -36,6 +36,36 @@ export function getFormattedDatetimeString(date: Date): string {
     return `${getFormattedDateString(date)} ${getFormattedTimeString(date)}`;
 }
 
+export function waitUntil(
+    condition: () => Promise<boolean> | boolean,
+    interval: number = 1000,
+    timeout?: number,
+): Promise<boolean> {
+    return new Promise(resolve => {
+        let rejectTimeout: NodeJS.Timeout | undefined;
+        if (timeout) {
+            rejectTimeout = setTimeout(() => {
+                cleanup();
+                resolve(false);
+            }, timeout);
+        }
+
+        const сheckInterval = setInterval(async () => {
+            if (await condition()) {
+                cleanup();
+                resolve(true);
+            }
+        }, interval);
+
+        const cleanup = () => {
+            if (rejectTimeout) {
+                clearTimeout(rejectTimeout);
+            }
+            clearInterval(сheckInterval);
+        };
+    });
+}
+
 function padZeroes(minDesiredLength: number, numberToPad: string): string {
     if (numberToPad.length >= minDesiredLength) {
         return numberToPad;

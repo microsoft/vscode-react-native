@@ -9,6 +9,7 @@ import * as nls from "vscode-nls";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { QuickPickOptions, window } from "vscode";
+import { waitUntil } from "../../common/utils";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -62,68 +63,56 @@ export class AndroidEmulatorManager extends VirtualDeviceManager {
     }
 
     public async tryLaunchEmulatorByName(emulatorName: string): Promise<string> {
-        return new Promise((resolve, reject) => {
-            const emulatorProcess = this.childProcess.spawn(
-                AndroidEmulatorManager.EMULATOR_COMMAND,
-                [AndroidEmulatorManager.EMULATOR_AVD_START_COMMAND, emulatorName],
-                {
-                    detached: true,
-                },
-                true,
+        const emulatorProcess = this.childProcess.spawn(
+            AndroidEmulatorManager.EMULATOR_COMMAND,
+            [AndroidEmulatorManager.EMULATOR_AVD_START_COMMAND, emulatorName],
+            {
+                detached: true,
+            },
+            true,
+        );
+        emulatorProcess.outcome.catch(error => {
+            if (
+                process.platform == "win32" &&
+                process.env.SESSIONNAME &&
+                process.env.SESSIONNAME.toLowerCase().includes("rdp-tcp")
+            ) {
+                this.logger.warning(
+                    localize(
+                        "RDPEmulatorWarning",
+                        "Android emulator was launched from the Windows RDP session, this might lead to failures.",
+                    ),
+                );
+            }
+            throw ErrorHelper.getInternalError(
+                InternalErrorCode.VirtualDeviceSelectionError,
+                error,
             );
-            emulatorProcess.outcome.catch(error => {
-                if (
-                    process.platform == "win32" &&
-                    process.env.SESSIONNAME &&
-                    process.env.SESSIONNAME.toLowerCase().includes("rdp-tcp")
-                ) {
-                    this.logger.warning(
-                        localize(
-                            "RDPEmulatorWarning",
-                            "Android emulator was launched from the Windows RDP session, this might lead to failures.",
-                        ),
-                    );
-                }
-                reject(
-                    ErrorHelper.getInternalError(
-                        InternalErrorCode.VirtualDeviceSelectionError,
-                        error,
-                    ),
-                );
-            });
-            emulatorProcess.spawnedProcess.unref();
-
-            const rejectTimeout = setTimeout(() => {
-                cleanup();
-                reject(
-                    ErrorHelper.getInternalError(
-                        InternalErrorCode.VirtualDeviceSelectionError,
-                        localize(
-                            "EmulatorStartWarning",
-                            "Could not start the emulator {0} within {1} seconds.",
-                            emulatorName,
-                            AndroidEmulatorManager.EMULATOR_START_TIMEOUT,
-                        ),
-                    ),
-                );
-            }, AndroidEmulatorManager.EMULATOR_START_TIMEOUT * 1000);
-
-            const bootCheckInterval = setInterval(async () => {
-                const connectedDevices = await this.adbHelper.getOnlineDevices();
-                if (connectedDevices.length > 0) {
-                    this.logger.info(
-                        localize("EmulatorLaunched", "Launched emulator {0}", emulatorName),
-                    );
-                    cleanup();
-                    resolve(connectedDevices[0].id);
-                }
-            }, 1000);
-
-            const cleanup = () => {
-                clearTimeout(rejectTimeout);
-                clearInterval(bootCheckInterval);
-            };
         });
+        emulatorProcess.spawnedProcess.unref();
+
+        const condition = async () => {
+            const connectedDevices = await this.adbHelper.getOnlineDevices();
+            return !!connectedDevices.length;
+        };
+
+        if (
+            await waitUntil(condition, 1000, AndroidEmulatorManager.EMULATOR_START_TIMEOUT * 1000)
+        ) {
+            this.logger.info(localize("EmulatorLaunched", "Launched emulator {0}", emulatorName));
+            const connectedDevices = await this.adbHelper.getOnlineDevices();
+            return connectedDevices[0].id;
+        } else {
+            throw ErrorHelper.getInternalError(
+                InternalErrorCode.VirtualDeviceSelectionError,
+                localize(
+                    "EmulatorStartWarning",
+                    "Could not start the emulator {0} within {1} seconds.",
+                    emulatorName,
+                    AndroidEmulatorManager.EMULATOR_START_TIMEOUT,
+                ),
+            );
+        }
     }
 
     public startSelection(): Promise<string | undefined> {

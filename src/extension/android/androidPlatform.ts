@@ -92,26 +92,19 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         this.adbHelper = adbHelper;
     }
 
-    public resolveVirtualDevice(target: string): Promise<IAndroidEmulator | null> {
+    public async resolveVirtualDevice(target: string): Promise<IAndroidEmulator | null> {
         if (!target.includes("device")) {
-            return this.emulatorManager
-                .startEmulator(target)
-                .then((emulator: IAndroidEmulator | null) => {
-                    if (emulator) {
-                        GeneralMobilePlatform.setRunArgument(
-                            this.runArguments,
-                            "--deviceId",
-                            emulator.id,
-                        );
-                    }
-                    return emulator;
-                });
+            const emulator = await this.emulatorManager.startEmulator(target);
+            if (emulator) {
+                GeneralMobilePlatform.setRunArgument(this.runArguments, "--deviceId", emulator.id);
+            }
+            return emulator;
         } else {
-            return Promise.resolve(null);
+            return null;
         }
     }
 
-    public runApp(shouldLaunchInAllDevices: boolean = false): Promise<void> {
+    public async runApp(shouldLaunchInAllDevices: boolean = false): Promise<void> {
         let extProps: any = {
             platform: {
                 value: PlatformType.Android,
@@ -132,7 +125,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
             extProps,
         );
 
-        return TelemetryHelper.generate("AndroidPlatform.runApp", extProps, () => {
+        await TelemetryHelper.generate("AndroidPlatform.runApp", extProps, async () => {
             const env = GeneralMobilePlatform.getEnvArgument(
                 process.env,
                 this.runOptions.env,
@@ -174,36 +167,30 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                 PlatformType.Android,
             ).process(runAndroidSpawn);
 
-            return output
-                .finally(() => {
-                    return this.initializeTargetDevicesAndPackageName();
-                })
-                .then(
-                    () => [this.debugTarget],
-                    reason => {
-                        if (
-                            reason.message ===
-                                ErrorHelper.getInternalError(
-                                    InternalErrorCode.AndroidMoreThanOneDeviceOrEmulator,
-                                ).message &&
-                            this.devices.length >= 1 &&
-                            this.debugTarget
-                        ) {
-                            /* If it failed due to multiple devices, we'll apply this workaround to make it work anyways */
-                            this.needsToLaunchApps = true;
-                            return shouldLaunchInAllDevices
-                                ? this.adbHelper.getOnlineDevices()
-                                : Promise.resolve([this.debugTarget]);
-                        } else {
-                            return Promise.reject<IAdbDevice[]>(reason);
-                        }
-                    },
-                )
-                .then(devices => {
-                    return new PromiseUtil().forEach(devices, device => {
-                        return this.launchAppWithADBReverseAndLogCat(device);
-                    });
+            try {
+                await output;
+                await this.initializeTargetDevicesAndPackageName();
+                await PromiseUtil.forEach([this.debugTarget], async device => {
+                    await this.launchAppWithADBReverseAndLogCat(device);
                 });
+            } catch (error) {
+                if (
+                    error.message ===
+                        ErrorHelper.getInternalError(
+                            InternalErrorCode.AndroidMoreThanOneDeviceOrEmulator,
+                        ).message &&
+                    this.devices.length >= 1 &&
+                    this.debugTarget
+                ) {
+                    /* If it failed due to multiple devices, we'll apply this workaround to make it work anyways */
+                    this.needsToLaunchApps = true;
+                    shouldLaunchInAllDevices
+                        ? await this.adbHelper.getOnlineDevices()
+                        : [this.debugTarget];
+                } else {
+                    throw error;
+                }
+            }
         });
     }
 
@@ -275,73 +262,60 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         return undefined;
     }
 
-    private initializeTargetDevicesAndPackageName(): Promise<void> {
-        return this.adbHelper.getConnectedDevices().then(devices => {
-            this.devices = devices;
-            this.debugTarget = this.getTargetEmulator(devices);
-            return this.getPackageName().then(packageName => {
-                this.packageName = packageName;
-            });
-        });
+    private async initializeTargetDevicesAndPackageName(): Promise<void> {
+        this.devices = await this.adbHelper.getConnectedDevices();
+        this.debugTarget = this.getTargetEmulator(this.devices);
+        this.packageName = await this.getPackageName();
     }
 
-    private launchAppWithADBReverseAndLogCat(device: IAdbDevice): Promise<void> {
-        return this.configureADBReverseWhenApplicable(device)
-            .then(() => {
-                return this.needsToLaunchApps
-                    ? this.adbHelper.launchApp(
-                          this.runOptions.projectRoot,
-                          this.packageName,
-                          device.id,
-                      )
-                    : Promise.resolve();
-            })
-            .then(() => {
-                return this.startMonitoringLogCat(device, this.runOptions.logCatArguments);
-            });
-    }
-
-    private configureADBReverseWhenApplicable(device: IAdbDevice): Promise<void> {
-        return Promise.resolve() // For other emulators and devices we try to enable adb reverse
-            .then(() => this.adbHelper.apiVersion(device.id))
-            .then(apiVersion => {
-                if (apiVersion >= AndroidAPILevel.LOLLIPOP) {
-                    // If we support adb reverse
-                    return this.adbHelper
-                        .reverseAdb(device.id, Number(this.runOptions.packagerPort))
-                        .catch(err => {
-                            // "adb reverse" command could work incorrectly with remote devices, then skip the error and try to go on
-                            if (
-                                device.type === AdbDeviceType.RemoteDevice &&
-                                err.message.includes(
-                                    AndroidPlatform.RUN_ANDROID_FAILURE_PATTERNS[3].pattern,
-                                )
-                            ) {
-                                this.logger.warning(err.message);
-                            } else {
-                                throw err;
-                            }
-                        });
-                } else {
-                    const message = localize(
-                        "DeviceSupportsOnlyAPILevel",
-                        "Device {0} supports only API Level {1}. \n Level {2} is needed to support port forwarding via adb reverse. \n For debugging to work you'll need <Shake or press menu button> for the dev menu, \n go into <Dev Settings> and configure <Debug Server host & port for Device> to be \n an IP address of your computer that the Device can reach. More info at: \n https://facebook.github.io/react-native/docs/debugging.html#debugging-react-native-apps",
-                        device.id,
-                        apiVersion,
-                        AndroidAPILevel.LOLLIPOP,
-                    );
-                    this.logger.warning(message);
-                    return void 0;
-                }
-            });
-    }
-
-    private getPackageName(): Promise<string> {
-        return new Package(this.runOptions.projectRoot)
-            .name()
-            .then(appName =>
-                new PackageNameResolver(appName).resolvePackageName(this.runOptions.projectRoot),
+    private async launchAppWithADBReverseAndLogCat(device: IAdbDevice): Promise<void> {
+        await this.configureADBReverseWhenApplicable(device);
+        if (this.needsToLaunchApps) {
+            await this.adbHelper.launchApp(
+                this.runOptions.projectRoot,
+                this.packageName,
+                device.id,
             );
+        }
+        return this.startMonitoringLogCat(device, this.runOptions.logCatArguments);
+    }
+
+    private async configureADBReverseWhenApplicable(device: IAdbDevice): Promise<void> {
+        // For other emulators and devices we try to enable adb reverse
+        const apiVersion = await this.adbHelper.apiVersion(device.id);
+        if (apiVersion >= AndroidAPILevel.LOLLIPOP) {
+            // If we support adb reverse
+            try {
+                this.adbHelper.reverseAdb(device.id, Number(this.runOptions.packagerPort));
+            } catch (error) {
+                // "adb reverse" command could work incorrectly with remote devices, then skip the error and try to go on
+                if (
+                    device.type === AdbDeviceType.RemoteDevice &&
+                    error.message.includes(AndroidPlatform.RUN_ANDROID_FAILURE_PATTERNS[3].pattern)
+                ) {
+                    this.logger.warning(error.message);
+                } else {
+                    throw error;
+                }
+            }
+        } else {
+            this.logger.warning(
+                localize(
+                    "DeviceSupportsOnlyAPILevel",
+                    "Device {0} supports only API Level {1}. \n Level {2} is needed to support port forwarding via adb reverse. \n For debugging to work you'll need <Shake or press menu button> for the dev menu, \n go into <Dev Settings> and configure <Debug Server host & port for Device> to be \n an IP address of your computer that the Device can reach. More info at: \n https://facebook.github.io/react-native/docs/debugging.html#debugging-react-native-apps",
+                    device.id,
+                    apiVersion,
+                    AndroidAPILevel.LOLLIPOP,
+                ),
+            );
+        }
+    }
+
+    private async getPackageName(): Promise<string> {
+        const appName = await new Package(this.runOptions.projectRoot).name();
+        return await new PackageNameResolver(appName).resolvePackageName(
+            this.runOptions.projectRoot,
+        );
     }
 
     /**

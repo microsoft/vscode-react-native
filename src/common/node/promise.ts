@@ -5,7 +5,7 @@
  * Utilities for working with promises.
  */
 export class PromiseUtil {
-    public async forEach<T>(
+    public static async forEach<T>(
         sources: T[],
         promiseGenerator: (source: T) => Promise<void>,
     ): Promise<void> {
@@ -26,7 +26,7 @@ export class PromiseUtil {
      * @param delay - time between iterations, in milliseconds.
      * @param failure - error description.
      */
-    public retryAsync<T>(
+    public static retryAsync<T>(
         operation: () => Promise<T>,
         condition: (result: T) => boolean | Promise<boolean>,
         maxRetries: number,
@@ -36,7 +36,7 @@ export class PromiseUtil {
         return this.retryAsyncIteration(operation, condition, maxRetries, 0, delay, failure);
     }
 
-    public async reduce<T>(
+    public static async reduce<T>(
         sources: T[] | Promise<T[]>,
         generateAsyncOperation: (value: T) => Promise<void>,
     ): Promise<void> {
@@ -70,7 +70,7 @@ export class PromiseUtil {
         };
     }
 
-    private async retryAsyncIteration<T>(
+    private static async retryAsyncIteration<T>(
         operation: () => Promise<T>,
         condition: (result: T) => boolean | Promise<boolean>,
         maxRetries: number,
