@@ -6,6 +6,7 @@ import {
     TipNotificationConfig,
     TipsConfig,
 } from "../../../src/extension/tipsNotificationsService/tipsNotificationService";
+import { SettingsHelper } from "../../../src/extension/settingsHelper";
 import * as Configstore from "configstore";
 import * as assert from "assert";
 import { window } from "vscode";
@@ -17,7 +18,6 @@ interface RawTipInfo {
 }
 
 interface RawTipsConfig extends TipNotificationConfig {
-    showTips: boolean;
     daysLeftBeforeGeneralTip: number;
     lastExtensionUsageDate?: string;
     allTipsShownFirstly: boolean;
@@ -33,9 +33,10 @@ suite("tipNotificationService", function () {
     const config = new Configstore(configName);
     let tipNotificationService: TipNotificationService;
 
-    setup(() => {
+    setup(async function () {
         tipNotificationService = TipNotificationService.getInstance();
         config.delete(tipsConfigName);
+        await SettingsHelper.setShowTips(true);
     });
 
     teardown(() => {
@@ -204,10 +205,8 @@ suite("tipNotificationService", function () {
             });
 
             test("should not show a general tip", async () => {
+                await SettingsHelper.setShowTips(false);
                 await (<any>tipNotificationService).initializeTipsConfig();
-                const tipsConfigBefore: TipsConfig = (<any>tipNotificationService).tipsConfig;
-                tipsConfigBefore.showTips = false;
-                config.set(tipsConfigName, tipsConfigBefore);
 
                 await tipNotificationService.showTipNotification();
 
@@ -225,10 +224,8 @@ suite("tipNotificationService", function () {
             });
 
             test("should not show a specific tip", async () => {
+                await SettingsHelper.setShowTips(false);
                 await (<any>tipNotificationService).initializeTipsConfig();
-                const tipsConfigBefore: TipsConfig = (<any>tipNotificationService).tipsConfig;
-                tipsConfigBefore.showTips = false;
-                config.set(tipsConfigName, tipsConfigBefore);
 
                 await tipNotificationService.showTipNotification(
                     false,
@@ -266,7 +263,7 @@ suite("tipNotificationService", function () {
                 ).filter(tip => tip.shownDate);
 
                 assert.strictEqual(shownGeneralTipsAfterDisplayingTip.length, 1);
-                assert.strictEqual(tipsConfigAfterDisplayingTip.showTips, false);
+                assert.strictEqual(SettingsHelper.getShowTips(), false);
 
                 windowShowInformationMessageStub.restore();
             });

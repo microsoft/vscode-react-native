@@ -8,6 +8,7 @@ import { Telemetry } from "../../common/telemetry";
 import { ExtensionConfigManager } from "../extensionConfigManager";
 import tipsStorage from "./tipsStorage";
 import { findFileInFolderHierarchy } from "../../common/extensionHelper";
+import { SettingsHelper } from "../../extension/settingsHelper";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import * as path from "path";
 
@@ -40,7 +41,6 @@ export interface AllTips {
 }
 
 export interface TipsConfig extends TipNotificationConfig {
-    showTips: boolean;
     daysLeftBeforeGeneralTip: number;
     lastExtensionUsageDate?: Date;
     allTipsShownFirstly: boolean;
@@ -65,6 +65,7 @@ export class TipNotificationService implements vscode.Disposable {
     private cancellationTokenSource: vscode.CancellationTokenSource;
     private _tipsConfig: TipsConfig | null;
     private logger: OutputChannelLogger;
+    private showTips: boolean;
 
     public static getInstance(): TipNotificationService {
         if (!TipNotificationService.instance) {
@@ -93,6 +94,7 @@ export class TipNotificationService implements vscode.Disposable {
             this.endpointURL,
             this.cancellationTokenSource,
         );
+        this.showTips = SettingsHelper.getShowTips();
         this.logger = OutputChannelLogger.getChannel(this.TIPS_NOTIFICATIONS_LOG_CHANNEL_NAME);
     }
 
@@ -107,7 +109,7 @@ export class TipNotificationService implements vscode.Disposable {
 
         await this.initializeTipsConfig();
 
-        if (!this.tipsConfig.showTips) {
+        if (!this.showTips) {
             return;
         }
 
@@ -195,12 +197,14 @@ export class TipNotificationService implements vscode.Disposable {
                 tipKey,
                 TipNotificationAction.DO_NOT_SHOW_AGAIN,
             );
-            this.tipsConfig.showTips = false;
+            this.showTips = false;
+            await SettingsHelper.setShowTips(this.showTips);
             ExtensionConfigManager.config.set(this.TIPS_CONFIG_NAME, this.tipsConfig);
         }
     }
 
     private async initializeTipsConfig(): Promise<void> {
+        this.showTips = SettingsHelper.getShowTips();
         if (this._tipsConfig) {
             return;
         }
@@ -208,7 +212,6 @@ export class TipNotificationService implements vscode.Disposable {
         let tipsConfig: TipsConfig;
         if (!ExtensionConfigManager.config.has(this.TIPS_CONFIG_NAME)) {
             tipsConfig = {
-                showTips: true,
                 daysLeftBeforeGeneralTip: 0,
                 firstTimeMinDaysToRemind: 3,
                 firstTimeMaxDaysToRemind: 6,
