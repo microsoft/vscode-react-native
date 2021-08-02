@@ -138,13 +138,14 @@ export class ForkedAppWorker implements IDebuggeeWorker {
     }
 
     public async postMessage(rnMessage: RNAppMessage): Promise<RNAppMessage> {
-        const condition = async () => {
-            return !!this.workerLoaded;
-        };
-        await waitUntil(condition);
-        await this.workerLoaded;
-        // Before sending messages, make sure that the worker is loaded
         const promise = (async () => {
+            // Before sending messages, make sure that the worker is loaded
+            const condition = async () => {
+                return !!this.workerLoaded;
+            };
+            await waitUntil(condition);
+            await this.workerLoaded;
+
             if (rnMessage.method !== "executeApplicationScript") {
                 // Before sending messages, make sure that the app script executed
                 await this.bundleLoaded;
