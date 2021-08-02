@@ -169,6 +169,10 @@ export class AndroidPlatform extends GeneralMobilePlatform {
 
             try {
                 await this.initializeTargetDevicesAndPackageName();
+                console.log("this.devices");
+                console.log(this.devices);
+                console.log("this.debugTarget");
+                console.log(this.debugTarget);
                 await output;
                 await PromiseUtil.forEach([this.debugTarget], async device => {
                     await this.launchAppWithADBReverseAndLogCat(device);
