@@ -137,14 +137,14 @@ export class ForkedAppWorker implements IDebuggeeWorker {
         return port;
     }
 
-    public async postMessage(rnMessage: RNAppMessage): Promise<RNAppMessage | undefined> {
+    public async postMessage(rnMessage: RNAppMessage): Promise<RNAppMessage> {
         const condition = async () => {
             return !!this.workerLoaded;
         };
         await waitUntil(condition);
         await this.workerLoaded;
-
-        try {
+        // Before sending messages, make sure that the worker is loaded
+        const promise = (async () => {
             if (rnMessage.method !== "executeApplicationScript") {
                 // Before sending messages, make sure that the app script executed
                 await this.bundleLoaded;
@@ -163,36 +163,37 @@ export class ForkedAppWorker implements IDebuggeeWorker {
                     logger.verbose(
                         `Packager requested runtime to load script from ${rnMessage.url}`,
                     );
-
                     const downloadedScript = await this.scriptImporter.downloadAppScript(
                         <string>rnMessage.url,
                         this.projectRootPath,
                     );
                     this.bundleLoaded = Promise.resolve();
-                    const message = Object.assign({}, rnMessage, {
+                    return Object.assign({}, rnMessage, {
                         url: `${this.pathToFileUrl(downloadedScript.filepath)}`,
                     });
-
-                    if (this.debuggeeProcess) {
-                        this.debuggeeProcess.send({ data: message });
-                    }
-                    return message;
                 } else {
                     throw ErrorHelper.getInternalError(
                         InternalErrorCode.RNMessageWithMethodExecuteApplicationScriptDoesntHaveURLProperty,
                     );
                 }
             }
-        } catch (error) {
-            printDebuggingError(
-                ErrorHelper.getInternalError(
-                    InternalErrorCode.CouldntImportScriptAt,
-                    rnMessage.url,
+        })();
+        promise.then(
+            (message: RNAppMessage) => {
+                if (this.debuggeeProcess) {
+                    this.debuggeeProcess.send({ data: message });
+                }
+            },
+            reason =>
+                printDebuggingError(
+                    ErrorHelper.getInternalError(
+                        InternalErrorCode.CouldntImportScriptAt,
+                        rnMessage.url,
+                    ),
+                    reason,
                 ),
-                error,
-            );
-            return undefined;
-        }
+        );
+        return promise;
     }
 
     // TODO: Replace by url.pathToFileURL method when Node 10 LTS become deprecated
