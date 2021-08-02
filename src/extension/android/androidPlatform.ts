@@ -168,16 +168,15 @@ export class AndroidPlatform extends GeneralMobilePlatform {
             ).process(runAndroidSpawn);
 
             try {
-                await this.initializeTargetDevicesAndPackageName();
-                console.log("this.devices");
-                console.log(this.devices);
-                console.log("this.debugTarget");
-                console.log(this.debugTarget);
                 await output;
+                await this.initializeTargetDevicesAndPackageName();
                 await PromiseUtil.forEach([this.debugTarget], async device => {
                     await this.launchAppWithADBReverseAndLogCat(device);
                 });
             } catch (error) {
+                if (!this.devices || !this.debugTarget) {
+                    await this.initializeTargetDevicesAndPackageName();
+                }
                 if (
                     error.message ===
                         ErrorHelper.getInternalError(

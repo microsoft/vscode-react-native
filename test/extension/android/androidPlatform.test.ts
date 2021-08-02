@@ -347,8 +347,6 @@ suite("androidPlatform", function () {
                         );
                     })
                     .then(devicesRunningAppId => {
-                        console.log("devicesRunningAppId");
-                        console.log(devicesRunningAppId);
                         devicesRunningAppId.length.should.eql(1);
                         onlineDevicesIds.should.containEql(devicesRunningAppId[0].id);
                     });
