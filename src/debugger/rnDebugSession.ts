@@ -66,8 +66,11 @@ export class RNDebugSession extends DebugSessionBase {
 
                 await this.appLauncher.launch(launchArgs);
 
+
                 if (!launchArgs.enableDebug) {
                     this.sendResponse(response);
+                    // if debugging is not enabled skip attach request
+                    return;
                 }
             } catch (error) {
                 throw ErrorHelper.getInternalError(
@@ -75,10 +78,8 @@ export class RNDebugSession extends DebugSessionBase {
                     error.message || error,
                 );
             }
-
-            if (launchArgs.enableDebug) {
-                await this.attachRequest(response, launchArgs);
-            }
+            // if debugging is enabled start attach request
+            await this.attachRequest(response, launchArgs);
         } catch (error) {
             this.showError(error, response);
         }
