@@ -167,12 +167,11 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                 PlatformType.Android,
             ).process(runAndroidSpawn);
 
+            let devicesForLaunch = [];
             try {
                 await output;
                 await this.initializeTargetDevicesAndPackageName();
-                await PromiseUtil.forEach([this.debugTarget], async device => {
-                    await this.launchAppWithADBReverseAndLogCat(device);
-                });
+                devicesForLaunch = [this.debugTarget];
             } catch (error) {
                 if (!this.devices || !this.debugTarget) {
                     await this.initializeTargetDevicesAndPackageName();
@@ -187,13 +186,17 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                 ) {
                     /* If it failed due to multiple devices, we'll apply this workaround to make it work anyways */
                     this.needsToLaunchApps = true;
-                    shouldLaunchInAllDevices
+                    devicesForLaunch = shouldLaunchInAllDevices
                         ? await this.adbHelper.getOnlineDevices()
                         : [this.debugTarget];
                 } else {
                     throw error;
                 }
             }
+
+            await PromiseUtil.forEach(devicesForLaunch, async device => {
+                await this.launchAppWithADBReverseAndLogCat(device);
+            });
         });
     }
 
