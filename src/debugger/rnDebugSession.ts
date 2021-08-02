@@ -66,7 +66,6 @@ export class RNDebugSession extends DebugSessionBase {
 
                 await this.appLauncher.launch(launchArgs);
 
-
                 if (!launchArgs.enableDebug) {
                     this.sendResponse(response);
                     // if debugging is not enabled skip attach request
