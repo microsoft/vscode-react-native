@@ -27,6 +27,7 @@ interface TestEnvVariables {
     PURE_EXPO_VERSION?: string;
     RN_MAC_OS_VERSION?: string;
     RNW_VERSION?: string;
+    RNW_PACKAGE_VERSION?: string;
 }
 
 export class TestConfigProcessor {
@@ -108,7 +109,10 @@ export class TestConfigProcessor {
             SmokeTestLogger.warn("Optional RN_MAC_OS_VERSION variable is not set");
         }
         if (!variables.RNW_VERSION) {
-            SmokeTestLogger.warn("Optional PURE_EXPO_VERSION variable is not set");
+            SmokeTestLogger.warn("Optional RNW_VERSION variable is not set");
+        }
+        if (!variables.RNW_PACKAGE_VERSION) {
+            SmokeTestLogger.warn("Optional RNW_PACKAGE_VERSION variable is not set");
         }
     }
 
@@ -131,6 +135,7 @@ export class TestConfigProcessor {
         initLog += `EXPO_SDK_MAJOR_VERSION = ${process.env.EXPO_SDK_MAJOR_VERSION}\n`;
         initLog += `RN_VERSION = ${process.env.RN_VERSION}\n`;
         initLog += `RNW_VERSION = ${process.env.RNW_VERSION}\n`;
+        initLog += `RNW_PACKAGE_VERSION = ${process.env.RNW_PACKAGE_VERSION}\n`;
         initLog += `PURE_RN_VERSION = ${process.env.PURE_RN_VERSION}\n`;
         initLog += `PURE_EXPO_VERSION = ${process.env.PURE_EXPO_VERSION}\n`;
         initLog += `RN_MAC_OS_VERSION = ${process.env.RN_MAC_OS_VERSION}\n`;

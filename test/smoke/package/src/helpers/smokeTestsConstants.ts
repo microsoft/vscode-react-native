@@ -72,24 +72,28 @@ export class SmokeTestsConstants {
     public static pureRNExpoAppName = "pureRNExpoApp";
     // Default React Native for Windows test app name
     public static RNWAppName = "RNWApp";
+    // Default React Native for Windows Hermes test app name
+    public static RNWHermesAppName = "RNWHermesApp";
     // Default React Native macOS app name
     public static RNmacOSAppName = "latestRNmacOSApp";
     // Default React Native macOS Hermes app name
     public static RNmacOSHermesAppName = "latestRNmacOSHermesApp";
 
-    // Default React Native app name
+    // Default React Native sample app name
     public static sampleRNAppName = "ReactNativeSample";
-    // Default React Native Hermes app name
+    // Default React Native Hermes sample app name
     public static sampleHermesAppName = "HermesReactNativeSample";
-    // Default Expo app name
+    // Default Expo sample app name
     public static sampleExpoAppName = "ExpoSample";
-    // Default pure React Native for Expo test app name
+    // Default pure React Native for Expo test sample app name
     public static samplePureRNExpoAppName = "PureRNExpoSample";
-    // Default React Native for Windows test app name
+    // Default React Native for Windows test sample app name
     public static sampleRNWAppName = "RNWSample";
-    // Default React Native macOS app name
+    // Default React Native for Windows Hermes test sample app name
+    public static sampleRNWHermesAppName = "RNWHermesSample";
+    // Default React Native macOS sample app name
     public static sampleRNmacOSAppName = "MacOSReactNativeSample";
-    // Default React Native macOS Hermes app name
+    // Default React Native macOS Hermes sample app name
     public static sampleRNmacOSHermesAppName = "MacOSHermesReactNativeSample";
 
     // Name of artifacts (test logs) directory

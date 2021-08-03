@@ -1,4 +1,3 @@
-console.log("Test output from debuggee");
 /**
  * Sample React Native App
  * https://github.com/facebook/react-native
@@ -11,6 +10,10 @@ import React from 'react';
 import type {Node} from 'react';
 import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { Colors, DebugInstructions, Header, LearnMoreLinks, ReloadInstructions } from 'react-native/Libraries/NewAppScreen';
+
+setInterval(() => {
+  console.log('Test output from debuggee');
+}, 5000);
 
 const Section = ({children, title}): Node => {
   const isDarkMode = useColorScheme() === 'dark';
