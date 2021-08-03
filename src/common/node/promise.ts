@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import { CancellationTokenSource } from "vscode";
+
 /**
  * Utilities for working with promises.
  */
@@ -32,8 +34,17 @@ export class PromiseUtil {
         maxRetries: number,
         delay: number,
         failure: string,
+        cancellationTokenSource?: CancellationTokenSource,
     ): Promise<T> {
-        return this.retryAsyncIteration(operation, condition, maxRetries, 0, delay, failure);
+        return this.retryAsyncIteration(
+            operation,
+            condition,
+            maxRetries,
+            0,
+            delay,
+            failure,
+            cancellationTokenSource,
+        );
     }
 
     public async reduce<T>(
@@ -77,6 +88,7 @@ export class PromiseUtil {
         iteration: number,
         delay: number,
         failure: string,
+        cancellationTokenSource?: CancellationTokenSource,
     ): Promise<T> {
         const result = await operation();
         const conditionResult = await condition(result);
@@ -84,17 +96,24 @@ export class PromiseUtil {
             return result;
         }
 
-        if (iteration < maxRetries) {
-            await PromiseUtil.delay(delay);
-            return this.retryAsyncIteration(
-                operation,
-                condition,
-                maxRetries,
-                iteration + 1,
-                delay,
-                failure,
-            );
-        }
+                    if (
+                        iteration < maxRetries &&
+                        !(
+                            cancellationTokenSource &&
+                            cancellationTokenSource.token.isCancellationRequested
+                        )
+                    ) {
+                        await PromiseUtil.delay(delay);
+                        return this.retryAsyncIteration(
+                            operation,
+                            condition,
+                            maxRetries,
+                            iteration + 1,
+                            delay,
+                            failure,
+                            cancellationTokenSource
+                        );
+                    }
 
         throw new Error(failure);
     }

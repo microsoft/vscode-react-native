@@ -790,6 +790,12 @@
           "type": "string",
           "default": "0.1.77",
           "scope": "resource"
+        },
+        "react-native-tools.showUserTips": {
+          "description": "%reactNative.configuration.properties.react-native-tools.showUserTips.description%",
+          "type": "boolean",
+          "scope": "resource",
+          "default": true
         }
       }
     }
