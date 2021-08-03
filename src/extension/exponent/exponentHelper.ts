@@ -69,76 +69,58 @@ export class ExponentHelper {
         return Promise.all([XDL.getXDLPackage(), XDL.getMetroConfigPackage()]);
     }
 
-    public configureExponentEnvironment(): Promise<void> {
+    public async configureExponentEnvironment(): Promise<void> {
         let isExpo: boolean;
-        return this.lazilyInitialize()
-            .then(() => {
+        await this.lazilyInitialize();
+        this.logger.logStream(
+            localize("CheckingIfThisIsExpoApp", "Checking if this is an Expo app."),
+        );
+        isExpo = await this.isExpoApp(true);
+        if (!isExpo) {
+            if (!(await this.appHasExpoInstalled())) {
+                // Expo requires expo package to be installed inside RN application in order to be able to run it
+                // https://github.com/expo/expo-cli/issues/255#issuecomment-453214632
+                this.logger.logStream("\n");
                 this.logger.logStream(
-                    localize("CheckingIfThisIsExpoApp", "Checking if this is an Expo app."),
+                    localize(
+                        "ExpoPackageIsNotInstalled",
+                        '[Warning] Please make sure that expo package is installed locally for your project, otherwise further errors may occur. Please, run "npm install expo --save-dev" inside your project to install it.',
+                    ),
                 );
-                return this.isExpoApp(true);
-            })
-            .then(result => {
-                isExpo = result;
-                if (!isExpo) {
-                    return this.appHasExpoInstalled().then(expoInstalled => {
-                        if (!expoInstalled) {
-                            // Expo requires expo package to be installed inside RN application in order to be able to run it
-                            // https://github.com/expo/expo-cli/issues/255#issuecomment-453214632
-                            this.logger.logStream("\n");
-                            this.logger.logStream(
-                                localize(
-                                    "ExpoPackageIsNotInstalled",
-                                    '[Warning] Please make sure that expo package is installed locally for your project, otherwise further errors may occur. Please, run "npm install expo --save-dev" inside your project to install it.',
-                                ),
-                            );
-                            this.logger.logStream("\n");
-                        }
-                    });
-                }
-                return;
-            })
-            .then(() => {
-                this.logger.logStream(".\n");
-                return this.patchAppJson(isExpo);
-            });
+                this.logger.logStream("\n");
+            }
+        }
+        this.logger.logStream(".\n");
+        await this.patchAppJson(isExpo);
     }
 
     /**
      * Returns the current user. If there is none, asks user for username and password and logins to exponent servers.
      */
-    public loginToExponent(
+    public async loginToExponent(
         promptForInformation: (message: string, password: boolean) => Promise<string>,
         showMessage: (message: string) => Promise<string>,
     ): Promise<XDL.IUser> {
-        return this.lazilyInitialize()
-            .then(() => XDL.currentUser())
-            .then(user => {
-                if (!user) {
-                    let username = "";
-                    return showMessage(
-                        localize(
-                            "YouNeedToLoginToExpo",
-                            "You need to login to Expo. Please provide your Expo account username and password in the input boxes after closing this window. If you don't have an account, please go to https://expo.io to create one.",
-                        ),
-                    )
-                        .then(() =>
-                            promptForInformation(localize("ExpoUsername", "Expo username"), false),
-                        )
-                        .then((name: string) => {
-                            username = name;
-                            return promptForInformation(
-                                localize("ExpoPassword", "Expo password"),
-                                true,
-                            );
-                        })
-                        .then((password: string) => XDL.login(username, password));
-                }
-                return user;
-            })
-            .catch(error => {
-                return Promise.reject<XDL.IUser>(error);
-            });
+        await this.lazilyInitialize();
+        let user = await XDL.currentUser();
+        if (!user) {
+            await showMessage(
+                localize(
+                    "YouNeedToLoginToExpo",
+                    "You need to login to Expo. Please provide your Expo account username and password in the input boxes after closing this window. If you don't have an account, please go to https://expo.io to create one.",
+                ),
+            );
+            const username = await promptForInformation(
+                localize("ExpoUsername", "Expo username"),
+                false,
+            );
+            const password = await promptForInformation(
+                localize("ExpoPassword", "Expo password"),
+                true,
+            );
+            user = await XDL.login(username, password);
+        }
+        return user;
     }
 
     public async getExpPackagerOptions(projectRoot: string): Promise<ExpMetroConfig> {
@@ -148,96 +130,92 @@ export class ExponentHelper {
         return { ...options, ...metroConfig };
     }
 
-    public appHasExpoInstalled(): Promise<boolean> {
-        return this.getAppPackageInformation().then((packageJson: IPackageInformation) => {
-            if (packageJson.dependencies && packageJson.dependencies.expo) {
-                this.logger.debug(
-                    "'expo' package is found in 'dependencies' section of package.json",
-                );
-                return true;
-            } else if (packageJson.devDependencies && packageJson.devDependencies.expo) {
-                this.logger.debug(
-                    "'expo' package is found in 'devDependencies' section of package.json",
-                );
-                return true;
-            }
-            return false;
-        });
+    public async appHasExpoInstalled(): Promise<boolean> {
+        const packageJson = await this.getAppPackageInformation();
+        if (packageJson.dependencies && packageJson.dependencies.expo) {
+            this.logger.debug("'expo' package is found in 'dependencies' section of package.json");
+            return true;
+        } else if (packageJson.devDependencies && packageJson.devDependencies.expo) {
+            this.logger.debug(
+                "'expo' package is found in 'devDependencies' section of package.json",
+            );
+            return true;
+        }
+        return false;
     }
 
-    public appHasExpoRNSDKInstalled(): Promise<boolean> {
-        return this.getAppPackageInformation().then((packageJson: IPackageInformation) => {
-            const reactNativeValue: string | undefined =
-                packageJson.dependencies && packageJson.dependencies["react-native"];
-            if (reactNativeValue) {
-                this.logger.debug(
-                    `'react-native' package with value '${reactNativeValue}' is found in 'dependencies' section of package.json`,
-                );
-                if (
-                    reactNativeValue.startsWith("https://github.com/expo/react-native/archive/sdk")
-                ) {
-                    return true;
-                }
+    public async appHasExpoRNSDKInstalled(): Promise<boolean> {
+        const packageJson = await this.getAppPackageInformation();
+        const reactNativeValue =
+            packageJson.dependencies && packageJson.dependencies["react-native"];
+        if (reactNativeValue) {
+            this.logger.debug(
+                `'react-native' package with value '${reactNativeValue}' is found in 'dependencies' section of package.json`,
+            );
+            if (reactNativeValue.startsWith("https://github.com/expo/react-native/archive/sdk")) {
+                return true;
             }
-            return false;
-        });
+        }
+        return false;
     }
 
-    public isExpoApp(showProgress: boolean = false): Promise<boolean> {
+    public async isExpoApp(showProgress: boolean = false): Promise<boolean> {
         if (showProgress) {
             this.logger.logStream("...");
         }
 
-        return Promise.all([this.appHasExpoInstalled(), this.appHasExpoRNSDKInstalled()])
-            .then(([expoInstalled, expoRNSDKInstalled]) => {
-                if (showProgress) this.logger.logStream(".");
-                return expoInstalled && expoRNSDKInstalled;
-            })
-            .catch(e => {
-                this.logger.error(e.message, e, e.stack);
-                if (showProgress) {
-                    this.logger.logStream(".");
-                }
-                // Not in a react-native project
-                return false;
-            });
+        try {
+            const [expoInstalled, expoRNSDKInstalled] = await Promise.all([
+                this.appHasExpoInstalled(),
+                this.appHasExpoRNSDKInstalled(),
+            ]);
+            if (showProgress) this.logger.logStream(".");
+            return expoInstalled && expoRNSDKInstalled;
+        } catch (e) {
+            this.logger.error(e.message, e, e.stack);
+            if (showProgress) {
+                this.logger.logStream(".");
+            }
+            return false;
+        }
     }
 
-    public findOrInstallNgrokGlobally(): Promise<void> {
-        return this.addNodeModulesPathToEnvIfNotPresent()
-            .then(() => XDL.isNgrokInstalled(this.projectRootPath))
-            .catch(() => false)
-            .then(ngrokInstalled => {
-                if (!ngrokInstalled) {
-                    const outputMessage = localize(
-                        "ExpoInstallNgrokGlobally",
-                        'It seems that "@expo/ngrok" package isn\'t installed globally. This package is required to use Expo tunnels, would you like to install it globally?',
-                    );
-                    const installButton = localize("InstallNgrokGloballyButtonOK", "Install");
-                    const cancelButton = localize("InstallNgrokGloballyButtonCancel", "Cancel");
+    public async findOrInstallNgrokGlobally(): Promise<void> {
+        let ngrokInstalled: boolean | Promise<boolean>;
+        try {
+            await this.addNodeModulesPathToEnvIfNotPresent();
+            ngrokInstalled = await XDL.isNgrokInstalled(this.projectRootPath);
+        } catch (e) {
+            ngrokInstalled = false;
+        }
+        if (!ngrokInstalled) {
+            const outputMessage = localize(
+                "ExpoInstallNgrokGlobally",
+                'It seems that "@expo/ngrok" package isn\'t installed globally. This package is required to use Expo tunnels, would you like to install it globally?',
+            );
+            const installButton = localize("InstallNgrokGloballyButtonOK", "Install");
+            const cancelButton = localize("InstallNgrokGloballyButtonCancel", "Cancel");
 
-                    return vscode.window
-                        .showWarningMessage(outputMessage, installButton, cancelButton)
-                        .then(selectedItem => {
-                            if (selectedItem === installButton) {
-                                return PackageLoader.getInstance()
-                                    .installGlobalPackage(NGROK_PACKAGE, this.projectRootPath)
-                                    .then(() => {
-                                        this.logger.info(
-                                            localize(
-                                                "NgrokInstalledGlobally",
-                                                '"@expo/ngrok" package has been successfully installed globally.',
-                                            ),
-                                        );
-                                    });
-                            }
-                            throw ErrorHelper.getInternalError(
-                                InternalErrorCode.NgrokIsNotInstalledGlobally,
-                            );
-                        });
-                }
-                return void 0;
-            });
+            const selectedItem = await vscode.window.showWarningMessage(
+                outputMessage,
+                installButton,
+                cancelButton,
+            );
+            if (selectedItem === installButton) {
+                await PackageLoader.getInstance().installGlobalPackage(
+                    NGROK_PACKAGE,
+                    this.projectRootPath,
+                );
+                this.logger.info(
+                    localize(
+                        "NgrokInstalledGlobally",
+                        '"@expo/ngrok" package has been successfully installed globally.',
+                    ),
+                );
+            } else {
+                throw ErrorHelper.getInternalError(InternalErrorCode.NgrokIsNotInstalledGlobally);
+            }
+        }
     }
 
     public removeNodeModulesPathFromEnvIfWasSet(): void {
@@ -247,20 +225,16 @@ export class ExponentHelper {
         }
     }
 
-    public addNodeModulesPathToEnvIfNotPresent(): Promise<void> {
+    public async addNodeModulesPathToEnvIfNotPresent(): Promise<void> {
         if (!process.env["NODE_MODULES"]) {
-            return getNodeModulesGlobalPath().then(nodeModulesGlobalPath => {
-                process.env["NODE_MODULES"] = nodeModulesGlobalPath;
-                this.nodeModulesGlobalPathAddedToEnv = true;
-            });
+            process.env["NODE_MODULES"] = await getNodeModulesGlobalPath();
+            this.nodeModulesGlobalPathAddedToEnv = true;
         }
-        return Promise.resolve();
     }
 
     private async getArgumentsFromExpoMetroConfig(projectRoot: string): Promise<ExpMetroConfig> {
-        return XDL.getMetroConfig(projectRoot).then(config => {
-            return { sourceExts: config.resolver.sourceExts };
-        });
+        const config = await XDL.getMetroConfig(projectRoot);
+        return { sourceExts: config.resolver.sourceExts };
     }
 
     /**
@@ -274,31 +248,25 @@ export class ExponentHelper {
         return path.join(...paths);
     }
 
-    private createExpoEntry(name: string): Promise<void> {
-        return this.lazilyInitialize()
-            .then(() => this.detectEntry())
-            .then((entryPoint: string) => {
-                const content = this.generateFileContent(name, entryPoint);
-                return this.fs.writeFile(this.dotvscodePath(EXPONENT_INDEX, true), content);
-            });
+    private async createExpoEntry(name: string): Promise<void> {
+        await this.lazilyInitialize();
+        const entryPoint = await this.detectEntry();
+        const content = this.generateFileContent(name, entryPoint);
+        return await this.fs.writeFile(this.dotvscodePath(EXPONENT_INDEX, true), content);
     }
 
-    private detectEntry(): Promise<string> {
-        return this.lazilyInitialize()
-            .then(() =>
-                Promise.all([
-                    this.fs.exists(this.pathToFileInWorkspace(DEFAULT_EXPONENT_INDEX)),
-                    this.fs.exists(this.pathToFileInWorkspace(DEFAULT_IOS_INDEX)),
-                    this.fs.exists(this.pathToFileInWorkspace(DEFAULT_ANDROID_INDEX)),
-                ]),
-            )
-            .then(([expo, ios]) => {
-                return expo
-                    ? this.pathToFileInWorkspace(DEFAULT_EXPONENT_INDEX)
-                    : ios
-                    ? this.pathToFileInWorkspace(DEFAULT_IOS_INDEX)
-                    : this.pathToFileInWorkspace(DEFAULT_ANDROID_INDEX);
-            });
+    private async detectEntry(): Promise<string> {
+        await this.lazilyInitialize();
+        const [expo, ios] = await Promise.all([
+            this.fs.exists(this.pathToFileInWorkspace(DEFAULT_EXPONENT_INDEX)),
+            this.fs.exists(this.pathToFileInWorkspace(DEFAULT_IOS_INDEX)),
+            this.fs.exists(this.pathToFileInWorkspace(DEFAULT_ANDROID_INDEX)),
+        ]);
+        return expo
+            ? this.pathToFileInWorkspace(DEFAULT_EXPONENT_INDEX)
+            : ios
+            ? this.pathToFileInWorkspace(DEFAULT_IOS_INDEX)
+            : this.pathToFileInWorkspace(DEFAULT_ANDROID_INDEX);
     }
 
     private generateFileContent(name: string, entryPoint: string): string {
@@ -314,130 +282,103 @@ AppRegistry.registerRunnable('main', function(appParameters) {
 var entryPoint = require('${entryPoint}');`;
     }
 
-    private patchAppJson(isExpo: boolean = true): Promise<void> {
-        return this.readAppJson()
-            .catch(() => {
-                // if app.json doesn't exist but it's ok, we will create it
-                return {};
-            })
-            .then((config: AppJson) => {
-                let expoConfig = <ExpConfig>(config.expo || {});
-                if (!expoConfig.name || !expoConfig.slug) {
-                    return this.getPackageName().then((name: string) => {
-                        expoConfig.slug = expoConfig.slug || config.name || name.replace(" ", "-");
-                        expoConfig.name = expoConfig.name || config.name || name;
-                        config.expo = expoConfig;
-                        return config;
-                    });
-                }
+    private async patchAppJson(isExpo: boolean = true): Promise<void> {
+        let appJson: any;
+        try {
+            appJson = await this.readAppJson();
+        } catch {
+            appJson = {};
+        }
+        const packageName = await this.getPackageName();
 
-                return config;
-            })
-            .then((config: AppJson) => {
-                if (!config.name) {
-                    return this.getPackageName().then((name: string) => {
-                        config.name = name;
-                        return config;
-                    });
-                }
+        const expoConfig = <ExpConfig>(appJson.expo || {});
+        if (!expoConfig.name || !expoConfig.slug) {
+            expoConfig.slug = expoConfig.slug || appJson.name || packageName.replace(" ", "-");
+            expoConfig.name = expoConfig.name || appJson.name || packageName;
+            appJson.expo = expoConfig;
+        }
 
-                return config;
-            })
-            .then((config: AppJson) => {
-                if (!config.expo.sdkVersion) {
-                    return this.exponentSdk(true).then(sdkVersion => {
-                        config.expo.sdkVersion = sdkVersion;
-                        return config;
-                    });
-                }
+        if (!appJson.name) {
+            appJson.name = packageName;
+        }
 
-                return config;
-            })
-            .then((config: AppJson) => {
-                if (!isExpo) {
-                    // entryPoint must be relative
-                    // https://docs.expo.io/versions/latest/workflow/configuration/#entrypoint
-                    config.expo.entryPoint = this.dotvscodePath(EXPONENT_INDEX, false);
-                }
+        if (!appJson.expo.sdkVersion) {
+            const sdkVersion = await this.exponentSdk(true);
+            appJson.expo.sdkVersion = sdkVersion;
+        }
 
-                return config;
-            })
-            .then((config: AppJson) => {
-                return config ? this.writeAppJson(config) : config;
-            })
-            .then((config: AppJson) => {
-                return isExpo ? Promise.resolve() : this.createExpoEntry(config.expo.name);
-            });
+        if (!isExpo) {
+            // entryPoint must be relative
+            // https://docs.expo.io/versions/latest/workflow/configuration/#entrypoint
+            appJson.expo.entryPoint = this.dotvscodePath(EXPONENT_INDEX, false);
+        }
+
+        appJson = appJson ? await this.writeAppJson(appJson) : appJson;
+
+        if (!isExpo) {
+            await this.createExpoEntry(appJson.expo.name);
+        }
     }
 
     /**
      * Exponent sdk version that maps to the current react-native version
      * If react native version is not supported it returns null.
      */
-    private exponentSdk(showProgress: boolean = false): Promise<string> {
+    private async exponentSdk(showProgress: boolean = false): Promise<string> {
         if (showProgress) {
             this.logger.logStream("...");
         }
 
-        return ProjectVersionHelper.getReactNativeVersions(this.projectRootPath).then(versions => {
-            if (showProgress) this.logger.logStream(".");
-            return this.mapFacebookReactNativeVersionToExpoVersion(
-                versions.reactNativeVersion,
-            ).then(sdkVersion => {
-                if (!sdkVersion) {
-                    return this.getFacebookReactNativeVersions().then(versions => {
-                        return Promise.reject<string>(
-                            ErrorHelper.getInternalError(
-                                InternalErrorCode.RNVersionNotSupportedByExponent,
-                                versions.join(", "),
-                            ),
-                        );
-                    });
-                }
-                return sdkVersion;
-            });
-        });
-    }
-
-    private getFacebookReactNativeVersions(): Promise<string[]> {
-        return XDL.getExpoSdkVersions().then(sdkVersions => {
-            const facebookReactNativeVersions = new Set(
-                Object.values(sdkVersions)
-                    .map(data => data.facebookReactNativeVersion)
-                    .filter(version => version),
+        const versions = await ProjectVersionHelper.getReactNativeVersions(this.projectRootPath);
+        if (showProgress) {
+            this.logger.logStream(".");
+        }
+        const sdkVersion = await this.mapFacebookReactNativeVersionToExpoVersion(
+            versions.reactNativeVersion,
+        );
+        if (!sdkVersion) {
+            const supportedVersions = await this.getFacebookReactNativeVersions();
+            throw ErrorHelper.getInternalError(
+                InternalErrorCode.RNVersionNotSupportedByExponent,
+                supportedVersions.join(", "),
             );
-            return Array.from(facebookReactNativeVersions);
-        });
+        }
+        return sdkVersion;
     }
 
-    private mapFacebookReactNativeVersionToExpoVersion(
+    private async getFacebookReactNativeVersions(): Promise<string[]> {
+        const sdkVersions = await XDL.getExpoSdkVersions();
+        const facebookReactNativeVersions = new Set(
+            Object.values(sdkVersions)
+                .map(data => data.facebookReactNativeVersion)
+                .filter(version => version),
+        );
+        return Array.from(facebookReactNativeVersions);
+    }
+
+    private async mapFacebookReactNativeVersionToExpoVersion(
         outerFacebookReactNativeVersion: string,
     ): Promise<string | null> {
         if (!semver.valid(outerFacebookReactNativeVersion)) {
-            return Promise.reject(
-                new Error(
-                    `${outerFacebookReactNativeVersion} is not a valid version. It must be in the form of x.y.z`,
-                ),
+            throw new Error(
+                `${outerFacebookReactNativeVersion} is not a valid version. It must be in the form of x.y.z`,
             );
         }
 
-        return XDL.getReleasedExpoSdkVersions().then(sdkVersions => {
-            let currentSdkVersion: string | null = null;
-
-            for (const [version, { facebookReactNativeVersion }] of Object.entries(sdkVersions)) {
-                if (
-                    semver.major(outerFacebookReactNativeVersion) ===
-                        semver.major(facebookReactNativeVersion) &&
-                    semver.minor(outerFacebookReactNativeVersion) ===
-                        semver.minor(facebookReactNativeVersion) &&
-                    (!currentSdkVersion || semver.gt(version, currentSdkVersion))
-                ) {
-                    currentSdkVersion = version;
-                }
+        const sdkVersions = await XDL.getReleasedExpoSdkVersions();
+        let currentSdkVersion: string | null = null;
+        for (const [version, { facebookReactNativeVersion }] of Object.entries(sdkVersions)) {
+            if (
+                semver.major(outerFacebookReactNativeVersion) ===
+                    semver.major(facebookReactNativeVersion) &&
+                semver.minor(outerFacebookReactNativeVersion) ===
+                    semver.minor(facebookReactNativeVersion) &&
+                (!currentSdkVersion || semver.gt(version, currentSdkVersion))
+            ) {
+                currentSdkVersion = version;
             }
-
-            return currentSdkVersion;
-        });
+        }
+        return currentSdkVersion;
     }
 
     /**
@@ -447,42 +388,42 @@ var entryPoint = require('${entryPoint}');`;
         return new Package(this.projectRootPath, { fileSystem: this.fs }).name();
     }
 
-    private getExpConfig(): Promise<ExpConfig> {
-        return this.readExpJson().catch(err => {
+    private async getExpConfig(): Promise<ExpConfig> {
+        try {
+            return this.readExpJson();
+        } catch (err) {
             if (err.code === "ENOENT") {
-                return this.readAppJson().then((config: AppJson) => {
-                    return config.expo || {};
-                });
+                const appJson = await this.readAppJson();
+                return appJson.expo || {};
             }
-
-            return err;
-        });
+            throw err;
+        }
     }
 
-    private getFromExpConfig<T>(key: string): Promise<T> {
-        return this.getExpConfig().then((config: ExpConfig) => config[key]);
+    private async getFromExpConfig<T>(key: string): Promise<T> {
+        const config = await this.getExpConfig();
+        return config[key];
     }
 
     /**
      * Returns the specified setting from exp.json if it exists
      */
-    private readExpJson(): Promise<ExpConfig> {
+    private async readExpJson(): Promise<ExpConfig> {
         const expJsonPath = this.pathToFileInWorkspace(EXP_JSON);
-        return this.fs.readFile(expJsonPath).then(content => {
-            return JSON.parse(stripJSONComments(content.toString()));
-        });
+        const content = await this.fs.readFile(expJsonPath);
+        return JSON.parse(stripJSONComments(content.toString()));
     }
 
-    private readAppJson(): Promise<AppJson> {
+    private async readAppJson(): Promise<AppJson> {
         const appJsonPath = this.pathToFileInWorkspace(APP_JSON);
-        return this.fs.readFile(appJsonPath).then(content => {
-            return JSON.parse(stripJSONComments(content.toString()));
-        });
+        const content = await this.fs.readFile(appJsonPath);
+        return JSON.parse(stripJSONComments(content.toString()));
     }
 
-    private writeAppJson(config: AppJson): Promise<AppJson> {
+    private async writeAppJson(config: AppJson): Promise<AppJson> {
         const appJsonPath = this.pathToFileInWorkspace(APP_JSON);
-        return this.fs.writeFile(appJsonPath, JSON.stringify(config, null, 2)).then(() => config);
+        await this.fs.writeFile(appJsonPath, JSON.stringify(config, null, 2));
+        return config;
     }
 
     private getAppPackageInformation(): Promise<IPackageInformation> {

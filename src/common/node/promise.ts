@@ -96,24 +96,21 @@ export class PromiseUtil {
             return result;
         }
 
-                    if (
-                        iteration < maxRetries &&
-                        !(
-                            cancellationTokenSource &&
-                            cancellationTokenSource.token.isCancellationRequested
-                        )
-                    ) {
-                        await PromiseUtil.delay(delay);
-                        return this.retryAsyncIteration(
-                            operation,
-                            condition,
-                            maxRetries,
-                            iteration + 1,
-                            delay,
-                            failure,
-                            cancellationTokenSource
-                        );
-                    }
+        if (
+            iteration < maxRetries &&
+            !(cancellationTokenSource && cancellationTokenSource.token.isCancellationRequested)
+        ) {
+            await PromiseUtil.delay(delay);
+            return this.retryAsyncIteration(
+                operation,
+                condition,
+                maxRetries,
+                iteration + 1,
+                delay,
+                failure,
+                cancellationTokenSource,
+            );
+        }
 
         throw new Error(failure);
     }
