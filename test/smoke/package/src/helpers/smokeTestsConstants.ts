@@ -31,7 +31,7 @@ export class SmokeTestsConstants {
     // Timeout for macOS smoke test
     public static macOSTestTimeout = 500 * 1000;
     // Timeout for Windows smoke test
-    public static windowsTestTimeout = 700 * 1000;
+    public static windowsTestTimeout = 800 * 1000;
     // Timeout for Expo testing
     public static expoTestTimeout = 700 * 1000;
     // Timeout for iOS testing
@@ -56,8 +56,6 @@ export class SmokeTestsConstants {
     public static waitForElementTimeout = 30 * 1000;
     // Timeout for Expo app to launch
     public static expoAppLaunchTimeout = 120 * 1000;
-    // Timeout for Windows smoke test
-    public static windowsTestTime = 800 * 1000;
     // Timeout before search string in debug console
     public static debugConsoleSearchTimeout = 0.5 * 1000;
     // Timeout for "afterEach" function called after each test in a block
