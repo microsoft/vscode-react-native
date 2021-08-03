@@ -78,6 +78,10 @@ export class TestApplicationSetupManager {
         return this.windowsTestProject;
     }
 
+    public getWindowsRnHermesProject(): TestProject {
+        return this.windowsHermesTestProject;
+    }
+
     public getRnProject(): TestProject {
         return this.rnTestProject;
     }

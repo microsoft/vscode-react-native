@@ -69,7 +69,11 @@ export function startSmokeTests(
             testApplicationSetupManager.getMacOSRnHermesProject(),
             args,
         );
-        startDebugRNWTests(testApplicationSetupManager.getWindowsRnProject(), args);
+        startDebugRNWTests(
+            testApplicationSetupManager.getWindowsRnProject(),
+            testApplicationSetupManager.getWindowsRnHermesProject(),
+            args,
+        );
         startNetworkInspectorTests(testApplicationSetupManager.getHermesProject(), args);
         startOtherTests(testApplicationSetupManager.getRnProject(), args);
     });
