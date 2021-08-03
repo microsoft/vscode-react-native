@@ -49,9 +49,16 @@ export function startDebugRNWTests(
                 SmokeTestLogger.info("Stopping application ...");
                 await app.stop();
             }
+            terminateWindowsApp(currentWindowsAppName);
         }
 
         afterEach(disposeAll);
+
+        function terminateWindowsApp(appName: string): void {
+            SmokeTestLogger.info(`*** Terminating ${appName} Windows application`);
+            const terminateWindowsAppCommand = `taskkill/im ${appName}.exe /t /f`;
+            cp.execSync(terminateWindowsAppCommand);
+        }
 
         async function stopPackager() {
             if (app) {
