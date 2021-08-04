@@ -41,7 +41,7 @@ class RunAsError extends Error {
  * @format
  */
 
- export function push(
+export function push(
     adbHelper: AdbHelper,
     deviceId: string,
     app: string,
@@ -127,7 +127,7 @@ async function _pushFile(
  * @format
  */
 
- function validateAppName(app: string): Promise<string> {
+function validateAppName(app: string): Promise<string> {
     if (app.match(allowedAppNameRegex)) {
         return Promise.resolve(app);
     }

@@ -36,24 +36,25 @@ export function getFormattedDatetimeString(date: Date): string {
     return `${getFormattedDateString(date)} ${getFormattedTimeString(date)}`;
 }
 
-export function waitUntil(
-    condition: () => Promise<boolean> | boolean,
+export function waitUntil<T>(
+    condition: () => Promise<T | undefined> | T | undefined,
     interval: number = 1000,
     timeout?: number,
-): Promise<boolean> {
+): Promise<T | undefined> {
     return new Promise(resolve => {
         let rejectTimeout: NodeJS.Timeout | undefined;
         if (timeout) {
             rejectTimeout = setTimeout(() => {
                 cleanup();
-                resolve(false);
+                resolve(undefined);
             }, timeout);
         }
 
         const сheckInterval = setInterval(async () => {
-            if (await condition()) {
+            const result = await condition();
+            if (result) {
                 cleanup();
-                resolve(true);
+                resolve(result);
             }
         }, interval);
 
