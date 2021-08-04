@@ -41,7 +41,7 @@ class RunAsError extends Error {
  * @format
  */
 
-export async function push(
+ export function push(
     adbHelper: AdbHelper,
     deviceId: string,
     app: string,
@@ -49,22 +49,27 @@ export async function push(
     contents: string,
     logger?: OutputChannelLogger,
 ): Promise<void> {
-    const validApp = await validateAppName(app);
-    const validFilepath = await validateFilePath(filepath);
-    const validContent = await validateFileContent(contents);
-    return await _push(adbHelper, deviceId, validApp, validFilepath, validContent, logger);
+    return validateAppName(app).then(validApp =>
+        validateFilePath(filepath).then(validFilepath =>
+            validateFileContent(contents).then(validContent =>
+                _push(adbHelper, deviceId, validApp, validFilepath, validContent, logger),
+            ),
+        ),
+    );
 }
 
-export async function pull(
+export function pull(
     adbHelper: AdbHelper,
     deviceId: string,
     app: string,
     path: string,
     logger?: OutputChannelLogger,
 ): Promise<string> {
-    const validApp = await validateAppName(app);
-    const validPath = await validateFilePath(path);
-    return await _pull(adbHelper, deviceId, validApp, validPath, logger);
+    return validateAppName(app).then(validApp =>
+        validateFilePath(path).then(validPath =>
+            _pull(adbHelper, deviceId, validApp, validPath, logger),
+        ),
+    );
 }
 
 /**
@@ -122,28 +127,28 @@ async function _pushFile(
  * @format
  */
 
-async function validateAppName(app: string): Promise<string> {
+ function validateAppName(app: string): Promise<string> {
     if (app.match(allowedAppNameRegex)) {
-        return app;
+        return Promise.resolve(app);
     }
-    throw new Error(`Disallowed run-as user: ${app}`);
+    return Promise.reject(new Error(`Disallowed run-as user: ${app}`));
 }
 
-async function validateFilePath(filePath: string): Promise<string> {
+function validateFilePath(filePath: string): Promise<string> {
     if (!filePath.match(/[']/)) {
-        return filePath;
+        return Promise.resolve(filePath);
     }
-    throw new Error(`Disallowed escaping filepath: ${filePath}`);
+    return Promise.reject(new Error(`Disallowed escaping filepath: ${filePath}`));
 }
 
-async function validateFileContent(content: string): Promise<string> {
+function validateFileContent(content: string): Promise<string> {
     if (!content.match(/["]/)) {
-        return content;
+        return Promise.resolve(content);
     }
-    throw new Error(`Disallowed escaping file content: ${content}`);
+    return Promise.reject(new Error(`Disallowed escaping file content: ${content}`));
 }
 
-async function _push(
+function _push(
     adbHelper: AdbHelper,
     deviceId: string,
     app: string,
@@ -152,25 +157,25 @@ async function _push(
     logger?: OutputChannelLogger,
 ): Promise<void> {
     const command = `echo \\"${contents}\\" > "${filename}" && chmod 644 "${filename}"`;
-    try {
-        const res = await executeCommandAsApp(adbHelper, deviceId, app, command);
-        logger?.debug(res);
-    } catch (error) {
-        if (error instanceof RunAsError) {
-            // Fall back to running the command directly. This will work if adb is running as root.
-            try {
-                await executeCommandWithSu(adbHelper, deviceId, app, command);
-            } catch (innerError) {
-                logger?.debug(innerError.toString());
-                // Throw the original error.
-                throw error;
+    return executeCommandAsApp(adbHelper, deviceId, app, command)
+        .then(res => {
+            logger?.debug(res);
+        })
+        .catch(error => {
+            if (error instanceof RunAsError) {
+                // Fall back to running the command directly. This will work if adb is running as root.
+                return executeCommandWithSu(adbHelper, deviceId, app, command)
+                    .then(() => undefined)
+                    .catch(e => {
+                        logger?.debug(e.toString());
+                        throw error;
+                    });
             }
-        }
-        throw error;
-    }
+            throw error;
+        });
 }
 
-async function _pull(
+function _pull(
     adbHelper: AdbHelper,
     deviceId: string,
     app: string,
@@ -178,21 +183,17 @@ async function _pull(
     logger?: OutputChannelLogger,
 ): Promise<string> {
     const command = `cat "${path}"`;
-    try {
-        return executeCommandAsApp(adbHelper, deviceId, app, command);
-    } catch (error) {
+    return executeCommandAsApp(adbHelper, deviceId, app, command).catch(error => {
         if (error instanceof RunAsError) {
             // Fall back to running the command directly. This will work if adb is running as root.
-            try {
-                await executeCommandWithSu(adbHelper, deviceId, app, command);
-            } catch (innerError) {
-                logger?.debug(innerError.toString());
+            return executeCommandWithSu(adbHelper, deviceId, app, command).catch(e => {
                 // Throw the original error.
+                logger?.debug(e.toString());
                 throw error;
-            }
+            });
         }
         throw error;
-    }
+    });
 }
 
 // Keep this method private since it relies on pre-validated arguments
@@ -214,32 +215,33 @@ function executeCommandWithSu(
     return _executeCommandWithRunner(adbHelper, deviceId, app, command, "su");
 }
 
-async function _executeCommandWithRunner(
+function _executeCommandWithRunner(
     adbHelper: AdbHelper,
     deviceId: string,
     app: string,
     command: string,
     runner: string,
 ): Promise<string> {
-    const output = await adbHelper.executeShellCommand(deviceId, `echo '${command}' | ${runner}`);
-    if (output.match(appNotApplicationRegex)) {
-        throw new RunAsError(
-            RunAsErrorCode.NotAnApp,
-            `Android package ${app} is not an application. To use it with Flipper, either run adb as root or add an <application> tag to AndroidManifest.xml`,
-        );
-    }
-    if (output.match(appNotDebuggableRegex)) {
-        throw new RunAsError(
-            RunAsErrorCode.NotDebuggable,
-            `Android app ${app} is not debuggable. To use it with Flipper, add android:debuggable="true" to the application section of AndroidManifest.xml`,
-        );
-    }
-    if (output.toLowerCase().match(operationNotPermittedRegex)) {
-        throw new Error(
-            `Your android device (${deviceId}) does not support the adb shell run-as command. We're tracking this at https://github.com/facebook/flipper/issues/92`,
-        );
-    }
-    return output;
+    return adbHelper.executeShellCommand(deviceId, `echo '${command}' | ${runner}`).then(output => {
+        if (output.match(appNotApplicationRegex)) {
+            throw new RunAsError(
+                RunAsErrorCode.NotAnApp,
+                `Android package ${app} is not an application. To use it with Flipper, either run adb as root or add an <application> tag to AndroidManifest.xml`,
+            );
+        }
+        if (output.match(appNotDebuggableRegex)) {
+            throw new RunAsError(
+                RunAsErrorCode.NotDebuggable,
+                `Android app ${app} is not debuggable. To use it with Flipper, add android:debuggable="true" to the application section of AndroidManifest.xml`,
+            );
+        }
+        if (output.toLowerCase().match(operationNotPermittedRegex)) {
+            throw new Error(
+                `Your android device (${deviceId}) does not support the adb shell run-as command. We're tracking this at https://github.com/facebook/flipper/issues/92`,
+            );
+        }
+        return output;
+    });
 }
 
 /**
