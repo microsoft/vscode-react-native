@@ -140,7 +140,7 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
      * End region: https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/dispatcher/iOSDevice.tsx#L63-L79
      */
 
-    private getRunningSimulators(): Promise<IiOSSimulator[]> {
+    private async getRunningSimulators(): Promise<IiOSSimulator[]> {
         return this.iOSSimulatorManager.collectSimulators("booted");
     }
 
@@ -155,11 +155,13 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
      *
      * @format
      */
-    private getActiveDevices(): Promise<Array<DeviceTarget>> {
-        return iosUtil.targets().catch(e => {
+    private async getActiveDevices(): Promise<Array<DeviceTarget>> {
+        try {
+            return await iosUtil.targets();
+        } catch (e) {
             this.logger.error(e.message);
             return [];
-        });
+        }
     }
 
     /**
@@ -178,12 +180,14 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
      *
      * @format
      */
-    private isXcodeDetected(): Promise<boolean> {
+    private async isXcodeDetected(): Promise<boolean> {
         const cp = new ChildProcessUtils();
-        return cp
-            .execToString("xcode-select -p")
-            .then(() => true)
-            .catch(() => false);
+        try {
+            await cp.execToString("xcode-select -p");
+            return true;
+        } catch (e) {
+            return false;
+        }
     }
 
     /**

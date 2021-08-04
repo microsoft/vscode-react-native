@@ -41,14 +41,16 @@ export interface DeviceTarget extends IVirtualDevice {
 
 const isIdbAvailable = PromiseUtil.promiseCacheDecorator<boolean>(isAvailable);
 
-function isAvailable(): Promise<boolean> {
+async function isAvailable(): Promise<boolean> {
     if (!idbPath) {
-        return Promise.resolve(false);
+        return false;
     }
-    return promises
-        .access(idbPath, constants.X_OK)
-        .then(() => true)
-        .catch(() => false);
+    try {
+        await promises.access(idbPath, constants.X_OK);
+        return true;
+    } catch (e) {
+        return false;
+    }
 }
 
 async function targets(): Promise<Array<DeviceTarget>> {
@@ -62,46 +64,44 @@ async function targets(): Promise<Array<DeviceTarget>> {
     // But idb is MUCH more CPU efficient than instruments, so
     // when installed, use it.
     if (await isIdbAvailable()) {
-        return cp.execToString(`${idbPath} list-targets --json`).then(stdout =>
-            // It is safe to assume this to be non-null as it only turns null
-            // if the output redirection is misconfigured:
-            // https://stackoverflow.com/questions/27786228/node-child-process-spawn-stdout-returning-as-null
-            stdout!
-                .trim()
-                .split("\n")
-                .map(line => line.trim())
-                .filter(Boolean)
-                .map(line => JSON.parse(line))
-                .filter(({ type }: IdbTarget) => type !== "simulator")
-                .map((target: IdbTarget) => {
-                    return {
-                        id: target.udid,
-                        type: "device",
-                        name: target.name,
-                        state: target.state,
-                    };
-                }),
-        );
+        const stdout = await cp.execToString(`${idbPath} list-targets --json`);
+        // It is safe to assume this to be non-null as it only turns null
+        // if the output redirection is misconfigured:
+        // https://stackoverflow.com/questions/27786228/node-child-process-spawn-stdout-returning-as-null
+        return stdout
+            .trim()
+            .split("\n")
+            .map(line => line.trim())
+            .filter(Boolean)
+            .map(line => JSON.parse(line))
+            .filter(({ type }: IdbTarget) => type !== "simulator")
+            .map((target: IdbTarget) => {
+                return {
+                    id: target.udid,
+                    type: "device",
+                    name: target.name,
+                    state: target.state,
+                };
+            });
     } else {
         await cp.killOrphanedInstrumentsProcesses();
-        return cp.execToString("instruments -s devices").then(stdout =>
-            stdout!
-                .toString()
-                .split("\n")
-                .map(line => line.trim())
-                .filter(Boolean)
-                .map(line => /(.+) \([^(]+\) \[(.*)\]( \(Simulator\))?/.exec(line))
-                .filter(notNullOrUndefined)
-                .filter(([_match, _name, _udid, isSim]) => !isSim)
-                .map(([_match, name, udid]) => {
-                    return {
-                        id: udid,
-                        type: "device",
-                        name,
-                        state: "active",
-                    };
-                }),
-        );
+        const stdout = await cp.execToString("instruments -s devices");
+        return stdout
+            .toString()
+            .split("\n")
+            .map(line => line.trim())
+            .filter(Boolean)
+            .map(line => /(.+) \([^(]+\) \[(.*)\]( \(Simulator\))?/.exec(line))
+            .filter(notNullOrUndefined)
+            .filter(([_match, _name, _udid, isSim]) => !isSim)
+            .map(([_match, name, udid]) => {
+                return {
+                    id: udid,
+                    type: "device",
+                    name,
+                    state: "active",
+                };
+            });
     }
 }
 
@@ -114,7 +114,7 @@ async function push(
 ): Promise<void> {
     const cp = new ChildProcess();
     await checkIdbIsInstalled();
-    return wrapWithErrorMessage(
+    return await wrapWithErrorMessage(
         cp
             .execToString(
                 `${idbPath} --log ${idbLogLevel} file push --udid ${udid} --bundle-id ${bundleId} '${src}' '${dst}'`,
@@ -136,7 +136,7 @@ async function pull(
 ): Promise<void> {
     const cp = new ChildProcess();
     await checkIdbIsInstalled();
-    return wrapWithErrorMessage(
+    return await wrapWithErrorMessage(
         cp
             .execToString(
                 `${idbPath} --log ${idbLogLevel} file pull --udid ${udid} --bundle-id ${bundleId} '${src}' '${dst}'`,
@@ -169,14 +169,16 @@ function handleMissingIdb(e: Error): void {
     throw e;
 }
 
-function wrapWithErrorMessage<T>(p: Promise<T>, logger?: OutputChannelLogger): Promise<T> {
-    return p.catch((e: Error) => {
+async function wrapWithErrorMessage<T>(p: Promise<T>, logger?: OutputChannelLogger): Promise<T> {
+    try {
+        return await p;
+    } catch (e) {
         logger?.error(e.message);
         // Give the user instructions. Don't embed the error because it's unique per invocation so won't be deduped.
         throw new Error(
             "A problem with idb has ocurred. Please run `sudo rm -rf /tmp/idb*` and `sudo yum install -y fb-idb` to update it, if that doesn't fix it, post in https://github.com/microsoft/vscode-react-native.",
         );
-    });
+    }
 }
 
 export default {
