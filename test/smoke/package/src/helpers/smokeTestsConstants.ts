@@ -31,7 +31,7 @@ export class SmokeTestsConstants {
     // Timeout for macOS smoke test
     public static macOSTestTimeout = 500 * 1000;
     // Timeout for Windows smoke test
-    public static windowsTestTimeout = 700 * 1000;
+    public static windowsTestTimeout = 800 * 1000;
     // Timeout for Expo testing
     public static expoTestTimeout = 700 * 1000;
     // Timeout for iOS testing
@@ -56,8 +56,6 @@ export class SmokeTestsConstants {
     public static waitForElementTimeout = 30 * 1000;
     // Timeout for Expo app to launch
     public static expoAppLaunchTimeout = 120 * 1000;
-    // Timeout for Windows smoke test
-    public static windowsTestTime = 800 * 1000;
     // Timeout before search string in debug console
     public static debugConsoleSearchTimeout = 0.5 * 1000;
     // Timeout for "afterEach" function called after each test in a block
@@ -72,24 +70,28 @@ export class SmokeTestsConstants {
     public static pureRNExpoAppName = "pureRNExpoApp";
     // Default React Native for Windows test app name
     public static RNWAppName = "RNWApp";
+    // Default React Native for Windows Hermes test app name
+    public static RNWHermesAppName = "RNWHermesApp";
     // Default React Native macOS app name
     public static RNmacOSAppName = "latestRNmacOSApp";
     // Default React Native macOS Hermes app name
     public static RNmacOSHermesAppName = "latestRNmacOSHermesApp";
 
-    // Default React Native app name
+    // Default React Native sample app name
     public static sampleRNAppName = "ReactNativeSample";
-    // Default React Native Hermes app name
+    // Default React Native Hermes sample app name
     public static sampleHermesAppName = "HermesReactNativeSample";
-    // Default Expo app name
+    // Default Expo sample app name
     public static sampleExpoAppName = "ExpoSample";
-    // Default pure React Native for Expo test app name
+    // Default pure React Native for Expo test sample app name
     public static samplePureRNExpoAppName = "PureRNExpoSample";
-    // Default React Native for Windows test app name
+    // Default React Native for Windows test sample app name
     public static sampleRNWAppName = "RNWSample";
-    // Default React Native macOS app name
+    // Default React Native for Windows Hermes test sample app name
+    public static sampleRNWHermesAppName = "RNWHermesSample";
+    // Default React Native macOS sample app name
     public static sampleRNmacOSAppName = "MacOSReactNativeSample";
-    // Default React Native macOS Hermes app name
+    // Default React Native macOS Hermes sample app name
     public static sampleRNmacOSHermesAppName = "MacOSHermesReactNativeSample";
 
     // Name of artifacts (test logs) directory
