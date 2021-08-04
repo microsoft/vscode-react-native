@@ -259,8 +259,10 @@ export class TipNotificationService implements vscode.Disposable {
         } else {
             generalTipsForRandom = generalTipsKeys.sort((tipId1, tipId2) => {
                 return (
-                    (generalTips[tipId2].shownDate ?? new Date()).getTime() -
-                    (generalTips[tipId1].shownDate ?? new Date()).getTime()
+                    // According to ECMAScript standard: The exact moment of midnight at the beginning of
+                    // 01 January, 1970 UTC is represented by the value +0.
+                    (generalTips[tipId2].shownDate ?? new Date(+0)).getTime() -
+                    (generalTips[tipId1].shownDate ?? new Date(+0)).getTime()
                 );
             });
         }
