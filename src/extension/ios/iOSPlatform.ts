@@ -122,21 +122,12 @@ export class IOSPlatform extends GeneralMobilePlatform {
 
     public async resolveVirtualDevice(target: string): Promise<IiOSSimulator | null> {
         if (target === "simulator") {
-            const simulatorName = await this.simulatorManager
-                .startSelection();
+            const simulatorName = await this.simulatorManager.startSelection();
             if (simulatorName) {
                 const simulator = this.simulatorManager.findSimulator(simulatorName);
                 if (simulator) {
-                    GeneralMobilePlatform.removeRunArgument(
-                        this.runArguments,
-                        "--simulator",
-                        true
-                    );
-                    GeneralMobilePlatform.setRunArgument(
-                        this.runArguments,
-                        "--udid",
-                        simulator.id
-                    );
+                    GeneralMobilePlatform.removeRunArgument(this.runArguments, "--simulator", true);
+                    GeneralMobilePlatform.setRunArgument(this.runArguments, "--udid", simulator.id);
                 }
                 return simulator;
             } else {
@@ -146,11 +137,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
             const simulators = await this.simulatorManager.collectSimulators();
             let simulator = this.simulatorManager.getSimulatorById(target, simulators);
             if (simulator) {
-                GeneralMobilePlatform.removeRunArgument(
-                    this.runArguments,
-                    "--simulator",
-                    false
-                );
+                GeneralMobilePlatform.removeRunArgument(this.runArguments, "--simulator", false);
                 GeneralMobilePlatform.setRunArgument(this.runArguments, "--udid", simulator.id);
             }
             return null;
@@ -227,7 +214,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
         const [debugModeEnabled, bundleId] = await Promise.all<boolean | string>([
             this.iosDebugModeManager.getAppRemoteDebuggingSetting(
                 this.runOptions.configuration,
-                this.runOptions.productName
+                this.runOptions.productName,
             ),
             this.getBundleId(),
         ]);
@@ -239,18 +226,15 @@ export class IOSPlatform extends GeneralMobilePlatform {
         // but that file is written to by the app on occasion. To avoid races, we shut the app
         // down before writing to the file.
         const childProcess = new ChildProcess();
-        const output = await childProcess
-            .execToString("xcrun simctl spawn booted launchctl list");
+        const output = await childProcess.execToString("xcrun simctl spawn booted launchctl list");
         // Try to find an entry that looks like UIKitApplication:com.example.myApp[0x4f37]
         const regex = new RegExp(`(\\S+${bundleId}\\S+)`);
         const match = regex.exec(output);
-        match
-            ? childProcess.exec(`xcrun simctl spawn booted launchctl stop ${match[1]}`)
-            : null;
+        match ? childProcess.exec(`xcrun simctl spawn booted launchctl stop ${match[1]}`) : null;
         await this.iosDebugModeManager.setAppRemoteDebuggingSetting(
-/*enable=*/ true,
+            /*enable=*/ true,
             this.runOptions.configuration,
-            this.runOptions.productName
+            this.runOptions.productName,
         );
         return await this.runApp();
     }
@@ -339,7 +323,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
             const bundleId = await this.getBundleId();
             if (semver.gte(version, "0.60.0")) {
                 successPatterns.push(
-                    `Launching "${bundleId}"\nsuccess Successfully launched the app `
+                    `Launching "${bundleId}"\nsuccess Successfully launched the app `,
                 );
             } else {
                 successPatterns.push(`Launching ${bundleId}\n${bundleId}: `);

@@ -54,12 +54,12 @@ export class PlistBuddy {
             simulator,
             configuration,
             productName,
-            scheme
+            scheme,
         );
         const infoPlistPath = path.join(
             iOSBuildLocationData.configurationFolder,
             iOSBuildLocationData.executable,
-            platform === PlatformType.iOS ? "Info.plist" : path.join("Contents", "Info.plist")
+            platform === PlatformType.iOS ? "Info.plist" : path.join("Contents", "Info.plist"),
         );
         return await this.invokePlistBuddy("Print:CFBundleIdentifier", infoPlistPath);
     }
@@ -81,26 +81,21 @@ export class PlistBuddy {
                 scheme = this.getInferredScheme(
                     platformProjectRoot,
                     projectRoot,
-                    rnVersions.reactNativeVersion
+                    rnVersions.reactNativeVersion,
                 );
                 if (platform === PlatformType.macOS) {
                     scheme = scheme + "-macOS";
                 }
             }
-            productsFolder = path.join(
-                platformProjectRoot,
-                "build",
-                scheme,
-                "Build",
-                "Products"
-            );
+            productsFolder = path.join(platformProjectRoot, "build", scheme, "Build", "Products");
         } else {
             productsFolder = path.join(platformProjectRoot, "build", "Build", "Products");
         }
-        let sdkType = platform === PlatformType.iOS ? this.getSdkType(simulator, scheme) : undefined;
+        let sdkType =
+            platform === PlatformType.iOS ? this.getSdkType(simulator, scheme) : undefined;
         let configurationFolder = path.join(
             productsFolder,
-            `${configuration}${sdkType ? `-${sdkType}` : ""}`
+            `${configuration}${sdkType ? `-${sdkType}` : ""}`,
         );
         let executable = "";
         if (productName) {
@@ -113,7 +108,7 @@ export class PlistBuddy {
                     configuration,
                     scheme,
                     configurationFolder,
-                    sdkType
+                    sdkType,
                 );
 
                 configurationFolder = configurationData.configurationFolder;
@@ -128,7 +123,7 @@ export class PlistBuddy {
                     configuration,
                     scheme,
                     configurationFolder,
-                    sdkType
+                    sdkType,
                 );
 
                 configurationFolder = configurationData_1.configurationFolder;
@@ -136,7 +131,7 @@ export class PlistBuddy {
             } else if (executableList.length > 1) {
                 throw ErrorHelper.getInternalError(
                     InternalErrorCode.IOSFoundMoreThanOneExecutablesCleanupBuildFolder,
-                    configurationFolder
+                    configurationFolder,
                 );
             }
             executable = `${executableList[0]}`;
@@ -147,7 +142,11 @@ export class PlistBuddy {
         };
     }
 
-    public async setPlistProperty(plistFile: string, property: string, value: string): Promise<void> {
+    public async setPlistProperty(
+        plistFile: string,
+        property: string,
+        value: string,
+    ): Promise<void> {
         // Attempt to set the value, and if it fails due to the key not existing attempt to create the key
         try {
             await this.invokePlistBuddy(`Set ${property} ${value}`, plistFile);
@@ -331,7 +330,9 @@ export class PlistBuddy {
     }
 
     private async invokePlistBuddy(command: string, plistFile: string): Promise<string> {
-        const res = await this.nodeChildProcess.exec(`${PlistBuddy.plistBuddyExecutable} -c '${command}' '${plistFile}'`);
+        const res = await this.nodeChildProcess.exec(
+            `${PlistBuddy.plistBuddyExecutable} -c '${command}' '${plistFile}'`,
+        );
         const outcome = await res.outcome;
         return outcome.toString().trim();
     }
