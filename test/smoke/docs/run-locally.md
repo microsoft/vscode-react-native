@@ -152,7 +152,7 @@ Tests require several environment variables to be set up before starting:
 |`PURE_RN_VERSION` (optional)|`0.63.4`, `skip`|Version of React Native while running tests on pure RN app with Expo. If set to "skip" then the latest version will be installed|
 |`PURE_EXPO_VERSION` (optional)|`42`, `skip`|Version of Expo while running tests on pure RN app with Expo. If set to "skip" then the latest version will be installed|
 |`RN_MAC_OS_VERSION` (optional)|`0.62.0`, `skip`|(**Only for macOS tests**) Version of a React Native application for RN macOS tests. If set to "skip" then the latest version will be installed|
-|`RNW_VERSION` (optional)|`0.65.0`, `skip`|(**Only for RNW tests**) Version of a React Native application for RNW tests. If set to "skip" then the latest version will be installed|
+|`RN_WINDOWS_VERSION` (optional)|`0.65.0`, `skip`|(**Only for RNW tests**) Version of a React Native application for RNW tests. If set to "skip" then the latest version will be installed|
 
 To create environment variable you can use these commands:
    * **Windows** (Powershell):

@@ -127,7 +127,7 @@ export class TestApplicationSetupManager {
         const expoSdkVersion = process.env.EXPO_SDK_MAJOR_VERSION || "";
         const pureExpoSdkVersion = process.env.PURE_EXPO_VERSION || "";
         const macOSrnVersion = process.env.RN_MAC_OS_VERSION || "";
-        const rnwVersion = process.env.RNW_VERSION || "";
+        const rnWindowsVersion = process.env.RN_WINDOWS_VERSION || "";
         const rnwPackageVersion = process.env.RNW_PACKAGE_VERSION || "";
 
         const packagesForReactNativeProjects = new Map<string, string>(
@@ -143,7 +143,7 @@ export class TestApplicationSetupManager {
             Object.entries({ "react-native": macOSrnVersion }),
         );
         const packagesForReactNativeWindowsProjects = new Map<string, string>(
-            Object.entries({ "react-native": rnwVersion }),
+            Object.entries({ "react-native": rnWindowsVersion }),
         );
 
         this.prepareWithCacheMiddleware(
@@ -210,7 +210,7 @@ export class TestApplicationSetupManager {
                 () => {
                     this.prepareRNWApplication(
                         this.windowsTestProject,
-                        rnwVersion,
+                        rnWindowsVersion,
                         rnwPackageVersion,
                     );
                 },
@@ -223,7 +223,7 @@ export class TestApplicationSetupManager {
                 () => {
                     this.prepareRNWHermesApplication(
                         this.windowsHermesTestProject,
-                        rnwVersion,
+                        rnWindowsVersion,
                         rnwPackageVersion,
                     );
                 },
