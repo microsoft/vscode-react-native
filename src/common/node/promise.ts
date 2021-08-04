@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import { CancellationTokenSource } from "vscode";
+
 /**
  * Utilities for working with promises.
  */
@@ -29,8 +31,17 @@ export class PromiseUtil {
         maxRetries: number,
         delay: number,
         failure: string,
+        cancellationTokenSource?: CancellationTokenSource,
     ): Promise<T> {
-        return this.retryAsyncIteration(operation, condition, maxRetries, 0, delay, failure);
+        return this.retryAsyncIteration(
+            operation,
+            condition,
+            maxRetries,
+            0,
+            delay,
+            failure,
+            cancellationTokenSource,
+        );
     }
 
     public reduce<T>(
@@ -78,6 +89,7 @@ export class PromiseUtil {
         iteration: number,
         delay: number,
         failure: string,
+        cancellationTokenSource?: CancellationTokenSource,
     ): Promise<T> {
         return operation().then(result => {
             return Promise.resolve(result)
@@ -87,7 +99,13 @@ export class PromiseUtil {
                         return result;
                     }
 
-                    if (iteration < maxRetries) {
+                    if (
+                        iteration < maxRetries &&
+                        !(
+                            cancellationTokenSource &&
+                            cancellationTokenSource.token.isCancellationRequested
+                        )
+                    ) {
                         return PromiseUtil.delay(delay).then(() =>
                             this.retryAsyncIteration(
                                 operation,
@@ -96,6 +114,7 @@ export class PromiseUtil {
                                 iteration + 1,
                                 delay,
                                 failure,
+                                cancellationTokenSource,
                             ),
                         );
                     }

@@ -12,15 +12,23 @@ import { TestRunArguments } from "./helpers/testConfigProcessor";
 import TestProject from "./helpers/testProject";
 import AutomationHelper from "./helpers/AutomationHelper";
 
-const RNwindowsSetBreakpointOnLine = 1;
 const RNWDebugConfigName = "Debug RN Wind";
+const RNWHermesDebugConfigName = "Debug Windows Hermes - Experimental";
+
+const RNwindowsSetBreakpointOnLine = 1;
+const RNwindowsHermesSetBreakpointOnLine = 15;
 
 // Time for macOS Debug Test before it reaches timeout
 const debugWindowsTestTime = SmokeTestsConstants.windowsTestTimeout;
 
-export function startDebugRNWTests(project: TestProject, testParameters: TestRunArguments): void {
+export function startDebugRNWTests(
+    windowsProject: TestProject,
+    windowsHermesProject: TestProject,
+    testParameters: TestRunArguments,
+): void {
     describe("Debugging Windows", () => {
         let app: Application;
+        let currentWindowsAppName: string = "";
         let automationHelper: AutomationHelper;
 
         async function initApp(
@@ -37,14 +45,27 @@ export function startDebugRNWTests(project: TestProject, testParameters: TestRun
             SmokeTestLogger.info("Dispose all ...");
             if (app) {
                 SmokeTestLogger.info("Stopping React Native packager ...");
-                await automationHelper.runCommandWithRetry(SmokeTestsConstants.stopPackagerCommand);
-                await sleep(3000);
+                await stopPackager();
                 SmokeTestLogger.info("Stopping application ...");
                 await app.stop();
             }
+            terminateWindowsApp(currentWindowsAppName);
         }
 
         afterEach(disposeAll);
+
+        function terminateWindowsApp(appName: string): void {
+            SmokeTestLogger.info(`*** Terminating ${appName} Windows application`);
+            const terminateWindowsAppCommand = `taskkill/im ${appName}.exe /t /f`;
+            cp.execSync(terminateWindowsAppCommand);
+        }
+
+        async function stopPackager() {
+            if (app) {
+                await automationHelper.runCommandWithRetry(SmokeTestsConstants.stopPackagerCommand);
+                await sleep(3000);
+            }
+        }
 
         async function checkIfAppIsInstalledOnWindows(
             appName: string,
@@ -71,67 +92,91 @@ export function startDebugRNWTests(project: TestProject, testParameters: TestRun
             });
         }
 
+        async function windowsApplicationTest(
+            testname: string,
+            project: TestProject,
+            isHermesProject: boolean = false,
+        ): Promise<void> {
+            try {
+                app = await initApp(project.workspaceDirectory, testname);
+                await automationHelper.openFileWithRetry(project.projectEntryPointFile);
+                await app.workbench.editors.scrollTop();
+                SmokeTestLogger.info(`${testname}: App.js file is opened`);
+
+                let debugConfigName: string;
+                let setBreakpointOnLine: number;
+                if (isHermesProject) {
+                    debugConfigName = RNWHermesDebugConfigName;
+                    setBreakpointOnLine = RNwindowsHermesSetBreakpointOnLine;
+                } else {
+                    debugConfigName = RNWDebugConfigName;
+                    setBreakpointOnLine = RNwindowsSetBreakpointOnLine;
+                }
+
+                await app.workbench.debug.setBreakpointOnLine(setBreakpointOnLine);
+                SmokeTestLogger.info(
+                    `${testname}: Breakpoint is set on line ${setBreakpointOnLine}`,
+                );
+                SmokeTestLogger.info(`${testname}: Chosen debug configuration: ${debugConfigName}`);
+                SmokeTestLogger.info(`${testname}: Starting debugging`);
+                await automationHelper.runDebugScenarioWithRetry(debugConfigName);
+                await checkIfAppIsInstalledOnWindows(
+                    currentWindowsAppName,
+                    SmokeTestsConstants.windowsAppBuildAndInstallTimeout,
+                );
+                await app.workbench.debug.waitForDebuggingToStart();
+                SmokeTestLogger.info(`${testname}: Debugging started`);
+                await automationHelper.waitForStackFrameWithRetry(
+                    sf =>
+                        sf.name === project.projectEntryPointFile &&
+                        sf.lineNumber === setBreakpointOnLine,
+                    `looking for App.js and line ${setBreakpointOnLine}`,
+                );
+                SmokeTestLogger.info(`${testname}: Stack frame found`);
+                await app.workbench.debug.stepOver();
+                // await for our debug string renders in debug console
+                await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
+                SmokeTestLogger.info(
+                    `${testname}: Searching for "Test output from debuggee" string in console`,
+                );
+                await automationHelper.runCommandWithRetry("Debug: Focus on Debug Console View");
+                let found = await automationHelper.waitForOutputWithRetry(
+                    "Test output from debuggee",
+                );
+                assert.notStrictEqual(
+                    found,
+                    false,
+                    '"Test output from debuggee" string is missing in debug console',
+                );
+                SmokeTestLogger.success(`${testname}: "Test output from debuggee" string is found`);
+                await automationHelper.disconnectFromDebuggerWithRetry();
+                SmokeTestLogger.info(`${testname}: Debugging is stopped`);
+            } catch (e) {
+                SmokeTestLogger.error(`${testname} failed: ${e.toString()}`);
+                await stopPackager();
+                return this.skip();
+            }
+        }
+
         if (
             process.platform === "win32" &&
             testParameters.RunWindowsTests &&
             !testParameters.SkipUnstableTests
         ) {
             it("RN Windows app Debug test", async function () {
-                try {
-                    this.timeout(debugWindowsTestTime);
-                    app = await initApp(project.workspaceDirectory, "RN Windows app Debug test");
-                    await automationHelper.openFileWithRetry(project.projectEntryPointFile);
-                    await app.workbench.editors.scrollTop();
-                    SmokeTestLogger.info("Windows Debug test: App.js file is opened");
-                    await app.workbench.debug.setBreakpointOnLine(RNwindowsSetBreakpointOnLine);
-                    SmokeTestLogger.info(
-                        `Windows Debug test: Breakpoint is set on line ${RNwindowsSetBreakpointOnLine}`,
-                    );
-                    SmokeTestLogger.info(
-                        `Windows Debug test: Chosen debug configuration: ${RNWDebugConfigName}`,
-                    );
-                    SmokeTestLogger.info("Windows Debug test: Starting debugging");
-                    await automationHelper.runDebugScenarioWithRetry(RNWDebugConfigName);
-                    await checkIfAppIsInstalledOnWindows(
-                        SmokeTestsConstants.RNWAppName,
-                        SmokeTestsConstants.windowsAppBuildAndInstallTimeout,
-                    );
-                    await app.workbench.debug.waitForDebuggingToStart();
-                    SmokeTestLogger.info("Windows Debug test: Debugging started");
-                    await automationHelper.waitForStackFrameWithRetry(
-                        sf =>
-                            sf.name === project.projectEntryPointFile &&
-                            sf.lineNumber === RNwindowsSetBreakpointOnLine,
-                        `looking for App.js and line ${RNwindowsSetBreakpointOnLine}`,
-                    );
-                    SmokeTestLogger.info("Windows Debug test: Stack frame found");
-                    await app.workbench.debug.stepOver();
-                    // await for our debug string renders in debug console
-                    await sleep(SmokeTestsConstants.debugConsoleSearchTimeout);
-                    SmokeTestLogger.info(
-                        'Windows Debug test: Searching for "Test output from debuggee" string in console',
-                    );
-                    await automationHelper.runCommandWithRetry(
-                        "Debug: Focus on Debug Console View",
-                    );
-                    let found = await app.workbench.debug.waitForOutput(output =>
-                        output.some(line => line.indexOf("Test output from debuggee") >= 0),
-                    );
-                    assert.notStrictEqual(
-                        found,
-                        false,
-                        '"Test output from debuggee" string is missing in debug console',
-                    );
-                    SmokeTestLogger.success(
-                        'Windows Debug test: "Test output from debuggee" string is found',
-                    );
-                    await automationHelper.disconnectFromDebuggerWithRetry();
-                    SmokeTestLogger.info("Windows Debug test: Debugging is stopped");
-                } catch (e) {
-                    SmokeTestLogger.error(`Windows Debug test failed: ${e.toString()}`);
-                    await disposeAll();
-                    return this.skip();
-                }
+                this.timeout(debugWindowsTestTime);
+                currentWindowsAppName = SmokeTestsConstants.RNWAppName;
+                await windowsApplicationTest("RN Windows app Debug test", windowsProject);
+            });
+
+            it("RN Windows Hermes app Debug test", async function () {
+                this.timeout(debugWindowsTestTime);
+                currentWindowsAppName = SmokeTestsConstants.RNWHermesAppName;
+                await windowsApplicationTest(
+                    "RN Windows Hermes app Debug test",
+                    windowsHermesProject,
+                    true,
+                );
             });
         }
     });
