@@ -58,12 +58,19 @@ export class MacOSPlatform extends GeneralMobilePlatform {
     }
 
     public runApp(): Promise<void> {
-        let extProps = {
+        let extProps: any = {
             platform: {
                 value: PlatformType.macOS,
                 isPii: false,
             },
         };
+
+        if (this.runOptions.isDirect) {
+            extProps.isDirect = {
+                value: true,
+                isPii: false,
+            };
+        }
 
         extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(
             this.runOptions,

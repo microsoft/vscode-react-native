@@ -40,6 +40,7 @@ Using this extension, you can **debug your code and quickly run `react-native` c
   - [Expo applications](#expo-applications)
     - [Configuring Expo](#configuring-expo)
   - [Windows applications](#react-native-for-windows)
+    - [Windows Hermes debugging](#windows-hermes-debugging)
   - [macOS applications](#react-native-for-macos)
     - [macOS Hermes debugging](#macos-hermes-debugging)
   - [TypeScript and Haul based applications](#typescript-and-haul)
@@ -153,6 +154,10 @@ The extension provides experimental support of debugging iOS Hermes applications
 ### macOS Hermes
 
 The extension provides experimental support of debugging macOS Hermes applications. See [macOS Hermes debugging](#macos-hermes-debugging) for more details.
+
+### Windows Hermes
+
+The extension provides experimental support of debugging Windows Hermes applications. See [Windows Hermes debugging](#windows-hermes-debugging) for more details.
 
 ### Attach to Hermes application
 
@@ -345,6 +350,22 @@ You can debug UWP React Native for Windows applications by changing the `platfor
 Then the extension should attach to the running application.
 
 You can find more information on how to setup your application to work with Windows in [React Native for Windows Getting started instruction](https://microsoft.github.io/react-native-windows/docs/getting-started)
+
+### Windows Hermes debugging
+
+Please follow [the official guide](https://microsoft.github.io/react-native-windows/docs/hermes#hermes-on-windows) to enable Hermes engine for a Windows application.
+
+To debug a Windows Hermes application you can use `Debug Windows Hermes - Experimental` debugging scenario:
+
+```json
+{
+  "name": "Debug Windows Hermes - Experimental",
+  "request": "launch",
+  "type": "reactnativedirect",
+  "cwd": "${workspaceFolder}",
+  "platform": "windows"
+}
+```
 
 ## React Native for macOS
 
