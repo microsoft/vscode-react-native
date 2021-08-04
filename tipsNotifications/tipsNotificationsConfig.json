@@ -1,7 +1,7 @@
 {
-    "firstTimeMinDaysToRemind": 3,
+    "firstTimeMinDaysToRemind": 4,
     "firstTimeMaxDaysToRemind": 6,
-    "minDaysToRemind": 5,
+    "minDaysToRemind": 6,
     "maxDaysToRemind": 10,
     "daysAfterLastUsage": 30
 }
