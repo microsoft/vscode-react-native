@@ -143,7 +143,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
             return !!this.workerLoaded;
         };
         await waitUntil(condition);
-        
+
         const promise = (async () => {
             await this.workerLoaded;
 
