@@ -200,7 +200,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                     },
                 )
                 .then(devices => {
-                    return new PromiseUtil().forEach(devices, device => {
+                    return PromiseUtil.forEach(devices, device => {
                         return this.launchAppWithADBReverseAndLogCat(device);
                     });
                 });

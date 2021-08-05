@@ -7,7 +7,7 @@ import { CancellationTokenSource } from "vscode";
  * Utilities for working with promises.
  */
 export class PromiseUtil {
-    public async forEach<T>(
+    public static async forEach<T>(
         sources: T[],
         promiseGenerator: (source: T) => Promise<void>,
     ): Promise<void> {
@@ -28,7 +28,7 @@ export class PromiseUtil {
      * @param delay - time between iterations, in milliseconds.
      * @param failure - error description.
      */
-    public retryAsync<T>(
+    public static retryAsync<T>(
         operation: () => Promise<T>,
         condition: (result: T) => boolean | Promise<boolean>,
         maxRetries: number,
@@ -47,7 +47,7 @@ export class PromiseUtil {
         );
     }
 
-    public async reduce<T>(
+    public static async reduce<T>(
         sources: T[] | Promise<T[]>,
         generateAsyncOperation: (value: T) => Promise<void>,
     ): Promise<void> {
@@ -81,7 +81,7 @@ export class PromiseUtil {
         };
     }
 
-    private async retryAsyncIteration<T>(
+    private static async retryAsyncIteration<T>(
         operation: () => Promise<T>,
         condition: (result: T) => boolean | Promise<boolean>,
         maxRetries: number,
@@ -96,24 +96,21 @@ export class PromiseUtil {
             return result;
         }
 
-                    if (
-                        iteration < maxRetries &&
-                        !(
-                            cancellationTokenSource &&
-                            cancellationTokenSource.token.isCancellationRequested
-                        )
-                    ) {
-                        await PromiseUtil.delay(delay);
-                        return this.retryAsyncIteration(
-                            operation,
-                            condition,
-                            maxRetries,
-                            iteration + 1,
-                            delay,
-                            failure,
-                            cancellationTokenSource
-                        );
-                    }
+        if (
+            iteration < maxRetries &&
+            !(cancellationTokenSource && cancellationTokenSource.token.isCancellationRequested)
+        ) {
+            await PromiseUtil.delay(delay);
+            return this.retryAsyncIteration(
+                operation,
+                condition,
+                maxRetries,
+                iteration + 1,
+                delay,
+                failure,
+                cancellationTokenSource,
+            );
+        }
 
         throw new Error(failure);
     }
