@@ -99,7 +99,7 @@ export class AndroidEmulatorManager extends VirtualDeviceManager {
                 1000,
                 AndroidEmulatorManager.EMULATOR_START_TIMEOUT * 1000,
             );
-            if (connectedDevices) {
+            if (connectedDevices && connectedDevices.length > 0) {
                 this.logger.info(
                     localize("EmulatorLaunched", "Launched emulator {0}", emulatorName),
                 );
