@@ -37,16 +37,16 @@ export function getFormattedDatetimeString(date: Date): string {
 }
 
 export function waitUntil<T>(
-    condition: () => Promise<T | undefined> | T | undefined,
+    condition: () => Promise<T | null> | T | null,
     interval: number = 1000,
     timeout?: number,
-): Promise<T | undefined> {
+): Promise<T | null> {
     return new Promise(resolve => {
         let rejectTimeout: NodeJS.Timeout | undefined;
         if (timeout) {
             rejectTimeout = setTimeout(() => {
                 cleanup();
-                resolve(undefined);
+                resolve(null);
             }, timeout);
         }
 
