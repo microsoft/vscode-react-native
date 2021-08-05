@@ -41,12 +41,19 @@ export class WindowsPlatform extends GeneralMobilePlatform {
     }
 
     public runApp(enableDebug: boolean = true): Promise<void> {
-        let extProps = {
+        let extProps: any = {
             platform: {
                 value: PlatformType.Windows,
                 isPii: false,
             },
         };
+
+        if (this.runOptions.isDirect) {
+            extProps.isDirect = {
+                value: true,
+                isPii: false,
+            };
+        }
 
         extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(
             this.runOptions,
@@ -66,7 +73,9 @@ export class WindowsPlatform extends GeneralMobilePlatform {
             ) {
                 this.runArguments.push("--logging");
                 if (enableDebug) {
-                    this.runArguments.push("--remote-debugging");
+                    this.runOptions.isDirect
+                        ? this.runArguments.push("--direct-debugging")
+                        : this.runArguments.push("--remote-debugging");
                 }
             }
 

@@ -19,6 +19,13 @@
       "trace": "verbose"
     },
     {
+      "name": "Debug Windows Hermes - Experimental",
+      "cwd": "${workspaceFolder}",
+      "type": "reactnativedirect",
+      "request": "launch",
+      "platform": "windows"
+    },
+    {
       "name": "Debug iOS Hermes - Experimental",
       "cwd": "${workspaceFolder}",
       "type": "reactnativedirect",

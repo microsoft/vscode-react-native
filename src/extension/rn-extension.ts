@@ -44,6 +44,7 @@ import {
 } from "../common/extensionHelper";
 import { LogCatMonitorManager } from "./android/logCatMonitorManager";
 import { ExtensionConfigManager } from "./extensionConfigManager";
+import { TipNotificationService } from "./tipsNotificationsService/tipsNotificationService";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -83,6 +84,7 @@ export function activate(context: vscode.ExtensionContext): Promise<void> {
             }
         } else {
             showChangelogNotificationOnUpdate(appVersion);
+            TipNotificationService.getInstance().showTipNotification();
         }
     }
 
@@ -121,6 +123,7 @@ export function activate(context: vscode.ExtensionContext): Promise<void> {
             EXTENSION_CONTEXT.subscriptions.push(
                 vscode.workspace.onDidChangeConfiguration(() => onChangeConfiguration()),
             );
+            EXTENSION_CONTEXT.subscriptions.push(TipNotificationService.getInstance());
 
             EXTENSION_CONTEXT.subscriptions.push(
                 vscode.debug.registerDebugConfigurationProvider(
