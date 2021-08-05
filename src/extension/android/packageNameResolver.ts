@@ -39,13 +39,12 @@ export class PackageNameResolver {
             let fs = new FileSystem();
             const exists = await fs.exists(manifestPath);
             if (exists) {
-                return fs.readFile(manifestPath).then(manifestContent => {
-                    let packageName = this.parsePackageName(manifestContent.toString());
-                    if (!packageName) {
-                        packageName = this.getDefaultPackageName(this.applicationName);
-                    }
-                    return packageName;
-                });
+                const manifestContent = await fs.readFile(manifestPath);
+                let packageName = this.parsePackageName(manifestContent.toString());
+                if (!packageName) {
+                    packageName = this.getDefaultPackageName(this.applicationName);
+                }
+                return packageName;
             } else {
                 return this.getDefaultPackageName(this.applicationName);
             }

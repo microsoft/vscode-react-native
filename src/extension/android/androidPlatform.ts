@@ -169,13 +169,13 @@ export class AndroidPlatform extends GeneralMobilePlatform {
 
             let devicesForLaunch = [];
             try {
-                await output;
-                await this.initializeTargetDevicesAndPackageName();
-                devicesForLaunch = [this.debugTarget];
-            } catch (error) {
-                if (!this.devices || !this.debugTarget) {
+                try {
+                    await output;
+                } finally {
                     await this.initializeTargetDevicesAndPackageName();
+                    devicesForLaunch = [this.debugTarget];
                 }
+            } catch (error) {
                 if (
                     error.message ===
                         ErrorHelper.getInternalError(
@@ -194,9 +194,9 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                 }
             }
 
-            await PromiseUtil.forEach(devicesForLaunch, async device => {
-                await this.launchAppWithADBReverseAndLogCat(device);
-            });
+            await PromiseUtil.forEach(devicesForLaunch, device =>
+                this.launchAppWithADBReverseAndLogCat(device),
+            );
         });
     }
 
