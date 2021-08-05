@@ -47,21 +47,19 @@ export class DebugConfigProvider extends BaseConfigProvider {
             state.config.platform === PlatformType.Android ||
             state.config.platform === PlatformType.macOS
         ) {
-            return () =>
-                this.configureApplicationType(input, state.config).then(async () => {
-                    if (
-                        state.config.platform === PlatformType.iOS &&
-                        state.config.type === DEBUG_TYPES.REACT_NATIVE_DIRECT
-                    ) {
-                        this.maxStepCount = 3;
-                        await this.configureUseHermesEngine(input, state.config);
-                        // Direct iOS debugging using ios-webkit-debug-proxy is supported
-                        // only with applications running on the device
-                        if (state.config.useHermesEngine === false) {
-                            state.config.target = "device";
-                        }
+            return async () => {
+                await this.configureApplicationType(input, state.config);
+                if (state.config.platform === PlatformType.iOS &&
+                    state.config.type === DEBUG_TYPES.REACT_NATIVE_DIRECT) {
+                    this.maxStepCount = 3;
+                    await this.configureUseHermesEngine(input, state.config);
+                    // Direct iOS debugging using ios-webkit-debug-proxy is supported
+                    // only with applications running on the device
+                    if (state.config.useHermesEngine === false) {
+                        state.config.target = "device";
                     }
-                });
+                }
+            };
         } else if (state.config.platform === PlatformType.Exponent) {
             return () => this.configureExpoHostType(input, state.config);
         } else {
