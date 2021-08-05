@@ -43,11 +43,7 @@ export class RunConfigProvider extends BaseConfigProvider {
 
         Object.assign(state.config, config);
 
-        if (
-            state.config.platform === PlatformType.iOS ||
-            state.config.platform === PlatformType.Android ||
-            state.config.platform === PlatformType.macOS
-        ) {
+        if (state.config.platform !== PlatformType.Exponent) {
             return async () => {
                 await this.configureApplicationType(input, state.config);
                 if (state.config.platform === PlatformType.iOS &&

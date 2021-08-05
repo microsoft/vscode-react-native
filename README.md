@@ -40,6 +40,7 @@ Using this extension, you can **debug your code and quickly run `react-native` c
   - [Expo applications](#expo-applications)
     - [Configuring Expo](#configuring-expo)
   - [Windows applications](#react-native-for-windows)
+    - [Windows Hermes debugging](#windows-hermes-debugging)
   - [macOS applications](#react-native-for-macos)
     - [macOS Hermes debugging](#macos-hermes-debugging)
   - [TypeScript and Haul based applications](#typescript-and-haul)
@@ -52,6 +53,7 @@ Using this extension, you can **debug your code and quickly run `react-native` c
   - [Change project root](#change-project-root)
   - [Configure an Android LogCat Monitor](#configure-an-android-logcat-monitor)
   - [Configure dependencies versions for debugging Expo projects](#configure-dependencies-versions-for-debugging-expo-projects)
+  - [Configure custom key bindings for extension commands](#configure-custom-key-bindings-for-extension-commands)
 - [Network Inspector](#network-inspector)
 - [Developing inside a Docker Container](#developing-inside-a-docker-container)
 - [Contributing](#contributing)
@@ -153,6 +155,10 @@ The extension provides experimental support of debugging iOS Hermes applications
 
 The extension provides experimental support of debugging macOS Hermes applications. See [macOS Hermes debugging](#macos-hermes-debugging) for more details.
 
+### Windows Hermes
+
+The extension provides experimental support of debugging Windows Hermes applications. See [Windows Hermes debugging](#windows-hermes-debugging) for more details.
+
 ### Attach to Hermes application
 
 To attach to a running Hermes application use `Attach to Hermes application - Experimental` launch configuration:
@@ -172,7 +178,7 @@ To attach to a running Hermes application use `Attach to Hermes application - Ex
 
 Debugging on an iOS device requires following manual steps:
 
-- Install [ios-deploy](https://www.npmjs.com/package/ios-deploy) `npm install -g ios-deploy`.
+- Install [ios-deploy](https://github.com/ios-control/ios-deploy) `brew install ios-deploy`.
 - Install a valid iOS development certificate.
 - In your project's `launch.json` file set `target` to `device`. If you need to specify the exact device to run, you can set `target` to `device=<iOS_device_name>`, or you can also use `runArguments` property to specify a particular device to run on in case multiple devices are connected (e.g. `"runArguments": [ "--device", "My iPhone" ]`)
 - Choose the **Debug iOS** option from the "Configuration" dropdown and press F5.
@@ -344,6 +350,22 @@ You can debug UWP React Native for Windows applications by changing the `platfor
 Then the extension should attach to the running application.
 
 You can find more information on how to setup your application to work with Windows in [React Native for Windows Getting started instruction](https://microsoft.github.io/react-native-windows/docs/getting-started)
+
+### Windows Hermes debugging
+
+Please follow [the official guide](https://microsoft.github.io/react-native-windows/docs/hermes#hermes-on-windows) to enable Hermes engine for a Windows application.
+
+To debug a Windows Hermes application you can use `Debug Windows Hermes - Experimental` debugging scenario:
+
+```json
+{
+  "name": "Debug Windows Hermes - Experimental",
+  "request": "launch",
+  "type": "reactnativedirect",
+  "cwd": "${workspaceFolder}",
+  "platform": "windows"
+}
+```
 
 ## React Native for macOS
 
@@ -588,7 +610,7 @@ adb devices
 
 **NOTE:** If you want to run the application on an iOS device, make sure you have `ios-deploy` installed globally.
 
-`npm install -g ios-deploy`
+`brew install ios-deploy`
 
 ## Setting up the React Native packager
 
@@ -707,6 +729,17 @@ To debug Expo applications the extension requires additional dependencies, such 
 
 To enable new versions of the dependencies, it's required to restart VS Code editor. After that the extension will download the new versions of the packages on the next Expo debugging starting.
 
+## Configure custom key bindings for extension commands
+
+The extension provides context variables for the following features:
+|Context variable|Feature|
+|---|---|
+|`isRNPackagerRunning` - true if the packager is running|Metro packager|
+|`isRNTNetworkInspectorRunning` - true if the Network inspector is running|Network inspector|
+
+Using these context variables you can assign the same keyboard combination for some pair commands for more convenient use. For example, you can configure the same key bindings for `Start Packager` and `Stop Packager` commands using `when` clauses, as shown below:
+![image](images/custom-keybindings.png)
+
 # Network Inspector
 
 The extension provides `Network inspector` feature to inspect outgoing network traffic in your apps. You can browse all requests being made and their responses in VS Code DevTools console.
@@ -730,6 +763,16 @@ Before using the Network inspector, please make sure that your system meets the 
 - To stop the Network inspector you can use `Stop Network Inspector` Command Palette command
 
 For now the Network inspector doesn't support Expo applications.
+
+### Network inspector logs theme
+
+The extension provides “Dark” and “Light” color themes for Network Inspector logs. You can configure the theme in the extension configuration in the Settings tab or in `settings.json` file.
+
+```json
+{
+  "react-native-tools.networkInspector.consoleLogsColorTheme": "Dark"
+}
+```
 
 # Developing inside a Docker Container
 

@@ -350,7 +350,7 @@ export class Packager {
     }
 
     private awaitStart(retryCount = 60, delay = 3000): Promise<boolean> {
-        return new PromiseUtil().retryAsync(
+        return PromiseUtil.retryAsync(
             () => this.isRunning(),
             running => running,
             retryCount,

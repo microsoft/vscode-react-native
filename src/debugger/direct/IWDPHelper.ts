@@ -19,7 +19,7 @@ export class IWDPHelper {
         this.iOSWebkitDebugProxyProcess = null;
     }
 
-    public startiOSWebkitDebugProxy(
+    public async startiOSWebkitDebugProxy(
         proxyPort: number,
         proxyRangeStart: number,
         proxyRangeEnd: number,
@@ -37,43 +37,40 @@ export class IWDPHelper {
         });
     }
 
-    public getSimulatorProxyPort(
+    public async getSimulatorProxyPort(
         attachArgs: IAttachRequestArgs,
     ): Promise<{ targetPort: number; iOSVersion: string }> {
-        return Request.request(`http://localhost:${attachArgs.port}/json`, true).then(
-            (response: string) => {
-                try {
-                    // An example of a json response from IWDP
-                    // [{
-                    //     "deviceId": "00008020-XXXXXXXXXXXXXXXX",
-                    //     "deviceName": "iPhone name",
-                    //     "deviceOSVersion": "13.4.1",
-                    //     "url": "localhost:9223"
-                    //  }]
-                    let endpointsList = JSON.parse(response);
+        const response = await Request.request(`http://localhost:${attachArgs.port}/json`, true);
+        try {
+            // An example of a json response from IWDP
+            // [{
+            //     "deviceId": "00008020-XXXXXXXXXXXXXXXX",
+            //     "deviceName": "iPhone name",
+            //     "deviceOSVersion": "13.4.1",
+            //     "url": "localhost:9223"
+            //  }]
+            let endpointsList = JSON.parse(response);
 
-                    let devices = endpointsList;
-                    if (attachArgs.target) {
-                        devices = endpointsList.filter((entry: { deviceId: string }) =>
-                            attachArgs.target?.toLowerCase() === "device"
-                                ? entry.deviceId !== "SIMULATOR"
-                                : entry.deviceId === "SIMULATOR",
-                        );
-                    }
+            let devices = endpointsList;
+            if (attachArgs.target) {
+                devices = endpointsList.filter((entry: { deviceId: string }) =>
+                    attachArgs.target?.toLowerCase() === "device"
+                        ? entry.deviceId !== "SIMULATOR"
+                        : entry.deviceId === "SIMULATOR",
+                );
+            }
 
-                    let device = devices[0];
-                    // device.url is of the form 'localhost:port'
-                    return Promise.resolve({
-                        targetPort: parseInt(device.url.split(":")[1], 10),
-                        iOSVersion: device.deviceOSVersion,
-                    });
-                } catch (e) {
-                    throw ErrorHelper.getInternalError(
-                        InternalErrorCode.IOSCouldNotFoundDeviceForDirectDebugging,
-                    );
-                }
-            },
-        );
+            let device = devices[0];
+            // device.url is of the form 'localhost:port'
+            return {
+                targetPort: parseInt(device.url.split(":")[1], 10),
+                iOSVersion: device.deviceOSVersion,
+            };
+        } catch (e) {
+            throw ErrorHelper.getInternalError(
+                InternalErrorCode.IOSCouldNotFoundDeviceForDirectDebugging,
+            );
+        }
     }
 
     public cleanUp(): void {

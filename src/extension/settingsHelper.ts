@@ -194,4 +194,25 @@ export class SettingsHelper {
         }
         return undefined;
     }
+
+    public static getShowTips(): boolean {
+        const workspaceConfiguration = vscode.workspace.getConfiguration(
+            "react-native-tools",
+            null,
+        );
+        if (workspaceConfiguration.has("showUserTips")) {
+            return ConfigurationReader.readBoolean(workspaceConfiguration.get("showUserTips"));
+        }
+        return false;
+    }
+
+    public static async setShowTips(showTips: boolean): Promise<void> {
+        const workspaceConfiguration = vscode.workspace.getConfiguration(
+            "react-native-tools",
+            null,
+        );
+        if (workspaceConfiguration.has("showUserTips")) {
+            await workspaceConfiguration.update("showUserTips", showTips, true);
+        }
+    }
 }

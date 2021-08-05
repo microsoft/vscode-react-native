@@ -19,6 +19,7 @@ export class TestApplicationSetupManager {
     private hermesTestProject: TestProject;
     private pureRNTestProject: TestProject;
     private windowsTestProject: TestProject;
+    private windowsHermesTestProject: TestProject;
     private macOSTestProject: TestProject;
     private macOSHermesTestProject: TestProject;
     private expoTestProject: TestProject;
@@ -53,6 +54,10 @@ export class TestApplicationSetupManager {
             path.join(this.testAppsDirectory, SmokeTestsConstants.RNWAppName),
             path.join(resourcesDirectory, SmokeTestsConstants.sampleRNWAppName),
         );
+        this.windowsHermesTestProject = new TestProject(
+            path.join(this.testAppsDirectory, SmokeTestsConstants.RNWHermesAppName),
+            path.join(resourcesDirectory, SmokeTestsConstants.sampleRNWHermesAppName),
+        );
         this.expoTestProject = new TestProject(
             path.join(this.testAppsDirectory, SmokeTestsConstants.ExpoAppName),
             path.join(resourcesDirectory, SmokeTestsConstants.sampleExpoAppName),
@@ -71,6 +76,10 @@ export class TestApplicationSetupManager {
 
     public getWindowsRnProject(): TestProject {
         return this.windowsTestProject;
+    }
+
+    public getWindowsRnHermesProject(): TestProject {
+        return this.windowsHermesTestProject;
     }
 
     public getRnProject(): TestProject {
@@ -118,7 +127,8 @@ export class TestApplicationSetupManager {
         const expoSdkVersion = process.env.EXPO_SDK_MAJOR_VERSION || "";
         const pureExpoSdkVersion = process.env.PURE_EXPO_VERSION || "";
         const macOSrnVersion = process.env.RN_MAC_OS_VERSION || "";
-        const rnwVersion = process.env.RNW_VERSION || "";
+        const rnWindowsVersion = process.env.RN_WINDOWS_VERSION || "";
+        const rnwPackageVersion = process.env.RNW_PACKAGE_VERSION || "";
 
         const packagesForReactNativeProjects = new Map<string, string>(
             Object.entries({ "react-native": rnVersion }),
@@ -133,7 +143,7 @@ export class TestApplicationSetupManager {
             Object.entries({ "react-native": macOSrnVersion }),
         );
         const packagesForReactNativeWindowsProjects = new Map<string, string>(
-            Object.entries({ "react-native": rnwVersion }),
+            Object.entries({ "react-native": rnWindowsVersion }),
         );
 
         this.prepareWithCacheMiddleware(
@@ -198,7 +208,24 @@ export class TestApplicationSetupManager {
                 packagesForReactNativeWindowsProjects,
                 useCachedApplications,
                 () => {
-                    this.prepareRNWApplication(this.windowsTestProject, rnwVersion);
+                    this.prepareRNWApplication(
+                        this.windowsTestProject,
+                        rnWindowsVersion,
+                        rnwPackageVersion,
+                    );
+                },
+            );
+
+            this.prepareWithCacheMiddleware(
+                this.windowsHermesTestProject,
+                packagesForReactNativeWindowsProjects,
+                useCachedApplications,
+                () => {
+                    this.prepareRNWHermesApplication(
+                        this.windowsHermesTestProject,
+                        rnWindowsVersion,
+                        rnwPackageVersion,
+                    );
                 },
             );
         }
@@ -326,8 +353,14 @@ export class TestApplicationSetupManager {
         }
     }
 
-    private prepareReactNativeProjectForWindowsApplication(project: TestProject): void {
-        const command = `${utilities.npxCommand} react-native-windows-init --overwrite`;
+    private prepareReactNativeProjectForWindowsApplication(
+        project: TestProject,
+        isHermes: boolean = false,
+        rnwPackageVersion?: string,
+    ): void {
+        const command = `${utilities.npxCommand} react-native-windows-init --overwrite${
+            isHermes ? " --useHermes" : ""
+        }${rnwPackageVersion ? ` --version ${rnwPackageVersion}` : ""}`;
         SmokeTestLogger.projectPatchingLog(`*** Install additional RNW packages using ${command}`);
         utilities.execSync(
             command,
@@ -491,9 +524,22 @@ export class TestApplicationSetupManager {
         this.addExpoDependencyToRNProject(project, expoVersion);
     }
 
-    private prepareRNWApplication(project: TestProject, rnVersion?: string) {
+    private prepareRNWApplication(
+        project: TestProject,
+        rnVersion?: string,
+        rnwPackageVersion?: string,
+    ) {
         this.prepareReactNativeApplication(project, rnVersion);
-        this.prepareReactNativeProjectForWindowsApplication(project);
+        this.prepareReactNativeProjectForWindowsApplication(project, false, rnwPackageVersion);
+    }
+
+    private prepareRNWHermesApplication(
+        project: TestProject,
+        rnVersion?: string,
+        rnwPackageVersion?: string,
+    ) {
+        this.prepareReactNativeApplication(project, rnVersion);
+        this.prepareReactNativeProjectForWindowsApplication(project, true, rnwPackageVersion);
     }
 
     private prepareMacOSApplication(project: TestProject, rnVersion?: string) {

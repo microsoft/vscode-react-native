@@ -9,6 +9,7 @@ import * as fs from "fs";
 import { ILogger } from "../log/LogHelper";
 import * as os from "os";
 import * as nls from "vscode-nls";
+import { PromiseUtil } from "../../common/node/promise";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -85,10 +86,9 @@ export class AdbHelper {
     /**
      * Gets the list of Android connected devices and emulators.
      */
-    public getConnectedDevices(): Promise<IAdbDevice[]> {
-        return this.childProcess.execToString(`${this.adbExecutable} devices`).then(output => {
-            return this.parseConnectedDevices(output);
-        });
+    public async getConnectedDevices(): Promise<IAdbDevice[]> {
+        const output = await this.childProcess.execToString(`${this.adbExecutable} devices`);
+        return this.parseConnectedDevices(output);
     }
 
     public setLaunchActivity(launchActivity: string): void {
@@ -98,7 +98,7 @@ export class AdbHelper {
     /**
      * Broadcasts an intent to reload the application in debug mode.
      */
-    public switchDebugMode(
+    public async switchDebugMode(
         projectRoot: string,
         packageName: string,
         enable: boolean,
@@ -108,23 +108,11 @@ export class AdbHelper {
         let enableDebugCommand = `${this.adbExecutable} ${
             debugTarget ? "-s " + debugTarget : ""
         } shell am broadcast -a "${packageName}.RELOAD_APP_ACTION" --ez jsproxy ${enable}`;
-        return new CommandExecutor(this.nodeModulesRoot, projectRoot)
-            .execute(enableDebugCommand)
-            .then(() => {
-                // We should stop and start application again after RELOAD_APP_ACTION, otherwise app going to hangs up
-                return new Promise(resolve => {
-                    setTimeout(() => {
-                        this.stopApp(projectRoot, packageName, debugTarget, appIdSuffix).then(
-                            () => {
-                                return resolve(void 0);
-                            },
-                        );
-                    }, 200); // We need a little delay after broadcast command
-                });
-            })
-            .then(() => {
-                return this.launchApp(projectRoot, packageName, debugTarget, appIdSuffix);
-            });
+        await new CommandExecutor(this.nodeModulesRoot, projectRoot).execute(enableDebugCommand);
+        // We should stop and start application again after RELOAD_APP_ACTION, otherwise app going to hangs up
+        await PromiseUtil.delay(200); // We need a little delay after broadcast command
+        await this.stopApp(projectRoot, packageName, debugTarget, appIdSuffix);
+        return await this.launchApp(projectRoot, packageName, debugTarget, appIdSuffix);
     }
 
     /**
@@ -156,10 +144,9 @@ export class AdbHelper {
         return new CommandExecutor(projectRoot).execute(stopAppCommand);
     }
 
-    public apiVersion(deviceId: string): Promise<AndroidAPILevel> {
-        return this.executeQuery(deviceId, "shell getprop ro.build.version.sdk").then(output =>
-            parseInt(output, 10),
-        );
+    public async apiVersion(deviceId: string): Promise<AndroidAPILevel> {
+        const output = await this.executeQuery(deviceId, "shell getprop ro.build.version.sdk");
+        return parseInt(output, 10);
     }
 
     public reverseAdb(deviceId: string, port: number): Promise<void> {
@@ -180,10 +167,9 @@ export class AdbHelper {
         return this.commandExecutor.execute(command);
     }
 
-    public getOnlineDevices(): Promise<IAdbDevice[]> {
-        return this.getConnectedDevices().then(devices => {
-            return devices.filter(device => device.isOnline);
-        });
+    public async getOnlineDevices(): Promise<IAdbDevice[]> {
+        const devices = await this.getConnectedDevices();
+        return devices.filter(device => device.isOnline);
     }
 
     public startLogCat(adbParameters: string[]): ISpawnResult {
