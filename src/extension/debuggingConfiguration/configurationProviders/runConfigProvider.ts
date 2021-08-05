@@ -46,8 +46,10 @@ export class RunConfigProvider extends BaseConfigProvider {
         if (state.config.platform !== PlatformType.Exponent) {
             return async () => {
                 await this.configureApplicationType(input, state.config);
-                if (state.config.platform === PlatformType.iOS &&
-                    state.config.type === DEBUG_TYPES.REACT_NATIVE_DIRECT) {
+                if (
+                    state.config.platform === PlatformType.iOS &&
+                    state.config.type === DEBUG_TYPES.REACT_NATIVE_DIRECT
+                ) {
                     this.maxStepCount = 3;
                     await this.configureUseHermesEngine(input, state.config);
                     // Direct iOS debugging using ios-webkit-debug-proxy is supported
