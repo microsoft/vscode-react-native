@@ -109,6 +109,7 @@ export class AdbHelper {
             debugTarget ? "-s " + debugTarget : ""
         } shell am broadcast -a "${packageName}.RELOAD_APP_ACTION" --ez jsproxy ${enable}`;
         await new CommandExecutor(this.nodeModulesRoot, projectRoot).execute(enableDebugCommand);
+        // We should stop and start application again after RELOAD_APP_ACTION, otherwise app going to hangs up
         await PromiseUtil.delay(200); // We need a little delay after broadcast command
         await this.stopApp(projectRoot, packageName, debugTarget, appIdSuffix);
         return await this.launchApp(projectRoot, packageName, debugTarget, appIdSuffix);
