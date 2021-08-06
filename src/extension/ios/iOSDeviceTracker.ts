@@ -155,13 +155,11 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
      *
      * @format
      */
-    private async getActiveDevices(): Promise<Array<DeviceTarget>> {
-        try {
-            return await iosUtil.targets();
-        } catch (e) {
+    private getActiveDevices(): Promise<Array<DeviceTarget>> {
+        return iosUtil.targets().catch(e => {
             this.logger.error(e.message);
             return [];
-        }
+        });
     }
 
     /**
@@ -180,14 +178,12 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
      *
      * @format
      */
-    private async isXcodeDetected(): Promise<boolean> {
+    private isXcodeDetected(): Promise<boolean> {
         const cp = new ChildProcessUtils();
-        try {
-            await cp.execToString("xcode-select -p");
-            return true;
-        } catch (e) {
-            return false;
-        }
+        return cp
+            .execToString("xcode-select -p")
+            .then(() => true)
+            .catch(() => false);
     }
 
     /**
