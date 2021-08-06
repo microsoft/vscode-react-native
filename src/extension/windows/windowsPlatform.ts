@@ -28,19 +28,18 @@ export class WindowsPlatform extends GeneralMobilePlatform {
         },
     ];
 
-    public reloadApp(appLauncher: AppLauncher): Promise<void> {
+    public async reloadApp(appLauncher: AppLauncher): Promise<void> {
         const worker = appLauncher.getAppWorker();
         if (worker) {
             worker.reloadAppCommand();
         }
-        return Promise.resolve();
     }
 
     constructor(protected runOptions: IWindowsRunOptions, platformDeps: MobilePlatformDeps = {}) {
         super(runOptions, platformDeps);
     }
 
-    public runApp(enableDebug: boolean = true): Promise<void> {
+    public async runApp(enableDebug: boolean = true): Promise<void> {
         let extProps: any = {
             platform: {
                 value: PlatformType.Windows,
