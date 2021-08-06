@@ -10,7 +10,7 @@ import { OutputVerifier, PatternToFailure } from "../../common/outputVerifier";
 import { TelemetryHelper } from "../../common/telemetryHelper";
 import { CommandExecutor } from "../../common/commandExecutor";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
-import { PlistBuddy, IOSBuildLocationData } from "../ios/plistBuddy";
+import { PlistBuddy } from "../ios/plistBuddy";
 import { ChildProcess } from "../../common/node/childProcess";
 
 /**
