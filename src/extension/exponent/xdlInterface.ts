@@ -49,18 +49,15 @@ export const getNgrokResolver: () => Promise<XDLPackage.ResolveNgrok> = PackageL
 
 export type IUser = XDLPackage.IUser;
 
-export function configReactNativeVersionWarnings(): Promise<void> {
-    return getXDLPackage().then(xdl => {
-        xdl.Config.validation.reactNativeVersionWarnings = false;
-    });
+export async function configReactNativeVersionWarnings(): Promise<void> {
+    (await getXDLPackage()).Config.validation.reactNativeVersionWarnings = false;
 }
 
 export async function attachLoggerStream(
     rootPath: string,
     options?: XDLPackage.IBunyanStream | any,
 ): Promise<void> {
-    const xdl = await getXDLPackage();
-    return xdl.ProjectUtils.attachLoggerStream(rootPath, options);
+    (await getXDLPackage()).ProjectUtils.attachLoggerStream(rootPath, options);
 }
 
 export async function currentUser(): Promise<XDLPackage.IUser> {
@@ -81,69 +78,58 @@ export async function login(username: string, password: string): Promise<XDLPack
 }
 
 export async function getExpoSdkVersions(): Promise<XDLPackage.SDKVersions> {
-    const xdl = await getXDLPackage();
-    return await xdl.Versions.sdkVersionsAsync();
+    return (await getXDLPackage()).Versions.sdkVersionsAsync();
 }
 
 export async function getReleasedExpoSdkVersions(): Promise<XDLPackage.SDKVersions> {
-    const xdl = await getXDLPackage();
-    return await xdl.Versions.releasedSdkVersionsAsync();
+    return (await getXDLPackage()).Versions.releasedSdkVersionsAsync();
 }
 
 export async function publish(
     projectRoot: string,
     options?: XDLPackage.IPublishOptions,
 ): Promise<XDLPackage.IPublishResponse> {
-    const xdl = await getXDLPackage();
-    return await xdl.Project.publishAsync(projectRoot, options);
+    return (await getXDLPackage()).Project.publishAsync(projectRoot, options);
 }
 
 export async function setOptions(
     projectRoot: string,
     options?: XDLPackage.IOptions,
 ): Promise<void> {
-    const xdl = await getXDLPackage();
-    return await xdl.Project.setOptionsAsync(projectRoot, options);
+    (await getXDLPackage()).Project.setOptionsAsync(projectRoot, options);
 }
 
 export async function startExponentServer(projectRoot: string): Promise<void> {
-    const xdl = await getXDLPackage();
-    return await xdl.Project.startExpoServerAsync(projectRoot);
+    (await getXDLPackage()).Project.startExpoServerAsync(projectRoot);
 }
 
 export async function startTunnels(projectRoot: string): Promise<void> {
-    const xdl = await getXDLPackage();
-    return await xdl.Project.startTunnelsAsync(projectRoot);
+    (await getXDLPackage()).Project.startTunnelsAsync(projectRoot);
 }
 
 export async function getUrl(
     projectRoot: string,
     options?: XDLPackage.IUrlOptions,
 ): Promise<string> {
-    const xdl = await getXDLPackage();
-    return await xdl.UrlUtils.constructManifestUrlAsync(projectRoot, options);
+    return (await getXDLPackage()).UrlUtils.constructManifestUrlAsync(projectRoot, options);
 }
 
 export async function stopAll(projectRoot: string): Promise<void> {
-    const xdl = await getXDLPackage();
-    return await xdl.Project.stopAsync(projectRoot);
+    (await getXDLPackage()).Project.stopAsync(projectRoot);
 }
 
 export async function startAdbReverse(projectRoot: string): Promise<boolean> {
-    const xdl = await getXDLPackage();
-    return await xdl.Android.startAdbReverseAsync(projectRoot);
+    return (await getXDLPackage()).Android.startAdbReverseAsync(projectRoot);
 }
 
 export async function stopAdbReverse(projectRoot: string): Promise<void> {
-    const xdl = await getXDLPackage();
-    return await xdl.Android.stopAdbReverseAsync(projectRoot);
+    (await getXDLPackage()).Android.stopAdbReverseAsync(projectRoot);
 }
 
 export async function getMetroConfig(
     projectRoot: string,
 ): Promise<MetroConfigPackage.IMetroConfig> {
-    const metroConfigPackage = await getMetroConfigPackage();
-    return await metroConfigPackage.loadAsync(projectRoot);
+    return (await getMetroConfigPackage()).loadAsync(projectRoot);
 }
 
 export async function isNgrokInstalled(projectRoot: string): Promise<boolean> {

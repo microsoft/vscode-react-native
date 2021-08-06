@@ -181,7 +181,7 @@ export class ExponentHelper {
     }
 
     public async findOrInstallNgrokGlobally(): Promise<void> {
-        let ngrokInstalled: boolean | Promise<boolean>;
+        let ngrokInstalled: boolean;
         try {
             await this.addNodeModulesPathToEnvIfNotPresent();
             ngrokInstalled = await XDL.isNgrokInstalled(this.projectRootPath);
