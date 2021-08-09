@@ -63,7 +63,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
                 this.runOptions.expoHostType !== "local"
                     ? false
                     : // we need to execute 'adb reverse' command to bind ports used by Expo and RN of local machine to ports of a connected Android device or a running emulator
-                      await XDL.startAdbReverse(this.projectPath)
+                      await XDL.startAdbReverse(this.projectPath);
             let exponentUrl = "";
             switch (this.runOptions.expoHostType) {
                 case "lan":
