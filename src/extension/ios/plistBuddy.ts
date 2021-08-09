@@ -165,7 +165,7 @@ export class PlistBuddy {
             await this.invokePlistBuddy(`Set ${property} ${value}`, plistFile);
         } catch (e) {
             await this.invokePlistBuddy(`Add ${property} bool ${value}`, plistFile);
-        } // eslint-disable-line @typescript-eslint/no-empty-function
+        }
     }
 
     public async deletePlistProperty(plistFile: string, property: string): Promise<void> {
