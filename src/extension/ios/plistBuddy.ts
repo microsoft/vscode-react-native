@@ -175,7 +175,7 @@ export class PlistBuddy {
             if (!err.toString().toLowerCase().includes("does not exist")) {
                 throw err;
             }
-        } // eslint-disable-line @typescript-eslint/no-empty-function
+        }
     }
 
     public readPlistProperty(plistFile: string, property: string): Promise<string> {
