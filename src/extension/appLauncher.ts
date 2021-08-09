@@ -195,26 +195,19 @@ export class AppLauncher {
         this.mobilePlatform.dispose();
     }
 
-    public openFileAtLocation(filename: string, lineNumber: number): Promise<void> {
-        return new Promise(resolve => {
-            vscode.workspace
-                .openTextDocument(vscode.Uri.file(filename))
-                .then((document: vscode.TextDocument) => {
-                    vscode.window.showTextDocument(document).then((editor: vscode.TextEditor) => {
-                        let range = editor.document.lineAt(lineNumber - 1).range;
-                        editor.selection = new vscode.Selection(range.start, range.end);
-                        editor.revealRange(range, vscode.TextEditorRevealType.InCenter);
-                        resolve();
-                    });
-                });
-        });
+    public async openFileAtLocation(filename: string, lineNumber: number): Promise<void> {
+        const document = await vscode.workspace.openTextDocument(vscode.Uri.file(filename));
+        const editor = await vscode.window.showTextDocument(document);
+        let range = editor.document.lineAt(lineNumber - 1).range;
+        editor.selection = new vscode.Selection(range.start, range.end);
+        editor.revealRange(range, vscode.TextEditorRevealType.InCenter);
     }
 
     public getPackagerPort(projectFolder: string): number {
         return SettingsHelper.getPackagerPort(projectFolder);
     }
 
-    public launch(launchArgs: any): Promise<any> {
+    public async launch(launchArgs: any): Promise<any> {
         let mobilePlatformOptions = this.requestSetup(launchArgs);
 
         // We add the parameter if it's defined (adapter crashes otherwise)
@@ -256,170 +249,152 @@ export class AppLauncher {
             mobilePlatformOptions,
             platformDeps,
         );
-        return new Promise((resolve, reject) => {
-            let extProps: any = {
-                platform: {
-                    value: launchArgs.platform,
-                    isPii: false,
-                },
+
+        let extProps: any = {
+            platform: {
+                value: launchArgs.platform,
+                isPii: false,
+            },
+        };
+
+        if (mobilePlatformOptions.isDirect) {
+            extProps.isDirect = {
+                value: true,
+                isPii: false,
             };
+        }
 
-            if (mobilePlatformOptions.isDirect) {
-                extProps.isDirect = {
-                    value: true,
-                    isPii: false,
-                };
-            }
-
-            return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
+        try {
+            const versions = await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
                 mobilePlatformOptions.nodeModulesRoot,
                 ProjectVersionHelper.generateAdditionalPackagesToCheckByPlatform(launchArgs),
-            )
-                .then(versions => {
-                    mobilePlatformOptions.reactNativeVersions = versions;
-                    extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(
+            );
+            mobilePlatformOptions.reactNativeVersions = versions;
+            extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(
+                launchArgs,
+                versions,
+                extProps,
+            );
+
+            await TelemetryHelper.generate("launch", extProps, async generator => {
+                try {
+                    generator.step("resolveEmulator");
+                    await this.resolveAndSaveVirtualDevice(
+                        this.mobilePlatform,
                         launchArgs,
-                        versions,
-                        extProps,
+                        mobilePlatformOptions,
                     );
 
-                    TelemetryHelper.generate("launch", extProps, generator => {
-                        generator.step("resolveEmulator");
-                        return this.resolveAndSaveVirtualDevice(
-                            this.mobilePlatform,
-                            launchArgs,
-                            mobilePlatformOptions,
-                        )
-                            .then(() => this.mobilePlatform.beforeStartPackager())
-                            .then(() => {
-                                generator.step("checkPlatformCompatibility");
-                                TargetPlatformHelper.checkTargetPlatformSupport(
-                                    mobilePlatformOptions.platform,
-                                );
-                            })
-                            .then(() => {
-                                generator.step("startPackager");
-                                return this.mobilePlatform.startPackager();
-                            })
-                            .then(() => {
-                                // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
-                                // and the user needs to Reload JS manually. We prewarm it to prevent that issue
-                                generator.step("prewarmBundleCache");
+                    await this.mobilePlatform.beforeStartPackager();
+
+                    generator.step("checkPlatformCompatibility");
+                    TargetPlatformHelper.checkTargetPlatformSupport(mobilePlatformOptions.platform);
+
+                    generator.step("startPackager");
+                    await this.mobilePlatform.startPackager();
+
+                    // We've seen that if we don't prewarm the bundle cache, the app fails on the first attempt to connect to the debugger logic
+                    // and the user needs to Reload JS manually. We prewarm it to prevent that issue
+                    generator.step("prewarmBundleCache");
+                    this.logger.info(
+                        localize(
+                            "PrewarmingBundleCache",
+                            "Prewarming bundle cache. This may take a while ...",
+                        ),
+                    );
+                    await this.mobilePlatform.prewarmBundleCache();
+
+                    generator
+                        .step("mobilePlatform.runApp")
+                        .add("target", mobilePlatformOptions.target, false);
+                    this.logger.info(
+                        localize(
+                            "BuildingAndRunningApplication",
+                            "Building and running application.",
+                        ),
+                    );
+                    await this.mobilePlatform.runApp();
+
+                    if (mobilePlatformOptions.isDirect) {
+                        if (launchArgs.useHermesEngine) {
+                            generator.step("mobilePlatform.enableHermesDebuggingMode");
+                            if (mobilePlatformOptions.enableDebug) {
                                 this.logger.info(
                                     localize(
-                                        "PrewarmingBundleCache",
-                                        "Prewarming bundle cache. This may take a while ...",
+                                        "PrepareHermesDebugging",
+                                        "Prepare Hermes debugging (experimental)",
                                     ),
                                 );
-                                return this.mobilePlatform.prewarmBundleCache();
-                            })
-                            .then(() => {
-                                generator
-                                    .step("mobilePlatform.runApp")
-                                    .add("target", mobilePlatformOptions.target, false);
+                            } else {
                                 this.logger.info(
                                     localize(
-                                        "BuildingAndRunningApplication",
-                                        "Building and running application.",
+                                        "PrepareHermesLaunch",
+                                        "Prepare Hermes launch (experimental)",
                                     ),
                                 );
-                                return this.mobilePlatform.runApp();
-                            })
-                            .then(() => {
-                                if (mobilePlatformOptions.isDirect) {
-                                    if (launchArgs.useHermesEngine) {
-                                        generator.step("mobilePlatform.enableHermesDebuggingMode");
-                                        if (mobilePlatformOptions.enableDebug) {
-                                            this.logger.info(
-                                                localize(
-                                                    "PrepareHermesDebugging",
-                                                    "Prepare Hermes debugging (experimental)",
-                                                ),
-                                            );
-                                        } else {
-                                            this.logger.info(
-                                                localize(
-                                                    "PrepareHermesLaunch",
-                                                    "Prepare Hermes launch (experimental)",
-                                                ),
-                                            );
-                                        }
-                                    } else if (launchArgs.platform === PlatformType.iOS) {
-                                        generator.step(
-                                            "mobilePlatform.enableIosDirectDebuggingMode",
-                                        );
-                                        if (mobilePlatformOptions.enableDebug) {
-                                            this.logger.info(
-                                                localize(
-                                                    "PrepareDirectIosDebugging",
-                                                    "Prepare direct iOS debugging (experimental)",
-                                                ),
-                                            );
-                                        } else {
-                                            this.logger.info(
-                                                localize(
-                                                    "PrepareDirectIosLaunch",
-                                                    "Prepare direct iOS launch (experimental)",
-                                                ),
-                                            );
-                                        }
-                                    }
-                                    generator.step("mobilePlatform.disableJSDebuggingMode");
-                                    this.logger.info(
-                                        localize("DisableJSDebugging", "Disable JS Debugging"),
-                                    );
-                                    return this.mobilePlatform.disableJSDebuggingMode();
-                                } else {
-                                    generator.step("mobilePlatform.enableJSDebuggingMode");
-                                    this.logger.info(
-                                        localize("EnableJSDebugging", "Enable JS Debugging"),
-                                    );
-                                    return this.mobilePlatform.enableJSDebuggingMode();
-                                }
-                            })
-                            .then(resolve)
-                            .catch(error => {
-                                if (
-                                    !mobilePlatformOptions.enableDebug &&
-                                    launchArgs.platform === PlatformType.iOS &&
-                                    launchArgs.type === DEBUG_TYPES.REACT_NATIVE
-                                ) {
-                                    // If we disable debugging mode for iOS scenarios, we'll we ignore the error and run the 'run-ios' command anyway,
-                                    // since the error doesn't affects an application launch process
-                                    return resolve(void 0);
-                                }
-                                generator.addError(error);
-                                this.logger.error(error);
-                                reject(error);
-                            });
-                    });
-                })
-                .catch(error => {
-                    if (error && error.errorCode) {
-                        if (
-                            error.errorCode === InternalErrorCode.ReactNativePackageIsNotInstalled
-                        ) {
-                            TelemetryHelper.sendErrorEvent(
-                                "ReactNativePackageIsNotInstalled",
-                                ErrorHelper.getInternalError(
-                                    InternalErrorCode.ReactNativePackageIsNotInstalled,
-                                ),
-                            );
-                        } else if (
-                            error.errorCode === InternalErrorCode.ReactNativeWindowsIsNotInstalled
-                        ) {
-                            TelemetryHelper.sendErrorEvent(
-                                "ReactNativeWindowsPackageIsNotInstalled",
-                                ErrorHelper.getInternalError(
-                                    InternalErrorCode.ReactNativeWindowsIsNotInstalled,
-                                ),
-                            );
+                            }
+                        } else if (launchArgs.platform === PlatformType.iOS) {
+                            generator.step("mobilePlatform.enableIosDirectDebuggingMode");
+                            if (mobilePlatformOptions.enableDebug) {
+                                this.logger.info(
+                                    localize(
+                                        "PrepareDirectIosDebugging",
+                                        "Prepare direct iOS debugging (experimental)",
+                                    ),
+                                );
+                            } else {
+                                this.logger.info(
+                                    localize(
+                                        "PrepareDirectIosLaunch",
+                                        "Prepare direct iOS launch (experimental)",
+                                    ),
+                                );
+                            }
                         }
+                        generator.step("mobilePlatform.disableJSDebuggingMode");
+                        this.logger.info(localize("DisableJSDebugging", "Disable JS Debugging"));
+                        await this.mobilePlatform.disableJSDebuggingMode();
+                    } else {
+                        generator.step("mobilePlatform.enableJSDebuggingMode");
+                        this.logger.info(localize("EnableJSDebugging", "Enable JS Debugging"));
+                        await this.mobilePlatform.enableJSDebuggingMode();
                     }
+                } catch (error) {
+                    if (
+                        !mobilePlatformOptions.enableDebug &&
+                        launchArgs.platform === PlatformType.iOS &&
+                        launchArgs.type === DEBUG_TYPES.REACT_NATIVE
+                    ) {
+                        // If we disable debugging mode for iOS scenarios, we'll we ignore the error and run the 'run-ios' command anyway,
+                        // since the error doesn't affects an application launch process
+                        return;
+                    }
+                    generator.addError(error);
                     this.logger.error(error);
-                    reject(error);
-                });
-        });
+                    throw error;
+                }
+            });
+        } catch (error) {
+            if (error && error.errorCode) {
+                if (error.errorCode === InternalErrorCode.ReactNativePackageIsNotInstalled) {
+                    TelemetryHelper.sendErrorEvent(
+                        "ReactNativePackageIsNotInstalled",
+                        ErrorHelper.getInternalError(
+                            InternalErrorCode.ReactNativePackageIsNotInstalled,
+                        ),
+                    );
+                } else if (error.errorCode === InternalErrorCode.ReactNativeWindowsIsNotInstalled) {
+                    TelemetryHelper.sendErrorEvent(
+                        "ReactNativeWindowsPackageIsNotInstalled",
+                        ErrorHelper.getInternalError(
+                            InternalErrorCode.ReactNativeWindowsIsNotInstalled,
+                        ),
+                    );
+                }
+            }
+            this.logger.error(error);
+            throw error;
+        }
     }
 
     private resolveAndSaveVirtualDevice(
