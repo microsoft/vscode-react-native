@@ -8,6 +8,7 @@ import { OutputVerifier, PatternToFailure } from "../../common/outputVerifier";
 import { TelemetryHelper } from "../../common/telemetryHelper";
 import { CommandExecutor } from "../../common/commandExecutor";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
+import { AppLauncher } from "../appLauncher";
 
 /**
  * Windows specific platform implementation for debugging RN applications.
@@ -21,19 +22,38 @@ export class WindowsPlatform extends GeneralMobilePlatform {
             pattern: "Unrecognized command 'run-windows'",
             errorCode: InternalErrorCode.WinRNMPPluginIsNotInstalled,
         },
+        {
+            pattern: /×.+$/gm,
+            errorCode: InternalErrorCode.WinRunCommandFailed,
+        },
     ];
+
+    public reloadApp(appLauncher: AppLauncher): Promise<void> {
+        const worker = appLauncher.getAppWorker();
+        if (worker) {
+            worker.reloadAppCommand();
+        }
+        return Promise.resolve();
+    }
 
     constructor(protected runOptions: IWindowsRunOptions, platformDeps: MobilePlatformDeps = {}) {
         super(runOptions, platformDeps);
     }
 
     public runApp(enableDebug: boolean = true): Promise<void> {
-        let extProps = {
+        let extProps: any = {
             platform: {
                 value: PlatformType.Windows,
                 isPii: false,
             },
         };
+
+        if (this.runOptions.isDirect) {
+            extProps.isDirect = {
+                value: true,
+                isPii: false,
+            };
+        }
 
         extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(
             this.runOptions,
@@ -53,7 +73,9 @@ export class WindowsPlatform extends GeneralMobilePlatform {
             ) {
                 this.runArguments.push("--logging");
                 if (enableDebug) {
-                    this.runArguments.push("--remote-debugging");
+                    this.runOptions.isDirect
+                        ? this.runArguments.push("--direct-debugging")
+                        : this.runArguments.push("--remote-debugging");
                 }
             }
 
@@ -70,6 +92,7 @@ export class WindowsPlatform extends GeneralMobilePlatform {
             }
 
             const runWindowsSpawn = new CommandExecutor(
+                this.runOptions.nodeModulesRoot,
                 this.projectPath,
                 this.logger,
             ).spawnReactCommand(`run-${this.platformName}`, this.runArguments, { env });

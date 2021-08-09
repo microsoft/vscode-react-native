@@ -21,13 +21,13 @@ interface TestEnvVariables {
     IOS_SIMULATOR?: string;
     IOS_VERSION?: string;
     CODE_VERSION?: string;
-    EXPO_XDL_VERSION?: string;
     EXPO_SDK_MAJOR_VERSION?: string;
     RN_VERSION?: string;
     PURE_RN_VERSION?: string;
     PURE_EXPO_VERSION?: string;
     RN_MAC_OS_VERSION?: string;
-    RNW_VERSION?: string;
+    RN_WINDOWS_VERSION?: string;
+    RNW_PACKAGE_VERSION?: string;
 }
 
 export class TestConfigProcessor {
@@ -56,9 +56,6 @@ export class TestConfigProcessor {
 
     private getConfiguration(variables: any): TestEnvVariables {
         // Hack for Azure DevOps, because it doesn't implicitly support optional parameters for task group
-        if (variables.EXPO_XDL_VERSION === "skip") {
-            delete variables.EXPO_XDL_VERSION;
-        }
         if (variables.EXPO_SDK_MAJOR_VERSION === "skip") {
             delete variables.EXPO_SDK_MAJOR_VERSION;
         }
@@ -94,9 +91,6 @@ export class TestConfigProcessor {
         if (!variables.CODE_VERSION) {
             throw new Error(`Missing CODE_VERSION variable`);
         }
-        if (!variables.EXPO_XDL_VERSION) {
-            SmokeTestLogger.warn("Optional EXPO_XDL_VERSION variable is not set");
-        }
         if (!variables.EXPO_SDK_MAJOR_VERSION) {
             SmokeTestLogger.warn(
                 "Optional EXPO_SDK_MAJOR_VERSION variable is not set. Use latest.",
@@ -114,8 +108,11 @@ export class TestConfigProcessor {
         if (!variables.RN_MAC_OS_VERSION) {
             SmokeTestLogger.warn("Optional RN_MAC_OS_VERSION variable is not set");
         }
-        if (!variables.RNW_VERSION) {
-            SmokeTestLogger.warn("Optional PURE_EXPO_VERSION variable is not set");
+        if (!variables.RN_WINDOWS_VERSION) {
+            SmokeTestLogger.warn("Optional RN_WINDOWS_VERSION variable is not set");
+        }
+        if (!variables.RNW_PACKAGE_VERSION) {
+            SmokeTestLogger.warn("Optional RNW_PACKAGE_VERSION variable is not set");
         }
     }
 
@@ -135,10 +132,10 @@ export class TestConfigProcessor {
         initLog += `IOS_SIMULATOR = ${process.env.IOS_SIMULATOR}\n`;
         initLog += `IOS_VERSION = ${process.env.IOS_VERSION}\n`;
         initLog += `CODE_VERSION = ${process.env.CODE_VERSION}\n`;
-        initLog += `EXPO_XDL_VERSION = ${process.env.EXPO_XDL_VERSION}\n`;
         initLog += `EXPO_SDK_MAJOR_VERSION = ${process.env.EXPO_SDK_MAJOR_VERSION}\n`;
         initLog += `RN_VERSION = ${process.env.RN_VERSION}\n`;
-        initLog += `RNW_VERSION = ${process.env.RNW_VERSION}\n`;
+        initLog += `RN_WINDOWS_VERSION = ${process.env.RN_WINDOWS_VERSION}\n`;
+        initLog += `RNW_PACKAGE_VERSION = ${process.env.RNW_PACKAGE_VERSION}\n`;
         initLog += `PURE_RN_VERSION = ${process.env.PURE_RN_VERSION}\n`;
         initLog += `PURE_EXPO_VERSION = ${process.env.PURE_EXPO_VERSION}\n`;
         initLog += `RN_MAC_OS_VERSION = ${process.env.RN_MAC_OS_VERSION}\n`;

@@ -19,22 +19,23 @@ export default class AutomationHelper {
 
     private async retryWithSpecifiedPollRetryParameters(
         fun: () => Promise<any>,
-        catchFun: () => Promise<any>,
         retryCount: number,
         pollRetryCount: number = 2000,
         pollRetryInterval: number = 100,
-    ): Promise<void> {
+        catchFun?: () => Promise<any>,
+    ): Promise<any> {
         let tryes = retryCount;
         while (tryes > 0) {
             try {
-                await this.app.workbench.code.executeWithSpecifiedPollRetryParameters(
+                return await this.app.workbench.code.executeWithSpecifiedPollRetryParameters(
                     fun,
                     pollRetryCount,
                     pollRetryInterval,
                 );
-                break;
             } catch (e) {
-                await catchFun();
+                if (catchFun) {
+                    await catchFun();
+                }
                 tryes--;
                 if (tryes === 0) {
                     throw e;
@@ -46,34 +47,54 @@ export default class AutomationHelper {
     public async openFileWithRetry(
         fileName: string,
         retryCount: number = 3,
-        pollRetryCount: number = 10,
+        pollRetryCount: number = 3,
         pollRetryInterval: number = 1000,
     ): Promise<any> {
         const fun = async () => await this.app.workbench.quickaccess.openFile(fileName);
         const catchFun = async () => await this.app.workbench.code.dispatchKeybinding("escape");
         await this.retryWithSpecifiedPollRetryParameters(
             fun,
-            catchFun,
             retryCount,
             pollRetryCount,
             pollRetryInterval,
+            catchFun,
         );
     }
 
     public async runCommandWithRetry(
         commandId: string,
         retryCount: number = 3,
-        pollRetryCount: number = 10,
+        pollRetryCount: number = 3,
         pollRetryInterval: number = 1000,
     ): Promise<any> {
         const fun = async () => await this.app.workbench.quickaccess.runCommand(commandId);
         const catchFun = async () => await this.app.workbench.code.dispatchKeybinding("escape");
         await this.retryWithSpecifiedPollRetryParameters(
             fun,
-            catchFun,
             retryCount,
             pollRetryCount,
             pollRetryInterval,
+            catchFun,
+        );
+    }
+
+    public async waitForOutputWithRetry(
+        string: string,
+        retryCount: number = 2,
+        pollRetryCount: number = 100,
+        pollRetryInterval: number = 100,
+    ): Promise<boolean> {
+        const fun = async () =>
+            await this.app.workbench.debug.waitForOutput(output =>
+                output.some(line => line.indexOf(string) >= 0),
+            );
+        const catchFun = async () => await this.app.workbench.debug.stepOver();
+        return await this.retryWithSpecifiedPollRetryParameters(
+            fun,
+            retryCount,
+            pollRetryCount,
+            pollRetryInterval,
+            catchFun,
         );
     }
 
@@ -91,10 +112,10 @@ export default class AutomationHelper {
         const catchFun = async () => await this.app.workbench.code.dispatchKeybinding("escape");
         await this.retryWithSpecifiedPollRetryParameters(
             fun,
-            catchFun,
             retryCount,
             pollRetryCount,
             pollRetryInterval,
+            catchFun,
         );
     }
 
@@ -102,7 +123,7 @@ export default class AutomationHelper {
         func: (stackFrame: IStackFrame) => boolean,
         message: string,
         retryCount: number = 3,
-        pollRetryCount: number = 60,
+        pollRetryCount: number = 30,
         pollRetryInterval: number = 1000,
         beforeWaitForStackFrame?: () => Promise<any>,
     ): Promise<any> {
@@ -110,22 +131,42 @@ export default class AutomationHelper {
             if (beforeWaitForStackFrame) {
                 await beforeWaitForStackFrame();
             }
-            await this.app.workbench.debug.waitForStackFrame(func, message);
+            // We cant find stack frame if Debug viewlet did not opened
+            await this.app.workbench.debug.openDebugViewlet();
+            let stackFrame: IStackFrame | undefined = undefined;
+            try {
+                await this.app.workbench.debug.waitForStackFrame((sf: IStackFrame) => {
+                    stackFrame = sf;
+                    return func(sf);
+                }, message);
+            } catch (error) {
+                // Sometimes, when you start debugging,
+                // the first breakpoint is triggered in some other 'js' file
+                // that is not related to the testing project.
+                // Click 'continue' to workaround this error.
+                if (stackFrame && !func(stackFrame)) {
+                    await this.app.workbench.debug.continue();
+                }
+                await this.app.workbench.debug.waitForStackFrame((sf: IStackFrame) => {
+                    return func(sf);
+                }, message);
+            }
         };
-        const catchFun = async () =>
+        const catchFun = async () => {
             await this.runCommandWithRetry(SmokeTestsConstants.reloadAppCommand);
+        };
         await this.retryWithSpecifiedPollRetryParameters(
             fun,
-            catchFun,
             retryCount,
             pollRetryCount,
             pollRetryInterval,
+            catchFun,
         );
     }
 
     public async disconnectFromDebuggerWithRetry(
         retryCount: number = 3,
-        pollRetryCount: number = 30,
+        pollRetryCount: number = 10,
         pollRetryInterval: number = 1000,
     ): Promise<any> {
         const fun = async () => {
@@ -138,12 +179,26 @@ export default class AutomationHelper {
             await this.app.workbench.code.waitForElement(TOOLBAR_HIDDEN);
             await this.app.workbench.code.waitForElement(NOT_DEBUG_STATUS_BAR);
         };
-        const catchFun = async () => {
-            return;
+        await this.retryWithSpecifiedPollRetryParameters(
+            fun,
+            retryCount,
+            pollRetryCount,
+            pollRetryInterval,
+        );
+    }
+
+    public async stopDebuggingWithRetry(
+        retryCount: number = 3,
+        pollRetryCount: number = 10,
+        pollRetryInterval: number = 1000,
+    ): Promise<any> {
+        const fun = async () => {
+            await this.app.workbench.code.waitAndClick(STOP);
+            await this.app.workbench.code.waitForElement(TOOLBAR_HIDDEN);
+            await this.app.workbench.code.waitForElement(NOT_DEBUG_STATUS_BAR);
         };
         await this.retryWithSpecifiedPollRetryParameters(
             fun,
-            catchFun,
             retryCount,
             pollRetryCount,
             pollRetryInterval,
@@ -163,10 +218,10 @@ export default class AutomationHelper {
         const catchFun = async () => await this.app.workbench.code.dispatchKeybinding("escape");
         await this.retryWithSpecifiedPollRetryParameters(
             fun,
-            catchFun,
             retryCount,
             pollRetryCount,
             pollRetryInterval,
+            catchFun,
         );
     }
 }

@@ -15,9 +15,13 @@ export default class TestProject {
 
     private _parentPathForWorkspace: string;
     private _testButtonFileForWorkspace: string;
+    private _testNetworkButtonFileForWorkspace: string;
     private _gradleBuildFilePathForWorkspace: string;
+    private _settingsJsonPath: string;
 
+    private _settingsJsonSamplePath: string;
     private _testButtonFileForSample: string;
+    private _testNetworkButtonFileForSample: string;
     private _gradleBuildFilePathForSample: string;
 
     constructor(private _workspaceDirectory: string, private _sampleDirectory: string) {
@@ -25,8 +29,18 @@ export default class TestProject {
         this._vsCodeConfigPath = path.join(this.workspaceDirectory, ".vscode");
         this._parentPathForWorkspace = path.join(this.workspaceDirectory, "..");
         this._packageJsonPath = path.join(this.workspaceDirectory, "package.json");
+        this._settingsJsonSamplePath = path.join(this.sampleDirectory, "settings.json");
+        this._settingsJsonPath = path.join(this._vsCodeConfigPath, "settings.json");
         this._testButtonFileForWorkspace = path.join(this.workspaceDirectory, "AppTestButton.js");
         this._testButtonFileForSample = path.join(this.sampleDirectory, "AppTestButton.js");
+        this._testNetworkButtonFileForWorkspace = path.join(
+            this.workspaceDirectory,
+            "AppTestNetworkButton.js",
+        );
+        this._testNetworkButtonFileForSample = path.join(
+            this.sampleDirectory,
+            "AppTestNetworkButton.js",
+        );
         this._metroConfigPath = path.join(this.workspaceDirectory, "metro.config.js");
         this._expoSettingsPath = path.join(this.workspaceDirectory, ".expo", "settings.json");
         this._gradleBuildFilePathForWorkspace = path.join(
@@ -89,6 +103,12 @@ export default class TestProject {
     get packageJsonPath(): string {
         return this._packageJsonPath;
     }
+    get settingsJsonPath(): string {
+        return this._settingsJsonPath;
+    }
+    get settingsJsonSamplePath(): string {
+        return this._settingsJsonSamplePath;
+    }
     get testButtonFileForWorkspace(): string {
         return this._testButtonFileForWorkspace;
     }
@@ -106,5 +126,11 @@ export default class TestProject {
     }
     get gradleBuildFilePathForSample(): string {
         return this._gradleBuildFilePathForSample;
+    }
+    get testNetworkButtonFileForSample(): string {
+        return this._testNetworkButtonFileForSample;
+    }
+    get testNetworkButtonFileForWorkspace(): string {
+        return this._testNetworkButtonFileForWorkspace;
     }
 }

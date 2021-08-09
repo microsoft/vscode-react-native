@@ -7,9 +7,9 @@ import { PlistBuddy } from "./plistBuddy";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { FileSystem } from "../../common/node/fileSystem";
 import { ChildProcess } from "../../common/node/childProcess";
-
 import { TelemetryHelper } from "../../common/telemetryHelper";
 import * as nls from "vscode-nls";
+import { PlatformType } from "../launchArgs";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -17,11 +17,10 @@ nls.config({
 const localize = nls.loadMessageBundle();
 
 export class SimulatorPlist {
-    private projectRoot: string;
     private iosProjectRoot: string;
+    private projectRoot: string;
     private scheme?: string;
     private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
-
     private nodeFileSystem: FileSystem;
     private plistBuddy: PlistBuddy;
     private nodeChildProcess: ChildProcess;
@@ -32,17 +31,16 @@ export class SimulatorPlist {
         scheme?: string,
         {
             nodeFileSystem = new FileSystem(),
-            plistBuddy = new PlistBuddy(),
+            plistBuddy = undefined,
             nodeChildProcess = new ChildProcess(),
         } = {},
     ) {
-        this.projectRoot = projectRoot;
         this.iosProjectRoot = iosProjectRoot;
-
-        this.nodeFileSystem = nodeFileSystem;
-        this.plistBuddy = plistBuddy;
-        this.nodeChildProcess = nodeChildProcess;
+        this.projectRoot = projectRoot;
         this.scheme = scheme;
+        this.nodeFileSystem = nodeFileSystem;
+        this.plistBuddy = plistBuddy || new PlistBuddy();
+        this.nodeChildProcess = nodeChildProcess;
     }
 
     public findPlistFile(configuration?: string, productName?: string): Promise<string> {
@@ -50,6 +48,7 @@ export class SimulatorPlist {
             this.plistBuddy.getBundleId(
                 this.iosProjectRoot,
                 this.projectRoot,
+                PlatformType.iOS,
                 true,
                 configuration,
                 productName,

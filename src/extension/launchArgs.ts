@@ -11,8 +11,9 @@ export interface ILaunchArgs {
     platform: string;
     workspaceRoot: string;
     projectRoot: string;
+    nodeModulesRoot: string;
     reactNativeVersions: RNPackageVersions;
-    target?: "simulator" | "device";
+    target?: DeviceType;
     debugAdapterPort?: number;
     packagerPort?: any;
     runArguments?: string[];
@@ -22,11 +23,12 @@ export interface ILaunchArgs {
     enableDebug?: boolean;
 }
 
+export type DeviceType = "simulator" | "device";
+
 export enum PlatformType {
     Android = "android",
     iOS = "ios",
     Windows = "windows",
-    WPF = "wpf",
     Exponent = "exponent",
     macOS = "macos",
 }
@@ -43,11 +45,14 @@ export interface IAndroidRunOptions extends ILaunchArgs {
     debugLaunchActivity?: string;
 }
 
-export interface IIOSRunOptions extends ILaunchArgs {
+export interface ImacOSRunOptions extends ILaunchArgs {
     scheme?: string;
-    iosRelativeProjectPath?: string; // TODO Remove deprecated
-    productName?: string;
     configuration?: string;
+    productName?: string;
+}
+
+export interface IIOSRunOptions extends ImacOSRunOptions {
+    iosRelativeProjectPath?: string; // TODO Remove deprecated
 }
 
 export interface IExponentRunOptions extends IAndroidRunOptions, IIOSRunOptions {
@@ -56,7 +61,6 @@ export interface IExponentRunOptions extends IAndroidRunOptions, IIOSRunOptions 
 }
 
 export type IWindowsRunOptions = ILaunchArgs;
-export type ImacOSRunOptions = ILaunchArgs;
 
 export interface IRunOptions
     extends IAndroidRunOptions,

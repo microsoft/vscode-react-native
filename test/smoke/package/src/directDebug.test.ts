@@ -3,6 +3,7 @@
 
 import * as assert from "assert";
 import { Application } from "../../automation";
+import AndroidEmulatorManager from "./helpers/androidEmulatorManager";
 import { AppiumClient, AppiumHelper, Platform } from "./helpers/appiumHelper";
 import AutomationHelper from "./helpers/AutomationHelper";
 import IosSimulatorManager from "./helpers/iosSimulatorManager";
@@ -20,6 +21,7 @@ const HERMES_APP_ACTIVITY_NAME = `com.${SmokeTestsConstants.HermesAppName.toLoca
 const RNAndroidHermesDebugConfigName = "Debug Android Hermes - Experimental";
 const RNIosHermesDebugConfigName = "Debug iOS Hermes - Experimental";
 const RNHermesAttachConfigName = "Attach to Hermes application - Experimental";
+const TestHermesButtonName = "Test Button";
 
 const RNHermesSetBreakpointOnLine = 11;
 // Time for Android Debug Test before it reaches timeout
@@ -61,6 +63,8 @@ export function startDirectDebugTests(
                     await client.deleteSession();
                     client = null;
                 }
+                SmokeTestLogger.info("Clearing android application ...");
+                AndroidEmulatorManager.closeApp(HERMES_APP_PACKAGE_NAME);
             } catch (error) {
                 SmokeTestLogger.error("Error while disposeAll:");
                 SmokeTestLogger.error(error);
@@ -165,8 +169,9 @@ export function startDirectDebugTests(
                     60,
                     1000,
                     async () =>
-                        await AppiumHelper.clickTestButtonHermes(
+                        await AppiumHelper.clickTestButton(
                             client || (await AppiumHelper.webdriverAttach(opts)),
+                            TestHermesButtonName,
                             platform,
                         ),
                 );

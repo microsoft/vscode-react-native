@@ -9,6 +9,7 @@ import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { ParsedPackage } from "./reactNativeProjectHelper";
 import { RN_VERSION_ERRORS } from "./error/versionError";
 import { ILaunchArgs, PlatformType } from "../extension/launchArgs";
+import { AppLauncher } from "../extension/appLauncher";
 
 export interface PackageVersion {
     [packageName: string]: string;
@@ -20,7 +21,24 @@ export interface RNPackageVersions {
     reactNativeMacOSVersion: string;
 }
 
+export const REACT_NATIVE_PACKAGES: Record<string, ParsedPackage> = {
+    REACT_NATIVE: {
+        packageName: "react-native",
+        useSemverCoerce: true,
+    },
+    REACT_NATIVE_WINDOWS: {
+        packageName: "react-native-windows",
+        useSemverCoerce: false,
+    },
+    REACT_NATIVE_MACOS: {
+        packageName: "react-native-macos",
+        useSemverCoerce: false,
+    },
+};
+
 export class ProjectVersionHelper {
+    private static SEMVER_INVALID = "SemverInvalid";
+
     public static getRNVersionsWithBrokenMetroBundler(): string[] {
         // https://github.com/microsoft/vscode-react-native/issues/660 for details
         return ["0.54.0", "0.54.1", "0.54.2", "0.54.3", "0.54.4"];
@@ -29,9 +47,13 @@ export class ProjectVersionHelper {
     public static getReactNativeVersions(
         projectRoot: string,
         additionalPackagesToCheck?: ParsedPackage[],
+        nodeModulesRoot?: string,
     ): Promise<RNPackageVersions> {
+        if (!nodeModulesRoot) {
+            nodeModulesRoot = AppLauncher.getNodeModulesRootByProjectPath(projectRoot);
+        }
         return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
-            projectRoot,
+            nodeModulesRoot,
             additionalPackagesToCheck,
         ).catch(() => {
             return ProjectVersionHelper.getReactNativeVersionsFromProjectPackage(
@@ -41,35 +63,58 @@ export class ProjectVersionHelper {
         });
     }
 
+    public static tryToGetRNSemverValidVersionsFromProjectPackage(
+        projectRoot: string,
+        additionalPackagesToCheck?: ParsedPackage[],
+        nodeModulesRoot?: string,
+    ): Promise<RNPackageVersions> {
+        return ProjectVersionHelper.getReactNativeVersionsFromProjectPackage(
+            projectRoot,
+            additionalPackagesToCheck,
+        ).then(versions => {
+            if (
+                Object.values(versions).findIndex(packageVersion =>
+                    packageVersion.includes(this.SEMVER_INVALID),
+                ) !== -1
+            ) {
+                if (!nodeModulesRoot) {
+                    nodeModulesRoot = AppLauncher.getNodeModulesRootByProjectPath(projectRoot);
+                }
+                return ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
+                    nodeModulesRoot,
+                    additionalPackagesToCheck,
+                ).catch(() => versions);
+            } else {
+                return versions;
+            }
+        });
+    }
+
     public static generateAdditionalPackagesToCheckByPlatform(args: ILaunchArgs): ParsedPackage[] {
         let additionalPackages: ParsedPackage[] = [];
         if (args.platform === PlatformType.Windows) {
-            additionalPackages.push({
-                packageName: "react-native-windows",
-                useSemverCoerce: false,
-            });
+            additionalPackages.push(REACT_NATIVE_PACKAGES.REACT_NATIVE_WINDOWS);
         }
 
         if (args.platform === PlatformType.macOS) {
-            additionalPackages.push({
-                packageName: "react-native-macos",
-                useSemverCoerce: false,
-            });
+            additionalPackages.push(REACT_NATIVE_PACKAGES.REACT_NATIVE_MACOS);
         }
 
         return additionalPackages;
     }
 
+    public static generateAllAdditionalPackages(): ParsedPackage[] {
+        return [
+            REACT_NATIVE_PACKAGES.REACT_NATIVE_WINDOWS,
+            REACT_NATIVE_PACKAGES.REACT_NATIVE_MACOS,
+        ];
+    }
+
     public static getReactNativePackageVersionsFromNodeModules(
-        projectRoot: string,
+        nodeModulesRoot: string,
         additionalPackagesToCheck?: ParsedPackage[],
     ): Promise<RNPackageVersions> {
-        let parsedPackages: ParsedPackage[] = [
-            {
-                packageName: "react-native",
-                useSemverCoerce: true,
-            },
-        ];
+        let parsedPackages: ParsedPackage[] = [REACT_NATIVE_PACKAGES.REACT_NATIVE];
 
         if (additionalPackagesToCheck) {
             parsedPackages.push(...additionalPackagesToCheck);
@@ -79,7 +124,10 @@ export class ProjectVersionHelper {
 
         parsedPackages.forEach(parsedPackage => {
             versionPromises.push(
-                ProjectVersionHelper.getProcessedVersionFromNodeModules(projectRoot, parsedPackage),
+                ProjectVersionHelper.getProcessedVersionFromNodeModules(
+                    nodeModulesRoot,
+                    parsedPackage,
+                ),
             );
         });
 
@@ -111,12 +159,7 @@ export class ProjectVersionHelper {
         cwd: string,
         additionalPackagesToCheck?: ParsedPackage[],
     ): Promise<RNPackageVersions> {
-        let parsedPackages: ParsedPackage[] = [
-            {
-                packageName: "react-native",
-                useSemverCoerce: true,
-            },
-        ];
+        let parsedPackages: ParsedPackage[] = [REACT_NATIVE_PACKAGES.REACT_NATIVE];
 
         if (additionalPackagesToCheck) {
             parsedPackages.push(...additionalPackagesToCheck);
@@ -180,7 +223,7 @@ export class ProjectVersionHelper {
 
     public static processVersion(version: string, useSemverCoerce: boolean = true): string {
         try {
-            return new URL(version) && "SemverInvalid: URL";
+            return new URL(version) && `${this.SEMVER_INVALID}: URL`;
         } catch (err) {
             let versionObj;
             // As some of 'react-native-windows' versions contain postfixes we cannot use 'coerce' function to parse them
@@ -190,7 +233,7 @@ export class ProjectVersionHelper {
             } else {
                 versionObj = semver.clean(version.replace(/[\^~<>]/g, ""), { loose: true });
             }
-            return (versionObj && versionObj.toString()) || "SemverInvalid";
+            return (versionObj && versionObj.toString()) || this.SEMVER_INVALID;
         }
     }
 

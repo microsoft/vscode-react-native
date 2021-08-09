@@ -4,6 +4,7 @@
 import { ISpawnResult } from "./node/childProcess";
 import { ErrorHelper } from "./error/errorHelper";
 import { InternalErrorCode } from "./error/internalErrorCode";
+import { InternalError } from "./error/internalError";
 
 export interface PatternToFailure {
     pattern: string | RegExp;
@@ -35,20 +36,32 @@ export class OutputVerifier {
         this.store(spawnResult.stdout, newContent => (this.output += newContent));
         this.store(spawnResult.stderr, newContent => (this.errors += newContent));
 
-        return spawnResult.outcome // Wait for the process to finish
-            .then(this.generatePatternToFailure) // Generate the failure patterns to check
+        let processError: InternalError;
+
+        return spawnResult.outcome
+            .catch(error => {
+                processError = error;
+            })
+            .then(this.generatePatternToFailure)
             .then(patterns => {
-                const failureErrorCode = this.findAnyFailurePattern(patterns);
-                if (failureErrorCode) {
-                    return Promise.reject<string[]>(ErrorHelper.getInternalError(failureErrorCode)); // If at least one failure happened, we fail
+                const patternsError = this.findAnyFailurePattern(patterns);
+                if (patternsError) {
+                    if (processError) {
+                        processError.message += "\n" + patternsError.message;
+                        return Promise.reject(processError);
+                    }
+                    return Promise.reject(patternsError);
                 } else {
                     return this.generatePatternsForSuccess(); // If not we generate the success patterns
                 }
             })
             .then(successPatterns => {
+                if (processError) {
+                    return Promise.reject(processError);
+                }
                 if (!this.areAllSuccessPatternsPresent(successPatterns)) {
                     // If we don't find all the success patterns, we also fail
-                    return Promise.reject<void>(
+                    return Promise.reject(
                         ErrorHelper.getInternalError(
                             InternalErrorCode.NotAllSuccessPatternsMatched,
                             this.platformName,
@@ -67,15 +80,29 @@ export class OutputVerifier {
     }
 
     // We check the failure patterns one by one, to see if any of those appeared on the errors. If they did, we return the associated error
-    private findAnyFailurePattern(patterns: PatternToFailure[]): number | null {
+    private findAnyFailurePattern(patterns: PatternToFailure[]): InternalError | null {
         const errorsAndOutput = this.errors + this.output;
+        let matches: RegExpMatchArray | null | undefined;
         const patternThatAppeared = patterns.find(pattern => {
-            return pattern.pattern instanceof RegExp
-                ? (pattern.pattern as RegExp).test(errorsAndOutput)
-                : errorsAndOutput.indexOf(pattern.pattern as string) !== -1;
+            if (pattern.pattern instanceof RegExp) {
+                matches = errorsAndOutput.match(pattern.pattern);
+                return matches && matches.length;
+            } else {
+                return errorsAndOutput.indexOf(pattern.pattern as string) !== -1;
+            }
         });
 
-        return patternThatAppeared ? patternThatAppeared.errorCode : null;
+        const errorCode = patternThatAppeared ? patternThatAppeared.errorCode : null;
+
+        if (errorCode) {
+            if (matches && matches.length) {
+                matches = matches.map(value => value.trim());
+                return ErrorHelper.getInternalError(errorCode, matches.join("\n"));
+            } else {
+                return ErrorHelper.getInternalError(errorCode);
+            }
+        }
+        return null;
     }
 
     // We check that all the patterns appeared on the output

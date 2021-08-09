@@ -62,7 +62,10 @@ export class VsCodeManager {
             projectRoot,
             SmokeTestsConstants.VSCodeUserDataDir,
         );
-        this.vsCodeClientDirectory = path.join(vscodeTestDirectory, `vscode-${this.clientVersion}`);
+        this.vsCodeClientDirectory = path.join(
+            vscodeTestDirectory,
+            `vscode-${this.downloadPlatform}-${this.clientVersion}`,
+        );
         this.extensionDirectory = path.join(this.vsCodeClientDirectory, "extension");
         this.vsixDirectory = path.join(this.resourcesDirectory, "drop-win");
 
@@ -171,38 +174,6 @@ export class VsCodeManager {
             } else {
                 SmokeTestLogger.info(
                     "*** --dont-delete-vsix parameter is set, skipping deleting of VSIX",
-                );
-            }
-        } else {
-            throw new Error(VsCodeManager.VS_CODE_CLIENT_NOT_INSTALLED_ERROR);
-        }
-    }
-
-    public installExpoXdlPackageToExtensionDir(): void {
-        if (this.clientIsInstalled) {
-            if (process.env.EXPO_XDL_VERSION) {
-                const extensionDirName = utilities.findFile(
-                    this.extensionDirectory,
-                    /msjsdiag\.vscode-react-native.*/,
-                );
-                if (!extensionDirName) {
-                    throw new Error("Couldn't find extension directory");
-                }
-                const extensionFullPath = path.join(this.extensionDirectory, extensionDirName);
-
-                const command = `${utilities.npmCommand} install @expo/xdl@${process.env.EXPO_XDL_VERSION} --no-save`;
-
-                SmokeTestLogger.projectPatchingLog(
-                    `*** Adding @expo/xdl dependency to ${extensionFullPath} via '${command}' command...`,
-                );
-                utilities.execSync(
-                    command,
-                    { cwd: extensionFullPath, stdio: "inherit" },
-                    this.setupEnvironmentLogDir,
-                );
-            } else {
-                SmokeTestLogger.warn(
-                    `*** EXPO_XDL_VERSION variable is not set, skipping installation of @expo/xdl package to the extension directory`,
                 );
             }
         } else {
@@ -385,9 +356,7 @@ export class VsCodeManager {
 
     public findStringInLogs(string: string, logFile: string): boolean {
         if (this.currentSessionLogsDir) {
-            SmokeTestLogger.info(
-                `*** Searching for \"Test output from Hermes debuggee\" string in output file`,
-            );
+            SmokeTestLogger.info(`*** Searching for \"${string}\" string in output file`);
             return utilities.findStringInFile(
                 path.join(this.currentSessionLogsDir, logFile),
                 string,

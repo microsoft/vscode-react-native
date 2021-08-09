@@ -8,5 +8,6 @@ export const CDP_API_NAMES = {
     RUNTIME_ENABLE: "Runtime.enable",
     CONSOLE_MESSAGE_ADDED: "Console.messageAdded",
     RUNTIME_CONSOLE_API_CALLED: "Runtime.consoleAPICalled",
+    EXECUTION_CONTEXT_CREATED: "Runtime.executionContextCreated",
     CLOSE: "close",
 };

@@ -10,7 +10,7 @@ import { IElement } from "../src/driver";
 
 const VIEWLET = "div[id=\"workbench.view.debug\"]";
 const DEBUG_VIEW = `${VIEWLET}`;
-const CONFIGURE = `div[id="workbench.parts.sidebar"] .actions-container .codicon-gear`;
+const CONFIGURE = `div[id="workbench.parts.sidebar"] .actions-container .codicon-debug-configure`;
 const ADD_CONFIGURATION = `.overlayWidgets .floating-click-widget`;
 const STOP = `.debug-toolbar .action-label[title*="Stop"]`;
 const RESTART = `.debug-toolbar .action-label[title*="Restart"]`;
@@ -175,5 +175,4 @@ export class Debug extends Viewlet {
         const elements = await this.code.waitForElements(CONSOLE_OUTPUT, false, elements => fn(elements.map(e => e.textContent)));
         return elements.map(e => e.textContent);
     }
-
 }

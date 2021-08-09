@@ -14,13 +14,16 @@ import { Request } from "./node/request";
 import { ProjectVersionHelper } from "./projectVersionHelper";
 import { PackagerStatusIndicator, PackagerStatus } from "../extension/packagerStatusIndicator";
 import { SettingsHelper } from "../extension/settingsHelper";
+import { AppLauncher } from "../extension/appLauncher";
 import * as path from "path";
 import * as XDL from "../extension/exponent/xdlInterface";
 import * as semver from "semver";
+import * as vscode from "vscode";
 import * as nls from "vscode-nls";
 import { findFileInFolderHierarchy } from "./extensionHelper";
 import { FileSystem } from "./node/fileSystem";
 import { PromiseUtil } from "./node/promise";
+import { CONTEXT_VARIABLES_NAMES } from "./contextVariablesNames";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -212,7 +215,12 @@ export class Packager {
 
                         let spawnOptions = { env: reactEnv };
 
+                        const nodeModulesRoot: string = AppLauncher.getNodeModulesRootByProjectPath(
+                            this.projectPath,
+                        );
+
                         const packagerSpawnResult = new CommandExecutor(
+                            nodeModulesRoot,
                             this.projectPath,
                             this.logger,
                         ).spawnReactPackager(args, spawnOptions);
@@ -234,6 +242,11 @@ export class Packager {
                 if (executedStartPackagerCmd) {
                     this.logger.info(localize("PackagerStarted", "Packager started."));
                     this.packagerStatus = PackagerStatus.PACKAGER_STARTED;
+                    vscode.commands.executeCommand(
+                        "setContext",
+                        CONTEXT_VARIABLES_NAMES.IS_RN_PACKAGER_RUNNING,
+                        true,
+                    );
                 } else {
                     this.logger.info(
                         localize("PackagerIsAlreadyRunning", "Packager is already running."),
@@ -287,6 +300,11 @@ export class Packager {
             })
             .then(() => {
                 this.setPackagerStopStateUI();
+                vscode.commands.executeCommand(
+                    "setContext",
+                    CONTEXT_VARIABLES_NAMES.IS_RN_PACKAGER_RUNNING,
+                    false,
+                );
             });
     }
 
@@ -412,15 +430,20 @@ export class Packager {
             } else {
                 OPN_PACKAGE_NAME = Packager.OPN_PACKAGE_NAME.old;
             }
-            let flatDependencyPackagePath = path.resolve(
+
+            const nodeModulesRoot: string = AppLauncher.getNodeModulesRootByProjectPath(
                 this.projectPath,
+            );
+
+            let flatDependencyPackagePath = path.resolve(
+                nodeModulesRoot,
                 Packager.NODE_MODULES_FODLER_NAME,
                 OPN_PACKAGE_NAME,
                 Packager.OPN_PACKAGE_MAIN_FILENAME,
             );
 
             let nestedDependencyPackagePath = path.resolve(
-                this.projectPath,
+                nodeModulesRoot,
                 Packager.NODE_MODULES_FODLER_NAME,
                 Packager.REACT_NATIVE_PACKAGE_NAME,
                 Packager.NODE_MODULES_FODLER_NAME,
@@ -508,7 +531,12 @@ export class Packager {
 
     private killPackagerProcess(): Promise<void> {
         this.logger.info(localize("StoppingPackager", "Stopping Packager"));
-        return new CommandExecutor(this.projectPath, this.logger)
+
+        const nodeModulesRoot: string = AppLauncher.getNodeModulesRootByProjectPath(
+            this.projectPath,
+        );
+
+        return new CommandExecutor(nodeModulesRoot, this.projectPath, this.logger)
             .killReactPackager(this.packagerProcess)
             .then(() => {
                 this.packagerProcess = undefined;

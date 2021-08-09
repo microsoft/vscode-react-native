@@ -6,8 +6,8 @@ import * as cp from "child_process";
 import * as os from "os";
 import * as fs from "fs";
 import * as mkdirp from "mkdirp";
-import { tmpNameSync } from "tmp";
-import { IDriver, connect as connectElectronDriver, IDisposable, IElement, Thenable } from "./driver";
+import { tmpName } from "tmp";
+import { IDriver, connect as connectElectronDriver, IDisposable, IElement, Thenable, ILocalizedStrings } from "./driver";
 import { connect as connectPlaywrightDriver, launch } from "./playwrightDriver";
 import { Logger } from "./logger";
 import { ncp } from "ncp";
@@ -16,70 +16,70 @@ import { URI } from "vscode-uri";
 const repoPath = path.join(__dirname, "../../..");
 
 function getDevElectronPath(): string {
-    const buildPath = path.join(repoPath, ".build");
-    const product = require(path.join(repoPath, "product.json"));
+	const buildPath = path.join(repoPath, ".build");
+	const product = require(path.join(repoPath, "product.json"));
 
-    switch (process.platform) {
-        case "darwin":
-            return path.join(buildPath, "electron", `${product.nameLong}.app`, "Contents", "MacOS", "Electron");
-        case "linux":
-            return path.join(buildPath, "electron", `${product.applicationName}`);
-        case "win32":
-            return path.join(buildPath, "electron", `${product.nameShort}.exe`);
-        default:
-            throw new Error("Unsupported platform.");
-    }
+	switch (process.platform) {
+		case "darwin":
+			return path.join(buildPath, "electron", `${product.nameLong}.app`, "Contents", "MacOS", "Electron");
+		case "linux":
+			return path.join(buildPath, "electron", `${product.applicationName}`);
+		case "win32":
+			return path.join(buildPath, "electron", `${product.nameShort}.exe`);
+		default:
+			throw new Error("Unsupported platform.");
+	}
 }
 
 function getBuildElectronPath(root: string): string {
-    switch (process.platform) {
-        case "darwin":
-            return path.join(root, "Contents", "MacOS", "Electron");
-        case "linux": {
-            const product = require(path.join(root, "resources", "app", "product.json"));
-            return path.join(root, product.applicationName);
-        }
-        case "win32": {
-            const product = require(path.join(root, "resources", "app", "product.json"));
-            return path.join(root, `${product.nameShort}.exe`);
-        }
-        default:
-            throw new Error("Unsupported platform.");
-    }
+	switch (process.platform) {
+		case "darwin":
+			return path.join(root, "Contents", "MacOS", "Electron");
+		case "linux": {
+			const product = require(path.join(root, "resources", "app", "product.json"));
+			return path.join(root, product.applicationName);
+		}
+		case "win32": {
+			const product = require(path.join(root, "resources", "app", "product.json"));
+			return path.join(root, `${product.nameShort}.exe`);
+		}
+		default:
+			throw new Error("Unsupported platform.");
+	}
 }
 
 function getDevOutPath(): string {
-    return path.join(repoPath, "out");
+	return path.join(repoPath, "out");
 }
 
 function getBuildOutPath(root: string): string {
-    switch (process.platform) {
-        case "darwin":
-            return path.join(root, "Contents", "Resources", "app", "out");
-        default:
-            return path.join(root, "resources", "app", "out");
-    }
+	switch (process.platform) {
+		case "darwin":
+			return path.join(root, "Contents", "Resources", "app", "out");
+		default:
+			return path.join(root, "resources", "app", "out");
+	}
 }
 
 async function connect(connectDriver: typeof connectElectronDriver, child: cp.ChildProcess | undefined, outPath: string, handlePath: string, logger: Logger): Promise<Code> {
-    let errCount = 0;
+	let errCount = 0;
 
-    while (true) {
-        try {
-            const { client, driver } = await connectDriver(outPath, handlePath);
-            return new Code(client, driver, logger);
-        } catch (err) {
-            if (++errCount > 50) {
-                if (child) {
-                    child.kill();
-                }
-                throw err;
-            }
+	while (true) {
+		try {
+			const { client, driver } = await connectDriver(outPath, handlePath);
+			return new Code(client, driver, logger);
+		} catch (err) {
+			if (++errCount > 50) {
+				if (child) {
+					child.kill();
+				}
+				throw err;
+			}
 
-            // retry
-            await new Promise(c => setTimeout(c, 100));
-        }
-    }
+			// retry
+			await new Promise(c => setTimeout(c, 100));
+		}
+	}
 }
 
 // Kill all running instances, when dead
@@ -105,86 +105,109 @@ export interface SpawnOptions {
     headless?: boolean;
 }
 
-function createDriverHandle(): string {
-    if ("win32" === os.platform()) {
-        const name = [...Array(15)].map(() => Math.random().toString(36)[3]).join("");
-        return `\\\\.\\pipe\\${name}`;
-    } else {
-        return tmpNameSync();
-    }
+async function createDriverHandle(): Promise<string> {
+	if ("win32" === os.platform()) {
+		const name = [...Array(15)].map(() => Math.random().toString(36)[3]).join("");
+		return `\\\\.\\pipe\\${name}`;
+	} else {
+		return await new Promise<string>((c, e) => tmpName((err, handlePath) => err ? e(err) : c(handlePath)));
+	}
 }
 
 export async function spawn(options: SpawnOptions): Promise<Code> {
-    const codePath = options.codePath;
-    const electronPath = codePath ? getBuildElectronPath(codePath) : getDevElectronPath();
-    const outPath = codePath ? getBuildOutPath(codePath) : getDevOutPath();
-    const handle = createDriverHandle();
+	const handle = await createDriverHandle();
 
-    const args = [
-        options.workspacePath,
-        "--skip-getting-started",
-        "--skip-release-notes",
-        "--sticky-quickopen",
-        "--disable-telemetry",
-        "--disable-updates",
-        "--disable-crash-reporter",
-        `--extensions-dir=${options.extensionsPath}`,
-        `--user-data-dir=${options.userDataDir}`,
-        "--disable-restore-windows",
-        "--driver", handle,
-    ];
+	let child: cp.ChildProcess | undefined;
+	let connectDriver: typeof connectElectronDriver;
 
-    const env = process.env;
+	copyExtension(options.extensionsPath, "vscode-notebook-tests");
 
-    if (options.remote) {
-        // Replace workspace path with URI
-        args[0] = `--${options.workspacePath.endsWith(".code-workspace") ? "file" : "folder"}-uri=vscode-remote://test+test/${URI.file(options.workspacePath).path}`;
+	if (options.web) {
+		await launch(options.userDataDir, options.workspacePath, options.codePath, options.extensionsPath, Boolean(options.verbose));
+		connectDriver = connectPlaywrightDriver.bind(connectPlaywrightDriver, options.browser);
+		return connect(connectDriver, child, "", handle, options.logger);
+	}
 
-        if (codePath) {
-            // running against a build: copy the test resolver extension
-            const testResolverExtPath = path.join(options.extensionsPath, "vscode-test-resolver");
-            if (!fs.existsSync(testResolverExtPath)) {
-                const orig = path.join(repoPath, "extensions", "vscode-test-resolver");
-                await new Promise((c, e) => ncp(orig, testResolverExtPath, err => err ? e(err) : c()));
-            }
-        }
-        args.push("--enable-proposed-api=vscode.vscode-test-resolver");
-        const remoteDataDir = `${options.userDataDir}-server`;
-        mkdirp.sync(remoteDataDir);
-        env["TESTRESOLVER_DATA_FOLDER"] = remoteDataDir;
-    }
+	const env = { ...process.env };
+	const codePath = options.codePath;
+	const outPath = codePath ? getBuildOutPath(codePath) : getDevOutPath();
 
-    if (!codePath) {
-        args.unshift(repoPath);
-    }
+	const args = [
+		options.workspacePath,
+		"--skip-release-notes",
+		"--skip-welcome",
+		"--disable-telemetry",
+		"--no-cached-data",
+		"--disable-updates",
+		"--disable-keytar",
+		"--disable-crash-reporter",
+		"--disable-workspace-trust",
+		`--extensions-dir=${options.extensionsPath}`,
+		`--user-data-dir=${options.userDataDir}`,
+		`--logsPath=${path.join(repoPath, ".build", "logs", "smoke-tests")}`,
+		"--driver", handle
+	];
 
-    if (options.verbose) {
-        args.push("--driver-verbose");
-    }
+	if (process.platform === "linux") {
+		args.push("--disable-gpu"); // Linux has trouble in VMs to render properly with GPU enabled
+	}
 
-    if (options.log) {
-        args.push("--log", options.log);
-    }
+	if (options.remote) {
+		// Replace workspace path with URI
+		args[0] = `--${options.workspacePath.endsWith(".code-workspace") ? "file" : "folder"}-uri=vscode-remote://test+test/${URI.file(options.workspacePath).path}`;
 
-    if (options.extraArgs) {
-        args.push(...options.extraArgs);
-    }
+		if (codePath) {
+			// running against a build: copy the test resolver extension
+			copyExtension(options.extensionsPath, "vscode-test-resolver");
+		}
+		args.push("--enable-proposed-api=vscode.vscode-test-resolver");
+		const remoteDataDir = `${options.userDataDir}-server`;
+		mkdirp.sync(remoteDataDir);
 
-    let child: cp.ChildProcess | undefined;
-    let connectDriver: typeof connectElectronDriver;
+		if (codePath) {
+			// running against a build: copy the test resolver extension into remote extensions dir
+			const remoteExtensionsDir = path.join(remoteDataDir, "extensions");
+			mkdirp.sync(remoteExtensionsDir);
+			copyExtension(remoteExtensionsDir, "vscode-notebook-tests");
+		}
 
-    if (options.web) {
-        await launch(options.userDataDir, options.workspacePath, options.codePath);
-        connectDriver = connectPlaywrightDriver.bind(connectPlaywrightDriver, options.browser);
-        return connect(connectDriver, child, "", handle, options.logger);
-    } else {
-        const spawnOptions: cp.SpawnOptions = { env };
-        child = cp.spawn(electronPath, args, spawnOptions);
-        instances.add(child);
-        child.once("exit", () => instances.delete(child!));
-        connectDriver = connectElectronDriver;
-    }
-    return connect(connectDriver, child, outPath, handle, options.logger);
+		env["TESTRESOLVER_DATA_FOLDER"] = remoteDataDir;
+	}
+
+
+	args.push("--enable-proposed-api=vscode.vscode-notebook-tests");
+
+	if (!codePath) {
+		args.unshift(repoPath);
+	}
+
+	if (options.verbose) {
+		args.push("--driver-verbose");
+	}
+
+	if (options.log) {
+		args.push("--log", options.log);
+	}
+
+	if (options.extraArgs) {
+		args.push(...options.extraArgs);
+	}
+
+	const electronPath = codePath ? getBuildElectronPath(codePath) : getDevElectronPath();
+	const spawnOptions: cp.SpawnOptions = { env };
+	child = cp.spawn(electronPath, args, spawnOptions);
+	instances.add(child);
+	child.once("exit", () => instances.delete(child!));
+	connectDriver = connectElectronDriver;
+	return connect(connectDriver, child, outPath, handle, options.logger);
+}
+
+async function copyExtension(extensionsPath: string, extId: string): Promise<void> {
+	const dest = path.join(extensionsPath, extId);
+	if (!fs.existsSync(dest)) {
+		const orig = path.join(repoPath, "extensions", extId);
+		await new Promise<void>((c, e) => ncp(orig, dest, err => err ? e(err) : c()));
+	}
 }
 
 
@@ -223,9 +246,9 @@ async function poll<T>(
             } else {
                 lastError = "Did not pass accept function";
             }
-        } catch (e) {
-            lastError = Array.isArray(e.stack) ? e.stack.join(os.EOL) : e.stack;
-        }
+		} catch (e: any) {
+			lastError = Array.isArray(e.stack) ? e.stack.join(os.EOL) : e.stack;
+		}
 
         await new Promise(resolve => setTimeout(resolve, retryInterval));
         trial++;
@@ -262,10 +285,11 @@ export class Code {
 
     }
 
-    public async executeWithSpecifiedPollRetryParameters(fn: () => Promise<any>, retryCount: number, retryInterval: number): Promise<void> {
+    public async executeWithSpecifiedPollRetryParameters(fn: () => Promise<any>, retryCount: number, retryInterval: number): Promise<any> {
         setPollRetryParameters(retryCount, retryInterval);
-        await fn();
+        const res = await fn();
         setPollRetryParameters();
+		return res;
     }
 
     public async capturePage(): Promise<string> {
@@ -291,30 +315,31 @@ export class Code {
         await this.driver.exitApplication();
     }
 
-    public async waitForTextContent(selector: string, textContent?: string, accept?: (result: string) => boolean): Promise<string> {
-        const windowId = await this.getActiveWindowId();
-        accept = accept || (result => textContent !== undefined ? textContent === result : !!result);
+	async waitForTextContent(selector: string, textContent?: string, accept?: (result: string) => boolean, retryCount?: number): Promise<string> {
+		const windowId = await this.getActiveWindowId();
+		accept = accept || (result => textContent !== undefined ? textContent === result : !!result);
 
-        return await poll(
-            () => this.driver.getElements(windowId, selector).then(els => els.length > 0 ? Promise.resolve(els[0].textContent) : Promise.reject(new Error("Element not found for textContent"))),
-            s => accept!(typeof s === "string" ? s : ""),
-            `get text content '${selector}'`
-        );
-    }
+		return await poll(
+			() => this.driver.getElements(windowId, selector).then(els => els.length > 0 ? Promise.resolve(els[0].textContent) : Promise.reject(new Error("Element not found for textContent"))),
+			s => accept!(typeof s === "string" ? s : ""),
+			`get text content '${selector}'`,
+			retryCount
+		);
+	}
 
-    public async waitAndClick(selector: string, xoffset?: number, yoffset?: number): Promise<void> {
-        const windowId = await this.getActiveWindowId();
-        await poll(() => this.driver.click(windowId, selector, xoffset, yoffset), () => true, `click '${selector}'`);
-    }
+	async waitAndClick(selector: string, xoffset?: number, yoffset?: number, retryCount?: number): Promise<void> {
+		const windowId = await this.getActiveWindowId();
+		await poll(() => this.driver.click(windowId, selector, xoffset, yoffset), () => true, `click '${selector}'`, retryCount);
+	}
 
     public async waitAndDoubleClick(selector: string): Promise<void> {
         const windowId = await this.getActiveWindowId();
         await poll(() => this.driver.doubleClick(windowId, selector), () => true, `double click '${selector}'`);
     }
 
-    public async waitForSetValue(selector: string, value: string): Promise<void> {
+    public async waitForSetValue(selector: string, value: string, retryCount?: number): Promise<void> {
         const windowId = await this.getActiveWindowId();
-        await poll(() => this.driver.setValue(windowId, selector, value), () => true, `set value '${selector}'`);
+        await poll(() => this.driver.setValue(windowId, selector, value), () => true, `set value '${selector}'`, retryCount);
     }
 
     public async waitForElements(selector: string, recursive: boolean, accept: (result: IElement[]) => boolean = result => result.length > 0): Promise<IElement[]> {
@@ -322,15 +347,15 @@ export class Code {
         return await poll(() => this.driver.getElements(windowId, selector, recursive), accept, `get elements '${selector}'`);
     }
 
-    public async waitForElement(selector: string, accept: (result: IElement | undefined) => boolean = result => !!result): Promise<IElement> {
-        const windowId = await this.getActiveWindowId();
-        return await poll<IElement>(() => this.driver.getElements(windowId, selector).then(els => els[0]), accept, `get element '${selector}'`);
-    }
+	async waitForElement(selector: string, accept: (result: IElement | undefined) => boolean = result => !!result, retryCount?: number): Promise<IElement> {
+		const windowId = await this.getActiveWindowId();
+		return await poll<IElement>(() => this.driver.getElements(windowId, selector).then(els => els[0]), accept, `get element '${selector}'`, retryCount);
+	}
 
-    public async waitForActiveElement(selector: string): Promise<void> {
-        const windowId = await this.getActiveWindowId();
-        await poll(() => this.driver.isActiveElement(windowId, selector), r => r, `is active element '${selector}'`);
-    }
+	async waitForActiveElement(selector: string, retryCount?: number): Promise<void> {
+		const windowId = await this.getActiveWindowId();
+		await poll(() => this.driver.isActiveElement(windowId, selector), r => r, `is active element '${selector}'`, retryCount);
+	}
 
     public async waitForTitle(fn: (title: string) => boolean): Promise<void> {
         const windowId = await this.getActiveWindowId();
@@ -351,6 +376,11 @@ export class Code {
         const windowId = await this.getActiveWindowId();
         await poll(() => this.driver.writeInTerminal(windowId, selector, value), () => true, `writeInTerminal '${selector}'`);
     }
+
+	async getLocalizedStrings(): Promise<ILocalizedStrings> {
+		const windowId = await this.getActiveWindowId();
+		return await this.driver.getLocalizedStrings(windowId);
+	}
 
     public dispose(): void {
         this.client.dispose();

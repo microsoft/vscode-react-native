@@ -45,14 +45,11 @@ startSmokeTests(configProcessor.parseTestArguments(), setUp, cleanUp);
 async function setUp(useCachedApplications: boolean): Promise<void> {
     await vscodeManager.downloadVSCodeExecutable();
     await vscodeManager.installExtensionFromVSIX();
-    await vscodeManager.installExpoXdlPackageToExtensionDir();
     await testApplicationSetupManager.prepareTestApplications(useCachedApplications);
     await AppiumHelper.runAppium(vscodeManager.getAppiumLogDir());
 
     SmokeTestLogger.info("*** Preparing Android emulator...");
     await androidEmulatorManager.runAndroidEmulator();
-    // Waiting for all services to start
-    await sleep(60_000);
     await androidEmulatorManager.installExpoAppOnAndroid();
 
     if (process.platform === "darwin") {

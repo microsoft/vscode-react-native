@@ -1,3 +1,55 @@
+## 1.6.0
+* Added support of debugging of React Native for Windows Hermes applications: [more info](https://github.com/microsoft/vscode-react-native#windows-hermes-debugging) [#1624](https://github.com/microsoft/vscode-react-native/pull/1624)
+* Added tips about rarely used extension features [#1610](https://github.com/microsoft/vscode-react-native/pull/1610)
+* Updated documentation about `ios-deploy` installation, thanks to [Lucas Johnston(@lucasjohnston)](https://github.com/lucasjohnston) [#1611](https://github.com/microsoft/vscode-react-native/pull/1611)
+* Implemented debugging of Expo Hermes applications [#1608](https://github.com/microsoft/vscode-react-native/pull/1608)
+* Added context variables to configure custom key bindings with [`when` clauses](https://code.visualstudio.com/docs/getstarted/keybindings#_when-clause-contexts) for pair extension commands [#1606](https://github.com/microsoft/vscode-react-native/pull/1606)
+* Improved extension security [#1625](https://github.com/microsoft/vscode-react-native/pull/1625)
+* Internal changes:
+    * Smoke tests were updated to work with VS Code 1.58.1 [#1609](https://github.com/microsoft/vscode-react-native/pull/1609)
+
+
+## 1.5.2
+* Added the `sourceMapRenames` parameter to debugging configurations [#1602](https://github.com/microsoft/vscode-react-native/pull/1602)
+* Implemented debugging mode control for macOS apps [#1589](https://github.com/microsoft/vscode-react-native/pull/1589)
+* Added the `sourceMapPathOverrides` parameter to launch debugging configurations [#1589](https://github.com/microsoft/vscode-react-native/pull/1589)
+* Implemented settings parameters for controlling versions of the `xdl` and `@expo/metro-config` packages [#1578](https://github.com/microsoft/vscode-react-native/pull/1578)
+* Added `Run Windows` and `Run MacOS` Command Palette commands for running RNW and RNmacOS apps [#1576](https://github.com/microsoft/vscode-react-native/pull/1576)
+* Improved extension security [#1587](https://github.com/microsoft/vscode-react-native/pull/1587), [#1592](https://github.com/microsoft/vscode-react-native/pull/1592), [#1593](https://github.com/microsoft/vscode-react-native/pull/1593), [#1594](https://github.com/microsoft/vscode-react-native/pull/1594)
+* Internal changes:
+    * Adapted new VS Code API version for creating Packager status indicator on the status bar [#1597](https://github.com/microsoft/vscode-react-native/pull/1597)
+
+
+## 1.5.1
+* Improved debugging on remote Android devices [#1577](https://github.com/microsoft/vscode-react-native/pull/1577)
+* Fixed getting React Native version in cases `projectRoot` has been customized [#1583](https://github.com/microsoft/vscode-react-native/pull/1583)
+* Improved extension security [#1581](https://github.com/microsoft/vscode-react-native/pull/1581), [#1579](https://github.com/microsoft/vscode-react-native/pull/1579)
+
+
+## 1.5.0
+* Removed support of the deprecated WPF platform [#1554](https://github.com/microsoft/vscode-react-native/pull/1554)
+* Improved Expo tunnel debugging and set default Expo host type as `lan` [#1556](https://github.com/microsoft/vscode-react-native/pull/1556)
+* Added support of the `--appIdSuffix` flag to `runArguments` for Android apps [#1549](https://github.com/microsoft/vscode-react-native/pull/1549)
+* Implemented Network Inspector [#1550](https://github.com/microsoft/vscode-react-native/pull/1550)
+* Improved multiroot workspace support [#1540](https://github.com/microsoft/vscode-react-native/pull/1540)
+* Improved error handling for building React Native for Windows apps [#1560](https://github.com/microsoft/vscode-react-native/pull/1560)
+* Improved extension security [#1565](https://github.com/microsoft/vscode-react-native/pull/1565)
+* Implemented support of [Workspace Trust feature](https://github.com/microsoft/vscode-react-native/issues/1559) [#1563](https://github.com/microsoft/vscode-react-native/pull/1563)
+* Configured support of [virtual workspaces](https://github.com/microsoft/vscode-react-native/issues/1562) [#1570](https://github.com/microsoft/vscode-react-native/pull/1570)
+* Internal changes:
+    * Updated code coverage checking functional [#1570](https://github.com/microsoft/vscode-react-native/pull/1570)
+    * Stabilized Expo smoke tests [#1568](https://github.com/microsoft/vscode-react-native/pull/1568)
+
+
+## 1.4.2
+* Added support for debugging AppleTV apps, thanks to [Michele Bonazza(@micheleb)](https://github.com/micheleb) [#1498](https://github.com/microsoft/vscode-react-native/pull/1498)
+* Improved extension security [#1538](https://github.com/microsoft/vscode-react-native/pull/1538), [#1527](https://github.com/microsoft/vscode-react-native/pull/1527), [#1547](https://github.com/microsoft/vscode-react-native/pull/1547)
+* Resolved a conflict with [vscode-jest](https://github.com/jest-community/vscode-jest) extension while fast refreshing React Native apps [#1530](https://github.com/microsoft/vscode-react-native/pull/1530)
+* Migrated from `@expo/xdl` package to `xdl` package for debugging Expo applications [#1532](https://github.com/microsoft/vscode-react-native/pull/1532)
+* Internal changes:
+    * Improved sending error events to Telemetry [#1526](https://github.com/microsoft/vscode-react-native/pull/1526)
+
+
 ## 1.4.1
 * Fixed resolving of custom file extensions while starting the packager for Expo [#1502](https://github.com/microsoft/vscode-react-native/pull/1502)
 * Updated documentation for debugging RNW apps [#1513](https://github.com/microsoft/vscode-react-native/pull/1513)

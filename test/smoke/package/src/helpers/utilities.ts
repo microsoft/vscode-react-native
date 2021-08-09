@@ -15,6 +15,7 @@ import { SmokeTestLogger } from "./smokeTestLogger";
 
 export const npxCommand = process.platform === "win32" ? "npx.cmd" : "npx";
 export const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
+export const yarnCommand = process.platform === "win32" ? "yarn.cmd" : "yarn";
 
 // eslint-disable-next-line
 export function nfcall<R>(fn: Function, ...args): Promise<R> {
@@ -76,9 +77,30 @@ export function spawnSync(command: string, args?: string[], options?: SpawnSyncO
     }
 }
 
+export function isLoggedInExpo(): boolean {
+    const loginPattern = /^\w+\s?$/g;
+    const unloggedPattern = "Not logged in";
+    const command = "expo w";
+    const commandResult = execSync(command);
+    if (commandResult.includes(unloggedPattern)) {
+        SmokeTestLogger.warn(`Expo account is not logged in`);
+        return false;
+    }
+    const matches = commandResult.match(loginPattern);
+    if (matches && matches.length) {
+        const login = matches[0].trim();
+        SmokeTestLogger.success(`Logged in Expo as ${login}`);
+        return true;
+    }
+    SmokeTestLogger.error(
+        `There is an unrecognized command '${command}' result. Output of command: ${commandResult}`,
+    );
+    return false;
+}
+
 export function execSync(
     command: string,
-    options?: cp.ExecSyncOptions | undefined,
+    options: cp.ExecSyncOptions = {},
     logFilePath?: string,
 ): string {
     options = Object.assign(options, { stdio: "pipe" });
@@ -214,6 +236,40 @@ export function findStringInFile(filePath: string, strToFind: string): boolean {
         return content.includes(strToFind);
     }
     return false;
+}
+
+export async function findStringInFileWithTimeout(
+    filePath: string,
+    strToFind: string,
+    timeout?: number,
+): Promise<boolean> {
+    const condition = () => findStringInFile(filePath, strToFind);
+    return waitUntil(condition, timeout, 3000);
+}
+
+export function retrieveStringsFromLogFile(
+    filePath: string,
+    pattern: RegExp,
+): RegExpMatchArray | null {
+    if (fs.existsSync(filePath)) {
+        const content = fs.readFileSync(filePath).toString().trim();
+        return content.match(pattern);
+    }
+    return null;
+}
+
+export async function retrieveStringsFromLogFileWithTimeout(
+    filePath: string,
+    pattern: RegExp,
+    timeout?: number,
+): Promise<RegExpMatchArray | null> {
+    let result: RegExpMatchArray | null = null;
+    const condition = () => {
+        result = retrieveStringsFromLogFile(filePath, pattern);
+        return !!result;
+    };
+    await waitUntil(condition, timeout, 3000);
+    return result;
 }
 
 export function objectsContains(object: any, subObject: any): boolean {

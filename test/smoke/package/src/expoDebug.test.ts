@@ -6,12 +6,13 @@ import * as path from "path";
 import { Application } from "../../automation";
 import { AppiumClient, AppiumHelper, Platform } from "./helpers/appiumHelper";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
-import { findFile, findStringInFile, sleep, waitUntil } from "./helpers/utilities";
+import { findFile, findStringInFile, isLoggedInExpo, sleep, waitUntil } from "./helpers/utilities";
 import { androidEmulatorManager, iosSimulatorManager, vscodeManager } from "./main";
 import { TestRunArguments } from "./helpers/testConfigProcessor";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 import TestProject from "./helpers/testProject";
 import AutomationHelper from "./helpers/AutomationHelper";
+import AndroidEmulatorManager from "./helpers/androidEmulatorManager";
 
 const EXPO_APP_LAUNCH_TIMEOUT = 120_000;
 const ExpoSuccessPattern = "Tunnel ready";
@@ -19,13 +20,15 @@ const ExpoFailurePattern = "XDLError";
 
 const EXPO_APP_PACKAGE_NAME = SmokeTestsConstants.expoPackageName;
 const EXPO_APP_ACTIVITY_NAME = `${SmokeTestsConstants.expoPackageName}.experience.HomeActivity`;
-const ExpoDebugConfigName = "Debug in Exponent";
+const ExpoTunnelDebugConfigName = "Debug in Exponent (Tunnel)";
 const ExpoLanDebugConfigName = "Debug in Exponent (LAN)";
 const ExpoLocalDebugConfigName = "Debug in Exponent (Local)";
 
 const ExpoSetBreakpointOnLine = 1;
 // Time for Android Expo Debug Test before it reaches timeout
 const debugExpoTestTime = SmokeTestsConstants.expoTestTimeout;
+const expoLogginErrorMessage =
+    "It seems you are not currently logged into Expo account. To successfully pass this test, you must be logged into Expo account";
 
 interface ExpoLaunch {
     successful: boolean;
@@ -54,20 +57,40 @@ export function startExpoTests(
         }
 
         async function disposeAll() {
-            SmokeTestLogger.info("Dispose all ...");
-            if (app) {
-                SmokeTestLogger.info("Stopping React Native packager ...");
-                await automationHelper.runCommandWithRetry(SmokeTestsConstants.stopPackagerCommand);
-                await sleep(3000);
-                await app.stop();
-            }
-            if (client) {
-                await client.closeApp();
-                await client.deleteSession();
+            try {
+                SmokeTestLogger.info("Dispose all ...");
+                if (app) {
+                    SmokeTestLogger.info("Stopping React Native packager ...");
+                    await automationHelper.runCommandWithRetry(
+                        SmokeTestsConstants.stopPackagerCommand,
+                    );
+                    await sleep(3000);
+                    SmokeTestLogger.info("Stopping application ...");
+                    await app.stop();
+                }
+                if (client) {
+                    try {
+                        SmokeTestLogger.info("Closing application ...");
+                        await client.closeApp();
+                        SmokeTestLogger.info("Deleting session ...");
+                        await client.deleteSession();
+                    } catch (err) {
+                        SmokeTestLogger.error(err);
+                    }
+                }
+                SmokeTestLogger.info("Clearing android application ...");
+                AndroidEmulatorManager.closeApp(EXPO_APP_PACKAGE_NAME);
+            } catch (error) {
+                SmokeTestLogger.error("Error while disposeAll:");
+                SmokeTestLogger.error(error);
+                // throw error;
             }
         }
 
-        afterEach(disposeAll);
+        afterEach(async function () {
+            this.timeout(SmokeTestsConstants.smokeTestAfterEachTimeout);
+            await disposeAll();
+        });
 
         async function findExpoSuccessAndFailurePatterns(
             filePath: string,
@@ -122,10 +145,12 @@ export function startExpoTests(
             // Scan logs only if launch retries provided (Expo Tunnel scenarios)
             if (triesToLaunchApp <= 1) {
                 await automationHelper.runDebugScenarioWithRetry(debugConfigName);
+                await automationHelper.runCommandWithRetry("Output: Focus on Output View");
             } else {
                 for (let retry = 1; retry <= triesToLaunchApp; retry++) {
                     let expoLaunchStatus: ExpoLaunch;
                     await automationHelper.runDebugScenarioWithRetry(debugConfigName);
+                    await automationHelper.runCommandWithRetry("Output: Focus on Output View");
                     expoLaunchStatus = await findExpoSuccessAndFailurePatterns(
                         logFilePath,
                         ExpoSuccessPattern,
@@ -138,6 +163,7 @@ export function startExpoTests(
                             assert.fail(`App start has failed after ${retry} retries`);
                         }
                         SmokeTestLogger.warn(`Attempt to start #${retry} failed, retrying...`);
+                        await automationHelper.stopDebuggingWithRetry();
                     }
                 }
             }
@@ -173,7 +199,7 @@ export function startExpoTests(
             }
             await runExpoDebugScenario(logFilePath, testName, debugConfigName, triesToLaunchApp);
 
-            await app.workbench.editors.waitForTab("Expo QR Code", false, true);
+            await app.workbench.editors.waitForTab("Expo QR Code", false, true, 2000);
             await app.workbench.editors.waitForActiveTab("Expo QR Code", false, true);
             SmokeTestLogger.info(`${testName}: 'Expo QR Code' tab found`);
 
@@ -238,6 +264,9 @@ export function startExpoTests(
             }
 
             SmokeTestLogger.info(`${testName}: Debugging started`);
+            // Workaround for Windows platform to avoid incorrect work of dispatching keybindings
+            // after opening "Expo QR Code" tab
+            await app.workbench.editor.waitForEditorFocus(project.projectEntryPointFile, 1);
             await automationHelper.waitForStackFrameWithRetry(
                 sf =>
                     sf.name === project.projectEntryPointFile &&
@@ -251,9 +280,8 @@ export function startExpoTests(
             SmokeTestLogger.info(
                 `${testName}: Searching for \"Test output from debuggee\" string in console`,
             );
-            let found = await app.workbench.debug.waitForOutput(output =>
-                output.some(line => line.indexOf("Test output from debuggee") >= 0),
-            );
+            await automationHelper.runCommandWithRetry("Debug: Focus on Debug Console View");
+            let found = await automationHelper.waitForOutputWithRetry("Test output from debuggee");
             assert.notStrictEqual(
                 found,
                 false,
@@ -265,17 +293,6 @@ export function startExpoTests(
         }
 
         if (testParameters.RunAndroidTests) {
-            it("Android Expo app Debug test(Tunnel)", async function () {
-                this.timeout(debugExpoTestTime);
-                await expoTest(
-                    expoProject,
-                    "Android Expo Debug test(Tunnel)",
-                    ExpoDebugConfigName,
-                    Platform.AndroidExpo,
-                    5,
-                );
-            });
-
             it("Android Pure RN app Expo test(LAN)", async function () {
                 this.timeout(debugExpoTestTime);
                 await expoTest(
@@ -298,6 +315,20 @@ export function startExpoTests(
                 );
             });
 
+            it("Android Expo app Debug test(Tunnel)", async function () {
+                this.timeout(debugExpoTestTime);
+                if (!isLoggedInExpo()) {
+                    assert.fail(expoLogginErrorMessage);
+                }
+                await expoTest(
+                    expoProject,
+                    "Android Expo Debug test(Tunnel)",
+                    ExpoTunnelDebugConfigName,
+                    Platform.AndroidExpo,
+                    5,
+                );
+            });
+
             it("Android Expo app Debug test(localhost)", async function () {
                 this.timeout(debugExpoTestTime);
                 await expoTest(
@@ -309,18 +340,8 @@ export function startExpoTests(
                 );
             });
         }
-        if (process.platform === "darwin" && testParameters.RunIosTests) {
-            it("iOS Expo app Debug test(Tunnel)", async function () {
-                this.timeout(debugExpoTestTime);
-                await expoTest(
-                    expoProject,
-                    "iOS Expo Debug test(Tunnel)",
-                    ExpoDebugConfigName,
-                    Platform.iOSExpo,
-                    5,
-                );
-            });
 
+        if (process.platform === "darwin" && testParameters.RunIosTests) {
             it("iOS Pure RN app Expo test(LAN)", async function () {
                 this.timeout(debugExpoTestTime);
                 await expoTest(
@@ -351,6 +372,20 @@ export function startExpoTests(
                     ExpoLocalDebugConfigName,
                     Platform.iOSExpo,
                     1,
+                );
+            });
+
+            it("iOS Expo app Debug test(Tunnel)", async function () {
+                this.timeout(debugExpoTestTime);
+                if (!isLoggedInExpo()) {
+                    assert.fail(expoLogginErrorMessage);
+                }
+                await expoTest(
+                    expoProject,
+                    "iOS Expo Debug test(Tunnel)",
+                    ExpoTunnelDebugConfigName,
+                    Platform.iOSExpo,
+                    5,
                 );
             });
         }

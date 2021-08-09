@@ -3,30 +3,53 @@
 
 import * as XDLPackage from "xdl";
 import * as MetroConfigPackage from "metro-config";
-import PackageLoader from "../../common/packageLoader";
+import { PackageLoader, PackageConfig } from "../../common/packageLoader";
+import { SettingsHelper } from "../settingsHelper";
 
-const XDL_PACKAGE = "@expo/xdl";
+const XDL_PACKAGE = "xdl";
 const METRO_CONFIG_PACKAGE = "@expo/metro-config";
-const NGROK_PACKAGE = "@expo/ngrok";
 
-const EXPO_DEPS: string[] = [XDL_PACKAGE, NGROK_PACKAGE];
+const xdlPackageConfig = new PackageConfig(
+    XDL_PACKAGE,
+    SettingsHelper.getExpoDependencyVersion(XDL_PACKAGE),
+);
+const metroConfigPackageConfig = new PackageConfig(
+    METRO_CONFIG_PACKAGE,
+    SettingsHelper.getExpoDependencyVersion("metroConfig"),
+);
 
-let getXDLPackage: () => Promise<
+const ngrokPackageConfig = new PackageConfig(
+    xdlPackageConfig.getPackageName(),
+    xdlPackageConfig.getVersion(),
+    "build/start/resolveNgrok",
+);
+
+// There is the problem with '--no-save' flag for 'npm install' command for npm v6.
+// Installing npm dependencies with the `--no-save` flag will remove
+// other dependencies that were installed previously in the same manner (https://github.com/npm/cli/issues/1460).
+// So we should workaround it passing all packages for install to only one npm install command
+const EXPO_DEPS: PackageConfig[] = [xdlPackageConfig, metroConfigPackageConfig];
+
+export const getXDLPackage: () => Promise<
     typeof XDLPackage
 > = PackageLoader.getInstance().generateGetPackageFunction<typeof XDLPackage>(
-    XDL_PACKAGE,
+    xdlPackageConfig,
     ...EXPO_DEPS,
 );
-let getMetroConfigPackage: () => Promise<
+export const getMetroConfigPackage: () => Promise<
     typeof MetroConfigPackage
 > = PackageLoader.getInstance().generateGetPackageFunction<typeof MetroConfigPackage>(
-    METRO_CONFIG_PACKAGE,
+    metroConfigPackageConfig,
+    ...EXPO_DEPS,
+);
+export const getNgrokResolver: () => Promise<XDLPackage.ResolveNgrok> = PackageLoader.getInstance().generateGetPackageFunction<XDLPackage.ResolveNgrok>(
+    ngrokPackageConfig,
     ...EXPO_DEPS,
 );
 
 export type IUser = XDLPackage.IUser;
 
-export function configReactNativeVersionWargnings(): Promise<void> {
+export function configReactNativeVersionWarnings(): Promise<void> {
     return getXDLPackage().then(xdl => {
         xdl.Config.validation.reactNativeVersionWarnings = false;
     });
@@ -37,10 +60,6 @@ export function attachLoggerStream(
     options?: XDLPackage.IBunyanStream | any,
 ): Promise<void> {
     return getXDLPackage().then(xdl => xdl.ProjectUtils.attachLoggerStream(rootPath, options));
-}
-
-export function supportedVersions(): Promise<string[]> {
-    return getXDLPackage().then(xdl => xdl.Versions.facebookReactNativeVersionsAsync());
 }
 
 export function currentUser(): Promise<XDLPackage.IUser> {
@@ -60,10 +79,12 @@ export function login(username: string, password: string): Promise<XDLPackage.IU
     );
 }
 
-export function mapVersion(reactNativeVersion: string): Promise<string> {
-    return getXDLPackage().then(xdl =>
-        xdl.Versions.facebookReactNativeVersionToExpoVersionAsync(reactNativeVersion),
-    );
+export function getExpoSdkVersions(): Promise<XDLPackage.SDKVersions> {
+    return getXDLPackage().then(xdl => xdl.Versions.sdkVersionsAsync());
+}
+
+export function getReleasedExpoSdkVersions(): Promise<XDLPackage.SDKVersions> {
+    return getXDLPackage().then(xdl => xdl.Versions.releasedSdkVersionsAsync());
 }
 
 export function publish(
@@ -107,4 +128,15 @@ export function getMetroConfig(projectRoot: string): Promise<MetroConfigPackage.
     return getMetroConfigPackage().then(metroConfigPackage =>
         metroConfigPackage.loadAsync(projectRoot),
     );
+}
+
+export function isNgrokInstalled(projectRoot: string): Promise<boolean> {
+    return getNgrokResolver()
+        .then(ngrokResolver =>
+            ngrokResolver.resolveNgrokAsync(projectRoot, {
+                shouldPrompt: false,
+                autoInstall: false,
+            }),
+        )
+        .then(ngrok => !!ngrok);
 }

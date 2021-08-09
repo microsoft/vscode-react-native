@@ -125,7 +125,7 @@ export class RNDebugSession extends DebugSessionBase {
                         `Attaching to the application: ${JSON.stringify(attachArgs, null, 2)}`,
                     );
                     return ProjectVersionHelper.getReactNativeVersions(
-                        attachArgs.cwd,
+                        this.projectRootPath,
                         ProjectVersionHelper.generateAdditionalPackagesToCheckByPlatform(
                             attachArgs,
                         ),

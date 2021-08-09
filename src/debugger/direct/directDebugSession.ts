@@ -17,7 +17,7 @@ import { IOSDirectCDPMessageHandler } from "../../cdp-proxy/CDPMessageHandlers/i
 import { PlatformType } from "../../extension/launchArgs";
 import { IWDPHelper } from "./IWDPHelper";
 import { BaseCDPMessageHandler } from "../../cdp-proxy/CDPMessageHandlers/baseCDPMessageHandler";
-
+import { TipNotificationService } from "../../extension/tipsNotificationsService/tipsNotificationService";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -56,6 +56,10 @@ export class DirectDebugSession extends DebugSessionBase {
             },
         };
 
+        TipNotificationService.getInstance().setKnownDateForFeatureById(
+            "directDebuggingWithHermes",
+        );
+
         return new Promise<void>((resolve, reject) =>
             this.initializeSettings(launchArgs)
                 .then(() => {
@@ -65,7 +69,7 @@ export class DirectDebugSession extends DebugSessionBase {
                     );
 
                     return ProjectVersionHelper.getReactNativeVersions(
-                        launchArgs.cwd,
+                        this.projectRootPath,
                         ProjectVersionHelper.generateAdditionalPackagesToCheckByPlatform(
                             launchArgs,
                         ),
@@ -135,7 +139,7 @@ export class DirectDebugSession extends DebugSessionBase {
                         `Attaching to the application: ${JSON.stringify(attachArgs, null, 2)}`,
                     );
                     return ProjectVersionHelper.getReactNativeVersions(
-                        attachArgs.cwd,
+                        this.projectRootPath,
                         ProjectVersionHelper.generateAdditionalPackagesToCheckByPlatform(
                             attachArgs,
                         ),

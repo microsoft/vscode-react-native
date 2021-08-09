@@ -112,8 +112,6 @@ export class DebugScenarioNameGenerator {
                 return "Exponent";
             case PlatformType.Windows:
                 return "Windows";
-            case PlatformType.WPF:
-                return "WPF";
             case PlatformType.macOS:
                 return "macOS";
             default:

@@ -19,6 +19,13 @@
       "trace": "verbose"
     },
     {
+      "name": "Debug Windows Hermes - Experimental",
+      "cwd": "${workspaceFolder}",
+      "type": "reactnativedirect",
+      "request": "launch",
+      "platform": "windows"
+    },
+    {
       "name": "Debug iOS Hermes - Experimental",
       "cwd": "${workspaceFolder}",
       "type": "reactnativedirect",
@@ -57,11 +64,12 @@
       "trace": "verbose"
     },
     {
-      "name": "Debug in Exponent",
+      "name": "Debug in Exponent (Tunnel)",
       "cwd": "${workspaceFolder}",
       "type": "reactnative",
       "request": "launch",
       "platform": "exponent",
+      "expoHostType": "tunnel",
       "trace": "verbose"
     },
     {
@@ -70,7 +78,6 @@
       "type": "reactnative",
       "request": "launch",
       "platform": "exponent",
-      "expoHostType": "lan",
       "trace": "verbose"
     },
     {

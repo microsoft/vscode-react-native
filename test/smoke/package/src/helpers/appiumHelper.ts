@@ -13,12 +13,12 @@ import { SmokeTestLogger } from "./smokeTestLogger";
 let appiumProcess: null | cp.ChildProcess;
 export type AppiumClient = wdio.BrowserObject;
 export enum Platform {
-    Android,
-    AndroidExpo,
-    iOS,
-    iOSExpo,
+    Android = "Android",
+    AndroidExpo = "AndroidExpo",
+    iOS = "iOS",
+    iOSExpo = "iOSExpo",
 }
-const XDL = require("@expo/xdl");
+const XDL = require("xdl");
 
 type XPathSelector = { [TKey in Platform]: string };
 type XPathSelectors = { [key: string]: XPathSelector };
@@ -340,20 +340,24 @@ export class AppiumHelper {
         }
     }
 
-    public static async clickTestButtonHermes(
+    public static async clickTestButton(
         client: AppiumClient,
+        testButtonName: string,
         platform: Platform,
     ): Promise<void> {
-        SmokeTestLogger.info(`*** Pressing button with text "Test Button"...`);
+        SmokeTestLogger.info(`*** Pressing button with text "${testButtonName}"...`);
         let testButton: any;
         switch (platform) {
             case Platform.Android:
-                testButton = await client.$("//*[@text='TEST BUTTON']");
+                testButton = await client.$(`//*[@text='${testButtonName.toUpperCase()}']`);
                 break;
             case Platform.iOS:
-                testButton = await client.$('//XCUIElementTypeButton[@name="Test Button"]');
+                testButton = await client.$(`//XCUIElementTypeButton[@name="${testButtonName}"]`);
                 break;
         }
+        await testButton.waitForExist({
+            timeout: SmokeTestsConstants.waitForElementTimeout,
+        });
         await testButton.click();
     }
 
@@ -420,10 +424,10 @@ export class AppiumHelper {
         SmokeTestLogger.info(`*** Opening Expo app via XDL.Simulator function`);
         SmokeTestLogger.info(`*** Searching for the "Explore" button...`);
 
-        const exploreElement = await client.$(
-            `//XCUIElementTypeButton[@name="Explore, tab, 2 of 4"]`,
+        const projectsElement = await client.$(
+            `//XCUIElementTypeButton[@name="Projects, tab, 1 of 3"]`,
         );
-        await exploreElement.waitForExist({ timeout: SmokeTestsConstants.waitForElementTimeout });
+        await projectsElement.waitForExist({ timeout: SmokeTestsConstants.waitForElementTimeout });
 
         await XDL.Simulator.openProjectAsync({ projectRoot: projectFolder });
 

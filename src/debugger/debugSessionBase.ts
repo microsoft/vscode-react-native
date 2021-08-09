@@ -117,7 +117,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         resolve?: (value?: void | PromiseLike<void> | undefined) => void,
     ): void;
 
-    protected initializeSettings(args: any): Promise<any> {
+    protected initializeSettings(args: any): Promise<void> {
         if (!this.isSettingsInitialized) {
             let chromeDebugCoreLogs = getLoggingDirectory();
             if (chromeDebugCoreLogs) {
@@ -143,19 +143,36 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
                 args.enableDebug = true;
             }
 
-            const projectRootPath = getProjectRoot(args);
-            return ReactNativeProjectHelper.isReactNativeProject(projectRootPath).then(result => {
-                if (!result) {
-                    throw ErrorHelper.getInternalError(
-                        InternalErrorCode.NotInReactNativeFolderError,
-                    );
-                }
-                this.projectRootPath = projectRootPath;
-                this.appLauncher = AppLauncher.getAppLauncherByProjectRootPath(projectRootPath);
-                this.isSettingsInitialized = true;
+            // Now there is a problem with processing time of 'createFromSourceMap' function of js-debug
+            // So we disable this functionality by default https://github.com/microsoft/vscode-js-debug/issues/1033
+            if (typeof args.sourceMapRenames !== "boolean") {
+                args.sourceMapRenames = false;
+            }
 
-                return void 0;
-            });
+            const projectRootPath = getProjectRoot(args);
+
+            return ReactNativeProjectHelper.isReactNativeProject(projectRootPath).then(
+                (result: boolean) => {
+                    if (!result) {
+                        throw ErrorHelper.getInternalError(
+                            InternalErrorCode.NotInReactNativeFolderError,
+                        );
+                    }
+                    return AppLauncher.getOrCreateAppLauncherByProjectRootPath(
+                        projectRootPath,
+                    ).then((appLauncher: AppLauncher) => {
+                        this.appLauncher = appLauncher;
+                        this.projectRootPath = projectRootPath;
+                        this.isSettingsInitialized = true;
+                        this.appLauncher.getOrUpdateNodeModulesRoot(true);
+                        if (this.session.workspaceFolder) {
+                            this.appLauncher.updateDebugConfigurationRoot(
+                                this.session.workspaceFolder.uri.fsPath,
+                            );
+                        }
+                    });
+                },
+            );
         } else {
             return Promise.resolve();
         }

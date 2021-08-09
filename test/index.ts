@@ -6,8 +6,31 @@
 import * as path from "path";
 import * as Mocha from "mocha";
 import * as glob from "glob";
+import NYCPackage from "nyc";
 
-export function run(): Promise<void> {
+function setupCoverage(): NYCPackage {
+    const NYC = require("nyc");
+    const nyc = new NYC({
+        cwd: path.join(__dirname, ".."),
+        include: ["src/**/*.js"],
+        exclude: ["test/**", ".vscode-test/**"],
+        reporter: ["text", "html"],
+        all: true,
+        instrument: true,
+        hookRequire: true,
+        hookRunInContext: true,
+        hookRunInThisContext: true,
+    });
+
+    nyc.reset();
+    nyc.wrap();
+
+    return nyc;
+}
+
+export async function run(): Promise<void> {
+    const nyc = process.env.COVERAGE ? setupCoverage() : null;
+
     const mocha = new Mocha({
         ui: "tdd",
         grep: new RegExp("(debuggerContext|localizationContext)"), // Do not run tests intended for the debuggerContext and localizationContext
@@ -25,7 +48,7 @@ export function run(): Promise<void> {
 
     const testsRoot = __dirname;
     // Register Mocha options
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
         glob("**/**.test.js", { cwd: testsRoot }, (err, files) => {
             if (err) {
                 return reject(err);
@@ -47,5 +70,11 @@ export function run(): Promise<void> {
                 reject(err);
             }
         });
+    }).finally(() => {
+        if (nyc) {
+            nyc.writeCoverageFile();
+            return nyc.report();
+        }
+        return void 0;
     });
 }

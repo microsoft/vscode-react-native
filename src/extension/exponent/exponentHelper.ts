@@ -4,6 +4,8 @@
 /// <reference path="exponentHelper.d.ts" />
 
 import * as path from "path";
+import * as semver from "semver";
+import * as vscode from "vscode";
 import * as XDL from "./xdlInterface";
 import { Package, IPackageInformation } from "../../common/node/package";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
@@ -11,6 +13,8 @@ import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import stripJSONComments = require("strip-json-comments");
 import * as nls from "vscode-nls";
 import { ErrorHelper } from "../../common/error/errorHelper";
+import { getNodeModulesGlobalPath } from "../../common/utils";
+import { PackageLoader } from "../../common/packageLoader";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { FileSystem } from "../../common/node/fileSystem";
 nls.config({
@@ -29,11 +33,14 @@ const DEFAULT_ANDROID_INDEX = "index.android.js";
 
 const DBL_SLASHES = /\\/g;
 
+const NGROK_PACKAGE = "@expo/ngrok";
+
 export class ExponentHelper {
     private workspaceRootPath: string;
     private projectRootPath: string;
     private fs: FileSystem;
     private hasInitialized: boolean;
+    private nodeModulesGlobalPathAddedToEnv: boolean;
     private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
 
     public constructor(
@@ -49,19 +56,28 @@ export class ExponentHelper {
         // to the initialization of the extension. If a public method is added, make sure
         // to call this.lazilyInitialize() at the begining of the code to be sure all variables
         // are correctly initialized.
+        this.nodeModulesGlobalPathAddedToEnv = false;
     }
 
-    public configureExponentEnvironment(): Promise<void> {
-        this.lazilyInitialize();
+    public async preloadExponentDependency(): Promise<[typeof xdl, typeof metroConfig]> {
         this.logger.info(
             localize(
                 "MakingSureYourProjectUsesCorrectExponentDependencies",
                 "Making sure your project uses the correct dependencies for Expo. This may take a while...",
             ),
         );
-        this.logger.logStream(localize("CheckingIfThisIsExpoApp", "Checking if this is Expo app."));
+        return Promise.all([XDL.getXDLPackage(), XDL.getMetroConfigPackage()]);
+    }
+
+    public configureExponentEnvironment(): Promise<void> {
         let isExpo: boolean;
-        return this.isExpoApp(true)
+        return this.lazilyInitialize()
+            .then(() => {
+                this.logger.logStream(
+                    localize("CheckingIfThisIsExpoApp", "Checking if this is an Expo app."),
+                );
+                return this.isExpoApp(true);
+            })
             .then(result => {
                 isExpo = result;
                 if (!isExpo) {
@@ -95,8 +111,8 @@ export class ExponentHelper {
         promptForInformation: (message: string, password: boolean) => Promise<string>,
         showMessage: (message: string) => Promise<string>,
     ): Promise<XDL.IUser> {
-        this.lazilyInitialize();
-        return XDL.currentUser()
+        return this.lazilyInitialize()
+            .then(() => XDL.currentUser())
             .then(user => {
                 if (!user) {
                     let username = "";
@@ -125,14 +141,8 @@ export class ExponentHelper {
             });
     }
 
-    private async getArgumentsFromExpoMetroConfig(projectRoot: string): Promise<ExpMetroConfig> {
-        return XDL.getMetroConfig(projectRoot).then(config => {
-            return { sourceExts: config.resolver.sourceExts };
-        });
-    }
-
     public async getExpPackagerOptions(projectRoot: string): Promise<ExpMetroConfig> {
-        this.lazilyInitialize();
+        await this.lazilyInitialize();
         const options = await this.getFromExpConfig<any>("packagerOpts").then(opts => opts || {});
         const metroConfig = await this.getArgumentsFromExpoMetroConfig(projectRoot);
         return { ...options, ...metroConfig };
@@ -193,6 +203,66 @@ export class ExponentHelper {
             });
     }
 
+    public findOrInstallNgrokGlobally(): Promise<void> {
+        return this.addNodeModulesPathToEnvIfNotPresent()
+            .then(() => XDL.isNgrokInstalled(this.projectRootPath))
+            .catch(() => false)
+            .then(ngrokInstalled => {
+                if (!ngrokInstalled) {
+                    const outputMessage = localize(
+                        "ExpoInstallNgrokGlobally",
+                        'It seems that "@expo/ngrok" package isn\'t installed globally. This package is required to use Expo tunnels, would you like to install it globally?',
+                    );
+                    const installButton = localize("InstallNgrokGloballyButtonOK", "Install");
+                    const cancelButton = localize("InstallNgrokGloballyButtonCancel", "Cancel");
+
+                    return vscode.window
+                        .showWarningMessage(outputMessage, installButton, cancelButton)
+                        .then(selectedItem => {
+                            if (selectedItem === installButton) {
+                                return PackageLoader.getInstance()
+                                    .installGlobalPackage(NGROK_PACKAGE, this.projectRootPath)
+                                    .then(() => {
+                                        this.logger.info(
+                                            localize(
+                                                "NgrokInstalledGlobally",
+                                                '"@expo/ngrok" package has been successfully installed globally.',
+                                            ),
+                                        );
+                                    });
+                            }
+                            throw ErrorHelper.getInternalError(
+                                InternalErrorCode.NgrokIsNotInstalledGlobally,
+                            );
+                        });
+                }
+                return void 0;
+            });
+    }
+
+    public removeNodeModulesPathFromEnvIfWasSet(): void {
+        if (this.nodeModulesGlobalPathAddedToEnv) {
+            delete process.env["NODE_MODULES"];
+            this.nodeModulesGlobalPathAddedToEnv = false;
+        }
+    }
+
+    public addNodeModulesPathToEnvIfNotPresent(): Promise<void> {
+        if (!process.env["NODE_MODULES"]) {
+            return getNodeModulesGlobalPath().then(nodeModulesGlobalPath => {
+                process.env["NODE_MODULES"] = nodeModulesGlobalPath;
+                this.nodeModulesGlobalPathAddedToEnv = true;
+            });
+        }
+        return Promise.resolve();
+    }
+
+    private async getArgumentsFromExpoMetroConfig(projectRoot: string): Promise<ExpMetroConfig> {
+        return XDL.getMetroConfig(projectRoot).then(config => {
+            return { sourceExts: config.resolver.sourceExts };
+        });
+    }
+
     /**
      * Path to a given file inside the .vscode directory
      */
@@ -205,26 +275,30 @@ export class ExponentHelper {
     }
 
     private createExpoEntry(name: string): Promise<void> {
-        this.lazilyInitialize();
-        return this.detectEntry().then((entryPoint: string) => {
-            const content = this.generateFileContent(name, entryPoint);
-            return this.fs.writeFile(this.dotvscodePath(EXPONENT_INDEX, true), content);
-        });
+        return this.lazilyInitialize()
+            .then(() => this.detectEntry())
+            .then((entryPoint: string) => {
+                const content = this.generateFileContent(name, entryPoint);
+                return this.fs.writeFile(this.dotvscodePath(EXPONENT_INDEX, true), content);
+            });
     }
 
     private detectEntry(): Promise<string> {
-        this.lazilyInitialize();
-        return Promise.all([
-            this.fs.exists(this.pathToFileInWorkspace(DEFAULT_EXPONENT_INDEX)),
-            this.fs.exists(this.pathToFileInWorkspace(DEFAULT_IOS_INDEX)),
-            this.fs.exists(this.pathToFileInWorkspace(DEFAULT_ANDROID_INDEX)),
-        ]).then(([expo, ios]) => {
-            return expo
-                ? this.pathToFileInWorkspace(DEFAULT_EXPONENT_INDEX)
-                : ios
-                ? this.pathToFileInWorkspace(DEFAULT_IOS_INDEX)
-                : this.pathToFileInWorkspace(DEFAULT_ANDROID_INDEX);
-        });
+        return this.lazilyInitialize()
+            .then(() =>
+                Promise.all([
+                    this.fs.exists(this.pathToFileInWorkspace(DEFAULT_EXPONENT_INDEX)),
+                    this.fs.exists(this.pathToFileInWorkspace(DEFAULT_IOS_INDEX)),
+                    this.fs.exists(this.pathToFileInWorkspace(DEFAULT_ANDROID_INDEX)),
+                ]),
+            )
+            .then(([expo, ios]) => {
+                return expo
+                    ? this.pathToFileInWorkspace(DEFAULT_EXPONENT_INDEX)
+                    : ios
+                    ? this.pathToFileInWorkspace(DEFAULT_IOS_INDEX)
+                    : this.pathToFileInWorkspace(DEFAULT_ANDROID_INDEX);
+            });
     }
 
     private generateFileContent(name: string, entryPoint: string): string {
@@ -307,9 +381,11 @@ var entryPoint = require('${entryPoint}');`;
 
         return ProjectVersionHelper.getReactNativeVersions(this.projectRootPath).then(versions => {
             if (showProgress) this.logger.logStream(".");
-            return XDL.mapVersion(versions.reactNativeVersion).then(sdkVersion => {
+            return this.mapFacebookReactNativeVersionToExpoVersion(
+                versions.reactNativeVersion,
+            ).then(sdkVersion => {
                 if (!sdkVersion) {
-                    return XDL.supportedVersions().then(versions => {
+                    return this.getFacebookReactNativeVersions().then(versions => {
                         return Promise.reject<string>(
                             ErrorHelper.getInternalError(
                                 InternalErrorCode.RNVersionNotSupportedByExponent,
@@ -320,6 +396,47 @@ var entryPoint = require('${entryPoint}');`;
                 }
                 return sdkVersion;
             });
+        });
+    }
+
+    private getFacebookReactNativeVersions(): Promise<string[]> {
+        return XDL.getExpoSdkVersions().then(sdkVersions => {
+            const facebookReactNativeVersions = new Set(
+                Object.values(sdkVersions)
+                    .map(data => data.facebookReactNativeVersion)
+                    .filter(version => version),
+            );
+            return Array.from(facebookReactNativeVersions);
+        });
+    }
+
+    private mapFacebookReactNativeVersionToExpoVersion(
+        outerFacebookReactNativeVersion: string,
+    ): Promise<string | null> {
+        if (!semver.valid(outerFacebookReactNativeVersion)) {
+            return Promise.reject(
+                new Error(
+                    `${outerFacebookReactNativeVersion} is not a valid version. It must be in the form of x.y.z`,
+                ),
+            );
+        }
+
+        return XDL.getReleasedExpoSdkVersions().then(sdkVersions => {
+            let currentSdkVersion: string | null = null;
+
+            for (const [version, { facebookReactNativeVersion }] of Object.entries(sdkVersions)) {
+                if (
+                    semver.major(outerFacebookReactNativeVersion) ===
+                        semver.major(facebookReactNativeVersion) &&
+                    semver.minor(outerFacebookReactNativeVersion) ===
+                        semver.minor(facebookReactNativeVersion) &&
+                    (!currentSdkVersion || semver.gt(version, currentSdkVersion))
+                ) {
+                    currentSdkVersion = version;
+                }
+            }
+
+            return currentSdkVersion;
         });
     }
 
@@ -382,11 +499,11 @@ var entryPoint = require('${entryPoint}');`;
     /**
      * Works as a constructor but only initiliazes when it's actually needed.
      */
-    private lazilyInitialize(): void {
+    private async lazilyInitialize(): Promise<void> {
         if (!this.hasInitialized) {
             this.hasInitialized = true;
-
-            XDL.configReactNativeVersionWargnings();
+            await this.preloadExponentDependency();
+            XDL.configReactNativeVersionWarnings();
             XDL.attachLoggerStream(this.projectRootPath, {
                 stream: {
                     write: (chunk: any) => {

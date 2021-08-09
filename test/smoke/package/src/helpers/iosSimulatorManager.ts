@@ -8,7 +8,7 @@ import * as cp from "child_process";
 import { SmokeTestLogger } from "./smokeTestLogger";
 import { ExpoClientData } from "./androidEmulatorManager";
 
-const XDL = require("@expo/xdl");
+const XDL = require("xdl");
 
 interface IiOSSimulator {
     system: string;
@@ -416,6 +416,9 @@ export default class IosSimulatorManager {
                 throw IosSimulatorManager.getRunError(cmd, result.FailedState);
             }
         }
+        SmokeTestLogger.success(
+            `*** iOS simulators with name "${simulatorName}" has been terminated.`,
+        );
     }
 
     public static async waitUntilAllIosSimulatorsTerminating(): Promise<boolean> {

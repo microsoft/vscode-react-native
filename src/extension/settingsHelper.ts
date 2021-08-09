@@ -5,6 +5,7 @@ import * as path from "path";
 import { ConfigurationReader } from "../common/configurationReader";
 import { Packager } from "../common/packager";
 import { LogLevel } from "./log/LogHelper";
+import { SystemColorTheme } from "../common/editorColorThemesHelper";
 import { PackagerStatusIndicator } from "./packagerStatusIndicator";
 
 export class SettingsHelper {
@@ -47,8 +48,7 @@ export class SettingsHelper {
      * Get the React Native project root path
      */
     public static getReactNativeProjectRoot(fsPath: string): string {
-        const uri = vscode.Uri.file(fsPath);
-        const workspaceFolder = <vscode.WorkspaceFolder>vscode.workspace.getWorkspaceFolder(uri);
+        let uri = vscode.Uri.file(fsPath);
         const workspaceConfiguration = vscode.workspace.getConfiguration("react-native-tools", uri);
         if (workspaceConfiguration.has("projectRoot")) {
             let projectRoot: string = ConfigurationReader.readString(
@@ -57,10 +57,10 @@ export class SettingsHelper {
             if (path.isAbsolute(projectRoot)) {
                 return projectRoot;
             } else {
-                return path.resolve(workspaceFolder.uri.fsPath, projectRoot);
+                return path.resolve(uri.fsPath, projectRoot);
             }
         }
-        return workspaceFolder.uri.fsPath;
+        return uri.fsPath;
     }
 
     /**
@@ -131,6 +131,20 @@ export class SettingsHelper {
         return "";
     }
 
+    public static getNetworkInspectorConsoleLogsColorTheme(): SystemColorTheme {
+        const workspaceConfiguration = vscode.workspace.getConfiguration(
+            "react-native-tools.networkInspector",
+            null,
+        );
+        if (workspaceConfiguration.has("consoleLogsColorTheme")) {
+            const consoleLogsColorTheme: string = ConfigurationReader.readString(
+                workspaceConfiguration.get("consoleLogsColorTheme"),
+            );
+            return SystemColorTheme[consoleLogsColorTheme];
+        }
+        return SystemColorTheme.Light;
+    }
+
     /**
      * We get the packager port configured by the user
      */
@@ -166,5 +180,39 @@ export class SettingsHelper {
             );
         }
         return undefined;
+    }
+
+    public static getExpoDependencyVersion(packageName: string): string | undefined {
+        const workspaceConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(
+            "react-native.expo.dependencies",
+        );
+        if (workspaceConfiguration.has(packageName)) {
+            const packageVersion = ConfigurationReader.readString(
+                workspaceConfiguration.get(packageName),
+            );
+            return packageVersion;
+        }
+        return undefined;
+    }
+
+    public static getShowTips(): boolean {
+        const workspaceConfiguration = vscode.workspace.getConfiguration(
+            "react-native-tools",
+            null,
+        );
+        if (workspaceConfiguration.has("showUserTips")) {
+            return ConfigurationReader.readBoolean(workspaceConfiguration.get("showUserTips"));
+        }
+        return false;
+    }
+
+    public static async setShowTips(showTips: boolean): Promise<void> {
+        const workspaceConfiguration = vscode.workspace.getConfiguration(
+            "react-native-tools",
+            null,
+        );
+        if (workspaceConfiguration.has("showUserTips")) {
+            await workspaceConfiguration.update("showUserTips", showTips, true);
+        }
     }
 }

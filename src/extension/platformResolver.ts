@@ -5,7 +5,6 @@ import { IRunOptions, PlatformType } from "./launchArgs";
 import { IOSPlatform } from "./ios/iOSPlatform";
 import { AndroidPlatform } from "./android/androidPlatform";
 import { WindowsPlatform } from "./windows/windowsPlatform";
-import { WpfPlatform } from "./windows/wpfPlatform";
 import { GeneralMobilePlatform, MobilePlatformDeps } from "../extension/generalMobilePlatform";
 import { ExponentPlatform } from "./exponent/exponentPlatform";
 import { MacOSPlatform } from "./macos/macOSPlatform";
@@ -30,8 +29,6 @@ export class PlatformResolver {
                 return new ExponentPlatform(runOptions, platformDeps);
             case PlatformType.Windows:
                 return new WindowsPlatform(runOptions, platformDeps);
-            case PlatformType.WPF:
-                return new WpfPlatform(runOptions, platformDeps);
             case PlatformType.macOS:
                 return new MacOSPlatform(runOptions, platformDeps);
             default:

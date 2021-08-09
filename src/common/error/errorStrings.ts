@@ -31,7 +31,7 @@ export const ERROR_STRINGS = {
     ),
     [InternalErrorCode.IOSDeployNotFound]: localize(
         "IOSDeployNotFound",
-        "Unable to find ios-deploy. Please make sure to install it globally('npm install -g ios-deploy')",
+        "Unable to find ios-deploy. Please make sure to install it globally('brew install ios-deploy')",
     ),
     [InternalErrorCode.DeviceNotPluggedIn]: localize(
         "DeviceNotPluggedIn",
@@ -206,6 +206,10 @@ export const ERROR_STRINGS = {
         "UserCancelledExpoLogin",
         "User canceled login.",
     ),
+    [InternalErrorCode.NgrokIsNotInstalledGlobally]: localize(
+        "NgrokIsNotInstalledGlobally",
+        'It seems that "@expo/ngrok" package isn\'t installed globally. This package is required to use Expo tunnels. Please run "npm i -g @expo/ngrok" to install it globally.',
+    ),
     [InternalErrorCode.CannotAttachToPackagerCheckPackagerRunningOnPort]: localize(
         "CannotAttachToPackagerCheckPackagerRunningOnPort",
         "Cannot attach to packager. Are you sure there is a packager and it is running in the port {0}? If your packager is configured to run in another port make sure to add that to the settings.json.",
@@ -254,6 +258,10 @@ export const ERROR_STRINGS = {
         "WinRNMPPluginIsNotInstalled",
         "'rnpm-plugin-windows' is not installed.",
     ),
+    [InternalErrorCode.WinRunCommandFailed]: localize(
+        "WinRunCommandFailed",
+        "{0}\nPlease check the 'React Native: Run Windows' output channel for detales",
+    ),
     [InternalErrorCode.ReactDevtoolsIsNotInstalled]: localize(
         "ReactDevtoolsIsNotInstalled",
         "React Devtools is not installed. Run `npm install -g react-devtools` command in your terminal to install it.",
@@ -261,6 +269,10 @@ export const ERROR_STRINGS = {
     [InternalErrorCode.CancellationTokenTriggered]: localize(
         "CancellationTokenTriggered",
         "Operation canceled",
+    ),
+    [InternalErrorCode.WorkspaceIsNotTrusted]: localize(
+        "WorkspaceIsNotTrusted",
+        'The workspace by the project path "{0}" should be trusted to use "{1}"',
     ),
     [InternalErrorCode.DebuggingWontWorkReloadJSAndReconnect]: localize(
         "DebuggingWontWorkReloadJSAndReconnect",
@@ -329,5 +341,13 @@ export const ERROR_STRINGS = {
     [InternalErrorCode.CouldNotDirectDebugWithoutHermesEngine]: localize(
         "CouldNotDirectDebugWithoutHermesEngine",
         "Could not start direct debugging of the {0} application without Hermes engine enabled. Please check if Hermes engine is enabled in your project and your debugging configuration contains 'useHermesEngine' prop set to 'true'",
+    ),
+    [InternalErrorCode.CouldNotStartNetworkInspector]: localize(
+        "ErrorWhileStartNetworkInspector",
+        "Error while starting Network inspector",
+    ),
+    [InternalErrorCode.CouldNotStopNetworkInspector]: localize(
+        "ErrorWhileStopNetworkInspector",
+        "Error while stopping Network inspector",
     ),
 };
