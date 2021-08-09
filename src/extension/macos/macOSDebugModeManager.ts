@@ -38,6 +38,8 @@ export class MacOSDebugModeManager extends ApplePlatformDebugModeManager {
         // Find the plistFile with the configuration setting
         // There is a race here between us checking for the plist file, and the application starting up.
         const plistFile = await this.findPListFileWithRetry(configuration, productName);
+        // Set the "isDebuggingRemotely" flag to "true", so on the next startup the application will default into debug mode
+        // This is approximately equivalent to clicking the "Debug in Chrome" button
         return await this.defaultsHelper.setPlistBooleanProperty(
             plistFile,
             MacOSDebugModeManager.REMOTE_DEBUGGING_FLAG_NAME,
