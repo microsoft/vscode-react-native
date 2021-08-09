@@ -78,7 +78,7 @@ export class MacOSPlatform extends GeneralMobilePlatform {
             extProps,
         );
 
-        return TelemetryHelper.generate("MacOSPlatform.runApp", extProps, () => {
+        await TelemetryHelper.generate("MacOSPlatform.runApp", extProps, async () => {
             const env = GeneralMobilePlatform.getEnvArgument(
                 process.env,
                 this.runOptions.env,
@@ -102,7 +102,7 @@ export class MacOSPlatform extends GeneralMobilePlatform {
                 this.projectPath,
                 this.logger,
             ).spawnReactCommand(`run-${this.platformName}`, this.runArguments, { env });
-            return new OutputVerifier(
+            await new OutputVerifier(
                 () => Promise.resolve(MacOSPlatform.SUCCESS_PATTERNS),
                 () => Promise.resolve(MacOSPlatform.FAILURE_PATTERNS),
                 this.platformName,
