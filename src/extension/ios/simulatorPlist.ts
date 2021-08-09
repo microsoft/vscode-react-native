@@ -53,7 +53,7 @@ export class SimulatorPlist {
                 configuration,
                 productName,
                 this.scheme,
-            ),
+            ), // Find the name of the application
             this.nodeChildProcess.exec("xcrun simctl getenv booted HOME").then(res => res.outcome), // Find the path of the simulator we are running
         ]);
         const pathBefore = path.join(
