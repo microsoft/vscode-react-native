@@ -60,7 +60,7 @@ export class WindowsPlatform extends GeneralMobilePlatform {
             extProps,
         );
 
-        return TelemetryHelper.generate("WindowsPlatform.runApp", extProps, () => {
+        await TelemetryHelper.generate("WindowsPlatform.runApp", extProps, async () => {
             const env = GeneralMobilePlatform.getEnvArgument(
                 process.env,
                 this.runOptions.env,
@@ -95,7 +95,7 @@ export class WindowsPlatform extends GeneralMobilePlatform {
                 this.projectPath,
                 this.logger,
             ).spawnReactCommand(`run-${this.platformName}`, this.runArguments, { env });
-            return new OutputVerifier(
+            await new OutputVerifier(
                 () => Promise.resolve(WindowsPlatform.SUCCESS_PATTERNS),
                 () => Promise.resolve(WindowsPlatform.FAILURE_PATTERNS),
                 this.platformName,
