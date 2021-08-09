@@ -146,7 +146,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
         }
     }
 
-    public runApp(): Promise<void> {
+    public async runApp(): Promise<void> {
         let extProps = {
             platform: {
                 value: PlatformType.iOS,
@@ -160,7 +160,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
             extProps,
         );
 
-        return TelemetryHelper.generate("iOSPlatform.runApp", extProps, () => {
+        await TelemetryHelper.generate("iOSPlatform.runApp", extProps, async () => {
             // Compile, deploy, and launch the app on either a simulator or a device
             const env = GeneralMobilePlatform.getEnvArgument(
                 process.env,
@@ -189,7 +189,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
                 this.projectPath,
                 this.logger,
             ).spawnReactCommand("run-ios", this.runArguments, { env });
-            return new OutputVerifier(
+            await new OutputVerifier(
                 () =>
                     this.generateSuccessPatterns(
                         this.runOptions.reactNativeVersions.reactNativeVersion,
