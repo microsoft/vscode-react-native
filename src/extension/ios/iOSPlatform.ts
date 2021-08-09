@@ -240,6 +240,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
             this.runOptions.configuration,
             this.runOptions.productName,
         );
+        // Relaunch the app
         return await this.runApp();
     }
 
