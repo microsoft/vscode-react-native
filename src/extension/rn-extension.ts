@@ -70,7 +70,7 @@ let EXTENSION_CONTEXT: vscode.ExtensionContext;
  */
 let COUNT_WORKSPACE_FOLDERS: number = 9000;
 
-export function activate(context: vscode.ExtensionContext): Promise<void> {
+export async function activate(context: vscode.ExtensionContext): Promise<void> {
     const extensionName = getExtensionName();
     const appVersion = getExtensionVersion();
     if (!appVersion) {
@@ -80,7 +80,7 @@ export function activate(context: vscode.ExtensionContext): Promise<void> {
     if (extensionName) {
         if (extensionName.includes("preview")) {
             if (showTwoVersionFoundNotification()) {
-                return Promise.resolve();
+                return;
             }
         } else {
             showChangelogNotificationOnUpdate(appVersion);
@@ -114,7 +114,7 @@ export function activate(context: vscode.ExtensionContext): Promise<void> {
         appVersion,
         ErrorHelper.getInternalError(InternalErrorCode.ExtensionActivationFailed),
         reporter,
-        function activateRunApp() {
+        async function activateRunApp() {
             EXTENSION_CONTEXT.subscriptions.push(
                 vscode.workspace.onDidChangeWorkspaceFolders(event =>
                     onChangeWorkspaceFolders(event),
@@ -170,7 +170,7 @@ export function activate(context: vscode.ExtensionContext): Promise<void> {
 
             let activateExtensionEvent = TelemetryHelper.createTelemetryEvent("activate");
             Telemetry.send(activateExtensionEvent);
-            let promises: any = [];
+            let promises: Promise<void>[] = [];
             if (workspaceFolders) {
                 outputChannelLogger.debug(`Projects found: ${workspaceFolders.length}`);
                 workspaceFolders.forEach((folder: vscode.WorkspaceFolder) => {
@@ -184,15 +184,14 @@ export function activate(context: vscode.ExtensionContext): Promise<void> {
                 );
             }
 
-            return Promise.all(promises).then(() => {
-                return registerReactNativeCommands();
-            });
+            await Promise.all(promises);
+            registerReactNativeCommands();
         },
         extProps,
     );
 }
 
-export function deactivate(): Promise<void> {
+export async function deactivate(): Promise<void> {
     return new Promise<void>(function (resolve) {
         // Kill any packager processes that we spawned
         entryPointHandler.runFunction(
@@ -254,55 +253,48 @@ export function getCountOfWorkspaceFolders(): number {
     return COUNT_WORKSPACE_FOLDERS;
 }
 
-export function onFolderAdded(folder: vscode.WorkspaceFolder): Promise<void> {
+export async function onFolderAdded(folder: vscode.WorkspaceFolder): Promise<void> {
     let rootPath = folder.uri.fsPath;
     let projectRootPath = SettingsHelper.getReactNativeProjectRoot(rootPath);
     outputChannelLogger.debug(`Add project: ${projectRootPath}`);
-    return ProjectVersionHelper.tryToGetRNSemverValidVersionsFromProjectPackage(
+    const versions = await ProjectVersionHelper.tryToGetRNSemverValidVersionsFromProjectPackage(
         projectRootPath,
         ProjectVersionHelper.generateAllAdditionalPackages(),
         projectRootPath,
-    ).then(versions => {
-        outputChannelLogger.debug(`React Native version: ${versions.reactNativeVersion}`);
-        let promises = [];
-        if (ProjectVersionHelper.isVersionError(versions.reactNativeVersion)) {
-            outputChannelLogger.debug(
-                `react-native package version is not found in ${projectRootPath}. Reason: ${versions.reactNativeVersion}`,
-            );
-            TelemetryHelper.sendErrorEvent(
-                "AddProjectReactNativeVersionIsEmpty",
-                ErrorHelper.getInternalError(InternalErrorCode.CouldNotFindProjectVersion),
-                versions.reactNativeVersion,
-            );
-        } else if (isSupportedVersion(versions.reactNativeVersion)) {
-            activateCommands(versions);
+    );
+    outputChannelLogger.debug(`React Native version: ${versions.reactNativeVersion}`);
+    let promises = [];
+    if (ProjectVersionHelper.isVersionError(versions.reactNativeVersion)) {
+        outputChannelLogger.debug(
+            `react-native package version is not found in ${projectRootPath}. Reason: ${versions.reactNativeVersion}`,
+        );
+        TelemetryHelper.sendErrorEvent(
+            "AddProjectReactNativeVersionIsEmpty",
+            ErrorHelper.getInternalError(InternalErrorCode.CouldNotFindProjectVersion),
+            versions.reactNativeVersion,
+        );
+    } else if (isSupportedVersion(versions.reactNativeVersion)) {
+        activateCommands(versions);
 
-            promises.push(
-                entryPointHandler.runFunction(
-                    "debugger.setupLauncherStub",
-                    ErrorHelper.getInternalError(InternalErrorCode.DebuggerStubLauncherFailed),
-                    () => {
-                        let reactDirManager = new ReactDirManager(rootPath);
-                        return setupAndDispose(reactDirManager).then(() => {
-                            ProjectsStorage.addFolder(
-                                projectRootPath,
-                                new AppLauncher(reactDirManager, folder),
-                            );
-                            COUNT_WORKSPACE_FOLDERS++;
-
-                            return void 0;
-                        });
-                    },
-                ),
-            );
-        } else {
-            outputChannelLogger.debug(
-                `react-native@${versions.reactNativeVersion} isn't supported`,
-            );
-        }
-
-        return Promise.all(promises).then(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
-    });
+        promises.push(
+            entryPointHandler.runFunction(
+                "debugger.setupLauncherStub",
+                ErrorHelper.getInternalError(InternalErrorCode.DebuggerStubLauncherFailed),
+                async () => {
+                    let reactDirManager = new ReactDirManager(rootPath);
+                    await setupAndDispose(reactDirManager);
+                    ProjectsStorage.addFolder(
+                        projectRootPath,
+                        new AppLauncher(reactDirManager, folder),
+                    );
+                    COUNT_WORKSPACE_FOLDERS++;
+                },
+            ),
+        );
+    } else {
+        outputChannelLogger.debug(`react-native@${versions.reactNativeVersion} isn't supported`);
+    }
+    await Promise.all(promises);
 }
 
 function activateCommands(versions: RNPackageVersions): void {
@@ -345,11 +337,12 @@ function onFolderRemoved(folder: vscode.WorkspaceFolder): void {
     }
 }
 
-function setupAndDispose<T extends ISetupableDisposable>(setuptableDisposable: T): Promise<T> {
-    return setuptableDisposable.setup().then(() => {
-        EXTENSION_CONTEXT.subscriptions.push(setuptableDisposable);
-        return setuptableDisposable;
-    });
+async function setupAndDispose<T extends ISetupableDisposable>(
+    setuptableDisposable: T,
+): Promise<T> {
+    await setuptableDisposable.setup();
+    EXTENSION_CONTEXT.subscriptions.push(setuptableDisposable);
+    return setuptableDisposable;
 }
 
 function isSupportedVersion(version: string): boolean {

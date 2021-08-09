@@ -35,7 +35,10 @@ export abstract class ApplePlatformDebugModeManager {
         productName?: string,
     ): Promise<boolean>;
 
-    public findPListFileWithRetry(configuration?: string, productName?: string): Promise<string> {
+    public async findPListFileWithRetry(
+        configuration?: string,
+        productName?: string,
+    ): Promise<string> {
         const failureString = localize(
             "UnableToFindPlistFileToConfigureDebugging",
             "Unable to find a plist file to configure debugging",

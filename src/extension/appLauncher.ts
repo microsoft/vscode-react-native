@@ -27,7 +27,6 @@ import * as nls from "vscode-nls";
 import { MultipleLifetimesAppWorker } from "../debugger/appWorker";
 import { PlatformType } from "./launchArgs";
 import { LaunchScenariosManager } from "./launchScenariosManager";
-import { IVirtualDevice } from "./VirtualDeviceManager";
 import { createAdditionalWorkspaceFolder, onFolderAdded } from "./rn-extension";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -397,7 +396,7 @@ export class AppLauncher {
         }
     }
 
-    private resolveAndSaveVirtualDevice(
+    private async resolveAndSaveVirtualDevice(
         mobilePlatform: GeneralMobilePlatform,
         launchArgs: any,
         mobilePlatformOptions: any,
@@ -407,62 +406,56 @@ export class AppLauncher {
             (mobilePlatformOptions.platform === PlatformType.Android ||
                 mobilePlatformOptions.platform === PlatformType.iOS)
         ) {
-            return mobilePlatform
-                .resolveVirtualDevice(launchArgs.target)
-                .then((emulator: IVirtualDevice | null) => {
-                    if (emulator) {
-                        if (emulator.name && launchArgs.platform === PlatformType.Android) {
-                            mobilePlatformOptions.target = emulator.id;
-                            this.launchScenariosManager.updateLaunchScenario(launchArgs, {
-                                target: emulator.name,
-                            });
-                        }
-                        if (launchArgs.platform === PlatformType.iOS) {
-                            this.launchScenariosManager.updateLaunchScenario(launchArgs, {
-                                target: emulator.id,
-                            });
-                        }
-                        launchArgs.target = emulator.id;
-                    } else if (
-                        mobilePlatformOptions.target.indexOf("device") < 0 &&
-                        launchArgs.platform === PlatformType.Android
-                    ) {
-                        // We should cleanup target only for Android platform,
-                        // because react-native-cli does not support launch with Android emulator name
+            try {
+                const emulator = await mobilePlatform.resolveVirtualDevice(launchArgs.target);
+                if (emulator) {
+                    if (emulator.name && launchArgs.platform === PlatformType.Android) {
+                        mobilePlatformOptions.target = emulator.id;
+                        this.launchScenariosManager.updateLaunchScenario(launchArgs, {
+                            target: emulator.name,
+                        });
+                    }
+                    if (launchArgs.platform === PlatformType.iOS) {
+                        this.launchScenariosManager.updateLaunchScenario(launchArgs, {
+                            target: emulator.id,
+                        });
+                    }
+                    launchArgs.target = emulator.id;
+                } else if (
+                    mobilePlatformOptions.target.indexOf("device") < 0 &&
+                    launchArgs.platform === PlatformType.Android
+                ) {
+                    // We should cleanup target only for Android platform,
+                    // because react-native-cli does not support launch with Android emulator name
+                    this.cleanupTargetModifications(mobilePlatform, mobilePlatformOptions);
+                }
+            } catch (error) {
+                if (
+                    error &&
+                    error.errorCode &&
+                    error.errorCode === InternalErrorCode.VirtualDeviceSelectionError
+                ) {
+                    TelemetryHelper.sendErrorEvent(
+                        "VirtualDeviceSelectionError",
+                        ErrorHelper.getInternalError(InternalErrorCode.VirtualDeviceSelectionError),
+                    );
+
+                    this.logger.warning(error);
+                    this.logger.warning(
+                        localize(
+                            "ContinueWithRnCliWorkflow",
+                            "Continue using standard RN CLI workflow.",
+                        ),
+                    );
+
+                    if (mobilePlatformOptions.target.indexOf("device") < 0) {
                         this.cleanupTargetModifications(mobilePlatform, mobilePlatformOptions);
                     }
-                })
-                .catch(error => {
-                    if (
-                        error &&
-                        error.errorCode &&
-                        error.errorCode === InternalErrorCode.VirtualDeviceSelectionError
-                    ) {
-                        TelemetryHelper.sendErrorEvent(
-                            "VirtualDeviceSelectionError",
-                            ErrorHelper.getInternalError(
-                                InternalErrorCode.VirtualDeviceSelectionError,
-                            ),
-                        );
-
-                        this.logger.warning(error);
-                        this.logger.warning(
-                            localize(
-                                "ContinueWithRnCliWorkflow",
-                                "Continue using standard RN CLI workflow.",
-                            ),
-                        );
-
-                        if (mobilePlatformOptions.target.indexOf("device") < 0) {
-                            this.cleanupTargetModifications(mobilePlatform, mobilePlatformOptions);
-                        }
-                        return Promise.resolve();
-                    } else {
-                        return Promise.reject(error);
-                    }
-                });
+                } else {
+                    throw error;
+                }
+            }
         }
-        return Promise.resolve();
     }
 
     private cleanupTargetModifications(
