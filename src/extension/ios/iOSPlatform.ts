@@ -234,6 +234,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
         if (match) {
             await childProcess.exec(`xcrun simctl spawn booted launchctl stop ${match[1]}`);
         }
+        // Write to the settings file while the app is not running to avoid races
         await this.iosDebugModeManager.setAppRemoteDebuggingSetting(
             /*enable=*/ true,
             this.runOptions.configuration,
