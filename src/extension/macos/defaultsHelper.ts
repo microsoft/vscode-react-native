@@ -21,7 +21,7 @@ export class DefaultsHelper {
         // Attempt to set the value, and if it fails due to the key not existing attempt to create the key
         await this.invokeDefaultsCommand(
             `write ${plistFile} ${this.DEV_MENU_SETTINGS} -dict-add ${property} -bool ${value}`,
-        ); // eslint-disable-line @typescript-eslint/no-empty-function
+        );
     }
 
     private async invokeDefaultsCommand(command: string): Promise<string> {
