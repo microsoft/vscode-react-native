@@ -56,6 +56,7 @@ export class IOSDebugModeManager extends ApplePlatformDebugModeManager {
     ): Promise<boolean> {
         const plistFile = await this.findPListFileWithRetry(configuration, productName);
         try {
+            // Attempt to read from the file, but if the property is not defined then return the empty string
             const [executorClassName, remoteDebugEnabled] = await Promise.all([
                 new PlistBuddy().readPlistProperty(
                     plistFile,
