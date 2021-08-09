@@ -31,6 +31,8 @@ export class IOSDebugModeManager extends ApplePlatformDebugModeManager {
         // Find the plistFile with the configuration setting
         // There is a race here between us checking for the plist file, and the application starting up.
         const plistFile = await this.findPListFileWithRetry(configuration, productName);
+        // Set the executorClass to be RCTWebSocketExecutor so on the next startup it will default into debug mode
+        // This is approximately equivalent to clicking the "Debug in Chrome" button
         await (enable
             ? plistBuddy.setPlistProperty(
                   plistFile,
