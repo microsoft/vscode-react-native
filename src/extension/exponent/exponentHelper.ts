@@ -289,7 +289,7 @@ var entryPoint = require('${entryPoint}');`;
             appJson = await this.readAppJson();
         } catch {
             // if app.json doesn't exist but it's ok, we will create it
-            appJson = {};
+            appJson = <AppJson>{};
         }
         const packageName = await this.getPackageName();
 
