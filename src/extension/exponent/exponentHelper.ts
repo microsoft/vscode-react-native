@@ -176,6 +176,7 @@ export class ExponentHelper {
             if (showProgress) {
                 this.logger.logStream(".");
             }
+            // Not in a react-native project
             return false;
         }
     }
