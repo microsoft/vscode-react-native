@@ -230,7 +230,10 @@ export class IOSPlatform extends GeneralMobilePlatform {
         // Try to find an entry that looks like UIKitApplication:com.example.myApp[0x4f37]
         const regex = new RegExp(`(\\S+${bundleId}\\S+)`);
         const match = regex.exec(output);
-        match ? childProcess.exec(`xcrun simctl spawn booted launchctl stop ${match[1]}`) : null;
+        // If we don't find a match, the app must not be running and so we do not need to close it
+        if (match) {
+            await childProcess.exec(`xcrun simctl spawn booted launchctl stop ${match[1]}`);
+        }
         await this.iosDebugModeManager.setAppRemoteDebuggingSetting(
             /*enable=*/ true,
             this.runOptions.configuration,
