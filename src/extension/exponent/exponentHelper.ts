@@ -284,7 +284,7 @@ var entryPoint = require('${entryPoint}');`;
     }
 
     private async patchAppJson(isExpo: boolean = true): Promise<void> {
-        let appJson: any;
+        let appJson: AppJson;
         try {
             appJson = await this.readAppJson();
         } catch {
