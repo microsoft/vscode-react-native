@@ -69,7 +69,7 @@ const localize = nls.loadMessageBundle();
 
 async function getReactNativeWorkspaceForFile(file: string, workspace: string): Promise<string> {
     if (workspace) {
-        return Promise.resolve(workspace);
+        return workspace;
     }
     try {
         return await getPathForRNParentWorkspace(path.dirname(file));
