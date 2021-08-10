@@ -43,7 +43,7 @@ suite("appLauncher", function () {
     });
 
     suite("getOrCreateAppLauncherByProjectRootPath", function () {
-        test("getOrCreateAppLauncherByProjectRootPath creates an AppLauncher", function () {
+        test("getOrCreateAppLauncherByProjectRootPath creates an AppLauncher", async function () {
             let isAppLauncherExist: boolean = !!ProjectsStorage.projectsCache[
                 sampleReactNativeProjectDir.toLowerCase()
             ];
@@ -63,27 +63,21 @@ suite("appLauncher", function () {
                 subscriptions: [{}],
             });
 
-            return AppLauncher.getOrCreateAppLauncherByProjectRootPath(
-                sampleReactNativeProjectDir,
-            ).then((appLauncher: AppLauncher) => {
-                appLauncherTest = appLauncher;
-
-                assert.strictEqual(
-                    appLauncher.getPackager().getProjectPath(),
-                    sampleReactNativeProjectDir,
-                );
-
-                isAppLauncherExist = !!ProjectsStorage.projectsCache[
-                    sampleReactNativeProjectDir.toLowerCase()
-                ];
-
-                assert.strictEqual(isAppLauncherExist, true);
-            });
+            const appLauncher = await AppLauncher.getOrCreateAppLauncherByProjectRootPath(
+                sampleReactNativeProjectDir
+            );
+            appLauncherTest = appLauncher;
+            assert.strictEqual(
+                appLauncher.getPackager().getProjectPath(),
+                sampleReactNativeProjectDir
+            );
+            isAppLauncherExist = !!ProjectsStorage.projectsCache[sampleReactNativeProjectDir.toLowerCase()];
+            assert.strictEqual(isAppLauncherExist, true);
         });
     });
 
     suite("getOrUpdateNodeModulesRoot", function () {
-        test("getOrUpdateNodeModulesRoot gets a node modules root", function () {
+        test("getOrUpdateNodeModulesRoot gets a node modules root", async function () {
             const reactNativePackageDir: string = path.join(
                 sampleReactNativeProjectDir,
                 NODE_MODULES_FOLDER,
@@ -108,18 +102,17 @@ suite("appLauncher", function () {
                 subscriptions: [{}],
             });
 
-            return AppLauncher.getOrCreateAppLauncherByProjectRootPath(
-                sampleReactNativeProjectDir,
-            ).then((appLauncher: AppLauncher) => {
-                appLauncherTest = appLauncher;
-                assert.strictEqual(
-                    appLauncher.getOrUpdateNodeModulesRoot(),
-                    sampleReactNativeProjectDir,
-                );
-            });
+            const appLauncher = await AppLauncher.getOrCreateAppLauncherByProjectRootPath(
+                sampleReactNativeProjectDir
+            );
+            appLauncherTest = appLauncher;
+            assert.strictEqual(
+                appLauncher.getOrUpdateNodeModulesRoot(),
+                sampleReactNativeProjectDir
+            );
         });
 
-        test("getOrUpdateNodeModulesRoot force updates a node modules root", function () {
+        test("getOrUpdateNodeModulesRoot force updates a node modules root", async function () {
             const SAMPLE_TEST_PROJECT_NAME: string = "sampleGetOrUpdateNodeModulesRootProject";
             const sampleTestProjectDir = path.join(
                 __dirname,
@@ -164,25 +157,19 @@ suite("appLauncher", function () {
                 subscriptions: [{}],
             });
 
-            return AppLauncher.getOrCreateAppLauncherByProjectRootPath(innerProjectDir).then(
-                (appLauncher: AppLauncher) => {
-                    nodeModulesRoot1 = appLauncher.getOrUpdateNodeModulesRoot();
-                    assert.deepStrictEqual(nodeModulesRoot1, innerProjectDir);
-
-                    fsHelper.removePathRecursivelySync(innerProjectDir);
-                    appLauncherTest = appLauncher;
-                    fsHelper.makeDirectoryRecursiveSync(reactNativePackageDir1);
-
-                    fs.writeFileSync(
-                        path.join(sampleTestProjectDir, INFORMATION_PACKAGE_FILENAME),
-                        JSON.stringify(versionObj, null, 2),
-                    );
-
-                    nodeModulesRoot2 = appLauncher.getOrUpdateNodeModulesRoot(true);
-                    assert.deepStrictEqual(nodeModulesRoot2, sampleTestProjectDir);
-                    assert.notStrictEqual(nodeModulesRoot1, nodeModulesRoot2);
-                },
+            const appLauncher = await AppLauncher.getOrCreateAppLauncherByProjectRootPath(innerProjectDir);
+            nodeModulesRoot1 = appLauncher.getOrUpdateNodeModulesRoot();
+            assert.deepStrictEqual(nodeModulesRoot1, innerProjectDir);
+            fsHelper.removePathRecursivelySync(innerProjectDir);
+            appLauncherTest = appLauncher;
+            fsHelper.makeDirectoryRecursiveSync(reactNativePackageDir1);
+            fs.writeFileSync(
+                path.join(sampleTestProjectDir, INFORMATION_PACKAGE_FILENAME),
+                JSON.stringify(versionObj, null, 2)
             );
+            nodeModulesRoot2 = appLauncher.getOrUpdateNodeModulesRoot(true);
+            assert.deepStrictEqual(nodeModulesRoot2, sampleTestProjectDir);
+            assert.notStrictEqual(nodeModulesRoot1, nodeModulesRoot2);
         });
     });
 });

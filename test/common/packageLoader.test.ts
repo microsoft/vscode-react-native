@@ -22,9 +22,12 @@ suite("packageLoader", async () => {
         projectRoot: string,
         packageName: string,
     ): Promise<string | null> {
-        return new Package(projectRoot)
-            .getPackageVersionFromNodeModules(packageName)
-            .catch(() => null);
+        try {
+            return  await new Package(projectRoot)
+            .getPackageVersionFromNodeModules(packageName);
+        } catch (error) {
+            return null;
+        }
     }
 
     function isNotEmptyPackage(pck: any): boolean {

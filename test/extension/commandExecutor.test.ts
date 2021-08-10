@@ -56,7 +56,7 @@ suite("commandExecutor", function () {
             nodeModulesRoot = sampleReactNative022ProjectDir;
         });
 
-        test("should execute a command", function () {
+        test("should execute a command", async function () {
             let ce = new CommandExecutor(nodeModulesRoot, process.cwd(), Log);
             let loggedOutput: string = "";
 
@@ -65,82 +65,77 @@ suite("commandExecutor", function () {
                 console.log(message);
             });
 
-            return ce.execute("node -v").then(() => {
-                assert(loggedOutput);
-            });
+            await ce.execute("node -v");
+            assert(loggedOutput);
         });
 
-        test("should reject on bad command", () => {
+        test("should reject on bad command", async () => {
             let ce = new CommandExecutor(nodeModulesRoot);
 
-            return ce
-                .execute("bar")
-                .then(() => {
-                    assert.fail(null, null, "bar should not be a valid command");
-                })
-                .catch(reason => {
-                    console.log(reason.message);
-                    assert.strictEqual(reason.errorCode, 101);
-                    assert.strictEqual(reason.errorLevel, 0);
-                });
+            try {
+                await ce
+                    .execute("bar");
+                assert.fail(null, null, "bar should not be a valid command");
+            } catch (reason) {
+                console.log(reason.message);
+                assert.strictEqual(reason.errorCode, 101);
+                assert.strictEqual(reason.errorLevel, 0);
+            }
         });
 
-        test("should reject on good command that fails", () => {
+        test("should reject on good command that fails", async () => {
             let ce = new CommandExecutor(nodeModulesRoot);
 
-            return ce
-                .execute("node install bad-package")
-                .then(() => {
-                    assert.fail(null, null, "node should not be able to install bad-package");
-                })
-                .catch(reason => {
-                    console.log(reason.message);
-                    assert.strictEqual(reason.errorCode, 101);
-                    assert.strictEqual(reason.errorLevel, 0);
-                });
+            try {
+                await ce
+                    .execute("node install bad-package");
+                assert.fail(null, null, "node should not be able to install bad-package");
+            } catch (reason) {
+                console.log(reason.message);
+                assert.strictEqual(reason.errorCode, 101);
+                assert.strictEqual(reason.errorLevel, 0);
+            }
         });
 
-        test("should spawn a command", () => {
+        test("should spawn a command", async () => {
             let ce = new CommandExecutor(nodeModulesRoot);
 
             sinon.stub(Log, "log", function (message: string, formatMessage: boolean = true) {
                 console.log(message);
             });
 
-            return Promise.resolve().then(function () {
-                return ce.spawn("node", ["-v"]);
-            });
+            return await ce.spawn("node", ["-v"]);
         });
 
-        test("spawn should reject a bad command", () => {
+        test("spawn should reject a bad command", async () => {
             let ce = new CommandExecutor(nodeModulesRoot);
             sinon.stub(Log, "log", function (message: string, formatMessage: boolean = true) {
                 console.log(message);
             });
 
-            Promise.resolve()
-                .then(function () {
-                    return ce.spawn("bar", ["-v"]);
-                })
-                .catch(reason => {
-                    console.log(reason.message);
-                    assert.strictEqual(reason.errorCode, 101);
-                    assert.strictEqual(reason.errorLevel, 0);
-                });
+            try {
+                return await ce.spawn("bar", ["-v"]);
+            } catch (reason) {
+                console.log(reason.message);
+                assert.strictEqual(reason.errorCode, 101);
+                assert.strictEqual(reason.errorLevel, 0);
+            }
         });
 
-        test("should not fail on react-native command without arguments", () => {
+        test("should not fail on react-native command without arguments", async () => {
             (sinon.stub(childProcessStubInstance, "spawn") as Sinon.SinonStub).returns({
                 stdout: new EventEmitter(),
                 stderr: new EventEmitter(),
                 outcome: Promise.resolve(),
             });
 
-            return new CommandExecutor(nodeModulesRoot)
+            try {
+                await new CommandExecutor(nodeModulesRoot)
                 .spawnReactCommand("run-ios")
-                .outcome.then(null, err => {
-                    assert.fail("react-native command was not expected to fail");
-                });
+                .outcome;
+            } catch (error) {
+                assert.fail("react-native command was not expected to fail");
+            }
         });
 
         suite("getReactNativeVersion", () => {
@@ -161,7 +156,7 @@ suite("commandExecutor", function () {
                 );
             });
 
-            test("getReactNativeVersion should return version string if 'version' field is found in react-native package package.json file from node_modules", () => {
+            test("getReactNativeVersion should return version string if 'version' field is found in react-native package package.json file from node_modules", async () => {
                 const commandExecutor: CommandExecutor = new CommandExecutor(
                     nodeModulesRoot,
                     sampleReactNative022ProjectDir,
@@ -175,12 +170,11 @@ suite("commandExecutor", function () {
                     JSON.stringify(versionObj, null, 2),
                 );
 
-                return commandExecutor.getReactNativeVersion().then(version => {
-                    assert.strictEqual(version, "0.22.0");
-                });
+                const version = await commandExecutor.getReactNativeVersion();
+                assert.strictEqual(version, "0.22.0");
             });
 
-            test("getReactNativeVersion should return version string if there isn't 'version' field in react-native package's package.json file", () => {
+            test("getReactNativeVersion should return version string if there isn't 'version' field in react-native package's package.json file", async () => {
                 const commandExecutor: CommandExecutor = new CommandExecutor(
                     nodeModulesRoot,
                     sampleReactNative022ProjectDir,
@@ -194,9 +188,8 @@ suite("commandExecutor", function () {
                     JSON.stringify(testObj, null, 2),
                 );
 
-                return commandExecutor.getReactNativeVersion().then(version => {
-                    assert.strictEqual(version, "0.22.2");
-                });
+                const version = await commandExecutor.getReactNativeVersion();
+                assert.strictEqual(version, "0.22.2");
             });
         });
 
