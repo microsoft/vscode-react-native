@@ -299,6 +299,7 @@ export class CommandPaletteHandler {
                 try {
                     await platform.beforeStartPackager();
                     await platform.startPackager();
+                    // Set the Debugging setting to disabled, because in macOS it persists across runs of the app
                     await platform.disableJSDebuggingMode();
                 } catch (e) {}
                 await platform.runApp();
