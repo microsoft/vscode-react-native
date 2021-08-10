@@ -191,7 +191,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     );
 }
 
-export async function deactivate(): Promise<void> {
+export function deactivate(): Promise<void> {
     return new Promise<void>(function (resolve) {
         // Kill any packager processes that we spawned
         entryPointHandler.runFunction(
