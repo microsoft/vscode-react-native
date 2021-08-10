@@ -681,7 +681,7 @@ export class CommandPaletteHandler {
 
     private static async loginToExponent(appLauncher: AppLauncher): Promise<XDL.IUser> {
         try {
-            return appLauncher.getExponentHelper().loginToExponent(
+            return await appLauncher.getExponentHelper().loginToExponent(
                 (message, password) => {
                     return new Promise((resolve, reject) => {
                         vscode.window
