@@ -608,7 +608,7 @@ export class CommandPaletteHandler {
     private static async runRestartPackagerCommandAndUpdateStatus(
         appLauncher: AppLauncher,
     ): Promise<void> {
-        return await appLauncher
+        await appLauncher
             .getPackager()
             .restart(SettingsHelper.getPackagerPort(appLauncher.getWorkspaceFolderUri().fsPath));
     }
