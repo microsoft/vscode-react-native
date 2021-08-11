@@ -128,7 +128,7 @@ export function execSync(
  * If any promise was rejected then the whole chain will be rejected.
  * @param promises Array of promises to run
  */
-export async function runInParallel(promises: Promise<any>[]): Promise<any[]> {
+export function runInParallel(promises: Promise<any>[]): Promise<any[]> {
     return new Promise<any[]>((resolve, reject) => {
         let total = promises.length;
         let count = 0;
