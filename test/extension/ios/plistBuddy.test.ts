@@ -47,15 +47,14 @@ suite("plistBuddy", function () {
             };
             const plistBuddy = new PlistBuddy({ nodeChildProcess: mockChildProcess });
 
-            await plistBuddy
-                .setPlistProperty(plistFileName, plistProperty, plistValue);
+            await plistBuddy.setPlistProperty(plistFileName, plistProperty, plistValue);
             assert(
                 mockedExecFunc.calledWithExactly(setCallArgs),
-                "plistBuddy did not attempt to set first"
+                "plistBuddy did not attempt to set first",
             );
             assert(
                 mockedExecFunc.calledWithExactly(addCallArgs),
-                "plistBuddy did not attempt to add after set failed"
+                "plistBuddy did not attempt to add after set failed",
             );
             assert.strictEqual(mockedExecFunc.callCount, 2);
         });
@@ -78,11 +77,10 @@ suite("plistBuddy", function () {
             };
             const plistBuddy = new PlistBuddy({ nodeChildProcess: mockChildProcess });
 
-            await plistBuddy
-                .setPlistProperty(plistFileName, plistProperty, plistValue);
+            await plistBuddy.setPlistProperty(plistFileName, plistProperty, plistValue);
             assert(
                 mockedExecFunc.calledWithExactly(setCallArgs),
-                "plistBuddy did not attempt to set first"
+                "plistBuddy did not attempt to set first",
             );
             assert.strictEqual(mockedExecFunc.callCount, 1);
         });
@@ -117,7 +115,7 @@ suite("plistBuddy", function () {
                     PlatformType.iOS,
                     true,
                     "Debug",
-                    appName
+                    appName,
                 ),
                 plistBuddy.getBundleId(
                     iosProjectRoot,
@@ -126,15 +124,7 @@ suite("plistBuddy", function () {
                     true,
                     "Debug",
                     appName,
-                    "whateverScheme"
-                ),
-                plistBuddy.getBundleId(
-                    iosProjectRoot,
-                    projectRoot,
-                    PlatformType.iOS,
-                    false,
-                    undefined,
-                    appName
+                    "whateverScheme",
                 ),
                 plistBuddy.getBundleId(
                     iosProjectRoot,
@@ -143,7 +133,15 @@ suite("plistBuddy", function () {
                     false,
                     undefined,
                     appName,
-                    "whateverScheme"
+                ),
+                plistBuddy.getBundleId(
+                    iosProjectRoot,
+                    projectRoot,
+                    PlatformType.iOS,
+                    false,
+                    undefined,
+                    appName,
+                    "whateverScheme",
                 ),
             ]);
             assert.strictEqual(simulatorBundleId, simulatorId1);
@@ -184,7 +182,7 @@ suite("plistBuddy", function () {
                     PlatformType.iOS,
                     true,
                     "Debug",
-                    appName
+                    appName,
                 ),
                 plistBuddy.getBundleId(
                     iosProjectRoot,
@@ -193,15 +191,7 @@ suite("plistBuddy", function () {
                     true,
                     "Debug",
                     appName,
-                    scheme
-                ),
-                plistBuddy.getBundleId(
-                    iosProjectRoot,
-                    projectRoot,
-                    PlatformType.iOS,
-                    false,
-                    undefined,
-                    appName
+                    scheme,
                 ),
                 plistBuddy.getBundleId(
                     iosProjectRoot,
@@ -210,7 +200,15 @@ suite("plistBuddy", function () {
                     false,
                     undefined,
                     appName,
-                    scheme
+                ),
+                plistBuddy.getBundleId(
+                    iosProjectRoot,
+                    projectRoot,
+                    PlatformType.iOS,
+                    false,
+                    undefined,
+                    appName,
+                    scheme,
                 ),
             ]);
             assert.strictEqual(simulatorBundleId, simulatorId1);
@@ -251,7 +249,7 @@ suite("plistBuddy", function () {
                     PlatformType.iOS,
                     true,
                     "Debug",
-                    appName
+                    appName,
                 ),
                 plistBuddy.getBundleId(
                     iosProjectRoot,
@@ -260,15 +258,7 @@ suite("plistBuddy", function () {
                     true,
                     "Debug",
                     appName,
-                    scheme
-                ),
-                plistBuddy.getBundleId(
-                    iosProjectRoot,
-                    projectRoot,
-                    PlatformType.iOS,
-                    false,
-                    undefined,
-                    appName
+                    scheme,
                 ),
                 plistBuddy.getBundleId(
                     iosProjectRoot,
@@ -277,7 +267,15 @@ suite("plistBuddy", function () {
                     false,
                     undefined,
                     appName,
-                    scheme
+                ),
+                plistBuddy.getBundleId(
+                    iosProjectRoot,
+                    projectRoot,
+                    PlatformType.iOS,
+                    false,
+                    undefined,
+                    appName,
+                    scheme,
                 ),
             ]);
             assert.strictEqual(simulatorBundleId, simulatorId1);
@@ -318,7 +316,7 @@ suite("plistBuddy", function () {
                     PlatformType.macOS,
                     false,
                     undefined,
-                    appName
+                    appName,
                 ),
                 plistBuddy.getBundleId(
                     macosProjectRoot,
@@ -327,7 +325,7 @@ suite("plistBuddy", function () {
                     false,
                     "Debug",
                     appName,
-                    scheme
+                    scheme,
                 ),
             ]);
             assert.strictEqual(deviceBundleId, bundleId1);

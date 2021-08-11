@@ -23,8 +23,7 @@ suite("packageLoader", async () => {
         packageName: string,
     ): Promise<string | null> {
         try {
-            return  await new Package(projectRoot)
-            .getPackageVersionFromNodeModules(packageName);
+            return await new Package(projectRoot).getPackageVersionFromNodeModules(packageName);
         } catch (error) {
             return null;
         }

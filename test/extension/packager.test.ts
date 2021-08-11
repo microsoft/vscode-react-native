@@ -36,14 +36,17 @@ suite("packager", function () {
             requestStub.returns(Promise.resolve("packager-status:running"));
 
             try {
-                const isRunning = await new Packager(WORKSPACE_PATH, PROJECT_PATH, Packager.DEFAULT_PORT)
-                .isRunning();
+                const isRunning = await new Packager(
+                    WORKSPACE_PATH,
+                    PROJECT_PATH,
+                    Packager.DEFAULT_PORT,
+                ).isRunning();
                 assert(isRunning);
-                    assert(
-                        requestStub.firstCall.args[0].match(
-                            "http://localhost:" + Packager.DEFAULT_PORT,
-                        ),
-                    );
+                assert(
+                    requestStub.firstCall.args[0].match(
+                        "http://localhost:" + Packager.DEFAULT_PORT,
+                    ),
+                );
             } catch (error) {
                 assert.fail(null, null, "packager was expected to be running");
             }
@@ -53,8 +56,11 @@ suite("packager", function () {
             requestStub.returns(Promise.reject());
 
             try {
-                const isRunning = await new Packager(WORKSPACE_PATH, PROJECT_PATH, 9091)
-                .isRunning();
+                const isRunning = await new Packager(
+                    WORKSPACE_PATH,
+                    PROJECT_PATH,
+                    9091,
+                ).isRunning();
                 assert(!isRunning);
             } catch (error) {
                 assert.fail(null, null, "packager was not expected to be running");
@@ -65,8 +71,11 @@ suite("packager", function () {
             requestStub.returns(Promise.resolve("some_random_string"));
 
             try {
-                const isRunning = await new Packager(WORKSPACE_PATH, PROJECT_PATH, 10001)
-                .isRunning();
+                const isRunning = await new Packager(
+                    WORKSPACE_PATH,
+                    PROJECT_PATH,
+                    10001,
+                ).isRunning();
                 assert(!isRunning);
             } catch (error) {
                 assert.fail(null, null, "packager was not expected to be running");
@@ -79,8 +88,11 @@ suite("packager", function () {
             const expected = ["--port", "10001"];
 
             try {
-                const args = await new Packager(WORKSPACE_PATH, PROJECT_PATH, 10001)
-                .getPackagerArgs(PROJECT_PATH, rnVersion);
+                const args = await new Packager(
+                    WORKSPACE_PATH,
+                    PROJECT_PATH,
+                    10001,
+                ).getPackagerArgs(PROJECT_PATH, rnVersion);
                 assert.deepEqual(args, expected);
             } catch {}
         });
@@ -91,8 +103,11 @@ suite("packager", function () {
             const expected = ["--port", "10001", "--resetCache"];
 
             try {
-                const args = await new Packager(WORKSPACE_PATH, PROJECT_PATH, 10001)
-                .getPackagerArgs(PROJECT_PATH, rnVersion, true);
+                const args = await new Packager(
+                    WORKSPACE_PATH,
+                    PROJECT_PATH,
+                    10001,
+                ).getPackagerArgs(PROJECT_PATH, rnVersion, true);
                 assert.deepEqual(args, expected);
             } catch {}
         });
@@ -104,8 +119,11 @@ suite("packager", function () {
             const expected = ["--port", "10001", "--resetCache", "--root", ".vscode"];
 
             try {
-                const args = await new Packager(WORKSPACE_PATH, PROJECT_PATH, 10001)
-                .getPackagerArgs(PROJECT_PATH, rnVersion, true);
+                const args = await new Packager(
+                    WORKSPACE_PATH,
+                    PROJECT_PATH,
+                    10001,
+                ).getPackagerArgs(PROJECT_PATH, rnVersion, true);
                 assert.deepEqual(args, expected);
             } catch {}
         });
@@ -120,8 +138,11 @@ suite("packager", function () {
             const rnVersion = "0.57.0";
             const expected = ["--port", "10001", "--assetExts", ["txt", "md"]];
             try {
-                const args = await new Packager(WORKSPACE_PATH, PROJECT_PATH, 10001)
-                .getPackagerArgs(PROJECT_PATH, rnVersion);
+                const args = await new Packager(
+                    WORKSPACE_PATH,
+                    PROJECT_PATH,
+                    10001,
+                ).getPackagerArgs(PROJECT_PATH, rnVersion);
                 assert.deepEqual(args, expected);
             } catch {}
         });

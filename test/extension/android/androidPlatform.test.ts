@@ -91,8 +91,8 @@ suite("androidPlatform", function () {
             });
             sandbox.stub(adbHelper, "getOnlineDevices", async function () {
                 return devices.filter((device: any) => {
-                        return device.isOnline;
-                    });
+                    return device.isOnline;
+                });
             });
             sandbox.stub(adbHelper, "apiVersion", async function () {
                 return adb.AndroidAPILevel.LOLLIPOP;
@@ -157,12 +157,9 @@ suite("androidPlatform", function () {
             async () => {
                 devices = fillDevices(["Nexus_5"]);
 
-                await androidPlatform
-                    .runApp();
-                const isRunning = (
-                    devices[0].installedApplications[androidPackageName].isInDebugMode ===
-                    false
-                );
+                await androidPlatform.runApp();
+                const isRunning =
+                    devices[0].installedApplications[androidPackageName].isInDebugMode === false;
                 isRunning.should.be.true();
             },
         );
@@ -173,13 +170,10 @@ suite("androidPlatform", function () {
             async () => {
                 devices = fillDevices(["Nexus_5", "Nexus_6"]);
 
-                await androidPlatform
-                    .runApp();
+                await androidPlatform.runApp();
                 const [isRunningOnNexus5, isRunningOnNexus6] = [
-                        devices[0].installedApplications[androidPackageName]
-                            .isInDebugMode === false,
-                        devices[1].installedApplications[androidPackageName]
-                            .isInDebugMode === false,
+                    devices[0].installedApplications[androidPackageName].isInDebugMode === false,
+                    devices[1].installedApplications[androidPackageName].isInDebugMode === false,
                 ];
                 // It should be running in exactly one of these two devices
                 isRunningOnNexus5.should.not.eql(isRunningOnNexus6);
@@ -192,15 +186,11 @@ suite("androidPlatform", function () {
             async () => {
                 devices = fillDevices(["Nexus_5", "Nexus_6", "Nexus_7"]);
 
-                await androidPlatform
-                    .runApp();
+                await androidPlatform.runApp();
                 const isRunningList = [
-                        devices[0].installedApplications[androidPackageName]
-                            .isInDebugMode === false,
-                        devices[1].installedApplications[androidPackageName]
-                            .isInDebugMode === false,
-                        devices[2].installedApplications[androidPackageName]
-                            .isInDebugMode === false,
+                    devices[0].installedApplications[androidPackageName].isInDebugMode === false,
+                    devices[1].installedApplications[androidPackageName].isInDebugMode === false,
+                    devices[2].installedApplications[androidPackageName].isInDebugMode === false,
                 ];
                 // It should be running in exactly one of these three devices
                 isRunningList.filter(v => v).should.eql([true]);
@@ -216,8 +206,8 @@ suite("androidPlatform", function () {
                     should.assert(false, "runApp should've exited with an error");
                 } catch (error) {
                     error.message
-                    .startsWith("Unknown error: not all success patterns were matched")
-                    .should.be.true();
+                        .startsWith("Unknown error: not all success patterns were matched")
+                        .should.be.true();
                 }
             },
         );
@@ -229,12 +219,9 @@ suite("androidPlatform", function () {
                 devices = fillDevices(["Nexus_5", "Nexus_6", "Nexus_7", "Nexus_8", "Nexus_9"]);
                 devices[4].isOnline = false;
 
-                await androidPlatform
-                    .runApp();
-                const isRunningOnOfflineDevice = (
-                    devices[4].installedApplications[androidPackageName].isInDebugMode ===
-                    false
-                );
+                await androidPlatform.runApp();
+                const isRunningOnOfflineDevice =
+                    devices[4].installedApplications[androidPackageName].isInDebugMode === false;
                 isRunningOnOfflineDevice.should.be.false();
             },
         );
@@ -258,12 +245,9 @@ suite("androidPlatform", function () {
                 };
                 const platform = createAndroidPlatform(runOptions);
                 platform.setAdbHelper(adbHelper);
-                await platform
-                    .runApp();
-                const isRunningOnNexus12 = (
-                    devices[4].installedApplications[androidPackageName].isInDebugMode ===
-                    false
-                );
+                await platform.runApp();
+                const isRunningOnNexus12 =
+                    devices[4].installedApplications[androidPackageName].isInDebugMode === false;
                 isRunningOnNexus12.should.be.true();
             },
         );
@@ -300,11 +284,10 @@ suite("androidPlatform", function () {
                 };
                 const platform = createAndroidPlatform(runOptions);
                 platform.setAdbHelper(adbHelper);
-                await platform
-                    .runApp();
+                await platform.runApp();
                 const devicesRunningAppId = devices.filter(
-                    (device: any) => device.installedApplications[androidPackageName].isInDebugMode ===
-                        false
+                    (device: any) =>
+                        device.installedApplications[androidPackageName].isInDebugMode === false,
                 );
                 devicesRunningAppId.length.should.eql(1);
                 onlineDevicesIds.should.containEql(devicesRunningAppId[0].id);
@@ -321,12 +304,9 @@ suite("androidPlatform", function () {
             async () => {
                 devices = fillDevices(["Nexus_5"]);
 
-                await androidPlatform
-                    .runApp();
-                const isRunning = (
-                    devices[0].installedApplications[androidPackageName].isInDebugMode ===
-                    false
-                );
+                await androidPlatform.runApp();
+                const isRunning =
+                    devices[0].installedApplications[androidPackageName].isInDebugMode === false;
                 isRunning.should.be.true();
             },
         );
@@ -347,9 +327,7 @@ suite("androidPlatform", function () {
                     should.assert(false, "Expected runApp to end up with an error");
                     isRunning = false;
                 } catch (error) {
-                    error.message.should.eql(
-                        "Android project not found. (error code 1203)",
-                    );
+                    error.message.should.eql("Android project not found. (error code 1203)");
                     isRunning = !!devices[0].installedApplications[androidPackageName];
                 }
                 isRunning.should.be.false();

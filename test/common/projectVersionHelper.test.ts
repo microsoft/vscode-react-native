@@ -25,7 +25,7 @@ suite("projectVersionHelper", function () {
         additionalPackages.push(REACT_NATIVE_PACKAGES.REACT_NATIVE_WINDOWS);
         const versions = await ProjectVersionHelper.getReactNativeVersionsFromProjectPackage(
             sampleReactNative022ProjectDir,
-            additionalPackages
+            additionalPackages,
         );
         assert.strictEqual(versions.reactNativeVersion, "0.22.2");
         assert.strictEqual(versions.reactNativeWindowsVersion, "0.60.0-vnext.68");
@@ -51,15 +51,15 @@ suite("projectVersionHelper", function () {
             additionalPackages.push(REACT_NATIVE_PACKAGES.REACT_NATIVE_WINDOWS);
             const versions = await ProjectVersionHelper.getReactNativeVersionsFromProjectPackage(
                 sampleReactNative022ProjectDir,
-                additionalPackages
+                additionalPackages,
             );
             assert.strictEqual(
                 versions.reactNativeVersion,
-                "errorMissingDependenciesFieldsInProjectPackageFile"
+                "errorMissingDependenciesFieldsInProjectPackageFile",
             );
             assert.strictEqual(
                 versions.reactNativeWindowsVersion,
-                "errorMissingDependenciesFieldsInProjectPackageFile"
+                "errorMissingDependenciesFieldsInProjectPackageFile",
             );
         });
     });
@@ -110,7 +110,7 @@ suite("projectVersionHelper", function () {
             additionalPackages.push(REACT_NATIVE_PACKAGES.REACT_NATIVE_WINDOWS);
             const versions = await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
                 nodeModulesRoot,
-                additionalPackages
+                additionalPackages,
             );
             assert.strictEqual(versions.reactNativeVersion, "0.20.0");
             assert.strictEqual(versions.reactNativeWindowsVersion, "0.60.0-vnext.68");
@@ -127,7 +127,7 @@ suite("projectVersionHelper", function () {
             );
 
             const versions = await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
-                nodeModulesRoot
+                nodeModulesRoot,
             );
             assert.strictEqual(versions.reactNativeVersion, "SemverInvalid: URL");
         });

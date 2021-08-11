@@ -70,8 +70,7 @@ suite("appWorker", function () {
                     expectedMessageResult,
                 )}; postMessage(testResponse);`;
 
-                await workerWithScript(startScriptContents)
-                    .start();
+                await workerWithScript(startScriptContents).start();
                 await PromiseUtil.delay(1000);
                 assert(postReplyFunction.calledWithExactly(expectedMessageResult));
             });
@@ -84,21 +83,20 @@ suite("appWorker", function () {
                     .replace(/\\/g, "/");
                 const startScriptContents = `importScripts("${scriptImportPath}"); postMessage("postImport");`;
 
-                await workerWithScript(startScriptContents)
-                    .start();
+                await workerWithScript(startScriptContents).start();
                 // We have not yet finished importing the script, we should not have posted a response yet
                 assert(
                     postReplyFunction.notCalled,
-                    "postReplyFuncton called before scripts imported"
+                    "postReplyFuncton called before scripts imported",
                 );
                 await PromiseUtil.delay(500);
                 assert(
                     postReplyFunction.calledWith("postImport"),
-                    "postMessage after import not handled"
+                    "postMessage after import not handled",
                 );
                 assert(
                     postReplyFunction.calledWith("inImport"),
-                    "postMessage not registered from within import"
+                    "postMessage not registered from within import",
                 );
             });
 
@@ -107,17 +105,13 @@ suite("appWorker", function () {
                 const testMessage = { method: "test", success: true };
 
                 const worker = workerWithScript(startScriptContents);
-                await worker
-                    .start();
-                assert(
-                    postReplyFunction.notCalled,
-                    "postReplyFunction called before message sent"
-                );
+                await worker.start();
+                assert(postReplyFunction.notCalled, "postReplyFunction called before message sent");
                 worker.postMessage(testMessage);
                 await PromiseUtil.delay(1000);
                 assert(
                     postReplyFunction.calledWith({ data: testMessage }),
-                    "No echo back from app"
+                    "No echo back from app",
                 );
             });
 
@@ -126,8 +120,7 @@ suite("appWorker", function () {
                 const startScriptContents = `var testResponse = { promiseString: Promise.toString() };
                     postMessage(testResponse);`;
 
-                await workerWithScript(startScriptContents)
-                    .start();
+                await workerWithScript(startScriptContents).start();
                 await PromiseUtil.delay(5000);
                 assert(postReplyFunction.calledWithExactly(expectedMessageResult));
             }).timeout(5500);
@@ -235,8 +228,7 @@ suite("appWorker", function () {
                 };
 
                 waitForContinue = new Promise(async (resolve, reject) => {
-                    await testWorker
-                        .start();
+                    await testWorker.start();
                     let output: string = "";
                     let debugOutput: string = "";
                     let isAlreadySending = false;
@@ -251,10 +243,11 @@ suite("appWorker", function () {
                         console.log(data);
                         // Looking for websocket url
                         // 1. Node v8+: ws://127.0.0.1:31732/7dd4c075-3222-4f31-8fb5-50cc5705dd21
-                        const guidPattern = "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}";
+                        const guidPattern =
+                            "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}";
                         const finalPattern = new RegExp(
                             `(ws:\/\/127.0.0.1:[0-9]+\/${guidPattern}$)`,
-                            "gm"
+                            "gm",
                         );
                         let found = debugOutput.match(finalPattern);
                         if (found && !isAlreadySending) {
@@ -271,7 +264,7 @@ suite("appWorker", function () {
                             sendContinueToDebuggee(
                                 found[0].replace("ws=", "ws:\\\\"),
                                 resolve,
-                                reject
+                                reject,
                             );
                             return;
                         }
@@ -281,10 +274,7 @@ suite("appWorker", function () {
                     });
                     debuggeeProcess.on("exit", () => {
                         assert.notEqual(output, "");
-                        assert.strictEqual(
-                            output.trim(),
-                            "test output from debuggee process"
-                        );
+                        assert.strictEqual(output.trim(), "test output from debuggee process");
                         waitForCheckingOutput = Promise.resolve();
                     });
                     await waitForContinue;
@@ -394,33 +384,30 @@ suite("appWorker", function () {
             test("with packager running should construct a websocket connection to the correct endpoint and listen for events", async function () {
                 await multipleLifetimesWorker.start();
                 const websocketRegex = new RegExp(
-                    "ws://[^:]*:[0-9]*/debugger-proxy\\?role=debugger"
+                    "ws://[^:]*:[0-9]*/debugger-proxy\\?role=debugger",
                 );
                 assert(
                     webSocketConstructor.calledWithMatch(websocketRegex),
                     "The web socket was not constructed to the correct url: " +
-                    webSocketConstructor.args[0][0]
+                        webSocketConstructor.args[0][0],
                 );
                 const expectedListeners = ["open", "close", "message", "error"];
                 expectedListeners.forEach(event => {
                     assert(
                         (<any>webSocket).on.calledWithMatch(event),
-                        `Missing listener for ${event}`
+                        `Missing listener for ${event}`,
                     );
                 });
             });
 
             test("with packager running should attempt to reconnect after disconnecting", async function () {
                 let startWorker = sinon.spy(multipleLifetimesWorker, "start");
-                await multipleLifetimesWorker
-                    .start();
+                await multipleLifetimesWorker.start();
                 // Forget previous invocations
                 startWorker.reset();
                 packagerIsRunning.returns(Promise.resolve());
                 clock = sinon.useFakeTimers();
-                const closeInvocation: Sinon.SinonStub = (<any>webSocket).on.withArgs(
-                    "close"
-                );
+                const closeInvocation: Sinon.SinonStub = (<any>webSocket).on.withArgs("close");
                 closeInvocation.callArg(1);
                 // Ensure that the retry is 100ms after the disconnection
                 clock.tick(99);
@@ -446,17 +433,17 @@ suite("appWorker", function () {
 
                     assert(
                         appWorkerStart.called,
-                        "SandboxedAppWorker not started in respones to prepareJSRuntime"
+                        "SandboxedAppWorker not started in respones to prepareJSRuntime",
                     );
                     assert(
                         websocketSend.notCalled,
-                        "Response sent prior to configuring sandbox worker"
+                        "Response sent prior to configuring sandbox worker",
                     );
                 });
                 await PromiseUtil.delay(1);
                 assert(
                     websocketSend.calledWith(expectedReply),
-                    "Did not receive the expected response to prepareJSRuntime"
+                    "Did not receive the expected response to prepareJSRuntime",
                 );
             });
 
@@ -470,16 +457,15 @@ suite("appWorker", function () {
                 // Then attempt to message it
                 const testMessage = { method: "unknownMethod" };
                 const testMessageString = JSON.stringify(testMessage);
-                const postMessageStub: Sinon.SinonStub = (<any>sandboxedAppWorkerStub)
-                    .postMessage;
+                const postMessageStub: Sinon.SinonStub = (<any>sandboxedAppWorkerStub).postMessage;
                 assert(
                     postMessageStub.notCalled,
-                    "sandboxedAppWorker.postMessage called prior to any message"
+                    "sandboxedAppWorker.postMessage called prior to any message",
                 );
                 sendMessage(testMessageString);
                 assert(
                     postMessageStub.calledWith(testMessage),
-                    "message was not passed to sandboxedAppWorker"
+                    "message was not passed to sandboxedAppWorker",
                 );
             });
 

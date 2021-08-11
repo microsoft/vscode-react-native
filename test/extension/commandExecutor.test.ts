@@ -73,8 +73,7 @@ suite("commandExecutor", function () {
             let ce = new CommandExecutor(nodeModulesRoot);
 
             try {
-                await ce
-                    .execute("bar");
+                await ce.execute("bar");
                 assert.fail(null, null, "bar should not be a valid command");
             } catch (reason) {
                 console.log(reason.message);
@@ -87,8 +86,7 @@ suite("commandExecutor", function () {
             let ce = new CommandExecutor(nodeModulesRoot);
 
             try {
-                await ce
-                    .execute("node install bad-package");
+                await ce.execute("node install bad-package");
                 assert.fail(null, null, "node should not be able to install bad-package");
             } catch (reason) {
                 console.log(reason.message);
@@ -130,9 +128,7 @@ suite("commandExecutor", function () {
             });
 
             try {
-                await new CommandExecutor(nodeModulesRoot)
-                .spawnReactCommand("run-ios")
-                .outcome;
+                await new CommandExecutor(nodeModulesRoot).spawnReactCommand("run-ios").outcome;
             } catch (error) {
                 assert.fail("react-native command was not expected to fail");
             }
