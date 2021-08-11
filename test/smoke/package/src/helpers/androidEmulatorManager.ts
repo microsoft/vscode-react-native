@@ -191,7 +191,7 @@ export default class AndroidEmulatorManager {
         } else {
             SmokeTestLogger.warn("*** No running android emulators found");
         }
-        return await AndroidEmulatorManager.waitUntilAllEmulatorTerminating();
+        return AndroidEmulatorManager.waitUntilAllEmulatorTerminating();
     }
 
     public async waitUntilEmulatorStarting(): Promise<boolean> {
