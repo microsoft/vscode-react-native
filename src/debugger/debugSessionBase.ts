@@ -221,6 +221,8 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
             return;
         }
 
+        logger.error(error.message);
+
         this.sendErrorResponse(
             response,
             { format: error.message, id: 1 },
