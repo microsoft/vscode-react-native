@@ -269,8 +269,8 @@ suite("appWorker", function () {
                             return;
                         }
                     });
-                    debuggeeProcess.stdout.on("data", (data_1: string) => {
-                        output += data_1;
+                    debuggeeProcess.stdout.on("data", (data: string) => {
+                        output += data;
                     });
                     debuggeeProcess.on("exit", () => {
                         assert.notEqual(output, "");
