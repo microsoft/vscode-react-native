@@ -373,7 +373,7 @@ export class AppiumHelper {
                 hermesMark = await client.$('//XCUIElementTypeStaticText[@name="Engine: Hermes"]');
                 break;
         }
-        return await hermesMark.waitForExist({
+        return hermesMark.waitForExist({
             timeout: SmokeTestsConstants.waitForElementTimeout,
         });
     }

@@ -319,7 +319,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
 
     private async getPackageName(): Promise<string> {
         const appName = await new Package(this.runOptions.projectRoot).name();
-        return await new PackageNameResolver(appName).resolvePackageName(
+        return new PackageNameResolver(appName).resolvePackageName(
             this.runOptions.projectRoot,
         );
     }

@@ -179,7 +179,7 @@ export class ScriptImporter {
             this.packagerRemoteRoot,
             this.packagerLocalRoot,
         );
-        return await new FileSystem().writeFile(sourceMappingLocalPath, updatedContent);
+        return new FileSystem().writeFile(sourceMappingLocalPath, updatedContent);
     }
 
     /**

@@ -87,14 +87,12 @@ suite("packager", function () {
             const rnVersion = "0.56.0";
             const expected = ["--port", "10001"];
 
-            try {
                 const args = await new Packager(
                     WORKSPACE_PATH,
                     PROJECT_PATH,
                     10001,
                 ).getPackagerArgs(PROJECT_PATH, rnVersion);
                 assert.deepEqual(args, expected);
-            } catch {}
         });
 
         test("getPackagerArgs should return correct value (react-native@0.57.0)", async function () {
@@ -102,14 +100,12 @@ suite("packager", function () {
             const rnVersion = "0.57.0";
             const expected = ["--port", "10001", "--resetCache"];
 
-            try {
                 const args = await new Packager(
                     WORKSPACE_PATH,
                     PROJECT_PATH,
                     10001,
                 ).getPackagerArgs(PROJECT_PATH, rnVersion, true);
                 assert.deepEqual(args, expected);
-            } catch {}
         });
 
         test("getPackagerArgs should return correct value for expo app (react-native@0.56.0)", async function () {
@@ -118,14 +114,12 @@ suite("packager", function () {
             const rnVersion = "0.56.0";
             const expected = ["--port", "10001", "--resetCache", "--root", ".vscode"];
 
-            try {
                 const args = await new Packager(
                     WORKSPACE_PATH,
                     PROJECT_PATH,
                     10001,
                 ).getPackagerArgs(PROJECT_PATH, rnVersion, true);
                 assert.deepEqual(args, expected);
-            } catch {}
         });
 
         test("getPackagerArgs should return correct value for expo app (react-native@0.57.0)", async function () {
@@ -137,14 +131,12 @@ suite("packager", function () {
             );
             const rnVersion = "0.57.0";
             const expected = ["--port", "10001", "--assetExts", ["txt", "md"]];
-            try {
                 const args = await new Packager(
                     WORKSPACE_PATH,
                     PROJECT_PATH,
                     10001,
                 ).getPackagerArgs(PROJECT_PATH, rnVersion);
                 assert.deepEqual(args, expected);
-            } catch {}
         });
     });
 });

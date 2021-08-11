@@ -89,7 +89,7 @@ export default class AutomationHelper {
                 output.some(line => line.indexOf(string) >= 0),
             );
         const catchFun = async () => await this.app.workbench.debug.stepOver();
-        return await this.retryWithSpecifiedPollRetryParameters(
+        return this.retryWithSpecifiedPollRetryParameters(
             fun,
             retryCount,
             pollRetryCount,
