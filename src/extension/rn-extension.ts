@@ -84,8 +84,9 @@ export function activate(context: vscode.ExtensionContext): Promise<void> {
             }
         } else {
             showChangelogNotificationOnUpdate(appVersion);
-            TipNotificationService.getInstance().showTipNotification();
         }
+
+        TipNotificationService.getInstance().showTipNotification(appVersion);
     }
 
     outputChannelLogger.debug("Begin to activate...");
@@ -503,14 +504,21 @@ function showTwoVersionFoundNotification(): boolean {
     return false;
 }
 
-function showChangelogNotificationOnUpdate(currentVersion: string) {
-    const changelogFile = findFileInFolderHierarchy(__dirname, "CHANGELOG.md");
+export function isUpdatedVersion(currentVersion: string): boolean {
     if (
-        (!ExtensionConfigManager.config.has("version") ||
-            ExtensionConfigManager.config.get("version") !== currentVersion) &&
-        changelogFile
+        !ExtensionConfigManager.config.has("version") ||
+        ExtensionConfigManager.config.get("version") !== currentVersion
     ) {
         ExtensionConfigManager.config.set("version", currentVersion);
+        return true;
+    }
+    return false;
+}
+
+function showChangelogNotificationOnUpdate(currentVersion: string) {
+    const isUpdated: boolean = isUpdatedVersion(currentVersion);
+    const changelogFile = findFileInFolderHierarchy(__dirname, "CHANGELOG.md");
+    if (isUpdated && changelogFile) {
         vscode.window
             .showInformationMessage(
                 localize(

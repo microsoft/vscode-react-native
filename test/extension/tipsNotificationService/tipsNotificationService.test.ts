@@ -7,6 +7,7 @@ import {
     TipsConfig,
 } from "../../../src/extension/tipsNotificationsService/tipsNotificationService";
 import { SettingsHelper } from "../../../src/extension/settingsHelper";
+// import { ExtensionConfigManager } from "../../../src/extension/extensionConfigManager";
 import * as Configstore from "configstore";
 import * as assert from "assert";
 import { window } from "vscode";
@@ -75,7 +76,7 @@ suite("tipNotificationService", function () {
             });
 
             test("should create config and fill shownDate into one of general tips", async () => {
-                await tipNotificationService.showTipNotification();
+                await tipNotificationService.showTipNotification("");
 
                 assert.ok(config.has(tipsConfigName));
 
@@ -90,7 +91,7 @@ suite("tipNotificationService", function () {
             test("should create config and fill shownDate into one of specific tips", async () => {
                 const specificTipKey = "networkInspectorLogsColorTheme";
 
-                await tipNotificationService.showTipNotification(false, specificTipKey);
+                await tipNotificationService.showTipNotification("", false, specificTipKey);
 
                 assert.ok(config.has(tipsConfigName));
 
@@ -113,7 +114,7 @@ suite("tipNotificationService", function () {
                 );
                 config.set(tipsConfigName, tipsConfigBefore);
 
-                await tipNotificationService.showTipNotification();
+                await tipNotificationService.showTipNotification("");
 
                 const tipsConfigAfter: RawTipsConfig = config.get(tipsConfigName);
 
@@ -127,7 +128,7 @@ suite("tipNotificationService", function () {
                 tipsConfigBefore.tips.generalTips["networkInspector"].shownDate = new Date();
                 config.set(tipsConfigName, tipsConfigBefore);
 
-                await tipNotificationService.showTipNotification();
+                await tipNotificationService.showTipNotification("");
 
                 const tipsConfigAfter: RawTipsConfig = config.get(tipsConfigName);
                 let shownTips = Object.values(tipsConfigAfter.tips.generalTips).filter(
@@ -156,7 +157,7 @@ suite("tipNotificationService", function () {
                 tipsConfigBefore.daysLeftBeforeGeneralTip = 0;
                 config.set(tipsConfigName, tipsConfigBefore);
 
-                await tipNotificationService.showTipNotification();
+                await tipNotificationService.showTipNotification("");
 
                 const tipsConfigAfter: RawTipsConfig = config.get(tipsConfigName);
                 let shownTips = Object.values(tipsConfigAfter.tips.generalTips).filter(
@@ -186,7 +187,7 @@ suite("tipNotificationService", function () {
 
                 config.set(tipsConfigName, tipsConfigBefore);
 
-                await tipNotificationService.showTipNotification();
+                await tipNotificationService.showTipNotification("");
 
                 const tipsConfigAfter: RawTipsConfig = config.get(tipsConfigName);
 
@@ -208,7 +209,7 @@ suite("tipNotificationService", function () {
                 await SettingsHelper.setShowTips(false);
                 await (<any>tipNotificationService).initializeTipsConfig();
 
-                await tipNotificationService.showTipNotification();
+                await tipNotificationService.showTipNotification("");
 
                 const tipsConfigAfter: RawTipsConfig = config.get(tipsConfigName);
 
@@ -228,6 +229,7 @@ suite("tipNotificationService", function () {
                 await (<any>tipNotificationService).initializeTipsConfig();
 
                 await tipNotificationService.showTipNotification(
+                    "",
                     false,
                     "networkInspectorLogsColorTheme",
                 );
@@ -244,6 +246,31 @@ suite("tipNotificationService", function () {
                 assert.strictEqual(shownGeneralTips.length, 0);
                 assert.strictEqual(shownSpecificTips.length, 0);
             });
+
+            // test("should update tips config after updating tips storage in new version of extension", async () => {
+            //     await SettingsHelper.setShowTips(false);
+            //     await (<any>tipNotificationService).initializeTipsConfig();
+
+            //     const tipsConfigInitial = (TipNotificationService.getInstance() as any).parseDatesInRawConfig(
+            //         ExtensionConfigManager.config.get(
+            //             (TipNotificationService as any).TIPS_CONFIG_NAME,
+            //         ),
+            //     );
+
+            //     await tipNotificationService.showTipNotification(
+            //         "1.1.1",
+            //         false,
+            //         "networkInspectorLogsColorTheme",
+            //     );
+
+            //     const tipsConfigUpdated = (TipNotificationService.getInstance() as any).parseDatesInRawConfig(
+            //         ExtensionConfigManager.config.get(
+            //             (TipNotificationService as any).TIPS_CONFIG_NAME,
+            //         ),
+            //     );
+
+            //     assert.notStrictEqual(tipsConfigInitial, tipsConfigUpdated);
+            // });
         });
 
         suite("with user actions", function () {
@@ -254,7 +281,7 @@ suite("tipNotificationService", function () {
 
                 await (<any>tipNotificationService).initializeTipsConfig();
 
-                await tipNotificationService.showTipNotification();
+                await tipNotificationService.showTipNotification("");
 
                 const tipsConfigAfterDisplayingTip: RawTipsConfig = config.get(tipsConfigName);
 
