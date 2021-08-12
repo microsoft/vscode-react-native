@@ -7,12 +7,12 @@ import {
     TipsConfig,
 } from "../../../src/extension/tipsNotificationsService/tipsNotificationService";
 import { SettingsHelper } from "../../../src/extension/settingsHelper";
-// import { ExtensionConfigManager } from "../../../src/extension/extensionConfigManager";
+import { ExtensionConfigManager } from "../../../src/extension/extensionConfigManager";
 import * as Configstore from "configstore";
 import * as assert from "assert";
 import { window } from "vscode";
 import * as sinon from "sinon";
-
+import * as proxyquire from "proxyquire";
 interface RawTipInfo {
     knownDate?: string;
     shownDate?: string;
@@ -247,30 +247,86 @@ suite("tipNotificationService", function () {
                 assert.strictEqual(shownSpecificTips.length, 0);
             });
 
-            // test("should update tips config after updating tips storage in new version of extension", async () => {
-            //     await SettingsHelper.setShowTips(false);
-            //     await (<any>tipNotificationService).initializeTipsConfig();
+            test("should update tips config after updating tips storage in new version of extension", async () => {
+                const mockedTipsStorageBefore = {
+                    generalTips: {
+                        elementInspector: {
+                            text: "Element Inspector Tip Text",
+                            anchorLink: "#react-native-commands-in-the-command-palette",
+                        },
+                        customEnvVariables: {
+                            text: "Custom Env Variables Tip Text",
+                            anchorLink: "#custom-environment-variables",
+                        },
+                    },
+                    specificTips: {
+                        networkInspectorLogsColorTheme: {
+                            text: "Network Inspector Logs Tip Text",
+                            anchorLink: "#network-inspector-logs-theme",
+                        },
+                    },
+                };
 
-            //     const tipsConfigInitial = (TipNotificationService.getInstance() as any).parseDatesInRawConfig(
-            //         ExtensionConfigManager.config.get(
-            //             (TipNotificationService as any).TIPS_CONFIG_NAME,
-            //         ),
-            //     );
+                const tipsNotificationServicePath =
+                    "../../../src/extension/tipsNotificationsService/tipsNotificationService";
 
-            //     await tipNotificationService.showTipNotification(
-            //         "1.1.1",
-            //         false,
-            //         "networkInspectorLogsColorTheme",
-            //     );
+                const mockedTipsNotificationServiceBefore = proxyquire(
+                    tipsNotificationServicePath,
+                    {
+                        "./tipsStorage": {
+                            default: mockedTipsStorageBefore,
+                        },
+                    },
+                )["TipNotificationService"];
 
-            //     const tipsConfigUpdated = (TipNotificationService.getInstance() as any).parseDatesInRawConfig(
-            //         ExtensionConfigManager.config.get(
-            //             (TipNotificationService as any).TIPS_CONFIG_NAME,
-            //         ),
-            //     );
+                const mockedTipsNotificationServiceInstanceBefore = mockedTipsNotificationServiceBefore.getInstance();
 
-            //     assert.notStrictEqual(tipsConfigInitial, tipsConfigUpdated);
-            // });
+                await SettingsHelper.setShowTips(false);
+                await (<any>mockedTipsNotificationServiceInstanceBefore).initializeTipsConfig();
+
+                const tipsConfigInitial = (mockedTipsNotificationServiceInstanceBefore as any).parseDatesInRawConfig(
+                    ExtensionConfigManager.config.get(
+                        (mockedTipsNotificationServiceBefore as any).TIPS_CONFIG_NAME,
+                    ).tipsConfig,
+                );
+
+                const mockedTipsStorageAfter = {
+                    generalTips: {
+                        elementInspector: {
+                            text: "Element Inspector Tip Text",
+                            anchorLink: "#react-native-commands-in-the-command-palette",
+                        },
+                    },
+                    specificTips: {
+                        networkInspectorLogsColorTheme: {
+                            text: "Network Inspector Logs Tip Text",
+                            anchorLink: "#network-inspector-logs-theme",
+                        },
+                    },
+                };
+
+                const mockedTipsNotificationServiceAfter = proxyquire(tipsNotificationServicePath, {
+                    "./tipsStorage": {
+                        default: mockedTipsStorageAfter,
+                    },
+                })["TipNotificationService"];
+
+                const mockedTipsNotificationServiceInstanceAfter = mockedTipsNotificationServiceAfter.getInstance();
+
+                await mockedTipsNotificationServiceInstanceAfter.showTipNotification(
+                    "new.extension.version",
+                    false,
+                    "networkInspectorLogsColorTheme",
+                );
+
+                const tipsConfigUpdated = (mockedTipsNotificationServiceInstanceAfter as any).parseDatesInRawConfig(
+                    ExtensionConfigManager.config.get(
+                        (mockedTipsNotificationServiceAfter as any).TIPS_CONFIG_NAME,
+                    ).tipsConfig,
+                );
+
+                assert.notStrictEqual(tipsConfigInitial, tipsConfigUpdated);
+            });
         });
 
         suite("with user actions", function () {
