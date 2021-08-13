@@ -426,7 +426,7 @@ suite("appWorker", function () {
                 const expectedReply = JSON.stringify({ replyID: messageId });
                 const appWorkerStart: Sinon.SinonStub = (<any>sandboxedAppWorkerStub).start;
                 const websocketSend: Sinon.SinonStub = (<any>webSocket).send;
-                const appWorkerDeferred = new Promise(() => {
+                const appWorkerDeferred = new Promise<void>((resolve) => {
                     appWorkerStart.returns(appWorkerDeferred);
 
                     sendMessage(testMessage);
@@ -439,6 +439,8 @@ suite("appWorker", function () {
                         websocketSend.notCalled,
                         "Response sent prior to configuring sandbox worker",
                     );
+
+                    resolve();
                 });
                 await PromiseUtil.delay(1);
                 assert(
