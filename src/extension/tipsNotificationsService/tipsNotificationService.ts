@@ -10,7 +10,6 @@ import tipsStorage from "./tipsStorage";
 import { findFileInFolderHierarchy } from "../../common/extensionHelper";
 import { SettingsHelper } from "../../extension/settingsHelper";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
-import { isUpdatedVersion } from "../rn-extension";
 import * as path from "path";
 
 enum TipNotificationAction {
@@ -100,7 +99,6 @@ export class TipNotificationService implements vscode.Disposable {
     }
 
     public async showTipNotification(
-        currentVersion: string,
         isGeneralTip: boolean = true,
         specificTipKey?: string,
     ): Promise<void> {
@@ -117,11 +115,6 @@ export class TipNotificationService implements vscode.Disposable {
 
         const curDate: Date = new Date();
         let tipResponse: GeneratedTipResponse | undefined;
-
-        const isUpdated: boolean = isUpdatedVersion(currentVersion);
-        if (isUpdated) {
-            this.updateTipsConfig();
-        }
 
         if (isGeneralTip) {
             this.deleteOutdatedKnownDate();
@@ -162,7 +155,11 @@ export class TipNotificationService implements vscode.Disposable {
         ExtensionConfigManager.config.set(this.TIPS_CONFIG_NAME, this.tipsConfig);
     }
 
-    private updateTipsConfig(): void {
+    public updateTipsConfig(): void {
+        if (!ExtensionConfigManager.config.has(this.TIPS_CONFIG_NAME)) {
+            return;
+        }
+
         const tipsConfig = this.tipsConfig;
 
         tipsConfig.tips.generalTips = this.updateConfigTipsFromStorage(

@@ -72,7 +72,6 @@ export class NetworkInspectorServer {
         this.logger.info(localize("StartNetworkinspector", "Starting Network inspector"));
         TipNotificationService.getInstance().setKnownDateForFeatureById("networkInspector");
         TipNotificationService.getInstance().showTipNotification(
-            "",
             false,
             "networkInspectorLogsColorTheme",
         );

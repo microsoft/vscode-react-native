@@ -78,15 +78,21 @@ export function activate(context: vscode.ExtensionContext): Promise<void> {
     }
 
     if (extensionName) {
+        const isUpdatedExtension = isUpdatedVersion(appVersion);
+
         if (extensionName.includes("preview")) {
             if (showTwoVersionFoundNotification()) {
                 return Promise.resolve();
             }
-        } else {
+        } else if (isUpdatedExtension) {
             showChangelogNotificationOnUpdate(appVersion);
         }
 
-        TipNotificationService.getInstance().showTipNotification(appVersion);
+        if (isUpdatedExtension) {
+            TipNotificationService.getInstance().updateTipsConfig();
+        }
+
+        TipNotificationService.getInstance().showTipNotification();
     }
 
     outputChannelLogger.debug("Begin to activate...");
@@ -504,7 +510,7 @@ function showTwoVersionFoundNotification(): boolean {
     return false;
 }
 
-export function isUpdatedVersion(currentVersion: string): boolean {
+function isUpdatedVersion(currentVersion: string): boolean {
     if (
         !ExtensionConfigManager.config.has("version") ||
         ExtensionConfigManager.config.get("version") !== currentVersion
