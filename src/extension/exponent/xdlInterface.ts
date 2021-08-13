@@ -96,15 +96,15 @@ export async function setOptions(
     projectRoot: string,
     options?: XDLPackage.IOptions,
 ): Promise<void> {
-    (await getXDLPackage()).Project.setOptionsAsync(projectRoot, options);
+    await (await getXDLPackage()).Project.setOptionsAsync(projectRoot, options);
 }
 
 export async function startExponentServer(projectRoot: string): Promise<void> {
-    (await getXDLPackage()).Project.startExpoServerAsync(projectRoot);
+    await (await getXDLPackage()).Project.startExpoServerAsync(projectRoot);
 }
 
 export async function startTunnels(projectRoot: string): Promise<void> {
-    (await getXDLPackage()).Project.startTunnelsAsync(projectRoot);
+    await (await getXDLPackage()).Project.startTunnelsAsync(projectRoot);
 }
 
 export async function getUrl(
@@ -115,7 +115,7 @@ export async function getUrl(
 }
 
 export async function stopAll(projectRoot: string): Promise<void> {
-    (await getXDLPackage()).Project.stopAsync(projectRoot);
+    await (await getXDLPackage()).Project.stopAsync(projectRoot);
 }
 
 export async function startAdbReverse(projectRoot: string): Promise<boolean> {
@@ -123,7 +123,7 @@ export async function startAdbReverse(projectRoot: string): Promise<boolean> {
 }
 
 export async function stopAdbReverse(projectRoot: string): Promise<void> {
-    (await getXDLPackage()).Android.stopAdbReverseAsync(projectRoot);
+    await (await getXDLPackage()).Android.stopAdbReverseAsync(projectRoot);
 }
 
 export async function getMetroConfig(

@@ -185,7 +185,7 @@ export class RNDebugSession extends DebugSessionBase {
                     if (this.cancellationTokenSource.token.isCancellationRequested) {
                         return this.appWorker.stop();
                     }
-                    return this.appWorker.start();
+                    return await this.appWorker.start();
                 });
             } catch (error) {
                 reject(error);

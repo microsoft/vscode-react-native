@@ -94,8 +94,13 @@ export class AndroidEmulatorManager extends VirtualDeviceManager {
             });
             emulatorProcess.spawnedProcess.unref();
 
+            const condition = async () => {
+                const connectedDevices = await this.adbHelper.getOnlineDevices();
+                return connectedDevices && connectedDevices.length > 0 ? connectedDevices : null;
+            };
+
             const connectedDevices = await waitUntil(
-                () => this.adbHelper.getOnlineDevices(),
+                condition,
                 1000,
                 AndroidEmulatorManager.EMULATOR_START_TIMEOUT * 1000,
             );
