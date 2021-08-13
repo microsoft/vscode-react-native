@@ -500,8 +500,12 @@ suite("androidPlatform", function () {
         test("AdbHelper should correctly parse Android Sdk Location from local.properties file content", () => {
             const adbHelper = new adb.AdbHelper("", nodeModulesRoot);
             function testPaths(inputPath: string, expectedPath: string) {
-                const resultPath = adbHelper.parseSdkLocation(`sdk.dir=${inputPath}`);
-                assert.strictEqual(resultPath, expectedPath);
+                const resultPath1 = adbHelper.parseSdkLocation(`sdk.dir=${inputPath}`);
+                const resultPath2 = adbHelper.parseSdkLocation(`sdk.dir   =${inputPath}`);
+                const resultPath3 = adbHelper.parseSdkLocation(`sdk.dir = ${inputPath}`);
+                assert.strictEqual(resultPath1, expectedPath);
+                assert.strictEqual(resultPath2, expectedPath);
+                assert.strictEqual(resultPath3, expectedPath);
             }
 
             const os = require("os");
