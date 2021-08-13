@@ -84,7 +84,7 @@ export function activate(context: vscode.ExtensionContext): Promise<void> {
             if (showTwoVersionFoundNotification()) {
                 return Promise.resolve();
             }
-        } else {
+        } else if (isUpdatedExtension) {
             showChangelogNotificationOnUpdate(appVersion);
         }
 
@@ -522,9 +522,8 @@ function isUpdatedVersion(currentVersion: string): boolean {
 }
 
 function showChangelogNotificationOnUpdate(currentVersion: string) {
-    const isUpdated: boolean = isUpdatedVersion(currentVersion);
     const changelogFile = findFileInFolderHierarchy(__dirname, "CHANGELOG.md");
-    if (isUpdated && changelogFile) {
+    if (changelogFile) {
         vscode.window
             .showInformationMessage(
                 localize(
