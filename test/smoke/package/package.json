@@ -36,7 +36,7 @@
     "rimraf": "^2.6.1",
     "tree-kill": "^1.2.2",
     "typescript": "3.7.5",
-    "url-parse": "^1.5.0",
+    "url-parse": "^1.5.2",
     "vinyl-fs": "^3.0.3",
     "vinyl-source-stream": "^1.1.0",
     "webdriverio": "6.10.0",
