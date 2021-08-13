@@ -84,7 +84,7 @@ export function activate(context: vscode.ExtensionContext): Promise<void> {
             if (showTwoVersionFoundNotification()) {
                 return Promise.resolve();
             }
-        } else if (isUpdatedExtension) {
+        } else {
             showChangelogNotificationOnUpdate(appVersion);
         }
 
