@@ -426,7 +426,7 @@ suite("appWorker", function () {
                 const expectedReply = JSON.stringify({ replyID: messageId });
                 const appWorkerStart: Sinon.SinonStub = (<any>sandboxedAppWorkerStub).start;
                 const websocketSend: Sinon.SinonStub = (<any>webSocket).send;
-                const appWorkerDeferred = new Promise<void>((resolve) => {
+                const appWorkerDeferred = new Promise<void>(resolve => {
                     appWorkerStart.returns(appWorkerDeferred);
 
                     sendMessage(testMessage);
