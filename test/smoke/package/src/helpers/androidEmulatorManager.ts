@@ -86,7 +86,7 @@ export default class AndroidEmulatorManager {
             }
             return result;
         } catch (e) {
-            return Promise.reject(`Error occured while check app is installed:\n ${e}`);
+            throw `Error occured while check app is installed:\n ${e}`;
         }
     }
 
@@ -163,11 +163,10 @@ export default class AndroidEmulatorManager {
         proc.stderr.on("data", chunk => {
             process.stderr.write(chunk);
         });
-        return this.waitUntilEmulatorStarting().then(async result => {
-            // Waiting for all services to start
-            await sleep(60_000);
-            return result;
-        });
+        const result = await this.waitUntilEmulatorStarting();
+        // Waiting for all services to start
+        await sleep(60000);
+        return result;
     }
 
     public async terminateAndroidEmulator(): Promise<boolean> {
@@ -206,16 +205,15 @@ export default class AndroidEmulatorManager {
             return false;
         };
 
-        return waitUntil(condition, AndroidEmulatorManager.EMULATOR_START_TIMEOUT).then(result => {
-            if (result) {
-                SmokeTestLogger.success(`*** Android emulator has been started.`);
-            } else {
-                SmokeTestLogger.error(
-                    `*** Could not start Android emulator in ${AndroidEmulatorManager.EMULATOR_START_TIMEOUT} seconds.`,
-                );
-            }
-            return result;
-        });
+        const result = await waitUntil(condition, AndroidEmulatorManager.EMULATOR_START_TIMEOUT);
+        if (result) {
+            SmokeTestLogger.success(`*** Android emulator has been started.`);
+        } else {
+            SmokeTestLogger.error(
+                `*** Could not start Android emulator in ${AndroidEmulatorManager.EMULATOR_START_TIMEOUT} seconds.`
+            );
+        }
+        return result;
     }
 
     public static adbReversePort(port: number): void {
@@ -234,18 +232,15 @@ export default class AndroidEmulatorManager {
             return false;
         };
 
-        return waitUntil(condition, AndroidEmulatorManager.EMULATOR_TERMINATING_TIMEOUT).then(
-            result => {
-                if (result) {
-                    SmokeTestLogger.success(`*** Android emulator has been terminated.`);
-                } else {
-                    SmokeTestLogger.error(
-                        `*** Could not terminate Android emulator in ${AndroidEmulatorManager.EMULATOR_START_TIMEOUT} seconds.`,
-                    );
-                }
-                return result;
-            },
-        );
+        const result = await waitUntil(condition, AndroidEmulatorManager.EMULATOR_TERMINATING_TIMEOUT);
+        if (result) {
+            SmokeTestLogger.success(`*** Android emulator has been terminated.`);
+        } else {
+            SmokeTestLogger.error(
+                `*** Could not terminate Android emulator in ${AndroidEmulatorManager.EMULATOR_START_TIMEOUT} seconds.`
+            );
+        }
+        return result;
     }
 
     public static async waitUntilSomeEmulatorStarting(): Promise<boolean> {
@@ -259,16 +254,15 @@ export default class AndroidEmulatorManager {
             return false;
         };
 
-        return waitUntil(condition, AndroidEmulatorManager.EMULATOR_START_TIMEOUT).then(result => {
-            if (result) {
-                SmokeTestLogger.success(`*** Some Android emulator has been started.`);
-            } else {
-                SmokeTestLogger.error(
-                    `*** Could not start any Android emulator in ${AndroidEmulatorManager.EMULATOR_START_TIMEOUT} seconds.`,
-                );
-            }
-            return result;
-        });
+        const result = await waitUntil(condition, AndroidEmulatorManager.EMULATOR_START_TIMEOUT);
+        if (result) {
+            SmokeTestLogger.success(`*** Some Android emulator has been started.`);
+        } else {
+            SmokeTestLogger.error(
+                `*** Could not start any Android emulator in ${AndroidEmulatorManager.EMULATOR_START_TIMEOUT} seconds.`
+            );
+        }
+        return result;
     }
 
     public static async waitUntilAllEmulatorTerminating(): Promise<boolean> {
@@ -281,18 +275,15 @@ export default class AndroidEmulatorManager {
             return false;
         };
 
-        return waitUntil(condition, AndroidEmulatorManager.EMULATOR_TERMINATING_TIMEOUT).then(
-            result => {
-                if (result) {
-                    SmokeTestLogger.success(`*** All Android emulators has been terminated.`);
-                } else {
-                    SmokeTestLogger.error(
-                        `*** Could not terminate all Android emulator in ${AndroidEmulatorManager.EMULATOR_START_TIMEOUT} seconds.`,
-                    );
-                }
-                return result;
-            },
-        );
+        const result = await waitUntil(condition, AndroidEmulatorManager.EMULATOR_TERMINATING_TIMEOUT);
+        if (result) {
+            SmokeTestLogger.success(`*** All Android emulators has been terminated.`);
+        } else {
+            SmokeTestLogger.error(
+                `*** Could not terminate all Android emulator in ${AndroidEmulatorManager.EMULATOR_START_TIMEOUT} seconds.`
+            );
+        }
+        return result;
     }
 
     public static closeApp(packageName: string): void {

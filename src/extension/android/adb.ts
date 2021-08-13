@@ -112,7 +112,7 @@ export class AdbHelper {
         // We should stop and start application again after RELOAD_APP_ACTION, otherwise app going to hangs up
         await PromiseUtil.delay(200); // We need a little delay after broadcast command
         await this.stopApp(projectRoot, packageName, debugTarget, appIdSuffix);
-        return await this.launchApp(projectRoot, packageName, debugTarget, appIdSuffix);
+        return this.launchApp(projectRoot, packageName, debugTarget, appIdSuffix);
     }
 
     /**

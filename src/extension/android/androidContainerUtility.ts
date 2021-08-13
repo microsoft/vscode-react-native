@@ -87,7 +87,7 @@ export async function pushFile(
 ): Promise<void> {
     const validApp = await validateAppName(app);
     const validFilepath = await validateFilePath(destFilepath);
-    return await _pushFile(adbHelper, deviceId, validApp, validFilepath, sourceFilepath, logger);
+    return _pushFile(adbHelper, deviceId, validApp, validFilepath, sourceFilepath, logger);
 }
 
 async function _pushFile(

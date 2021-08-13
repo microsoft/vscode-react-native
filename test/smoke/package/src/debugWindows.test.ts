@@ -82,14 +82,13 @@ export function startDebugRNWTests(
                 );
             };
 
-            return waitUntil(condition, timeout, 5000).then((result: boolean) => {
-                if (result) {
-                    SmokeTestLogger.success(`Found launched ${appName}`);
-                } else {
-                    SmokeTestLogger.error(`App ${appName} not found`);
-                }
-                return result;
-            });
+            const result = await waitUntil(condition, timeout, 5000);
+             if (result) {
+                 SmokeTestLogger.success(`Found launched ${appName}`);
+             } else {
+                 SmokeTestLogger.error(`App ${appName} not found`);
+             }
+             return result;
         }
 
         async function windowsApplicationTest(
