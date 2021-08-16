@@ -95,7 +95,10 @@ export class TipNotificationService implements vscode.Disposable {
             this.cancellationTokenSource,
         );
         this.showTips = SettingsHelper.getShowTips();
-        this.logger = OutputChannelLogger.getChannel(this.TIPS_NOTIFICATIONS_LOG_CHANNEL_NAME);
+        this.logger = OutputChannelLogger.getChannel(
+            this.TIPS_NOTIFICATIONS_LOG_CHANNEL_NAME,
+            true,
+        );
     }
 
     public async showTipNotification(

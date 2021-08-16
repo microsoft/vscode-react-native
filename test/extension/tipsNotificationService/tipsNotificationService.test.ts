@@ -7,7 +7,6 @@ import {
     TipsConfig,
 } from "../../../src/extension/tipsNotificationsService/tipsNotificationService";
 import { SettingsHelper } from "../../../src/extension/settingsHelper";
-import { ExtensionConfigManager } from "../../../src/extension/extensionConfigManager";
 import * as Configstore from "configstore";
 import * as assert from "assert";
 import { window } from "vscode";
@@ -348,7 +347,7 @@ suite("tipNotificationService", function () {
             networkInspectorLogsColorTheme: {},
         };
 
-        test("should update config after deleting tip from storage", async () => {
+        test("should update config after deleting a tip from storage", async () => {
             const mockedTipsNotificationServiceBefore = proxyquire(tipsNotificationServicePath, {
                 "./tipsStorage": {
                     default: mockedTipsStorageBefore,
@@ -356,13 +355,10 @@ suite("tipNotificationService", function () {
             })["TipNotificationService"];
             const mockedTipsNotificationServiceInstanceBefore = mockedTipsNotificationServiceBefore.getInstance();
 
-            await SettingsHelper.setShowTips(false);
             await (<any>mockedTipsNotificationServiceInstanceBefore).initializeTipsConfig();
 
             const tipsConfigInitial = (mockedTipsNotificationServiceInstanceBefore as any).parseDatesInRawConfig(
-                ExtensionConfigManager.config.get(
-                    (mockedTipsNotificationServiceBefore as any).TIPS_CONFIG_NAME,
-                ).tipsConfig,
+                config.get(tipsConfigName),
             );
 
             const mockedTipsStorageAfter = {
@@ -390,9 +386,7 @@ suite("tipNotificationService", function () {
             await mockedTipsNotificationServiceInstanceAfter.updateTipsConfig();
 
             const tipsConfigUpdated = (mockedTipsNotificationServiceInstanceAfter as any).parseDatesInRawConfig(
-                ExtensionConfigManager.config.get(
-                    (mockedTipsNotificationServiceAfter as any).TIPS_CONFIG_NAME,
-                ).tipsConfig,
+                config.get(tipsConfigName),
             );
 
             const expectedTipsConfigGeneralTipsAfter = {
@@ -424,7 +418,7 @@ suite("tipNotificationService", function () {
             );
         });
 
-        test("should update config after adding tip to storage", async () => {
+        test("should update config after adding a tip to storage", async () => {
             const mockedTipsNotificationServiceBefore = proxyquire(tipsNotificationServicePath, {
                 "./tipsStorage": {
                     default: mockedTipsStorageBefore,
@@ -436,9 +430,7 @@ suite("tipNotificationService", function () {
             await (<any>mockedTipsNotificationServiceInstanceBefore).initializeTipsConfig();
 
             const tipsConfigInitial = (mockedTipsNotificationServiceInstanceBefore as any).parseDatesInRawConfig(
-                ExtensionConfigManager.config.get(
-                    (mockedTipsNotificationServiceBefore as any).TIPS_CONFIG_NAME,
-                ).tipsConfig,
+                config.get(tipsConfigName),
             );
 
             const mockedTipsStorageAfter = {
@@ -474,9 +466,7 @@ suite("tipNotificationService", function () {
             await mockedTipsNotificationServiceInstanceAfter.updateTipsConfig();
 
             const tipsConfigUpdated = (mockedTipsNotificationServiceInstanceAfter as any).parseDatesInRawConfig(
-                ExtensionConfigManager.config.get(
-                    (mockedTipsNotificationServiceAfter as any).TIPS_CONFIG_NAME,
-                ).tipsConfig,
+                config.get(tipsConfigName),
             );
 
             const expectedTipsConfigGeneralTipsAfter = {
@@ -510,7 +500,7 @@ suite("tipNotificationService", function () {
             );
         });
 
-        test("should update config after adding updating storage", async () => {
+        test("should update config after updating tips storage", async () => {
             const mockedTipsNotificationServiceBefore = proxyquire(tipsNotificationServicePath, {
                 "./tipsStorage": {
                     default: mockedTipsStorageBefore,
@@ -518,13 +508,10 @@ suite("tipNotificationService", function () {
             })["TipNotificationService"];
             const mockedTipsNotificationServiceInstanceBefore = mockedTipsNotificationServiceBefore.getInstance();
 
-            await SettingsHelper.setShowTips(false);
             await (<any>mockedTipsNotificationServiceInstanceBefore).initializeTipsConfig();
 
             const tipsConfigInitial = (mockedTipsNotificationServiceInstanceBefore as any).parseDatesInRawConfig(
-                ExtensionConfigManager.config.get(
-                    (mockedTipsNotificationServiceBefore as any).TIPS_CONFIG_NAME,
-                ).tipsConfig,
+                config.get(tipsConfigName),
             );
 
             const mockedTipsStorageAfter = {
@@ -556,9 +543,7 @@ suite("tipNotificationService", function () {
             await mockedTipsNotificationServiceInstanceAfter.updateTipsConfig();
 
             const tipsConfigUpdated = (mockedTipsNotificationServiceInstanceAfter as any).parseDatesInRawConfig(
-                ExtensionConfigManager.config.get(
-                    (mockedTipsNotificationServiceAfter as any).TIPS_CONFIG_NAME,
-                ).tipsConfig,
+                config.get(tipsConfigName),
             );
 
             const expectedTipsConfigGeneralTipsAfter = {
