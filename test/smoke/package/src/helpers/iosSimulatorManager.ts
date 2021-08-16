@@ -153,12 +153,10 @@ export default class IosSimulatorManager {
 
         const result = await waitUntil(condition, IosSimulatorManager.SIMULATOR_START_TIMEOUT);
         if (result) {
-            SmokeTestLogger.success(
-                `*** iOS simulator ${this.simulator.name} has been started.`
-            );
+            SmokeTestLogger.success(`*** iOS simulator ${this.simulator.name} has been started.`);
         } else {
             SmokeTestLogger.error(
-                `*** Could not start iOS simulator ${this.simulator.name} after ${IosSimulatorManager.SIMULATOR_START_TIMEOUT}.`
+                `*** Could not start iOS simulator ${this.simulator.name} after ${IosSimulatorManager.SIMULATOR_START_TIMEOUT}.`,
             );
         }
         return result;
@@ -175,11 +173,11 @@ export default class IosSimulatorManager {
         const result = await waitUntil(condition, IosSimulatorManager.SIMULATOR_TERMINATE_TIMEOUT);
         if (result) {
             SmokeTestLogger.success(
-                `*** iOS simulator ${this.simulator.name} has been terminated.`
+                `*** iOS simulator ${this.simulator.name} has been terminated.`,
             );
         } else {
             SmokeTestLogger.error(
-                `*** Could not terminate iOS simulator ${this.simulator.name} after ${IosSimulatorManager.SIMULATOR_TERMINATE_TIMEOUT}.`
+                `*** Could not terminate iOS simulator ${this.simulator.name} after ${IosSimulatorManager.SIMULATOR_TERMINATE_TIMEOUT}.`,
             );
         }
         return result;
@@ -429,7 +427,7 @@ export default class IosSimulatorManager {
             SmokeTestLogger.success(`*** All iOS simulators has been terminated.`);
         } else {
             SmokeTestLogger.error(
-                `*** Could not terminate all iOS simulators after ${IosSimulatorManager.SIMULATOR_TERMINATE_TIMEOUT}.`
+                `*** Could not terminate all iOS simulators after ${IosSimulatorManager.SIMULATOR_TERMINATE_TIMEOUT}.`,
             );
         }
         return result;

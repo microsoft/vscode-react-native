@@ -210,7 +210,7 @@ export default class AndroidEmulatorManager {
             SmokeTestLogger.success(`*** Android emulator has been started.`);
         } else {
             SmokeTestLogger.error(
-                `*** Could not start Android emulator in ${AndroidEmulatorManager.EMULATOR_START_TIMEOUT} seconds.`
+                `*** Could not start Android emulator in ${AndroidEmulatorManager.EMULATOR_START_TIMEOUT} seconds.`,
             );
         }
         return result;
@@ -232,12 +232,15 @@ export default class AndroidEmulatorManager {
             return false;
         };
 
-        const result = await waitUntil(condition, AndroidEmulatorManager.EMULATOR_TERMINATING_TIMEOUT);
+        const result = await waitUntil(
+            condition,
+            AndroidEmulatorManager.EMULATOR_TERMINATING_TIMEOUT,
+        );
         if (result) {
             SmokeTestLogger.success(`*** Android emulator has been terminated.`);
         } else {
             SmokeTestLogger.error(
-                `*** Could not terminate Android emulator in ${AndroidEmulatorManager.EMULATOR_START_TIMEOUT} seconds.`
+                `*** Could not terminate Android emulator in ${AndroidEmulatorManager.EMULATOR_START_TIMEOUT} seconds.`,
             );
         }
         return result;
@@ -259,7 +262,7 @@ export default class AndroidEmulatorManager {
             SmokeTestLogger.success(`*** Some Android emulator has been started.`);
         } else {
             SmokeTestLogger.error(
-                `*** Could not start any Android emulator in ${AndroidEmulatorManager.EMULATOR_START_TIMEOUT} seconds.`
+                `*** Could not start any Android emulator in ${AndroidEmulatorManager.EMULATOR_START_TIMEOUT} seconds.`,
             );
         }
         return result;
@@ -275,12 +278,15 @@ export default class AndroidEmulatorManager {
             return false;
         };
 
-        const result = await waitUntil(condition, AndroidEmulatorManager.EMULATOR_TERMINATING_TIMEOUT);
+        const result = await waitUntil(
+            condition,
+            AndroidEmulatorManager.EMULATOR_TERMINATING_TIMEOUT,
+        );
         if (result) {
             SmokeTestLogger.success(`*** All Android emulators has been terminated.`);
         } else {
             SmokeTestLogger.error(
-                `*** Could not terminate all Android emulator in ${AndroidEmulatorManager.EMULATOR_START_TIMEOUT} seconds.`
+                `*** Could not terminate all Android emulator in ${AndroidEmulatorManager.EMULATOR_START_TIMEOUT} seconds.`,
             );
         }
         return result;
