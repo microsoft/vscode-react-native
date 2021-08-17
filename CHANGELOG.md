@@ -1,3 +1,14 @@
+## 1.6.0
+* Added support of debugging of React Native for Windows Hermes applications: [more info](https://github.com/microsoft/vscode-react-native#windows-hermes-debugging) [#1624](https://github.com/microsoft/vscode-react-native/pull/1624)
+* Added tips about rarely used extension features [#1610](https://github.com/microsoft/vscode-react-native/pull/1610)
+* Updated documentation about `ios-deploy` installation, thanks to [Lucas Johnston(@lucasjohnston)](https://github.com/lucasjohnston) [#1611](https://github.com/microsoft/vscode-react-native/pull/1611)
+* Implemented debugging of Expo Hermes applications [#1608](https://github.com/microsoft/vscode-react-native/pull/1608)
+* Added context variables to configure custom key bindings with [`when` clauses](https://code.visualstudio.com/docs/getstarted/keybindings#_when-clause-contexts) for pair extension commands [#1606](https://github.com/microsoft/vscode-react-native/pull/1606)
+* Improved extension security [#1625](https://github.com/microsoft/vscode-react-native/pull/1625)
+* Internal changes:
+    * Smoke tests were updated to work with VS Code 1.58.1 [#1609](https://github.com/microsoft/vscode-react-native/pull/1609)
+
+
 ## 1.5.2
 * Added the `sourceMapRenames` parameter to debugging configurations [#1602](https://github.com/microsoft/vscode-react-native/pull/1602)
 * Implemented debugging mode control for macOS apps [#1589](https://github.com/microsoft/vscode-react-native/pull/1589)
