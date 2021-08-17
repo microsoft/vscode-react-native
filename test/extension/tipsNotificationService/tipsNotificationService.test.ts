@@ -357,7 +357,7 @@ suite("tipNotificationService", function () {
 
             await (<any>mockedTipsNotificationServiceInstanceBefore).initializeTipsConfig();
 
-            const tipsConfigInitial = (mockedTipsNotificationServiceInstanceBefore as any).parseDatesInRawConfig(
+            const tipsConfigInitial = (<any>mockedTipsNotificationServiceInstanceBefore).parseDatesInRawConfig(
                 config.get(tipsConfigName),
             );
 
@@ -385,7 +385,7 @@ suite("tipNotificationService", function () {
 
             await mockedTipsNotificationServiceInstanceAfter.updateTipsConfig();
 
-            const tipsConfigUpdated = (mockedTipsNotificationServiceInstanceAfter as any).parseDatesInRawConfig(
+            const tipsConfigUpdated = (<any>mockedTipsNotificationServiceInstanceAfter).parseDatesInRawConfig(
                 config.get(tipsConfigName),
             );
 
@@ -429,7 +429,7 @@ suite("tipNotificationService", function () {
             await SettingsHelper.setShowTips(false);
             await (<any>mockedTipsNotificationServiceInstanceBefore).initializeTipsConfig();
 
-            const tipsConfigInitial = (mockedTipsNotificationServiceInstanceBefore as any).parseDatesInRawConfig(
+            const tipsConfigInitial = (<any>mockedTipsNotificationServiceInstanceBefore).parseDatesInRawConfig(
                 config.get(tipsConfigName),
             );
 
@@ -465,7 +465,7 @@ suite("tipNotificationService", function () {
 
             await mockedTipsNotificationServiceInstanceAfter.updateTipsConfig();
 
-            const tipsConfigUpdated = (mockedTipsNotificationServiceInstanceAfter as any).parseDatesInRawConfig(
+            const tipsConfigUpdated = (<any>mockedTipsNotificationServiceInstanceAfter).parseDatesInRawConfig(
                 config.get(tipsConfigName),
             );
 
@@ -510,7 +510,7 @@ suite("tipNotificationService", function () {
 
             await (<any>mockedTipsNotificationServiceInstanceBefore).initializeTipsConfig();
 
-            const tipsConfigInitial = (mockedTipsNotificationServiceInstanceBefore as any).parseDatesInRawConfig(
+            const tipsConfigInitial = (<any>mockedTipsNotificationServiceInstanceBefore).parseDatesInRawConfig(
                 config.get(tipsConfigName),
             );
 
@@ -542,7 +542,7 @@ suite("tipNotificationService", function () {
 
             await mockedTipsNotificationServiceInstanceAfter.updateTipsConfig();
 
-            const tipsConfigUpdated = (mockedTipsNotificationServiceInstanceAfter as any).parseDatesInRawConfig(
+            const tipsConfigUpdated = (<any>mockedTipsNotificationServiceInstanceAfter).parseDatesInRawConfig(
                 config.get(tipsConfigName),
             );
 
