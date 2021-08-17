@@ -136,6 +136,7 @@ export class DirectDebugSession extends DebugSessionBase {
                 extProps,
             );
 
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             await TelemetryHelper.generate("attach", extProps, async generator => {
                 const port = attachArgs.useHermesEngine
                     ? attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd)
