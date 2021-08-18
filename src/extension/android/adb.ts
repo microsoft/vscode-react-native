@@ -191,7 +191,7 @@ export class AdbHelper {
     }
 
     public parseSdkLocation(fileContent: string, logger?: ILogger): string | null {
-        const matches = fileContent.match(/^sdk\.dir=(.+)$/m);
+        const matches = fileContent.match(/^sdk\.dir\s*=(.+)$/m);
         if (!matches || !matches[1]) {
             if (logger) {
                 logger.info(
