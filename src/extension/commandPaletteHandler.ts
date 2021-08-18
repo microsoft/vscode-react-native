@@ -163,7 +163,7 @@ export class CommandPaletteHandler {
         const androidEmulatorManager = new AndroidEmulatorManager(adbHelper);
         const emulator = await androidEmulatorManager.startSelection();
         if (emulator) {
-            androidEmulatorManager.tryLaunchEmulatorByName(emulator);
+            await androidEmulatorManager.tryLaunchEmulatorByName(emulator);
         }
     }
 
