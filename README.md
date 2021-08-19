@@ -105,7 +105,7 @@ The full list of commands is:
 | Run Network Inspector            | `reactNative.startNetworkInspector`  | Run [Network inspector](#network-inspector)                                                                                                                                                                                                |
 | Stop Network Inspector           | `reactNative.stopNetworkInspector`   | Stop [Network inspector](#network-inspector)                                                                                                                                                                                               |
 
-# Using commands in tasks
+## Using commands in VS Code tasks
 
 You can use React Native Tools commands in `tasks.json` as follow:
 
