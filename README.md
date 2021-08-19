@@ -105,6 +105,23 @@ The full list of commands is:
 | Run Network Inspector            | `reactNative.startNetworkInspector`  | Run [Network inspector](#network-inspector)                                                                                                                                                                                                |
 | Stop Network Inspector           | `reactNative.stopNetworkInspector`   | Stop [Network inspector](#network-inspector)                                                                                                                                                                                               |
 
+# Using commands in tasks
+
+You can use React Native Tools commands in `tasks.json` as follow:
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run Android on Emulator",
+      "command": "${command:reactNative.runAndroidSimulator}",
+      "problemMatcher": []
+    }
+  ]
+}
+```
+
 # Debugging React Native applications
 
 To start debugging create a new debug configuration for your ReactNative app in your `.vscode/launch.json`. Adding a new configuration can be done by opening your `launch.json` file and clicking on `Add Configuration...` button and choosing a relevant debug configuration. All available debug configurations for ReactNative can be accessed by typing in _ReactNative_ and picking one from the list populated by Intellisense as shown in the image below.
