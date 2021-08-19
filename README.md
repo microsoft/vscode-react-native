@@ -107,7 +107,7 @@ The full list of commands is:
 
 ## Using commands in VS Code tasks
 
-You can use React Native Tools commands in `tasks.json` as follow:
+To run React Native Tools commands via VS Code tasks, you can create a `.vscode/tasks.json` file in your project and add tasks configurations the following way:
 
 ```json
 {
