@@ -83,27 +83,44 @@ The **Packager** commands allow you to start/stop the [**Metro Bundler**](https:
 
 The full list of commands is:
 
-| Name                             | Description                                                                                                                                                                                                                                |
-| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Launch Android Emulator          | Prompts you to select the name of the available emulator and launch it. If only one emulator is installed in the system, it will be selected automatically                                                                                 |
-| Run Android on Emulator          | Run an Android application on Emulator. Launch order: check target platform support, load run arguments, start Packager, run app in all connected emulators                                                                                |
-| Run Android on Device            | Run an Android application on Device. Launch order: check target platform support, load run arguments, start Packager, run app in all connected devices                                                                                    |
-| Run iOS on Simulator             | Run an iOS application on Simulator. Launch order: load run arguments, check target platform support, start Packager, run app in only one connected emulator                                                                               |
-| Run iOS on Device                | Run an iOS application on Device. Launch order: load run arguments, check target platform support, start Packager, run app in only one connected device                                                                                    |
-| Run Expo                         | Run an Exponent application. Launch order: login to exponent, load run arguments, start Packager, run app                                                                                                                                  |
-| Run Windows                      | Run a RNW application. Launch order: check target platform support, load run arguments, start Packager, run app                                                                                                                            |
-| Run MacOS                        | Run a RNmacOS application. Launch order: check target platform support, load run arguments, start Packager, run app                                                                                                                        |
-| Start Packager                   | Start Packager in context project workspace folder                                                                                                                                                                                         |
-| Stop Packager                    | Stop Packager                                                                                                                                                                                                                              |
-| Restart Packager                 | Restart Packager                                                                                                                                                                                                                           |
-| Publish To Expo                  | Publish to Exponent Host. Launch order: login to exponent, execute `Run Expo` command, then publish app to host                                                                                                                            |
-| Show Dev Menu                    | Show development menu for running aplication on iOS or Android device or emulator                                                                                                                                                          |
-| ReloadApp                        | Reload an application                                                                                                                                                                                                                      |
-| Run Element Inspector            | Load development tools for inspect application UI elements                                                                                                                                                                                 |
-| Run React Native LogCat Monitor  | Creates a LogCat Monitor for the chosen online Android device to see the device LogCat logs. Default filtering arguments: ["*:S", "ReactNative:V", "ReactNativeJS:V"]. [How to configure filtering.](#configure-an-Android-LogCat-Monitor) |
-| Stop React Native LogCat Monitor | Stops an existing LogCat Monitor and removes its output channel                                                                                                                                                                            |
-| Run Network Inspector            | Run [Network inspector](#network-inspector)                                                                                                                                                                                                |
-| Stop Network Inspector           | Stop [Network inspector](#network-inspector)                                                                                                                                                                                               |
+| Name                             | Command ID                           | Description                                                                                                                                                                                                                                |
+| -------------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Launch Android Emulator          | `reactNative.launchAndroidSimulator` | Prompts you to select the name of the available emulator and launch it. If only one emulator is installed in the system, it will be selected automatically                                                                                 |
+| Run Android on Emulator          | `reactNative.runAndroidSimulator`    | Run an Android application on Emulator. Launch order: check target platform support, load run arguments, start Packager, run app in all connected emulators                                                                                |
+| Run Android on Device            | `reactNative.runAndroidDevice`       | Run an Android application on Device. Launch order: check target platform support, load run arguments, start Packager, run app in all connected devices                                                                                    |
+| Run iOS on Simulator             | `reactNative.runIosSimulator`        | Run an iOS application on Simulator. Launch order: load run arguments, check target platform support, start Packager, run app in only one connected emulator                                                                               |
+| Run iOS on Device                | `reactNative.runIosDevice`           | Run an iOS application on Device. Launch order: load run arguments, check target platform support, start Packager, run app in only one connected device                                                                                    |
+| Run Expo                         | `reactNative.runExponent`            | Run an Exponent application. Launch order: login to exponent, load run arguments, start Packager, run app                                                                                                                                  |
+| Run Windows                      | `reactNative.runWindows`             | Run a RNW application. Launch order: check target platform support, load run arguments, start Packager, run app                                                                                                                            |
+| Run MacOS                        | `reactNative.runMacOS`               | Run a RNmacOS application. Launch order: check target platform support, load run arguments, start Packager, run app                                                                                                                        |
+| Start Packager                   | `reactNative.startPackager`          | Start Packager in context project workspace folder                                                                                                                                                                                         |
+| Stop Packager                    | `reactNative.stopPackager`           | Stop Packager                                                                                                                                                                                                                              |
+| Restart Packager                 | `reactNative.restartPackager`        | Restart Packager and clear the Packager's cache                                                                                                                                                                                            |
+| Publish To Expo                  | `reactNative.publishToExpHost`       | Publish to Exponent Host. Launch order: login to exponent, execute `Run Expo` command, then publish app to host                                                                                                                            |
+| Show Dev Menu                    | `reactNative.showDevMenu`            | Show development menu for running aplication on iOS or Android device or emulator                                                                                                                                                          |
+| ReloadApp                        | `reactNative.reloadApp`              | Reload an application                                                                                                                                                                                                                      |
+| Run Element Inspector            | `reactNative.runInspector`           | Load development tools for inspect application UI elements                                                                                                                                                                                 |
+| Run React Native LogCat Monitor  | `reactNative.startLogCatMonitor`     | Creates a LogCat Monitor for the chosen online Android device to see the device LogCat logs. Default filtering arguments: ["*:S", "ReactNative:V", "ReactNativeJS:V"]. [How to configure filtering.](#configure-an-Android-LogCat-Monitor) |
+| Stop React Native LogCat Monitor | `reactNative.stopLogCatMonitor`      | Stops an existing LogCat Monitor and removes its output channel                                                                                                                                                                            |
+| Run Network Inspector            | `reactNative.startNetworkInspector`  | Run [Network inspector](#network-inspector)                                                                                                                                                                                                |
+| Stop Network Inspector           | `reactNative.stopNetworkInspector`   | Stop [Network inspector](#network-inspector)                                                                                                                                                                                               |
+
+## Using commands in VS Code tasks
+
+To run React Native Tools commands via VS Code tasks, you can create a `.vscode/tasks.json` file in your project and add tasks configurations the following way:
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run Android on Emulator",
+      "command": "${command:reactNative.runAndroidSimulator}",
+      "problemMatcher": []
+    }
+  ]
+}
+```
 
 # Debugging React Native applications
 
