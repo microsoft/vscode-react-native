@@ -1,3 +1,14 @@
+## 1.6.1
+* Improved error logging on debugging [#1633](https://github.com/microsoft/vscode-react-native/pull/1633)
+* Improved Android `sdk.dir` parsing in `local.properties` [#1643](https://github.com/microsoft/vscode-react-native/pull/1643)
+* Fixed errors typings, thanks to [Alexander Sklar(@asklar)](https://github.com/asklar) [#1648](https://github.com/microsoft/vscode-react-native/pull/1648)
+* Added ids of extension commands to readme [#1649](https://github.com/microsoft/vscode-react-native/pull/1649)
+* Improved functionality of updating tips config for Tips notifications feature [#1642](https://github.com/microsoft/vscode-react-native/pull/1642)
+* Improved extension security [#1635](https://github.com/microsoft/vscode-react-native/pull/1635), [#1640](https://github.com/microsoft/vscode-react-native/pull/1640), [#1641](https://github.com/microsoft/vscode-react-native/pull/1641), [#1639](https://github.com/microsoft/vscode-react-native/pull/1639)
+* Internal changes:
+    * Smoke tests were updated to work with VS Code 1.58.1 [#1609](https://github.com/microsoft/vscode-react-native/pull/1609)
+
+
 ## 1.6.0
 * Added support of debugging of React Native for Windows Hermes applications: [more info](https://github.com/microsoft/vscode-react-native#windows-hermes-debugging) [#1624](https://github.com/microsoft/vscode-react-native/pull/1624)
 * Added tips about rarely used extension features [#1610](https://github.com/microsoft/vscode-react-native/pull/1610)
