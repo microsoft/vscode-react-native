@@ -11,7 +11,7 @@ import * as Configstore from "configstore";
 import * as assert from "assert";
 import { window } from "vscode";
 import * as sinon from "sinon";
-
+import * as proxyquire from "proxyquire";
 interface RawTipInfo {
     knownDate?: string;
     shownDate?: string;
@@ -311,6 +311,268 @@ suite("tipNotificationService", function () {
                 typeof tipsConfigAfter.tips.specificTips[tipKey].knownDate,
                 "string",
                 `knownDate of ${tipKey} isn't set`,
+            );
+        });
+    });
+
+    suite("updateTipsConfig", function () {
+        const tipsNotificationServicePath =
+            "../../../src/extension/tipsNotificationsService/tipsNotificationService";
+
+        const mockedTipsStorageBefore = {
+            generalTips: {
+                elementInspector: {
+                    text: "Element Inspector Tip Text",
+                    anchorLink: "#react-native-commands-in-the-command-palette",
+                },
+                customEnvVariables: {
+                    text: "Custom Env Variables Tip Text",
+                    anchorLink: "#custom-environment-variables",
+                },
+            },
+            specificTips: {
+                networkInspectorLogsColorTheme: {
+                    text: "Network Inspector Logs Tip Text",
+                    anchorLink: "#network-inspector-logs-theme",
+                },
+            },
+        };
+
+        const expectedTipsConfigGeneralTipsBefore = {
+            customEnvVariables: {},
+            elementInspector: {},
+        };
+
+        const expectedTipsConfigSpecificTipsBefore = {
+            networkInspectorLogsColorTheme: {},
+        };
+
+        test("should update config after deleting a tip from storage", async () => {
+            const mockedTipsNotificationServiceBefore = proxyquire(tipsNotificationServicePath, {
+                "./tipsStorage": {
+                    default: mockedTipsStorageBefore,
+                },
+            })["TipNotificationService"];
+            const mockedTipsNotificationServiceInstanceBefore = mockedTipsNotificationServiceBefore.getInstance();
+
+            await (<any>mockedTipsNotificationServiceInstanceBefore).initializeTipsConfig();
+
+            const tipsConfigInitial = (<any>(
+                mockedTipsNotificationServiceInstanceBefore
+            )).parseDatesInRawConfig(config.get(tipsConfigName));
+
+            const mockedTipsStorageAfter = {
+                generalTips: {
+                    elementInspector: {
+                        text: "Element Inspector Tip Text",
+                        anchorLink: "#react-native-commands-in-the-command-palette",
+                    },
+                },
+                specificTips: {
+                    networkInspectorLogsColorTheme: {
+                        text: "Network Inspector Logs Tip Text",
+                        anchorLink: "#network-inspector-logs-theme",
+                    },
+                },
+            };
+
+            const mockedTipsNotificationServiceAfter = proxyquire(tipsNotificationServicePath, {
+                "./tipsStorage": {
+                    default: mockedTipsStorageAfter,
+                },
+            })["TipNotificationService"];
+            const mockedTipsNotificationServiceInstanceAfter = mockedTipsNotificationServiceAfter.getInstance();
+
+            await mockedTipsNotificationServiceInstanceAfter.updateTipsConfig();
+
+            const tipsConfigUpdated = (<any>(
+                mockedTipsNotificationServiceInstanceAfter
+            )).parseDatesInRawConfig(config.get(tipsConfigName));
+
+            const expectedTipsConfigGeneralTipsAfter = {
+                elementInspector: {},
+            };
+
+            const expectedTipsConfigSpecificTipsAfter = {
+                networkInspectorLogsColorTheme: {},
+            };
+
+            assert.notDeepStrictEqual(tipsConfigInitial, tipsConfigUpdated);
+
+            assert.deepStrictEqual(
+                tipsConfigInitial.tips.generalTips,
+                expectedTipsConfigGeneralTipsBefore,
+            );
+            assert.deepStrictEqual(
+                tipsConfigInitial.tips.specificTips,
+                expectedTipsConfigSpecificTipsBefore,
+            );
+
+            assert.deepStrictEqual(
+                tipsConfigUpdated.tips.generalTips,
+                expectedTipsConfigGeneralTipsAfter,
+            );
+            assert.deepStrictEqual(
+                tipsConfigUpdated.tips.specificTips,
+                expectedTipsConfigSpecificTipsAfter,
+            );
+        });
+
+        test("should update config after adding a tip to storage", async () => {
+            const mockedTipsNotificationServiceBefore = proxyquire(tipsNotificationServicePath, {
+                "./tipsStorage": {
+                    default: mockedTipsStorageBefore,
+                },
+            })["TipNotificationService"];
+            const mockedTipsNotificationServiceInstanceBefore = mockedTipsNotificationServiceBefore.getInstance();
+
+            await SettingsHelper.setShowTips(false);
+            await (<any>mockedTipsNotificationServiceInstanceBefore).initializeTipsConfig();
+
+            const tipsConfigInitial = (<any>(
+                mockedTipsNotificationServiceInstanceBefore
+            )).parseDatesInRawConfig(config.get(tipsConfigName));
+
+            const mockedTipsStorageAfter = {
+                generalTips: {
+                    elementInspector: {
+                        text: "Element Inspector Tip Text",
+                        anchorLink: "#react-native-commands-in-the-command-palette",
+                    },
+                    customEnvVariables: {
+                        text: "Custom Env Variables Tip Text",
+                        anchorLink: "#custom-environment-variables",
+                    },
+                    networkInspector: {
+                        text: "Network Inspector Tip Text",
+                        anchorLink: "#network-inspector",
+                    },
+                },
+                specificTips: {
+                    networkInspectorLogsColorTheme: {
+                        text: "Network Inspector Logs Tip Text",
+                        anchorLink: "#network-inspector-logs-theme",
+                    },
+                },
+            };
+
+            const mockedTipsNotificationServiceAfter = proxyquire(tipsNotificationServicePath, {
+                "./tipsStorage": {
+                    default: mockedTipsStorageAfter,
+                },
+            })["TipNotificationService"];
+            const mockedTipsNotificationServiceInstanceAfter = mockedTipsNotificationServiceAfter.getInstance();
+
+            await mockedTipsNotificationServiceInstanceAfter.updateTipsConfig();
+
+            const tipsConfigUpdated = (<any>(
+                mockedTipsNotificationServiceInstanceAfter
+            )).parseDatesInRawConfig(config.get(tipsConfigName));
+
+            const expectedTipsConfigGeneralTipsAfter = {
+                elementInspector: {},
+                customEnvVariables: {},
+                networkInspector: {},
+            };
+
+            const expectedTipsConfigSpecificTipsAfter = {
+                networkInspectorLogsColorTheme: {},
+            };
+
+            assert.notDeepStrictEqual(tipsConfigInitial, tipsConfigUpdated);
+
+            assert.deepStrictEqual(
+                tipsConfigInitial.tips.generalTips,
+                expectedTipsConfigGeneralTipsBefore,
+            );
+            assert.deepStrictEqual(
+                tipsConfigInitial.tips.specificTips,
+                expectedTipsConfigSpecificTipsBefore,
+            );
+
+            assert.deepStrictEqual(
+                tipsConfigUpdated.tips.generalTips,
+                expectedTipsConfigGeneralTipsAfter,
+            );
+            assert.deepStrictEqual(
+                tipsConfigUpdated.tips.specificTips,
+                expectedTipsConfigSpecificTipsAfter,
+            );
+        });
+
+        test("should update config after updating tips storage", async () => {
+            const mockedTipsNotificationServiceBefore = proxyquire(tipsNotificationServicePath, {
+                "./tipsStorage": {
+                    default: mockedTipsStorageBefore,
+                },
+            })["TipNotificationService"];
+            const mockedTipsNotificationServiceInstanceBefore = mockedTipsNotificationServiceBefore.getInstance();
+
+            await (<any>mockedTipsNotificationServiceInstanceBefore).initializeTipsConfig();
+
+            const tipsConfigInitial = (<any>(
+                mockedTipsNotificationServiceInstanceBefore
+            )).parseDatesInRawConfig(config.get(tipsConfigName));
+
+            const mockedTipsStorageAfter = {
+                generalTips: {
+                    elementInspector: {
+                        text: "Element Inspector Tip Text",
+                        anchorLink: "#react-native-commands-in-the-command-palette",
+                    },
+                    networkInspector: {
+                        text: "Network Inspector Tip Text",
+                        anchorLink: "#network-inspector",
+                    },
+                },
+                specificTips: {
+                    networkInspectorLogsColorTheme: {
+                        text: "Network Inspector Logs Tip Text",
+                        anchorLink: "#network-inspector-logs-theme",
+                    },
+                },
+            };
+
+            const mockedTipsNotificationServiceAfter = proxyquire(tipsNotificationServicePath, {
+                "./tipsStorage": {
+                    default: mockedTipsStorageAfter,
+                },
+            })["TipNotificationService"];
+            const mockedTipsNotificationServiceInstanceAfter = mockedTipsNotificationServiceAfter.getInstance();
+
+            await mockedTipsNotificationServiceInstanceAfter.updateTipsConfig();
+
+            const tipsConfigUpdated = (<any>(
+                mockedTipsNotificationServiceInstanceAfter
+            )).parseDatesInRawConfig(config.get(tipsConfigName));
+
+            const expectedTipsConfigGeneralTipsAfter = {
+                elementInspector: {},
+                networkInspector: {},
+            };
+
+            const expectedTipsConfigSpecificTipsAfter = {
+                networkInspectorLogsColorTheme: {},
+            };
+
+            assert.notDeepStrictEqual(tipsConfigInitial, tipsConfigUpdated);
+
+            assert.deepStrictEqual(
+                tipsConfigInitial.tips.generalTips,
+                expectedTipsConfigGeneralTipsBefore,
+            );
+            assert.deepStrictEqual(
+                tipsConfigInitial.tips.specificTips,
+                expectedTipsConfigSpecificTipsBefore,
+            );
+
+            assert.deepStrictEqual(
+                tipsConfigUpdated.tips.generalTips,
+                expectedTipsConfigGeneralTipsAfter,
+            );
+            assert.deepStrictEqual(
+                tipsConfigUpdated.tips.specificTips,
+                expectedTipsConfigSpecificTipsAfter,
             );
         });
     });
