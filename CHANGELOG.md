@@ -1,7 +1,7 @@
 ## 1.6.1
 * Improved error logging on debugging [#1633](https://github.com/microsoft/vscode-react-native/pull/1633)
 * Improved parsing of `sdk.dir` parameter in Android `local.properties` [#1643](https://github.com/microsoft/vscode-react-native/pull/1643)
-* Fixed errors typings, thanks to [Alexander Sklar(@asklar)](https://github.com/asklar) [#1648](https://github.com/microsoft/vscode-react-native/pull/1648)
+* Fixed typos in error messages, thanks to [Alexander Sklar(@asklar)](https://github.com/asklar) [#1648](https://github.com/microsoft/vscode-react-native/pull/1648)
 * Added ids of extension commands to readme [#1649](https://github.com/microsoft/vscode-react-native/pull/1649)
 * Improved functionality of updating tips config for Tips notifications feature [#1642](https://github.com/microsoft/vscode-react-native/pull/1642)
 * Improved extension security [#1635](https://github.com/microsoft/vscode-react-native/pull/1635), [#1640](https://github.com/microsoft/vscode-react-native/pull/1640), [#1641](https://github.com/microsoft/vscode-react-native/pull/1641), [#1639](https://github.com/microsoft/vscode-react-native/pull/1639)
