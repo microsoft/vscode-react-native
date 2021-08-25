@@ -3,7 +3,7 @@
 * Improved parsing of `sdk.dir` parameter in Android `local.properties` [#1643](https://github.com/microsoft/vscode-react-native/pull/1643)
 * Fixed typos in error messages, thanks to [Alexander Sklar(@asklar)](https://github.com/asklar) [#1648](https://github.com/microsoft/vscode-react-native/pull/1648)
 * Enhanced documentation about extension commands usage [#1649](https://github.com/microsoft/vscode-react-native/pull/1649)
-* Improved functionality of updating tips config for Tips notifications feature [#1642](https://github.com/microsoft/vscode-react-native/pull/1642)
+* Improved tips notifications functionality [#1642](https://github.com/microsoft/vscode-react-native/pull/1642)
 * Improved extension security [#1635](https://github.com/microsoft/vscode-react-native/pull/1635), [#1640](https://github.com/microsoft/vscode-react-native/pull/1640), [#1641](https://github.com/microsoft/vscode-react-native/pull/1641), [#1639](https://github.com/microsoft/vscode-react-native/pull/1639)
 * Internal changes:
     * Smoke tests were updated to work with VS Code 1.58.1 [#1609](https://github.com/microsoft/vscode-react-native/pull/1609)
