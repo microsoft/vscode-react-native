@@ -158,7 +158,7 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
                     true,
                     `Could not boot iOS simulator ${simulator.name} in first time`,
                 );
-                const isScenarioUpdated = launchConfigurationManager.waitUntilLaunchScenarioUpdate(
+                const isScenarioUpdated = await launchConfigurationManager.waitUntilLaunchScenarioUpdate(
                     { target: simulator.id },
                     IosRNDebugConfigName,
                 );

@@ -9,6 +9,7 @@ import * as nls from "vscode-nls";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { QuickPickOptions, window } from "vscode";
+import { waitUntil } from "../../common/utils";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -62,7 +63,7 @@ export class AndroidEmulatorManager extends VirtualDeviceManager {
     }
 
     public async tryLaunchEmulatorByName(emulatorName: string): Promise<string> {
-        return new Promise((resolve, reject) => {
+        return new Promise<string>(async (resolve, reject) => {
             const emulatorProcess = this.childProcess.spawn(
                 AndroidEmulatorManager.EMULATOR_COMMAND,
                 [AndroidEmulatorManager.EMULATOR_AVD_START_COMMAND, emulatorName],
@@ -93,8 +94,22 @@ export class AndroidEmulatorManager extends VirtualDeviceManager {
             });
             emulatorProcess.spawnedProcess.unref();
 
-            const rejectTimeout = setTimeout(() => {
-                cleanup();
+            const condition = async () => {
+                const connectedDevices = await this.adbHelper.getOnlineDevices();
+                return connectedDevices && connectedDevices.length > 0 ? connectedDevices : null;
+            };
+
+            const connectedDevices = await waitUntil(
+                condition,
+                1000,
+                AndroidEmulatorManager.EMULATOR_START_TIMEOUT * 1000,
+            );
+            if (connectedDevices && connectedDevices.length > 0) {
+                this.logger.info(
+                    localize("EmulatorLaunched", "Launched emulator {0}", emulatorName),
+                );
+                resolve(connectedDevices[0].id);
+            } else {
                 reject(
                     ErrorHelper.getInternalError(
                         InternalErrorCode.VirtualDeviceSelectionError,
@@ -106,23 +121,7 @@ export class AndroidEmulatorManager extends VirtualDeviceManager {
                         ),
                     ),
                 );
-            }, AndroidEmulatorManager.EMULATOR_START_TIMEOUT * 1000);
-
-            const bootCheckInterval = setInterval(async () => {
-                const connectedDevices = await this.adbHelper.getOnlineDevices();
-                if (connectedDevices.length > 0) {
-                    this.logger.info(
-                        localize("EmulatorLaunched", "Launched emulator {0}", emulatorName),
-                    );
-                    cleanup();
-                    resolve(connectedDevices[0].id);
-                }
-            }, 1000);
-
-            const cleanup = () => {
-                clearTimeout(rejectTimeout);
-                clearInterval(bootCheckInterval);
-            };
+            }
         });
     }
 

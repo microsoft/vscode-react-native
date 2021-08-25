@@ -38,7 +38,7 @@ export class PlistBuddy {
         this.nodeChildProcess = nodeChildProcess;
     }
 
-    public getBundleId(
+    public async getBundleId(
         platformProjectRoot: string,
         projectRoot: string,
         platform: PlatformType.iOS | PlatformType.macOS,
@@ -47,7 +47,7 @@ export class PlistBuddy {
         productName?: string,
         scheme?: string,
     ): Promise<string> {
-        return this.getExecutableAndConfigurationFolder(
+        const iOSBuildLocationData = await this.getExecutableAndConfigurationFolder(
             platformProjectRoot,
             projectRoot,
             platform,
@@ -55,17 +55,16 @@ export class PlistBuddy {
             configuration,
             productName,
             scheme,
-        ).then((iOSBuildLocationData: IOSBuildLocationData) => {
-            const infoPlistPath = path.join(
-                iOSBuildLocationData.configurationFolder,
-                iOSBuildLocationData.executable,
-                platform === PlatformType.iOS ? "Info.plist" : path.join("Contents", "Info.plist"),
-            );
-            return this.invokePlistBuddy("Print:CFBundleIdentifier", infoPlistPath);
-        });
+        );
+        const infoPlistPath = path.join(
+            iOSBuildLocationData.configurationFolder,
+            iOSBuildLocationData.executable,
+            platform === PlatformType.iOS ? "Info.plist" : path.join("Contents", "Info.plist"),
+        );
+        return await this.invokePlistBuddy("Print:CFBundleIdentifier", infoPlistPath);
     }
 
-    public getExecutableAndConfigurationFolder(
+    public async getExecutableAndConfigurationFolder(
         platformProjectRoot: string,
         projectRoot: string,
         platform: PlatformType.iOS | PlatformType.macOS,
@@ -74,110 +73,109 @@ export class PlistBuddy {
         productName?: string,
         scheme?: string,
     ): Promise<IOSBuildLocationData> {
-        return ProjectVersionHelper.getReactNativeVersions(projectRoot).then(rnVersions => {
-            let productsFolder;
-            if (semver.gte(rnVersions.reactNativeVersion, "0.59.0")) {
-                if (!scheme) {
-                    // If no scheme were provided via runOptions.scheme or via runArguments then try to get scheme using the way RN CLI does.
-                    scheme = this.getInferredScheme(
-                        platformProjectRoot,
-                        projectRoot,
-                        rnVersions.reactNativeVersion,
-                    );
-                    if (platform === PlatformType.macOS) {
-                        scheme = scheme + "-macOS";
-                    }
-                }
-                productsFolder = path.join(
+        const rnVersions = await ProjectVersionHelper.getReactNativeVersions(projectRoot);
+        let productsFolder;
+        if (semver.gte(rnVersions.reactNativeVersion, "0.59.0")) {
+            if (!scheme) {
+                // If no scheme were provided via runOptions.scheme or via runArguments then try to get scheme using the way RN CLI does.
+                scheme = this.getInferredScheme(
                     platformProjectRoot,
-                    "build",
-                    scheme,
-                    "Build",
-                    "Products",
+                    projectRoot,
+                    rnVersions.reactNativeVersion,
                 );
-            } else {
-                productsFolder = path.join(platformProjectRoot, "build", "Build", "Products");
-            }
-
-            let sdkType =
-                platform === PlatformType.iOS ? this.getSdkType(simulator, scheme) : undefined;
-            let configurationFolder = path.join(
-                productsFolder,
-                `${configuration}${sdkType ? `-${sdkType}` : ""}`,
-            );
-            let executable = "";
-            if (productName) {
-                executable = `${productName}.app`;
-                if (!fs.existsSync(path.join(configurationFolder, executable))) {
-                    const configurationData = this.getConfigurationData(
-                        projectRoot,
-                        rnVersions.reactNativeVersion,
-                        platformProjectRoot,
-                        configuration,
-                        scheme,
-                        configurationFolder,
-                        sdkType,
-                    );
-
-                    configurationFolder = configurationData.configurationFolder;
+                if (platform === PlatformType.macOS) {
+                    scheme = scheme + "-macOS";
                 }
-            } else {
-                const executableList = this.findExecutable(configurationFolder);
-                if (!executableList.length) {
-                    const configurationData = this.getConfigurationData(
-                        projectRoot,
-                        rnVersions.reactNativeVersion,
-                        platformProjectRoot,
-                        configuration,
-                        scheme,
-                        configurationFolder,
-                        sdkType,
-                    );
-
-                    configurationFolder = configurationData.configurationFolder;
-                    executableList.push(configurationData.fullProductName);
-                } else if (executableList.length > 1) {
-                    throw ErrorHelper.getInternalError(
-                        InternalErrorCode.IOSFoundMoreThanOneExecutablesCleanupBuildFolder,
-                        configurationFolder,
-                    );
-                }
-                executable = `${executableList[0]}`;
             }
+            productsFolder = path.join(platformProjectRoot, "build", scheme, "Build", "Products");
+        } else {
+            productsFolder = path.join(platformProjectRoot, "build", "Build", "Products");
+        }
+        let sdkType =
+            platform === PlatformType.iOS ? this.getSdkType(simulator, scheme) : undefined;
+        let configurationFolder = path.join(
+            productsFolder,
+            `${configuration}${sdkType ? `-${sdkType}` : ""}`,
+        );
+        let executable = "";
+        if (productName) {
+            executable = `${productName}.app`;
+            if (!fs.existsSync(path.join(configurationFolder, executable))) {
+                const configurationData = this.getConfigurationData(
+                    projectRoot,
+                    rnVersions.reactNativeVersion,
+                    platformProjectRoot,
+                    configuration,
+                    scheme,
+                    configurationFolder,
+                    sdkType,
+                );
 
-            return {
-                executable,
-                configurationFolder,
-            };
-        });
+                configurationFolder = configurationData.configurationFolder;
+            }
+        } else {
+            const executableList = this.findExecutable(configurationFolder);
+            if (!executableList.length) {
+                const configurationData_1 = this.getConfigurationData(
+                    projectRoot,
+                    rnVersions.reactNativeVersion,
+                    platformProjectRoot,
+                    configuration,
+                    scheme,
+                    configurationFolder,
+                    sdkType,
+                );
+
+                configurationFolder = configurationData_1.configurationFolder;
+                executableList.push(configurationData_1.fullProductName);
+            } else if (executableList.length > 1) {
+                throw ErrorHelper.getInternalError(
+                    InternalErrorCode.IOSFoundMoreThanOneExecutablesCleanupBuildFolder,
+                    configurationFolder,
+                );
+            }
+            executable = `${executableList[0]}`;
+        }
+        return {
+            executable,
+            configurationFolder,
+        };
     }
 
-    public setPlistProperty(plistFile: string, property: string, value: string): Promise<void> {
+    public async setPlistProperty(
+        plistFile: string,
+        property: string,
+        value: string,
+    ): Promise<void> {
         // Attempt to set the value, and if it fails due to the key not existing attempt to create the key
-        return this.invokePlistBuddy(`Set ${property} ${value}`, plistFile)
-            .catch(() => this.invokePlistBuddy(`Add ${property} string ${value}`, plistFile))
-            .then(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
+        try {
+            await this.invokePlistBuddy(`Set ${property} ${value}`, plistFile);
+        } catch (e) {
+            await this.invokePlistBuddy(`Add ${property} string ${value}`, plistFile);
+        }
     }
 
-    public setPlistBooleanProperty(
+    public async setPlistBooleanProperty(
         plistFile: string,
         property: string,
         value: boolean,
     ): Promise<void> {
         // Attempt to set the value, and if it fails due to the key not existing attempt to create the key
-        return this.invokePlistBuddy(`Set ${property} ${value}`, plistFile)
-            .catch(() => this.invokePlistBuddy(`Add ${property} bool ${value}`, plistFile))
-            .then(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
+        try {
+            await this.invokePlistBuddy(`Set ${property} ${value}`, plistFile);
+        } catch (e) {
+            await this.invokePlistBuddy(`Add ${property} bool ${value}`, plistFile);
+        }
     }
 
-    public deletePlistProperty(plistFile: string, property: string): Promise<void> {
-        return this.invokePlistBuddy(`Delete ${property}`, plistFile)
-            .catch(err => {
-                if (!err.toString().toLowerCase().includes("does not exist")) {
-                    throw err;
-                }
-            })
-            .then(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
+    public async deletePlistProperty(plistFile: string, property: string): Promise<void> {
+        try {
+            await this.invokePlistBuddy(`Delete ${property}`, plistFile);
+        } catch (err) {
+            if (!err.toString().toLowerCase().includes("does not exist")) {
+                throw err;
+            }
+        }
     }
 
     public readPlistProperty(plistFile: string, property: string): Promise<string> {
@@ -331,13 +329,11 @@ export class PlistBuddy {
         });
     }
 
-    private invokePlistBuddy(command: string, plistFile: string): Promise<string> {
-        return this.nodeChildProcess
-            .exec(`${PlistBuddy.plistBuddyExecutable} -c '${command}' '${plistFile}'`)
-            .then(res =>
-                res.outcome.then((result: string) => {
-                    return result.toString().trim();
-                }),
-            );
+    private async invokePlistBuddy(command: string, plistFile: string): Promise<string> {
+        const res = await this.nodeChildProcess.exec(
+            `${PlistBuddy.plistBuddyExecutable} -c '${command}' '${plistFile}'`,
+        );
+        const outcome = await res.outcome;
+        return outcome.toString().trim();
     }
 }

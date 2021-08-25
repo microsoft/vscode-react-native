@@ -51,7 +51,7 @@ export class ReactNativeCDPProxy {
         this.debuggerEndpointHelper = new DebuggerEndpointHelper();
     }
 
-    public initializeServer(
+    public async initializeServer(
         CDPMessageHandler: BaseCDPMessageHandler,
         logLevel: LogLevel,
         cancellationToken?: CancellationToken,
@@ -60,10 +60,9 @@ export class ReactNativeCDPProxy {
         this.CDPMessageHandler = CDPMessageHandler;
         this.cancellationToken = cancellationToken;
 
-        return Server.create({ port: this.port, host: this.hostAddress }).then((server: Server) => {
-            this.server = server;
-            this.server.onConnection(this.onConnectionHandler.bind(this));
-        });
+        const server = await Server.create({ port: this.port, host: this.hostAddress });
+        this.server = server;
+        this.server.onConnection(this.onConnectionHandler.bind(this));
     }
 
     public async stopServer(): Promise<void> {

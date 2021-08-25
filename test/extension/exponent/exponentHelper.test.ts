@@ -12,7 +12,7 @@ suite("exponentHelper", function () {
 
     async function checkIsExpoApp(packageJson: any, expected: boolean) {
         let fs = new FileSystem();
-        sinon.stub(fs, "readFile", () => Promise.resolve(JSON.stringify(packageJson)));
+        sinon.stub(fs, "readFile", async () => JSON.stringify(packageJson));
         const expoHelper = new ExponentHelper(RESOURCES_ROOT, "", fs);
         const result = await expoHelper.isExpoApp(false);
         assert.strictEqual(result, expected);

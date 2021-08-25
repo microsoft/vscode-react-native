@@ -40,7 +40,7 @@ export class LogCatMonitor implements vscode.Disposable {
         this.adbHelper = adbHelper;
     }
 
-    public start(): Promise<void> {
+    public async start(): Promise<void> {
         const logCatArguments = this.getLogCatArguments();
         const adbParameters = ["-s", this.deviceId, "logcat"].concat(logCatArguments);
         this._logger.debug(
@@ -59,33 +59,30 @@ export class LogCatMonitor implements vscode.Disposable {
         this._logCatSpawn.stdout.on("data", (data: Buffer) => {
             filter.execute(() => this._logger.info(data.toString()));
         });
-        return this._logCatSpawn.outcome
-            .then(
-                () =>
-                    this._logger.info(
-                        localize(
-                            "LogCatMonitoringStoppedBecauseTheProcessExited",
-                            "LogCat monitoring stopped because the process exited.",
-                        ),
+
+        try {
+            await this._logCatSpawn.outcome;
+            this._logger.info(
+                localize(
+                    "LogCatMonitoringStoppedBecauseTheProcessExited",
+                    "LogCat monitoring stopped because the process exited.",
+                ),
+            );
+        } catch (error) {
+            if (!this._logCatSpawn) {
+                // We stopped log cat ourselves
+                this._logger.info(
+                    localize(
+                        "LogCatMonitoringStoppedBecauseTheDebuggingSessionFinished",
+                        "LogCat monitoring stopped because the debugging session finished",
                     ),
-                reason => {
-                    if (!this._logCatSpawn) {
-                        // We stopped log cat ourselves
-                        this._logger.info(
-                            localize(
-                                "LogCatMonitoringStoppedBecauseTheDebuggingSessionFinished",
-                                "LogCat monitoring stopped because the debugging session finished",
-                            ),
-                        );
-                        return Promise.resolve();
-                    } else {
-                        return Promise.reject(reason); // Unknown error. Pass it up the promise chain
-                    }
-                },
-            )
-            .finally(() => {
-                this._logCatSpawn = null;
-            });
+                );
+            } else {
+                throw error; // Unknown error. Pass it up the promise chain
+            }
+        } finally {
+            this._logCatSpawn = null;
+        }
     }
 
     public dispose(): void {

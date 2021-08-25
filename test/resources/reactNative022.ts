@@ -149,7 +149,7 @@ export class ReactNative022 {
 
     private installAppInAllDevices(): Promise<void> {
         let devices = this.adbHelper.getConnectedDevices();
-        return new PromiseUtil().reduce(devices, device => this.installAppInDevice(device.id));
+        return PromiseUtil.reduce(devices, device => this.installAppInDevice(device.id));
     }
 
     private installAppInDevice(deviceId: string): Promise<void> {

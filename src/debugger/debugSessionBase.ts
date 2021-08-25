@@ -117,7 +117,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         resolve?: (value?: void | PromiseLike<void> | undefined) => void,
     ): void;
 
-    protected initializeSettings(args: any): Promise<void> {
+    protected async initializeSettings(args: any): Promise<void> {
         if (!this.isSettingsInitialized) {
             let chromeDebugCoreLogs = getLoggingDirectory();
             if (chromeDebugCoreLogs) {
@@ -150,31 +150,25 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
             }
 
             const projectRootPath = getProjectRoot(args);
-
-            return ReactNativeProjectHelper.isReactNativeProject(projectRootPath).then(
-                (result: boolean) => {
-                    if (!result) {
-                        throw ErrorHelper.getInternalError(
-                            InternalErrorCode.NotInReactNativeFolderError,
-                        );
-                    }
-                    return AppLauncher.getOrCreateAppLauncherByProjectRootPath(
-                        projectRootPath,
-                    ).then((appLauncher: AppLauncher) => {
-                        this.appLauncher = appLauncher;
-                        this.projectRootPath = projectRootPath;
-                        this.isSettingsInitialized = true;
-                        this.appLauncher.getOrUpdateNodeModulesRoot(true);
-                        if (this.session.workspaceFolder) {
-                            this.appLauncher.updateDebugConfigurationRoot(
-                                this.session.workspaceFolder.uri.fsPath,
-                            );
-                        }
-                    });
-                },
+            const isReactProject = await ReactNativeProjectHelper.isReactNativeProject(
+                projectRootPath,
             );
-        } else {
-            return Promise.resolve();
+            if (!isReactProject) {
+                throw ErrorHelper.getInternalError(InternalErrorCode.NotInReactNativeFolderError);
+            }
+
+            const appLauncher = await AppLauncher.getOrCreateAppLauncherByProjectRootPath(
+                projectRootPath,
+            );
+            this.appLauncher = appLauncher;
+            this.projectRootPath = projectRootPath;
+            this.isSettingsInitialized = true;
+            this.appLauncher.getOrUpdateNodeModulesRoot(true);
+            if (this.session.workspaceFolder) {
+                this.appLauncher.updateDebugConfigurationRoot(
+                    this.session.workspaceFolder.uri.fsPath,
+                );
+            }
         }
     }
 

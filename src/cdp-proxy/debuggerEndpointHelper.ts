@@ -52,7 +52,7 @@ export class DebuggerEndpointHelper {
             }
 
             await PromiseUtil.delay(1000);
-            return await this.retryGetWSEndpoint(browserURL, --attemptNumber, cancellationToken);
+            return this.retryGetWSEndpoint(browserURL, --attemptNumber, cancellationToken);
         }
     }
 

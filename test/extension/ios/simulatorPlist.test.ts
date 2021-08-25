@@ -9,7 +9,7 @@ import * as sinon from "sinon";
 
 suite("plistBuddy", function () {
     suite("extensionContext", function () {
-        test("findPlistFile should correctly find the NSUserDefaults plist file for the simulator", function () {
+        test("findPlistFile should correctly find the NSUserDefaults plist file for the simulator", async function () {
             const projectRoot = path.join("/", "tmp");
             const iosProjectRoot = path.join(projectRoot, "myProject");
 
@@ -89,9 +89,8 @@ suite("plistBuddy", function () {
                 nodeChildProcess: mockChildProcess,
             });
 
-            return simulatorPlist.findPlistFile().then(plistFile => {
-                assert(plistFile === existingPlistFile, "Returned incorrect value");
-            });
+            const plistFile = await simulatorPlist.findPlistFile();
+            assert(plistFile === existingPlistFile, "Returned incorrect value");
         });
     });
 });

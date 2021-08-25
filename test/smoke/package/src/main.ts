@@ -44,9 +44,9 @@ startSmokeTests(configProcessor.parseTestArguments(), setUp, cleanUp);
 
 async function setUp(useCachedApplications: boolean): Promise<void> {
     await vscodeManager.downloadVSCodeExecutable();
-    await vscodeManager.installExtensionFromVSIX();
+    vscodeManager.installExtensionFromVSIX();
     await testApplicationSetupManager.prepareTestApplications(useCachedApplications);
-    await AppiumHelper.runAppium(vscodeManager.getAppiumLogDir());
+    AppiumHelper.runAppium(vscodeManager.getAppiumLogDir());
 
     SmokeTestLogger.info("*** Preparing Android emulator...");
     await androidEmulatorManager.runAndroidEmulator();

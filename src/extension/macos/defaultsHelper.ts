@@ -13,22 +13,20 @@ export class DefaultsHelper {
         this.nodeChildProcess = new Node.ChildProcess();
     }
 
-    public setPlistBooleanProperty(
+    public async setPlistBooleanProperty(
         plistFile: string,
         property: string,
         value: boolean,
     ): Promise<void> {
         // Attempt to set the value, and if it fails due to the key not existing attempt to create the key
-        return this.invokeDefaultsCommand(
+        await this.invokeDefaultsCommand(
             `write ${plistFile} ${this.DEV_MENU_SETTINGS} -dict-add ${property} -bool ${value}`,
-        ).then(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
+        );
     }
 
-    private invokeDefaultsCommand(command: string): Promise<string> {
-        return this.nodeChildProcess.exec(`defaults ${command}`).then(res =>
-            res.outcome.then((result: string) => {
-                return result.toString().trim();
-            }),
-        );
+    private async invokeDefaultsCommand(command: string): Promise<string> {
+        const res = await this.nodeChildProcess.exec(`defaults ${command}`);
+        const outcome = await res.outcome;
+        return outcome.toString().trim();
     }
 }

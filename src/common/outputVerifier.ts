@@ -31,46 +31,40 @@ export class OutputVerifier {
         this.platformName = platformName;
     }
 
-    public process(spawnResult: ISpawnResult): Promise<void> {
+    public async process(spawnResult: ISpawnResult): Promise<void> {
         // Store all output
         this.store(spawnResult.stdout, newContent => (this.output += newContent));
         this.store(spawnResult.stderr, newContent => (this.errors += newContent));
 
-        let processError: InternalError;
+        let processError: InternalError | undefined;
 
-        return spawnResult.outcome
-            .catch(error => {
-                processError = error;
-            })
-            .then(this.generatePatternToFailure)
-            .then(patterns => {
-                const patternsError = this.findAnyFailurePattern(patterns);
-                if (patternsError) {
-                    if (processError) {
-                        processError.message += "\n" + patternsError.message;
-                        return Promise.reject(processError);
-                    }
-                    return Promise.reject(patternsError);
-                } else {
-                    return this.generatePatternsForSuccess(); // If not we generate the success patterns
-                }
-            })
-            .then(successPatterns => {
-                if (processError) {
-                    return Promise.reject(processError);
-                }
-                if (!this.areAllSuccessPatternsPresent(successPatterns)) {
-                    // If we don't find all the success patterns, we also fail
-                    return Promise.reject(
-                        ErrorHelper.getInternalError(
-                            InternalErrorCode.NotAllSuccessPatternsMatched,
-                            this.platformName,
-                            this.platformName,
-                        ),
-                    );
-                } // else we found all the success patterns, so we succeed
-                return Promise.resolve();
-            });
+        try {
+            await spawnResult.outcome;
+        } catch (error) {
+            processError = error;
+        }
+
+        const failurePatterns = await this.generatePatternToFailure();
+        const patternsError = this.findAnyFailurePattern(failurePatterns);
+        if (patternsError) {
+            if (processError) {
+                processError.message += "\n" + patternsError.message;
+                throw processError;
+            }
+            throw patternsError;
+        } else if (processError) {
+            throw processError;
+        } else {
+            const successPatterns = await this.generatePatternsForSuccess(); // If not, we generate the success patterns
+            if (!this.areAllSuccessPatternsPresent(successPatterns)) {
+                // If we don't find all the success patterns, we also fail
+                throw ErrorHelper.getInternalError(
+                    InternalErrorCode.NotAllSuccessPatternsMatched,
+                    this.platformName,
+                    this.platformName,
+                );
+            } // else we found all the success patterns, so we succeed
+        }
     }
 
     private store(stream: NodeJS.ReadableStream, append: (newContent: string) => void) {

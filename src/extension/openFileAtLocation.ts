@@ -67,34 +67,31 @@ const localize = nls.loadMessageBundle();
         });
 }
 
-function getReactNativeWorkspaceForFile(file: string, workspace: string): Promise<string> {
+async function getReactNativeWorkspaceForFile(file: string, workspace: string): Promise<string> {
     if (workspace) {
-        return Promise.resolve(workspace);
+        return workspace;
     }
-    return getPathForRNParentWorkspace(path.dirname(file)).catch(reason => {
-        return Promise.reject<string>(
-            ErrorHelper.getNestedError(
-                reason,
-                InternalErrorCode.WorkspaceNotFound,
-                `Error while looking at workspace for file: ${file}.`,
-            ),
+    try {
+        return await getPathForRNParentWorkspace(path.dirname(file));
+    } catch (reason) {
+        throw ErrorHelper.getNestedError(
+            reason,
+            InternalErrorCode.WorkspaceNotFound,
+            `Error while looking at workspace for file: ${file}.`,
         );
-    });
+    }
 }
 
-function getPathForRNParentWorkspace(dir: string): Promise<string> {
-    return ReactNativeProjectHelper.isReactNativeProject(dir).then(isRNProject => {
-        if (isRNProject) {
-            return dir;
-        }
-        if (dir === "" || dir === "." || dir === "/" || dir === path.dirname(dir)) {
-            return Promise.reject<string>(
-                ErrorHelper.getInternalError(
-                    InternalErrorCode.WorkspaceNotFound,
-                    "React Native project workspace not found.",
-                ),
-            );
-        }
-        return getPathForRNParentWorkspace(path.dirname(dir));
-    });
+async function getPathForRNParentWorkspace(dir: string): Promise<string> {
+    const isRNProject = await ReactNativeProjectHelper.isReactNativeProject(dir);
+    if (isRNProject) {
+        return dir;
+    }
+    if (dir === "" || dir === "." || dir === "/" || dir === path.dirname(dir)) {
+        throw ErrorHelper.getInternalError(
+            InternalErrorCode.WorkspaceNotFound,
+            "React Native project workspace not found.",
+        );
+    }
+    return getPathForRNParentWorkspace(path.dirname(dir));
 }

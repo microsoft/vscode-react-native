@@ -94,7 +94,7 @@ export class Simulator {
     }
 
     public simulateAllEvents(events: IEventArguments[]): Promise<void> {
-        return new PromiseUtil().reduce(events, (event: IEventArguments) =>
+        return PromiseUtil.reduce(events, (event: IEventArguments) =>
             this.simulateSingleEvent(event),
         );
     }
@@ -143,7 +143,7 @@ export class Simulator {
         // Sort by index, so the action matching the earlier text gets executed first
         applicableSideEffectDefinitions.sort((a, b) => a.index - b.index);
 
-        return new PromiseUtil().reduce(applicableSideEffectDefinitions, definition =>
+        return PromiseUtil.reduce(applicableSideEffectDefinitions, definition =>
             definition.definition.action(),
         );
     }

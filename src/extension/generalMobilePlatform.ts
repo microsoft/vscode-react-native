@@ -59,73 +59,62 @@ export class GeneralMobilePlatform {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    public resolveVirtualDevice(target: string): Promise<IVirtualDevice | null> {
-        return Promise.resolve(null);
+    public async resolveVirtualDevice(target: string): Promise<IVirtualDevice | null> {
+        return null;
     }
 
-    public runApp(): Promise<void> {
+    public async runApp(): Promise<void> {
         this.logger.info(
             localize(
                 "ConnectedToPackager",
                 "Connected to packager. You can now open your app in the simulator.",
             ),
         );
-        return Promise.resolve();
     }
 
-    public enableJSDebuggingMode(): Promise<void> {
+    public async enableJSDebuggingMode(): Promise<void> {
         this.logger.info(
             localize(
                 "DebuggerReadyEnableRemoteDebuggingInApp",
                 "Debugger ready. Enable remote debugging in app.",
             ),
         );
-        return Promise.resolve();
     }
 
-    public disableJSDebuggingMode(): Promise<void> {
+    public async disableJSDebuggingMode(): Promise<void> {
         this.logger.info(
             localize(
                 "DebuggerReadyDisableRemoteDebuggingInApp",
                 "Debugger ready. Disable remote debugging in app.",
             ),
         );
-        return Promise.resolve();
     }
 
-    public beforeStartPackager(): Promise<void> {
-        return Promise.resolve();
+    public async beforeStartPackager(): Promise<void> {
+        return;
     }
 
-    public startPackager(): Promise<void> {
+    public async startPackager(): Promise<void> {
         this.logger.info(
             localize("StartingReactNativePackager", "Starting React Native Packager."),
         );
-        return this.packager
-            .isRunning()
-            .then(running => {
-                if (running) {
-                    if (this.packager.getPackagerStatus() !== PackagerStatus.PACKAGER_STARTED) {
-                        return this.packager.stop();
-                    }
-
-                    this.logger.info(
-                        localize(
-                            "AttachingToRunningReactNativePackager",
-                            "Attaching to running React Native packager",
-                        ),
-                    );
-                }
-                return void 0;
-            })
-            .then(() => {
-                return this.packager.start();
-            });
+        if (await this.packager.isRunning()) {
+            if (this.packager.getPackagerStatus() !== PackagerStatus.PACKAGER_STARTED) {
+                await this.packager.stop();
+            }
+            this.logger.info(
+                localize(
+                    "AttachingToRunningReactNativePackager",
+                    "Attaching to running React Native packager",
+                ),
+            );
+        }
+        await this.packager.start();
     }
 
-    public prewarmBundleCache(): Promise<void> {
+    public async prewarmBundleCache(): Promise<void> {
         // generalMobilePlatform should do nothing here. Method should be overriden by children for specific behavior.
-        return Promise.resolve();
+        return;
     }
 
     public static removeRunArgument(runArguments: any[], optName: string, binary: boolean): void {

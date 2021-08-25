@@ -13,7 +13,7 @@ export abstract class BaseConfigProvider {
         this.configurationProviderHelper = new ConfigurationProviderHelper();
     }
 
-    public abstract async buildConfiguration(
+    public abstract buildConfiguration(
         input: MultiStepInput<DebugConfigurationState>,
         state: DebugConfigurationState,
     ): Promise<InputStep<DebugConfigurationState> | void>;
