@@ -14,9 +14,10 @@ import stripJSONComments = require("strip-json-comments");
 import * as nls from "vscode-nls";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { getNodeModulesGlobalPath } from "../../common/utils";
-import { PackageLoader } from "../../common/packageLoader";
+import { PackageLoader, PackageConfig } from "../../common/packageLoader";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { FileSystem } from "../../common/node/fileSystem";
+import { SettingsHelper } from "../settingsHelper";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -209,9 +210,12 @@ export class ExponentHelper {
             .catch(() => false)
             .then(ngrokInstalled => {
                 if (!ngrokInstalled) {
+                    const ngrokVersion = SettingsHelper.getExpoDependencyVersion("ngrok");
+
                     const outputMessage = localize(
                         "ExpoInstallNgrokGlobally",
-                        'It seems that "@expo/ngrok" package isn\'t installed globally. This package is required to use Expo tunnels, would you like to install it globally?',
+                        'It seems that "@expo/ngrok{0}" package isn\'t installed globally. This package is required to use Expo tunnels, would you like to install it globally?',
+                        ngrokVersion ? `@${ngrokVersion}` : "",
                     );
                     const installButton = localize("InstallNgrokGloballyButtonOK", "Install");
                     const cancelButton = localize("InstallNgrokGloballyButtonCancel", "Cancel");
@@ -221,7 +225,10 @@ export class ExponentHelper {
                         .then(selectedItem => {
                             if (selectedItem === installButton) {
                                 return PackageLoader.getInstance()
-                                    .installGlobalPackage(NGROK_PACKAGE, this.projectRootPath)
+                                    .installGlobalPackage(
+                                        new PackageConfig(NGROK_PACKAGE, ngrokVersion),
+                                        this.projectRootPath,
+                                    )
                                     .then(() => {
                                         this.logger.info(
                                             localize(

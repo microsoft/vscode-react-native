@@ -61,13 +61,13 @@ export class PackageLoader {
         return this.instance;
     }
 
-    public installGlobalPackage(packageName: string, projectRoot: string): Promise<void> {
+    public installGlobalPackage(packageConfig: PackageConfig, projectRoot: string): Promise<void> {
         const nodeModulesRoot: string = AppLauncher.getNodeModulesRootByProjectPath(projectRoot);
         const commandExecutor = new CommandExecutor(nodeModulesRoot, projectRoot, this.logger);
 
         return commandExecutor.spawnWithProgress(
             HostPlatform.getNpmCliCommand("npm"),
-            ["install", "-g", packageName, "--verbose"],
+            ["install", "-g", packageConfig.getStringForInstall(), "--verbose"],
             {
                 verbosity: CommandVerbosity.PROGRESS,
             },
