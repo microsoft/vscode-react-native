@@ -793,6 +793,12 @@
           "default": "0.1.83",
           "scope": "resource"
         },
+        "react-native.expo.dependencies.ngrok": {
+          "description": "%reactNative.configuration.properties.react-native.expo.dependencies.ngrok.description%",
+          "type": "string",
+          "default": "^4.1.0",
+          "scope": "resource"
+        },
         "react-native-tools.showUserTips": {
           "description": "%reactNative.configuration.properties.react-native-tools.showUserTips.description%",
           "type": "boolean",
