@@ -14,7 +14,7 @@ import stripJSONComments = require("strip-json-comments");
 import * as nls from "vscode-nls";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { getNodeModulesGlobalPath } from "../../common/utils";
-import { PackageLoader } from "../../common/packageLoader";
+import { PackageLoader, PackageConfig } from "../../common/packageLoader";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { FileSystem } from "../../common/node/fileSystem";
 import { SettingsHelper } from "../settingsHelper";
@@ -210,12 +210,12 @@ export class ExponentHelper {
             .catch(() => false)
             .then(ngrokInstalled => {
                 if (!ngrokInstalled) {
-                    const version = SettingsHelper.getExpoDependencyVersion("ngrok");
+                    const ngrokVersion = SettingsHelper.getExpoDependencyVersion("ngrok");
 
                     const outputMessage = localize(
                         "ExpoInstallNgrokGlobally",
                         'It seems that "@expo/ngrok{0}" package isn\'t installed globally. This package is required to use Expo tunnels, would you like to install it globally?',
-                        version ? `@${version}` : "",
+                        ngrokVersion ? `@${ngrokVersion}` : "",
                     );
                     const installButton = localize("InstallNgrokGloballyButtonOK", "Install");
                     const cancelButton = localize("InstallNgrokGloballyButtonCancel", "Cancel");
@@ -226,7 +226,7 @@ export class ExponentHelper {
                             if (selectedItem === installButton) {
                                 return PackageLoader.getInstance()
                                     .installGlobalPackage(
-                                        `${NGROK_PACKAGE}${version ? `@${version}` : ""}`,
+                                        new PackageConfig(NGROK_PACKAGE, ngrokVersion),
                                         this.projectRootPath,
                                     )
                                     .then(() => {
