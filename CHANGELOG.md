@@ -4,6 +4,7 @@
 * Fixed typos in error messages, thanks to [Alexander Sklar(@asklar)](https://github.com/asklar) [#1648](https://github.com/microsoft/vscode-react-native/pull/1648)
 * Enhanced documentation about extension commands usage [#1649](https://github.com/microsoft/vscode-react-native/pull/1649)
 * Improved tips notifications functionality [#1642](https://github.com/microsoft/vscode-react-native/pull/1642)
+* Added a settings parameter for controlling the version of the `@expo/ngrok` package [#1652](https://github.com/microsoft/vscode-react-native/pull/1652)
 * Improved extension security [#1635](https://github.com/microsoft/vscode-react-native/pull/1635), [#1640](https://github.com/microsoft/vscode-react-native/pull/1640), [#1641](https://github.com/microsoft/vscode-react-native/pull/1641)
 
 
