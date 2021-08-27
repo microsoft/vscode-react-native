@@ -13,7 +13,7 @@ import TestProject from "./helpers/testProject";
 import AutomationHelper from "./helpers/AutomationHelper";
 
 const RNWDebugConfigName = "Debug RN Wind";
-const RNWHermesDebugConfigName = "Debug Windows Hermes - Experimental";
+const RNWHermesDebugConfigName = "Debug RN Wind Hermes - Experimental";
 
 const RNwindowsSetBreakpointOnLine = 1;
 const RNwindowsHermesSetBreakpointOnLine = 15;

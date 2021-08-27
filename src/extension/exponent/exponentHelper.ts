@@ -211,11 +211,12 @@ export class ExponentHelper {
             .then(ngrokInstalled => {
                 if (!ngrokInstalled) {
                     const ngrokVersion = SettingsHelper.getExpoDependencyVersion("ngrok");
+                    const ngrokPackageConfig = new PackageConfig(NGROK_PACKAGE, ngrokVersion);
 
                     const outputMessage = localize(
                         "ExpoInstallNgrokGlobally",
-                        'It seems that "@expo/ngrok{0}" package isn\'t installed globally. This package is required to use Expo tunnels, would you like to install it globally?',
-                        ngrokVersion ? `@${ngrokVersion}` : "",
+                        'It seems that "{0}" package isn\'t installed globally. This package is required to use Expo tunnels, would you like to install it globally?',
+                        ngrokPackageConfig.getStringForInstall(),
                     );
                     const installButton = localize("InstallNgrokGloballyButtonOK", "Install");
                     const cancelButton = localize("InstallNgrokGloballyButtonCancel", "Cancel");
@@ -225,21 +226,20 @@ export class ExponentHelper {
                         .then(selectedItem => {
                             if (selectedItem === installButton) {
                                 return PackageLoader.getInstance()
-                                    .installGlobalPackage(
-                                        new PackageConfig(NGROK_PACKAGE, ngrokVersion),
-                                        this.projectRootPath,
-                                    )
+                                    .installGlobalPackage(ngrokPackageConfig, this.projectRootPath)
                                     .then(() => {
                                         this.logger.info(
                                             localize(
                                                 "NgrokInstalledGlobally",
-                                                '"@expo/ngrok" package has been successfully installed globally.',
+                                                '"{0}" package has been successfully installed globally.',
+                                                ngrokPackageConfig.getStringForInstall(),
                                             ),
                                         );
                                     });
                             }
                             throw ErrorHelper.getInternalError(
                                 InternalErrorCode.NgrokIsNotInstalledGlobally,
+                                ngrokPackageConfig.getVersion(true),
                             );
                         });
                 }
