@@ -1,3 +1,13 @@
+## 1.6.1
+* Improved error logging on debugging [#1633](https://github.com/microsoft/vscode-react-native/pull/1633)
+* Improved parsing of `sdk.dir` parameter in Android `local.properties` [#1643](https://github.com/microsoft/vscode-react-native/pull/1643)
+* Fixed typos in error messages, thanks to [Alexander Sklar(@asklar)](https://github.com/asklar) [#1648](https://github.com/microsoft/vscode-react-native/pull/1648)
+* Enhanced documentation about extension commands usage [#1649](https://github.com/microsoft/vscode-react-native/pull/1649)
+* Improved tips notifications functionality [#1642](https://github.com/microsoft/vscode-react-native/pull/1642)
+* Added a settings parameter for controlling the version of the `@expo/ngrok` package [#1652](https://github.com/microsoft/vscode-react-native/pull/1652)
+* Improved extension security [#1635](https://github.com/microsoft/vscode-react-native/pull/1635), [#1640](https://github.com/microsoft/vscode-react-native/pull/1640), [#1641](https://github.com/microsoft/vscode-react-native/pull/1641)
+
+
 ## 1.6.0
 * Added support of debugging of React Native for Windows Hermes applications: [more info](https://github.com/microsoft/vscode-react-native#windows-hermes-debugging) [#1624](https://github.com/microsoft/vscode-react-native/pull/1624)
 * Added tips about rarely used extension features [#1610](https://github.com/microsoft/vscode-react-native/pull/1610)
