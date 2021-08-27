@@ -208,7 +208,7 @@ export const ERROR_STRINGS = {
     ),
     [InternalErrorCode.NgrokIsNotInstalledGlobally]: localize(
         "NgrokIsNotInstalledGlobally",
-        'It seems that "@expo/ngrok" package isn\'t installed globally. This package is required to use Expo tunnels. Please run "npm i -g @expo/ngrok" to install it globally.',
+        'It seems that "@expo/ngrok{0}" package isn\'t installed globally. This package is required to use Expo tunnels. Please run "npm i -g @expo/ngrok{0}" to install it globally.',
     ),
     [InternalErrorCode.CannotAttachToPackagerCheckPackagerRunningOnPort]: localize(
         "CannotAttachToPackagerCheckPackagerRunningOnPort",
