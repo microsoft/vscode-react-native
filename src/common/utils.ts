@@ -3,11 +3,12 @@
 import * as path from "path";
 import { ChildProcess } from "./node/childProcess";
 import { HostPlatform } from "./hostPlatform";
+import customRequire from "./customRequire";
 
 export function removeModuleFromRequireCacheByName(moduleName: string): void {
-    const moduleKey = Object.keys(require.cache).find(key => key.includes(moduleName));
+    const moduleKey = Object.keys(customRequire.cache).find(key => key.includes(moduleName));
     if (moduleKey) {
-        delete require.cache[moduleKey];
+        delete customRequire.cache[moduleKey];
     }
 }
 
