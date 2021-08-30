@@ -4,6 +4,13 @@ import * as path from "path";
 import { ChildProcess } from "./node/childProcess";
 import { HostPlatform } from "./hostPlatform";
 
+export function removeModuleFromRequireCacheByName(moduleName: string): void {
+    const moduleKey = Object.keys(require.cache).find(key => key.includes(moduleName));
+    if (moduleKey) {
+        delete require.cache[moduleKey];
+    }
+}
+
 export function getNodeModulesGlobalPath(): Promise<string> {
     const childProcess = new ChildProcess();
     return childProcess.execToString(`${HostPlatform.getNpmCliCommand("npm")} root -g`);
