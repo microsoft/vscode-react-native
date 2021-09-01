@@ -95,7 +95,10 @@ export class TipNotificationService implements vscode.Disposable {
             this.cancellationTokenSource,
         );
         this.showTips = SettingsHelper.getShowTips();
-        this.logger = OutputChannelLogger.getChannel(this.TIPS_NOTIFICATIONS_LOG_CHANNEL_NAME);
+        this.logger = OutputChannelLogger.getChannel(
+            this.TIPS_NOTIFICATIONS_LOG_CHANNEL_NAME,
+            true,
+        );
     }
 
     public async showTipNotification(
@@ -153,6 +156,46 @@ export class TipNotificationService implements vscode.Disposable {
         }
 
         ExtensionConfigManager.config.set(this.TIPS_CONFIG_NAME, this.tipsConfig);
+    }
+
+    public updateTipsConfig(): void {
+        if (!ExtensionConfigManager.config.has(this.TIPS_CONFIG_NAME)) {
+            return;
+        }
+
+        const tipsConfig = this.tipsConfig;
+
+        tipsConfig.tips.generalTips = this.updateConfigTipsFromStorage(
+            tipsStorage.generalTips,
+            tipsConfig.tips.generalTips,
+        );
+
+        tipsConfig.tips.specificTips = this.updateConfigTipsFromStorage(
+            tipsStorage.specificTips,
+            tipsConfig.tips.specificTips,
+        );
+
+        this._tipsConfig = tipsConfig;
+        ExtensionConfigManager.config.set(this.TIPS_CONFIG_NAME, tipsConfig);
+    }
+
+    private updateConfigTipsFromStorage(
+        storageTips: Record<string, unknown>,
+        configTips: Tips,
+    ): Tips {
+        for (let key in configTips) {
+            if (!(key in storageTips)) {
+                delete configTips[key];
+            }
+        }
+
+        for (let key in storageTips) {
+            if (!(key in configTips)) {
+                configTips[key] = {};
+            }
+        }
+
+        return configTips;
     }
 
     private get tipsConfig(): TipsConfig {

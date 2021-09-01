@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import { join as pathJoin } from "path";
 import * as XDLPackage from "xdl";
 import * as MetroConfigPackage from "metro-config";
 import { PackageLoader, PackageConfig } from "../../common/packageLoader";
+import { removeModuleFromRequireCacheByName } from "../../common/utils";
 import { SettingsHelper } from "../settingsHelper";
 
 const XDL_PACKAGE = "xdl";
@@ -134,9 +136,18 @@ export async function getMetroConfig(
 
 export async function isNgrokInstalled(projectRoot: string): Promise<boolean> {
     const ngrokResolver = await getNgrokResolver();
-    const ngrok = await ngrokResolver.resolveNgrokAsync(projectRoot, {
-        shouldPrompt: false,
-        autoInstall: false,
-    });
-    return !!ngrok;
+    try {
+        const ngrok = await ngrokResolver.resolveNgrokAsync(projectRoot, {
+            shouldPrompt: false,
+            autoInstall: false,
+        });
+        return !!ngrok;
+    } catch (err) {
+        // If unsupported version of the "@expo/ngrok" package was detected, we need to update the package.
+        // Since the "require" method used to parse the "ngrok⁄package.json" file in the "xdl" package caches
+        // all processed modules, we have to remove this file from cache to be able to require a new version
+        // of that file after the update of the "@expo/ngrok" package
+        removeModuleFromRequireCacheByName(pathJoin("ngrok", "package.json"));
+        throw err;
+    }
 }

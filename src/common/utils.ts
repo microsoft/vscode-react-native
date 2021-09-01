@@ -3,6 +3,14 @@
 import * as path from "path";
 import { ChildProcess } from "./node/childProcess";
 import { HostPlatform } from "./hostPlatform";
+import customRequire from "./customRequire";
+
+export function removeModuleFromRequireCacheByName(moduleName: string): void {
+    const moduleKey = Object.keys(customRequire.cache).find(key => key.includes(moduleName));
+    if (moduleKey) {
+        delete customRequire.cache[moduleKey];
+    }
+}
 
 export function getNodeModulesGlobalPath(): Promise<string> {
     const childProcess = new ChildProcess();

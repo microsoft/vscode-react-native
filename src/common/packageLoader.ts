@@ -26,12 +26,15 @@ export class PackageConfig {
     public getRequirePath(): string | undefined {
         return this.requirePath;
     }
-    public getVersion(): string | undefined {
+    public getVersion(withPrefix = false): string | undefined {
+        if (withPrefix) {
+            return this.version ? `@${this.version}` : "";
+        }
         return this.version;
     }
 
     public getStringForInstall(): string {
-        return this.packageName + (this.version ? `@${this.version}` : "");
+        return this.packageName + this.getVersion(true);
     }
 
     public getStringForRequire(): string {
@@ -61,13 +64,13 @@ export class PackageLoader {
         return this.instance;
     }
 
-    public installGlobalPackage(packageName: string, projectRoot: string): Promise<void> {
+    public installGlobalPackage(packageConfig: PackageConfig, projectRoot: string): Promise<void> {
         const nodeModulesRoot: string = AppLauncher.getNodeModulesRootByProjectPath(projectRoot);
         const commandExecutor = new CommandExecutor(nodeModulesRoot, projectRoot, this.logger);
 
         return commandExecutor.spawnWithProgress(
             HostPlatform.getNpmCliCommand("npm"),
-            ["install", "-g", packageName, "--verbose"],
+            ["install", "-g", packageConfig.getStringForInstall(), "--verbose"],
             {
                 verbosity: CommandVerbosity.PROGRESS,
             },
