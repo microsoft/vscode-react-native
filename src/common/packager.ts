@@ -437,6 +437,7 @@ export class Packager {
                 JS_INJECTOR_FILEPATH,
                 path.resolve(path.dirname(destnFilePath), JS_INJECTOR_FILENAME),
             );
+            // Write/over-write the "main" attribute with the new file
             return opnPackage.setMainFile(JS_INJECTOR_FILENAME);
         }
     }

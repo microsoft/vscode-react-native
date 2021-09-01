@@ -213,7 +213,6 @@ export class MacOSPlatform extends GeneralMobilePlatform {
             if (processData) {
                 const match = processIdRgx.exec(processData.trim());
                 if (match && match[1]) {
-                    // eslint-disable-next-line @typescript-eslint/no-empty-function
                     await childProcess.execToString(`kill ${match[1]}`);
                 }
             }

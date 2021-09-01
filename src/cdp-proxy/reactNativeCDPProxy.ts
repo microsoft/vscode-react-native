@@ -60,8 +60,7 @@ export class ReactNativeCDPProxy {
         this.CDPMessageHandler = CDPMessageHandler;
         this.cancellationToken = cancellationToken;
 
-        const server = await Server.create({ port: this.port, host: this.hostAddress });
-        this.server = server;
+        this.server = await Server.create({ port: this.port, host: this.hostAddress });
         this.server.onConnection(this.onConnectionHandler.bind(this));
     }
 

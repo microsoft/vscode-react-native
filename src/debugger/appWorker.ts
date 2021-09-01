@@ -258,6 +258,7 @@ function fetch(url) {
         );
 
         await ensurePackagerRunning(this.packagerAddress, this.packagerPort, errPackagerNotRunning);
+        // Don't fetch debugger worker on socket disconnect
         if (!retryAttempt) {
             await this.downloadAndPatchDebuggerWorker();
         }
