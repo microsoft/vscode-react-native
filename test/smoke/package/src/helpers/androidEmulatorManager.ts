@@ -165,7 +165,7 @@ export default class AndroidEmulatorManager {
         });
         const result = await this.waitUntilEmulatorStarting();
         // Waiting for all services to start
-        await sleep(60000);
+        await sleep(60_000);
         return result;
     }
 
