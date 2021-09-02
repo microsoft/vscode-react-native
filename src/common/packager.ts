@@ -397,11 +397,7 @@ export class Packager {
                 possiblePaths.map(async fsPath => ((await fsHelper.exists(fsPath)) ? fsPath : "")),
             );
             const packagePath = paths.find(fsPath => {
-                if (fsPath) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return !!fsPath;
             });
             if (packagePath) {
                 return packagePath;
