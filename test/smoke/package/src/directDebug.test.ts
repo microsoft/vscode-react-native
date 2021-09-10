@@ -41,9 +41,10 @@ export function startDirectDebugTests(
             sessionName?: string,
             locale?: string,
         ): Promise<Application> {
-            app = await vscodeManager.runVSCode(workspaceOrFolder, sessionName, locale);
-            automationHelper = new AutomationHelper(app);
-            return app;
+            const application: Application = await vscodeManager.runVSCode(workspaceOrFolder, sessionName, locale);
+            automationHelper = new AutomationHelper(application);
+            app = application;
+            return application;
         }
 
         async function disposeAll() {
