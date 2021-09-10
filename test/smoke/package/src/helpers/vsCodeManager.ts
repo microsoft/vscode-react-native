@@ -8,7 +8,7 @@ import {
     MultiLogger,
     Logger,
     ConsoleLogger,
-    } from "../../automation";
+} from "../../automation";
 import * as fs from "fs";
 import * as path from "path";
 import * as cp from "child_process";
