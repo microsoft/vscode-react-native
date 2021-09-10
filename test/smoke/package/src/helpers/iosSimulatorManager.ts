@@ -225,7 +225,7 @@ export default class IosSimulatorManager {
 
         let awaitRetries: number = IosSimulatorManager.APP_INSTALL_AND_BUILD_TIMEOUT / 1000;
         let retry = 1;
-        await new Promise((resolve, reject) => {
+        await new Promise<void>((resolve, reject) => {
             const check = setInterval(async () => {
                 if (retry % 5 === 0) {
                     SmokeTestLogger.info(

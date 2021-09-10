@@ -1,6 +1,7 @@
 {
 	"compilerOptions": {
 		"module": "commonjs",
+		"skipLibCheck": true,
 		"noImplicitAny": false,
 		"removeComments": false,
 		"preserveConstEnums": true,
@@ -13,7 +14,7 @@
 		"lib": [
 			"es2017",
 			"dom"
-		]
+		],
 	},
 	"exclude": [
 		"node_modules",

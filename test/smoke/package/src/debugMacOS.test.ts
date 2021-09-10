@@ -1,12 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+//@ts-expect-error import not yet compiled module
+import { Application } from "../../automation";
 import * as assert from "assert";
 import * as cp from "child_process";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { vscodeManager } from "./main";
 import { sleep } from "./helpers/utilities";
-import { Application } from "../../automation";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 import { TestRunArguments } from "./helpers/testConfigProcessor";
 import TestProject from "./helpers/testProject";

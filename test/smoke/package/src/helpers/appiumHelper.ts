@@ -11,7 +11,7 @@ import * as clipboardy from "clipboardy";
 import { SmokeTestLogger } from "./smokeTestLogger";
 
 let appiumProcess: null | cp.ChildProcess;
-export type AppiumClient = wdio.BrowserObject;
+export type AppiumClient = wdio.Browser<"async">;
 export enum Platform {
     Android = "Android",
     AndroidExpo = "AndroidExpo",
@@ -191,7 +191,7 @@ export class AppiumHelper {
         };
     }
 
-    public static webdriverAttach(attachArgs: wdio.RemoteOptions): Promise<wdio.BrowserObject> {
+    public static webdriverAttach(attachArgs: wdio.RemoteOptions): Promise<AppiumClient> {
         // Connect to the emulator with predefined opts
         return wdio.remote(attachArgs);
     }

@@ -205,7 +205,7 @@ export function toRequestOptions(url: string, token: string | null, headers?: an
 
 // Await function
 export async function sleep(time: number): Promise<void> {
-    await new Promise(resolve => {
+    await new Promise<void>(resolve => {
         const timer = setTimeout(() => {
             clearTimeout(timer);
             resolve();
