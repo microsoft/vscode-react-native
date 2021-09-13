@@ -47,7 +47,7 @@ export function startDebugScenariosCreationTests(project: TestProject): void {
             SmokeTestLogger.info(
                 "Debugging scenarios creation test: click on the Add Configuration button and React Native option",
             );
-            await app.workbench.debug.addConfiguration();
+            await automationHelper.addConfigurationWithRetry();
         });
 
         describe("Add Run scenarios", () => {

@@ -8,11 +8,12 @@ export interface IStackFrame {
     name: string;
     lineNumber: number;
 }
-
+//*[@id="workbench.parts.editor"]/div[1]/div[2]/div/div/div/div[2]/div[1]/div/div/div[5]/div/div/div[2]/div[3]
 const DISCONNECT = `.debug-toolbar .action-label[title*="Disconnect"]`;
 const TOOLBAR_HIDDEN = `.debug-toolbar[aria-hidden="true"]`;
 const NOT_DEBUG_STATUS_BAR = `.statusbar:not(debugging)`;
 const STOP = `.debug-toolbar .action-label[title*="Stop"]`;
+const SUGGEST_WIDGET_VISIBLE = `.editor-widget .suggest-widget .visible`;
 
 export default class AutomationHelper {
     constructor(private app: Application) {}
@@ -49,7 +50,7 @@ export default class AutomationHelper {
         retryCount: number = 3,
         pollRetryCount: number = 3,
         pollRetryInterval: number = 1000,
-    ): Promise<any> {
+    ): Promise<void> {
         const fun = async () => await this.app.workbench.quickaccess.openFile(fileName);
         const catchFun = async () => await this.app.workbench.code.dispatchKeybinding("escape");
         await this.retryWithSpecifiedPollRetryParameters(
@@ -66,7 +67,7 @@ export default class AutomationHelper {
         retryCount: number = 3,
         pollRetryCount: number = 3,
         pollRetryInterval: number = 1000,
-    ): Promise<any> {
+    ): Promise<void> {
         const fun = async () => await this.app.workbench.quickaccess.runCommand(commandId);
         const catchFun = async () => await this.app.workbench.code.dispatchKeybinding("escape");
         await this.retryWithSpecifiedPollRetryParameters(
@@ -104,7 +105,7 @@ export default class AutomationHelper {
         retryCount: number = 3,
         pollRetryCount: number = 30,
         pollRetryInterval: number = 1000,
-    ): Promise<any> {
+    ): Promise<void> {
         const fun = async () => {
             await this.app.workbench.quickaccess.runDebugScenario(scenario, index);
             await this.app.workbench.debug.waitForDebugToolbarExist();
@@ -126,7 +127,7 @@ export default class AutomationHelper {
         pollRetryCount: number = 30,
         pollRetryInterval: number = 1000,
         beforeWaitForStackFrame?: () => Promise<any>,
-    ): Promise<any> {
+    ): Promise<void> {
         const fun = async () => {
             if (beforeWaitForStackFrame) {
                 await beforeWaitForStackFrame();
@@ -168,7 +169,7 @@ export default class AutomationHelper {
         retryCount: number = 3,
         pollRetryCount: number = 10,
         pollRetryInterval: number = 1000,
-    ): Promise<any> {
+    ): Promise<void> {
         const fun = async () => {
             try {
                 await Promise.race([
@@ -191,7 +192,7 @@ export default class AutomationHelper {
         retryCount: number = 3,
         pollRetryCount: number = 10,
         pollRetryInterval: number = 1000,
-    ): Promise<any> {
+    ): Promise<void> {
         const fun = async () => {
             await this.app.workbench.code.waitAndClick(STOP);
             await this.app.workbench.code.waitForElement(TOOLBAR_HIDDEN);
@@ -209,7 +210,7 @@ export default class AutomationHelper {
         retryCount: number = 3,
         pollRetryCount: number = 10,
         pollRetryInterval: number = 1000,
-    ): Promise<any> {
+    ): Promise<void> {
         const fun = async () => {
             await this.app.workbench.debug.openDebugViewlet();
             await this.app.workbench.debug.configure();
@@ -222,6 +223,23 @@ export default class AutomationHelper {
             pollRetryCount,
             pollRetryInterval,
             catchFun,
+        );
+    }
+
+    public async addConfigurationWithRetry(
+        retryCount: number = 3,
+        pollRetryCount: number = 10,
+        pollRetryInterval: number = 1000,
+    ): Promise<void> {
+        const fun = async () => {
+            await this.app.workbench.debug.addConfiguration();
+            await this.app.workbench.code.waitForElement(SUGGEST_WIDGET_VISIBLE);
+        };
+        await this.retryWithSpecifiedPollRetryParameters(
+            fun,
+            retryCount,
+            pollRetryCount,
+            pollRetryInterval,
         );
     }
 }
