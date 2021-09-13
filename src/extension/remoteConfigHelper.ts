@@ -20,8 +20,7 @@ export async function retryDownloadConfig<T extends IConfig | IConfig[]>(
     cancellationTokenSource: CancellationTokenSource,
     retryCount = 60,
 ): Promise<T> {
-    let pu: PromiseUtil = new PromiseUtil();
-    return pu.retryAsync(
+    return PromiseUtil.retryAsync(
         async () => {
             try {
                 return await downloadConfig<T>(endpointURL);

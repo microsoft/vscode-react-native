@@ -12,44 +12,37 @@ export class FileSystem {
         this.fs = fs;
     }
 
-    public ensureDirectory(dir: string): Promise<void> {
-        return this.stat(dir).then(
-            (stat: nodeFs.Stats): void => {
-                if (stat.isDirectory()) {
-                    return;
-                }
+    public async ensureDirectory(dir: string): Promise<void> {
+        try {
+            const stat = await this.stat(dir);
+            if (!stat.isDirectory()) {
                 throw new Error(`Expected ${dir} to be a directory`);
-            },
-            (err: Error & { code?: string }): Promise<any> => {
-                if (err && err.code === "ENOENT") {
-                    return this.mkDir(dir);
-                }
-                throw err;
-            },
-        );
+            }
+        } catch (err) {
+            if (err && err.code === "ENOENT") {
+                return this.mkDir(dir);
+            }
+            throw err;
+        }
     }
 
-    public ensureFileWithContents(file: string, contents: string): Promise<void> {
-        return this.stat(file).then(
-            (stat: nodeFs.Stats) => {
-                if (!stat.isFile()) {
-                    throw new Error(`Expected ${file} to be a file`);
-                }
-
-                return this.readFile(file).then(existingContents => {
-                    if (contents !== existingContents) {
-                        return this.writeFile(file, contents);
-                    }
-                    return Promise.resolve();
-                });
-            },
-            (err: Error & { code?: string }): Promise<any> => {
-                if (err && err.code === "ENOENT") {
+    public async ensureFileWithContents(file: string, contents: string): Promise<void> {
+        try {
+            const stat = await this.stat(file);
+            if (stat.isFile()) {
+                const existingContents = await this.readFile(file);
+                if (contents !== existingContents) {
                     return this.writeFile(file, contents);
                 }
-                throw err;
-            },
-        );
+            } else {
+                throw new Error(`Expected ${file} to be a file`);
+            }
+        } catch (err) {
+            if (err && err.code === "ENOENT") {
+                return this.writeFile(file, contents);
+            }
+            throw err;
+        }
     }
 
     /**
@@ -62,14 +55,13 @@ export class FileSystem {
     /**
      *  Helper (asynchronous) function to check if a file or directory exists
      */
-    public exists(filename: string): Promise<boolean> {
-        return this.stat(filename)
-            .then(() => {
-                return Promise.resolve(true);
-            })
-            .catch(() => {
-                return Promise.resolve(false);
-            });
+    public async exists(filename: string): Promise<boolean> {
+        try {
+            await this.stat(filename);
+            return true;
+        } catch (err) {
+            return false;
+        }
     }
 
     /**
@@ -131,14 +123,16 @@ export class FileSystem {
         return this.fs.promises.stat(fsPath);
     }
 
-    public directoryExists(directoryPath: string): Promise<boolean> {
-        return this.stat(directoryPath)
-            .then(stats => {
-                return stats.isDirectory();
-            })
-            .catch(reason => {
-                return reason.code === "ENOENT" ? false : Promise.reject<boolean>(reason);
-            });
+    public async directoryExists(directoryPath: string): Promise<boolean> {
+        try {
+            const stats = await this.stat(directoryPath);
+            return stats.isDirectory();
+        } catch (err) {
+            if (err.code === "ENOENT") {
+                return false;
+            }
+            throw err;
+        }
     }
 
     /**
@@ -168,7 +162,6 @@ export class FileSystem {
                 return this.unlink(p);
             }
         }
-        return Promise.resolve();
     }
 
     public removePathRecursivelySync(p: string): void {

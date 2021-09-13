@@ -23,19 +23,15 @@ export class ReactDirManager implements vscode.Disposable {
         this.reactDirPath = path.join(this.vscodeDirPath, ".react");
     }
 
-    public setup(): Promise<void> {
+    public async setup(): Promise<void> {
         this.isDisposed = false;
         let fs = new FileSystem();
         /* if the folder exists, remove it, then recreate it */
-        return fs
-            .removePathRecursivelyAsync(this.reactDirPath)
-            .then(() => {
-                if (!fs.existsSync(this.vscodeDirPath)) {
-                    return fs.mkDir(this.vscodeDirPath);
-                }
-                return void 0;
-            })
-            .then(() => fs.mkDir(this.reactDirPath));
+        await fs.removePathRecursivelyAsync(this.reactDirPath);
+        if (!fs.existsSync(this.vscodeDirPath)) {
+            await fs.mkDir(this.vscodeDirPath);
+        }
+        await fs.mkDir(this.reactDirPath);
     }
 
     public dispose(): void {

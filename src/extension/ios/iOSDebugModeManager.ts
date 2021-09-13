@@ -21,7 +21,7 @@ export class IOSDebugModeManager extends ApplePlatformDebugModeManager {
         );
     }
 
-    public setAppRemoteDebuggingSetting(
+    public async setAppRemoteDebuggingSetting(
         enable: boolean,
         configuration?: string,
         productName?: string,
@@ -30,37 +30,34 @@ export class IOSDebugModeManager extends ApplePlatformDebugModeManager {
 
         // Find the plistFile with the configuration setting
         // There is a race here between us checking for the plist file, and the application starting up.
-        return this.findPListFileWithRetry(configuration, productName).then((plistFile: string) => {
-            // Set the executorClass to be RCTWebSocketExecutor so on the next startup it will default into debug mode
-            // This is approximately equivalent to clicking the "Debug in Chrome" button
-
-            return (enable
-                ? plistBuddy.setPlistProperty(
-                      plistFile,
-                      IOSDebugModeManager.EXECUTOR_CLASS_SETTING_NAME,
-                      IOSDebugModeManager.WEBSOCKET_EXECUTOR_NAME,
-                  )
-                : plistBuddy.deletePlistProperty(
-                      plistFile,
-                      IOSDebugModeManager.EXECUTOR_CLASS_SETTING_NAME,
-                  )
-            ).then(() =>
-                plistBuddy.setPlistBooleanProperty(
-                    plistFile,
-                    IOSDebugModeManager.REMOTE_DEBUGGING_SETTING_NAME,
-                    enable,
-                ),
-            );
-        });
+        const plistFile = await this.findPListFileWithRetry(configuration, productName);
+        // Set the executorClass to be RCTWebSocketExecutor so on the next startup it will default into debug mode
+        // This is approximately equivalent to clicking the "Debug in Chrome" button
+        await (enable
+            ? plistBuddy.setPlistProperty(
+                  plistFile,
+                  IOSDebugModeManager.EXECUTOR_CLASS_SETTING_NAME,
+                  IOSDebugModeManager.WEBSOCKET_EXECUTOR_NAME,
+              )
+            : plistBuddy.deletePlistProperty(
+                  plistFile,
+                  IOSDebugModeManager.EXECUTOR_CLASS_SETTING_NAME,
+              ));
+        await plistBuddy.setPlistBooleanProperty(
+            plistFile,
+            IOSDebugModeManager.REMOTE_DEBUGGING_SETTING_NAME,
+            enable,
+        );
     }
 
-    public getAppRemoteDebuggingSetting(
+    public async getAppRemoteDebuggingSetting(
         configuration?: string,
         productName?: string,
     ): Promise<boolean> {
-        return this.findPListFileWithRetry(configuration, productName).then((plistFile: string) => {
+        const plistFile = await this.findPListFileWithRetry(configuration, productName);
+        try {
             // Attempt to read from the file, but if the property is not defined then return the empty string
-            return Promise.all([
+            const [executorClassName, remoteDebugEnabled] = await Promise.all([
                 new PlistBuddy().readPlistProperty(
                     plistFile,
                     IOSDebugModeManager.EXECUTOR_CLASS_SETTING_NAME,
@@ -69,24 +66,25 @@ export class IOSDebugModeManager extends ApplePlatformDebugModeManager {
                     plistFile,
                     IOSDebugModeManager.REMOTE_DEBUGGING_SETTING_NAME,
                 ),
-            ])
-                .then(([executorClassName, remoteDebugEnabled]) => {
-                    return (
-                        executorClassName === IOSDebugModeManager.WEBSOCKET_EXECUTOR_NAME &&
-                        remoteDebugEnabled === "true"
-                    );
-                })
-                .catch(() => false);
-        });
+            ]);
+            return (
+                executorClassName === IOSDebugModeManager.WEBSOCKET_EXECUTOR_NAME &&
+                remoteDebugEnabled === "true"
+            );
+        } catch (e) {
+            return false;
+        }
     }
 
-    protected tryOneAttemptToFindPListFile(
+    protected async tryOneAttemptToFindPListFile(
         configuration?: string,
         productName?: string,
     ): Promise<string> {
-        return this.simulatorPlist.findPlistFile(configuration, productName).catch(reason => {
+        try {
+            return await this.simulatorPlist.findPlistFile(configuration, productName);
+        } catch (reason) {
             this.logger.debug(`Failed one attempt to find plist file: ${reason}`);
             return "";
-        });
+        }
     }
 }

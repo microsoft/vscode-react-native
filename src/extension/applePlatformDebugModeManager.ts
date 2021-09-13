@@ -35,14 +35,16 @@ export abstract class ApplePlatformDebugModeManager {
         productName?: string,
     ): Promise<boolean>;
 
-    public findPListFileWithRetry(configuration?: string, productName?: string): Promise<string> {
-        const pu = new PromiseUtil();
+    public async findPListFileWithRetry(
+        configuration?: string,
+        productName?: string,
+    ): Promise<string> {
         const failureString = localize(
             "UnableToFindPlistFileToConfigureDebugging",
             "Unable to find a plist file to configure debugging",
         );
 
-        return pu.retryAsync(
+        return PromiseUtil.retryAsync(
             () => this.tryOneAttemptToFindPListFile(configuration, productName), // Operation to retry until successful
             (file: string) => file !== "", // Condition to check if the operation was successful, and this logic is done
             ApplePlatformDebugModeManager.MAX_RETRIES,

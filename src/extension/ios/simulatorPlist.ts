@@ -43,8 +43,8 @@ export class SimulatorPlist {
         this.nodeChildProcess = nodeChildProcess;
     }
 
-    public findPlistFile(configuration?: string, productName?: string): Promise<string> {
-        return Promise.all([
+    public async findPlistFile(configuration?: string, productName?: string): Promise<string> {
+        const [bundleId, pathBuffer] = await Promise.all([
             this.plistBuddy.getBundleId(
                 this.iosProjectRoot,
                 this.projectRoot,
@@ -55,39 +55,35 @@ export class SimulatorPlist {
                 this.scheme,
             ), // Find the name of the application
             this.nodeChildProcess.exec("xcrun simctl getenv booted HOME").then(res => res.outcome), // Find the path of the simulator we are running
-        ]).then(([bundleId, pathBuffer]) => {
-            const pathBefore = path.join(
-                pathBuffer.toString().trim(),
-                "Containers",
-                "Data",
-                "Application",
+        ]);
+        const pathBefore = path.join(
+            pathBuffer.toString().trim(),
+            "Containers",
+            "Data",
+            "Application",
+        );
+        const pathAfter = path.join("Library", "Preferences", `${bundleId}.plist`);
+        // Look through $SIMULATOR_HOME/Containers/Data/Application/*/Library/Preferences to find $BUNDLEID.plist
+        const apps = await this.nodeFileSystem.readDir(pathBefore);
+        this.logger.info(
+            `About to search for plist in base folder: ${pathBefore} pathAfter: ${pathAfter} in each of the apps: ${apps}`,
+        );
+        const plistCandidates = apps
+            .map((app: string) => path.join(pathBefore, app, pathAfter))
+            .filter(filePath => this.nodeFileSystem.existsSync(filePath));
+        if (plistCandidates.length === 0) {
+            throw new Error(`Unable to find plist file for ${bundleId}`);
+        } else if (plistCandidates.length > 1) {
+            TelemetryHelper.sendSimpleEvent("multipleDebugPlistFound");
+            this.logger.warning(
+                ErrorHelper.getWarning(
+                    localize(
+                        "MultiplePlistCandidatesFoundAppMayNotBeDebuggedInDebugMode",
+                        "Multiple plist candidates found. Application may not be in debug mode.",
+                    ),
+                ),
             );
-            const pathAfter = path.join("Library", "Preferences", `${bundleId}.plist`);
-
-            // Look through $SIMULATOR_HOME/Containers/Data/Application/*/Library/Preferences to find $BUNDLEID.plist
-            return this.nodeFileSystem.readDir(pathBefore).then((apps: string[]) => {
-                this.logger.info(
-                    `About to search for plist in base folder: ${pathBefore} pathAfter: ${pathAfter} in each of the apps: ${apps}`,
-                );
-                const plistCandidates = apps
-                    .map((app: string) => path.join(pathBefore, app, pathAfter))
-                    .filter(filePath => this.nodeFileSystem.existsSync(filePath));
-                if (plistCandidates.length === 0) {
-                    throw new Error(`Unable to find plist file for ${bundleId}`);
-                } else if (plistCandidates.length > 1) {
-                    TelemetryHelper.sendSimpleEvent("multipleDebugPlistFound");
-                    this.logger.warning(
-                        ErrorHelper.getWarning(
-                            localize(
-                                "MultiplePlistCandidatesFoundAppMayNotBeDebuggedInDebugMode",
-                                "Multiple plist candidates found. Application may not be in debug mode.",
-                            ),
-                        ),
-                    );
-                }
-
-                return plistCandidates[0];
-            });
-        });
+        }
+        return plistCandidates[0];
     }
 }
