@@ -101,7 +101,9 @@ export function startReactNativeTests(
                     'Android Debug test: Searching for "Test output from debuggee" string in console',
                 );
                 await automationHelper.runCommandWithRetry("Debug: Focus on Debug Console View");
-                let found = await automationHelper.waitForOutputWithRetry("Test output from debuggee");
+                let found = await automationHelper.waitForOutputWithRetry(
+                    "Test output from debuggee",
+                );
                 assert.notStrictEqual(
                     found,
                     false,
@@ -166,7 +168,9 @@ export function startReactNativeTests(
                     'iOS Debug test: Searching for "Test output from debuggee" string in console',
                 );
                 await automationHelper.runCommandWithRetry("Debug: Focus on Debug Console View");
-                let found = await automationHelper.waitForOutputWithRetry("Test output from debuggee");
+                let found = await automationHelper.waitForOutputWithRetry(
+                    "Test output from debuggee",
+                );
                 assert.notStrictEqual(
                     found,
                     false,
