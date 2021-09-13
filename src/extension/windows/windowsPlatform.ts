@@ -28,19 +28,18 @@ export class WindowsPlatform extends GeneralMobilePlatform {
         },
     ];
 
-    public reloadApp(appLauncher: AppLauncher): Promise<void> {
+    public async reloadApp(appLauncher: AppLauncher): Promise<void> {
         const worker = appLauncher.getAppWorker();
         if (worker) {
             worker.reloadAppCommand();
         }
-        return Promise.resolve();
     }
 
     constructor(protected runOptions: IWindowsRunOptions, platformDeps: MobilePlatformDeps = {}) {
         super(runOptions, platformDeps);
     }
 
-    public runApp(enableDebug: boolean = true): Promise<void> {
+    public async runApp(enableDebug: boolean = true): Promise<void> {
         let extProps: any = {
             platform: {
                 value: PlatformType.Windows,
@@ -61,7 +60,7 @@ export class WindowsPlatform extends GeneralMobilePlatform {
             extProps,
         );
 
-        return TelemetryHelper.generate("WindowsPlatform.runApp", extProps, () => {
+        await TelemetryHelper.generate("WindowsPlatform.runApp", extProps, async () => {
             const env = GeneralMobilePlatform.getEnvArgument(
                 process.env,
                 this.runOptions.env,
@@ -96,7 +95,7 @@ export class WindowsPlatform extends GeneralMobilePlatform {
                 this.projectPath,
                 this.logger,
             ).spawnReactCommand(`run-${this.platformName}`, this.runArguments, { env });
-            return new OutputVerifier(
+            await new OutputVerifier(
                 () => Promise.resolve(WindowsPlatform.SUCCESS_PATTERNS),
                 () => Promise.resolve(WindowsPlatform.FAILURE_PATTERNS),
                 this.platformName,

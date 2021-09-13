@@ -10,7 +10,7 @@ import { OutputVerifier, PatternToFailure } from "../../common/outputVerifier";
 import { TelemetryHelper } from "../../common/telemetryHelper";
 import { CommandExecutor } from "../../common/commandExecutor";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
-import { PlistBuddy, IOSBuildLocationData } from "../ios/plistBuddy";
+import { PlistBuddy } from "../ios/plistBuddy";
 import { ChildProcess } from "../../common/node/childProcess";
 
 /**
@@ -57,7 +57,7 @@ export class MacOSPlatform extends GeneralMobilePlatform {
         );
     }
 
-    public runApp(): Promise<void> {
+    public async runApp(): Promise<void> {
         let extProps: any = {
             platform: {
                 value: PlatformType.macOS,
@@ -78,7 +78,7 @@ export class MacOSPlatform extends GeneralMobilePlatform {
             extProps,
         );
 
-        return TelemetryHelper.generate("MacOSPlatform.runApp", extProps, () => {
+        await TelemetryHelper.generate("MacOSPlatform.runApp", extProps, async () => {
             const env = GeneralMobilePlatform.getEnvArgument(
                 process.env,
                 this.runOptions.env,
@@ -102,7 +102,7 @@ export class MacOSPlatform extends GeneralMobilePlatform {
                 this.projectPath,
                 this.logger,
             ).spawnReactCommand(`run-${this.platformName}`, this.runArguments, { env });
-            return new OutputVerifier(
+            await new OutputVerifier(
                 () => Promise.resolve(MacOSPlatform.SUCCESS_PATTERNS),
                 () => Promise.resolve(MacOSPlatform.FAILURE_PATTERNS),
                 this.platformName,
@@ -110,7 +110,7 @@ export class MacOSPlatform extends GeneralMobilePlatform {
         });
     }
 
-    public prewarmBundleCache(): Promise<void> {
+    public async prewarmBundleCache(): Promise<void> {
         return this.packager.prewarmBundleCache(PlatformType.macOS);
     }
 
@@ -132,40 +132,33 @@ export class MacOSPlatform extends GeneralMobilePlatform {
         return runArguments;
     }
 
-    public enableJSDebuggingMode(): Promise<void> {
+    public async enableJSDebuggingMode(): Promise<void> {
         // Configure the app for debugging
         // Wait until the configuration file exists, and check to see if debugging is enabled
-        return Promise.all<boolean | string>([
+        const [debugModeEnabled, appName] = await Promise.all<boolean | string>([
             this.macOSDebugModeManager.getAppRemoteDebuggingSetting(
                 this.runOptions.configuration,
                 this.runOptions.productName,
             ),
             this.getApplicationName(),
-        ]).then(([debugModeEnabled, appName]) => {
-            if (debugModeEnabled) {
-                return Promise.resolve();
-            }
+        ]);
+        if (debugModeEnabled) {
+            return;
+        }
 
-            // Debugging must still be enabled
-            // We enable debugging by writing to a plist file that backs a NSUserDefaults object,
-            // but that file is written to by the app on occasion. To avoid races, we shut the app
-            // down before writing to the file.
-            return (
-                this.terminateMacOSapp(<string>appName)
-                    // Write to the settings file while the app is not running to avoid races
-                    .then(() =>
-                        this.macOSDebugModeManager.setAppRemoteDebuggingSetting(
-                            /*enable=*/ true,
-                            this.runOptions.configuration,
-                            this.runOptions.productName,
-                        ),
-                    )
-                    .then(() => {
-                        // Relaunch the app
-                        return this.runApp();
-                    })
-            );
-        });
+        // Debugging must still be enabled
+        // We enable debugging by writing to a plist file that backs a NSUserDefaults object,
+        // but that file is written to by the app on occasion. To avoid races, we shut the app
+        // down before writing to the file.
+        await this.terminateMacOSapp(<string>appName);
+        // Write to the settings file while the app is not running to avoid races
+        await this.macOSDebugModeManager.setAppRemoteDebuggingSetting(
+            /*enable=*/ true,
+            this.runOptions.configuration,
+            this.runOptions.productName,
+        );
+        // Relaunch the app
+        await this.runApp();
     }
 
     public disableJSDebuggingMode(): Promise<void> {
@@ -176,20 +169,17 @@ export class MacOSPlatform extends GeneralMobilePlatform {
         );
     }
 
-    private getApplicationName(): Promise<string> {
-        return this.plistBuddy
-            .getExecutableAndConfigurationFolder(
-                this.macosProjectRoot,
-                this.projectPath,
-                PlatformType.macOS,
-                false,
-                this.runOptions.configuration,
-                this.runOptions.productName,
-                this.getSchemeFromDebuggingParameters(),
-            )
-            .then((iOSBuildLocationData: IOSBuildLocationData) => {
-                return iOSBuildLocationData.executable;
-            });
+    private async getApplicationName(): Promise<string> {
+        const iOSBuildLocationData = await this.plistBuddy.getExecutableAndConfigurationFolder(
+            this.macosProjectRoot,
+            this.projectPath,
+            PlatformType.macOS,
+            false,
+            this.runOptions.configuration,
+            this.runOptions.productName,
+            this.getSchemeFromDebuggingParameters(),
+        );
+        return iOSBuildLocationData.executable;
     }
 
     private getSchemeFromDebuggingParameters(): string | undefined {
@@ -207,34 +197,25 @@ export class MacOSPlatform extends GeneralMobilePlatform {
         return scheme;
     }
 
-    private terminateMacOSapp(appName: string): Promise<void> {
+    private async terminateMacOSapp(appName: string): Promise<void> {
         let childProcess = new ChildProcess();
-        return (
-            childProcess
-                .execToString(`ps -ax | grep ${appName}`)
-                // An example of the output from the command above:
-                // 40943 ??         4:13.97 node /Users/user/Documents/rn_for_mac_proj/node_modules/.bin/react-native start --port 8081
-                // 40959 ??         0:10.36 /Users/user/.nvm/versions/node/v10.19.0/bin/node /Users/user/Documents/rn_for_mac_proj/node_modules/metro/node_modules/jest-worker/build/workers/processChild.js
-                // 41004 ??         0:21.34 /Users/user/Library/Developer/Xcode/DerivedData/rn_for_mac_proj-ghuavabiztosiqfqkrityjoxqfmv/Build/Products/Debug/rn_for_mac_proj.app/Contents/MacOS/rn_for_mac_proj
-                // 75514 ttys007    0:00.00 grep --color=auto --exclude-dir=.bzr --exclude-dir=CVS --exclude-dir=.git --exclude-dir=.hg --exclude-dir=.svn rn_for_mac_proj
-                .then(searchResults => {
-                    if (searchResults) {
-                        const processIdRgx = /(^\d*)\s\?\?/g;
-                        //  We are looking for a process whose path contains the "appName.app" part
-                        const processData = searchResults
-                            .split("\n")
-                            .find(str => str.includes(appName));
+        // An example of the output from the command above:
+        // 40943 ??         4:13.97 node /Users/user/Documents/rn_for_mac_proj/node_modules/.bin/react-native start --port 8081
+        // 40959 ??         0:10.36 /Users/user/.nvm/versions/node/v10.19.0/bin/node /Users/user/Documents/rn_for_mac_proj/node_modules/metro/node_modules/jest-worker/build/workers/processChild.js
+        // 41004 ??         0:21.34 /Users/user/Library/Developer/Xcode/DerivedData/rn_for_mac_proj-ghuavabiztosiqfqkrityjoxqfmv/Build/Products/Debug/rn_for_mac_proj.app/Contents/MacOS/rn_for_mac_proj
+        // 75514 ttys007    0:00.00 grep --color=auto --exclude-dir=.bzr --exclude-dir=CVS --exclude-dir=.git --exclude-dir=.hg --exclude-dir=.svn rn_for_mac_proj
+        const searchResults = await childProcess.execToString(`ps -ax | grep ${appName}`);
+        if (searchResults) {
+            const processIdRgx = /(^\d*)\s\?\?/g;
+            //  We are looking for a process whose path contains the "appName.app" part
+            const processData = searchResults.split("\n").find(str => str.includes(appName));
 
-                        if (processData) {
-                            const match = processIdRgx.exec(processData.trim());
-                            if (match && match[1]) {
-                                // eslint-disable-next-line @typescript-eslint/no-empty-function
-                                return childProcess.execToString(`kill ${match[1]}`).then(() => {});
-                            }
-                        }
-                    }
-                    return void 0;
-                })
-        );
+            if (processData) {
+                const match = processIdRgx.exec(processData.trim());
+                if (match && match[1]) {
+                    await childProcess.execToString(`kill ${match[1]}`);
+                }
+            }
+        }
     }
 }

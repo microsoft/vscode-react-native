@@ -320,14 +320,13 @@ export async function waitForRunningPackager(filePath: string): Promise<boolean>
         return findStringInFile(filePath, SmokeTestsConstants.PackagerStartedPattern);
     };
 
-    return waitUntil(condition).then(result => {
-        if (result) {
-            SmokeTestLogger.success(`Packager started pattern is found`);
-        } else {
-            SmokeTestLogger.warn(`Packager started logging pattern is not found`);
-        }
-        return result;
-    });
+    const result = await waitUntil(condition);
+    if (result) {
+        SmokeTestLogger.success(`Packager started pattern is found`);
+    } else {
+        SmokeTestLogger.warn(`Packager started logging pattern is not found`);
+    }
+    return result;
 }
 
 export async function smokeTestFail(message: string): Promise<void> {

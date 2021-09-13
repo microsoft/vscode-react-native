@@ -19,7 +19,6 @@ import { DebuggerEndpointHelper } from "./../../src/cdp-proxy/debuggerEndpointHe
 import { Request } from "../../src/common/node/request";
 import * as assert from "assert";
 import { CDP_API_NAMES } from "../../src/cdp-proxy/CDPMessageHandlers/CDPAPINames";
-import { PromiseUtil } from "../../src/common/node/promise";
 import {
     HERMES_NATIVE_FUNCTION_NAME,
     HERMES_NATIVE_FUNCTION_SCRIPT_ID,
@@ -27,6 +26,7 @@ import {
     mockCallFrames,
     mockResults,
 } from "./cdpConstants";
+import { waitUntil } from "../../src/common/utils";
 
 suite("reactNativeCDPProxy", function () {
     const cdpProxyHostAddress = "127.0.0.1"; // localhost
@@ -43,16 +43,34 @@ suite("reactNativeCDPProxy", function () {
     // For all hooks and tests set a time limit
     this.timeout(5000);
 
+    async function getMessageFromTarget(message: any): Promise<any> {
+        return new Promise(resolve => {
+            targetConnection?.send(message);
+
+            debugConnection?.onCommand((evt: IProtocolCommand) => {
+                resolve(evt);
+            });
+        });
+    }
+
+    async function getMessageFromDebugger(message: any): Promise<any> {
+        return new Promise(resolve => {
+            debugConnection?.send(message);
+
+            targetConnection?.onCommand((evt: IProtocolCommand) => {
+                resolve(evt);
+            });
+        });
+    }
+
     suiteSetup(async () => {
         proxy.setApplicationTargetPort(wsTargetPort);
         await proxy.initializeServer(new RnCDPMessageHandler(), cdpProxyLogLevel);
 
-        await Server.create({ host: "localhost", port: wsTargetPort }).then((server: Server) => {
-            wsTargetServer = server;
-
-            server.onConnection(([connection, request]: [Connection, Request]) => {
-                targetConnection = connection;
-            });
+        const server = await Server.create({ host: "localhost", port: wsTargetPort });
+        wsTargetServer = server;
+        server.onConnection(([connection, request]: [Connection, Request]) => {
+            targetConnection = connection;
         });
 
         const proxyUri = await new DebuggerEndpointHelper().getWSEndpoint(
@@ -61,9 +79,7 @@ suite("reactNativeCDPProxy", function () {
         debugConnection = new Connection(await WebSocketTransport.create(proxyUri));
 
         // Due to the time limit, sooner or later this cycle will end
-        while (!targetConnection) {
-            await PromiseUtil.delay(1000);
-        }
+        await waitUntil(() => !!targetConnection, 1000, 5000);
     });
 
     suiteTeardown(() => {
@@ -86,7 +102,7 @@ suite("reactNativeCDPProxy", function () {
         let rnHandler = new RnCDPMessageHandler();
         let directHandler = new HermesCDPMessageHandler();
 
-        const deliveryTest = function (messageHandler: ICDPMessageHandler) {
+        function deliveryTest(messageHandler: ICDPMessageHandler): Mocha.Test {
             return test(`Messages should be delivered correctly with ${messageHandler.constructor.name}`, async () => {
                 const targetMessageStart = { method: "Target.start", params: { reason: "test" } };
                 const debuggerMessageStart = {
@@ -94,30 +110,13 @@ suite("reactNativeCDPProxy", function () {
                     params: { reason: "test" },
                 };
 
-                const messageFromTarget = await new Promise(resolve => {
-                    targetConnection?.send(targetMessageStart);
-
-                    debugConnection?.onCommand((evt: IProtocolCommand) => {
-                        resolve(evt);
-                    });
-                }).then(evt => {
-                    return evt;
-                });
-
-                const messageFromDebugger = await new Promise(resolve => {
-                    debugConnection?.send(debuggerMessageStart);
-
-                    targetConnection?.onCommand((evt: IProtocolCommand) => {
-                        resolve(evt);
-                    });
-                }).then(evt => {
-                    return evt;
-                });
+                const messageFromTarget = await getMessageFromTarget(targetMessageStart);
+                const messageFromDebugger = await getMessageFromDebugger(debuggerMessageStart);
 
                 assert.deepStrictEqual(messageFromTarget, targetMessageStart);
                 assert.deepStrictEqual(messageFromDebugger, debuggerMessageStart);
             });
-        };
+        }
 
         suite(`${rnHandler.constructor.name}`, () => {
             suiteSetup(async () => {
@@ -133,16 +132,8 @@ suite("reactNativeCDPProxy", function () {
                     params: { reason: "other" },
                 };
 
-                const messageFromTarget = await new Promise(resolve => {
-                    targetConnection?.send(targetMessagePaused);
-
-                    debugConnection?.onCommand((evt: IProtocolCommand) => {
-                        resolve(evt);
-                    });
-                }).then(evt => {
-                    targetMessagePaused.params.reason = "Break on start";
-                    return evt;
-                });
+                const messageFromTarget = await getMessageFromTarget(targetMessagePaused);
+                targetMessagePaused.params.reason = "Break on start";
 
                 assert.deepStrictEqual(messageFromTarget, targetMessagePaused);
             });
@@ -165,21 +156,13 @@ suite("reactNativeCDPProxy", function () {
                     },
                 };
 
-                const messageFromTarget = await new Promise(resolve => {
-                    targetConnection?.send(targetMessagePaused);
-
-                    debugConnection?.onCommand((evt: IProtocolCommand) => {
-                        resolve(evt);
-                    });
-                }).then(evt => {
-                    const filteredCallFrames = mockCallFrames.filter(
-                        (callFrame: any) =>
-                            callFrame.functionName !== HERMES_NATIVE_FUNCTION_NAME &&
-                            callFrame.location.scriptId !== HERMES_NATIVE_FUNCTION_SCRIPT_ID,
-                    );
-                    targetMessagePaused.params.callFrames = filteredCallFrames;
-                    return evt;
-                });
+                const messageFromTarget = await getMessageFromTarget(targetMessagePaused);
+                const filteredCallFrames = mockCallFrames.filter(
+                    (callFrame: any) =>
+                        callFrame.functionName !== HERMES_NATIVE_FUNCTION_NAME &&
+                        callFrame.location.scriptId !== HERMES_NATIVE_FUNCTION_SCRIPT_ID,
+                );
+                targetMessagePaused.params.callFrames = filteredCallFrames;
 
                 assert.deepStrictEqual(messageFromTarget, targetMessagePaused);
             });
@@ -193,30 +176,22 @@ suite("reactNativeCDPProxy", function () {
                     result: mockResults,
                 };
 
-                const messageFromTarget = await new Promise(resolve => {
-                    targetConnection?.send(targetMessage);
-
-                    debugConnection?.onCommand((evt: IProtocolCommand) => {
-                        resolve(evt);
-                    });
-                }).then(evt => {
-                    targetMessage.result.result.forEach(resultObj => {
-                        if (
-                            resultObj.value &&
-                            resultObj.value.type === "function" &&
-                            !resultObj.value.description
-                        ) {
-                            resultObj.value.description = "function() { … }";
-                        }
-                    });
-                    return evt;
+                const messageFromTarget = await getMessageFromTarget(targetMessage);
+                targetMessage.result.result.forEach(resultObj => {
+                    if (
+                        resultObj.value &&
+                        resultObj.value.type === "function" &&
+                        !resultObj.value.description
+                    ) {
+                        resultObj.value.description = "function() { … }";
+                    }
                 });
 
                 assert.deepStrictEqual(messageFromTarget, targetMessage);
             });
 
             test(`Message from debugger with method ${CDP_API_NAMES.DEBUGGER_SET_BREAKPOINT} should delete column number field from params.location`, async () => {
-                const debuggerMessage = {
+                const debuggerMessage: any = {
                     method: CDP_API_NAMES.DEBUGGER_SET_BREAKPOINT,
                     params: {
                         reason: "test",
@@ -227,16 +202,8 @@ suite("reactNativeCDPProxy", function () {
                     },
                 };
 
-                const messageFromDebugger = await new Promise(resolve => {
-                    debugConnection?.send(debuggerMessage);
-
-                    targetConnection?.onCommand((evt: IProtocolCommand) => {
-                        resolve(evt);
-                    });
-                }).then(evt => {
-                    delete debuggerMessage.params.location.columnNumber;
-                    return evt;
-                });
+                const messageFromDebugger = await getMessageFromDebugger(debuggerMessage);
+                delete debuggerMessage.params.location.columnNumber;
 
                 assert.deepStrictEqual(messageFromDebugger, debuggerMessage);
             });
@@ -266,8 +233,6 @@ suite("reactNativeCDPProxy", function () {
                     debugConnection?.onReply((evt: IProtocolError | IProtocolSuccess) => {
                         resolve(evt);
                     });
-                }).then(evt => {
-                    return evt;
                 });
 
                 assert.deepStrictEqual(messageFromDebugger, resultMessage);

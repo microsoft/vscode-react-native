@@ -140,7 +140,7 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
      * End region: https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/dispatcher/iOSDevice.tsx#L63-L79
      */
 
-    private getRunningSimulators(): Promise<IiOSSimulator[]> {
+    private async getRunningSimulators(): Promise<IiOSSimulator[]> {
         return this.iOSSimulatorManager.collectSimulators("booted");
     }
 
