@@ -95,7 +95,7 @@
   dependencies:
     "@babel/compat-data" "^7.15.0"
     "@babel/helper-validator-option" "^7.14.5"
-    browserslist "^4.16.6"
+    browserslist "^4.17.0"
     semver "^6.3.0"
 
 "@babel/helper-create-class-features-plugin@^7.14.5", "@babel/helper-create-class-features-plugin@^7.15.4":
@@ -2617,7 +2617,7 @@ caniuse-api@^3.0.0:
   resolved "https://registry.yarnpkg.com/caniuse-api/-/caniuse-api-3.0.0.tgz#5e4d90e2274961d46291997df599e3ed008ee4c0"
   integrity sha512-bsTwuIg/BZZK/vreVTYYbSWoe2F+71P7K5QGEX+pT250DZbfU1MQ5prOKpPR+LL6uWKK3KMwMCAS74QB3Um1uw==
   dependencies:
-    browserslist "^4.0.0"
+    browserslist "^4.17.0"
     caniuse-lite "^1.0.0"
     lodash.memoize "^4.1.2"
     lodash.uniq "^4.5.0"
@@ -2669,7 +2669,7 @@ chokidar@3.5.2, chokidar@^3.4.1:
   dependencies:
     anymatch "~3.1.2"
     braces "~3.0.2"
-    glob-parent "~5.1.2"
+    glob-parent "^6.0.1"
     is-binary-path "~2.1.0"
     is-glob "~4.0.1"
     normalize-path "~3.0.0"
@@ -2685,7 +2685,7 @@ chokidar@^2.1.8:
     anymatch "^2.0.0"
     async-each "^1.0.1"
     braces "^2.3.2"
-    glob-parent "^3.1.0"
+    glob-parent "^6.0.1"
     inherits "^2.0.3"
     is-binary-path "^1.0.0"
     is-glob "^4.0.0"
@@ -3121,7 +3121,7 @@ copy-webpack-plugin@~6.0.3:
     cacache "^15.0.5"
     fast-glob "^3.2.4"
     find-cache-dir "^3.3.1"
-    glob-parent "^5.1.1"
+    glob-parent "^6.0.1"
     globby "^11.0.1"
     loader-utils "^2.0.0"
     normalize-path "^3.0.0"
@@ -4298,7 +4298,7 @@ fast-glob@^3.1.1, fast-glob@^3.2.4:
   dependencies:
     "@nodelib/fs.stat" "^2.0.2"
     "@nodelib/fs.walk" "^1.2.3"
-    glob-parent "^5.1.2"
+    glob-parent "^6.0.1"
     merge2 "^1.3.0"
     micromatch "^4.0.4"
 
@@ -4760,7 +4760,7 @@ glob-stream@^6.1.0:
   dependencies:
     extend "^3.0.0"
     glob "^7.1.1"
-    glob-parent "^3.1.0"
+    glob-parent "^6.0.1"
     is-negated-glob "^1.0.0"
     ordered-read-streams "^1.0.0"
     pumpify "^1.3.5"
@@ -4953,7 +4953,7 @@ gulp-untar@^0.0.7:
   dependencies:
     event-stream "~3.3.4"
     streamifier "~0.1.1"
-    tar "^2.2.1"
+    tar "^6.1.11"
     through2 "~2.0.3"
     vinyl "^1.2.0"
 
@@ -7781,7 +7781,7 @@ postcss-colormin@^4.0.3:
   resolved "https://registry.yarnpkg.com/postcss-colormin/-/postcss-colormin-4.0.3.tgz#ae060bce93ed794ac71264f08132d550956bd381"
   integrity sha512-WyQFAdDZpExQh32j0U0feWisZ0dmOtPl44qYmJKkq9xFWY3p+4qnRzCHeNrkeRhwPHz9bQ3mo0/yVkaply0MNw==
   dependencies:
-    browserslist "^4.0.0"
+    browserslist "^4.17.0"
     color "^3.0.0"
     has "^1.0.0"
     postcss "^7.0.0"
@@ -7838,7 +7838,7 @@ postcss-merge-rules@^4.0.3:
   resolved "https://registry.yarnpkg.com/postcss-merge-rules/-/postcss-merge-rules-4.0.3.tgz#362bea4ff5a1f98e4075a713c6cb25aefef9a650"
   integrity sha512-U7e3r1SbvYzO0Jr3UT/zKBVgYYyhAz0aitvGIYOYK5CPmkNih+WDSsS5tvPrJ8YMQYlEMvsZIiqmn7HdFUaeEQ==
   dependencies:
-    browserslist "^4.0.0"
+    browserslist "^4.17.0"
     caniuse-api "^3.0.0"
     cssnano-util-same-parent "^4.0.0"
     postcss "^7.0.0"
@@ -7869,7 +7869,7 @@ postcss-minify-params@^4.0.2:
   integrity sha512-G7eWyzEx0xL4/wiBBJxJOz48zAKV2WG3iZOqVhPet/9geefm/Px5uo1fzlHu+DOjT+m0Mmiz3jkQzVHe6wxAWg==
   dependencies:
     alphanum-sort "^1.0.0"
-    browserslist "^4.0.0"
+    browserslist "^4.17.0"
     cssnano-util-get-arguments "^4.0.0"
     postcss "^7.0.0"
     postcss-value-parser "^3.0.0"
@@ -7977,7 +7977,7 @@ postcss-normalize-unicode@^4.0.1:
   resolved "https://registry.yarnpkg.com/postcss-normalize-unicode/-/postcss-normalize-unicode-4.0.1.tgz#841bd48fdcf3019ad4baa7493a3d363b52ae1cfb"
   integrity sha512-od18Uq2wCYn+vZ/qCOeutvHjB5jm57ToxRaMeNuf0nWVHaP9Hua56QyMF6fs/4FSUnVIw0CBPsU0K4LnBPwYwg==
   dependencies:
-    browserslist "^4.0.0"
+    browserslist "^4.17.0"
     postcss "^7.0.0"
     postcss-value-parser "^3.0.0"
 
@@ -8013,7 +8013,7 @@ postcss-reduce-initial@^4.0.3:
   resolved "https://registry.yarnpkg.com/postcss-reduce-initial/-/postcss-reduce-initial-4.0.3.tgz#7fd42ebea5e9c814609639e2c2e84ae270ba48df"
   integrity sha512-gKWmR5aUulSjbzOfD9AlJiHCGH6AEVLaM0AV+aSioxUDd16qXP1PCh8d1/BGVvpdWn8k/HiK7n6TjeoXN1F7DA==
   dependencies:
-    browserslist "^4.0.0"
+    browserslist "^4.17.0"
     caniuse-api "^3.0.0"
     has "^1.0.0"
     postcss "^7.0.0"
@@ -8404,7 +8404,7 @@ react-dev-utils@~11.0.1:
   dependencies:
     "@babel/code-frame" "7.10.4"
     address "1.1.2"
-    browserslist "4.14.2"
+    browserslist "4.17.0"
     chalk "2.4.2"
     cross-spawn "7.0.3"
     detect-port-alt "1.1.6"
@@ -9635,7 +9635,7 @@ stylehacks@^4.0.0:
   resolved "https://registry.yarnpkg.com/stylehacks/-/stylehacks-4.0.3.tgz#6718fcaf4d1e07d8a1318690881e8d96726a71d5"
   integrity sha512-7GlLk9JwlElY4Y6a/rmbH2MhVlTyVmiJd1PfTCqFaIBEGMYNsrO/v3SeGTdhBThLg4Z+NbOk/qFMwCa+J+3p/g==
   dependencies:
-    browserslist "^4.0.0"
+    browserslist "^4.17.0"
     postcss "^7.0.0"
     postcss-selector-parser "^3.0.0"
 
@@ -10880,7 +10880,7 @@ xcode@^3.0.1:
     simple-plist "^1.1.0"
     uuid "^7.0.3"
 
-xdl@^59.0.53:
+xdl@^59.1.0:
   version "59.1.0"
   resolved "https://registry.yarnpkg.com/xdl/-/xdl-59.1.0.tgz#955db1d0964d9e39cb1252a2f90caacbdee431e6"
   integrity sha512-kEkXVds9GWYBV/oIPHvdhoTCQcP8bFG2H+OV6qfytw66gnGLrj0qYSfEvlg+0U0GLChONR37iukGCj19oFnYig==
@@ -10941,7 +10941,7 @@ xdl@^59.0.53:
     source-map-support "0.4.18"
     split "1.0.1"
     strip-ansi "^6.0.0"
-    tar "4.4.6"
+    tar "6.1.11"
     terminal-link "^2.1.1"
     text-table "^0.2.0"
     tree-kill "1.2.2"
