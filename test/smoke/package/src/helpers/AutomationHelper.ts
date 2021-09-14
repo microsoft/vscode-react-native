@@ -13,7 +13,7 @@ const DISCONNECT = `.debug-toolbar .action-label[title*="Disconnect"]`;
 const TOOLBAR_HIDDEN = `.debug-toolbar[aria-hidden="true"]`;
 const NOT_DEBUG_STATUS_BAR = `.statusbar:not(debugging)`;
 const STOP = `.debug-toolbar .action-label[title*="Stop"]`;
-const SUGGEST_WIDGET_VISIBLE = `.editor-widget .suggest-widget .visible`;
+const SUGGEST_WIDGET_VISIBLE = `.suggest-widget .visible`;
 
 export default class AutomationHelper {
     constructor(private app: Application) {}
