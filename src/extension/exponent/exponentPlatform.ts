@@ -30,7 +30,7 @@ export class ExponentPlatform extends GeneralMobilePlatform {
         this.exponentTunnelPath = null;
     }
 
-    public runApp(): Promise<void> {
+    public async runApp(): Promise<void> {
         let extProps = {
             platform: {
                 value: PlatformType.Exponent,
@@ -44,171 +44,152 @@ export class ExponentPlatform extends GeneralMobilePlatform {
             extProps,
         );
 
-        return new Promise((resolve, reject) => {
-            TelemetryHelper.generate("ExponentPlatform.runApp", extProps, () => {
-                return this.loginToExponentOrSkip(this.runOptions.expoHostType)
-                    .then(() =>
-                        XDL.setOptions(this.projectPath, { packagerPort: this.packager.getPort() }),
-                    )
-                    .then(() => XDL.startExponentServer(this.projectPath))
-                    .then(() => {
-                        if (this.runOptions.expoHostType !== "tunnel") {
-                            // the purpose of this is to save the same sequence of handling 'adb reverse' command execution as in Expo
-                            // https://github.com/expo/expo-cli/blob/1d515d21200841e181518358fd9dc4c7b24c7cd6/packages/xdl/src/Project.ts#L2226-L2370
-                            // we added this to be sure that our Expo launching logic doesn't have any negative side effects
-                            return XDL.stopAdbReverse(this.projectPath);
-                        }
-                        return this.prepareExpoTunnels();
-                    })
-                    .then(() => {
-                        if (this.runOptions.expoHostType !== "local") return false;
-                        // we need to execute 'adb reverse' command to bind ports used by Expo and RN of local machine to ports of a connected Android device or a running emulator
-                        return XDL.startAdbReverse(this.projectPath);
-                    })
-                    .then(isAdbReversed => {
-                        switch (this.runOptions.expoHostType) {
-                            case "lan":
-                                return XDL.getUrl(this.projectPath, {
-                                    dev: true,
-                                    minify: false,
-                                    hostType: "lan",
-                                });
-                            case "local":
-                                if (isAdbReversed) {
-                                    this.logger.info(
-                                        localize(
-                                            "ExpoStartAdbReverseSuccess",
-                                            "A device or an emulator was found, 'adb reverse' command successfully executed.",
-                                        ),
-                                    );
-                                } else {
-                                    this.logger.warning(
-                                        localize(
-                                            "ExpoStartAdbReverseFailure",
-                                            "Adb reverse command failed. Couldn't find connected over usb device or running emulator. Also please make sure that there is only one currently connected device or running emulator.",
-                                        ),
-                                    );
-                                }
+        await TelemetryHelper.generate("ExponentPlatform.runApp", extProps, async () => {
+            await this.loginToExponentOrSkip(this.runOptions.expoHostType);
+            await XDL.setOptions(this.projectPath, { packagerPort: this.packager.getPort() });
+            await XDL.startExponentServer(this.projectPath);
 
-                                return XDL.getUrl(this.projectPath, {
-                                    dev: true,
-                                    minify: false,
-                                    hostType: "localhost",
-                                });
-                            case "tunnel":
-                            default:
-                                return XDL.getUrl(this.projectPath, { dev: true, minify: false });
-                        }
-                    })
-                    .then(exponentUrl => {
-                        return "exp://" + url.parse(exponentUrl).host;
-                    })
-                    .then(exponentUrl => {
-                        if (this.runOptions.openExpoQR) {
-                            let exponentPage = vscode.window.createWebviewPanel(
-                                "Expo QR Code",
-                                "Expo QR Code",
-                                vscode.ViewColumn.Two,
-                                {},
-                            );
-                            exponentPage.webview.html = this.qrCodeContentProvider.provideTextDocumentContent(
-                                vscode.Uri.parse(exponentUrl),
-                            );
-                        }
-                        return exponentUrl;
-                    })
-                    .then(exponentUrl => {
-                        if (!exponentUrl) {
-                            return reject(
-                                ErrorHelper.getInternalError(
-                                    InternalErrorCode.ExpectedExponentTunnelPath,
-                                ),
-                            );
-                        }
-                        this.exponentTunnelPath = exponentUrl;
-                        const outputMessage = localize(
-                            "ExponentServerIsRunningOpenToSeeIt",
-                            "Expo server is running. Open your Expo app at {0} to see it.",
-                            this.exponentTunnelPath,
-                        );
-                        this.logger.info(outputMessage);
+            // the purpose of this is to save the same sequence of handling 'adb reverse' command execution as in Expo
+            // https://github.com/expo/expo-cli/blob/1d515d21200841e181518358fd9dc4c7b24c7cd6/packages/xdl/src/Project.ts#L2226-L2370
+            // we added this to be sure that our Expo launching logic doesn't have any negative side effects
 
-                        const copyButton = localize("CopyToClipboard", "Copy to clipboard");
+            if (this.runOptions.expoHostType === "tunnel") {
+                await this.prepareExpoTunnels();
+            } else {
+                await XDL.stopAdbReverse(this.projectPath);
+            }
 
-                        vscode.window
-                            .showInformationMessage(outputMessage, copyButton)
-                            .then(selection => {
-                                if (selection === copyButton) {
-                                    vscode.env.clipboard.writeText(exponentUrl);
-                                }
-                            });
-
-                        return resolve();
-                    })
-                    .catch(reason => {
-                        return reject(reason);
+            const isAdbReversed =
+                this.runOptions.expoHostType !== "local"
+                    ? false
+                    : // we need to execute 'adb reverse' command to bind ports used by Expo and RN of local machine to ports of a connected Android device or a running emulator
+                      await XDL.startAdbReverse(this.projectPath);
+            let exponentUrl = "";
+            switch (this.runOptions.expoHostType) {
+                case "lan":
+                    exponentUrl = await XDL.getUrl(this.projectPath, {
+                        dev: true,
+                        minify: false,
+                        hostType: "lan",
                     });
+                    break;
+                case "local":
+                    if (isAdbReversed) {
+                        this.logger.info(
+                            localize(
+                                "ExpoStartAdbReverseSuccess",
+                                "A device or an emulator was found, 'adb reverse' command successfully executed.",
+                            ),
+                        );
+                    } else {
+                        this.logger.warning(
+                            localize(
+                                "ExpoStartAdbReverseFailure",
+                                "Adb reverse command failed. Couldn't find connected over usb device or running emulator. Also please make sure that there is only one currently connected device or running emulator.",
+                            ),
+                        );
+                    }
+
+                    exponentUrl = await XDL.getUrl(this.projectPath, {
+                        dev: true,
+                        minify: false,
+                        hostType: "localhost",
+                    });
+                    break;
+                case "tunnel":
+                default:
+                    exponentUrl = await XDL.getUrl(this.projectPath, { dev: true, minify: false });
+            }
+            exponentUrl = "exp://" + url.parse(exponentUrl).host;
+
+            if (!exponentUrl) {
+                throw ErrorHelper.getInternalError(InternalErrorCode.ExpectedExponentTunnelPath);
+            }
+
+            if (this.runOptions.openExpoQR) {
+                let exponentPage = vscode.window.createWebviewPanel(
+                    "Expo QR Code",
+                    "Expo QR Code",
+                    vscode.ViewColumn.Two,
+                    {},
+                );
+                exponentPage.webview.html = this.qrCodeContentProvider.provideTextDocumentContent(
+                    vscode.Uri.parse(exponentUrl),
+                );
+            }
+
+            this.exponentTunnelPath = exponentUrl;
+            const outputMessage = localize(
+                "ExponentServerIsRunningOpenToSeeIt",
+                "Expo server is running. Open your Expo app at {0} to see it.",
+                this.exponentTunnelPath,
+            );
+            this.logger.info(outputMessage);
+
+            const copyButton = localize("CopyToClipboard", "Copy to clipboard");
+
+            vscode.window.showInformationMessage(outputMessage, copyButton).then(selection => {
+                if (selection === copyButton) {
+                    vscode.env.clipboard.writeText(exponentUrl);
+                }
             });
         });
     }
 
-    public loginToExponentOrSkip(expoHostType?: ExpoHostType): Promise<any> {
+    public async loginToExponentOrSkip(expoHostType?: ExpoHostType): Promise<any> {
         if (expoHostType !== "tunnel") {
-            return Promise.resolve();
+            return;
         }
-        return this.exponentHelper.loginToExponent(
-            (message, password) => {
-                return new Promise((resolve, reject) => {
-                    vscode.window
-                        .showInputBox({ placeHolder: message, password: password })
-                        .then(login => {
-                            resolve(login || "");
-                        }, reject);
-                });
+
+        return await this.exponentHelper.loginToExponent(
+            async (message, password) => {
+                return (
+                    (await vscode.window.showInputBox({
+                        placeHolder: message,
+                        password: password,
+                    })) || ""
+                );
             },
-            message => {
-                return new Promise((resolve, reject) => {
-                    const okButton = { title: "Ok" };
-                    const cancelButton = { title: "Cancel", isCloseAffordance: true };
-                    vscode.window
-                        .showInformationMessage(message, { modal: true }, okButton, cancelButton)
-                        .then(answer => {
-                            if (answer === cancelButton) {
-                                reject(
-                                    ErrorHelper.getInternalError(
-                                        InternalErrorCode.UserCancelledExpoLogin,
-                                    ),
-                                );
-                            }
-                            resolve("");
-                        }, reject);
-                });
+            async message => {
+                const okButton = { title: "Ok" };
+                const cancelButton = { title: "Cancel", isCloseAffordance: true };
+                const answer = await vscode.window.showInformationMessage(
+                    message,
+                    { modal: true },
+                    okButton,
+                    cancelButton,
+                );
+                if (answer === cancelButton) {
+                    throw ErrorHelper.getInternalError(InternalErrorCode.UserCancelledExpoLogin);
+                }
+                return "";
             },
         );
     }
 
-    public beforeStartPackager(): Promise<void> {
+    public async beforeStartPackager(): Promise<void> {
         return this.exponentHelper.configureExponentEnvironment();
     }
 
-    public enableJSDebuggingMode(): Promise<void> {
+    public async enableJSDebuggingMode(): Promise<void> {
         this.logger.info(
             localize(
                 "ApplicationIsRunningOnExponentShakeDeviceForRemoteDebugging",
                 "Application is running on Expo. Please shake device and select 'Debug JS Remotely' to enable debugging.",
             ),
         );
-        return Promise.resolve();
     }
 
     public getRunArguments(): string[] {
         return [];
     }
 
-    private prepareExpoTunnels(): Promise<void> {
-        return this.exponentHelper
-            .findOrInstallNgrokGlobally()
-            .then(() => XDL.startTunnels(this.projectPath))
-            .finally(() => this.exponentHelper.removeNodeModulesPathFromEnvIfWasSet());
+    private async prepareExpoTunnels(): Promise<void> {
+        try {
+            await this.exponentHelper.findOrInstallNgrokGlobally();
+            await XDL.startTunnels(this.projectPath);
+        } finally {
+            this.exponentHelper.removeNodeModulesPathFromEnvIfWasSet();
+        }
     }
 }

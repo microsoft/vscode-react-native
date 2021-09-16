@@ -10,7 +10,7 @@ import { homedir } from "os";
 
 suite("macOSDebugModeManager", function () {
     suite("extensionContext", function () {
-        test("findPlistFile should correctly find the NSUserDefaults plist file for an app", function () {
+        test("findPlistFile should correctly find the NSUserDefaults plist file for an app", async function () {
             const projectRoot = path.join("/", "tmp");
             const macosProjectRoot = path.join(projectRoot, "myProject");
             const bundleId = "org.reactjs.native.rn-macos";
@@ -50,9 +50,8 @@ suite("macOSDebugModeManager", function () {
                 },
             );
 
-            return (macOSDebugModeManager as any).findPlistFile().then((plistFile: string) => {
-                assert(plistFile === existingPlistFilePath, "Returned incorrect value");
-            });
+            const plistFile = await (macOSDebugModeManager as any).findPlistFile();
+            assert(plistFile === existingPlistFilePath, "Returned incorrect value");
         });
     });
 });

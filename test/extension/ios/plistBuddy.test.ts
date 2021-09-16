@@ -23,7 +23,7 @@ suite("plistBuddy", function () {
             sandbox.restore();
         });
 
-        test("setPlistProperty should attempt to modify, then add, plist properties", function () {
+        test("setPlistProperty should attempt to modify, then add, plist properties", async function () {
             const plistFileName = "testFile.plist";
             const plistProperty = ":RCTDevMenu:ExecutorClass";
             const plistValue = "RCTWebSocketExecutor";
@@ -47,22 +47,19 @@ suite("plistBuddy", function () {
             };
             const plistBuddy = new PlistBuddy({ nodeChildProcess: mockChildProcess });
 
-            return plistBuddy
-                .setPlistProperty(plistFileName, plistProperty, plistValue)
-                .then(() => {
-                    assert(
-                        mockedExecFunc.calledWithExactly(setCallArgs),
-                        "plistBuddy did not attempt to set first",
-                    );
-                    assert(
-                        mockedExecFunc.calledWithExactly(addCallArgs),
-                        "plistBuddy did not attempt to add after set failed",
-                    );
-                    assert.strictEqual(mockedExecFunc.callCount, 2);
-                });
+            await plistBuddy.setPlistProperty(plistFileName, plistProperty, plistValue);
+            assert(
+                mockedExecFunc.calledWithExactly(setCallArgs),
+                "plistBuddy did not attempt to set first",
+            );
+            assert(
+                mockedExecFunc.calledWithExactly(addCallArgs),
+                "plistBuddy did not attempt to add after set failed",
+            );
+            assert.strictEqual(mockedExecFunc.callCount, 2);
         });
 
-        test("setPlistProperty should stop after modifying if the attempt succeeds", function () {
+        test("setPlistProperty should stop after modifying if the attempt succeeds", async function () {
             const plistFileName = "testFile.plist";
             const plistProperty = ":RCTDevMenu:ExecutorClass";
             const plistValue = "RCTWebSocketExecutor";
@@ -80,18 +77,15 @@ suite("plistBuddy", function () {
             };
             const plistBuddy = new PlistBuddy({ nodeChildProcess: mockChildProcess });
 
-            return plistBuddy
-                .setPlistProperty(plistFileName, plistProperty, plistValue)
-                .then(() => {
-                    assert(
-                        mockedExecFunc.calledWithExactly(setCallArgs),
-                        "plistBuddy did not attempt to set first",
-                    );
-                    assert.strictEqual(mockedExecFunc.callCount, 1);
-                });
+            await plistBuddy.setPlistProperty(plistFileName, plistProperty, plistValue);
+            assert(
+                mockedExecFunc.calledWithExactly(setCallArgs),
+                "plistBuddy did not attempt to set first",
+            );
+            assert.strictEqual(mockedExecFunc.callCount, 1);
         });
 
-        test("getBundleId should return the bundle ID for RN <0.59", function () {
+        test("getBundleId should return the bundle ID for RN <0.59", async function () {
             const projectRoot = path.join("/", "userHome", "rnProject");
             const iosProjectRoot = path.join(projectRoot, "ios");
             const appName = "myApp";
@@ -114,7 +108,7 @@ suite("plistBuddy", function () {
             );
             sandbox.stub(plistBuddy, "getConfigurationData", fakeGetConfigurationData);
 
-            return Promise.all([
+            const [simulatorId1, simulatorId2, deviceId1, deviceId2] = await Promise.all([
                 plistBuddy.getBundleId(
                     iosProjectRoot,
                     projectRoot,
@@ -149,15 +143,14 @@ suite("plistBuddy", function () {
                     appName,
                     "whateverScheme",
                 ),
-            ]).then(([simulatorId1, simulatorId2, deviceId1, deviceId2]) => {
-                assert.strictEqual(simulatorBundleId, simulatorId1);
-                assert.strictEqual(simulatorBundleId, simulatorId2);
-                assert.strictEqual(deviceBundleId, deviceId1);
-                assert.strictEqual(deviceBundleId, deviceId2);
-            });
+            ]);
+            assert.strictEqual(simulatorBundleId, simulatorId1);
+            assert.strictEqual(simulatorBundleId, simulatorId2);
+            assert.strictEqual(deviceBundleId, deviceId1);
+            assert.strictEqual(deviceBundleId, deviceId2);
         });
 
-        test("getBundleId should return the bundle ID for RN >=0.59", function () {
+        test("getBundleId should return the bundle ID for RN >=0.59", async function () {
             const projectRoot = path.join("/", "userHome", "rnProject");
             const iosProjectRoot = path.join(projectRoot, "ios");
             const appName = "myApp";
@@ -182,7 +175,7 @@ suite("plistBuddy", function () {
             sandbox.stub(plistBuddy, "getConfigurationData", fakeGetConfigurationData);
             sandbox.stub(plistBuddy, "getInferredScheme").returns(scheme);
 
-            return Promise.all([
+            const [simulatorId1, simulatorId2, deviceId1, deviceId2] = await Promise.all([
                 plistBuddy.getBundleId(
                     iosProjectRoot,
                     projectRoot,
@@ -217,15 +210,14 @@ suite("plistBuddy", function () {
                     appName,
                     scheme,
                 ),
-            ]).then(([simulatorId1, simulatorId2, deviceId1, deviceId2]) => {
-                assert.strictEqual(simulatorBundleId, simulatorId1);
-                assert.strictEqual(simulatorBundleId, simulatorId2);
-                assert.strictEqual(deviceBundleId, deviceId1);
-                assert.strictEqual(deviceBundleId, deviceId2);
-            });
+            ]);
+            assert.strictEqual(simulatorBundleId, simulatorId1);
+            assert.strictEqual(simulatorBundleId, simulatorId2);
+            assert.strictEqual(deviceBundleId, deviceId1);
+            assert.strictEqual(deviceBundleId, deviceId2);
         });
 
-        test("getBundleId should return the bundle ID for an AppleTV project using RN >=0.59", function () {
+        test("getBundleId should return the bundle ID for an AppleTV project using RN >=0.59", async function () {
             const projectRoot = path.join("/", "userHome", "rnProject");
             const iosProjectRoot = path.join(projectRoot, "ios");
             const appName = "myApp";
@@ -250,7 +242,7 @@ suite("plistBuddy", function () {
             sandbox.stub(plistBuddy, "getConfigurationData", fakeGetConfigurationData);
             sandbox.stub(plistBuddy, "getInferredScheme").returns(scheme);
 
-            return Promise.all([
+            const [simulatorId1, simulatorId2, deviceId1, deviceId2] = await Promise.all([
                 plistBuddy.getBundleId(
                     iosProjectRoot,
                     projectRoot,
@@ -285,15 +277,14 @@ suite("plistBuddy", function () {
                     appName,
                     scheme,
                 ),
-            ]).then(([simulatorId1, simulatorId2, deviceId1, deviceId2]) => {
-                assert.strictEqual(simulatorBundleId, simulatorId1);
-                assert.strictEqual(simulatorBundleId, simulatorId2);
-                assert.strictEqual(deviceBundleId, deviceId1);
-                assert.strictEqual(deviceBundleId, deviceId2);
-            });
+            ]);
+            assert.strictEqual(simulatorBundleId, simulatorId1);
+            assert.strictEqual(simulatorBundleId, simulatorId2);
+            assert.strictEqual(deviceBundleId, deviceId1);
+            assert.strictEqual(deviceBundleId, deviceId2);
         });
 
-        test("getBundleId should return the bundle ID for a macOS project using RN >=0.59", function () {
+        test("getBundleId should return the bundle ID for a macOS project using RN >=0.59", async function () {
             const projectRoot = path.join("/", "userHome", "rnProject");
             const macosProjectRoot = path.join(projectRoot, "macos");
             const appName = "myApp";
@@ -318,7 +309,7 @@ suite("plistBuddy", function () {
             sandbox.stub(plistBuddy, "getConfigurationData", fakeGetConfigurationData);
             sandbox.stub(plistBuddy, "getInferredScheme").returns("myCustomScheme");
 
-            return Promise.all([
+            const [bundleId1, bundleId2] = await Promise.all([
                 plistBuddy.getBundleId(
                     macosProjectRoot,
                     projectRoot,
@@ -336,10 +327,9 @@ suite("plistBuddy", function () {
                     appName,
                     scheme,
                 ),
-            ]).then(([bundleId1, bundleId2]) => {
-                assert.strictEqual(deviceBundleId, bundleId1);
-                assert.strictEqual(deviceBundleId, bundleId2);
-            });
+            ]);
+            assert.strictEqual(deviceBundleId, bundleId1);
+            assert.strictEqual(deviceBundleId, bundleId2);
         });
 
         suite("fetchParameterFromBuildSettings", function () {

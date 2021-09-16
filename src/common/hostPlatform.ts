@@ -35,8 +35,9 @@ class WindowsHostPlatform implements IHostPlatform {
         return process.env.USERPROFILE || "";
     }
 
-    public setEnvironmentVariable(name: string, value: string): Promise<any> {
-        return new ChildProcess().exec(`setx ${name} ${value}`).then(res => res.outcome);
+    public async setEnvironmentVariable(name: string, value: string): Promise<any> {
+        const res = await new ChildProcess().exec(`setx ${name} ${value}`);
+        return res.outcome;
     }
 
     public getSettingsHome(): string {
@@ -93,10 +94,9 @@ abstract class UnixHostPlatform implements IHostPlatform {
  * IHostPlatform implemenation for the OSX platform.
  */
 class OSXHostPlatform extends UnixHostPlatform {
-    public setEnvironmentVariable(name: string, value: string): Promise<any> {
-        return new ChildProcess()
-            .exec(`launchctl setenv ${name} ${value}`)
-            .then(res => res.outcome);
+    public async setEnvironmentVariable(name: string, value: string): Promise<any> {
+        const res = await new ChildProcess().exec(`launchctl setenv ${name} ${value}`);
+        return res.outcome;
     }
 
     public getPlatformId(): HostPlatformId {
@@ -124,8 +124,9 @@ class OSXHostPlatform extends UnixHostPlatform {
  * IHostPlatform implemenation for the Linux platform.
  */
 class LinuxHostPlatform extends UnixHostPlatform {
-    public setEnvironmentVariable(name: string, value: string): Promise<any> {
-        return new ChildProcess().exec(`export ${name}=${value}`).then(res => res.outcome);
+    public async setEnvironmentVariable(name: string, value: string): Promise<any> {
+        const res = await new ChildProcess().exec(`export ${name}=${value}`);
+        return res.outcome;
     }
 
     public getPlatformId(): HostPlatformId {

@@ -151,18 +151,15 @@ export default class IosSimulatorManager {
             } else return false;
         };
 
-        return waitUntil(condition, IosSimulatorManager.SIMULATOR_START_TIMEOUT).then(result => {
-            if (result) {
-                SmokeTestLogger.success(
-                    `*** iOS simulator ${this.simulator.name} has been started.`,
-                );
-            } else {
-                SmokeTestLogger.error(
-                    `*** Could not start iOS simulator ${this.simulator.name} after ${IosSimulatorManager.SIMULATOR_START_TIMEOUT}.`,
-                );
-            }
-            return result;
-        });
+        const result = await waitUntil(condition, IosSimulatorManager.SIMULATOR_START_TIMEOUT);
+        if (result) {
+            SmokeTestLogger.success(`*** iOS simulator ${this.simulator.name} has been started.`);
+        } else {
+            SmokeTestLogger.error(
+                `*** Could not start iOS simulator ${this.simulator.name} after ${IosSimulatorManager.SIMULATOR_START_TIMEOUT}.`,
+            );
+        }
+        return result;
     }
 
     public async waitUntilIosSimulatorTerminating(): Promise<boolean> {
@@ -173,20 +170,17 @@ export default class IosSimulatorManager {
             } else return false;
         };
 
-        return waitUntil(condition, IosSimulatorManager.SIMULATOR_TERMINATE_TIMEOUT).then(
-            result => {
-                if (result) {
-                    SmokeTestLogger.success(
-                        `*** iOS simulator ${this.simulator.name} has been terminated.`,
-                    );
-                } else {
-                    SmokeTestLogger.error(
-                        `*** Could not terminate iOS simulator ${this.simulator.name} after ${IosSimulatorManager.SIMULATOR_TERMINATE_TIMEOUT}.`,
-                    );
-                }
-                return result;
-            },
-        );
+        const result = await waitUntil(condition, IosSimulatorManager.SIMULATOR_TERMINATE_TIMEOUT);
+        if (result) {
+            SmokeTestLogger.success(
+                `*** iOS simulator ${this.simulator.name} has been terminated.`,
+            );
+        } else {
+            SmokeTestLogger.error(
+                `*** Could not terminate iOS simulator ${this.simulator.name} after ${IosSimulatorManager.SIMULATOR_TERMINATE_TIMEOUT}.`,
+            );
+        }
+        return result;
     }
 
     public async waitUntilIosAppIsInstalled(appBundleId: string): Promise<void> {
@@ -225,7 +219,7 @@ export default class IosSimulatorManager {
 
         let awaitRetries: number = IosSimulatorManager.APP_INSTALL_AND_BUILD_TIMEOUT / 1000;
         let retry = 1;
-        await new Promise((resolve, reject) => {
+        await new Promise<void>((resolve, reject) => {
             const check = setInterval(async () => {
                 if (retry % 5 === 0) {
                     SmokeTestLogger.info(
@@ -428,18 +422,15 @@ export default class IosSimulatorManager {
             } else return false;
         };
 
-        return waitUntil(condition, IosSimulatorManager.SIMULATOR_TERMINATE_TIMEOUT).then(
-            result => {
-                if (result) {
-                    SmokeTestLogger.success(`*** All iOS simulators has been terminated.`);
-                } else {
-                    SmokeTestLogger.error(
-                        `*** Could not terminate all iOS simulators after ${IosSimulatorManager.SIMULATOR_TERMINATE_TIMEOUT}.`,
-                    );
-                }
-                return result;
-            },
-        );
+        const result = await waitUntil(condition, IosSimulatorManager.SIMULATOR_TERMINATE_TIMEOUT);
+        if (result) {
+            SmokeTestLogger.success(`*** All iOS simulators has been terminated.`);
+        } else {
+            SmokeTestLogger.error(
+                `*** Could not terminate all iOS simulators after ${IosSimulatorManager.SIMULATOR_TERMINATE_TIMEOUT}.`,
+            );
+        }
+        return result;
     }
 
     /**

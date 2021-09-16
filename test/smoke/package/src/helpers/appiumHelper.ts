@@ -11,7 +11,7 @@ import * as clipboardy from "clipboardy";
 import { SmokeTestLogger } from "./smokeTestLogger";
 
 let appiumProcess: null | cp.ChildProcess;
-export type AppiumClient = wdio.BrowserObject;
+export type AppiumClient = wdio.Browser<"async">;
 export enum Platform {
     Android = "Android",
     AndroidExpo = "AndroidExpo",
@@ -88,7 +88,7 @@ export class AppiumHelper {
     }
 
     public static async terminateAppium(): Promise<boolean> {
-        const errorCallback = err => {
+        const errorCallback = (err: any) => {
             if (err) {
                 SmokeTestLogger.error("Error occured while terminating Appium");
                 throw err;
@@ -127,14 +127,13 @@ export class AppiumHelper {
                 }
             };
 
-            return waitUntil(condition, 5 * 60 * 1000, 10 * 1000).then(result => {
-                if (result) {
-                    SmokeTestLogger.success(`*** Appium process was killed`);
-                } else {
-                    SmokeTestLogger.error(`*** Could not kill Appium process`);
-                }
-                return result;
-            });
+            const result = await waitUntil(condition, 5 * 60 * 1000, 10 * 1000);
+            if (result) {
+                SmokeTestLogger.success(`*** Appium process was killed`);
+            } else {
+                SmokeTestLogger.error(`*** Could not kill Appium process`);
+            }
+            return result;
         } else {
             return true;
         }
@@ -191,7 +190,7 @@ export class AppiumHelper {
         };
     }
 
-    public static webdriverAttach(attachArgs: wdio.RemoteOptions): Promise<wdio.BrowserObject> {
+    public static webdriverAttach(attachArgs: wdio.RemoteOptions): Promise<AppiumClient> {
         // Connect to the emulator with predefined opts
         return wdio.remote(attachArgs);
     }
@@ -374,7 +373,7 @@ export class AppiumHelper {
                 hermesMark = await client.$('//XCUIElementTypeStaticText[@name="Engine: Hermes"]');
                 break;
         }
-        return await hermesMark.waitForExist({
+        return hermesMark.waitForExist({
             timeout: SmokeTestsConstants.waitForElementTimeout,
         });
     }

@@ -51,102 +51,103 @@ export const getNgrokResolver: () => Promise<XDLPackage.ResolveNgrok> = PackageL
 
 export type IUser = XDLPackage.IUser;
 
-export function configReactNativeVersionWarnings(): Promise<void> {
-    return getXDLPackage().then(xdl => {
-        xdl.Config.validation.reactNativeVersionWarnings = false;
-    });
+export async function configReactNativeVersionWarnings(): Promise<void> {
+    (await getXDLPackage()).Config.validation.reactNativeVersionWarnings = false;
 }
 
-export function attachLoggerStream(
+export async function attachLoggerStream(
     rootPath: string,
     options?: XDLPackage.IBunyanStream | any,
 ): Promise<void> {
-    return getXDLPackage().then(xdl => xdl.ProjectUtils.attachLoggerStream(rootPath, options));
+    (await getXDLPackage()).ProjectUtils.attachLoggerStream(rootPath, options);
 }
 
-export function currentUser(): Promise<XDLPackage.IUser> {
-    return getXDLPackage().then(xdl =>
-        xdl.User ? xdl.User.getCurrentUserAsync() : xdl.UserManager.getCurrentUserAsync(),
-    );
+export async function currentUser(): Promise<XDLPackage.IUser> {
+    const xdl = await getXDLPackage();
+    return await (xdl.User
+        ? xdl.User.getCurrentUserAsync()
+        : xdl.UserManager.getCurrentUserAsync());
 }
 
-export function login(username: string, password: string): Promise<XDLPackage.IUser> {
-    return getXDLPackage().then(xdl =>
-        xdl.User
-            ? xdl.User.loginAsync("user-pass", { username: username, password: password })
-            : xdl.UserManager.loginAsync("user-pass", {
-                  username: username,
-                  password: password,
-              }),
-    );
+export async function login(username: string, password: string): Promise<XDLPackage.IUser> {
+    const xdl = await getXDLPackage();
+    return await (xdl.User
+        ? xdl.User.loginAsync("user-pass", { username: username, password: password })
+        : xdl.UserManager.loginAsync("user-pass", {
+              username: username,
+              password: password,
+          }));
 }
 
-export function getExpoSdkVersions(): Promise<XDLPackage.SDKVersions> {
-    return getXDLPackage().then(xdl => xdl.Versions.sdkVersionsAsync());
+export async function getExpoSdkVersions(): Promise<XDLPackage.SDKVersions> {
+    return (await getXDLPackage()).Versions.sdkVersionsAsync();
 }
 
-export function getReleasedExpoSdkVersions(): Promise<XDLPackage.SDKVersions> {
-    return getXDLPackage().then(xdl => xdl.Versions.releasedSdkVersionsAsync());
+export async function getReleasedExpoSdkVersions(): Promise<XDLPackage.SDKVersions> {
+    return (await getXDLPackage()).Versions.releasedSdkVersionsAsync();
 }
 
-export function publish(
+export async function publish(
     projectRoot: string,
     options?: XDLPackage.IPublishOptions,
 ): Promise<XDLPackage.IPublishResponse> {
-    return getXDLPackage().then(xdl => xdl.Project.publishAsync(projectRoot, options));
+    return (await getXDLPackage()).Project.publishAsync(projectRoot, options);
 }
 
-export function setOptions(projectRoot: string, options?: XDLPackage.IOptions): Promise<void> {
-    return getXDLPackage().then(xdl => xdl.Project.setOptionsAsync(projectRoot, options));
+export async function setOptions(
+    projectRoot: string,
+    options?: XDLPackage.IOptions,
+): Promise<void> {
+    await (await getXDLPackage()).Project.setOptionsAsync(projectRoot, options);
 }
 
-export function startExponentServer(projectRoot: string): Promise<void> {
-    return getXDLPackage().then(xdl => xdl.Project.startExpoServerAsync(projectRoot));
+export async function startExponentServer(projectRoot: string): Promise<void> {
+    await (await getXDLPackage()).Project.startExpoServerAsync(projectRoot);
 }
 
-export function startTunnels(projectRoot: string): Promise<void> {
-    return getXDLPackage().then(xdl => xdl.Project.startTunnelsAsync(projectRoot));
+export async function startTunnels(projectRoot: string): Promise<void> {
+    await (await getXDLPackage()).Project.startTunnelsAsync(projectRoot);
 }
 
-export function getUrl(projectRoot: string, options?: XDLPackage.IUrlOptions): Promise<string> {
-    return getXDLPackage().then(xdl =>
-        xdl.UrlUtils.constructManifestUrlAsync(projectRoot, options),
-    );
+export async function getUrl(
+    projectRoot: string,
+    options?: XDLPackage.IUrlOptions,
+): Promise<string> {
+    return (await getXDLPackage()).UrlUtils.constructManifestUrlAsync(projectRoot, options);
 }
 
-export function stopAll(projectRoot: string): Promise<void> {
-    return getXDLPackage().then(xdl => xdl.Project.stopAsync(projectRoot));
+export async function stopAll(projectRoot: string): Promise<void> {
+    await (await getXDLPackage()).Project.stopAsync(projectRoot);
 }
 
-export function startAdbReverse(projectRoot: string): Promise<boolean> {
-    return getXDLPackage().then(xdl => xdl.Android.startAdbReverseAsync(projectRoot));
+export async function startAdbReverse(projectRoot: string): Promise<boolean> {
+    return (await getXDLPackage()).Android.startAdbReverseAsync(projectRoot);
 }
 
-export function stopAdbReverse(projectRoot: string): Promise<void> {
-    return getXDLPackage().then(xdl => xdl.Android.stopAdbReverseAsync(projectRoot));
+export async function stopAdbReverse(projectRoot: string): Promise<void> {
+    await (await getXDLPackage()).Android.stopAdbReverseAsync(projectRoot);
 }
 
-export function getMetroConfig(projectRoot: string): Promise<MetroConfigPackage.IMetroConfig> {
-    return getMetroConfigPackage().then(metroConfigPackage =>
-        metroConfigPackage.loadAsync(projectRoot),
-    );
+export async function getMetroConfig(
+    projectRoot: string,
+): Promise<MetroConfigPackage.IMetroConfig> {
+    return (await getMetroConfigPackage()).loadAsync(projectRoot);
 }
 
-export function isNgrokInstalled(projectRoot: string): Promise<boolean> {
-    return getNgrokResolver()
-        .then(ngrokResolver =>
-            ngrokResolver.resolveNgrokAsync(projectRoot, {
-                shouldPrompt: false,
-                autoInstall: false,
-            }),
-        )
-        .then(ngrok => !!ngrok)
-        .catch(err => {
-            // If unsupported version of the "@expo/ngrok" package was detected, we need to update the package.
-            // Since the "require" method used to parse the "ngrok⁄package.json" file in the "xdl" package caches
-            // all processed modules, we have to remove this file from cache to be able to require a new version
-            // of that file after the update of the "@expo/ngrok" package
-            removeModuleFromRequireCacheByName(pathJoin("ngrok", "package.json"));
-            throw err;
+export async function isNgrokInstalled(projectRoot: string): Promise<boolean> {
+    const ngrokResolver = await getNgrokResolver();
+    try {
+        const ngrok = await ngrokResolver.resolveNgrokAsync(projectRoot, {
+            shouldPrompt: false,
+            autoInstall: false,
         });
+        return !!ngrok;
+    } catch (err) {
+        // If unsupported version of the "@expo/ngrok" package was detected, we need to update the package.
+        // Since the "require" method used to parse the "ngrok⁄package.json" file in the "xdl" package caches
+        // all processed modules, we have to remove this file from cache to be able to require a new version
+        // of that file after the update of the "@expo/ngrok" package
+        removeModuleFromRequireCacheByName(pathJoin("ngrok", "package.json"));
+        throw err;
+    }
 }
