@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import { Application } from "../../automation";
 import * as assert from "assert";
 import * as path from "path";
-import { Application } from "../../automation";
 import { AppiumClient, AppiumHelper, Platform } from "./helpers/appiumHelper";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { findFile, findStringInFile, isLoggedInExpo, sleep, waitUntil } from "./helpers/utilities";

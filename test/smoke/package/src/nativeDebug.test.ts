@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as assert from "assert";
 import { Application } from "../../automation";
+import * as assert from "assert";
 import AndroidEmulatorManager from "./helpers/androidEmulatorManager";
 import AutomationHelper from "./helpers/AutomationHelper";
 import { LaunchConfigurationManager } from "./helpers/launchConfigurationManager";
@@ -101,8 +101,8 @@ export function startReactNativeTests(
                     'Android Debug test: Searching for "Test output from debuggee" string in console',
                 );
                 await automationHelper.runCommandWithRetry("Debug: Focus on Debug Console View");
-                let found = await app.workbench.debug.waitForOutput(output =>
-                    output.some(line => line.indexOf("Test output from debuggee") >= 0),
+                const found = await automationHelper.waitForOutputWithRetry(
+                    "Test output from debuggee",
                 );
                 assert.notStrictEqual(
                     found,
@@ -168,8 +168,8 @@ export function startReactNativeTests(
                     'iOS Debug test: Searching for "Test output from debuggee" string in console',
                 );
                 await automationHelper.runCommandWithRetry("Debug: Focus on Debug Console View");
-                let found = await app.workbench.debug.waitForOutput(output =>
-                    output.some(line => line.indexOf("Test output from debuggee") >= 0),
+                const found = await automationHelper.waitForOutputWithRetry(
+                    "Test output from debuggee",
                 );
                 assert.notStrictEqual(
                     found,
