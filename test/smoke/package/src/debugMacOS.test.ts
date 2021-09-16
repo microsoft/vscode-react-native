@@ -131,7 +131,9 @@ export function startDebugMacOSTests(
                 `${testname}: Searching for "Test output from debuggee" string in console`,
             );
             await automationHelper.runCommandWithRetry("Debug: Focus on Debug Console View");
-            const found = await automationHelper.waitForOutputWithRetry("Test output from debuggee");
+            const found = await automationHelper.waitForOutputWithRetry(
+                "Test output from debuggee",
+            );
             assert.notStrictEqual(
                 found,
                 false,
