@@ -116,6 +116,7 @@ export class RNDebugSession extends DebugSessionBase {
                     versions,
                     extProps,
                 );
+                this.appLauncher.getPackager().setRunOptions(attachArgs);
 
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 await TelemetryHelper.generate("attach", extProps, async generator => {

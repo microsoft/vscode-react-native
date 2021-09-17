@@ -262,6 +262,19 @@
                 "type": "string",
                 "description": "%reactNative.attach.debuggerWorkerUrlPath.description%",
                 "default": "debugger-ui/"
+              },
+              "env": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "description": "%reactNative.launch.env.description%",
+                "default": {}
+              },
+              "envFile": {
+                "type": "string",
+                "description": "%reactNative.launch.envFile.description%",
+                "default": "${workspaceFolder}/.env"
               }
             }
           },
@@ -497,6 +510,19 @@
                   "type": "string"
                 },
                 "default": []
+              },
+              "env": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "description": "%reactNative.launch.env.description%",
+                "default": {}
+              },
+              "envFile": {
+                "type": "string",
+                "description": "%reactNative.launch.envFile.description%",
+                "default": "${workspaceFolder}/.env"
               }
             }
           },
