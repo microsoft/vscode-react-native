@@ -122,6 +122,8 @@ export class RNDebugSession extends DebugSessionBase {
                     attachArgs.port =
                         attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd);
 
+                    this.appLauncher.getPackager().setPort(attachArgs.port);
+
                     const cdpProxy = this.appLauncher.getRnCdpProxy();
                     await cdpProxy.stopServer();
                     await cdpProxy.initializeServer(

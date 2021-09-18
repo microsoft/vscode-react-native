@@ -150,6 +150,8 @@ export class DirectDebugSession extends DebugSessionBase {
                     );
                 }
                 attachArgs.port = port;
+                this.appLauncher.getPackager().setPort(attachArgs.port);
+
                 logger.log(`Connecting to ${attachArgs.port} port`);
                 await this.appLauncher.getRnCdpProxy().stopServer();
 

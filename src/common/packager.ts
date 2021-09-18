@@ -85,6 +85,10 @@ export class Packager {
         return this.packagerPort || SettingsHelper.getPackagerPort(this.workspacePath);
     }
 
+    public setPort(packagerPort: number): void {
+        this.packagerPort = packagerPort;
+    }
+
     public setRunOptions(runOptions: IRunOptions): void {
         this.runOptions = runOptions;
     }
