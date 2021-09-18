@@ -21,6 +21,7 @@ export interface ILaunchArgs {
     envFile?: string;
     isDirect?: boolean;
     enableDebug?: boolean;
+    packagerArguments?: string[];
 }
 
 export type DeviceType = "simulator" | "device";

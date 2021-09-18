@@ -112,11 +112,16 @@ export class Packager {
         projectRoot: string,
         rnVersion: string,
         resetCache: boolean = false,
+        packagerArguments?: string[],
     ): Promise<string[]> {
         let args: string[] = ["--port", this.getPort().toString()];
 
         if (resetCache) {
             args = args.concat("--resetCache");
+        }
+
+        if (packagerArguments) {
+            args = args.concat(packagerArguments);
         }
 
         const isExpo = await this.getExponentHelper().isExpoApp(false);
@@ -160,7 +165,12 @@ export class Packager {
             rnVersion = versions.reactNativeVersion;
             await this.monkeyPatchOpnForRNPackager(rnVersion);
 
-            const args = await this.getPackagerArgs(this.projectPath, rnVersion, resetCache);
+            const args = await this.getPackagerArgs(
+                this.projectPath,
+                rnVersion,
+                resetCache,
+                this.runOptions?.packagerArguments,
+            );
             //  There is a bug with launching VSCode editor for file from stack frame in 0.38, 0.39, 0.40 versions:
             //  https://github.com/facebook/react-native/commit/f49093f39710173620fead6230d62cc670570210
             //  This bug will be fixed in 0.41
