@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { IRunOptions, PlatformType } from "./../extension/launchArgs";
-import { GeneralMobilePlatform } from "./../extension/generalMobilePlatform";
+import { GeneralPlatform } from "../extension/generalPlatform";
 import { ChildProcess } from "child_process";
 import { CommandExecutor } from "./commandExecutor";
 import { ExponentHelper } from "../extension/exponent/exponentHelper";
@@ -171,14 +171,14 @@ export class Packager {
             // See more info in the issue https://github.com/microsoft/vscode-react-native/issues/1529
             delete env.CI;
             if (this.runOptions && (this.runOptions.env || this.runOptions.envFile)) {
-                env = GeneralMobilePlatform.getEnvArgument(
+                env = GeneralPlatform.getEnvArgument(
                     env,
                     this.runOptions.env,
                     this.runOptions.envFile,
                 );
             } else {
                 const rootEnv = path.join(this.getProjectPath(), ".env");
-                env = GeneralMobilePlatform.getEnvArgument(env, null, rootEnv);
+                env = GeneralPlatform.getEnvArgument(env, null, rootEnv);
             }
 
             let reactEnv = Object.assign({}, env, {

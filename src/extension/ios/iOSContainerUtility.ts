@@ -4,10 +4,9 @@
 import { ChildProcess } from "../../common/node/childProcess";
 import { notNullOrUndefined } from "../../common/utils";
 import { PromiseUtil } from "../../common/node/promise";
-import { IVirtualDevice } from "../VirtualDeviceManager";
-import { DeviceType } from "../launchArgs";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { promises, constants } from "fs";
+import { IDebuggableMobileTarget } from "../mobileTarget";
 
 /**
  * @preserve
@@ -34,10 +33,7 @@ type IdbTarget = {
     architecture: string;
 };
 
-export interface DeviceTarget extends IVirtualDevice {
-    type: DeviceType;
-    state: string;
-}
+export type DeviceTarget = IDebuggableMobileTarget;
 
 const isIdbAvailable = PromiseUtil.promiseCacheDecorator<boolean>(isAvailable);
 
@@ -76,9 +72,9 @@ async function targets(): Promise<Array<DeviceTarget>> {
                 .map((target: IdbTarget) => {
                     return {
                         id: target.udid,
-                        type: "device",
+                        isVirtualTarget: false,
                         name: target.name,
-                        state: target.state,
+                        isOnline: target.state === "active",
                     };
                 }),
         );
@@ -96,9 +92,9 @@ async function targets(): Promise<Array<DeviceTarget>> {
                 .map(([_match, name, udid]) => {
                     return {
                         id: udid,
-                        type: "device",
+                        isVirtualTarget: false,
                         name,
-                        state: "active",
+                        isOnline: true,
                     };
                 }),
         );

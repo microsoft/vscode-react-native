@@ -5,7 +5,7 @@ import * as vscode from "vscode";
 import * as XDL from "./exponent/xdlInterface";
 import { SettingsHelper } from "./settingsHelper";
 import { OutputChannelLogger } from "./log/OutputChannelLogger";
-import { TargetType, GeneralMobilePlatform } from "./generalMobilePlatform";
+import { TargetType, GeneralPlatform } from "./generalPlatform";
 import { AndroidPlatform } from "./android/androidPlatform";
 import { IOSPlatform } from "./ios/iOSPlatform";
 import { ProjectVersionHelper, REACT_NATIVE_PACKAGES } from "../common/projectVersionHelper";
@@ -31,7 +31,6 @@ import * as nls from "vscode-nls";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { AppLauncher } from "./appLauncher";
-import { AndroidEmulatorManager } from "./android/androidEmulatorManager";
 import { AndroidDeviceTracker } from "./android/androidDeviceTracker";
 import { IOSDeviceTracker } from "./ios/iOSDeviceTracker";
 import { AdbHelper } from "./android/adb";
@@ -43,6 +42,7 @@ import { WindowsPlatform } from "./windows/windowsPlatform";
 import { CONTEXT_VARIABLES_NAMES } from "../common/contextVariablesNames";
 import { MacOSPlatform } from "./macos/macOSPlatform";
 import { TipNotificationService } from "../extension/tipsNotificationsService/tipsNotificationService";
+import { AndroidTargetManager } from "./android/androidTargetManager";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -160,17 +160,14 @@ export class CommandPaletteHandler {
         const projectPath = appLauncher.getPackager().getProjectPath();
         const nodeModulesRoot: string = appLauncher.getOrUpdateNodeModulesRoot();
         const adbHelper = new AdbHelper(projectPath, nodeModulesRoot);
-        const androidEmulatorManager = new AndroidEmulatorManager(adbHelper);
-        const emulator = await androidEmulatorManager.startSelection();
-        if (emulator) {
-            await androidEmulatorManager.tryLaunchEmulatorByName(emulator);
-        }
+        const androidEmulatorManager = new AndroidTargetManager(adbHelper);
+        await androidEmulatorManager.selectAndPrepareTarget();
     }
 
     /**
      * Executes the 'react-native run-android' command
      */
-    public static async runAndroid(target: TargetType = "simulator"): Promise<void> {
+    public static async runAndroid(target: TargetType = TargetType.Simulator): Promise<void> {
         const appLauncher = await this.selectProject();
         TargetPlatformHelper.checkTargetPlatformSupport(PlatformType.Android);
         const nodeModulesRoot: string = appLauncher.getOrUpdateNodeModulesRoot();
@@ -185,7 +182,7 @@ export class CommandPaletteHandler {
                 const platform = <AndroidPlatform>(
                     this.createPlatform(appLauncher, PlatformType.Android, AndroidPlatform, target)
                 );
-                await platform.resolveVirtualDevice(target);
+                await platform.resolveMobileTarget(target);
                 await platform.beforeStartPackager();
                 await platform.startPackager();
                 await platform.runApp(/*shouldLaunchInAllDevices*/ true);
@@ -197,7 +194,7 @@ export class CommandPaletteHandler {
     /**
      * Executes the 'react-native run-ios' command
      */
-    public static async runIos(target: TargetType = "simulator"): Promise<void> {
+    public static async runIos(target: TargetType = TargetType.Simulator): Promise<void> {
         const appLauncher = await this.selectProject();
         const nodeModulesRoot: string = appLauncher.getOrUpdateNodeModulesRoot();
         const versions = await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
@@ -213,7 +210,7 @@ export class CommandPaletteHandler {
                     this.createPlatform(appLauncher, PlatformType.iOS, IOSPlatform, target)
                 );
                 try {
-                    await platform.resolveVirtualDevice(target);
+                    await platform.resolveMobileTarget(target);
                     await platform.beforeStartPackager();
                     await platform.startPackager();
                     // Set the Debugging setting to disabled, because in iOS it's persisted across runs of the app
@@ -498,15 +495,15 @@ export class CommandPaletteHandler {
         const projectPath = appLauncher.getPackager().getProjectPath();
         const nodeModulesRoot: string = appLauncher.getOrUpdateNodeModulesRoot();
         const adbHelper = new AdbHelper(projectPath, nodeModulesRoot);
-        const avdManager = new AndroidEmulatorManager(adbHelper);
-        const deviceId = await avdManager.selectOnlineDevice();
-        if (deviceId) {
-            LogCatMonitorManager.delMonitor(deviceId); // Stop previous logcat monitor if it's running
+        const targetManager = new AndroidTargetManager(adbHelper);
+        const target = await targetManager.selectAndPrepareTarget(target => target.isOnline);
+        if (target) {
+            LogCatMonitorManager.delMonitor(target.id); // Stop previous logcat monitor if it's running
             let logCatArguments = SettingsHelper.getLogCatFilteringArgs(
                 appLauncher.getWorkspaceFolderUri(),
             );
             // this.logCatMonitor can be mutated, so we store it locally too
-            let logCatMonitor = new LogCatMonitor(deviceId, adbHelper, logCatArguments);
+            let logCatMonitor = new LogCatMonitor(target.id, adbHelper, logCatArguments);
             LogCatMonitorManager.addMonitor(logCatMonitor);
             logCatMonitor
                 .start() // The LogCat will continue running forever, so we don't wait for it
@@ -594,9 +591,9 @@ export class CommandPaletteHandler {
     private static createPlatform(
         appLauncher: AppLauncher,
         platform: PlatformType,
-        platformClass: typeof GeneralMobilePlatform,
+        platformClass: typeof GeneralPlatform,
         target?: TargetType,
-    ): GeneralMobilePlatform {
+    ): GeneralPlatform {
         const runOptions = CommandPaletteHandler.getRunOptions(appLauncher, platform, target);
         runOptions.nodeModulesRoot = appLauncher.getOrUpdateNodeModulesRoot();
 
@@ -756,7 +753,7 @@ export class CommandPaletteHandler {
     private static getRunOptions(
         appLauncher: AppLauncher,
         platform: PlatformType,
-        target: TargetType = "simulator",
+        target: TargetType = TargetType.Simulator,
     ): IAndroidRunOptions | IIOSRunOptions | IWindowsRunOptions | ImacOSRunOptions {
         const packagerPort = SettingsHelper.getPackagerPort(
             appLauncher.getWorkspaceFolderUri().fsPath,

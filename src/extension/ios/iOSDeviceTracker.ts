@@ -2,8 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { AbstractDeviceTracker } from "../abstractDeviceTracker";
-import { IOSSimulatorManager, IiOSSimulator } from "./iOSSimulatorManager";
-import { DeviceType } from "../launchArgs";
 import iosUtil, { DeviceTarget } from "./iOSContainerUtility";
 import { DeviceStorage } from "../networkInspector/devices/deviceStorage";
 import { ClientOS } from "../networkInspector/clientUtils";
@@ -11,10 +9,11 @@ import { IOSClienDevice } from "../networkInspector/devices/iOSClienDevice";
 import { findFileInFolderHierarchy } from "../../common/extensionHelper";
 import { ChildProcess, execFile } from "child_process";
 import { ChildProcess as ChildProcessUtils } from "../../common/node/childProcess";
+import { IDebuggableIOSTarget, IOSTargetManager } from "./iOSTargetManager";
 
 export class IOSDeviceTracker extends AbstractDeviceTracker {
     private readonly portForwardingClientPath: string;
-    private iOSSimulatorManager: IOSSimulatorManager;
+    private iOSTargetManager: IOSTargetManager;
     private portForwarders: Array<ChildProcess>;
 
     constructor() {
@@ -22,7 +21,7 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
         this.portForwardingClientPath =
             (findFileInFolderHierarchy(__dirname, "static/PortForwardingMacApp.app") || __dirname) +
             "/Contents/MacOS/PortForwardingMacApp";
-        this.iOSSimulatorManager = new IOSSimulatorManager();
+        this.iOSTargetManager = new IOSTargetManager();
         this.portForwarders = [];
     }
 
@@ -42,18 +41,19 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
 
     protected async queryDevices(): Promise<void> {
         const simulators = await this.getRunningSimulators();
-        this.processDevices(simulators, "simulator");
+        this.processDevices(simulators, true);
         const devices = await this.getActiveDevices();
-        this.processDevices(devices, "device");
+        this.processDevices(devices, false);
     }
 
-    private processDevices(
-        activeDevices: Array<IiOSSimulator | DeviceTarget>,
-        type: DeviceType,
-    ): void {
+    private processDevices(activeDevices: Array<DeviceTarget>, isVirtualTarget: boolean): void {
         let currentDevicesIds = new Set(
             [...DeviceStorage.devices.entries()]
-                .filter(entry => entry[1] instanceof IOSClienDevice && entry[1].deviceType === type)
+                .filter(
+                    entry =>
+                        entry[1] instanceof IOSClienDevice &&
+                        entry[1].isVirtualTarget === isVirtualTarget,
+                )
                 .map(entry => entry[0]),
         );
 
@@ -61,14 +61,14 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
             if (currentDevicesIds.has(activeDevice.id)) {
                 currentDevicesIds.delete(activeDevice.id);
             } else {
-                const androidDevice = new IOSClienDevice(
+                const iosDevice = new IOSClienDevice(
                     activeDevice.id,
-                    type,
+                    isVirtualTarget,
                     ClientOS.iOS,
-                    activeDevice.state || "active",
+                    activeDevice.isOnline,
                     activeDevice.name,
                 );
-                DeviceStorage.devices.set(androidDevice.id, androidDevice);
+                DeviceStorage.devices.set(iosDevice.id, iosDevice);
             }
         }
 
@@ -140,8 +140,10 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
      * End region: https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/dispatcher/iOSDevice.tsx#L63-L79
      */
 
-    private async getRunningSimulators(): Promise<IiOSSimulator[]> {
-        return this.iOSSimulatorManager.collectSimulators("booted");
+    private async getRunningSimulators(): Promise<IDebuggableIOSTarget[]> {
+        return (await this.iOSTargetManager.getTargetList(
+            target => target.isOnline,
+        )) as IDebuggableIOSTarget[];
     }
 
     /**

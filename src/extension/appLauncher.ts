@@ -11,7 +11,7 @@ import { PackagerStatusIndicator } from "./packagerStatusIndicator";
 import { CommandExecutor } from "../common/commandExecutor";
 import { isNullOrUndefined } from "../common/utils";
 import { OutputChannelLogger } from "./log/OutputChannelLogger";
-import { MobilePlatformDeps, GeneralMobilePlatform } from "./generalMobilePlatform";
+import { GeneralPlatform, MobilePlatformDeps, TargetType } from "./generalPlatform";
 import { PlatformResolver } from "./platformResolver";
 import { ProjectVersionHelper } from "../common/projectVersionHelper";
 import { TelemetryHelper } from "../common/telemetryHelper";
@@ -28,6 +28,7 @@ import { MultipleLifetimesAppWorker } from "../debugger/appWorker";
 import { PlatformType } from "./launchArgs";
 import { LaunchScenariosManager } from "./launchScenariosManager";
 import { createAdditionalWorkspaceFolder, onFolderAdded } from "./rn-extension";
+import { GeneralMobilePlatform } from "./generalMobilePlatform";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -46,7 +47,7 @@ export class AppLauncher {
     private reactNativeVersions?: RNPackageVersions;
     private rnCdpProxy: ReactNativeCDPProxy;
     private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
-    private mobilePlatform: GeneralMobilePlatform;
+    private mobilePlatform: GeneralPlatform;
     private launchScenariosManager: LaunchScenariosManager;
     private debugConfigurationRoot: string;
     private nodeModulesRoot?: string;
@@ -167,7 +168,7 @@ export class AppLauncher {
         return this.appWorker;
     }
 
-    public getMobilePlatform(): GeneralMobilePlatform {
+    public getMobilePlatform(): GeneralPlatform {
         return this.mobilePlatform;
     }
 
@@ -277,12 +278,14 @@ export class AppLauncher {
 
             await TelemetryHelper.generate("launch", extProps, async generator => {
                 try {
-                    generator.step("resolveEmulator");
-                    await this.resolveAndSaveVirtualDevice(
-                        this.mobilePlatform,
-                        launchArgs,
-                        mobilePlatformOptions,
-                    );
+                    if (this.mobilePlatform instanceof GeneralMobilePlatform) {
+                        generator.step("resolveAndSaveMobileTarget");
+                        await this.resolveAndSaveMobileTarget(
+                            launchArgs,
+                            mobilePlatformOptions,
+                            this.mobilePlatform,
+                        );
+                    }
 
                     await this.mobilePlatform.beforeStartPackager();
 
@@ -396,74 +399,35 @@ export class AppLauncher {
         }
     }
 
-    private async resolveAndSaveVirtualDevice(
-        mobilePlatform: GeneralMobilePlatform,
+    private async resolveAndSaveMobileTarget(
         launchArgs: any,
         mobilePlatformOptions: any,
+        mobilePlatform: GeneralMobilePlatform,
     ): Promise<void> {
-        if (
-            launchArgs.target &&
-            (mobilePlatformOptions.platform === PlatformType.Android ||
-                mobilePlatformOptions.platform === PlatformType.iOS)
-        ) {
-            try {
-                const emulator = await mobilePlatform.resolveVirtualDevice(launchArgs.target);
-                if (emulator) {
-                    if (emulator.name && launchArgs.platform === PlatformType.Android) {
-                        mobilePlatformOptions.target = emulator.id;
-                        this.launchScenariosManager.updateLaunchScenario(launchArgs, {
-                            target: emulator.name,
-                        });
-                    }
-                    if (launchArgs.platform === PlatformType.iOS) {
-                        this.launchScenariosManager.updateLaunchScenario(launchArgs, {
-                            target: emulator.id,
-                        });
-                    }
-                    launchArgs.target = emulator.id;
-                } else if (
-                    mobilePlatformOptions.target.indexOf("device") < 0 &&
-                    launchArgs.platform === PlatformType.Android
-                ) {
-                    // We should cleanup target only for Android platform,
-                    // because react-native-cli does not support launch with Android emulator name
-                    this.cleanupTargetModifications(mobilePlatform, mobilePlatformOptions);
-                }
-            } catch (error) {
-                if (
-                    error &&
-                    error.errorCode &&
-                    error.errorCode === InternalErrorCode.VirtualDeviceSelectionError
-                ) {
-                    TelemetryHelper.sendErrorEvent(
-                        "VirtualDeviceSelectionError",
-                        ErrorHelper.getInternalError(InternalErrorCode.VirtualDeviceSelectionError),
-                    );
+        if (mobilePlatformOptions.target) {
+            const isAnyTarget =
+                mobilePlatformOptions.target.toLowerCase() === TargetType.Simulator ||
+                mobilePlatformOptions.target.toLowerCase() === TargetType.Device;
+            const resultTarget = await mobilePlatform.resolveMobileTarget(
+                mobilePlatformOptions.target,
+            );
+            const targets = await mobilePlatform.getAllTargets();
 
-                    this.logger.warning(error);
-                    this.logger.warning(
-                        localize(
-                            "ContinueWithRnCliWorkflow",
-                            "Continue using standard RN CLI workflow.",
-                        ),
-                    );
-
-                    if (mobilePlatformOptions.target.indexOf("device") < 0) {
-                        this.cleanupTargetModifications(mobilePlatform, mobilePlatformOptions);
-                    }
-                } else {
-                    throw error;
-                }
+            // Save result to config in case there are more than one possible target with this type (simulator/device)
+            if (
+                resultTarget &&
+                isAnyTarget &&
+                targets.filter(target => target.isVirtualTarget === resultTarget.isVirtualTarget)
+                    .length > 1
+            ) {
+                this.launchScenariosManager.updateLaunchScenario(launchArgs, {
+                    target:
+                        mobilePlatformOptions.platform === PlatformType.Android
+                            ? resultTarget.name
+                            : resultTarget.id,
+                });
             }
         }
-    }
-
-    private cleanupTargetModifications(
-        mobilePlatform: GeneralMobilePlatform,
-        mobilePlatformOptions: any,
-    ) {
-        mobilePlatformOptions.target = "simulator";
-        mobilePlatform.runArguments = mobilePlatform.getRunArguments();
     }
 
     private requestSetup(args: any): any {

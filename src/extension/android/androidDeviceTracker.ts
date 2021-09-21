@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { AdbDeviceType, AdbHelper } from "./adb";
+import { AdbHelper } from "./adb";
 import { DeviceStorage } from "../networkInspector/devices/deviceStorage";
 import { AndroidClientDevice } from "../networkInspector/devices/androidClientDevice";
 import { NetworkInspectorServer } from "../networkInspector/networkInspectorServer";
@@ -28,7 +28,7 @@ export class AndroidDeviceTracker extends AbstractDeviceTracker {
     }
 
     protected async queryDevices(): Promise<void> {
-        const onlineDevices = await this.adbHelper.getOnlineDevices();
+        const onlineDevices = await this.adbHelper.getOnlineTargets();
         let currentDevicesIds = new Set(
             [...DeviceStorage.devices.keys()].filter(
                 key => DeviceStorage.devices.get(key) instanceof AndroidClientDevice,
@@ -41,7 +41,7 @@ export class AndroidDeviceTracker extends AbstractDeviceTracker {
             } else {
                 const androidDevice = new AndroidClientDevice(
                     onlineDevice.id,
-                    onlineDevice.type === AdbDeviceType.AndroidSdkEmulator ? "simulator" : "device",
+                    onlineDevice.isVirtualTarget,
                     ClientOS.Android,
                 );
                 await this.initAndroidDevice(androidDevice);

@@ -3,7 +3,7 @@
 
 import * as semver from "semver";
 import * as path from "path";
-import { GeneralMobilePlatform, MobilePlatformDeps } from "../generalMobilePlatform";
+import { GeneralPlatform, MobilePlatformDeps, TargetType } from "../generalPlatform";
 import { MacOSDebugModeManager } from "./macOSDebugModeManager";
 import { ImacOSRunOptions, PlatformType } from "../launchArgs";
 import { OutputVerifier, PatternToFailure } from "../../common/outputVerifier";
@@ -16,7 +16,7 @@ import { ChildProcess } from "../../common/node/childProcess";
 /**
  * macOS specific platform implementation for debugging RN applications.
  */
-export class MacOSPlatform extends GeneralMobilePlatform {
+export class MacOSPlatform extends GeneralPlatform {
     private static SUCCESS_PATTERNS = ["Launching app"];
     private static FAILURE_PATTERNS: PatternToFailure[] = [
         {
@@ -79,7 +79,7 @@ export class MacOSPlatform extends GeneralMobilePlatform {
         );
 
         await TelemetryHelper.generate("MacOSPlatform.runApp", extProps, async () => {
-            const env = GeneralMobilePlatform.getEnvArgument(
+            const env = GeneralPlatform.getEnvArgument(
                 process.env,
                 this.runOptions.env,
                 this.runOptions.envFile,
@@ -121,9 +121,7 @@ export class MacOSPlatform extends GeneralMobilePlatform {
             runArguments.push(...this.runOptions.runArguments);
         } else {
             let target =
-                this.runOptions.target === MacOSPlatform.simulatorString
-                    ? ""
-                    : this.runOptions.target;
+                this.runOptions.target === TargetType.Simulator ? "" : this.runOptions.target;
             if (target) {
                 runArguments.push(`--${target}`);
             }

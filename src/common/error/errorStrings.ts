@@ -318,6 +318,10 @@ export const ERROR_STRINGS = {
         "FailedToStartAndroidEmulator",
         'The command "emulator -avd {0}" threw an exception: {1}',
     ),
+    [InternalErrorCode.AndroidThereIsNoAnyOnlineDebuggableTarget]: localize(
+        "AndroidThereIsNoAnyOnlineDebuggableTarget",
+        "There is no any Android debuggable online target",
+    ),
     [InternalErrorCode.VirtualDeviceSelectionError]: localize(
         "VirtualDeviceSelectionError",
         "Virtual device launch finished with an exception: {0}",

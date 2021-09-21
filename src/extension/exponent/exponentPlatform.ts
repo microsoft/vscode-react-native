@@ -4,7 +4,7 @@
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ExpoHostType, IExponentRunOptions, PlatformType } from "../launchArgs";
-import { GeneralMobilePlatform, MobilePlatformDeps } from "../generalMobilePlatform";
+import { GeneralPlatform, MobilePlatformDeps } from "../generalPlatform";
 import { ExponentHelper } from "./exponentHelper";
 import { TelemetryHelper } from "../../common/telemetryHelper";
 import { QRCodeContentProvider } from "../qrCodeContentProvider";
@@ -19,7 +19,7 @@ nls.config({
 })();
 const localize = nls.loadMessageBundle();
 
-export class ExponentPlatform extends GeneralMobilePlatform {
+export class ExponentPlatform extends GeneralPlatform {
     private exponentTunnelPath: string | null;
     private exponentHelper: ExponentHelper;
     private qrCodeContentProvider: QRCodeContentProvider = new QRCodeContentProvider();

@@ -102,6 +102,7 @@ export enum InternalErrorCode {
     AndroidCouldNotStartLogCatMonitor = 1206,
     AndroidCouldNotStopLogCatMonitor = 1207,
     AndroidCouldNotFindActiveLogCatMonitor = 1208,
+    AndroidThereIsNoAnyOnlineDebuggableTarget = 1209,
 
     // Windows Phone errors
     WinRNMPPluginIsNotInstalled = 1301,

@@ -118,7 +118,7 @@ suite("androidPlatform", function () {
                 };
             });
 
-            androidPlatform.setAdbHelper(adbHelper);
+            (androidPlatform as any).adbHelper = adbHelper;
 
             sandbox.stub(reactNative, "installAppInDevice", async function (deviceId: string) {
                 devices = devices.map((device: any) => {
@@ -244,7 +244,7 @@ suite("androidPlatform", function () {
                     nodeModulesRoot,
                 };
                 const platform = createAndroidPlatform(runOptions);
-                platform.setAdbHelper(adbHelper);
+                (platform as any).adbHelper = adbHelper;
                 await platform.runApp();
                 const isRunningOnNexus12 =
                     devices[4].installedApplications[androidPackageName].isInDebugMode === false;
@@ -283,7 +283,7 @@ suite("androidPlatform", function () {
                     nodeModulesRoot,
                 };
                 const platform = createAndroidPlatform(runOptions);
-                platform.setAdbHelper(adbHelper);
+                (platform as any).adbHelper = adbHelper;
                 await platform.runApp();
                 const devicesRunningAppId = devices.filter(
                     (device: any) =>
@@ -513,7 +513,7 @@ function fillDevices(ids: string[]): any[] {
             isOnline: true,
             installedApplications: {},
             runningApplications: {},
-            type: adb.AdbDeviceType.AndroidSdkEmulator,
+            isVirtualTarget: true,
             id: id,
         });
     });
