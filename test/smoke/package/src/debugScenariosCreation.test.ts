@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import { Application } from "../../automation";
 import * as assert from "assert";
 import { vscodeManager } from "./main";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
-import { Application } from "../../automation";
 import { testApplicationSetupManager } from "./main";
 import { LaunchConfigurationManager } from "./helpers/launchConfigurationManager";
 import TestProject from "./helpers/testProject";
@@ -47,7 +47,7 @@ export function startDebugScenariosCreationTests(project: TestProject): void {
             SmokeTestLogger.info(
                 "Debugging scenarios creation test: click on the Add Configuration button and React Native option",
             );
-            await app.workbench.debug.addConfiguration();
+            await automationHelper.addConfigurationWithRetry();
         });
 
         describe("Add Run scenarios", () => {

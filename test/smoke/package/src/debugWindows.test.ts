@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import { Application } from "../../automation";
 import * as assert from "assert";
 import * as cp from "child_process";
 import { sleep, waitUntil } from "./helpers/utilities";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { vscodeManager } from "./main";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
-import { Application } from "../../automation";
 import { TestRunArguments } from "./helpers/testConfigProcessor";
 import TestProject from "./helpers/testProject";
 import AutomationHelper from "./helpers/AutomationHelper";

@@ -787,22 +787,17 @@
           "default": "Light",
           "scope": "resource"
         },
-        "react-native.expo.dependencies.xdl": {
-          "description": "%reactNative.configuration.properties.react-native.expo.dependencies.xdl.description%",
-          "type": "string",
-          "default": "59.1.0",
-          "scope": "resource"
-        },
-        "react-native.expo.dependencies.metroConfig": {
-          "description": "%reactNative.configuration.properties.react-native.expo.dependencies.metro-config.description%",
-          "type": "string",
-          "default": "0.1.84",
-          "scope": "resource"
-        },
-        "react-native.expo.dependencies.ngrok": {
-          "description": "%reactNative.configuration.properties.react-native.expo.dependencies.ngrok.description%",
-          "type": "string",
-          "default": "^4.1.0",
+        "react-native.expo.dependencies": {
+          "description": "%reactNative.configuration.properties.react-native.expo.dependencies.description%",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": {
+            "xdl": "59.1.0",
+            "@expo/metro-config": "0.1.84",
+            "@expo/ngrok": "4.1.0"
+          },
           "scope": "resource"
         },
         "react-native-tools.showUserTips": {
