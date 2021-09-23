@@ -1,8 +1,9 @@
 ## 1.7.0
-* Migrated to async/await API [#1637](https://github.com/microsoft/vscode-react-native/pull/1637)
 * Fixed certificates for Network inspector feature forwarding on Windows [#1661](https://github.com/microsoft/vscode-react-native/pull/1661)
 * Improved expo dependencies management [#1665](https://github.com/microsoft/vscode-react-native/pull/1665)
 * Improved extension security [#1658](https://github.com/microsoft/vscode-react-native/pull/1658), [#1662](https://github.com/microsoft/vscode-react-native/pull/1662), [#1670](https://github.com/microsoft/vscode-react-native/pull/1670)
+* Internal changes:
+    * Migrated to async/await API [#1637](https://github.com/microsoft/vscode-react-native/pull/1637)
 
 
 ## 1.6.1
