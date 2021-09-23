@@ -86,10 +86,10 @@ suite("androidPlatform", function () {
                     });
                 },
             );
-            sandbox.stub(adbHelper, "getConnectedDevices", async function () {
+            sandbox.stub(adbHelper, "getConnectedTargets", async function () {
                 return devices;
             });
-            sandbox.stub(adbHelper, "getOnlineDevices", async function () {
+            sandbox.stub(adbHelper, "getOnlineTargets", async function () {
                 return devices.filter((device: any) => {
                     return device.isOnline;
                 });

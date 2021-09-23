@@ -55,21 +55,9 @@ suite("iOSPlatform", function () {
             let platform = new IOSPlatform(runOptions);
             assert.deepEqual(platform.runArguments, expected);
         });
-        test("getRunArgument simulator iPhone 6", function () {
-            runOptions.target = "iPhone 6";
-            const expected = ["--simulator", runOptions.target];
-            let platform = new IOSPlatform(runOptions);
-            assert.deepEqual(platform.runArguments, expected);
-        });
-        test("getRunArgument device Contoso iPhone", function () {
-            runOptions.target = "device=Contoso iPhone";
-            const expected = ["--device", "Contoso iPhone"];
-            let platform = new IOSPlatform(runOptions);
-            assert.deepEqual(platform.runArguments, expected);
-        });
-        test("getRunArgument device with incorrect 'device' field", function () {
-            runOptions.target = "device Contoso iPhone";
-            const expected = ["--device"];
+        test("getRunArgument target device id", function () {
+            runOptions.target = "925E6E38-0D7B-45E9-ADE0-89C20779D467";
+            const expected = ["--udid", runOptions.target];
             let platform = new IOSPlatform(runOptions);
             assert.deepEqual(platform.runArguments, expected);
         });
