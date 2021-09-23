@@ -8,6 +8,7 @@ import { GeneralPlatform, TargetType } from "./generalPlatform";
 import { IMobileTarget, MobileTarget } from "./mobileTarget";
 import { MobileTargetManager } from "./mobileTargetManager";
 import * as nls from "vscode-nls";
+import { IOSPlatform } from "./ios/iOSPlatform";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -23,6 +24,8 @@ export abstract class GeneralMobilePlatform extends GeneralPlatform {
     }
 
     public async resolveMobileTarget(targetString: string): Promise<MobileTarget | undefined> {
+        await this.targetManager.collectTargets();
+
         let isAnyTarget = false;
         let isVirtualTarget: boolean;
         if (targetString.toLowerCase() === TargetType.Simulator) {
@@ -36,12 +39,12 @@ export abstract class GeneralMobilePlatform extends GeneralPlatform {
         }
 
         const cleanupTargetModifications = () => {
+            // Use 'simulator' or 'device' in case we need to specify target
             this.runOptions.target = isVirtualTarget ? TargetType.Simulator : TargetType.Device;
             this.runArguments = this.getRunArguments();
         };
 
         try {
-            await this.targetManager.collectTargets();
             this.lastTarget = await this.targetManager.selectAndPrepareTarget(target => {
                 const conditionForNotAnyTarget = isAnyTarget
                     ? true
@@ -50,11 +53,32 @@ export abstract class GeneralMobilePlatform extends GeneralPlatform {
                 return conditionForVirtualTarget && conditionForNotAnyTarget;
             });
 
-            if (this.lastTarget && (await this.isNeedToPassTargetToRunArgs(isVirtualTarget))) {
-                this.addTargetToRunArgs(this.lastTarget);
-            } else {
-                // Use 'simulator' or 'device' in case we need to specify target
+            if (!this.lastTarget) {
+                this.logger.warning(
+                    localize(
+                        "CouldNotFindAnyDebuggableTarget",
+                        "Could not find any debuggable target by specified target: {0}",
+                        targetString,
+                    ),
+                );
+                this.logger.warning(
+                    localize(
+                        "ContinueWithRnCliWorkflow",
+                        "Continue using standard RN CLI workflow.",
+                    ),
+                );
                 cleanupTargetModifications();
+            } else {
+                // For iOS we should pass exact target id,
+                // becouse run-ios did not check booted devices and just launch first device
+                if (
+                    this instanceof IOSPlatform ||
+                    (await this.isNeedToPassTargetToRunArgs(isVirtualTarget))
+                ) {
+                    this.addTargetToRunArgs(this.lastTarget);
+                } else {
+                    cleanupTargetModifications();
+                }
             }
         } catch (error) {
             if (

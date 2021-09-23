@@ -233,16 +233,11 @@ export class AndroidPlatform extends GeneralMobilePlatform {
             }
             if (this.runOptions.target) {
                 if (
-                    this.runOptions.target === TargetType.Device ||
-                    this.runOptions.target === TargetType.Simulator
+                    !(
+                        this.runOptions.target === TargetType.Device ||
+                        this.runOptions.target === TargetType.Simulator
+                    )
                 ) {
-                    const message = localize(
-                        "TargetIsNotSupportedForAndroid",
-                        "Target {0} is not supported for Android platform. \n If you want to use particular device or simulator for launching Android app,\n please specify device id (as in 'adb devices' output) instead.",
-                        this.runOptions.target,
-                    );
-                    this.logger.warning(message);
-                } else {
                     runArguments.push("--deviceId", this.runOptions.target);
                 }
             }
