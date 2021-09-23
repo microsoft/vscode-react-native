@@ -191,7 +191,7 @@ export class ExponentHelper {
             ngrokInstalled = false;
         }
         if (!ngrokInstalled) {
-            const ngrokVersion = SettingsHelper.getExpoDependencyVersion("ngrok");
+            const ngrokVersion = SettingsHelper.getExpoDependencyVersion("@expo/ngrok");
             const ngrokPackageConfig = new PackageConfig(NGROK_PACKAGE, ngrokVersion);
 
             const outputMessage = localize(
