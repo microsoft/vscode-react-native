@@ -50,7 +50,8 @@ export class AndroidTargetManager extends MobileTargetManager {
             if (target === TargetType.Device) {
                 return false;
             } else if (
-                target === TargetType.Simulator || target.match(/^emulator(-\d{1,5})$/) ||
+                target === TargetType.Simulator ||
+                target.match(/^emulator(-\d{1,5})$/) ||
                 (await this.adbHelper.getAvdsNames()).includes(target)
             ) {
                 return true;

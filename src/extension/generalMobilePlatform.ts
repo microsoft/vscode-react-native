@@ -84,11 +84,11 @@ export abstract class GeneralMobilePlatform extends GeneralPlatform {
             if (
                 error &&
                 error.errorCode &&
-                error.errorCode === InternalErrorCode.VirtualDeviceSelectionError
+                error.errorCode === InternalErrorCode.TargetSelectionError
             ) {
                 TelemetryHelper.sendErrorEvent(
-                    "VirtualDeviceSelectionError",
-                    ErrorHelper.getInternalError(InternalErrorCode.VirtualDeviceSelectionError),
+                    "TargetSelectionError",
+                    ErrorHelper.getInternalError(InternalErrorCode.TargetSelectionError),
                 );
 
                 this.logger.warning(error);

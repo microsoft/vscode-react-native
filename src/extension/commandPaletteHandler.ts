@@ -43,6 +43,7 @@ import { CONTEXT_VARIABLES_NAMES } from "../common/contextVariablesNames";
 import { MacOSPlatform } from "./macos/macOSPlatform";
 import { TipNotificationService } from "../extension/tipsNotificationsService/tipsNotificationService";
 import { AndroidTargetManager } from "./android/androidTargetManager";
+import { IOSTargetManager } from "./ios/iOSTargetManager";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -161,7 +162,11 @@ export class CommandPaletteHandler {
         const nodeModulesRoot: string = appLauncher.getOrUpdateNodeModulesRoot();
         const adbHelper = new AdbHelper(projectPath, nodeModulesRoot);
         const androidEmulatorManager = new AndroidTargetManager(adbHelper);
-        await androidEmulatorManager.selectAndPrepareTarget();
+        await androidEmulatorManager.selectAndPrepareTarget(target => target.isVirtualTarget);
+    }
+
+    public static async launchIOSSimulator(): Promise<void> {
+        await new IOSTargetManager().selectAndPrepareTarget(target => target.isVirtualTarget);
     }
 
     /**

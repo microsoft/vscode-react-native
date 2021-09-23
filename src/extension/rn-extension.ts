@@ -376,6 +376,11 @@ function registerReactNativeCommands(): void {
         () => CommandPaletteHandler.launchAndroidEmulator(),
     );
     registerVSCodeCommand(
+        "launchIOSSimulator",
+        ErrorHelper.getInternalError(InternalErrorCode.FailedToStartAndroidEmulator),
+        () => CommandPaletteHandler.launchIOSSimulator(),
+    );
+    registerVSCodeCommand(
         "runAndroidSimulator",
         ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnAndroid),
         () => CommandPaletteHandler.runAndroid(TargetType.Simulator),
