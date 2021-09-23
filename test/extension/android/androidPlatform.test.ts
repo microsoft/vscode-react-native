@@ -206,7 +206,7 @@ suite("androidPlatform", function () {
                     should.assert(false, "runApp should've exited with an error");
                 } catch (error) {
                     error.message
-                        .startsWith("Unknown error: not all success patterns were matched")
+                        .startsWith("There is no any Android debuggable online target")
                         .should.be.true();
                 }
             },
