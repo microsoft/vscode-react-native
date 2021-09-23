@@ -1,3 +1,10 @@
+## 1.7.0
+* Migrated to async/await API [#1637](https://github.com/microsoft/vscode-react-native/pull/1637)
+* Fixed certificates for Network inspector feature forwarding on Windows [#1661](https://github.com/microsoft/vscode-react-native/pull/1661)
+* Improved expo dependencies management [#1665](https://github.com/microsoft/vscode-react-native/pull/1665)
+* Improved extension security [#1658](https://github.com/microsoft/vscode-react-native/pull/1658), [#1662](https://github.com/microsoft/vscode-react-native/pull/1662), [#1670](https://github.com/microsoft/vscode-react-native/pull/1670)
+
+
 ## 1.6.1
 * Improved error logging on debugging [#1633](https://github.com/microsoft/vscode-react-native/pull/1633)
 * Improved parsing of `sdk.dir` parameter in Android `local.properties` [#1643](https://github.com/microsoft/vscode-react-native/pull/1643)
