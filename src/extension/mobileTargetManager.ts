@@ -4,6 +4,7 @@
 import * as nls from "vscode-nls";
 import { QuickPickOptions, window } from "vscode";
 import { IMobileTarget, MobileTarget } from "./mobileTarget";
+import { TargetType } from "./generalPlatform";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -29,10 +30,10 @@ export abstract class MobileTargetManager {
     }
 
     public async isVirtualTarget(target: string): Promise<boolean> {
-        if (target.includes("device")) {
+        if (target === TargetType.Device) {
             return false;
         }
-        if (target.includes("emulator")) {
+        if (target === TargetType.Simulator) {
             return true;
         }
         throw new Error(

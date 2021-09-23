@@ -8,6 +8,7 @@ import { ChildProcess } from "../../common/node/childProcess";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { IDebuggableMobileTarget, IMobileTarget, MobileTarget } from "../mobileTarget";
 import { waitUntil } from "../../common/utils";
+import { TargetType } from "../generalPlatform";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -46,10 +47,10 @@ export class AndroidTargetManager extends MobileTargetManager {
 
     public async isVirtualTarget(target: string): Promise<boolean> {
         try {
-            if (target.includes("device")) {
+            if (target === TargetType.Device) {
                 return false;
             } else if (
-                target.match(/^emulator(-\d{1,5})?$/) ||
+                target === TargetType.Simulator || target.match(/^emulator(-\d{1,5})$/) ||
                 (await this.adbHelper.getAvdsNames()).includes(target)
             ) {
                 return true;
