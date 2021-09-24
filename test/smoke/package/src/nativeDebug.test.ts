@@ -42,8 +42,12 @@ export function startReactNativeTests(
             app = await vscodeManager.runVSCode(workspaceOrFolder, sessionName, locale);
             automationHelper = new AutomationHelper(app);
             const configManager = new LaunchConfigurationManager(workspaceOrFolder);
-            configManager.updateLaunchScenario(AndroidRNDebugConfigName, {target: androidEmulatorManager.getEmulatorName()});
-            configManager.updateLaunchScenario(IosRNDebugConfigName, {target: iosSimulatorManager.getSimulator().name});
+            configManager.updateLaunchScenario(AndroidRNDebugConfigName, {
+                target: androidEmulatorManager.getEmulatorName(),
+            });
+            configManager.updateLaunchScenario(IosRNDebugConfigName, {
+                target: iosSimulatorManager.getSimulator().name,
+            });
             return app;
         }
 

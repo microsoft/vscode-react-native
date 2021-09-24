@@ -44,8 +44,12 @@ export function startDirectDebugTests(
             app = await vscodeManager.runVSCode(workspaceOrFolder, sessionName, locale);
             automationHelper = new AutomationHelper(app);
             const configManager = new LaunchConfigurationManager(workspaceOrFolder);
-            configManager.updateLaunchScenario(RNAndroidHermesDebugConfigName, {target: androidEmulatorManager.getEmulatorName()});
-            configManager.updateLaunchScenario(RNIosHermesDebugConfigName, {target: iosSimulatorManager.getSimulator().name});
+            configManager.updateLaunchScenario(RNAndroidHermesDebugConfigName, {
+                target: androidEmulatorManager.getEmulatorName(),
+            });
+            configManager.updateLaunchScenario(RNIosHermesDebugConfigName, {
+                target: iosSimulatorManager.getSimulator().name,
+            });
             return app;
         }
 
