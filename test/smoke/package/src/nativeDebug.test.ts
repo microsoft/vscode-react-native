@@ -45,9 +45,11 @@ export function startReactNativeTests(
             configManager.updateLaunchScenario(AndroidRNDebugConfigName, {
                 target: androidEmulatorManager.getEmulatorName(),
             });
-            configManager.updateLaunchScenario(IosRNDebugConfigName, {
-                target: iosSimulatorManager.getSimulator().name,
-            });
+            if (process.platform === "darwin") {
+                configManager.updateLaunchScenario(IosRNDebugConfigName, {
+                    target: iosSimulatorManager.getSimulator().name,
+                });
+            }
             return app;
         }
 

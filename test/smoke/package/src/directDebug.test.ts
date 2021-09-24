@@ -47,9 +47,11 @@ export function startDirectDebugTests(
             configManager.updateLaunchScenario(RNAndroidHermesDebugConfigName, {
                 target: androidEmulatorManager.getEmulatorName(),
             });
-            configManager.updateLaunchScenario(RNIosHermesDebugConfigName, {
-                target: iosSimulatorManager.getSimulator().name,
-            });
+            if (process.platform === "darwin") {
+                configManager.updateLaunchScenario(RNIosHermesDebugConfigName, {
+                    target: iosSimulatorManager.getSimulator().name,
+                });
+            }
             return app;
         }
 
