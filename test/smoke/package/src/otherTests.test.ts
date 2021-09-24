@@ -95,7 +95,9 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
                 );
                 try {
                     await app.workbench.quickinput.waitForQuickInputOpened();
-                    SmokeTestLogger.info("Select and save Android emulator test: Quick pick is opened");
+                    SmokeTestLogger.info(
+                        "Select and save Android emulator test: Quick pick is opened",
+                    );
                     await app.workbench.quickinput.submit(androidEmulatorManager.getEmulatorName());
                     SmokeTestLogger.info(
                         `Select and save Android emulator test: Emulator ${androidEmulatorManager.getEmulatorName()} is selected`,
