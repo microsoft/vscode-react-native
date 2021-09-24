@@ -93,12 +93,16 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
                 SmokeTestLogger.info(
                     "Select and save Android emulator test: Wait for open quick pick",
                 );
-                await app.workbench.quickinput.waitForQuickInputOpened();
-                SmokeTestLogger.info("Select and save Android emulator test: Quick pick is opened");
-                await app.workbench.quickinput.submit(androidEmulatorManager.getEmulatorName());
-                SmokeTestLogger.info(
-                    `Select and save Android emulator test: Emulator ${androidEmulatorManager.getEmulatorName()} is selected`,
-                );
+                try {
+                    await app.workbench.quickinput.waitForQuickInputOpened();
+                    SmokeTestLogger.info("Select and save Android emulator test: Quick pick is opened");
+                    await app.workbench.quickinput.submit(androidEmulatorManager.getEmulatorName());
+                    SmokeTestLogger.info(
+                        `Select and save Android emulator test: Emulator ${androidEmulatorManager.getEmulatorName()} is selected`,
+                    );
+                } catch {
+                    this.skip();
+                }
                 SmokeTestLogger.info(
                     "Select and save Android emulator test: Wait until emulator starting",
                 );
