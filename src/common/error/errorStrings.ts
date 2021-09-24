@@ -326,6 +326,10 @@ export const ERROR_STRINGS = {
         "AndroidThereIsNoAnyOnlineDebuggableTarget",
         "There is no any Android debuggable online target",
     ),
+    [InternalErrorCode.IOSThereIsNoAnyDebuggableTarget]: localize(
+        "IOSThereIsNoAnyDebuggableTarget",
+        "There is no any iOS debuggable target",
+    ),
     [InternalErrorCode.TargetSelectionError]: localize(
         "TargetSelectionError",
         "Target launch finished with an exception: {0}",

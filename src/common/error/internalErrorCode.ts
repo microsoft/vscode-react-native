@@ -36,6 +36,7 @@ export enum InternalErrorCode {
     IOSFoundMoreThanOneExecutablesCleanupBuildFolder = 402,
     IOSCouldNotFoundExecutableInFolder = 403,
     IOSCouldNotFoundDeviceForDirectDebugging = 404,
+    IOSThereIsNoAnyDebuggableTarget = 405,
 
     // Packager errors
     OpnPackagerLocationNotFound = 501,

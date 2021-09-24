@@ -19,7 +19,7 @@ export class QuickInput {
         await this.waitForQuickInputClosed();
     }
 
-	async waitForQuickInputOpened(retryCount?: number): Promise<void> {
+	public async waitForQuickInputOpened(retryCount?: number): Promise<void> {
 		await this.code.waitForActiveElement(QuickInput.QUICK_INPUT_INPUT, retryCount);
 	}
 

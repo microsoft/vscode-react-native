@@ -17,6 +17,7 @@ import * as nls from "vscode-nls";
 import { AppLauncher } from "../appLauncher";
 import { GeneralMobilePlatform } from "../generalMobilePlatform";
 import { IDebuggableIOSTarget, IOSTarget, IOSTargetManager } from "./iOSTargetManager";
+import { ErrorHelper } from "../../common/error/errorHelper";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -91,7 +92,32 @@ export class IOSPlatform extends GeneralMobilePlatform {
     public async getLastTarget(): Promise<IOSTarget> {
         if (!this.lastTarget) {
             const targets = (await this.targetManager.getTargetList()) as IDebuggableIOSTarget[];
-            this.lastTarget = IOSTarget.fromInterface(targets[0]);
+            const targetsBySpecifiedType = targets.filter(target => {
+                switch (this.runOptions.target) {
+                    case TargetType.Simulator:
+                        return target.isVirtualTarget === true;
+                    case TargetType.Device:
+                        return target.isVirtualTarget === false;
+                    default:
+                        return true;
+                }
+            });
+            if (targetsBySpecifiedType.length) {
+                this.lastTarget = IOSTarget.fromInterface(targetsBySpecifiedType[0]);
+            } else if (targets.length) {
+                this.logger.warning(
+                    localize(
+                        "ThereIsNoTargetWithSpecifiedTargetType",
+                        "There is no any target with specified target type '{}'. Continue with any online target.",
+                        this.runOptions.target,
+                    ),
+                );
+                this.lastTarget = IOSTarget.fromInterface(targets[0]);
+            } else {
+                throw ErrorHelper.getInternalError(
+                    InternalErrorCode.IOSThereIsNoAnyDebuggableTarget,
+                );
+            }
         }
         return this.lastTarget;
     }
