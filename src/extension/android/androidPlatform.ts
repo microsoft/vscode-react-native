@@ -189,7 +189,8 @@ export class AndroidPlatform extends GeneralMobilePlatform {
             const mainId =
                 this.runOptions.target &&
                 this.runOptions.target !== TargetType.Simulator &&
-                this.runOptions.target !== TargetType.Device
+                this.runOptions.target !== TargetType.Device &&
+                onlineTargetsIds.find(id => id === this.runOptions.target)
                     ? this.runOptions.target
                     : (await this.getLastTarget()).id;
             try {

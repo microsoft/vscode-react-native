@@ -159,7 +159,7 @@ suite("AndroidTargetManager", function () {
             await checkTargetTargetTypeCheck(
                 async () =>
                     assert.strictEqual(
-                        await androidTargetManager.isVirtualTarget("emulator"),
+                        await androidTargetManager.isVirtualTarget("simulator"),
                         true,
                         "Could not recognize any emulator",
                     ),
