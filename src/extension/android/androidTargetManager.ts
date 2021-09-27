@@ -27,22 +27,19 @@ export class AndroidTarget extends MobileTarget {
 }
 
 export class AndroidTargetManager extends MobileTargetManager {
-    protected static readonly EMULATOR_COMMAND = "emulator";
-    protected static readonly EMULATOR_AVD_START_COMMAND = "-avd";
+    private static readonly EMULATOR_COMMAND = "emulator";
+    private static readonly EMULATOR_AVD_START_COMMAND = "-avd";
+    private static readonly EMULATOR_START_TIMEOUT = 120;
 
-    protected static readonly EMULATOR_START_TIMEOUT = 120;
-
-    protected logger: OutputChannelLogger = OutputChannelLogger.getChannel(
-        OutputChannelLogger.MAIN_CHANNEL_NAME,
-        true,
-    );
-
-    protected adbHelper: AdbHelper;
-    protected childProcess: ChildProcess = new ChildProcess();
+    private logger: OutputChannelLogger;
+    private adbHelper: AdbHelper;
+    private childProcess: ChildProcess;
 
     constructor(adbHelper: AdbHelper) {
         super();
         this.adbHelper = adbHelper;
+        this.logger = OutputChannelLogger.getChannel(OutputChannelLogger.MAIN_CHANNEL_NAME, true);
+        this.childProcess = new ChildProcess();
     }
 
     public async isVirtualTarget(target: string): Promise<boolean> {
@@ -51,7 +48,7 @@ export class AndroidTargetManager extends MobileTargetManager {
                 return false;
             } else if (
                 target === TargetType.Simulator ||
-                target.match(/^emulator(-\d{1,5})$/) ||
+                target.match(AdbHelper.AndroidSDKEmulatorPattern) ||
                 (await this.adbHelper.getAvdsNames()).includes(target)
             ) {
                 return true;

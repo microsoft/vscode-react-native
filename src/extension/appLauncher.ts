@@ -280,11 +280,7 @@ export class AppLauncher {
                 try {
                     if (this.mobilePlatform instanceof GeneralMobilePlatform) {
                         generator.step("resolveAndSaveMobileTarget");
-                        await this.resolveAndSaveMobileTarget(
-                            launchArgs,
-                            mobilePlatformOptions,
-                            this.mobilePlatform,
-                        );
+                        await this.resolveAndSaveMobileTarget(launchArgs, this.mobilePlatform);
                     }
 
                     await this.mobilePlatform.beforeStartPackager();
@@ -401,31 +397,27 @@ export class AppLauncher {
 
     private async resolveAndSaveMobileTarget(
         launchArgs: any,
-        mobilePlatformOptions: any,
         mobilePlatform: GeneralMobilePlatform,
     ): Promise<void> {
-        if (mobilePlatformOptions.target) {
+        if (launchArgs.target) {
             const isAnyTarget =
-                mobilePlatformOptions.target.toLowerCase() === TargetType.Simulator ||
-                mobilePlatformOptions.target.toLowerCase() === TargetType.Device;
-            const resultTarget = await mobilePlatform.resolveMobileTarget(
-                mobilePlatformOptions.target,
-            );
-            const targets = await mobilePlatform.getAllTargets();
+                launchArgs.target.toLowerCase() === TargetType.Simulator ||
+                launchArgs.target.toLowerCase() === TargetType.Device;
+            const resultTarget = await mobilePlatform.resolveMobileTarget(launchArgs.target);
 
             // Save result to config in case there are more than one possible target with this type (simulator/device)
-            if (
-                resultTarget &&
-                isAnyTarget &&
-                targets.filter(target => target.isVirtualTarget === resultTarget.isVirtualTarget)
-                    .length > 1
-            ) {
-                this.launchScenariosManager.updateLaunchScenario(launchArgs, {
-                    target:
-                        mobilePlatformOptions.platform === PlatformType.Android
-                            ? resultTarget.name
-                            : resultTarget.id,
-                });
+            if (resultTarget && isAnyTarget) {
+                const targetsCount = await mobilePlatform.getTargetsCountByFilter(
+                    target => target.isVirtualTarget === resultTarget.isVirtualTarget,
+                );
+                if (targetsCount > 1) {
+                    this.launchScenariosManager.updateLaunchScenario(launchArgs, {
+                        target:
+                            launchArgs.platform === PlatformType.Android
+                                ? resultTarget.name
+                                : resultTarget.id,
+                    });
+                }
             }
         }
     }

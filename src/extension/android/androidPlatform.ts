@@ -65,7 +65,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     private needsToLaunchApps: boolean = false;
 
     protected targetManager: AndroidTargetManager;
-    protected lastTarget?: AndroidTarget;
+    protected target?: AndroidTarget;
 
     // We set remoteExtension = null so that if there is an instance of androidPlatform that wants to have it's custom remoteExtension it can. This is specifically useful for tests.
     constructor(protected runOptions: IAndroidRunOptions, platformDeps: MobilePlatformDeps = {}) {
@@ -86,8 +86,8 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         return this.adbHelper.reloadApp(deviceId);
     }
 
-    public async getLastTarget(): Promise<AndroidTarget> {
-        if (!this.lastTarget) {
+    public async getTarget(): Promise<AndroidTarget> {
+        if (!this.target) {
             const onlineTargets = await this.adbHelper.getOnlineTargets();
             const onlineTargetsBySpecifiedType = onlineTargets.filter(target => {
                 switch (this.runOptions.target) {
@@ -100,23 +100,23 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                 }
             });
             if (onlineTargetsBySpecifiedType.length) {
-                this.lastTarget = AndroidTarget.fromInterface(onlineTargetsBySpecifiedType[0]);
+                this.target = AndroidTarget.fromInterface(onlineTargetsBySpecifiedType[0]);
             } else if (onlineTargets.length) {
                 this.logger.warning(
                     localize(
                         "ThereIsNoOnlineTargetWithSpecifiedTargetType",
-                        "There is no any online target with specified target type '{}'. Continue with any online target.",
+                        "There is no any online target with specified target type '{0}'. Continue with any online target.",
                         this.runOptions.target,
                     ),
                 );
-                this.lastTarget = AndroidTarget.fromInterface(onlineTargets[0]);
+                this.target = AndroidTarget.fromInterface(onlineTargets[0]);
             } else {
                 throw ErrorHelper.getInternalError(
                     InternalErrorCode.AndroidThereIsNoAnyOnlineDebuggableTarget,
                 );
             }
         }
-        return this.lastTarget;
+        return this.target;
     }
 
     public async runApp(shouldLaunchInAllDevices: boolean = false): Promise<void> {
@@ -186,19 +186,13 @@ export class AndroidPlatform extends GeneralMobilePlatform {
             const onlineTargetsIds = (await this.adbHelper.getOnlineTargets()).map(
                 target => target.id,
             );
-            const mainId =
-                this.runOptions.target &&
-                this.runOptions.target !== TargetType.Simulator &&
-                this.runOptions.target !== TargetType.Device &&
-                onlineTargetsIds.find(id => id === this.runOptions.target)
-                    ? this.runOptions.target
-                    : (await this.getLastTarget()).id;
+            const targetId = await this.getTargetIdForRunApp(onlineTargetsIds);
             try {
                 try {
                     await output;
                 } finally {
                     this.packageName = await this.getPackageName();
-                    devicesIdsForLaunch = [mainId];
+                    devicesIdsForLaunch = [targetId];
                 }
             } catch (error) {
                 if (
@@ -207,11 +201,11 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                             InternalErrorCode.AndroidMoreThanOneDeviceOrEmulator,
                         ).message &&
                     onlineTargetsIds.length >= 1 &&
-                    mainId
+                    targetId
                 ) {
                     /* If it failed due to multiple devices, we'll apply this workaround to make it work anyways */
                     this.needsToLaunchApps = true;
-                    devicesIdsForLaunch = shouldLaunchInAllDevices ? onlineTargetsIds : [mainId];
+                    devicesIdsForLaunch = shouldLaunchInAllDevices ? onlineTargetsIds : [targetId];
                 } else {
                     throw error;
                 }
@@ -228,7 +222,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
             this.runOptions.projectRoot,
             this.packageName,
             true,
-            (await this.getLastTarget()).id,
+            (await this.getTarget()).id,
             this.getAppIdSuffixFromRunArgumentsIfExists(),
         );
     }
@@ -238,7 +232,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
             this.runOptions.projectRoot,
             this.packageName,
             false,
-            (await this.getLastTarget()).id,
+            (await this.getTarget()).id,
             this.getAppIdSuffixFromRunArgumentsIfExists(),
         );
     }
@@ -276,6 +270,15 @@ export class AndroidPlatform extends GeneralMobilePlatform {
             LogCatMonitorManager.delMonitor(this.logCatMonitor.deviceId);
             this.logCatMonitor = null;
         }
+    }
+
+    private async getTargetIdForRunApp(onlineTargetsIds: string[]): Promise<string> {
+        return this.runOptions.target &&
+            this.runOptions.target !== TargetType.Simulator &&
+            this.runOptions.target !== TargetType.Device &&
+            onlineTargetsIds.find(id => id === this.runOptions.target)
+            ? this.runOptions.target
+            : (await this.getTarget()).id;
     }
 
     private getAppIdSuffixFromRunArgumentsIfExists(): string | undefined {

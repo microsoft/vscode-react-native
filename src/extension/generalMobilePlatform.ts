@@ -17,10 +17,10 @@ const localize = nls.loadMessageBundle();
 
 export abstract class GeneralMobilePlatform extends GeneralPlatform {
     protected targetManager: MobileTargetManager;
-    protected lastTarget?: MobileTarget;
+    protected target?: MobileTarget;
 
-    public async getAllTargets(): Promise<IMobileTarget[]> {
-        return this.targetManager.getTargetList();
+    public async getTargetsCountByFilter(filter?: (el: IMobileTarget) => boolean): Promise<number> {
+        return this.targetManager.getTargetsCountWithFilter(filter);
     }
 
     public async resolveMobileTarget(targetString: string): Promise<MobileTarget | undefined> {
@@ -45,7 +45,7 @@ export abstract class GeneralMobilePlatform extends GeneralPlatform {
         };
 
         try {
-            this.lastTarget = await this.targetManager.selectAndPrepareTarget(target => {
+            this.target = await this.targetManager.selectAndPrepareTarget(target => {
                 const conditionForNotAnyTarget = isAnyTarget
                     ? true
                     : target.name === targetString || target.id === targetString;
@@ -53,7 +53,7 @@ export abstract class GeneralMobilePlatform extends GeneralPlatform {
                 return conditionForVirtualTarget && conditionForNotAnyTarget;
             });
 
-            if (!this.lastTarget) {
+            if (!this.target) {
                 this.logger.warning(
                     localize(
                         "CouldNotFindAnyDebuggableTarget",
@@ -70,12 +70,12 @@ export abstract class GeneralMobilePlatform extends GeneralPlatform {
                 cleanupTargetModifications();
             } else {
                 // For iOS we should pass exact target id,
-                // becouse run-ios did not check booted devices and just launch first device
+                // because run-ios did not check booted devices and just launch first simulator from simulator list
                 if (
                     this instanceof IOSPlatform ||
-                    (await this.isNeedToPassTargetToRunArgs(isVirtualTarget))
+                    (await this.needToPassTargetToRunArgs(isVirtualTarget))
                 ) {
-                    this.addTargetToRunArgs(this.lastTarget);
+                    this.addTargetToRunArgs(this.target);
                 } else {
                     cleanupTargetModifications();
                 }
@@ -105,13 +105,12 @@ export abstract class GeneralMobilePlatform extends GeneralPlatform {
             }
         }
 
-        return this.lastTarget;
+        return this.target;
     }
 
-    protected async isNeedToPassTargetToRunArgs(isVirtualTarget: boolean): Promise<boolean> {
+    protected async needToPassTargetToRunArgs(isVirtualTarget: boolean): Promise<boolean> {
         // Due to performance we should avoid passing the target id to react-native CLI
         // We should not pass target to run arguments in case there is only one online simulator or online target
-
         const targets = await this.targetManager.getTargetList();
         return (
             targets.filter(target => target.isOnline && target.isVirtualTarget === isVirtualTarget)

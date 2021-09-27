@@ -29,6 +29,12 @@ export abstract class MobileTargetManager {
             : (this.targets as IMobileTarget[]);
     }
 
+    public async getTargetsCountWithFilter(
+        filter?: (el: IMobileTarget) => boolean,
+    ): Promise<number> {
+        return (await this.getTargetList(filter)).length;
+    }
+
     public async isVirtualTarget(target: string): Promise<boolean> {
         if (target === TargetType.Device) {
             return false;

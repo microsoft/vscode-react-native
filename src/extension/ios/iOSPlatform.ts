@@ -34,7 +34,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
     private defaultConfiguration: string = "Debug";
     private configurationArgumentName: string = "--configuration";
 
-    protected lastTarget?: IOSTarget;
+    protected target?: IOSTarget;
 
     // We should add the common iOS build/run errors we find to this list
     private static RUN_IOS_FAILURE_PATTERNS: PatternToFailure[] = [
@@ -89,8 +89,8 @@ export class IOSPlatform extends GeneralMobilePlatform {
         );
     }
 
-    public async getLastTarget(): Promise<IOSTarget> {
-        if (!this.lastTarget) {
+    public async getTarget(): Promise<IOSTarget> {
+        if (!this.target) {
             const targets = (await this.targetManager.getTargetList()) as IDebuggableIOSTarget[];
             const targetsBySpecifiedType = targets.filter(target => {
                 switch (this.runOptions.target) {
@@ -103,23 +103,23 @@ export class IOSPlatform extends GeneralMobilePlatform {
                 }
             });
             if (targetsBySpecifiedType.length) {
-                this.lastTarget = IOSTarget.fromInterface(targetsBySpecifiedType[0]);
+                this.target = IOSTarget.fromInterface(targetsBySpecifiedType[0]);
             } else if (targets.length) {
                 this.logger.warning(
                     localize(
                         "ThereIsNoTargetWithSpecifiedTargetType",
-                        "There is no any target with specified target type '{}'. Continue with any online target.",
+                        "There is no any target with specified target type '{0}'. Continue with any target.",
                         this.runOptions.target,
                     ),
                 );
-                this.lastTarget = IOSTarget.fromInterface(targets[0]);
+                this.target = IOSTarget.fromInterface(targets[0]);
             } else {
                 throw ErrorHelper.getInternalError(
                     InternalErrorCode.IOSThereIsNoAnyDebuggableTarget,
                 );
             }
         }
-        return this.lastTarget;
+        return this.target;
     }
 
     public async showDevMenu(appLauncher: AppLauncher): Promise<void> {
@@ -192,7 +192,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
 
     public async enableJSDebuggingMode(): Promise<void> {
         // Configure the app for debugging
-        if (!(await this.getLastTarget()).isVirtualTarget) {
+        if (!(await this.getTarget()).isVirtualTarget) {
             // Note that currently we cannot automatically switch the device into debug mode.
             this.logger.info(
                 "Application is running on a device, please shake device and select 'Debug JS Remotely' to enable debugging.",
@@ -235,7 +235,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
     }
 
     public async disableJSDebuggingMode(): Promise<void> {
-        if (!(await this.getLastTarget()).isVirtualTarget) {
+        if (!(await this.getTarget()).isVirtualTarget) {
             return;
         }
         return this.iosDebugModeManager.setAppRemoteDebuggingSetting(
@@ -300,7 +300,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
     private async generateSuccessPatterns(version: string): Promise<string[]> {
         // Clone RUN_IOS_SUCCESS_PATTERNS to avoid its runtime mutation
         let successPatterns = [...IOSPlatform.RUN_IOS_SUCCESS_PATTERNS];
-        if (!(await this.getLastTarget()).isVirtualTarget) {
+        if (!(await this.getTarget()).isVirtualTarget) {
             if (semver.gte(version, "0.60.0")) {
                 successPatterns.push("success Installed the app on the device");
             } else {

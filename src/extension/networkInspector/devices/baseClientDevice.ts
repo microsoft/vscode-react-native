@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { IDebuggableMobileTarget } from "../../mobileTarget";
+import { ITarget } from "../../mobileTarget";
 import { ClientOS } from "../clientUtils";
 
 export enum DeviceStatus {
@@ -9,7 +9,7 @@ export enum DeviceStatus {
     NotPrepared,
 }
 
-export class BaseClientDevice implements IDebuggableMobileTarget {
+export class BaseClientDevice implements ITarget {
     // operating system of this device
     protected _os: ClientOS;
     // human readable name for this device

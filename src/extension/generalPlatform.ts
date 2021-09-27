@@ -108,7 +108,7 @@ export class GeneralPlatform {
     }
 
     public async prewarmBundleCache(): Promise<void> {
-        // generalMobilePlatform should do nothing here. Method should be overriden by children for specific behavior.
+        // generalPlatform should do nothing here. Method should be overriden by children for specific behavior.
         return;
     }
 
@@ -200,7 +200,7 @@ export class GeneralPlatform {
     }
 
     public getRunArguments(): string[] {
-        throw new Error("Not yet implemented: GeneralMobilePlatform.getRunArguments");
+        throw new Error("Not yet implemented: GeneralPlatform.getRunArguments");
     }
 
     public static getEnvArgument(processEnv: any, env?: any, envFile?: string): any {

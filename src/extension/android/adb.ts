@@ -37,15 +37,15 @@ enum KeyEvents {
     KEYCODE_MENU = 82,
 }
 
-const AndroidSDKEmulatorPattern = /^emulator-\d{1,5}$/;
-const AndroidRemoteTargetPattern = /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}|.*_adb-tls-connect\._tcp.*)$/gm;
-
 export class AdbHelper {
     private nodeModulesRoot: string;
     private launchActivity: string;
     private childProcess: ChildProcess = new ChildProcess();
     private commandExecutor: CommandExecutor;
     private adbExecutable: string = "";
+
+    private static readonly AndroidRemoteTargetPattern = /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}|.*_adb-tls-connect\._tcp.*)$/gm;
+    public static readonly AndroidSDKEmulatorPattern = /^emulator-\d{1,5}$/;
 
     constructor(
         projectRoot: string,
@@ -87,30 +87,30 @@ export class AdbHelper {
     }
 
     public isRemoteTarget(id: string): boolean {
-        return !!id.match(AndroidRemoteTargetPattern);
+        return !!id.match(AdbHelper.AndroidRemoteTargetPattern);
     }
 
     public async getAvdNameById(emulatorId: string): Promise<string | null> {
-        return (
-            this.childProcess
-                .execToString(`${this.adbExecutable} -s ${emulatorId} emu avd name`)
-                // The command returns the name of avd by id of this running emulator.
-                // Return value example:
-                // "
-                // emuName
-                // OK
-                // "
-                .then(output => {
-                    if (output) {
-                        // Return the name of avd: emuName
-                        return output.split(/\r?\n|\r/g)[0];
-                    } else {
-                        return null;
-                    }
-                })
-                // If the command returned an error, it means that we could not find the emulator with the passed id
-                .catch(() => null)
-        );
+        try {
+            const output = await this.childProcess.execToString(
+                `${this.adbExecutable} -s ${emulatorId} emu avd name`,
+            );
+            // The command returns the name of avd by id of this running emulator.
+            // Return value example:
+            // "
+            // emuName
+            // OK
+            // "
+            if (output) {
+                // Return the name of avd: emuName
+                return output.split(/\r?\n|\r/g)[0];
+            } else {
+                return null;
+            }
+        } catch {
+            // If the command returned an error, it means that we could not find the emulator with the passed id
+            return null;
+        }
     }
 
     public setLaunchActivity(launchActivity: string): void {
@@ -253,15 +253,15 @@ export class AdbHelper {
             result.push({
                 id: match[1],
                 isOnline: match[2] === "device",
-                isVirtualTarget: this.determineIfItIsVirtualTarget(match[1]),
+                isVirtualTarget: this.isVirtualTarget(match[1]),
             });
             match = regex.exec(input);
         }
         return result;
     }
 
-    private determineIfItIsVirtualTarget(id: string): boolean {
-        return !!id.match(AndroidSDKEmulatorPattern);
+    private isVirtualTarget(id: string): boolean {
+        return !!id.match(AdbHelper.AndroidSDKEmulatorPattern);
     }
 
     private execute(deviceId: string, command: string): Promise<void> {

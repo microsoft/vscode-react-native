@@ -1,18 +1,17 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-export interface IDevice {
-    id: string;
-}
-
-export interface IMobileTarget {
+export interface ITarget {
     name?: string;
     id?: string;
-    isOnline: boolean;
     isVirtualTarget: boolean;
 }
 
-export interface IDebuggableMobileTarget extends IMobileTarget, IDevice {
+export interface IMobileTarget extends ITarget {
+    isOnline: boolean;
+}
+
+export interface IDebuggableMobileTarget extends IMobileTarget {
     id: string;
 }
 

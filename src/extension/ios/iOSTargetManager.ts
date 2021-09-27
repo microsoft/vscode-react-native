@@ -53,16 +53,18 @@ export class IOSTarget extends MobileTarget implements IDebuggableIOSTarget {
 }
 
 export class IOSTargetManager extends MobileTargetManager {
-    protected static readonly XCRUN_COMMAND = "xcrun";
-    protected static readonly SIMCTL_COMMAND = "simctl";
-    protected static readonly BOOT_COMMAND = `boot`;
-    protected static readonly SIMULATORS_LIST_COMMAND = `${IOSTargetManager.XCRUN_COMMAND} ${IOSTargetManager.SIMCTL_COMMAND} list devices available --json`;
-    protected static readonly ALL_DEVICES_LIST_COMMAND = `${IOSTargetManager.XCRUN_COMMAND} xctrace list devices`;
-    protected static readonly BOOTED_STATE = "Booted";
-    protected static readonly SIMULATOR_START_TIMEOUT = 120;
+    private static readonly XCRUN_COMMAND = "xcrun";
+    private static readonly SIMCTL_COMMAND = "simctl";
+    private static readonly BOOT_COMMAND = `boot`;
+    private static readonly SIMULATORS_LIST_COMMAND = `${IOSTargetManager.XCRUN_COMMAND} ${IOSTargetManager.SIMCTL_COMMAND} list devices available --json`;
+    private static readonly ALL_DEVICES_LIST_COMMAND = `${IOSTargetManager.XCRUN_COMMAND} xctrace list devices`;
+    private static readonly BOOTED_STATE = "Booted";
+    private static readonly SIMULATOR_START_TIMEOUT = 120;
 
-    protected childProcess: ChildProcess = new ChildProcess();
-    protected logger: OutputChannelLogger = OutputChannelLogger.getChannel(
+    private static readonly ANY_SYSTEM = "AnySystem";
+
+    private childProcess: ChildProcess = new ChildProcess();
+    private logger: OutputChannelLogger = OutputChannelLogger.getChannel(
         OutputChannelLogger.MAIN_CHANNEL_NAME,
         true,
     );
@@ -74,15 +76,19 @@ export class IOSTargetManager extends MobileTargetManager {
             await this.childProcess.execToString(`${IOSTargetManager.SIMULATORS_LIST_COMMAND}`),
         );
         Object.keys(simulators.devices).forEach(rawSystem => {
-            let system = rawSystem.split(".").slice(-1)[0]; // "com.apple.CoreSimulator.SimRuntime.iOS-11-4" -> "iOS-11-4"
+            const temp = rawSystem.split(".").slice(-1)[0].split("-"); // "com.apple.CoreSimulator.SimRuntime.iOS-11-4" -> ["iOS", "11", "4"]
+            const system = `${temp[0]} ${temp.slice(1).join(".")}`; // ["iOS", "11", "4"] -> iOS 11.4
             simulators.devices[rawSystem].forEach((device: any) => {
-                this.targets?.push({
-                    id: device.udid,
-                    name: device.name,
-                    system: system,
-                    isVirtualTarget: true,
-                    isOnline: device.state === IOSTargetManager.BOOTED_STATE,
-                });
+                // Now we support selection only for iOS system
+                if (system.includes("iOS")) {
+                    this.targets?.push({
+                        id: device.udid,
+                        name: device.name,
+                        system,
+                        isVirtualTarget: true,
+                        isOnline: device.state === IOSTargetManager.BOOTED_STATE,
+                    });
+                }
             });
         });
 
@@ -92,7 +98,7 @@ export class IOSTargetManager extends MobileTargetManager {
         //Output example:
         // == Devices ==
         // sierra (EFDAAD01-E1A3-5F00-A357-665B501D5520)
-        // Akvelon’s iPhone (14.4.2) (11b266e591e707bd64c718bfc1bf3e8b7c16bfc9)
+        // My iPhone (14.4.2) (33n546e591e707bd64c718bfc1bf3e8b7c16bfc9)
         //
         // == Simulators ==
         // Apple TV (14.5) (417BDFD8-6E22-4F87-BCAA-19C241AC9548)
@@ -111,18 +117,18 @@ export class IOSTargetManager extends MobileTargetManager {
                 .map(el => el.trim())
                 .filter(el => !!el);
             //Add only devices with system version
-            if (
-                params[params.length - 1].match(/\(.+\)/) &&
-                params[params.length - 2].match(/\(.+\)/)
-            ) {
-                this.targets.push({
-                    id: params[params.length - 1].replace(/\(|\)/g, "").trim(),
-                    name: params.slice(0, params.length - 2).join(" "),
-                    system: params[params.length - 2].replace(/\(|\)/g, "").trim(),
-                    isVirtualTarget: false,
-                    isOnline: true,
-                });
-            }
+            // if (
+            //     params[params.length - 1].match(/\(.+\)/) &&
+            //     params[params.length - 2].match(/\(.+\)/)
+            // ) {
+            this.targets.push({
+                id: params[params.length - 1].replace(/\(|\)/g, "").trim(),
+                name: params.slice(0, params.length - 2).join(" "),
+                system: params[params.length - 2].replace(/\(|\)/g, "").trim(),
+                isVirtualTarget: false,
+                isOnline: true,
+            });
+            // }
         }
     }
 
@@ -173,23 +179,25 @@ export class IOSTargetManager extends MobileTargetManager {
         filter?: (el: IDebuggableIOSTarget) => boolean,
     ): Promise<IDebuggableIOSTarget | undefined> {
         const system = await this.selectSystem(filter);
-        return (await this.selectTarget(
-            (el: IDebuggableIOSTarget) =>
-                (filter ? filter(el) : true) && (system ? el.system === system : true),
-        )) as IDebuggableIOSTarget | undefined;
+        if (system) {
+            return (await this.selectTarget(
+                (el: IDebuggableIOSTarget) =>
+                    (filter ? filter(el) : true) &&
+                    (system === IOSTargetManager.ANY_SYSTEM ? true : el.system === system),
+            )) as IDebuggableIOSTarget | undefined;
+        }
+        return;
     }
 
     protected async selectSystem(
         filter?: (el: IDebuggableIOSTarget) => boolean,
     ): Promise<string | undefined> {
         const targets = (await this.getTargetList(filter)) as IDebuggableIOSTarget[];
-        const names: Set<string> = new Set();
-        targets.forEach(el => {
-            // Now we support selection only for iOS system
-            if (el.system.includes("iOS")) {
-                names.add(el.system);
-            }
-        });
+        // If we select only from devices, we should not select system
+        if (!targets.find(target => target.isVirtualTarget)) {
+            return IOSTargetManager.ANY_SYSTEM;
+        }
+        const names: Set<string> = new Set(targets.map(target => target.system));
         const systemsList = Array.from(names);
         let result: string | undefined = systemsList[0];
         if (systemsList.length > 1) {
