@@ -88,7 +88,7 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
                 );
                 await automationHelper.runDebugScenarioWithRetry(AndroidRNDebugConfigName);
                 SmokeTestLogger.info(
-                    "Select and save Android emulator test: Debugging started in first time",
+                    "Select and save Android emulator test: Debugging started for the first time",
                 );
                 SmokeTestLogger.info(
                     "Select and save Android emulator test: Wait for open quick pick",
