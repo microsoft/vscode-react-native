@@ -108,7 +108,7 @@ export class GeneralPlatform {
     }
 
     public async prewarmBundleCache(): Promise<void> {
-        // generalMobilePlatform should do nothing here. Method should be overriden by children for specific behavior.
+        // generalPlatform should do nothing here. Method should be overriden by children for specific behavior.
         return;
     }
 
