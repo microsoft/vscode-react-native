@@ -103,7 +103,7 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
                         `Select and save Android emulator test: Emulator ${androidEmulatorManager.getEmulatorName()} is selected`,
                     );
                 } catch {
-                    this.skip();
+                    return this.skip();
                 }
                 SmokeTestLogger.info(
                     "Select and save Android emulator test: Wait until emulator starting",
