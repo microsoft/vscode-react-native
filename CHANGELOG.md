@@ -1,6 +1,6 @@
 ## 1.7.0
 * Fixed forwarding security certificates for Network inspector on Windows [#1661](https://github.com/microsoft/vscode-react-native/pull/1661)
-* Improved expo dependencies management: now setup of all packages versions is located in one [object](https://github.com/microsoft/vscode-react-native#configure-dependencies-versions-for-debugging-expo-projects) [#1665](https://github.com/microsoft/vscode-react-native/pull/1665)
+* Improved expo dependencies management: now [setup](https://github.com/microsoft/vscode-react-native#configure-dependencies-versions-for-debugging-expo-projects) of all packages versions is located in one object [#1665](https://github.com/microsoft/vscode-react-native/pull/1665)
 * Improved extension security [#1658](https://github.com/microsoft/vscode-react-native/pull/1658), [#1662](https://github.com/microsoft/vscode-react-native/pull/1662), [#1670](https://github.com/microsoft/vscode-react-native/pull/1670)
 * Internal changes:
     * Migrated to async/await API [#1637](https://github.com/microsoft/vscode-react-native/pull/1637)
