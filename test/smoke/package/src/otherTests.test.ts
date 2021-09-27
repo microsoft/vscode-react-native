@@ -84,7 +84,7 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
                     target: "simulator",
                 });
                 SmokeTestLogger.info(
-                    "Select and save Android emulator test: Starting debugging in first time",
+                    "Select and save Android emulator test: Starting debugging for the first time",
                 );
                 await automationHelper.runDebugScenarioWithRetry(AndroidRNDebugConfigName);
                 SmokeTestLogger.info(
