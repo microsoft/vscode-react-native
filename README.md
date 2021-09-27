@@ -741,7 +741,8 @@ To debug Expo applications the extension requires additional dependencies, such 
 {
   "react-native.expo.dependencies": {
     "xdl": "59.1.0",
-    "@expo/metro-config": "0.1.72"
+    "@expo/metro-config": "0.1.72",
+    "@expo/ngrok": "4.1.0"
   }
 }
 ```
