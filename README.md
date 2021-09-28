@@ -735,12 +735,15 @@ To have better understanding on how LogCat filtering works take into account tha
 
 ## Configure dependencies versions for debugging Expo projects
 
-To debug Expo applications the extension requires additional dependencies, such as `xdl` and `@expo/metro-config`. These packages are installed automatically on the first start of the Expo debugging scenario. You can configure the dependencies versions by setting the `react-native.expo.dependencies.<package name>` parameter in `settings.json`:
+To debug Expo applications the extension requires additional dependencies, such as `xdl` and `@expo/metro-config`. These packages are installed automatically on the first start of the Expo debugging scenario. You can configure the dependencies versions by adding the `react-native.expo.dependencies` parameter, which contains packages names and appropriate versions, to the `settings.json` file:
 
 ```json
 {
-  "react-native.expo.dependencies.xdl": "59.0.42",
-  "react-native.expo.dependencies.metroConfig": "0.1.72"
+  "react-native.expo.dependencies": {
+    "xdl": "59.1.0",
+    "@expo/metro-config": "0.1.72",
+    "@expo/ngrok": "4.1.0"
+  }
 }
 ```
 
