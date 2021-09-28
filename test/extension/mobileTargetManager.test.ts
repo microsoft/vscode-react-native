@@ -6,112 +6,201 @@ import * as assert from "assert";
 import Sinon = require("sinon");
 import { QuickPickItem, window } from "vscode";
 import { AdbHelper } from "../../src/extension/android/adb";
-import {
-    AndroidTargetManager,
-    AndroidTarget,
-} from "../../src/extension/android/androidTargetManager";
 import { IMobileTarget, IDebuggableMobileTarget } from "../../src/extension/mobileTarget";
+import { MobileTargetManager } from "../../src/extension/mobileTargetManager";
+import {
+    AndroidTarget,
+    AndroidTargetManager,
+} from "../../src/extension/android/androidTargetManager";
+import {
+    IOSTargetManager,
+    IDebuggableIOSTarget,
+    IOSTarget,
+} from "../../src/extension/ios/iOSTargetManager";
 
-suite("AndroidTargetManager", function () {
+suite("MobileTargetManager", function () {
     const testProjectPath = path.join(__dirname, "..", "resources", "testCordovaProject");
 
-    let onlineEmulator1: IMobileTarget;
-    let onlineEmulator2: IMobileTarget;
+    let onlineSimulator1: IMobileTarget;
+    let onlineSimulator2: IMobileTarget;
 
-    let offlineEmulator1: IMobileTarget;
-    let offlineEmulator2: IMobileTarget;
+    let offlineSimulator1: IMobileTarget;
+    let offlineSimulator2: IMobileTarget;
 
     let device1: IMobileTarget;
     let device2: IMobileTarget;
 
-    const adbHelper = new AdbHelper(testProjectPath, path.join(testProjectPath, "node_modules"));
-    let getAbdsNamesStub: Sinon.SinonStub;
-    let getOnlineTargetsStub: Sinon.SinonStub;
+    let revertTargetsStates: () => void;
 
-    const androidTargetManager = new AndroidTargetManager(adbHelper);
-    let launchSimulatorStub: Sinon.SinonStub;
+    let targetManager: MobileTargetManager;
 
     let targetsForSelection: string[];
     let showQuickPickStub: Sinon.SinonStub;
+    let launchSimulatorStub: Sinon.SinonStub;
+    let collectTargetsStub: Sinon.SinonStub;
 
-    function revertTargetsStates() {
-        onlineEmulator1 = {
-            name: "emulatorName1",
-            id: "emulator-5551",
-            isVirtualTarget: true,
-            isOnline: true,
-        };
-        onlineEmulator2 = {
-            name: "emulatorName2",
-            id: "emulator-5552",
-            isVirtualTarget: true,
-            isOnline: true,
-        };
-
-        offlineEmulator1 = {
-            name: "emulatorName3",
-            id: undefined,
-            isVirtualTarget: true,
-            isOnline: false,
-        }; //id: emulator-5553
-        offlineEmulator2 = {
-            name: "emulatorName4",
-            id: undefined,
-            isVirtualTarget: true,
-            isOnline: false,
-        }; //id: emulator-5554
-
-        device1 = { id: "deviceid1", isVirtualTarget: false, isOnline: true };
-        device2 = { id: "deviceid2", isVirtualTarget: false, isOnline: true };
+    async function checkTargetTypeCheck(
+        assertFun: () => Promise<void>,
+        catchFun?: () => void,
+    ): Promise<void> {
+        try {
+            await assertFun();
+        } catch {
+            if (catchFun) {
+                catchFun();
+            }
+        }
     }
 
-    suiteSetup(() => {
-        revertTargetsStates();
+    async function checkTargetSeletionResult(
+        filter: (target: IMobileTarget) => boolean = () => true,
+        selectionListCheck: (options: string[]) => boolean = () => true,
+        resultCheck: (target?: AndroidTarget) => boolean = () => true,
+    ): Promise<void> {
+        const target = await targetManager.selectAndPrepareTarget(filter);
+        if (selectionListCheck) {
+            assert.ok(selectionListCheck(targetsForSelection), "Did not pass options list check");
+        }
+        if (resultCheck) {
+            assert.ok(resultCheck(target), "Did not pass result target check");
+        }
+    }
 
-        getAbdsNamesStub = Sinon.stub(adbHelper, "getAvdsNames", async () => {
-            return [
-                onlineEmulator1.name,
-                onlineEmulator2.name,
-                offlineEmulator1.name,
-                offlineEmulator2.name,
-            ];
-        });
-        getOnlineTargetsStub = Sinon.stub(adbHelper, "getOnlineTargets", async () => {
-            return <IDebuggableMobileTarget[]>(
-                [
-                    onlineEmulator1,
-                    onlineEmulator2,
-                    offlineEmulator1,
-                    offlineEmulator2,
-                    device1,
-                    device2,
-                ].filter(target => target.isOnline)
+    function runTargetTypeCheckTests() {
+        test("Should properly recognize virtual target type", async function () {
+            await checkTargetTypeCheck(
+                async () =>
+                    assert.strictEqual(
+                        await targetManager.isVirtualTarget("simulator"),
+                        true,
+                        "Could not recognize any simulator",
+                    ),
+                () => assert.fail("Could not recognize any simulator"),
+            );
+            await checkTargetTypeCheck(
+                async () =>
+                    assert.strictEqual(
+                        await targetManager.isVirtualTarget(onlineSimulator1.id as string),
+                        true,
+                        `Could not recognize simulator id: ${onlineSimulator1.id as string}`,
+                    ),
+                () =>
+                    assert.fail(
+                        `Could not recognize simulator id: ${onlineSimulator1.id as string}`,
+                    ),
+            );
+            await checkTargetTypeCheck(
+                async () =>
+                    assert.strictEqual(
+                        await targetManager.isVirtualTarget("simulatorId11"),
+                        false,
+                        "Misrecognized simulator id: simulatorId11",
+                    ),
+                () => assert.fail("Misrecognized simulator id: simulatorId11"),
+            );
+            await checkTargetTypeCheck(
+                async () =>
+                    assert.strictEqual(
+                        await targetManager.isVirtualTarget(onlineSimulator2.name as string),
+                        true,
+                        `Could not recognize simulator name: ${onlineSimulator2.name as string}`,
+                    ),
+                () =>
+                    assert.fail(
+                        `Could not recognize simulator name: ${onlineSimulator2.name as string}`,
+                    ),
+            );
+            await checkTargetTypeCheck(
+                async () =>
+                    assert.strictEqual(
+                        await targetManager.isVirtualTarget("simulatorName22"),
+                        false,
+                        "Misrecognized simulator name: simulatorName22",
+                    ),
+                () => assert.fail("Misrecognized simulator name: simulatorName22"),
             );
         });
 
-        launchSimulatorStub = Sinon.stub(
-            <any>androidTargetManager,
-            "launchSimulator",
-            async (emulatorTarget: IMobileTarget) => {
-                emulatorTarget.isOnline = true;
-                switch (emulatorTarget.name) {
-                    case "emulatorName1":
-                        emulatorTarget.id = "emulator-5551";
-                        break;
-                    case "emulatorName2":
-                        emulatorTarget.id = "emulator-5552";
-                        break;
-                    case "emulatorName3":
-                        emulatorTarget.id = "emulator-5553";
-                        break;
-                    case "emulatorName4":
-                        emulatorTarget.id = "emulator-5554";
-                        break;
-                }
-                return AndroidTarget.fromInterface(<IDebuggableMobileTarget>emulatorTarget);
-            },
-        );
+        test("Should properly recognize device target", async function () {
+            await checkTargetTypeCheck(
+                async () =>
+                    assert.strictEqual(
+                        await targetManager.isVirtualTarget("device"),
+                        false,
+                        "Could not recognize any device",
+                    ),
+                () => assert.fail("Could not recognize any device"),
+            );
+            await checkTargetTypeCheck(
+                async () =>
+                    assert.strictEqual(
+                        await targetManager.isVirtualTarget(device1.id as string),
+                        false,
+                        `Could not recognize device id: ${device1.id as string}`,
+                    ),
+                () => assert.fail(`Could not recognize device id: ${device1.id as string}`),
+            );
+            await checkTargetTypeCheck(async () =>
+                assert.strictEqual(
+                    await targetManager.isVirtualTarget("deviceid111"),
+                    false,
+                    "Misrecognized device id: deviceid111",
+                ),
+            );
+        });
+    }
 
+    function runTargetSelectionTests() {
+        test("Should show all targets in case filter has not been defined", async function () {
+            await checkTargetSeletionResult(undefined, options => options.length === 6);
+        });
+
+        test("Should show targets by filter", async function () {
+            const onlineTargetsFilter = (target: IMobileTarget) => target.isOnline;
+            await checkTargetSeletionResult(
+                onlineTargetsFilter,
+                options =>
+                    options.length ===
+                    options.filter(
+                        option =>
+                            option === onlineSimulator1.name ||
+                            option === onlineSimulator2.name ||
+                            option === device1.id ||
+                            option === device2.id,
+                    ).length,
+            );
+        });
+
+        test("Should auto select option in case there is only one target", async function () {
+            const showQuickPickCallCount = showQuickPickStub.callCount;
+            const specificNameTargetFilter = (target: IMobileTarget) =>
+                target.name === onlineSimulator1.name;
+
+            await checkTargetSeletionResult(
+                specificNameTargetFilter,
+                undefined,
+                (target: AndroidTarget) => target.id === onlineSimulator1.id,
+            );
+            assert.strictEqual(
+                showQuickPickStub.callCount - showQuickPickCallCount,
+                0,
+                "There is only one target, but quick pick was shown",
+            );
+        });
+
+        test("Should launch the selected emulator in case it's offline", async function () {
+            const specificNameTargetFilter = (target: IMobileTarget) =>
+                target.name === offlineSimulator1.name;
+            await checkTargetSeletionResult(
+                specificNameTargetFilter,
+                undefined,
+                (target: AndroidTarget) =>
+                    target.isOnline && !!target.id && target.name === offlineSimulator1.name,
+            );
+        });
+    }
+
+    suiteSetup(() => {
         showQuickPickStub = Sinon.stub(
             window,
             "showQuickPick",
@@ -126,182 +215,206 @@ suite("AndroidTargetManager", function () {
     });
 
     suiteTeardown(() => {
-        getAbdsNamesStub.reset();
-        getOnlineTargetsStub.reset();
-        launchSimulatorStub.reset();
         showQuickPickStub.reset();
     });
 
-    suite("Target identification", function () {
-        async function checkTargetTargetTypeCheck(
-            assertFun: () => Promise<void>,
-            catchFun?: () => void,
-        ): Promise<void> {
-            try {
-                await assertFun();
-            } catch {
-                if (catchFun) {
-                    catchFun();
-                }
-            }
-        }
+    suite("IOSTargetManager", function () {
+        targetManager = new IOSTargetManager();
+        revertTargetsStates = () => {
+            onlineSimulator1 = {
+                name: "simulatorName1",
+                id: "simulatorId1",
+                isVirtualTarget: true,
+                isOnline: true,
+                system: "1",
+            } as IDebuggableIOSTarget;
+            onlineSimulator2 = {
+                name: "simulatorName2",
+                id: "simulatorId2",
+                isVirtualTarget: true,
+                isOnline: true,
+                system: "1",
+            } as IDebuggableIOSTarget;
 
-        test("Should properly recognize virtual target type", async function () {
-            await checkTargetTargetTypeCheck(
-                async () =>
-                    assert.strictEqual(
-                        await androidTargetManager.isVirtualTarget("emulator-1234"),
-                        true,
-                        "Could not recognize emulator id: emulator-1234",
-                    ),
-                () => assert.fail("Could not recognize emulator id: (emulator-1234)"),
+            offlineSimulator1 = {
+                name: "simulatorName3",
+                id: "simulatorId3",
+                isVirtualTarget: true,
+                isOnline: false,
+                system: "1",
+            } as IDebuggableIOSTarget;
+            offlineSimulator2 = {
+                name: "simulatorName4",
+                id: "simulatorId4",
+                isVirtualTarget: true,
+                isOnline: false,
+                system: "1",
+            } as IDebuggableIOSTarget;
+
+            device1 = {
+                name: "deviceName1",
+                id: "deviceid1",
+                isVirtualTarget: false,
+                isOnline: true,
+                system: "1",
+            } as IDebuggableIOSTarget;
+            device2 = {
+                name: "deviceName2",
+                id: "deviceid2",
+                isVirtualTarget: false,
+                isOnline: true,
+                system: "1",
+            } as IDebuggableIOSTarget;
+        };
+
+        suiteSetup(() => {
+            collectTargetsStub = Sinon.stub(targetManager as any, "collectTargets", async () => {
+                revertTargetsStates();
+                (targetManager as any).targets = [
+                    onlineSimulator1,
+                    onlineSimulator2,
+                    offlineSimulator1,
+                    offlineSimulator2,
+                    device1,
+                    device2,
+                ];
+            });
+            launchSimulatorStub = Sinon.stub(
+                targetManager as any,
+                "launchSimulator",
+                async (simulator: IMobileTarget) => {
+                    simulator.isOnline = true;
+                    return IOSTarget.fromInterface(<IDebuggableIOSTarget>simulator);
+                },
             );
-            await checkTargetTargetTypeCheck(
-                async () =>
-                    assert.strictEqual(
-                        await androidTargetManager.isVirtualTarget("simulator"),
-                        true,
-                        "Could not recognize any emulator",
-                    ),
-                () => assert.fail("Could not recognize any emulator"),
-            );
-            await checkTargetTargetTypeCheck(
-                async () =>
-                    assert.strictEqual(
-                        await androidTargetManager.isVirtualTarget("emulatorName2"),
-                        true,
-                        "Could not recognize emulator AVD name",
-                    ),
-                () => assert.fail("Could not recognize emulator AVD name"),
-            );
-            await checkTargetTargetTypeCheck(async () =>
-                assert.strictEqual(
-                    await androidTargetManager.isVirtualTarget("emulaor-1234"),
-                    false,
-                    "Misrecognized emulator id: emulaor-1234",
-                ),
-            );
-            await checkTargetTargetTypeCheck(async () =>
-                assert.strictEqual(
-                    await androidTargetManager.isVirtualTarget("emulator--1234"),
-                    false,
-                    "Misrecognized emulator id: emulator--1234",
-                ),
-            );
-            await checkTargetTargetTypeCheck(async () =>
-                assert.strictEqual(
-                    await androidTargetManager.isVirtualTarget("emulaor1234"),
-                    false,
-                    "Misrecognized emulator id: emulator1234",
-                ),
-            );
-            await checkTargetTargetTypeCheck(async () =>
-                assert.strictEqual(
-                    await androidTargetManager.isVirtualTarget("1232emulator1234"),
-                    false,
-                    "Misrecognized emulator id: 1232emulator1234",
-                ),
-            );
+            targetsForSelection = [];
         });
 
-        test("Should properly recognize device target", async function () {
-            await checkTargetTargetTypeCheck(
-                async () =>
-                    assert.strictEqual(
-                        await androidTargetManager.isVirtualTarget("device"),
-                        false,
-                        "Could not recognize any device",
-                    ),
-                () => assert.fail("Could not recognize any device"),
-            );
-            await checkTargetTargetTypeCheck(
-                async () =>
-                    assert.strictEqual(
-                        await androidTargetManager.isVirtualTarget("deviceid1"),
-                        false,
-                        "Could not recognize device id",
-                    ),
-                () => assert.fail("Could not recognize device id"),
-            );
-            await checkTargetTargetTypeCheck(async () =>
-                assert.strictEqual(
-                    await androidTargetManager.isVirtualTarget("deviceid111"),
-                    false,
-                    "Misrecognized device id: deviceid111",
-                ),
-            );
+        suiteTeardown(() => {
+            launchSimulatorStub.reset();
+            collectTargetsStub.reset();
+            (targetManager as any).targets = undefined;
+        });
+
+        suite("Target selection", function () {
+            setup(async () => {
+                await targetManager.collectTargets();
+            });
+
+            runTargetSelectionTests();
+        });
+
+        suite("Target identification", function () {
+            runTargetTypeCheckTests();
         });
     });
 
-    suite("Target selection", function () {
-        async function checkTargetSeletionResult(
-            filter: (target: IMobileTarget) => boolean = () => true,
-            selectionListCheck: (options: string[]) => boolean = () => true,
-            resultCheck: (target?: AndroidTarget) => boolean = () => true,
-        ): Promise<void> {
-            const target = await androidTargetManager.selectAndPrepareTarget(filter);
-            if (selectionListCheck) {
-                assert.ok(
-                    selectionListCheck(targetsForSelection),
-                    "Did not pass options list check",
+    suite("AndroidTargetManager", function () {
+        const adbHelper = new AdbHelper(
+            testProjectPath,
+            path.join(testProjectPath, "node_modules"),
+        );
+        let getAbdsNamesStub: Sinon.SinonStub;
+        let getOnlineTargetsStub: Sinon.SinonStub;
+
+        targetManager = new AndroidTargetManager(adbHelper);
+
+        revertTargetsStates = () => {
+            onlineSimulator1 = {
+                name: "emulatorName1",
+                id: "emulator-5551",
+                isVirtualTarget: true,
+                isOnline: true,
+            };
+            onlineSimulator2 = {
+                name: "emulatorName2",
+                id: "emulator-5552",
+                isVirtualTarget: true,
+                isOnline: true,
+            };
+
+            offlineSimulator1 = {
+                name: "emulatorName3",
+                id: undefined,
+                isVirtualTarget: true,
+                isOnline: false,
+            }; //id: emulator-5553
+            offlineSimulator2 = {
+                name: "emulatorName4",
+                id: undefined,
+                isVirtualTarget: true,
+                isOnline: false,
+            }; //id: emulator-5554
+
+            device1 = { id: "deviceid1", isVirtualTarget: false, isOnline: true };
+            device2 = { id: "deviceid2", isVirtualTarget: false, isOnline: true };
+        };
+
+        suiteSetup(() => {
+            getAbdsNamesStub = Sinon.stub(adbHelper, "getAvdsNames", async () => {
+                return [
+                    onlineSimulator1.name,
+                    onlineSimulator2.name,
+                    offlineSimulator1.name,
+                    offlineSimulator2.name,
+                ];
+            });
+            getOnlineTargetsStub = Sinon.stub(adbHelper, "getOnlineTargets", async () => {
+                return <IDebuggableMobileTarget[]>(
+                    [
+                        onlineSimulator1,
+                        onlineSimulator2,
+                        offlineSimulator1,
+                        offlineSimulator2,
+                        device1,
+                        device2,
+                    ].filter(target => target.isOnline)
                 );
-            }
-            if (resultCheck) {
-                assert.ok(resultCheck(target), "Did not pass result target check");
-            }
-        }
+            });
 
-        setup(async () => {
-            revertTargetsStates();
+            launchSimulatorStub = Sinon.stub(
+                targetManager as any,
+                "launchSimulator",
+                async (emulatorTarget: IMobileTarget) => {
+                    emulatorTarget.isOnline = true;
+                    switch (emulatorTarget.name) {
+                        case "emulatorName1":
+                            emulatorTarget.id = "emulator-5551";
+                            break;
+                        case "emulatorName2":
+                            emulatorTarget.id = "emulator-5552";
+                            break;
+                        case "emulatorName3":
+                            emulatorTarget.id = "emulator-5553";
+                            break;
+                        case "emulatorName4":
+                            emulatorTarget.id = "emulator-5554";
+                            break;
+                    }
+                    return AndroidTarget.fromInterface(<IDebuggableMobileTarget>emulatorTarget);
+                },
+            );
+
             targetsForSelection = [];
-            await androidTargetManager.collectTargets();
         });
 
-        test("Should show all targets in case filter has not been defined", async function () {
-            await checkTargetSeletionResult(undefined, options => options.length === 6);
+        suiteTeardown(() => {
+            getAbdsNamesStub.reset();
+            getOnlineTargetsStub.reset();
+            launchSimulatorStub.reset();
+            (targetManager as any).targets = undefined;
         });
 
-        test("Should show targets by filter", async function () {
-            const onlineTargetsFilter = (target: IMobileTarget) => target.isOnline;
-            await checkTargetSeletionResult(
-                onlineTargetsFilter,
-                options =>
-                    options.length ===
-                    options.filter(
-                        option =>
-                            option === onlineEmulator1.name ||
-                            option === onlineEmulator2.name ||
-                            option === device1.id ||
-                            option === device2.id,
-                    ).length,
-            );
+        suite("Target selection", function () {
+            setup(async () => {
+                await targetManager.collectTargets();
+            });
+
+            runTargetSelectionTests();
         });
 
-        test("Should auto select option in case there is only one target", async function () {
-            const showQuickPickCallCount = showQuickPickStub.callCount;
-            const specificNameTargetFilter = (target: IMobileTarget) =>
-                target.name === onlineEmulator1.name;
-
-            await checkTargetSeletionResult(
-                specificNameTargetFilter,
-                undefined,
-                (target: AndroidTarget) => target.id === onlineEmulator1.id,
-            );
-            assert.strictEqual(
-                showQuickPickStub.callCount - showQuickPickCallCount,
-                0,
-                "There is only one target, but quick pick was shown",
-            );
-        });
-
-        test("Should launch the selected emulator in case it's offline", async function () {
-            const specificNameTargetFilter = (target: IMobileTarget) =>
-                target.name === offlineEmulator1.name;
-            await checkTargetSeletionResult(
-                specificNameTargetFilter,
-                undefined,
-                (target: AndroidTarget) => target.isOnline && !!target.id,
-            );
+        suite("Target identification", function () {
+            runTargetTypeCheckTests();
         });
     });
 });
