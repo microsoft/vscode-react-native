@@ -94,11 +94,8 @@ export async function publish(
     return (await getXDLPackage()).Project.publishAsync(projectRoot, options);
 }
 
-export async function setOptions(
-    projectRoot: string,
-    options?: XDLPackage.IOptions,
-): Promise<void> {
-    await (await getXDLPackage()).Project.setOptionsAsync(projectRoot, options);
+export async function setOptions(projectRoot: string, options: XDLPackage.IOptions): Promise<void> {
+    await (await getXDLPackage()).ProjectSettings.setPackagerInfoAsync(projectRoot, options);
 }
 
 export async function startExponentServer(projectRoot: string): Promise<void> {
