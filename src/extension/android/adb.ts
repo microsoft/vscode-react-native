@@ -79,7 +79,7 @@ export class AdbHelper {
         if (res) {
             emulatorsNames = res.split(/\r?\n|\r/g);
             const indexOfBlank = emulatorsNames.indexOf("");
-            if (emulatorsNames.indexOf("") >= 0) {
+            if (indexOfBlank >= 0) {
                 emulatorsNames.splice(indexOfBlank, 1);
             }
         }
