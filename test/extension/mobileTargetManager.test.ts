@@ -131,7 +131,6 @@ suite("MobileTargetManager", function () {
                     ),
                 () => assert.fail("Could not recognize any device"),
             );
-            console.log(device1);
             await checkTargetTypeCheck(
                 async () =>
                     assert.strictEqual(
@@ -212,7 +211,6 @@ suite("MobileTargetManager", function () {
         suiteSetup(() => {
             targetManager = new IOSTargetManager();
             revertTargetsStates = () => {
-                console.log("iOS revertTargetsStates");
                 onlineSimulator1 = {
                     name: "simulatorName1",
                     id: "simulatorId1",
@@ -323,7 +321,6 @@ suite("MobileTargetManager", function () {
             targetManager = new AndroidTargetManager(adbHelper);
 
             revertTargetsStates = () => {
-                console.log("Android revertTargetsStates");
                 onlineSimulator1 = {
                     name: "emulatorName1",
                     id: "emulator-5551",

@@ -186,15 +186,19 @@ export class AndroidPlatform extends GeneralMobilePlatform {
             const onlineTargetsIds = (await this.adbHelper.getOnlineTargets()).map(
                 target => target.id,
             );
-            const targetId = await this.getTargetIdForRunApp(onlineTargetsIds);
+            let targetId: string | undefined;
             try {
                 try {
                     await output;
                 } finally {
+                    targetId = await this.getTargetIdForRunApp(onlineTargetsIds);
                     this.packageName = await this.getPackageName();
                     devicesIdsForLaunch = [targetId];
                 }
             } catch (error) {
+                if (!targetId) {
+                    targetId = await this.getTargetIdForRunApp(onlineTargetsIds);
+                }
                 if (
                     error.message ===
                         ErrorHelper.getInternalError(
