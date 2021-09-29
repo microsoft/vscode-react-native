@@ -48,7 +48,7 @@ export default class IosSimulatorManager {
         if (process.platform === "darwin") {
             if (iosVersion) {
                 const versions = iosVersion?.split(".");
-                iosVersion = `iOS-${versions[0]}-${versions[1]}`;
+                iosVersion = `iOS ${versions[0]}.${versions[1]}`;
             }
             this.updateSimulatorState(name, iosVersion);
         }
