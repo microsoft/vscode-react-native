@@ -47,8 +47,7 @@ export default class IosSimulatorManager {
         }
         if (process.platform === "darwin") {
             if (iosVersion) {
-                const versions = iosVersion?.split(".");
-                iosVersion = `iOS ${versions[0]}.${versions[1]}`;
+                iosVersion = `iOS ${iosVersion}`;
             }
             this.updateSimulatorState(name, iosVersion);
         }
@@ -308,12 +307,13 @@ export default class IosSimulatorManager {
         const res = execSync("xcrun simctl list --json devices available").toString();
         const simulatorsJson = JSON.parse(res);
         Object.keys(simulatorsJson.devices).forEach(rawSystem => {
-            let system = rawSystem.split(".").slice(-1)[0]; // "com.apple.CoreSimulator.SimRuntime.iOS-11-4" -> "iOS-11-4"
+            const temp = rawSystem.split(".").slice(-1)[0].split("-"); // "com.apple.CoreSimulator.SimRuntime.iOS-11-4" -> ["iOS", "11", "4"]
+            const system = `${temp[0]} ${temp.slice(1).join(".")}`; // ["iOS", "11", "4"] -> iOS 11.4
             simulatorsJson.devices[rawSystem].forEach((device: any) => {
                 simulators.push({
                     name: device.name,
                     id: device.udid,
-                    system: system,
+                    system,
                     state: device.state,
                 });
             });
