@@ -249,10 +249,8 @@ export class AndroidPlatform extends GeneralMobilePlatform {
             }
             if (this.runOptions.target) {
                 if (
-                    !(
-                        this.runOptions.target === TargetType.Device ||
-                        this.runOptions.target === TargetType.Simulator
-                    )
+                    this.runOptions.target !== TargetType.Device &&
+                    this.runOptions.target !== TargetType.Simulator
                 ) {
                     runArguments.push("--deviceId", this.runOptions.target);
                 }
