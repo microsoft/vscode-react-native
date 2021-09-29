@@ -1,3 +1,13 @@
+## 1.7.0
+* Fixed forwarding security certificates for Network inspector on Windows [#1661](https://github.com/microsoft/vscode-react-native/pull/1661)
+* Improved Expo dependencies management: moved [configuration](https://github.com/microsoft/vscode-react-native#configure-dependencies-versions-for-debugging-expo-projects) of all packages versions to the `react-native.expo.dependencies` parameter [#1665](https://github.com/microsoft/vscode-react-native/pull/1665)
+* Bumped versions of Expo dependencies to the most recent ones [#1676](https://github.com/microsoft/vscode-react-native/pull/1676)
+* Improved extension security [#1658](https://github.com/microsoft/vscode-react-native/pull/1658), [#1670](https://github.com/microsoft/vscode-react-native/pull/1670)
+* Internal changes:
+    * Migrated to async/await API [#1637](https://github.com/microsoft/vscode-react-native/pull/1637)
+    * Updated WebdriverIO version in smoke tests to the latest [#1662](https://github.com/microsoft/vscode-react-native/pull/1662)
+
+
 ## 1.6.1
 * Improved error logging on debugging [#1633](https://github.com/microsoft/vscode-react-native/pull/1633)
 * Improved parsing of `sdk.dir` parameter in Android `local.properties` [#1643](https://github.com/microsoft/vscode-react-native/pull/1643)

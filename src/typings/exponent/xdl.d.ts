@@ -89,7 +89,10 @@ declare module xdl {
         stopReactNativeServerAsync(projectRoot: string): Promise<void>;
         startTunnelsAsync(projectRoot: string): Promise<void>;
         stopTunnelsAsync(projectRoot: string): Promise<void>;
-        setOptionsAsync(projectRoot: string, options?: IOptions): Promise<void>;
+    }
+
+    var ProjectSettings: {
+        setPackagerInfoAsync(projectRoot: string, json: Partial<IOptions>): Promise<IOptions>;
     }
 
     var UrlUtils: {
