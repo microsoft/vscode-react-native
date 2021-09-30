@@ -6,9 +6,11 @@ import { waitUntil } from "../../common/utils";
 import { IDebuggableMobileTarget, MobileTarget } from "../mobileTarget";
 import { MobileTargetManager } from "../mobileTargetManager";
 import * as nls from "vscode-nls";
+import * as fs from "fs";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { QuickPickOptions, window } from "vscode";
 import { TargetType } from "../generalPlatform";
+import { PromiseUtil } from "../../common/node/promise";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -60,6 +62,10 @@ export class IOSTargetManager extends MobileTargetManager {
     private static readonly ALL_DEVICES_LIST_COMMAND = `${IOSTargetManager.XCRUN_COMMAND} xctrace list devices`;
     private static readonly BOOTED_STATE = "Booted";
     private static readonly SIMULATOR_START_TIMEOUT = 120;
+    private static readonly IDB_PATH = "/usr/local/bin/idb";
+    private static readonly isIDBAvailableCache = PromiseUtil.promiseCacheDecorator(
+        IOSTargetManager.isIDBAvailable,
+    );
 
     private static readonly ANY_SYSTEM = "AnySystem";
 
@@ -70,65 +76,98 @@ export class IOSTargetManager extends MobileTargetManager {
     );
     protected targets?: IDebuggableIOSTarget[];
 
-    public async collectTargets(): Promise<void> {
+    public async collectTargets(targetType?: TargetType): Promise<void> {
         this.targets = [];
-        const simulators = JSON.parse(
-            await this.childProcess.execToString(`${IOSTargetManager.SIMULATORS_LIST_COMMAND}`),
-        );
-        Object.keys(simulators.devices).forEach(rawSystem => {
-            const temp = rawSystem.split(".").slice(-1)[0].split("-"); // "com.apple.CoreSimulator.SimRuntime.iOS-11-4" -> ["iOS", "11", "4"]
-            const system = `${temp[0]} ${temp.slice(1).join(".")}`; // ["iOS", "11", "4"] -> iOS 11.4
-            simulators.devices[rawSystem].forEach((device: any) => {
+
+        if (await IOSTargetManager.isIDBAvailableCache()) {
+            const targets = (
+                await this.childProcess.execToString(
+                    `${IOSTargetManager.IDB_PATH} list-targets --json`,
+                )
+            )
+                .trim()
+                .split("\n")
+                .map(line => line.trim())
+                .filter(Boolean)
+                .map(line => JSON.parse(line));
+
+            targets.forEach(target => {
                 // Now we support selection only for iOS system
-                if (system.includes("iOS")) {
+                if (target.os_version.includes("iOS")) {
                     this.targets?.push({
-                        id: device.udid,
-                        name: device.name,
-                        system,
-                        isVirtualTarget: true,
-                        isOnline: device.state === IOSTargetManager.BOOTED_STATE,
+                        id: target.udid,
+                        name: target.name,
+                        system: target.os_version,
+                        isVirtualTarget: target.type === TargetType.Simulator,
+                        isOnline: target.state === IOSTargetManager.BOOTED_STATE,
                     });
                 }
             });
-        });
+        } else {
+            if (targetType === undefined || targetType === TargetType.Simulator) {
+                const simulators = JSON.parse(
+                    await this.childProcess.execToString(
+                        `${IOSTargetManager.SIMULATORS_LIST_COMMAND}`,
+                    ),
+                );
+                Object.keys(simulators.devices).forEach(rawSystem => {
+                    const temp = rawSystem.split(".").slice(-1)[0].split("-"); // "com.apple.CoreSimulator.SimRuntime.iOS-11-4" -> ["iOS", "11", "4"]
+                    const system = `${temp[0]} ${temp.slice(1).join(".")}`; // ["iOS", "11", "4"] -> iOS 11.4
+                    simulators.devices[rawSystem].forEach((device: any) => {
+                        // Now we support selection only for iOS system
+                        if (system.includes("iOS")) {
+                            this.targets?.push({
+                                id: device.udid,
+                                name: device.name,
+                                system,
+                                isVirtualTarget: true,
+                                isOnline: device.state === IOSTargetManager.BOOTED_STATE,
+                            });
+                        }
+                    });
+                });
+            }
 
-        const allDevicesOutput = await this.childProcess.execToString(
-            `${IOSTargetManager.ALL_DEVICES_LIST_COMMAND}`,
-        );
-        //Output example:
-        // == Devices ==
-        // sierra (EFDAAD01-E1A3-5F00-A357-665B501D5520)
-        // My iPhone (14.4.2) (33n546e591e707bd64c718bfc1bf3e8b7c16bfc9)
-        //
-        // == Simulators ==
-        // Apple TV (14.5) (417BDFD8-6E22-4F87-BCAA-19C241AC9548)
-        // Apple TV 4K (2nd generation) (14.5) (925E6E38-0D7B-45E9-ADE0-89C20779D467)
-        //...
-        const lines = allDevicesOutput
-            .split("\n")
-            .map(line => line.trim())
-            .filter(line => !!line);
-        const firstDevicesIndex = lines.findIndex(line => line === "== Devices ==") + 1;
-        const lastDevicesIndex = lines.findIndex(line => line === "== Simulators ==") - 1;
-        for (let i = firstDevicesIndex; i <= lastDevicesIndex; i++) {
-            const line = lines[i];
-            const params = line
-                .split(" ")
-                .map(el => el.trim())
-                .filter(el => !!el);
-            //Add only devices with system version
-            // if (
-            //     params[params.length - 1].match(/\(.+\)/) &&
-            //     params[params.length - 2].match(/\(.+\)/)
-            // ) {
-            this.targets.push({
-                id: params[params.length - 1].replace(/\(|\)/g, "").trim(),
-                name: params.slice(0, params.length - 2).join(" "),
-                system: params[params.length - 2].replace(/\(|\)/g, "").trim(),
-                isVirtualTarget: false,
-                isOnline: true,
-            });
-            // }
+            if (targetType === undefined || targetType === TargetType.Device) {
+                const allDevicesOutput = await this.childProcess.execToString(
+                    `${IOSTargetManager.ALL_DEVICES_LIST_COMMAND}`,
+                );
+                //Output example:
+                // == Devices ==
+                // sierra (EFDAAD01-E1A3-5F00-A357-665B501D5520)
+                // My iPhone (14.4.2) (33n546e591e707bd64c718bfc1bf3e8b7c16bfc9)
+                //
+                // == Simulators ==
+                // Apple TV (14.5) (417BDFD8-6E22-4F87-BCAA-19C241AC9548)
+                // Apple TV 4K (2nd generation) (14.5) (925E6E38-0D7B-45E9-ADE0-89C20779D467)
+                //...
+                const lines = allDevicesOutput
+                    .split("\n")
+                    .map(line => line.trim())
+                    .filter(line => !!line);
+                const firstDevicesIndex = lines.findIndex(line => line === "== Devices ==") + 1;
+                const lastDevicesIndex = lines.findIndex(line => line === "== Simulators ==") - 1;
+                for (let i = firstDevicesIndex; i <= lastDevicesIndex; i++) {
+                    const line = lines[i];
+                    const params = line
+                        .split(" ")
+                        .map(el => el.trim())
+                        .filter(el => !!el);
+                    // Add only devices with system version
+                    if (
+                        params[params.length - 1].match(/\(.+\)/) &&
+                        params[params.length - 2].match(/\(.+\)/)
+                    ) {
+                        this.targets.push({
+                            id: params[params.length - 1].replace(/\(|\)/g, "").trim(),
+                            name: params.slice(0, params.length - 2).join(" "),
+                            system: params[params.length - 2].replace(/\(|\)/g, "").trim(),
+                            isVirtualTarget: false,
+                            isOnline: true,
+                        });
+                    }
+                }
+            }
         }
     }
 
@@ -173,6 +212,13 @@ export class IOSTargetManager extends MobileTargetManager {
                 ),
             );
         }
+    }
+
+    private static async isIDBAvailable(): Promise<boolean> {
+        return fs.promises
+            .access(IOSTargetManager.IDB_PATH, fs.constants.X_OK)
+            .then(() => true)
+            .catch(() => false);
     }
 
     protected async startSelection(

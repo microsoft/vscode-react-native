@@ -59,22 +59,12 @@ async function isXcodeDetected(): Promise<boolean> {
 
 async function queryTargetsWithoutXcodeDependency(
     idbCompanionPath: string,
-    isPhysicalDeviceEnabled: boolean,
     isAvailableFunc: (idbPath: string) => Promise<boolean>,
 ): Promise<Array<DeviceTarget>> {
     if (await isAvailableFunc(idbCompanionPath)) {
         return new ChildProcess()
             .execToString(`${idbCompanionPath} --list 1 --only device`)
             .then(stdout => parseIdbTargets(stdout))
-            .then(devices => {
-                if (devices.length > 0 && !isPhysicalDeviceEnabled) {
-                    // TODO: Show a notification to enable the toggle or integrate Doctor to better suggest this advice.
-                    console.warn(
-                        'You are trying to connect Physical Device. Please enable the toggle "Enable physical iOS device" from the setting screen.',
-                    );
-                }
-                return devices;
-            })
             .catch((e: Error) => {
                 console.warn(
                     "Failed to query idb_companion --list 1 --only device for physical targets:",
@@ -123,27 +113,14 @@ export async function idbListTargets(idbPath: string): Promise<Array<DeviceTarge
         });
 }
 
-async function targets(
-    idbPath: string,
-    isPhysicalDeviceEnabled: boolean,
-): Promise<Array<DeviceTarget>> {
+async function targets(): Promise<Array<DeviceTarget>> {
     if (process.platform !== "darwin") {
         return [];
     }
     const isXcodeInstalled = await isXcodeDetected();
     if (!isXcodeInstalled) {
-        if (!isPhysicalDeviceEnabled) {
-            // TODO: Show a notification to enable the toggle or integrate Doctor to better suggest this advice.
-            console.warn(
-                'You are trying to connect Physical Device. Please enable the toggle "Enable physical iOS device" from the setting screen.',
-            );
-        }
         const idbCompanionPath = path.dirname(idbPath) + "/idb_companion";
-        return queryTargetsWithoutXcodeDependency(
-            idbCompanionPath,
-            isPhysicalDeviceEnabled,
-            isAvailable,
-        );
+        return queryTargetsWithoutXcodeDependency(idbCompanionPath, isAvailable);
     }
 
     // Not all users have idb installed because you can still use
@@ -157,18 +134,35 @@ async function targets(
     } else {
         return new ChildProcess()
             .execToString("xcrun xctrace list devices")
-            .then(stdout =>
-                stdout
+            .then(stdout => {
+                const targets: DeviceTarget[] = [];
+                const lines = stdout
                     .split("\n")
                     .map(line => line.trim())
-                    .filter(Boolean)
-                    .map(line => /(.+) \([^(]+\) \[(.*)\]( \(Simulator\))?/.exec(line))
-                    .filter(el => el !== null)
-                    .filter(([_match, _name, _udid, isSim]: RegExpExecArray) => !isSim)
-                    .map<DeviceTarget>(([_match, name, id]: RegExpExecArray) => {
-                        return { id, isVirtualTarget: false, isOnline: true, name };
-                    }),
-            )
+                    .filter(line => !!line);
+                const firstDevicesIndex = lines.findIndex(line => line === "== Devices ==") + 1;
+                const lastDevicesIndex = lines.findIndex(line => line === "== Simulators ==") - 1;
+                for (let i = firstDevicesIndex; i <= lastDevicesIndex; i++) {
+                    const line = lines[i];
+                    const params = line
+                        .split(" ")
+                        .map(el => el.trim())
+                        .filter(el => !!el);
+                    // Add only devices with system version
+                    if (
+                        params[params.length - 1].match(/\(.+\)/) &&
+                        params[params.length - 2].match(/\(.+\)/)
+                    ) {
+                        targets.push({
+                            id: params[params.length - 1].replace(/\(|\)/g, "").trim(),
+                            name: params.slice(0, params.length - 2).join(" "),
+                            isVirtualTarget: false,
+                            isOnline: true,
+                        });
+                    }
+                }
+                return targets;
+            })
             .catch(e => {
                 console.warn("Failed to query for devices using xctrace:", e);
                 return [];

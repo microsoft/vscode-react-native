@@ -14,7 +14,7 @@ const localize = nls.loadMessageBundle();
 export abstract class MobileTargetManager {
     protected targets?: IMobileTarget[];
 
-    public abstract collectTargets(): Promise<void>;
+    public abstract collectTargets(targetType?: TargetType): Promise<void>;
 
     public abstract selectAndPrepareTarget(
         filter?: (el: IMobileTarget) => boolean,

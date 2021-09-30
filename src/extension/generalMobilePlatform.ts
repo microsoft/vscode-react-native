@@ -24,7 +24,7 @@ export abstract class GeneralMobilePlatform extends GeneralPlatform {
     }
 
     public async resolveMobileTarget(targetString: string): Promise<MobileTarget | undefined> {
-        await this.targetManager.collectTargets();
+        let collectTargetsCalled = false;
 
         let isAnyTarget = false;
         let isVirtualTarget: boolean;
@@ -35,7 +35,15 @@ export abstract class GeneralMobilePlatform extends GeneralPlatform {
             isAnyTarget = true;
             isVirtualTarget = false;
         } else {
+            await this.targetManager.collectTargets();
+            collectTargetsCalled = true;
             isVirtualTarget = await this.targetManager.isVirtualTarget(targetString);
+        }
+
+        if (!collectTargetsCalled) {
+            await this.targetManager.collectTargets(
+                isVirtualTarget ? TargetType.Simulator : TargetType.Device,
+            );
         }
 
         const cleanupTargetModifications = () => {
