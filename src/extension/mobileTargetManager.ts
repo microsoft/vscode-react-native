@@ -78,6 +78,6 @@ export abstract class MobileTargetManager {
                 quickPickOptions,
             );
         }
-        return targetList.find(target => target.name === result || target.id === result);
+        return result ? targetList.find(target => target.name === result || target.id === result) : undefined;
     }
 }
