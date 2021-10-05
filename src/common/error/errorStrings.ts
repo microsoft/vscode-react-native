@@ -332,7 +332,7 @@ export const ERROR_STRINGS = {
     ),
     [InternalErrorCode.TargetSelectionError]: localize(
         "TargetSelectionError",
-        "Target launch finished with an exception: {0}",
+        "The target launch finished with an exception: {0}",
     ),
     [InternalErrorCode.ReactNativemacOSIsNotInstalled]: localize(
         "ReactNativemacOSIsNotInstalled",
