@@ -57,7 +57,7 @@ export class AndroidTargetManager extends MobileTargetManager {
                 if (onlineTarget) {
                     return onlineTarget.isVirtualTarget;
                 } else {
-                    throw Error("There is no any online target");
+                    throw new Error("There is no any online target");
                 }
             }
         } catch {
