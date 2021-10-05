@@ -7,6 +7,7 @@ import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import * as fs from "fs";
 import * as path from "path";
 import { IDebuggableMobileTarget } from "../mobileTarget";
+import { logger } from "vscode-debugadapter/lib/logger";
 
 /**
  * @preserve
@@ -66,14 +67,13 @@ async function queryTargetsWithoutXcodeDependency(
             .execToString(`${idbCompanionPath} --list 1 --only device`)
             .then(stdout => parseIdbTargets(stdout))
             .catch((e: Error) => {
-                console.warn(
-                    "Failed to query idb_companion --list 1 --only device for physical targets:",
-                    e,
+                logger.warn(
+                    `Failed to query idb_companion --list 1 --only device for physical targets: ${e}`,
                 );
                 return [];
             });
     } else {
-        console.warn(
+        logger.warn(
             `Unable to locate idb_companion in ${idbCompanionPath}. Try running sudo yum install -y fb-idb`,
         );
         return [];
@@ -108,7 +108,7 @@ export async function idbListTargets(idbPath: string): Promise<Array<DeviceTarge
             parseIdbTargets(stdout),
         )
         .catch((e: Error) => {
-            console.warn("Failed to query idb for targets:", e);
+            logger.warn(`Failed to query idb for targets: ${e}`);
             return [];
         });
 }
@@ -164,7 +164,7 @@ async function targets(): Promise<Array<DeviceTarget>> {
                 return targets;
             })
             .catch(e => {
-                console.warn("Failed to query for devices using xctrace:", e);
+                logger.warn(`Failed to query for devices using xctrace: ${e}`);
                 return [];
             });
     }
