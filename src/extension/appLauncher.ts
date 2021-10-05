@@ -279,7 +279,7 @@ export class AppLauncher {
             await TelemetryHelper.generate("launch", extProps, async generator => {
                 try {
                     if (this.mobilePlatform instanceof GeneralMobilePlatform) {
-                        generator.step("resolveAndSaveMobileTarget");
+                        generator.step("resolveMobileTarget");
                         await this.resolveAndSaveMobileTarget(launchArgs, this.mobilePlatform);
                     }
 
