@@ -405,7 +405,7 @@ export class AppLauncher {
                 launchArgs.target.toLowerCase() === TargetType.Device;
             const resultTarget = await mobilePlatform.resolveMobileTarget(launchArgs.target);
 
-            // Save result to config in case there are more than one possible target with this type (simulator/device)
+            // Save the result to config in case there are more than one possible target with this type (simulator/device)
             if (resultTarget && isAnyTarget) {
                 const targetsCount = await mobilePlatform.getTargetsCountByFilter(
                     target => target.isVirtualTarget === resultTarget.isVirtualTarget,
