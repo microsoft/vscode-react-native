@@ -167,7 +167,7 @@ export class AndroidTargetManager extends MobileTargetManager {
                     emulatorTarget.id = emulatorId;
                     emulatorTarget.isOnline = true;
                     this.logger.info(
-                        localize("EmulatorLaunched", "Launched emulator {0}", emulatorTarget.name),
+                        localize("EmulatorLaunched", "Launched Android emulator {0}", emulatorTarget.name),
                     );
                     resolve(AndroidTarget.fromInterface(<IDebuggableMobileTarget>emulatorTarget));
                 } else {
