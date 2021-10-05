@@ -44,10 +44,6 @@ export class BaseClientDevice implements ITarget {
         return this._isVirtualTarget;
     }
 
-    get isOnline(): boolean {
-        return true;
-    }
-
     get deviceStatus(): DeviceStatus {
         return this._deviceStatus;
     }

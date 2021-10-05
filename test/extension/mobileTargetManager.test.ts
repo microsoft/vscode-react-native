@@ -43,7 +43,7 @@ suite("MobileTargetManager", function () {
     let launchSimulatorStub: Sinon.SinonStub;
     let collectTargetsStub: Sinon.SinonStub;
 
-    async function checkTargetTypeCheck(
+    async function checkTargetType(
         assertFun: () => Promise<void>,
         catchFun?: () => void,
     ): Promise<void> {
@@ -72,7 +72,7 @@ suite("MobileTargetManager", function () {
 
     function runTargetTypeCheckTests() {
         test("Should properly recognize virtual target type", async function () {
-            await checkTargetTypeCheck(
+            await checkTargetType(
                 async () =>
                     assert.strictEqual(
                         await targetManager.isVirtualTarget("simulator"),
@@ -81,7 +81,7 @@ suite("MobileTargetManager", function () {
                     ),
                 () => assert.fail("Could not recognize any simulator"),
             );
-            await checkTargetTypeCheck(
+            await checkTargetType(
                 async () =>
                     assert.strictEqual(
                         await targetManager.isVirtualTarget(onlineSimulator1.id as string),
@@ -93,14 +93,14 @@ suite("MobileTargetManager", function () {
                         `Could not recognize simulator id: ${onlineSimulator1.id as string}`,
                     ),
             );
-            await checkTargetTypeCheck(async () =>
+            await checkTargetType(async () =>
                 assert.strictEqual(
                     await targetManager.isVirtualTarget("simulatorId11"),
                     false,
                     "Misrecognized simulator id: simulatorId11",
                 ),
             );
-            await checkTargetTypeCheck(
+            await checkTargetType(
                 async () =>
                     assert.strictEqual(
                         await targetManager.isVirtualTarget(onlineSimulator2.name as string),
@@ -112,7 +112,7 @@ suite("MobileTargetManager", function () {
                         `Could not recognize simulator name: ${onlineSimulator2.name as string}`,
                     ),
             );
-            await checkTargetTypeCheck(async () =>
+            await checkTargetType(async () =>
                 assert.strictEqual(
                     await targetManager.isVirtualTarget("simulatorName22"),
                     false,
@@ -122,7 +122,7 @@ suite("MobileTargetManager", function () {
         });
 
         test("Should properly recognize device target", async function () {
-            await checkTargetTypeCheck(
+            await checkTargetType(
                 async () =>
                     assert.strictEqual(
                         await targetManager.isVirtualTarget("device"),
@@ -131,7 +131,7 @@ suite("MobileTargetManager", function () {
                     ),
                 () => assert.fail("Could not recognize any device"),
             );
-            await checkTargetTypeCheck(
+            await checkTargetType(
                 async () =>
                     assert.strictEqual(
                         await targetManager.isVirtualTarget(device1.id as string),
@@ -140,7 +140,7 @@ suite("MobileTargetManager", function () {
                     ),
                 () => assert.fail(`Could not recognize device id: ${device1.id as string}`),
             );
-            await checkTargetTypeCheck(async () =>
+            await checkTargetType(async () =>
                 assert.strictEqual(
                     await targetManager.isVirtualTarget("deviceid111"),
                     false,

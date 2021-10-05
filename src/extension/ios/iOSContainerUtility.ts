@@ -36,7 +36,7 @@ type IdbTarget = {
 
 export type DeviceTarget = IDebuggableMobileTarget;
 
-const isIdbAvailable = PromiseUtil.promiseCacheDecorator<boolean>(isAvailable);
+export const isIdbAvailable = PromiseUtil.promiseCacheDecorator<boolean>(isAvailable);
 
 function isAvailable(): Promise<boolean> {
     if (!idbPath) {
@@ -48,7 +48,7 @@ function isAvailable(): Promise<boolean> {
         .catch(() => false);
 }
 
-async function isXcodeDetected(): Promise<boolean> {
+export async function isXcodeDetected(): Promise<boolean> {
     return new ChildProcess()
         .execToString("xcode-select -p")
         .then(stdout => {

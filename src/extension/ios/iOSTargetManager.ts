@@ -6,11 +6,10 @@ import { waitUntil } from "../../common/utils";
 import { IDebuggableMobileTarget, MobileTarget } from "../mobileTarget";
 import { MobileTargetManager } from "../mobileTargetManager";
 import * as nls from "vscode-nls";
-import * as fs from "fs";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { QuickPickOptions, window } from "vscode";
 import { TargetType } from "../generalPlatform";
-import { PromiseUtil } from "../../common/node/promise";
+import { idbPath, isIdbAvailable } from "./iOSContainerUtility";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -62,11 +61,6 @@ export class IOSTargetManager extends MobileTargetManager {
     private static readonly ALL_DEVICES_LIST_COMMAND = `${IOSTargetManager.XCRUN_COMMAND} xctrace list devices`;
     private static readonly BOOTED_STATE = "Booted";
     private static readonly SIMULATOR_START_TIMEOUT = 120;
-    private static readonly IDB_PATH = "/usr/local/bin/idb";
-    private static readonly isIDBAvailableCache = PromiseUtil.promiseCacheDecorator(
-        IOSTargetManager.isIDBAvailable,
-    );
-
     private static readonly ANY_SYSTEM = "AnySystem";
 
     private childProcess: ChildProcess = new ChildProcess();
@@ -79,12 +73,8 @@ export class IOSTargetManager extends MobileTargetManager {
     public async collectTargets(targetType?: TargetType): Promise<void> {
         this.targets = [];
 
-        if (await IOSTargetManager.isIDBAvailableCache()) {
-            const targets = (
-                await this.childProcess.execToString(
-                    `${IOSTargetManager.IDB_PATH} list-targets --json`,
-                )
-            )
+        if (await isIdbAvailable()) {
+            const targets = (await this.childProcess.execToString(`${idbPath} list-targets --json`))
                 .trim()
                 .split("\n")
                 .map(line => line.trim())
@@ -200,7 +190,7 @@ export class IOSTargetManager extends MobileTargetManager {
                 if (target) {
                     return target.isVirtualTarget;
                 } else {
-                    throw Error;
+                    throw Error("There is no any target with specified target string");
                 }
             }
         } catch {
@@ -212,13 +202,6 @@ export class IOSTargetManager extends MobileTargetManager {
                 ),
             );
         }
-    }
-
-    private static async isIDBAvailable(): Promise<boolean> {
-        return fs.promises
-            .access(IOSTargetManager.IDB_PATH, fs.constants.X_OK)
-            .then(() => true)
-            .catch(() => false);
     }
 
     protected async startSelection(

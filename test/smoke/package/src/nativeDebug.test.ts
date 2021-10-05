@@ -41,15 +41,6 @@ export function startReactNativeTests(
         ): Promise<Application> {
             app = await vscodeManager.runVSCode(workspaceOrFolder, sessionName, locale);
             automationHelper = new AutomationHelper(app);
-            const configManager = new LaunchConfigurationManager(workspaceOrFolder);
-            configManager.updateLaunchScenario(AndroidRNDebugConfigName, {
-                target: androidEmulatorManager.getEmulatorName(),
-            });
-            if (process.platform === "darwin") {
-                configManager.updateLaunchScenario(IosRNDebugConfigName, {
-                    target: iosSimulatorManager.getSimulator().name,
-                });
-            }
             return app;
         }
 

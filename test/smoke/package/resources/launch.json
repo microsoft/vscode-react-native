@@ -7,7 +7,6 @@
       "type": "reactnative",
       "request": "launch",
       "platform": "android",
-      "target": "simulator",
       "trace": "verbose"
     },
     {

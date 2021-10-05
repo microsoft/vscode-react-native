@@ -95,9 +95,9 @@ export class IOSPlatform extends GeneralMobilePlatform {
             const targetsBySpecifiedType = targets.filter(target => {
                 switch (this.runOptions.target) {
                     case TargetType.Simulator:
-                        return target.isVirtualTarget === true;
+                        return target.isVirtualTarget;
                     case TargetType.Device:
-                        return target.isVirtualTarget === false;
+                        return !target.isVirtualTarget;
                     default:
                         return true;
                 }

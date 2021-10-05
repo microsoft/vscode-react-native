@@ -2,13 +2,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { AbstractDeviceTracker } from "../abstractDeviceTracker";
-import iosUtil, { DeviceTarget } from "./iOSContainerUtility";
+import iosUtil, { DeviceTarget, isXcodeDetected } from "./iOSContainerUtility";
 import { DeviceStorage } from "../networkInspector/devices/deviceStorage";
 import { ClientOS } from "../networkInspector/clientUtils";
 import { IOSClienDevice } from "../networkInspector/devices/iOSClienDevice";
 import { findFileInFolderHierarchy } from "../../common/extensionHelper";
 import { ChildProcess, execFile } from "child_process";
-import { ChildProcess as ChildProcessUtils } from "../../common/node/childProcess";
 import { IDebuggableIOSTarget, IOSTargetManager } from "./iOSTargetManager";
 
 export class IOSDeviceTracker extends AbstractDeviceTracker {
@@ -27,7 +26,7 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
 
     public async start(): Promise<void> {
         this.logger.debug("Start iOS device tracker");
-        if (await this.isXcodeDetected()) {
+        if (await isXcodeDetected()) {
             this.startDevicePortForwarders();
         }
         await this.queryDevicesLoop();
@@ -167,29 +166,5 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
     /**
      * @preserve
      * End region: https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/dispatcher/iOSDevice.tsx#L227-L232
-     */
-
-    /**
-     * @preserve
-     * Start region: the code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/dispatcher/iOSDevice.tsx#L282-L286
-     *
-     * Copyright (c) Facebook, Inc. and its affiliates.
-     *
-     * This source code is licensed under the MIT license found in the
-     * LICENSE file in the root directory of this source tree.
-     *
-     * @format
-     */
-    private isXcodeDetected(): Promise<boolean> {
-        const cp = new ChildProcessUtils();
-        return cp
-            .execToString("xcode-select -p")
-            .then(() => true)
-            .catch(() => false);
-    }
-
-    /**
-     * @preserve
-     * End region: https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/dispatcher/iOSDevice.tsx#L282-L286
      */
 }

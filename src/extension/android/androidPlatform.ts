@@ -90,7 +90,14 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         if (!this.target) {
             const onlineTargets = await this.adbHelper.getOnlineTargets();
             const onlineTargetsBySpecifiedType = onlineTargets.filter(target => {
-                return this.runOptions.target !== TargetType.Device;
+                switch (this.runOptions.target) {
+                    case TargetType.Simulator:
+                        return target.isVirtualTarget;
+                    case TargetType.Device:
+                        return !target.isVirtualTarget;
+                    default:
+                        return true;
+                }
             });
             if (onlineTargetsBySpecifiedType.length) {
                 this.target = AndroidTarget.fromInterface(onlineTargetsBySpecifiedType[0]);

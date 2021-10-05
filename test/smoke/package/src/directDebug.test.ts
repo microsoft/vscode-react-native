@@ -43,15 +43,6 @@ export function startDirectDebugTests(
         ): Promise<Application> {
             app = await vscodeManager.runVSCode(workspaceOrFolder, sessionName, locale);
             automationHelper = new AutomationHelper(app);
-            const configManager = new LaunchConfigurationManager(workspaceOrFolder);
-            configManager.updateLaunchScenario(RNAndroidHermesDebugConfigName, {
-                target: androidEmulatorManager.getEmulatorName(),
-            });
-            if (process.platform === "darwin") {
-                configManager.updateLaunchScenario(RNIosHermesDebugConfigName, {
-                    target: iosSimulatorManager.getSimulator().name,
-                });
-            }
             return app;
         }
 
