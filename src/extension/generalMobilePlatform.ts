@@ -117,14 +117,14 @@ export abstract class GeneralMobilePlatform extends GeneralPlatform {
         return this.target;
     }
 
-    protected async needToPassTargetToRunArgs(isVirtualTarget: boolean): Promise<boolean> {
+    protected async needToPassTargetToRunArgs(): Promise<boolean> {
         // If we specify a target in "react-native run-*" command, the RN CLI will build applications
         // for development and release, which leads to an increase in build time. Therefore, it's better to
         // avoid passing the target to the CLI command if it's not necessary to improve build performance.
         // We should not pass target to run arguments in case there is only one online simulator or online target
         const targets = await this.targetManager.getTargetList();
         return (
-            targets.filter(target => target.isOnline && target.isVirtualTarget === isVirtualTarget)
+            targets.filter(target => target.isOnline)
                 .length > 1
         );
     }
