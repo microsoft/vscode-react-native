@@ -123,10 +123,7 @@ export abstract class GeneralMobilePlatform extends GeneralPlatform {
         // avoid passing the target to the CLI command if it's not necessary to improve build performance.
         // We should not pass target to run arguments in case there is only one online simulator or online target
         const targets = await this.targetManager.getTargetList();
-        return (
-            targets.filter(target => target.isOnline)
-                .length > 1
-        );
+        return targets.filter(target => target.isOnline).length > 1;
     }
 
     protected addTargetToRunArgs(target: MobileTarget): void {
