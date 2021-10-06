@@ -80,10 +80,7 @@ export abstract class GeneralMobilePlatform extends GeneralPlatform {
                 // For iOS we should pass exact target id,
                 // because the “react-native run-ios” command does not check booted devices
                 // and just launches the first device
-                if (
-                    this instanceof IOSPlatform ||
-                    (await this.needToPassTargetToRunArgs(isVirtualTarget))
-                ) {
+                if (this instanceof IOSPlatform || (await this.needToPassTargetToRunArgs())) {
                     this.addTargetToRunArgs(this.target);
                 } else {
                     cleanupTargetModifications();
