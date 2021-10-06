@@ -214,11 +214,7 @@ export class Packager {
             /* eslint-enable @typescript-eslint/no-empty-function */
         }
 
-        if (!(await this.awaitStart())) {
-            this.packagerStatus = PackagerStatus.PACKAGER_STOPPED;
-            this.packagerStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED);
-            throw ErrorHelper.getInternalError(InternalErrorCode.FailedToStartPackager);
-        }
+        await this.awaitStart();
         if (executedStartPackagerCmd) {
             this.logger.info(localize("PackagerStarted", "Packager started."));
             this.packagerStatus = PackagerStatus.PACKAGER_STARTED;
@@ -353,19 +349,17 @@ export class Packager {
         }
     }
 
-    private async awaitStart(retryCount = 60, delay = 3000): Promise<boolean> {
+    private async awaitStart(retryCount = 60, delay = 3000): Promise<void> {
         try {
-            const isStarted = await PromiseUtil.retryAsync(
+            await PromiseUtil.retryAsync(
                 () => this.isRunning(),
                 running => running,
                 retryCount,
                 delay,
                 localize("CouldNotStartPackager", "Could not start the packager."),
             );
-            return isStarted;
         } catch (error) {
-            this.packagerStatus = PackagerStatus.PACKAGER_STOPPED;
-            this.packagerStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPED);
+            this.setPackagerStopStateUI();
             throw error;
         }
     }
