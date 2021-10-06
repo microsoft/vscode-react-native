@@ -243,7 +243,7 @@ export class IOSTargetManager extends MobileTargetManager {
             });
 
             const condition = async () => {
-                await this.collectTargets();
+                await this.collectTargets(TargetType.Simulator);
                 const onlineTarget = (await this.getTargetList()).find(
                     target => target.id === virtualTarget.id && target.isOnline,
                 );
