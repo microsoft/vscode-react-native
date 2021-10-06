@@ -166,7 +166,9 @@ export class CommandPaletteHandler {
     }
 
     public static async launchIOSSimulator(): Promise<void> {
-        await new IOSTargetManager().selectAndPrepareTarget(target => target.isVirtualTarget);
+        const targetManager = new IOSTargetManager();
+        await targetManager.collectTargets(TargetType.Simulator);
+        await targetManager.selectAndPrepareTarget(target => target.isVirtualTarget);
     }
 
     /**
