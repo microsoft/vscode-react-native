@@ -214,7 +214,11 @@ export class Packager {
             /* eslint-enable @typescript-eslint/no-empty-function */
         }
 
-        await this.awaitStart();
+        if (!(await this.awaitStart())) {
+            this.packagerStatus = PackagerStatus.PACKAGER_STOPPED;
+            this.packagerStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED);
+            throw ErrorHelper.getInternalError(InternalErrorCode.FailedToStartPackager);
+        }
         if (executedStartPackagerCmd) {
             this.logger.info(localize("PackagerStarted", "Packager started."));
             this.packagerStatus = PackagerStatus.PACKAGER_STARTED;
@@ -349,14 +353,21 @@ export class Packager {
         }
     }
 
-    private awaitStart(retryCount = 60, delay = 3000): Promise<boolean> {
-        return PromiseUtil.retryAsync(
-            () => this.isRunning(),
-            running => running,
-            retryCount,
-            delay,
-            localize("CouldNotStartPackager", "Could not start the packager."),
-        );
+    private async awaitStart(retryCount = 60, delay = 3000): Promise<boolean> {
+        try {
+            const isStarted = await PromiseUtil.retryAsync(
+                () => this.isRunning(),
+                running => running,
+                retryCount,
+                delay,
+                localize("CouldNotStartPackager", "Could not start the packager."),
+            );
+            return isStarted;
+        } catch (error) {
+            this.packagerStatus = PackagerStatus.PACKAGER_STOPPED;
+            this.packagerStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPED);
+            throw error;
+        }
     }
 
     private async findOpnPackage(ReactNativeVersion: string): Promise<string> {
