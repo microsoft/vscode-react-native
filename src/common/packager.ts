@@ -349,14 +349,19 @@ export class Packager {
         }
     }
 
-    private awaitStart(retryCount = 60, delay = 3000): Promise<boolean> {
-        return PromiseUtil.retryAsync(
-            () => this.isRunning(),
-            running => running,
-            retryCount,
-            delay,
-            localize("CouldNotStartPackager", "Could not start the packager."),
-        );
+    private async awaitStart(retryCount = 60, delay = 3000): Promise<void> {
+        try {
+            await PromiseUtil.retryAsync(
+                () => this.isRunning(),
+                running => running,
+                retryCount,
+                delay,
+                localize("CouldNotStartPackager", "Could not start the packager."),
+            );
+        } catch (error) {
+            this.setPackagerStopStateUI();
+            throw error;
+        }
     }
 
     private async findOpnPackage(ReactNativeVersion: string): Promise<string> {

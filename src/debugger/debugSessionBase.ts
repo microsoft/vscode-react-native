@@ -3,8 +3,6 @@
 
 import * as vscode from "vscode";
 import * as path from "path";
-import * as fs from "fs";
-import stripJsonComments = require("strip-json-comments");
 import { LoggingDebugSession, Logger, logger, ErrorDestination } from "vscode-debugadapter";
 import { DebugProtocol } from "vscode-debugprotocol";
 import { getLoggingDirectory, LogHelper } from "../extension/log/LogHelper";
@@ -16,6 +14,7 @@ import { IRunOptions, PlatformType } from "../extension/launchArgs";
 import { AppLauncher } from "../extension/appLauncher";
 import { LogLevel } from "../extension/log/LogHelper";
 import * as nls from "vscode-nls";
+import { SettingsHelper } from "../extension/settingsHelper";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -149,7 +148,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
                 args.sourceMapRenames = false;
             }
 
-            const projectRootPath = getProjectRoot(args);
+            const projectRootPath = SettingsHelper.getReactNativeProjectRoot(args.cwd);
             const isReactProject = await ReactNativeProjectHelper.isReactNativeProject(
                 projectRootPath,
             );
@@ -230,27 +229,5 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
             undefined,
             ErrorDestination.User,
         );
-    }
-}
-
-/**
- * Parses settings.json file for workspace root property
- */
-export function getProjectRoot(args: any): string {
-    const vsCodeRoot = args.cwd ? path.resolve(args.cwd) : path.resolve(args.program, "../..");
-    const settingsPath = path.resolve(vsCodeRoot, ".vscode/settings.json");
-    try {
-        let settingsContent = fs.readFileSync(settingsPath, "utf8");
-        settingsContent = stripJsonComments(settingsContent);
-        let parsedSettings = JSON.parse(settingsContent);
-        let projectRootPath =
-            parsedSettings["react-native-tools.projectRoot"] ||
-            parsedSettings["react-native-tools"].projectRoot;
-        return path.resolve(vsCodeRoot, projectRootPath);
-    } catch (e) {
-        logger.verbose(
-            `${settingsPath} file doesn't exist or its content is incorrect. This file will be ignored.`,
-        );
-        return args.cwd ? path.resolve(args.cwd) : path.resolve(args.program, "../..");
     }
 }
