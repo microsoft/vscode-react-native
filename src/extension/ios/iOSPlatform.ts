@@ -91,32 +91,43 @@ export class IOSPlatform extends GeneralMobilePlatform {
 
     public async getTarget(): Promise<IOSTarget> {
         if (!this.target) {
-            const targets = (await this.targetManager.getTargetList()) as IDebuggableIOSTarget[];
-            const targetsBySpecifiedType = targets.filter(target => {
-                switch (this.runOptions.target) {
-                    case TargetType.Simulator:
-                        return target.isVirtualTarget;
-                    case TargetType.Device:
-                        return !target.isVirtualTarget;
-                    default:
-                        return true;
-                }
-            });
-            if (targetsBySpecifiedType.length) {
-                this.target = IOSTarget.fromInterface(targetsBySpecifiedType[0]);
-            } else if (targets.length) {
-                this.logger.warning(
-                    localize(
-                        "ThereIsNoTargetWithSpecifiedTargetType",
-                        "There is no any target with specified target type '{0}'. Continue with any target.",
-                        this.runOptions.target,
-                    ),
-                );
-                this.target = IOSTarget.fromInterface(targets[0]);
+            const targetFromRunArgs = await this.getTargetFromRunArgs();
+            if (targetFromRunArgs) {
+                this.target = targetFromRunArgs;
             } else {
-                throw ErrorHelper.getInternalError(
-                    InternalErrorCode.IOSThereIsNoAnyDebuggableTarget,
-                );
+                const targets = (await this.targetManager.getTargetList()) as IDebuggableIOSTarget[];
+                const targetsBySpecifiedType = targets.filter(target => {
+                    switch (this.runOptions.target) {
+                        case TargetType.Simulator:
+                            return target.isVirtualTarget;
+                        case TargetType.Device:
+                            return !target.isVirtualTarget;
+                        case undefined:
+                        case "":
+                            return true;
+                        default:
+                            return (
+                                target.id === this.runOptions.target ||
+                                target.name === this.runOptions.target
+                            );
+                    }
+                });
+                if (targetsBySpecifiedType.length) {
+                    this.target = IOSTarget.fromInterface(targetsBySpecifiedType[0]);
+                } else if (targets.length) {
+                    this.logger.warning(
+                        localize(
+                            "ThereIsNoTargetWithSpecifiedTargetType",
+                            "There is no any target with specified target type '{0}'. Continue with any target.",
+                            this.runOptions.target,
+                        ),
+                    );
+                    this.target = IOSTarget.fromInterface(targets[0]);
+                } else {
+                    throw ErrorHelper.getInternalError(
+                        InternalErrorCode.IOSThereIsNoAnyDebuggableTarget,
+                    );
+                }
             }
         }
         return this.target;
@@ -287,6 +298,53 @@ export class IOSPlatform extends GeneralMobilePlatform {
         }
 
         return runArguments;
+    }
+
+    public async getTargetFromRunArgs(): Promise<IOSTarget | undefined> {
+        const targets = (await this.targetManager.getTargetList()) as IDebuggableIOSTarget[];
+
+        if (this.runOptions.runArguments && this.runOptions.runArguments.length > 0) {
+            const udidIndex = this.runOptions.runArguments.indexOf("--udid") + 1;
+            const deviceIndex = this.runOptions.runArguments.indexOf("--device") + 1;
+            const simulatorIndex = this.runOptions.runArguments.indexOf("--simulator") + 1;
+
+            if (udidIndex > 0) {
+                const udid = this.runOptions.runArguments[udidIndex];
+                if (udid) {
+                    const target = targets.find(target => target.id === udid);
+                    if (target) {
+                        return IOSTarget.fromInterface(target);
+                    }
+                }
+            }
+            if (deviceIndex > 0) {
+                const device = this.runOptions.runArguments[deviceIndex];
+                if (device) {
+                    const target = targets.find(
+                        target =>
+                            !target.isVirtualTarget &&
+                            (target.id === device || target.name === device),
+                    );
+                    if (target) {
+                        return IOSTarget.fromInterface(target);
+                    }
+                }
+            }
+            if (simulatorIndex > 0) {
+                const simulator = this.runOptions.runArguments[simulatorIndex];
+                if (simulator) {
+                    const target = targets.find(
+                        target =>
+                            target.isVirtualTarget &&
+                            (target.id === simulator || target.name === simulator),
+                    );
+                    if (target) {
+                        return IOSTarget.fromInterface(target);
+                    }
+                }
+            }
+        }
+        return undefined;
     }
 
     private handleTargetArg(target: string): string[] {

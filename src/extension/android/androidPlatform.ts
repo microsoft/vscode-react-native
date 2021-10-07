@@ -89,31 +89,39 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     public async getTarget(): Promise<AndroidTarget> {
         if (!this.target) {
             const onlineTargets = await this.adbHelper.getOnlineTargets();
-            const onlineTargetsBySpecifiedType = onlineTargets.filter(target => {
-                switch (this.runOptions.target) {
-                    case TargetType.Simulator:
-                        return target.isVirtualTarget;
-                    case TargetType.Device:
-                        return !target.isVirtualTarget;
-                    default:
-                        return true;
-                }
-            });
-            if (onlineTargetsBySpecifiedType.length) {
-                this.target = AndroidTarget.fromInterface(onlineTargetsBySpecifiedType[0]);
-            } else if (onlineTargets.length) {
-                this.logger.warning(
-                    localize(
-                        "ThereIsNoOnlineTargetWithSpecifiedTargetType",
-                        "There is no any online target with specified target type '{0}'. Continue with any online target.",
-                        this.runOptions.target,
-                    ),
-                );
-                this.target = AndroidTarget.fromInterface(onlineTargets[0]);
+            const target = await this.getTargetFromRunArgs();
+            if (target) {
+                this.target = target;
             } else {
-                throw ErrorHelper.getInternalError(
-                    InternalErrorCode.AndroidThereIsNoAnyOnlineDebuggableTarget,
-                );
+                const onlineTargetsBySpecifiedType = onlineTargets.filter(target => {
+                    switch (this.runOptions.target) {
+                        case TargetType.Simulator:
+                            return target.isVirtualTarget;
+                        case TargetType.Device:
+                            return !target.isVirtualTarget;
+                        case undefined:
+                        case "":
+                            return true;
+                        default:
+                            return target.id === this.runOptions.target;
+                    }
+                });
+                if (onlineTargetsBySpecifiedType.length) {
+                    this.target = AndroidTarget.fromInterface(onlineTargetsBySpecifiedType[0]);
+                } else if (onlineTargets.length) {
+                    this.logger.warning(
+                        localize(
+                            "ThereIsNoOnlineTargetWithSpecifiedTargetType",
+                            "There is no any online target with specified target type '{0}'. Continue with any online target.",
+                            this.runOptions.target,
+                        ),
+                    );
+                    this.target = AndroidTarget.fromInterface(onlineTargets[0]);
+                } else {
+                    throw ErrorHelper.getInternalError(
+                        InternalErrorCode.AndroidThereIsNoAnyOnlineDebuggableTarget,
+                    );
+                }
             }
         }
         return this.target;
@@ -274,11 +282,39 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         }
     }
 
+    public async getTargetFromRunArgs(): Promise<AndroidTarget | undefined> {
+        const deviceId = this.getDeviceIdFromRunArgs();
+        if (deviceId) {
+            if (deviceId.match(AdbHelper.AndroidSDKEmulatorPattern)) {
+                return new AndroidTarget(true, true, deviceId);
+            } else {
+                return new AndroidTarget(true, false, deviceId);
+            }
+        }
+        return undefined;
+    }
+
+    private getDeviceIdFromRunArgs(): string | undefined {
+        if (this.runOptions.runArguments && this.runOptions.runArguments.length) {
+            const deviceIdIndex = this.runOptions.runArguments.indexOf("--deviceId") + 1;
+            if (deviceIdIndex > 0) {
+                const deviceId = this.runOptions.runArguments[deviceIdIndex];
+                if (deviceId) {
+                    return deviceId;
+                }
+            }
+        }
+        return undefined;
+    }
+
     private async getTargetIdForRunApp(onlineTargetsIds: string[]): Promise<string> {
-        return this.runOptions.target &&
-            this.runOptions.target !== TargetType.Simulator &&
-            this.runOptions.target !== TargetType.Device &&
-            onlineTargetsIds.find(id => id === this.runOptions.target)
+        const deviceId = this.getDeviceIdFromRunArgs();
+        return deviceId
+            ? deviceId
+            : this.runOptions.target &&
+              this.runOptions.target !== TargetType.Simulator &&
+              this.runOptions.target !== TargetType.Device &&
+              onlineTargetsIds.find(id => id === this.runOptions.target)
             ? this.runOptions.target
             : (await this.getTarget()).id;
     }

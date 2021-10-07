@@ -127,4 +127,6 @@ export abstract class GeneralMobilePlatform extends GeneralPlatform {
         this.runOptions.target = target.id;
         this.runArguments = this.getRunArguments();
     }
+
+    public abstract getTargetFromRunArgs(): Promise<MobileTarget | undefined>;
 }

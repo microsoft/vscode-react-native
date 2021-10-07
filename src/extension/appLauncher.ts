@@ -399,7 +399,7 @@ export class AppLauncher {
         launchArgs: any,
         mobilePlatform: GeneralMobilePlatform,
     ): Promise<void> {
-        if (launchArgs.target) {
+        if (launchArgs.target && !(await mobilePlatform.getTargetFromRunArgs())) {
             const isAnyTarget =
                 launchArgs.target.toLowerCase() === TargetType.Simulator ||
                 launchArgs.target.toLowerCase() === TargetType.Device;
