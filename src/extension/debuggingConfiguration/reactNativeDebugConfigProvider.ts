@@ -4,8 +4,7 @@
 import * as vscode from "vscode";
 import { TelemetryHelper } from "../../common/telemetryHelper";
 import { Telemetry } from "../../common/telemetry";
-import { PlatformType } from "../launchArgs";
-import { IWDPHelper } from "../../debugger/direct/IWDPHelper";
+import { debugConfigurations, DEBUG_CONFIGURATION_NAMES } from "./debugConfigTypesAndConstants";
 import { DebugScenarioNameGenerator } from "./debugScenarioNameGenerator";
 import { ILaunchRequestArgs } from "../../debugger/debugSessionBase";
 import {
@@ -24,243 +23,104 @@ nls.config({
 const localize = nls.loadMessageBundle();
 
 export class ReactNativeDebugConfigProvider implements vscode.DebugConfigurationProvider {
-    private debugConfigurations = {
-        "Attach to Hermes application - Experimental": {
-            name: "Attach to Hermes application - Experimental",
-            cwd: "${workspaceFolder}",
-            type: DEBUG_TYPES.REACT_NATIVE_DIRECT,
-            request: "attach",
-        },
-        "Attach to Direct iOS - Experimental": {
-            name: "Attach to Direct iOS - Experimental",
-            cwd: "${workspaceFolder}",
-            type: DEBUG_TYPES.REACT_NATIVE_DIRECT,
-            request: "attach",
-            platform: PlatformType.iOS,
-            useHermesEngine: false,
-            port: IWDPHelper.iOS_WEBKIT_DEBUG_PROXY_DEFAULT_PORT, // 9221
-        },
-        "Attach to packager": {
-            name: "Attach to packager",
-            cwd: "${workspaceFolder}",
-            type: DEBUG_TYPES.REACT_NATIVE,
-            request: "attach",
-        },
-        "Debug Android": {
-            name: "Debug Android",
-            cwd: "${workspaceFolder}",
-            type: DEBUG_TYPES.REACT_NATIVE,
-            request: "launch",
-            platform: PlatformType.Android,
-        },
-        "Debug iOS": {
-            name: "Debug iOS",
-            cwd: "${workspaceFolder}",
-            type: DEBUG_TYPES.REACT_NATIVE,
-            request: "launch",
-            platform: PlatformType.iOS,
-        },
-        "Debug Windows": {
-            name: "Debug Windows",
-            cwd: "${workspaceFolder}",
-            type: DEBUG_TYPES.REACT_NATIVE,
-            request: "launch",
-            platform: PlatformType.Windows,
-        },
-        "Debug macOS": {
-            name: "Debug macOS",
-            cwd: "${workspaceFolder}",
-            type: DEBUG_TYPES.REACT_NATIVE,
-            request: "launch",
-            platform: PlatformType.macOS,
-        },
-        "Debug in Exponent": {
-            name: "Debug in Exponent",
-            cwd: "${workspaceFolder}",
-            type: DEBUG_TYPES.REACT_NATIVE,
-            request: "launch",
-            platform: PlatformType.Exponent,
-        },
-        "Debug Android Hermes - Experimental": {
-            name: "Debug Android Hermes - Experimental",
-            cwd: "${workspaceFolder}",
-            type: DEBUG_TYPES.REACT_NATIVE_DIRECT,
-            request: "launch",
-            platform: PlatformType.Android,
-        },
-        "Debug Direct iOS - Experimental": {
-            name: "Debug Direct iOS - Experimental",
-            cwd: "${workspaceFolder}",
-            type: DEBUG_TYPES.REACT_NATIVE_DIRECT,
-            request: "launch",
-            platform: PlatformType.iOS,
-            useHermesEngine: false,
-            target: "device",
-            port: IWDPHelper.iOS_WEBKIT_DEBUG_PROXY_DEFAULT_PORT, // 9221
-        },
-        "Debug iOS Hermes - Experimental": {
-            name: "Debug iOS Hermes - Experimental",
-            cwd: "${workspaceFolder}",
-            type: DEBUG_TYPES.REACT_NATIVE_DIRECT,
-            request: "launch",
-            platform: PlatformType.iOS,
-        },
-        "Debug macOS Hermes - Experimental": {
-            name: "Debug macOS Hermes - Experimental",
-            cwd: "${workspaceFolder}",
-            type: DEBUG_TYPES.REACT_NATIVE_DIRECT,
-            request: "launch",
-            platform: PlatformType.macOS,
-        },
-        "Debug Windows Hermes - Experimental": {
-            name: "Debug Windows Hermes - Experimental",
-            cwd: "${workspaceFolder}",
-            type: DEBUG_TYPES.REACT_NATIVE_DIRECT,
-            request: "launch",
-            platform: PlatformType.Windows,
-        },
-        "Run Android": {
-            name: "Run Android",
-            cwd: "${workspaceFolder}",
-            type: DEBUG_TYPES.REACT_NATIVE,
-            request: "launch",
-            platform: PlatformType.Android,
-            enableDebug: false,
-        },
-        "Run iOS": {
-            name: "Run iOS",
-            cwd: "${workspaceFolder}",
-            type: DEBUG_TYPES.REACT_NATIVE,
-            request: "launch",
-            platform: PlatformType.iOS,
-            enableDebug: false,
-        },
-        "Run Android Hermes - Experimental": {
-            name: "Run Android Hermes - Experimental",
-            cwd: "${workspaceFolder}",
-            type: DEBUG_TYPES.REACT_NATIVE_DIRECT,
-            request: "launch",
-            platform: PlatformType.Android,
-            enableDebug: false,
-        },
-        "Run iOS Hermes - Experimental": {
-            name: "Run iOS Hermes - Experimental",
-            cwd: "${workspaceFolder}",
-            type: DEBUG_TYPES.REACT_NATIVE_DIRECT,
-            request: "launch",
-            platform: PlatformType.iOS,
-            enableDebug: false,
-        },
-        "Run Direct iOS - Experimental": {
-            name: "Run Direct iOS - Experimental",
-            cwd: "${workspaceFolder}",
-            type: DEBUG_TYPES.REACT_NATIVE_DIRECT,
-            request: "launch",
-            platform: PlatformType.iOS,
-            enableDebug: false,
-            useHermesEngine: false,
-            target: "device",
-        },
-    };
-
     private initialPickConfig: ReadonlyArray<vscode.QuickPickItem> = [
         {
-            label: "Debug Android",
+            label: DEBUG_CONFIGURATION_NAMES.DEBUG_ANDROID,
             description: localize("DebugAndroidConfigDesc", "Run and debug Android application"),
         },
         {
-            label: "Run Android",
+            label: DEBUG_CONFIGURATION_NAMES.RUN_ANDROID,
             description: localize("RunAndroidConfigDesc", "Run Android application"),
         },
         {
-            label: "Debug iOS",
+            label: DEBUG_CONFIGURATION_NAMES.DEBUG_IOS,
             description: localize("DebugiOSConfigDesc", "Run and debug iOS application"),
         },
         {
-            label: "Run iOS",
+            label: DEBUG_CONFIGURATION_NAMES.RUN_IOS,
             description: localize("RuniOSConfigDesc", "Run iOS application"),
         },
         {
-            label: "Debug Windows",
+            label: DEBUG_CONFIGURATION_NAMES.DEBUG_WINDOWS,
             description: localize("DebugWindowsConfigDesc", "Run and debug Windows application"),
         },
         {
-            label: "Debug macOS",
+            label: DEBUG_CONFIGURATION_NAMES.DEBUG_MACOS,
             description: localize("DebugmacOSConfigDesc", "Run and debug macOS application"),
         },
         {
-            label: "Attach to packager",
+            label: DEBUG_CONFIGURATION_NAMES.ATTACH_TO_PACKAGER,
             description: localize(
                 "AttachToPackagerConfigDesc",
                 "Attach to already working application packager",
             ),
         },
         {
-            label: "Debug in Exponent",
+            label: DEBUG_CONFIGURATION_NAMES.DEBUG_IN_EXPONENT,
             description: localize(
                 "DebugExpoConfigDesc",
                 "Debug Expo application or React Native application in Expo",
             ),
         },
         {
-            label: "Debug Android Hermes - Experimental",
+            label: DEBUG_CONFIGURATION_NAMES.DEBUG_ANDROID_HERMES_EXPERIMENTAL,
             description: localize(
                 "DebugAndroidHermesConfigDesc",
                 "Run and debug Android Hermes application",
             ),
         },
         {
-            label: "Run Android Hermes - Experimental",
+            label: DEBUG_CONFIGURATION_NAMES.RUN_ANDROID_HERMES_EXPERIMENTAL,
             description: localize("RunAndroidHermesConfigDesc", "Run Android Hermes application"),
         },
         {
-            label: "Debug iOS Hermes - Experimental",
+            label: DEBUG_CONFIGURATION_NAMES.DEBUG_IOS_HERMES_EXPERIMENTAL,
             description: localize(
                 "DebugIosHermesConfigDesc",
                 "Run and debug iOS Hermes application",
             ),
         },
         {
-            label: "Run iOS Hermes - Experimental",
+            label: DEBUG_CONFIGURATION_NAMES.RUN_IOS_HERMES_EXPERIMENTAL,
             description: localize("RunIosHermesConfigDesc", "Run iOS Hermes application"),
         },
         {
-            label: "Debug macOS Hermes - Experimental",
+            label: DEBUG_CONFIGURATION_NAMES.DEBUG_MACOS_HERMES_EXPERIMENTAL,
             description: localize(
                 "DebugMacOSHermesConfigDesc",
                 "Run and debug macOS Hermes application",
             ),
         },
         {
-            label: "Debug Windows Hermes - Experimental",
+            label: DEBUG_CONFIGURATION_NAMES.DEBUG_WINDOWS_HERMES_EXPERIMENTAL,
             description: localize(
                 "DebugWindowsHermesConfigDesc",
                 "Run and debug Windows Hermes application",
             ),
         },
         {
-            label: "Attach to Hermes application - Experimental",
+            label: DEBUG_CONFIGURATION_NAMES.ATTACH_TO_HERMES_APPLICATION_EXPERIMENTAL,
             description: localize(
                 "AttachToPackagerHermesConfigDesc",
                 "Attach to already working React Native Hermes application on Android directly",
             ),
         },
         {
-            label: "Debug Direct iOS - Experimental",
+            label: DEBUG_CONFIGURATION_NAMES.DEBUG_DIRECT_IOS_EXPERIMENTAL,
             description: localize(
                 "DebugDirectiOSConfigDesc",
                 "Run and debug iOS application directly",
             ),
         },
         {
-            label: "Run Direct iOS - Experimental",
+            label: DEBUG_CONFIGURATION_NAMES.RUN_DIRECT_IOS_EXPERIMENTAL,
             description: localize(
                 "RunDirectiOSConfigDesc",
                 "Run iOS application with direct debugging support",
             ),
         },
         {
-            label: "Attach to Direct iOS - Experimental",
+            label: DEBUG_CONFIGURATION_NAMES.ATTACH_TO_DIRECT_IOS_EXPERIMENTAL,
             description: localize(
                 "AttachToPackageriOSConfigDesc",
                 "Attach to already working React Native iOS application directly",
@@ -375,7 +235,7 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
 
     private gatherDebugScenarios(selectedItems: string[]): vscode.DebugConfiguration[] {
         let launchConfig: vscode.DebugConfiguration[] = selectedItems.map(
-            element => this.debugConfigurations[element],
+            element => debugConfigurations[element],
         );
         return launchConfig;
     }

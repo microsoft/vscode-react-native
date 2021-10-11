@@ -26,6 +26,7 @@ import { Telemetry } from "../common/telemetry";
 import { TelemetryHelper, ICommandTelemetryProperties } from "../common/telemetryHelper";
 import { OutputChannelLogger } from "./log/OutputChannelLogger";
 import { ReactNativeDebugConfigProvider } from "./debuggingConfiguration/reactNativeDebugConfigProvider";
+import { ReactNativeDebugDynamicConfigProvider } from "./debuggingConfiguration/reactNativeDebugDynamicConfigProvider";
 import { DEBUG_TYPES } from "./debuggingConfiguration/debugConfigTypesAndConstants";
 import {
     LaunchJsonCompletionProvider,
@@ -55,6 +56,7 @@ const localize = nls.loadMessageBundle();
 const outputChannelLogger = OutputChannelLogger.getMainChannel();
 const entryPointHandler = new EntryPointHandler(ProcessType.Extension, outputChannelLogger);
 let debugConfigProvider: ReactNativeDebugConfigProvider | null;
+let dynamicDebugConfigProvider: ReactNativeDebugDynamicConfigProvider | null;
 
 const APP_NAME = "react-native-tools";
 
@@ -104,8 +106,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         Telemetry.APPINSIGHTS_INSTRUMENTATIONKEY,
     );
     const configProvider = (debugConfigProvider = new ReactNativeDebugConfigProvider());
+    const dymConfigProvider = (dynamicDebugConfigProvider = new ReactNativeDebugDynamicConfigProvider());
     const completionItemProviderInst = new LaunchJsonCompletionProvider();
-    const workspaceFolders: vscode.WorkspaceFolder[] | undefined =
+    const workspaceFolders: readonly vscode.WorkspaceFolder[] | undefined =
         vscode.workspace.workspaceFolders;
     let extProps: ICommandTelemetryProperties = {};
     if (workspaceFolders) {
@@ -136,6 +139,21 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
                 vscode.debug.registerDebugConfigurationProvider(
                     DEBUG_TYPES.REACT_NATIVE,
                     configProvider,
+                ),
+            );
+
+            EXTENSION_CONTEXT.subscriptions.push(
+                vscode.debug.registerDebugConfigurationProvider(
+                    DEBUG_TYPES.REACT_NATIVE,
+                    dymConfigProvider,
+                    vscode.DebugConfigurationProviderTriggerKind.Dynamic,
+                ),
+            );
+            EXTENSION_CONTEXT.subscriptions.push(
+                vscode.debug.registerDebugConfigurationProvider(
+                    DEBUG_TYPES.REACT_NATIVE_DIRECT,
+                    dymConfigProvider,
+                    vscode.DebugConfigurationProviderTriggerKind.Dynamic,
                 ),
             );
 
@@ -207,6 +225,9 @@ export function deactivate(): Promise<void> {
             () => {
                 if (debugConfigProvider) {
                     debugConfigProvider = null;
+                }
+                if (dynamicDebugConfigProvider) {
+                    dynamicDebugConfigProvider = null;
                 }
                 CommandPaletteHandler.stopAllPackagers()
                     .then(() => {

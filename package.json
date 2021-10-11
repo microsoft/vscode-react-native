@@ -21,7 +21,7 @@
     "url": "https://github.com/microsoft/vscode-react-native"
   },
   "engines": {
-    "vscode": "^1.40.0"
+    "vscode": "^1.46.0"
   },
   "categories": [
     "Debuggers",
@@ -31,6 +31,7 @@
     "workspaceContains:node_modules/react-native",
     "onDebugResolve:reactnative",
     "onDebugResolve:reactnativedirect",
+    "onDebugDynamicConfigurations:reactnative",
     "onDebugInitialConfigurations",
     "onCommand:reactNative.runAndroidSimulator",
     "onCommand:reactNative.runAndroidDevice",
@@ -886,7 +887,7 @@
     "@types/source-map": "0.5.2",
     "@types/source-map-support": "0.2.28",
     "@types/uuid": "8.3.0",
-    "@types/vscode": "1.40.0",
+    "@types/vscode": "^1.46.0",
     "@types/websocket": "0.0.33",
     "@types/ws": "0.0.39",
     "@typescript-eslint/eslint-plugin": "4.15.0",
@@ -906,7 +907,7 @@
     "gulp-sourcemaps": "2.6.5",
     "gulp-typescript": "5.0.1",
     "minimist": "1.2.5",
-    "mocha": "^9.0.2",
+    "mocha": "^9.1.2",
     "mocha-junit-reporter": "^2.0.0",
     "mocha-multi-reporters": "^1.5.1",
     "ncp": "2.0.0",
