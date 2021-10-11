@@ -289,11 +289,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                 "--deviceId",
             );
             if (deviceId) {
-                if (deviceId.match(AdbHelper.AndroidSDKEmulatorPattern)) {
-                    return new AndroidTarget(true, true, deviceId);
-                } else {
-                    return new AndroidTarget(true, false, deviceId);
-                }
+                return new AndroidTarget(true, this.adbHelper.isVirtualTarget(deviceId), deviceId);
             }
         }
         return undefined;

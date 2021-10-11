@@ -308,15 +308,6 @@ export class IOSPlatform extends GeneralMobilePlatform {
                 this.runOptions.runArguments,
                 "--udid",
             );
-            const device = GeneralMobilePlatform.getOptFromRunArgs(
-                this.runOptions.runArguments,
-                "--device",
-            );
-            const simulator = GeneralMobilePlatform.getOptFromRunArgs(
-                this.runOptions.runArguments,
-                "--simulator",
-            );
-
             if (udid) {
                 const target = targets.find(target => target.id === udid);
                 if (target) {
@@ -324,6 +315,10 @@ export class IOSPlatform extends GeneralMobilePlatform {
                 }
             }
 
+            const device = GeneralMobilePlatform.getOptFromRunArgs(
+                this.runOptions.runArguments,
+                "--device",
+            );
             if (device) {
                 const target = targets.find(
                     target =>
@@ -334,6 +329,10 @@ export class IOSPlatform extends GeneralMobilePlatform {
                 }
             }
 
+            const simulator = GeneralMobilePlatform.getOptFromRunArgs(
+                this.runOptions.runArguments,
+                "--simulator",
+            );
             if (simulator) {
                 const target = targets.find(
                     target =>

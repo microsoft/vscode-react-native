@@ -260,7 +260,7 @@ export class AdbHelper {
         return result;
     }
 
-    private isVirtualTarget(id: string): boolean {
+    public isVirtualTarget(id: string): boolean {
         return !!id.match(AdbHelper.AndroidSDKEmulatorPattern);
     }
 
