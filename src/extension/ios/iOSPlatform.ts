@@ -304,46 +304,48 @@ export class IOSPlatform extends GeneralMobilePlatform {
         const targets = (await this.targetManager.getTargetList()) as IDebuggableIOSTarget[];
 
         if (this.runOptions.runArguments && this.runOptions.runArguments.length > 0) {
-            const udidIndex = this.runOptions.runArguments.indexOf("--udid") + 1;
-            const deviceIndex = this.runOptions.runArguments.indexOf("--device") + 1;
-            const simulatorIndex = this.runOptions.runArguments.indexOf("--simulator") + 1;
+            const udid = GeneralMobilePlatform.getOptFromRunArgs(
+                this.runOptions.runArguments,
+                "--udid",
+            );
+            const device = GeneralMobilePlatform.getOptFromRunArgs(
+                this.runOptions.runArguments,
+                "--device",
+            );
+            const simulator = GeneralMobilePlatform.getOptFromRunArgs(
+                this.runOptions.runArguments,
+                "--simulator",
+            );
 
-            if (udidIndex > 0) {
-                const udid = this.runOptions.runArguments[udidIndex];
-                if (udid) {
-                    const target = targets.find(target => target.id === udid);
-                    if (target) {
-                        return IOSTarget.fromInterface(target);
-                    }
+            if (udid) {
+                const target = targets.find(target => target.id === udid);
+                if (target) {
+                    return IOSTarget.fromInterface(target);
                 }
             }
-            if (deviceIndex > 0) {
-                const device = this.runOptions.runArguments[deviceIndex];
-                if (device) {
-                    const target = targets.find(
-                        target =>
-                            !target.isVirtualTarget &&
-                            (target.id === device || target.name === device),
-                    );
-                    if (target) {
-                        return IOSTarget.fromInterface(target);
-                    }
+
+            if (device) {
+                const target = targets.find(
+                    target =>
+                        !target.isVirtualTarget && (target.id === device || target.name === device),
+                );
+                if (target) {
+                    return IOSTarget.fromInterface(target);
                 }
             }
-            if (simulatorIndex > 0) {
-                const simulator = this.runOptions.runArguments[simulatorIndex];
-                if (simulator) {
-                    const target = targets.find(
-                        target =>
-                            target.isVirtualTarget &&
-                            (target.id === simulator || target.name === simulator),
-                    );
-                    if (target) {
-                        return IOSTarget.fromInterface(target);
-                    }
+
+            if (simulator) {
+                const target = targets.find(
+                    target =>
+                        target.isVirtualTarget &&
+                        (target.id === simulator || target.name === simulator),
+                );
+                if (target) {
+                    return IOSTarget.fromInterface(target);
                 }
             }
         }
+
         return undefined;
     }
 

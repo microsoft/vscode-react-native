@@ -283,24 +283,16 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     }
 
     public async getTargetFromRunArgs(): Promise<AndroidTarget | undefined> {
-        const deviceId = this.getDeviceIdFromRunArgs();
-        if (deviceId) {
-            if (deviceId.match(AdbHelper.AndroidSDKEmulatorPattern)) {
-                return new AndroidTarget(true, true, deviceId);
-            } else {
-                return new AndroidTarget(true, false, deviceId);
-            }
-        }
-        return undefined;
-    }
-
-    private getDeviceIdFromRunArgs(): string | undefined {
         if (this.runOptions.runArguments && this.runOptions.runArguments.length) {
-            const deviceIdIndex = this.runOptions.runArguments.indexOf("--deviceId") + 1;
-            if (deviceIdIndex > 0) {
-                const deviceId = this.runOptions.runArguments[deviceIdIndex];
-                if (deviceId) {
-                    return deviceId;
+            const deviceId = GeneralMobilePlatform.getOptFromRunArgs(
+                this.runOptions.runArguments,
+                "--deviceId",
+            );
+            if (deviceId) {
+                if (deviceId.match(AdbHelper.AndroidSDKEmulatorPattern)) {
+                    return new AndroidTarget(true, true, deviceId);
+                } else {
+                    return new AndroidTarget(true, false, deviceId);
                 }
             }
         }
@@ -308,7 +300,13 @@ export class AndroidPlatform extends GeneralMobilePlatform {
     }
 
     private async getTargetIdForRunApp(onlineTargetsIds: string[]): Promise<string> {
-        const deviceId = this.getDeviceIdFromRunArgs();
+        let deviceId: string | undefined;
+        if (this.runOptions.runArguments && this.runOptions.runArguments.length) {
+            deviceId = GeneralMobilePlatform.getOptFromRunArgs(
+                this.runOptions.runArguments,
+                "--deviceId",
+            );
+        }
         return deviceId
             ? deviceId
             : this.runOptions.target &&
