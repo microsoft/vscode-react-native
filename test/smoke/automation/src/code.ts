@@ -95,9 +95,13 @@ export interface SpawnOptions {
     verbose?: boolean;
     extraArgs?: string[];
     log?: string;
+	/** Run in the test resolver */
     remote?: boolean;
+	/** Run in the web */
 	web?: boolean;
+	/** Run in headless mode (only applies when web is true) */
 	headless?: boolean;
+	/** A specific browser to use (requires web: true) */
 	browser?: "chromium" | "webkit" | "firefox";
 }
 
@@ -180,7 +184,7 @@ export async function spawn(options: SpawnOptions): Promise<Code> {
 
 	if (options.verbose) {
 		args.push("--driver-verbose");
-		spawnOptions.stdio = ['ignore', 'inherit', 'inherit'];
+		spawnOptions.stdio = ["ignore", "inherit", "inherit"];
 	}
 
 	if (options.log) {
@@ -309,9 +313,9 @@ export class Code {
     }
 
     public async exit(): Promise<void> {
-        const veto = await this.driver.exitApplication();
+		const veto = await this.driver.exitApplication();
 		if (veto === true) {
-			throw new Error('Code exit was blocked by a veto.');
+			throw new Error("Code exit was blocked by a veto.");
 		}
     }
 

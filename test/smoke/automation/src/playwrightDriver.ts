@@ -13,8 +13,8 @@ import * as kill from "tree-kill";
 const width = 1200;
 const height = 800;
 
-const root = join(__dirname, '..', '..', '..');
-const logsPath = join(root, '.build', 'logs', 'smoke-tests-browser');
+const root = join(__dirname, "..", "..", "..");
+const logsPath = join(root, ".build", "logs", "smoke-tests-browser");
 
 const vscodeToPlaywrightKey: { [key: string]: string } = {
 	cmd: "Meta",
@@ -44,7 +44,7 @@ function buildDriver(browser: playwright.Browser, context: playwright.BrowserCon
 			try {
 				await context.tracing.stop({ path: join(logsPath, `playwright-trace-${traceCounter++}.zip`) });
 			} catch (error) {
-				console.warn(`Failed to stop playwright tracing.`); // do not fail the build when this fails
+				console.warn("Failed to stop playwright tracing."); // do not fail the build when this fails
 			}
 			await browser.close();
 			await teardown();
@@ -118,7 +118,7 @@ export async function launch(userDataDir: string, _workspacePath: string, codeSe
 		...process.env
 	};
 
-	const args = ['--disable-telemetry', '--port', `${port++}`, '--browser', 'none', '--driver', 'web', '--extensions-dir', extPath];
+	const args = ["--disable-telemetry", "--port", `${port++}`, "--browser", "none", "--driver", "web", "--extensions-dir", extPath];
 
 	let serverLocation: string | undefined;
 	if (codeServerPath) {
@@ -181,23 +181,23 @@ function waitForEndpoint(): Promise<string> {
 }
 
 interface Options {
-	readonly browser?: 'chromium' | 'webkit' | 'firefox';
+	readonly browser?: "chromium" | "webkit" | "firefox";
 	readonly headless?: boolean;
 }
 
 export function connect(options: Options = {}): Promise<{ client: IDisposable, driver: IDriver }> {
 	return new Promise(async (c) => {
-		const browser = await playwright[options.browser ?? 'chromium'].launch({ headless: options.headless ?? false });
+		const browser = await playwright[options.browser ?? "chromium"].launch({ headless: options.headless ?? false });
 		const context = await browser.newContext();
 		try {
 			await context.tracing.start({ screenshots: true, snapshots: true });
 		} catch (error) {
-			console.warn(`Failed to start playwright tracing.`); // do not fail the build when this fails
+			console.warn("Failed to start playwright tracing."); // do not fail the build when this fails
 		}
 		const page = await context.newPage();
 		await page.setViewportSize({ width, height });
 		page.on('pageerror', async error => console.error(`Playwright ERROR: page error: ${error}`));
-		page.on('crash', page => console.error('Playwright ERROR: page crash'));
+		page.on('crash', page => console.error("Playwright ERROR: page crash"));
 		page.on('response', async response => {
 			if (response.status() >= 400) {
 				console.error(`Playwright ERROR: HTTP status ${response.status()} for ${response.url()}`);
