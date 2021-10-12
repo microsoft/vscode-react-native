@@ -96,9 +96,9 @@ export interface SpawnOptions {
     extraArgs?: string[];
     log?: string;
     remote?: boolean;
-    web?: boolean;
+	web?: boolean;
 	headless?: boolean;
-    browser?: "chromium" | "webkit" | "firefox";
+	browser?: "chromium" | "webkit" | "firefox";
 }
 
 async function createDriverHandle(): Promise<string> {
