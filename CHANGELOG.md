@@ -1,5 +1,5 @@
 ## 1.7.1
-* Improved packager behavior [#1680](https://github.com/microsoft/vscode-react-native/pull/1680)
+* Improved behavior of Packager status indicator [#1680](https://github.com/microsoft/vscode-react-native/pull/1680)
 * Fixed debugging performance [#1684](https://github.com/microsoft/vscode-react-native/pull/1684)
 * Improved extension security [#1682](https://github.com/microsoft/vscode-react-native/pull/1682)
 * Internal changes:
