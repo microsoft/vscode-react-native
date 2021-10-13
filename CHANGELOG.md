@@ -1,3 +1,10 @@
+## 1.7.1
+* Improved packager behavior [#1680](https://github.com/microsoft/vscode-react-native/pull/1680)
+* Fixed debugging performance [#1684](https://github.com/microsoft/vscode-react-native/pull/1684)
+* Internal changes:
+    * Smoke tests were updated to work with VS Code 1.61.0 [#1682](https://github.com/microsoft/vscode-react-native/pull/1682)
+
+
 ## 1.7.0
 * Fixed forwarding security certificates for Network inspector on Windows [#1661](https://github.com/microsoft/vscode-react-native/pull/1661)
 * Improved Expo dependencies management: moved [configuration](https://github.com/microsoft/vscode-react-native#configure-dependencies-versions-for-debugging-expo-projects) of all packages versions to the `react-native.expo.dependencies` parameter [#1665](https://github.com/microsoft/vscode-react-native/pull/1665)
