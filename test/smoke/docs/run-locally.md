@@ -146,7 +146,7 @@ Tests require several environment variables to be set up before starting:
 |`ANDROID_VERSION`|10|Version of Android installed on emulated device|
 |`IOS_SIMULATOR`|`iPhone8`|(**Only for iOS tests**) Name of the simulated device|
 |`IOS_VERSION`|14.5|(**Only for iOS tests**) Version of iOS on the simulated device|
-|`CODE_VERSION`|`*`, `1.58.1`, `insiders`|Version of VS Code to download and run while running tests|
+|`CODE_VERSION`|`*`, `1.61.0`, `insiders`|Version of VS Code to download and run while running tests|
 |`EXPO_SDK_MAJOR_VERSION` (optional)|`42`, `skip`|Version of `expo-sdk` for Expo applications. If set to "skip" then the latest `expo-sdk` version will be used|
 |`RN_VERSION` (optional)|`0.64.2`, `skip`|Version of a React Native application to debug while running tests. If set to "skip" then the latest version will be installed|
 |`PURE_RN_VERSION` (optional)|`0.63.4`, `skip`|Version of React Native while running tests on pure RN app with Expo. If set to "skip" then the latest version will be installed|
