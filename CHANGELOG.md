@@ -1,6 +1,6 @@
 ## 1.7.1
 * Improved behavior of Packager status indicator [#1680](https://github.com/microsoft/vscode-react-native/pull/1680)
-* Fixed debugging performance [#1684](https://github.com/microsoft/vscode-react-native/pull/1684)
+* Fixed debugging performance issue [#1684](https://github.com/microsoft/vscode-react-native/pull/1684)
 * Improved extension security [#1682](https://github.com/microsoft/vscode-react-native/pull/1682)
 * Internal changes:
     * Smoke tests were updated to work with VS Code 1.61.0 [#1682](https://github.com/microsoft/vscode-react-native/pull/1682)
