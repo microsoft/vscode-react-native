@@ -49,8 +49,10 @@ export function waitUntil<T>(
     interval: number = 1000,
     timeout?: number,
 ): Promise<T | null> {
-    return new Promise(resolve => {
+    return new Promise(async resolve => {
         let rejectTimeout: NodeJS.Timeout | undefined;
+        let сheckInterval: NodeJS.Timeout | undefined;
+
         if (timeout) {
             rejectTimeout = setTimeout(() => {
                 cleanup();
@@ -58,20 +60,32 @@ export function waitUntil<T>(
             }, timeout);
         }
 
-        const сheckInterval = setInterval(async () => {
+        const cleanup = () => {
+            if (rejectTimeout) {
+                clearTimeout(rejectTimeout);
+            }
+            if (сheckInterval) {
+                clearInterval(сheckInterval);
+            }
+        };
+
+        const tryToResolve = async (): Promise<boolean> => {
             const result = await condition();
             if (result) {
                 cleanup();
                 resolve(result);
             }
-        }, interval);
-
-        const cleanup = () => {
-            if (rejectTimeout) {
-                clearTimeout(rejectTimeout);
-            }
-            clearInterval(сheckInterval);
+            return !!result;
         };
+
+        const resolved = await tryToResolve();
+        if (resolved) {
+            return;
+        }
+
+        сheckInterval = setInterval(async () => {
+            await tryToResolve();
+        }, interval);
     });
 }
 
