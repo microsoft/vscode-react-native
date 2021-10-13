@@ -95,14 +95,14 @@ export interface SpawnOptions {
     verbose?: boolean;
     extraArgs?: string[];
     log?: string;
-	/** Run in the test resolver */
+    /** Run in the test resolver */
     remote?: boolean;
-	/** Run in the web */
-	web?: boolean;
-	/** Run in headless mode (only applies when web is true) */
-	headless?: boolean;
-	/** A specific browser to use (requires web: true) */
-	browser?: "chromium" | "webkit" | "firefox";
+    /** Run in the web */
+    web?: boolean;
+    /** Run in headless mode (only applies when web is true) */
+    headless?: boolean;
+    /** A specific browser to use (requires web: true) */
+    browser?: "chromium" | "webkit" | "firefox";
 }
 
 async function createDriverHandle(): Promise<string> {
@@ -313,10 +313,10 @@ export class Code {
     }
 
     public async exit(): Promise<void> {
-		const veto = await this.driver.exitApplication();
-		if (veto === true) {
-			throw new Error("Code exit was blocked by a veto.");
-		}
+        const veto = await this.driver.exitApplication();
+        if (veto === true) {
+            throw new Error("Code exit was blocked by a veto.");
+        }
     }
 
 	async waitForTextContent(selector: string, textContent?: string, accept?: (result: string) => boolean, retryCount?: number): Promise<string> {
