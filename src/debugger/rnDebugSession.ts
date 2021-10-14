@@ -127,6 +127,7 @@ export class RNDebugSession extends DebugSessionBase {
                     await cdpProxy.initializeServer(
                         new RnCDPMessageHandler(),
                         this.cdpProxyLogLevel,
+                        this.cancellationTokenSource.token,
                     );
 
                     await this.appLauncher.getPackager().start();

@@ -51,7 +51,7 @@ export class DebuggerEndpointHelper {
                 throw internalError;
             }
 
-            await PromiseUtil.delay(1000);
+            await PromiseUtil.delay(700);
             return this.retryGetWSEndpoint(browserURL, --attemptNumber, cancellationToken);
         }
     }
