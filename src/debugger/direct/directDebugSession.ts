@@ -167,7 +167,11 @@ export class DirectDebugSession extends DebugSessionBase {
                 }
                 await this.appLauncher
                     .getRnCdpProxy()
-                    .initializeServer(cdpProxy, this.cdpProxyLogLevel);
+                    .initializeServer(
+                        cdpProxy,
+                        this.cdpProxyLogLevel,
+                        this.cancellationTokenSource.token,
+                    );
 
                 if (!attachArgs.useHermesEngine && attachArgs.platform === PlatformType.iOS) {
                     await this.iOSWKDebugProxyHelper.startiOSWebkitDebugProxy(
