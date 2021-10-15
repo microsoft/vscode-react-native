@@ -31,28 +31,29 @@ export class DebuggerEndpointHelper {
         attemptNumber: number,
         cancellationToken: CancellationToken,
     ): Promise<string> {
-        try {
-            return await this.getWSEndpoint(browserURL);
-        } catch (err) {
-            if (attemptNumber < 1 || cancellationToken.isCancellationRequested) {
-                const internalError = ErrorHelper.getInternalError(
-                    InternalErrorCode.CouldNotConnectToDebugTarget,
-                    browserURL,
-                    err.message,
-                );
-
-                if (cancellationToken.isCancellationRequested) {
-                    throw ErrorHelper.getNestedError(
-                        internalError,
-                        InternalErrorCode.CancellationTokenTriggered,
+        while (true) {
+            try {
+                return await this.getWSEndpoint(browserURL);
+            } catch (err) {
+                if (attemptNumber < 1 || cancellationToken.isCancellationRequested) {
+                    const internalError = ErrorHelper.getInternalError(
+                        InternalErrorCode.CouldNotConnectToDebugTarget,
+                        browserURL,
+                        err.message,
                     );
+
+                    if (cancellationToken.isCancellationRequested) {
+                        throw ErrorHelper.getNestedError(
+                            internalError,
+                            InternalErrorCode.CancellationTokenTriggered,
+                        );
+                    }
+
+                    throw internalError;
                 }
 
-                throw internalError;
+                await PromiseUtil.delay(700);
             }
-
-            await PromiseUtil.delay(1000);
-            return this.retryGetWSEndpoint(browserURL, --attemptNumber, cancellationToken);
         }
     }
 
