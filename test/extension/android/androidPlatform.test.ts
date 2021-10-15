@@ -500,6 +500,10 @@ suite("androidPlatform", function () {
                 String.raw`/Volumes/Macintosh HD/Users/foo/Library/Android/sdk/platform-tools`,
                 String.raw`/Volumes/Macintosh HD/Users/foo/Library/Android/sdk/platform-tools`,
             );
+
+            teardown(() => {
+                getPlatformStub?.restore();
+            });
         });
 
         test("AdbHelper getAdbPath function should correctly parse Android Sdk Location from local.properties and wrap with quotes", () => {
