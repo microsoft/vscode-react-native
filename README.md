@@ -719,7 +719,7 @@ There are two ways to filter your LogCat Monitor output depending on how LogCat 
 }
 ```
 
-2. If you want to launch LogCat Monitor from the Command Pallette command `React Native: Run React Native LogCat Monitor` with filtering options set `react-native.android.logCatArguments` settings in your `settings.json`:
+2. If you want to launch LogCat Monitor from the Command Palette command `React Native: Run React Native LogCat Monitor` with filtering options set `react-native.android.logCatArguments` settings in your `settings.json`:
 
 ```json
 {

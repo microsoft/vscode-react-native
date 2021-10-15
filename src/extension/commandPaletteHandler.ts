@@ -43,6 +43,7 @@ import { WindowsPlatform } from "./windows/windowsPlatform";
 import { CONTEXT_VARIABLES_NAMES } from "../common/contextVariablesNames";
 import { MacOSPlatform } from "./macos/macOSPlatform";
 import { TipNotificationService } from "../extension/tipsNotificationsService/tipsNotificationService";
+import { debugConfigurations } from "./debuggingConfiguration/debugConfigTypesAndConstants";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -575,6 +576,22 @@ export class CommandPaletteHandler {
                     () => {}, // eslint-disable-line @typescript-eslint/no-empty-function
                 );
             }
+        }
+    }
+
+    public static async startDebuggingScenario(debugConfigName: string): Promise<void> {
+        const appLauncher = await this.selectProject();
+        const debugConfig = debugConfigurations[debugConfigName];
+        if (debugConfig) {
+            debugConfig.isDynamic = true;
+            vscode.debug.startDebugging(appLauncher.getWorkspaceFolder(), debugConfig);
+        } else {
+            throw new Error(
+                localize(
+                    "CouldNotFindPredefinedDebugConfig",
+                    "Couldn't find predefined debugging configuration by name {0}",
+                ),
+            );
         }
     }
 

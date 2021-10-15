@@ -17,6 +17,10 @@ export const ERROR_STRINGS = {
         "CommandFailed",
         "Error while executing command '{0}'.\nDetails: {1}",
     ),
+    [InternalErrorCode.DebuggingCommandFailed]: localize(
+        "DebuggingCommandFailed",
+        "Error while executing debugging command '{0}'",
+    ),
     [InternalErrorCode.CommandFailedWithErrorCode]: localize(
         "CommandFailedWithErrorCode",
         "Command '{0}' failed with error code {1}",

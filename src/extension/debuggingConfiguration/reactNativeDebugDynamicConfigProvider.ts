@@ -9,6 +9,8 @@ import {
     DebugConfigurationState,
 } from "./debugConfigTypesAndConstants";
 import { SettingsHelper } from "../settingsHelper";
+import { TelemetryHelper } from "../../common/telemetryHelper";
+import { Telemetry } from "../../common/telemetry";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
 import { ReactNativeProjectHelper } from "../../common/reactNativeProjectHelper";
 import { PlatformType } from "../launchArgs";
@@ -109,6 +111,13 @@ export class ReactNativeDebugDynamicConfigProvider implements vscode.DebugConfig
         token?: vscode.CancellationToken,
     ): Promise<vscode.ProviderResult<vscode.DebugConfiguration>> {
         if (config.isDynamic) {
+            const chosenConfigsEvent = TelemetryHelper.createTelemetryEvent(
+                "chosenDynamicDebugConfiguration",
+                {
+                    selectedConfiguration: config.name,
+                },
+            );
+            Telemetry.send(chosenConfigsEvent);
             if (config.request === "attach") {
                 await this.configureAttachScenario(folder, config, token);
             }

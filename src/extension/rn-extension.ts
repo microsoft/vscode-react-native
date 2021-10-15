@@ -27,7 +27,10 @@ import { TelemetryHelper, ICommandTelemetryProperties } from "../common/telemetr
 import { OutputChannelLogger } from "./log/OutputChannelLogger";
 import { ReactNativeDebugConfigProvider } from "./debuggingConfiguration/reactNativeDebugConfigProvider";
 import { ReactNativeDebugDynamicConfigProvider } from "./debuggingConfiguration/reactNativeDebugDynamicConfigProvider";
-import { DEBUG_TYPES } from "./debuggingConfiguration/debugConfigTypesAndConstants";
+import {
+    DEBUG_CONFIGURATION_NAMES,
+    DEBUG_TYPES,
+} from "./debuggingConfiguration/debugConfigTypesAndConstants";
 import {
     LaunchJsonCompletionProvider,
     JsonLanguages,
@@ -210,7 +213,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
             }
 
             await Promise.all(promises);
-            registerReactNativeCommands();
+            registerReactNativeCommandPaletteCommands();
+            registerReactNativeSpecialCommands();
         },
         extProps,
     );
@@ -326,6 +330,8 @@ export async function onFolderAdded(folder: vscode.WorkspaceFolder): Promise<voi
 }
 
 function activateCommands(versions: RNPackageVersions): void {
+    vscode.commands.executeCommand("setContext", CONTEXT_VARIABLES_NAMES.IS_RN_PROJECT, true);
+
     if (!ProjectVersionHelper.isVersionError(versions.reactNativeWindowsVersion)) {
         vscode.commands.executeCommand(
             "setContext",
@@ -389,7 +395,7 @@ function isSupportedVersion(version: string): boolean {
     return true;
 }
 
-function registerReactNativeCommands(): void {
+function registerReactNativeCommandPaletteCommands(): void {
     registerVSCodeCommand(
         "launchAndroidSimulator",
         ErrorHelper.getInternalError(InternalErrorCode.FailedToStartAndroidEmulator),
@@ -493,6 +499,189 @@ function registerReactNativeCommands(): void {
             localize("ReactNativeRunElementInspector", "React Native: Run Element Inspector"),
         ),
         () => CommandPaletteHandler.runElementInspector(),
+    );
+}
+
+function registerReactNativeSpecialCommands(): void {
+    registerVSCodeCommand(
+        "debugScenario.attachHermesApplicationExperimental",
+        ErrorHelper.getInternalError(
+            InternalErrorCode.DebuggingCommandFailed,
+            DEBUG_CONFIGURATION_NAMES.ATTACH_TO_HERMES_APPLICATION_EXPERIMENTAL,
+        ),
+        () =>
+            CommandPaletteHandler.startDebuggingScenario(
+                DEBUG_CONFIGURATION_NAMES.ATTACH_TO_HERMES_APPLICATION_EXPERIMENTAL,
+            ),
+    );
+    registerVSCodeCommand(
+        "debugScenario.attachDirectIosExperimental",
+        ErrorHelper.getInternalError(
+            InternalErrorCode.DebuggingCommandFailed,
+            DEBUG_CONFIGURATION_NAMES.ATTACH_TO_DIRECT_IOS_EXPERIMENTAL,
+        ),
+        () =>
+            CommandPaletteHandler.startDebuggingScenario(
+                DEBUG_CONFIGURATION_NAMES.ATTACH_TO_DIRECT_IOS_EXPERIMENTAL,
+            ),
+    );
+    registerVSCodeCommand(
+        "debugScenario.attachToPackager",
+        ErrorHelper.getInternalError(
+            InternalErrorCode.DebuggingCommandFailed,
+            DEBUG_CONFIGURATION_NAMES.ATTACH_TO_PACKAGER,
+        ),
+        () =>
+            CommandPaletteHandler.startDebuggingScenario(
+                DEBUG_CONFIGURATION_NAMES.ATTACH_TO_PACKAGER,
+            ),
+    );
+    registerVSCodeCommand(
+        "debugScenario.debugAndroid",
+        ErrorHelper.getInternalError(
+            InternalErrorCode.DebuggingCommandFailed,
+            DEBUG_CONFIGURATION_NAMES.DEBUG_ANDROID,
+        ),
+        () => CommandPaletteHandler.startDebuggingScenario(DEBUG_CONFIGURATION_NAMES.DEBUG_ANDROID),
+    );
+    registerVSCodeCommand(
+        "debugScenario.debugIos",
+        ErrorHelper.getInternalError(
+            InternalErrorCode.DebuggingCommandFailed,
+            DEBUG_CONFIGURATION_NAMES.DEBUG_IOS,
+        ),
+        () => CommandPaletteHandler.startDebuggingScenario(DEBUG_CONFIGURATION_NAMES.DEBUG_IOS),
+    );
+    registerVSCodeCommand(
+        "debugScenario.debugWindows",
+        ErrorHelper.getInternalError(
+            InternalErrorCode.DebuggingCommandFailed,
+            DEBUG_CONFIGURATION_NAMES.DEBUG_WINDOWS,
+        ),
+        () => CommandPaletteHandler.startDebuggingScenario(DEBUG_CONFIGURATION_NAMES.DEBUG_WINDOWS),
+    );
+    registerVSCodeCommand(
+        "debugScenario.debugMacos",
+        ErrorHelper.getInternalError(
+            InternalErrorCode.DebuggingCommandFailed,
+            DEBUG_CONFIGURATION_NAMES.DEBUG_MACOS,
+        ),
+        () => CommandPaletteHandler.startDebuggingScenario(DEBUG_CONFIGURATION_NAMES.DEBUG_MACOS),
+    );
+    registerVSCodeCommand(
+        "debugScenario.debugInExponent",
+        ErrorHelper.getInternalError(
+            InternalErrorCode.DebuggingCommandFailed,
+            DEBUG_CONFIGURATION_NAMES.DEBUG_IN_EXPONENT,
+        ),
+        () =>
+            CommandPaletteHandler.startDebuggingScenario(
+                DEBUG_CONFIGURATION_NAMES.DEBUG_IN_EXPONENT,
+            ),
+    );
+    registerVSCodeCommand(
+        "debugScenario.debugAndroidHermesExperimental",
+        ErrorHelper.getInternalError(
+            InternalErrorCode.DebuggingCommandFailed,
+            DEBUG_CONFIGURATION_NAMES.DEBUG_ANDROID_HERMES_EXPERIMENTAL,
+        ),
+        () =>
+            CommandPaletteHandler.startDebuggingScenario(
+                DEBUG_CONFIGURATION_NAMES.DEBUG_ANDROID_HERMES_EXPERIMENTAL,
+            ),
+    );
+    registerVSCodeCommand(
+        "debugScenario.debugDirectIosExperimental",
+        ErrorHelper.getInternalError(
+            InternalErrorCode.DebuggingCommandFailed,
+            DEBUG_CONFIGURATION_NAMES.DEBUG_DIRECT_IOS_EXPERIMENTAL,
+        ),
+        () =>
+            CommandPaletteHandler.startDebuggingScenario(
+                DEBUG_CONFIGURATION_NAMES.DEBUG_DIRECT_IOS_EXPERIMENTAL,
+            ),
+    );
+    registerVSCodeCommand(
+        "debugScenario.debugIosHermesExperimental",
+        ErrorHelper.getInternalError(
+            InternalErrorCode.DebuggingCommandFailed,
+            DEBUG_CONFIGURATION_NAMES.DEBUG_IOS_HERMES_EXPERIMENTAL,
+        ),
+        () =>
+            CommandPaletteHandler.startDebuggingScenario(
+                DEBUG_CONFIGURATION_NAMES.DEBUG_IOS_HERMES_EXPERIMENTAL,
+            ),
+    );
+    registerVSCodeCommand(
+        "debugScenario.debugMacosHermesExperimental",
+        ErrorHelper.getInternalError(
+            InternalErrorCode.DebuggingCommandFailed,
+            DEBUG_CONFIGURATION_NAMES.DEBUG_MACOS_HERMES_EXPERIMENTAL,
+        ),
+        () =>
+            CommandPaletteHandler.startDebuggingScenario(
+                DEBUG_CONFIGURATION_NAMES.DEBUG_MACOS_HERMES_EXPERIMENTAL,
+            ),
+    );
+    registerVSCodeCommand(
+        "debugScenario.debugWindowsHermesExperimental",
+        ErrorHelper.getInternalError(
+            InternalErrorCode.DebuggingCommandFailed,
+            DEBUG_CONFIGURATION_NAMES.DEBUG_WINDOWS_HERMES_EXPERIMENTAL,
+        ),
+        () =>
+            CommandPaletteHandler.startDebuggingScenario(
+                DEBUG_CONFIGURATION_NAMES.DEBUG_WINDOWS_HERMES_EXPERIMENTAL,
+            ),
+    );
+    registerVSCodeCommand(
+        "debugScenario.runAndroid",
+        ErrorHelper.getInternalError(
+            InternalErrorCode.DebuggingCommandFailed,
+            DEBUG_CONFIGURATION_NAMES.RUN_ANDROID,
+        ),
+        () => CommandPaletteHandler.startDebuggingScenario(DEBUG_CONFIGURATION_NAMES.RUN_ANDROID),
+    );
+    registerVSCodeCommand(
+        "debugScenario.runIos",
+        ErrorHelper.getInternalError(
+            InternalErrorCode.DebuggingCommandFailed,
+            DEBUG_CONFIGURATION_NAMES.RUN_IOS,
+        ),
+        () => CommandPaletteHandler.startDebuggingScenario(DEBUG_CONFIGURATION_NAMES.RUN_IOS),
+    );
+    registerVSCodeCommand(
+        "debugScenario.runAndroidHermesExperimental",
+        ErrorHelper.getInternalError(
+            InternalErrorCode.DebuggingCommandFailed,
+            DEBUG_CONFIGURATION_NAMES.RUN_ANDROID_HERMES_EXPERIMENTAL,
+        ),
+        () =>
+            CommandPaletteHandler.startDebuggingScenario(
+                DEBUG_CONFIGURATION_NAMES.RUN_ANDROID_HERMES_EXPERIMENTAL,
+            ),
+    );
+    registerVSCodeCommand(
+        "debugScenario.runIosHermesExperimental",
+        ErrorHelper.getInternalError(
+            InternalErrorCode.DebuggingCommandFailed,
+            DEBUG_CONFIGURATION_NAMES.RUN_IOS_HERMES_EXPERIMENTAL,
+        ),
+        () =>
+            CommandPaletteHandler.startDebuggingScenario(
+                DEBUG_CONFIGURATION_NAMES.RUN_IOS_HERMES_EXPERIMENTAL,
+            ),
+    );
+    registerVSCodeCommand(
+        "debugScenario.runDirectIosExperimental",
+        ErrorHelper.getInternalError(
+            InternalErrorCode.DebuggingCommandFailed,
+            DEBUG_CONFIGURATION_NAMES.RUN_DIRECT_IOS_EXPERIMENTAL,
+        ),
+        () =>
+            CommandPaletteHandler.startDebuggingScenario(
+                DEBUG_CONFIGURATION_NAMES.RUN_DIRECT_IOS_EXPERIMENTAL,
+            ),
     );
     registerVSCodeCommand(
         "selectAndInsertDebugConfiguration",

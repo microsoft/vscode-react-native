@@ -160,12 +160,284 @@
         "command": "reactNative.stopNetworkInspector",
         "title": "%reactNative.command.stopNetworkInspector.title%",
         "category": "React Native"
+      },
+      {
+        "command": "reactNative.debugScenario.attachHermesApplicationExperimental",
+        "title": "Attach to Hermes application - Experimental",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled && !inDebugMode || isWorkspaceTrusted && !inDebugMode",
+        "icon": "$(debug-alt)"
+      },
+      {
+        "command": "reactNative.debugScenario.attachDirectIosExperimental",
+        "title": "Attach to Direct iOS - Experimental",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled && !inDebugMode || isWorkspaceTrusted && !inDebugMode",
+        "icon": "$(debug-alt)"
+      },
+      {
+        "command": "reactNative.debugScenario.attachToPackager",
+        "title": "Attach to packager",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled && !inDebugMode || isWorkspaceTrusted && !inDebugMode",
+        "icon": "$(debug-alt)"
+      },
+      {
+        "command": "reactNative.debugScenario.debugAndroid",
+        "title": "Debug Android",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled && !inDebugMode || isWorkspaceTrusted && !inDebugMode",
+        "icon": "$(debug-alt)"
+      },
+      {
+        "command": "reactNative.debugScenario.debugIos",
+        "title": "Debug iOS",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled && !inDebugMode || isWorkspaceTrusted && !inDebugMode",
+        "icon": "$(debug-alt)"
+      },
+      {
+        "command": "reactNative.debugScenario.debugWindows",
+        "title": "Debug Windows",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled && !inDebugMode || isWorkspaceTrusted && !inDebugMode",
+        "icon": "$(debug-alt)"
+      },
+      {
+        "command": "reactNative.debugScenario.debugMacos",
+        "title": "Debug macOS",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled && !inDebugMode || isWorkspaceTrusted && !inDebugMode",
+        "icon": "$(debug-alt)"
+      },
+      {
+        "command": "reactNative.debugScenario.debugInExponent",
+        "title": "Debug in Exponent",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled && !inDebugMode || isWorkspaceTrusted && !inDebugMode",
+        "icon": "$(debug-alt)"
+      },
+      {
+        "command": "reactNative.debugScenario.debugAndroidHermesExperimental",
+        "title": "Debug Android Hermes - Experimental",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled && !inDebugMode || isWorkspaceTrusted && !inDebugMode",
+        "icon": "$(debug-alt)"
+      },
+      {
+        "command": "reactNative.debugScenario.debugDirectIosExperimental",
+        "title": "Debug Direct iOS - Experimental",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled && !inDebugMode || isWorkspaceTrusted && !inDebugMode",
+        "icon": "$(debug-alt)"
+      },
+      {
+        "command": "reactNative.debugScenario.debugIosHermesExperimental",
+        "title": "Debug iOS Hermes - Experimental",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled && !inDebugMode || isWorkspaceTrusted && !inDebugMode",
+        "icon": "$(debug-alt)"
+      },
+      {
+        "command": "reactNative.debugScenario.debugMacosHermesExperimental",
+        "title": "Debug macOS Hermes - Experimental",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled && !inDebugMode || isWorkspaceTrusted && !inDebugMode",
+        "icon": "$(debug-alt)"
+      },
+      {
+        "command": "reactNative.debugScenario.debugWindowsHermesExperimental",
+        "title": "Debug Windows Hermes - Experimental",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled && !inDebugMode || isWorkspaceTrusted && !inDebugMode",
+        "icon": "$(debug-alt)"
+      },
+      {
+        "command": "reactNative.debugScenario.runAndroid",
+        "title": "Run Android",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled && !inDebugMode || isWorkspaceTrusted && !inDebugMode",
+        "icon": "$(play)"
+      },
+      {
+        "command": "reactNative.debugScenario.runIos",
+        "title": "Run iOS",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled && !inDebugMode || isWorkspaceTrusted && !inDebugMode",
+        "icon": "$(play)"
+      },
+      {
+        "command": "reactNative.debugScenario.runAndroidHermesExperimental",
+        "title": "Run Android Hermes - Experimental",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled && !inDebugMode || isWorkspaceTrusted && !inDebugMode",
+        "icon": "$(play)"
+      },
+      {
+        "command": "reactNative.debugScenario.runIosHermesExperimental",
+        "title": "Run iOS Hermes - Experimental",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled && !inDebugMode || isWorkspaceTrusted && !inDebugMode",
+        "icon": "$(play)"
+      },
+      {
+        "command": "reactNative.debugScenario.runDirectIosExperimental",
+        "title": "Run Direct iOS - Experimental",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled && !inDebugMode || isWorkspaceTrusted && !inDebugMode",
+        "icon": "$(play)"
       }
     ],
     "menus": {
+      "editor/title/run": [
+        {
+          "command": "reactNative.debugScenario.attachHermesApplicationExperimental",
+          "when": "isRNProject"
+        },
+        {
+          "command": "reactNative.debugScenario.attachDirectIosExperimental",
+          "when": "isRNProject"
+        },
+        {
+          "command": "reactNative.debugScenario.attachToPackager",
+          "when": "isRNProject"
+        },
+        {
+          "command": "reactNative.debugScenario.debugAndroid",
+          "when": "isRNProject"
+        },
+        {
+          "command": "reactNative.debugScenario.debugIos",
+          "when": "isRNProject"
+        },
+        {
+          "command": "reactNative.debugScenario.debugWindows",
+          "when": "isRNProject"
+        },
+        {
+          "command": "reactNative.debugScenario.debugMacos",
+          "when": "isRNProject && isRNMacOSProject"
+        },
+        {
+          "command": "reactNative.debugScenario.debugInExponent",
+          "when": "isRNProject"
+        },
+        {
+          "command": "reactNative.debugScenario.debugAndroidHermesExperimental",
+          "when": "isRNProject"
+        },
+        {
+          "command": "reactNative.debugScenario.debugDirectIosExperimental",
+          "when": "isRNProject"
+        },
+        {
+          "command": "reactNative.debugScenario.debugIosHermesExperimental",
+          "when": "isRNProject"
+        },
+        {
+          "command": "reactNative.debugScenario.debugMacosHermesExperimental",
+          "when": "isRNProject"
+        },
+        {
+          "command": "reactNative.debugScenario.debugWindowsHermesExperimental",
+          "when": "isRNProject"
+        },
+        {
+          "command": "reactNative.debugScenario.runAndroid",
+          "when": "isRNProject"
+        },
+        {
+          "command": "reactNative.debugScenario.runIos",
+          "when": "isRNProject"
+        },
+        {
+          "command": "reactNative.debugScenario.runAndroidHermesExperimental",
+          "when": "isRNProject"
+        },
+        {
+          "command": "reactNative.debugScenario.runIosHermesExperimental",
+          "when": "isRNProject"
+        },
+        {
+          "command": "reactNative.debugScenario.runDirectIosExperimental",
+          "when": "isRNProject"
+        }
+      ],
       "commandPalette": [
         {
           "command": "reactNative.selectAndInsertDebugConfiguration",
+          "when": "false"
+        },
+        {
+          "command": "reactNative.debugScenario.attachHermesApplicationExperimental",
+          "when": "false"
+        },
+        {
+          "command": "reactNative.debugScenario.attachDirectIosExperimental",
+          "when": "false"
+        },
+        {
+          "command": "reactNative.debugScenario.attachToPackager",
+          "when": "false"
+        },
+        {
+          "command": "reactNative.debugScenario.debugAndroid",
+          "when": "false"
+        },
+        {
+          "command": "reactNative.debugScenario.debugIos",
+          "when": "false"
+        },
+        {
+          "command": "reactNative.debugScenario.debugWindows",
+          "when": "false"
+        },
+        {
+          "command": "reactNative.debugScenario.debugMacos",
+          "when": "false"
+        },
+        {
+          "command": "reactNative.debugScenario.debugInExponent",
+          "when": "false"
+        },
+        {
+          "command": "reactNative.debugScenario.debugAndroidHermesExperimental",
+          "when": "false"
+        },
+        {
+          "command": "reactNative.debugScenario.debugDirectIosExperimental",
+          "when": "false"
+        },
+        {
+          "command": "reactNative.debugScenario.debugIosHermesExperimental",
+          "when": "false"
+        },
+        {
+          "command": "reactNative.debugScenario.debugMacosHermesExperimental",
+          "when": "false"
+        },
+        {
+          "command": "reactNative.debugScenario.debugWindowsHermesExperimental",
+          "when": "false"
+        },
+        {
+          "command": "reactNative.debugScenario.runAndroid",
+          "when": "false"
+        },
+        {
+          "command": "reactNative.debugScenario.runIos",
+          "when": "false"
+        },
+        {
+          "command": "reactNative.debugScenario.runAndroidHermesExperimental",
+          "when": "false"
+        },
+        {
+          "command": "reactNative.debugScenario.runIosHermesExperimental",
+          "when": "false"
+        },
+        {
+          "command": "reactNative.debugScenario.runDirectIosExperimental",
           "when": "false"
         }
       ]

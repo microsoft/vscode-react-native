@@ -6,4 +6,5 @@ export const CONTEXT_VARIABLES_NAMES = {
     IS_RNT_NETWORK_INSPECTOR_RUNNING: "isRNTNetworkInspectorRunning",
     IS_RN_WINDOWS_PROJECT: "isRNWindowsProject",
     IS_RN_MACOS_PROJECT: "isRNMacOSProject",
+    IS_RN_PROJECT: "isRNProject",
 };
