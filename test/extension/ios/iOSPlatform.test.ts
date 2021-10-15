@@ -22,10 +22,14 @@ suite("iOSPlatform", function () {
         nodeModulesRoot,
     };
 
-    const sandbox = sinon.sandbox.create();
+    let getReactNativeProjectRootStub: Sinon.SinonStub;
 
     setup(() => {
-        sandbox.stub(SettingsHelper, "getReactNativeProjectRoot", () => projectRoot);
+        getReactNativeProjectRootStub = sinon.stub(
+            SettingsHelper,
+            "getReactNativeProjectRoot",
+            () => projectRoot,
+        );
     });
 
     teardown(() => {
@@ -35,7 +39,7 @@ suite("iOSPlatform", function () {
             projectRoot,
             nodeModulesRoot,
         };
-        sandbox.restore();
+        getReactNativeProjectRootStub.restore();
     });
 
     suite("extensionContext", function () {

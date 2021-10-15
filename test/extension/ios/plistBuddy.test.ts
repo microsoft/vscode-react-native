@@ -18,9 +18,13 @@ suite("plistBuddy", function () {
             macOS,
         }
 
-        const sandbox = sinon.sandbox.create();
+        let mockedExecFunc: Sinon.SinonStub;
+
+        setup(() => {
+            mockedExecFunc = sinon.stub();
+        });
         teardown(() => {
-            sandbox.restore();
+            mockedExecFunc?.reset();
         });
 
         test("setPlistProperty should attempt to modify, then add, plist properties", async function () {
@@ -31,7 +35,6 @@ suite("plistBuddy", function () {
             const setCallArgs = `/usr/libexec/PlistBuddy -c 'Set ${plistProperty} ${plistValue}' '${plistFileName}'`;
             const addCallArgs = `/usr/libexec/PlistBuddy -c 'Add ${plistProperty} string ${plistValue}' '${plistFileName}'`;
 
-            const mockedExecFunc = sandbox.stub();
             mockedExecFunc.withArgs(setCallArgs).returns(
                 Promise.resolve({
                     outcome: Promise.reject(new Error("Setting does not exist")),
@@ -66,7 +69,6 @@ suite("plistBuddy", function () {
 
             const setCallArgs = `/usr/libexec/PlistBuddy -c 'Set ${plistProperty} ${plistValue}' '${plistFileName}'`;
 
-            const mockedExecFunc = sandbox.stub();
             mockedExecFunc
                 .withArgs(setCallArgs)
                 .returns(Promise.resolve({ outcome: Promise.resolve("stdout") }));
@@ -100,13 +102,19 @@ suite("plistBuddy", function () {
                 AppleProjectType.iOS,
             );
 
-            sandbox.stub(ProjectVersionHelper, "getReactNativeVersions").returns(
-                Promise.resolve({
-                    reactNativeVersion: "0.58.5",
-                    reactNativeWindowsVersion: "",
-                }),
+            let getReactNativeVersionsStub = sinon
+                .stub(ProjectVersionHelper, "getReactNativeVersions")
+                .returns(
+                    Promise.resolve({
+                        reactNativeVersion: "0.58.5",
+                        reactNativeWindowsVersion: "",
+                    }),
+                );
+            let getConfigurationDataStub = sinon.stub(
+                plistBuddy,
+                "getConfigurationData",
+                fakeGetConfigurationData,
             );
-            sandbox.stub(plistBuddy, "getConfigurationData", fakeGetConfigurationData);
 
             const [simulatorId1, simulatorId2, deviceId1, deviceId2] = await Promise.all([
                 plistBuddy.getBundleId(
@@ -144,6 +152,8 @@ suite("plistBuddy", function () {
                     "whateverScheme",
                 ),
             ]);
+            getReactNativeVersionsStub.restore();
+            getConfigurationDataStub.restore();
             assert.strictEqual(simulatorBundleId, simulatorId1);
             assert.strictEqual(simulatorBundleId, simulatorId2);
             assert.strictEqual(deviceBundleId, deviceId1);
@@ -166,14 +176,22 @@ suite("plistBuddy", function () {
                 AppleProjectType.iOS,
             );
 
-            sandbox.stub(ProjectVersionHelper, "getReactNativeVersions").returns(
-                Promise.resolve({
-                    reactNativeVersion: "0.59.0",
-                    reactNativeWindowsVersion: "",
-                }),
+            const getReactNativeVersionsStub = sinon
+                .stub(ProjectVersionHelper, "getReactNativeVersions")
+                .returns(
+                    Promise.resolve({
+                        reactNativeVersion: "0.59.0",
+                        reactNativeWindowsVersion: "",
+                    }),
+                );
+            const getConfigurationDataStub = sinon.stub(
+                plistBuddy,
+                "getConfigurationData",
+                fakeGetConfigurationData,
             );
-            sandbox.stub(plistBuddy, "getConfigurationData", fakeGetConfigurationData);
-            sandbox.stub(plistBuddy, "getInferredScheme").returns(scheme);
+            const getInferredSchemeStub = sinon
+                .stub(plistBuddy, "getInferredScheme")
+                .returns(scheme);
 
             const [simulatorId1, simulatorId2, deviceId1, deviceId2] = await Promise.all([
                 plistBuddy.getBundleId(
@@ -211,6 +229,9 @@ suite("plistBuddy", function () {
                     scheme,
                 ),
             ]);
+            getReactNativeVersionsStub.restore();
+            getConfigurationDataStub.restore();
+            getInferredSchemeStub.restore();
             assert.strictEqual(simulatorBundleId, simulatorId1);
             assert.strictEqual(simulatorBundleId, simulatorId2);
             assert.strictEqual(deviceBundleId, deviceId1);
@@ -233,14 +254,22 @@ suite("plistBuddy", function () {
                 AppleProjectType.appleTV,
             );
 
-            sandbox.stub(ProjectVersionHelper, "getReactNativeVersions").returns(
-                Promise.resolve({
-                    reactNativeVersion: "0.59.0",
-                    reactNativeWindowsVersion: "",
-                }),
+            const getReactNativeVersionsStub = sinon
+                .stub(ProjectVersionHelper, "getReactNativeVersions")
+                .returns(
+                    Promise.resolve({
+                        reactNativeVersion: "0.59.0",
+                        reactNativeWindowsVersion: "",
+                    }),
+                );
+            const getConfigurationDataStub = sinon.stub(
+                plistBuddy,
+                "getConfigurationData",
+                fakeGetConfigurationData,
             );
-            sandbox.stub(plistBuddy, "getConfigurationData", fakeGetConfigurationData);
-            sandbox.stub(plistBuddy, "getInferredScheme").returns(scheme);
+            const getInferredSchemeStub = sinon
+                .stub(plistBuddy, "getInferredScheme")
+                .returns(scheme);
 
             const [simulatorId1, simulatorId2, deviceId1, deviceId2] = await Promise.all([
                 plistBuddy.getBundleId(
@@ -278,6 +307,9 @@ suite("plistBuddy", function () {
                     scheme,
                 ),
             ]);
+            getReactNativeVersionsStub.restore();
+            getConfigurationDataStub.restore();
+            getInferredSchemeStub.restore();
             assert.strictEqual(simulatorBundleId, simulatorId1);
             assert.strictEqual(simulatorBundleId, simulatorId2);
             assert.strictEqual(deviceBundleId, deviceId1);
@@ -300,14 +332,22 @@ suite("plistBuddy", function () {
                 AppleProjectType.macOS,
             );
 
-            sandbox.stub(ProjectVersionHelper, "getReactNativeVersions").returns(
-                Promise.resolve({
-                    reactNativeVersion: "0.61.0",
-                    reactNativeWindowsVersion: "",
-                }),
+            const getReactNativeVersionsStub = sinon
+                .stub(ProjectVersionHelper, "getReactNativeVersions")
+                .returns(
+                    Promise.resolve({
+                        reactNativeVersion: "0.61.0",
+                        reactNativeWindowsVersion: "",
+                    }),
+                );
+            const getConfigurationDataStub = sinon.stub(
+                plistBuddy,
+                "getConfigurationData",
+                fakeGetConfigurationData,
             );
-            sandbox.stub(plistBuddy, "getConfigurationData", fakeGetConfigurationData);
-            sandbox.stub(plistBuddy, "getInferredScheme").returns("myCustomScheme");
+            const getInferredSchemeStub = sinon
+                .stub(plistBuddy, "getInferredScheme")
+                .returns("myCustomScheme");
 
             const [bundleId1, bundleId2] = await Promise.all([
                 plistBuddy.getBundleId(
@@ -328,6 +368,9 @@ suite("plistBuddy", function () {
                     scheme,
                 ),
             ]);
+            getReactNativeVersionsStub.restore();
+            getConfigurationDataStub.restore();
+            getInferredSchemeStub.restore();
             assert.strictEqual(deviceBundleId, bundleId1);
             assert.strictEqual(deviceBundleId, bundleId2);
         });
@@ -447,7 +490,7 @@ suite("plistBuddy", function () {
                 `/usr/libexec/PlistBuddy -c 'Print:CFBundleIdentifier' '${infoPlistPath(
                     simulator,
                 )}'`;
-            const mockedExecFunc = sandbox.stub();
+
             mockedExecFunc
                 .withArgs(printExecCall(true))
                 .returns(Promise.resolve({ outcome: Promise.resolve(simulatorBundleId) }));
