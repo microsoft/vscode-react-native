@@ -12,7 +12,6 @@ import { IDebuggeeWorker, RNAppMessage } from "./appWorker";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { getLoggingDirectory } from "../extension/log/LogHelper";
 import { generateRandomPortNumber } from "../common/extensionHelper";
-import { waitUntil } from "../common/utils";
 
 function printDebuggingError(error: Error, reason: any) {
     const nestedError = ErrorHelper.getNestedError(
@@ -139,10 +138,18 @@ export class ForkedAppWorker implements IDebuggeeWorker {
 
     public async postMessage(rnMessage: RNAppMessage): Promise<RNAppMessage> {
         // Before sending messages, make sure that the worker is loaded
-        const condition = async () => {
-            return !!this.workerLoaded;
-        };
-        await waitUntil(condition);
+        await new Promise(resolve => {
+            if (this.workerLoaded) {
+                resolve();
+            } else {
+                const checkWorkerLoaded = setInterval(() => {
+                    if (this.workerLoaded) {
+                        clearInterval(checkWorkerLoaded);
+                        resolve();
+                    }
+                }, 1000);
+            }
+        });
 
         const promise = (async () => {
             await this.workerLoaded;
