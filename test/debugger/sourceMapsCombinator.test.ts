@@ -25,24 +25,6 @@ suite("sourceMapsCombinator", function () {
         sourceRoot: "",
     };
 
-    const expected = {
-        version: 3,
-        sources: ["d:/hello.ts"],
-        names: <string[]>[],
-        mappings:
-            "AAAA,IAAA,MAAM,EAAM,CAAA,SAAA,CAAA,EAAA;IACR,SAAA,KAAa,CAAA,GAAA,EAAO;QACpB,IAAA,CAAA,IAAA,EAAA,GAAA;IACA;SACI,CAAA,SAAO,CAAA,SAAc,EAAA,SAAM,CAAA,EAAO;QACtC,OAAA,OAAA,EAAA,IAAA,CAAA,IAAA,EAAA,OAAA;IACJ,CAAA;;AAEA,CAAA,CAAA,CAAA,CAAA;;AAEA,OAAO,CAAC,GAAG,CAAC,KAAK,CAAC,QAAQ,CAAC,CAAC,CAAC",
-    };
-
-    let rawBundleSourcemap: RawSourceMap = {
-        version: 3,
-        sources: ["d:/hello.js"],
-        names: <string[]>[],
-        mappings:
-            "AAAA,IAAI,MAAM,EAAE,CAAC,SAAS,CAAC,EAAE;IACrB,SAAS,KAAK,CAAC,GAAG,EAAE;QAChB,IAAI,CAAC,IAAI,EAAE,GAAG;IAClB;IACA,KAAK,CAAC,SAAS,CAAC,SAAS,EAAE,SAAS,CAAC,EAAE;QACnC,OAAO,OAAO,EAAE,IAAI,CAAC,IAAI,EAAE,OAAO;IACtC,CAAC;IACD,OAAO,KAAK;AAChB,CAAC,CAAC,CAAC,CAAC;AACJ,IAAI,MAAM,EAAE,IAAI,KAAK,CAAC,gDAAgD,CAAC;AACvE,OAAO,CAAC,GAAG,CAAC,KAAK,CAAC,QAAQ,CAAC,CAAC,CAAC",
-        file: "hello.js",
-        sourceRoot: "",
-    };
-
     setup(() => {
         fsReadFileStub = sinon.stub(fs, "readFileSync");
         fsReadFileStub.withArgs(pathToJS).returns(codeJS);
@@ -56,6 +38,24 @@ suite("sourceMapsCombinator", function () {
 
     suite("#convert", function () {
         test("convert sourcemap", function () {
+            const expected = {
+                version: 3,
+                sources: ["d:/hello.ts"],
+                names: <string[]>[],
+                mappings:
+                    "AAAA,IAAA,MAAM,EAAM,CAAA,SAAA,CAAA,EAAA;IACR,SAAA,KAAa,CAAA,GAAA,EAAO;QACpB,IAAA,CAAA,IAAA,EAAA,GAAA;IACA;SACI,CAAA,SAAO,CAAA,SAAc,EAAA,SAAM,CAAA,EAAO;QACtC,OAAA,OAAA,EAAA,IAAA,CAAA,IAAA,EAAA,OAAA;IACJ,CAAA;;AAEA,CAAA,CAAA,CAAA,CAAA;;AAEA,OAAO,CAAC,GAAG,CAAC,KAAK,CAAC,QAAQ,CAAC,CAAC,CAAC",
+            };
+
+            const rawBundleSourcemap: RawSourceMap = {
+                version: 3,
+                sources: ["d:/hello.js"],
+                names: <string[]>[],
+                mappings:
+                    "AAAA,IAAI,MAAM,EAAE,CAAC,SAAS,CAAC,EAAE;IACrB,SAAS,KAAK,CAAC,GAAG,EAAE;QAChB,IAAI,CAAC,IAAI,EAAE,GAAG;IAClB;IACA,KAAK,CAAC,SAAS,CAAC,SAAS,EAAE,SAAS,CAAC,EAAE;QACnC,OAAO,OAAO,EAAE,IAAI,CAAC,IAAI,EAAE,OAAO;IACtC,CAAC;IACD,OAAO,KAAK;AAChB,CAAC,CAAC,CAAC,CAAC;AACJ,IAAI,MAAM,EAAE,IAAI,KAAK,CAAC,gDAAgD,CAAC;AACvE,OAAO,CAAC,GAAG,CAAC,KAAK,CAAC,QAAQ,CAAC,CAAC,CAAC",
+                file: "hello.js",
+                sourceRoot: "",
+            };
+
             let sourceMapsCombinator = new SourceMapsCombinator();
             let result = sourceMapsCombinator.convert(rawBundleSourcemap);
             result.sources = result.sources.map(p => {
