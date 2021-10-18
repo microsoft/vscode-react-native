@@ -9,34 +9,34 @@ import * as fs from "fs";
 import * as path from "path";
 
 suite("sourceMapsCombinator", function () {
-    let fsReadFileStub: Sinon.SinonStub;
-    const pathToJS = "d:/hello.js";
-    const pathToTS = "d:/hello.ts";
-    const sourcemapPath = "d:/hello.js.map";
-    const codeJS = fs.readFileSync(path.resolve(__dirname, "assets/hello.js"));
-    const codeTS = fs.readFileSync(path.resolve(__dirname, "assets/hello.ts"));
-    const sourcemap: RawSourceMap = {
-        version: 3,
-        sources: ["d:/hello.ts"],
-        names: [],
-        mappings:
-            "AAAA,MAAM,MAAM;IACR,YAAY,CAAC,OAAO,GAAG,EAAE,MAAM,CAAC;IAChC;IACA,OAAO,QAAQ,CAAC,EAAE;QACd,OAAO,OAAO,EAAE,IAAI,CAAC,IAAI,EAAE,OAAO;IACtC;AACJ;;AAEA,MAAM,MAAM,EAAE,IAAI,KAAK,CAAC,gDAAgD,CAAC;;AAEzE,OAAO,CAAC,GAAG,CAAC,KAAK,CAAC,QAAQ,CAAC,CAAC,CAAC",
-        file: "hello.js",
-        sourceRoot: "",
-    };
-
-    setup(() => {
-        fsReadFileStub = sinon.stub(fs, "readFileSync");
-        fsReadFileStub.withArgs(pathToJS).returns(codeJS);
-        fsReadFileStub.withArgs(pathToTS).returns(codeTS);
-        fsReadFileStub.withArgs(sourcemapPath).returns(JSON.stringify(sourcemap));
-    });
-
-    suiteTeardown(() => {
-        fsReadFileStub.restore();
-    });
-
     suite("#convert", function () {
+        let fsReadFileStub: Sinon.SinonStub;
+        const pathToJS = "d:/hello.js";
+        const pathToTS = "d:/hello.ts";
+        const sourcemapPath = "d:/hello.js.map";
+        const codeJS = fs.readFileSync(path.resolve(__dirname, "assets/hello.js"));
+        const codeTS = fs.readFileSync(path.resolve(__dirname, "assets/hello.ts"));
+        const sourcemap: RawSourceMap = {
+            version: 3,
+            sources: ["d:/hello.ts"],
+            names: [],
+            mappings:
+                "AAAA,MAAM,MAAM;IACR,YAAY,CAAC,OAAO,GAAG,EAAE,MAAM,CAAC;IAChC;IACA,OAAO,QAAQ,CAAC,EAAE;QACd,OAAO,OAAO,EAAE,IAAI,CAAC,IAAI,EAAE,OAAO;IACtC;AACJ;;AAEA,MAAM,MAAM,EAAE,IAAI,KAAK,CAAC,gDAAgD,CAAC;;AAEzE,OAAO,CAAC,GAAG,CAAC,KAAK,CAAC,QAAQ,CAAC,CAAC,CAAC",
+            file: "hello.js",
+            sourceRoot: "",
+        };
+
+        setup(() => {
+            fsReadFileStub = sinon.stub(fs, "readFileSync");
+            fsReadFileStub.withArgs(pathToJS).returns(codeJS);
+            fsReadFileStub.withArgs(pathToTS).returns(codeTS);
+            fsReadFileStub.withArgs(sourcemapPath).returns(JSON.stringify(sourcemap));
+        });
+
+        teardown(() => {
+            fsReadFileStub.restore();
+        });
+
         test("convert sourcemap", function () {
             const expected = {
                 version: 3,
