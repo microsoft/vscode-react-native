@@ -28,6 +28,7 @@ import { MultipleLifetimesAppWorker } from "../debugger/appWorker";
 import { PlatformType } from "./launchArgs";
 import { LaunchScenariosManager } from "./launchScenariosManager";
 import { createAdditionalWorkspaceFolder, onFolderAdded } from "./rn-extension";
+import { RNProjectObserver } from "./rnProjectObserver";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -48,6 +49,7 @@ export class AppLauncher {
     private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
     private mobilePlatform: GeneralMobilePlatform;
     private launchScenariosManager: LaunchScenariosManager;
+    private projectObserver: RNProjectObserver;
     private debugConfigurationRoot: string;
     private nodeModulesRoot?: string;
 
@@ -91,7 +93,11 @@ export class AppLauncher {
         return appLauncher.getOrUpdateNodeModulesRoot();
     }
 
-    constructor(reactDirManager: ReactDirManager, workspaceFolder: vscode.WorkspaceFolder) {
+    constructor(
+        reactDirManager: ReactDirManager,
+        projectObserver: RNProjectObserver,
+        workspaceFolder: vscode.WorkspaceFolder,
+    ) {
         // constants definition
         this.cdpProxyPort = generateRandomPortNumber();
         this.cdpProxyHostAddress = "127.0.0.1"; // localhost
@@ -113,6 +119,7 @@ export class AppLauncher {
         this.packager.setExponentHelper(this.exponentHelper);
         this.reactDirManager = reactDirManager;
         this.workspaceFolder = workspaceFolder;
+        this.projectObserver = projectObserver;
         this.rnCdpProxy = new ReactNativeCDPProxy(this.cdpProxyHostAddress, this.cdpProxyPort);
     }
 
@@ -242,6 +249,7 @@ export class AppLauncher {
 
         const platformDeps: MobilePlatformDeps = {
             packager: this.packager,
+            projectObserver: this.projectObserver,
         };
         this.mobilePlatform = new PlatformResolver().resolveMobilePlatform(
             launchArgs.platform,

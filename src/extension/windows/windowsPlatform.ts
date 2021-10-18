@@ -47,11 +47,13 @@ export class WindowsPlatform extends GeneralMobilePlatform {
             },
         };
 
+        this.projectObserver?.updateRNWindowsProjectState(true);
         if (this.runOptions.isDirect) {
             extProps.isDirect = {
                 value: true,
                 isPii: false,
             };
+            this.projectObserver?.updateRNWindowsHermesProjectState(true);
         }
 
         extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(

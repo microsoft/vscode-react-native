@@ -292,7 +292,7 @@
       "editor/title/run": [
         {
           "command": "reactNative.debugScenario.attachHermesApplicationExperimental",
-          "when": "isRNProject"
+          "when": "isRNProject && isRNHermesProject"
         },
         {
           "command": "reactNative.debugScenario.attachDirectIosExperimental",
@@ -312,7 +312,7 @@
         },
         {
           "command": "reactNative.debugScenario.debugWindows",
-          "when": "isRNProject"
+          "when": "isRNProject && isRNWindowsProject"
         },
         {
           "command": "reactNative.debugScenario.debugMacos",
@@ -324,7 +324,7 @@
         },
         {
           "command": "reactNative.debugScenario.debugAndroidHermesExperimental",
-          "when": "isRNProject"
+          "when": "isRNProject && isRNAndroidHermesProject"
         },
         {
           "command": "reactNative.debugScenario.debugDirectIosExperimental",
@@ -332,15 +332,15 @@
         },
         {
           "command": "reactNative.debugScenario.debugIosHermesExperimental",
-          "when": "isRNProject"
+          "when": "isRNProject && isRNIosHermesProject"
         },
         {
           "command": "reactNative.debugScenario.debugMacosHermesExperimental",
-          "when": "isRNProject"
+          "when": "isRNProject && isRNMacosHermesProject"
         },
         {
           "command": "reactNative.debugScenario.debugWindowsHermesExperimental",
-          "when": "isRNProject"
+          "when": "isRNProject && isRNWindowsHermesProject"
         },
         {
           "command": "reactNative.debugScenario.runAndroid",
@@ -352,11 +352,11 @@
         },
         {
           "command": "reactNative.debugScenario.runAndroidHermesExperimental",
-          "when": "isRNProject"
+          "when": "isRNProject && isRNAndroidHermesProject"
         },
         {
           "command": "reactNative.debugScenario.runIosHermesExperimental",
-          "when": "isRNProject"
+          "when": "isRNProject && isRNIosHermesProject"
         },
         {
           "command": "reactNative.debugScenario.runDirectIosExperimental",

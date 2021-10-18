@@ -20,7 +20,7 @@ import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalError } from "../common/error/internalError";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { SettingsHelper } from "./settingsHelper";
-import { ProjectVersionHelper, RNPackageVersions } from "../common/projectVersionHelper";
+import { ProjectVersionHelper } from "../common/projectVersionHelper";
 import { ReactDirManager } from "./reactDirManager";
 import { Telemetry } from "../common/telemetry";
 import { TelemetryHelper, ICommandTelemetryProperties } from "../common/telemetryHelper";
@@ -49,6 +49,7 @@ import {
 import { LogCatMonitorManager } from "./android/logCatMonitorManager";
 import { ExtensionConfigManager } from "./extensionConfigManager";
 import { TipNotificationService } from "./tipsNotificationsService/tipsNotificationService";
+import { RNProjectObserver } from "./rnProjectObserver";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -306,7 +307,7 @@ export async function onFolderAdded(folder: vscode.WorkspaceFolder): Promise<voi
             versions.reactNativeVersion,
         );
     } else if (isSupportedVersion(versions.reactNativeVersion)) {
-        activateCommands(versions);
+        activateCommands();
 
         promises.push(
             entryPointHandler.runFunction(
@@ -314,10 +315,12 @@ export async function onFolderAdded(folder: vscode.WorkspaceFolder): Promise<voi
                 ErrorHelper.getInternalError(InternalErrorCode.DebuggerStubLauncherFailed),
                 async () => {
                     let reactDirManager = new ReactDirManager(rootPath);
+                    const projectObserver = new RNProjectObserver();
+                    projectObserver.initialize(projectRootPath, versions);
                     await setupAndDispose(reactDirManager);
                     ProjectsStorage.addFolder(
                         projectRootPath,
-                        new AppLauncher(reactDirManager, folder),
+                        new AppLauncher(reactDirManager, projectObserver, folder),
                     );
                     COUNT_WORKSPACE_FOLDERS++;
                 },
@@ -329,24 +332,8 @@ export async function onFolderAdded(folder: vscode.WorkspaceFolder): Promise<voi
     await Promise.all(promises);
 }
 
-function activateCommands(versions: RNPackageVersions): void {
+function activateCommands(): void {
     vscode.commands.executeCommand("setContext", CONTEXT_VARIABLES_NAMES.IS_RN_PROJECT, true);
-
-    if (!ProjectVersionHelper.isVersionError(versions.reactNativeWindowsVersion)) {
-        vscode.commands.executeCommand(
-            "setContext",
-            CONTEXT_VARIABLES_NAMES.IS_RN_WINDOWS_PROJECT,
-            true,
-        );
-    }
-
-    if (!ProjectVersionHelper.isVersionError(versions.reactNativeMacOSVersion)) {
-        vscode.commands.executeCommand(
-            "setContext",
-            CONTEXT_VARIABLES_NAMES.IS_RN_MACOS_PROJECT,
-            true,
-        );
-    }
 }
 
 function onFolderRemoved(folder: vscode.WorkspaceFolder): void {
