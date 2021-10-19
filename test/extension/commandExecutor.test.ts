@@ -18,7 +18,8 @@ suite("commandExecutor", function () {
     suite("extensionContext", function () {
         let childProcessStubInstance = new ChildProcess();
         let childProcessStub: Sinon.SinonStub & ChildProcess;
-        const sandbox = sinon.sandbox.create();
+
+        let appLauncherStub: Sinon.SinonStub;
         let Log = new ConsoleLogger();
         const sampleReactNative022ProjectDir = path.join(
             __dirname,
@@ -39,7 +40,7 @@ suite("commandExecutor", function () {
             });
 
             childProcessStub.restore();
-            sandbox.restore();
+            appLauncherStub.restore();
         });
 
         setup(() => {
@@ -47,7 +48,7 @@ suite("commandExecutor", function () {
                 .stub(Node, "ChildProcess")
                 .returns(childProcessStubInstance) as ChildProcess & Sinon.SinonStub;
 
-            sandbox.stub(
+            appLauncherStub = sinon.stub(
                 AppLauncher,
                 "getNodeModulesRootByProjectPath",
                 (projectRoot: string) => nodeModulesRoot,

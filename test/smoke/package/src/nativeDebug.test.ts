@@ -30,7 +30,7 @@ export function startReactNativeTests(
     project: TestProject,
     testParameters: TestRunArguments,
 ): void {
-    describe("React Native", () => {
+    describe("React Native", async () => {
         let app: Application;
         let automationHelper: AutomationHelper;
 

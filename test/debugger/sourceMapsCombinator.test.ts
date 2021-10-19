@@ -9,33 +9,35 @@ import * as fs from "fs";
 import * as path from "path";
 
 suite("sourceMapsCombinator", function () {
-    let sandbox: Sinon.SinonSandbox;
-
-    setup(() => {
-        sandbox = sinon.sandbox.create();
-    });
-
-    suiteTeardown(() => {
-        sandbox.restore();
-    });
-
     suite("#convert", function () {
-        test("convert sourcemap", function () {
-            const pathToJS = "d:/hello.js";
-            const pathToTS = "d:/hello.ts";
-            const sourcemapPath = "d:/hello.js.map";
-            const codeJS = fs.readFileSync(path.resolve(__dirname, "assets/hello.js"));
-            const codeTS = fs.readFileSync(path.resolve(__dirname, "assets/hello.ts"));
-            const sourcemap: RawSourceMap = {
-                version: 3,
-                sources: ["d:/hello.ts"],
-                names: [],
-                mappings:
-                    "AAAA,MAAM,MAAM;IACR,YAAY,CAAC,OAAO,GAAG,EAAE,MAAM,CAAC;IAChC;IACA,OAAO,QAAQ,CAAC,EAAE;QACd,OAAO,OAAO,EAAE,IAAI,CAAC,IAAI,EAAE,OAAO;IACtC;AACJ;;AAEA,MAAM,MAAM,EAAE,IAAI,KAAK,CAAC,gDAAgD,CAAC;;AAEzE,OAAO,CAAC,GAAG,CAAC,KAAK,CAAC,QAAQ,CAAC,CAAC,CAAC",
-                file: "hello.js",
-                sourceRoot: "",
-            };
+        let fsReadFileStub: Sinon.SinonStub;
+        const pathToJS = "d:/hello.js";
+        const pathToTS = "d:/hello.ts";
+        const sourcemapPath = "d:/hello.js.map";
+        const codeJS = fs.readFileSync(path.resolve(__dirname, "assets/hello.js"));
+        const codeTS = fs.readFileSync(path.resolve(__dirname, "assets/hello.ts"));
+        const sourcemap: RawSourceMap = {
+            version: 3,
+            sources: ["d:/hello.ts"],
+            names: [],
+            mappings:
+                "AAAA,MAAM,MAAM;IACR,YAAY,CAAC,OAAO,GAAG,EAAE,MAAM,CAAC;IAChC;IACA,OAAO,QAAQ,CAAC,EAAE;QACd,OAAO,OAAO,EAAE,IAAI,CAAC,IAAI,EAAE,OAAO;IACtC;AACJ;;AAEA,MAAM,MAAM,EAAE,IAAI,KAAK,CAAC,gDAAgD,CAAC;;AAEzE,OAAO,CAAC,GAAG,CAAC,KAAK,CAAC,QAAQ,CAAC,CAAC,CAAC",
+            file: "hello.js",
+            sourceRoot: "",
+        };
 
+        setup(() => {
+            fsReadFileStub = sinon.stub(fs, "readFileSync");
+            fsReadFileStub.withArgs(pathToJS).returns(codeJS);
+            fsReadFileStub.withArgs(pathToTS).returns(codeTS);
+            fsReadFileStub.withArgs(sourcemapPath).returns(JSON.stringify(sourcemap));
+        });
+
+        teardown(() => {
+            fsReadFileStub.restore();
+        });
+
+        test("convert sourcemap", function () {
             const expected = {
                 version: 3,
                 sources: ["d:/hello.ts"],
@@ -44,7 +46,7 @@ suite("sourceMapsCombinator", function () {
                     "AAAA,IAAA,MAAM,EAAM,CAAA,SAAA,CAAA,EAAA;IACR,SAAA,KAAa,CAAA,GAAA,EAAO;QACpB,IAAA,CAAA,IAAA,EAAA,GAAA;IACA;SACI,CAAA,SAAO,CAAA,SAAc,EAAA,SAAM,CAAA,EAAO;QACtC,OAAA,OAAA,EAAA,IAAA,CAAA,IAAA,EAAA,OAAA;IACJ,CAAA;;AAEA,CAAA,CAAA,CAAA,CAAA;;AAEA,OAAO,CAAC,GAAG,CAAC,KAAK,CAAC,QAAQ,CAAC,CAAC,CAAC",
             };
 
-            let rawBundleSourcemap: RawSourceMap = {
+            const rawBundleSourcemap: RawSourceMap = {
                 version: 3,
                 sources: ["d:/hello.js"],
                 names: <string[]>[],
@@ -53,12 +55,6 @@ suite("sourceMapsCombinator", function () {
                 file: "hello.js",
                 sourceRoot: "",
             };
-
-            const fsReadFileStub = sandbox.stub(fs, "readFileSync");
-
-            fsReadFileStub.withArgs(pathToJS).returns(codeJS);
-            fsReadFileStub.withArgs(pathToTS).returns(codeTS);
-            fsReadFileStub.withArgs(sourcemapPath).returns(JSON.stringify(sourcemap));
 
             let sourceMapsCombinator = new SourceMapsCombinator();
             let result = sourceMapsCombinator.convert(rawBundleSourcemap);

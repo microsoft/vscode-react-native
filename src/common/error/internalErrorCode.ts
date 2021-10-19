@@ -29,13 +29,15 @@ export enum InternalErrorCode {
     ApplicationLaunchFailed = 303,
     ApplicationLaunchTimedOut = 304,
     FailedToStartAndroidEmulator = 305,
-    VirtualDeviceSelectionError = 306,
+    TargetSelectionError = 306,
+    FailedToStartIOSSimulator = 307,
 
     // iOS Platform errors
     IOSSimulatorNotLaunchable = 401,
     IOSFoundMoreThanOneExecutablesCleanupBuildFolder = 402,
     IOSCouldNotFoundExecutableInFolder = 403,
     IOSCouldNotFoundDeviceForDirectDebugging = 404,
+    IOSThereIsNoAnyDebuggableTarget = 405,
 
     // Packager errors
     OpnPackagerLocationNotFound = 501,
@@ -103,6 +105,7 @@ export enum InternalErrorCode {
     AndroidCouldNotStartLogCatMonitor = 1206,
     AndroidCouldNotStopLogCatMonitor = 1207,
     AndroidCouldNotFindActiveLogCatMonitor = 1208,
+    AndroidThereIsNoAnyOnlineDebuggableTarget = 1209,
 
     // Windows Phone errors
     WinRNMPPluginIsNotInstalled = 1301,

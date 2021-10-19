@@ -50,7 +50,17 @@ suite("androidPlatform", function () {
         let fileSystem: FileSystem;
         let reactNative: ReactNative022;
         let androidPlatform: AndroidPlatform;
-        let sandbox: Sinon.SinonSandbox;
+
+        let launchAppStub: Sinon.SinonStub;
+        let getConnectedTargetsStub: Sinon.SinonStub;
+        let getOnlineTargetsStub: Sinon.SinonStub;
+        let apiVersionStub: Sinon.SinonStub;
+        let reverseAdbStub: Sinon.SinonStub;
+        let getReactNativeProjectRootStub: Sinon.SinonStub;
+        let spawnReactCommandStub: Sinon.SinonStub;
+        let getReactNativeVersionsStub: Sinon.SinonStub;
+        let installAppInDeviceStub: Sinon.SinonStub;
+
         let devices: any;
         let adbHelper: adb.AdbHelper;
 
@@ -59,13 +69,11 @@ suite("androidPlatform", function () {
         }
 
         setup(() => {
-            sandbox = sinon.sandbox.create();
-
             // Configure all the dependencies we'll use in our tests
             fileSystem = new FileSystem();
 
             adbHelper = new adb.AdbHelper(genericRunOptions.projectRoot, nodeModulesRoot);
-            sandbox.stub(
+            launchAppStub = sinon.stub(
                 adbHelper,
                 "launchApp",
                 async (projectRoot_: string, packageName: string, debugTarget?: string) => {
@@ -86,49 +94,69 @@ suite("androidPlatform", function () {
                     });
                 },
             );
-            sandbox.stub(adbHelper, "getConnectedDevices", async function () {
-                return devices;
-            });
-            sandbox.stub(adbHelper, "getOnlineDevices", async function () {
+            getConnectedTargetsStub = sinon.stub(
+                adbHelper,
+                "getConnectedTargets",
+                async function () {
+                    return devices;
+                },
+            );
+            getOnlineTargetsStub = sinon.stub(adbHelper, "getOnlineTargets", async function () {
                 return devices.filter((device: any) => {
                     return device.isOnline;
                 });
             });
-            sandbox.stub(adbHelper, "apiVersion", async function () {
+            apiVersionStub = sinon.stub(adbHelper, "apiVersion", async function () {
                 return adb.AndroidAPILevel.LOLLIPOP;
             });
-            sandbox.stub(adbHelper, "reverseAdb", async function () {
+            reverseAdbStub = sinon.stub(adbHelper, "reverseAdb", async function () {
                 return;
             });
 
             reactNative = new ReactNative022(fileSystem, adbHelper);
 
-            sandbox.stub(SettingsHelper, "getReactNativeProjectRoot", () => projectRoot);
+            getReactNativeProjectRootStub = sinon.stub(
+                SettingsHelper,
+                "getReactNativeProjectRoot",
+                () => projectRoot,
+            );
 
             androidPlatform = createAndroidPlatform(genericRunOptions);
 
-            sandbox.stub(CommandExecutor.prototype, "spawnReactCommand", function () {
-                return reactNative.runAndroid(genericRunOptions);
-            });
+            spawnReactCommandStub = sinon.stub(
+                CommandExecutor.prototype,
+                "spawnReactCommand",
+                function () {
+                    return reactNative.runAndroid(genericRunOptions);
+                },
+            );
 
-            sandbox.stub(ProjectVersionHelper, "getReactNativeVersions", async function () {
-                return {
-                    reactNativeVersion: "0.0.1",
-                    reactNativeWindowsVersion: "",
-                };
-            });
+            getReactNativeVersionsStub = sinon.stub(
+                ProjectVersionHelper,
+                "getReactNativeVersions",
+                async function () {
+                    return {
+                        reactNativeVersion: "0.0.1",
+                        reactNativeWindowsVersion: "",
+                    };
+                },
+            );
 
-            androidPlatform.setAdbHelper(adbHelper);
+            (androidPlatform as any).adbHelper = adbHelper;
 
-            sandbox.stub(reactNative, "installAppInDevice", async function (deviceId: string) {
-                devices = devices.map((device: any) => {
-                    if (deviceId && deviceId === device.id) {
-                        device.installedApplications[androidPackageName] = {};
-                    }
+            installAppInDeviceStub = sinon.stub(
+                reactNative,
+                "installAppInDevice",
+                async function (deviceId: string) {
+                    devices = devices.map((device: any) => {
+                        if (deviceId && deviceId === device.id) {
+                            device.installedApplications[androidPackageName] = {};
+                        }
 
-                    return device;
-                });
-            });
+                        return device;
+                    });
+                },
+            );
 
             // Delete existing React Native project before creating
             rimraf.sync(projectsFolder);
@@ -141,7 +169,15 @@ suite("androidPlatform", function () {
         teardown(() => {
             // Delete existing React Native project after each test
             rimraf.sync(projectsFolder);
-            sandbox.restore();
+            launchAppStub.restore();
+            getConnectedTargetsStub.restore();
+            getOnlineTargetsStub.restore();
+            apiVersionStub.restore();
+            reverseAdbStub.restore();
+            getReactNativeProjectRootStub.restore();
+            spawnReactCommandStub.restore();
+            getReactNativeVersionsStub.restore();
+            installAppInDeviceStub.restore();
             devices = [];
         });
 
@@ -206,7 +242,7 @@ suite("androidPlatform", function () {
                     should.assert(false, "runApp should've exited with an error");
                 } catch (error) {
                     error.message
-                        .startsWith("Unknown error: not all success patterns were matched")
+                        .startsWith("There is no any Android debuggable online target")
                         .should.be.true();
                 }
             },
@@ -244,7 +280,7 @@ suite("androidPlatform", function () {
                     nodeModulesRoot,
                 };
                 const platform = createAndroidPlatform(runOptions);
-                platform.setAdbHelper(adbHelper);
+                (platform as any).adbHelper = adbHelper;
                 await platform.runApp();
                 const isRunningOnNexus12 =
                     devices[4].installedApplications[androidPackageName].isInDebugMode === false;
@@ -283,7 +319,7 @@ suite("androidPlatform", function () {
                     nodeModulesRoot,
                 };
                 const platform = createAndroidPlatform(runOptions);
-                platform.setAdbHelper(adbHelper);
+                (platform as any).adbHelper = adbHelper;
                 await platform.runApp();
                 const devicesRunningAppId = devices.filter(
                     (device: any) =>
@@ -419,6 +455,7 @@ suite("androidPlatform", function () {
 
         test("AdbHelper should correctly parse Android Sdk Location from local.properties file content", () => {
             const adbHelper = new adb.AdbHelper("", nodeModulesRoot);
+            let getPlatformStub: Sinon.SinonStub;
             function testPaths(inputPath: string, expectedPath: string) {
                 const resultPath1 = adbHelper.parseSdkLocation(`sdk.dir=${inputPath}`);
                 const resultPath2 = adbHelper.parseSdkLocation(`sdk.dir   =${inputPath}`);
@@ -430,8 +467,8 @@ suite("androidPlatform", function () {
 
             const os = require("os");
             function mockPlatform(platform: NodeJS.Platform) {
-                sandbox.restore();
-                sandbox.stub(os, "platform", function () {
+                getPlatformStub?.restore();
+                getPlatformStub = sinon.stub(os, "platform", function () {
                     return platform;
                 });
             }
@@ -463,6 +500,10 @@ suite("androidPlatform", function () {
                 String.raw`/Volumes/Macintosh HD/Users/foo/Library/Android/sdk/platform-tools`,
                 String.raw`/Volumes/Macintosh HD/Users/foo/Library/Android/sdk/platform-tools`,
             );
+
+            teardown(() => {
+                getPlatformStub?.restore();
+            });
         });
 
         test("AdbHelper getAdbPath function should correctly parse Android Sdk Location from local.properties and wrap with quotes", () => {
@@ -513,7 +554,7 @@ function fillDevices(ids: string[]): any[] {
             isOnline: true,
             installedApplications: {},
             runningApplications: {},
-            type: adb.AdbDeviceType.AndroidSdkEmulator,
+            isVirtualTarget: true,
             id: id,
         });
     });

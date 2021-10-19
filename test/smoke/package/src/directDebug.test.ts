@@ -99,7 +99,7 @@ export function startDirectDebugTests(
                         new LaunchConfigurationManager(
                             project.workspaceDirectory,
                         ).updateLaunchScenario(RNIosHermesDebugConfigName, {
-                            target: iosSimulatorManager.getSimulator().name,
+                            target: iosSimulatorManager.getSimulator().id,
                         });
                         break;
                     }

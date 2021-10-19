@@ -1,272 +1,132 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as fs from "fs";
-import { IRunOptions } from "./launchArgs";
-import { Packager } from "../common/packager";
-import { PackagerStatusIndicator, PackagerStatus } from "./packagerStatusIndicator";
-import { SettingsHelper } from "./settingsHelper";
-import { OutputChannelLogger } from "./log/OutputChannelLogger";
+import { ErrorHelper } from "../common/error/errorHelper";
+import { InternalErrorCode } from "../common/error/internalErrorCode";
+import { TelemetryHelper } from "../common/telemetryHelper";
+import { GeneralPlatform, TargetType } from "./generalPlatform";
+import { IMobileTarget, MobileTarget } from "./mobileTarget";
+import { MobileTargetManager } from "./mobileTargetManager";
 import * as nls from "vscode-nls";
-import { isBoolean } from "util";
-import { IVirtualDevice } from "./VirtualDeviceManager";
-import { RNProjectObserver } from "./rnProjectObserver";
+import { IOSPlatform } from "./ios/iOSPlatform";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
 })();
 const localize = nls.loadMessageBundle();
 
-export interface MobilePlatformDeps {
-    projectObserver?: RNProjectObserver;
-    packager?: Packager;
-}
+export abstract class GeneralMobilePlatform extends GeneralPlatform {
+    protected targetManager: MobileTargetManager;
+    protected target?: MobileTarget;
 
-export type TargetType = "device" | "simulator";
+    public async getTargetsCountByFilter(filter?: (el: IMobileTarget) => boolean): Promise<number> {
+        return this.targetManager.getTargetsCountWithFilter(filter);
+    }
 
-export class GeneralMobilePlatform {
-    protected projectPath: string;
-    protected platformName: string;
-    protected packager: Packager;
-    protected logger: OutputChannelLogger;
-    protected projectObserver?: RNProjectObserver;
+    public async resolveMobileTarget(targetString: string): Promise<MobileTarget | undefined> {
+        let collectTargetsCalled = false;
 
-    protected static deviceString: TargetType = "device";
-    protected static simulatorString: TargetType = "simulator";
-    protected static NO_PACKAGER_VERSION = "0.42.0";
+        let isAnyTarget = false;
+        let isVirtualTarget: boolean;
+        if (targetString.toLowerCase() === TargetType.Simulator) {
+            isAnyTarget = true;
+            isVirtualTarget = true;
+        } else if (targetString.toLowerCase() === TargetType.Device) {
+            isAnyTarget = true;
+            isVirtualTarget = false;
+        } else {
+            await this.targetManager.collectTargets();
+            collectTargetsCalled = true;
+            isVirtualTarget = await this.targetManager.isVirtualTarget(targetString);
+        }
 
-    public runArguments: string[];
-
-    constructor(protected runOptions: IRunOptions, platformDeps: MobilePlatformDeps = {}) {
-        this.platformName = this.runOptions.platform;
-        this.projectPath = this.runOptions.projectRoot;
-        this.packager =
-            platformDeps.packager ||
-            new Packager(
-                this.runOptions.workspaceRoot,
-                this.projectPath,
-                SettingsHelper.getPackagerPort(this.runOptions.workspaceRoot),
-                new PackagerStatusIndicator(this.projectPath),
+        if (!collectTargetsCalled) {
+            await this.targetManager.collectTargets(
+                isVirtualTarget ? TargetType.Simulator : TargetType.Device,
             );
-        this.projectObserver = platformDeps.projectObserver;
-        this.packager.setRunOptions(runOptions);
-        this.logger = OutputChannelLogger.getChannel(
-            localize("ReactNativeRunPlatform", "React Native: Run {0}", this.platformName),
-            true,
-        );
-        this.logger.clear();
+        }
+
+        const cleanupTargetModifications = () => {
+            // Use 'simulator' or 'device' in case we need to specify target
+            this.runOptions.target = isVirtualTarget ? TargetType.Simulator : TargetType.Device;
+            this.runArguments = this.getRunArguments();
+        };
+
+        try {
+            this.target = await this.targetManager.selectAndPrepareTarget(target => {
+                const conditionForNotAnyTarget = isAnyTarget
+                    ? true
+                    : target.name === targetString || target.id === targetString;
+                const conditionForVirtualTarget = isVirtualTarget === target.isVirtualTarget;
+                return conditionForVirtualTarget && conditionForNotAnyTarget;
+            });
+
+            if (!this.target) {
+                this.logger.warning(
+                    localize(
+                        "CouldNotFindAnyDebuggableTarget",
+                        "Could not find any debuggable target by specified target: {0}",
+                        targetString,
+                    ),
+                );
+                this.logger.warning(
+                    localize(
+                        "ContinueWithRnCliWorkflow",
+                        "Continue using standard RN CLI workflow.",
+                    ),
+                );
+                cleanupTargetModifications();
+            } else {
+                // For iOS we should pass exact target id,
+                // because the “react-native run-ios” command does not check booted devices
+                // and just launches the first device
+                if (this instanceof IOSPlatform || (await this.needToPassTargetToRunArgs())) {
+                    this.addTargetToRunArgs(this.target);
+                } else {
+                    cleanupTargetModifications();
+                }
+            }
+        } catch (error) {
+            if (
+                error &&
+                error.errorCode &&
+                error.errorCode === InternalErrorCode.TargetSelectionError
+            ) {
+                TelemetryHelper.sendErrorEvent(
+                    "TargetSelectionError",
+                    ErrorHelper.getInternalError(InternalErrorCode.TargetSelectionError),
+                );
+
+                this.logger.warning(error);
+                this.logger.warning(
+                    localize(
+                        "ContinueWithRnCliWorkflow",
+                        "Continue using standard RN CLI workflow.",
+                    ),
+                );
+
+                cleanupTargetModifications();
+            } else {
+                throw error;
+            }
+        }
+
+        return this.target;
+    }
+
+    protected async needToPassTargetToRunArgs(): Promise<boolean> {
+        // If we specify a target in "react-native run-*" command, the RN CLI will build applications
+        // for development and release, which leads to an increase in build time. Therefore, it's better to
+        // avoid passing the target to the CLI command if it's not necessary to improve build performance.
+        // We should not pass target to run arguments in case there is only one online simulator or online target
+        const targets = await this.targetManager.getTargetList();
+        return targets.filter(target => target.isOnline).length > 1;
+    }
+
+    protected addTargetToRunArgs(target: MobileTarget): void {
+        this.runOptions.target = target.id;
         this.runArguments = this.getRunArguments();
     }
 
-    public dispose(): void {
-        return;
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    public async resolveVirtualDevice(target: string): Promise<IVirtualDevice | null> {
-        return null;
-    }
-
-    public async runApp(): Promise<void> {
-        this.logger.info(
-            localize(
-                "ConnectedToPackager",
-                "Connected to packager. You can now open your app in the simulator.",
-            ),
-        );
-    }
-
-    public async enableJSDebuggingMode(): Promise<void> {
-        this.logger.info(
-            localize(
-                "DebuggerReadyEnableRemoteDebuggingInApp",
-                "Debugger ready. Enable remote debugging in app.",
-            ),
-        );
-    }
-
-    public async disableJSDebuggingMode(): Promise<void> {
-        this.logger.info(
-            localize(
-                "DebuggerReadyDisableRemoteDebuggingInApp",
-                "Debugger ready. Disable remote debugging in app.",
-            ),
-        );
-    }
-
-    public async beforeStartPackager(): Promise<void> {
-        return;
-    }
-
-    public async startPackager(): Promise<void> {
-        this.logger.info(
-            localize("StartingReactNativePackager", "Starting React Native Packager."),
-        );
-        if (await this.packager.isRunning()) {
-            if (this.packager.getPackagerStatus() !== PackagerStatus.PACKAGER_STARTED) {
-                await this.packager.stop();
-            }
-            this.logger.info(
-                localize(
-                    "AttachingToRunningReactNativePackager",
-                    "Attaching to running React Native packager",
-                ),
-            );
-        }
-        await this.packager.start();
-    }
-
-    public async prewarmBundleCache(): Promise<void> {
-        // generalMobilePlatform should do nothing here. Method should be overriden by children for specific behavior.
-        return;
-    }
-
-    public static removeRunArgument(runArguments: any[], optName: string, binary: boolean): void {
-        const optIdx = runArguments.indexOf(optName);
-        if (optIdx > -1) {
-            if (binary) {
-                runArguments.splice(optIdx, 1);
-            } else {
-                runArguments.splice(optIdx, 2);
-            }
-        }
-    }
-
-    public static setRunArgument(
-        runArguments: any[],
-        optName: string,
-        value: string | boolean,
-    ): void {
-        const isBinary = isBoolean(value);
-        const optIdx = runArguments.indexOf(optName);
-        if (optIdx > -1) {
-            if (isBinary && !value) {
-                GeneralMobilePlatform.removeRunArgument(runArguments, optName, true);
-            }
-            if (!isBinary) {
-                runArguments[optIdx + 1] = value;
-            }
-        } else {
-            if (isBinary && value) {
-                runArguments.push(optName);
-            }
-            if (!isBinary) {
-                runArguments.push(optName);
-                runArguments.push(value);
-            }
-        }
-    }
-
-    public static getOptFromRunArgs(
-        runArguments: any[],
-        optName: string,
-        binary: boolean = false,
-    ): any {
-        if (runArguments.length > 0) {
-            const optIdx = runArguments.indexOf(optName);
-            let result: any = undefined;
-
-            if (optIdx > -1) {
-                result = binary ? true : runArguments[optIdx + 1];
-            } else {
-                for (let i = 0; i < runArguments.length; i++) {
-                    const arg = runArguments[i];
-                    if (arg.indexOf(optName) > -1) {
-                        if (binary) {
-                            result = true;
-                        } else {
-                            const tokens = arg.split("=");
-                            if (tokens.length > 1) {
-                                result = tokens[1].trim();
-                            } else {
-                                result = undefined;
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Binary parameters can either exists (e.g. be true) or be absent. You can not pass false binary parameter.
-            if (binary) {
-                if (result === undefined) {
-                    return undefined;
-                } else {
-                    return true;
-                }
-            }
-
-            if (result) {
-                try {
-                    return JSON.parse(result);
-                } catch (err) {
-                    // simple string value, return as is
-                    return result;
-                }
-            }
-        }
-
-        return undefined;
-    }
-
-    public getRunArguments(): string[] {
-        throw new Error("Not yet implemented: GeneralMobilePlatform.getRunArguments");
-    }
-
-    public static getEnvArgument(processEnv: any, env?: any, envFile?: string): any {
-        let modifyEnv = Object.assign({}, processEnv);
-
-        if (envFile) {
-            // .env variables never overwrite existing variables
-            const argsFromEnvFile = this.readEnvFile(envFile);
-            if (argsFromEnvFile != null) {
-                for (let key in argsFromEnvFile) {
-                    if (!modifyEnv[key] && argsFromEnvFile.hasOwnProperty(key)) {
-                        modifyEnv[key] = argsFromEnvFile[key];
-                    }
-                }
-            }
-        }
-
-        if (env) {
-            // launch config env vars overwrite .env vars
-            for (let key in env) {
-                if (env.hasOwnProperty(key)) {
-                    modifyEnv[key] = env[key];
-                }
-            }
-        }
-        return modifyEnv;
-    }
-
-    private static readEnvFile(filePath: string): any {
-        if (fs.existsSync(filePath)) {
-            let buffer = fs.readFileSync(filePath, "utf8");
-            let result = {};
-
-            // Strip BOM
-            if (buffer && buffer[0] === "\uFEFF") {
-                buffer = buffer.substr(1);
-            }
-
-            buffer.split("\n").forEach((line: string) => {
-                const r = line.match(/^\s*([\w\.\-]+)\s*=\s*(.*)?\s*$/);
-                if (r !== null) {
-                    const key = r[1];
-                    let value = r[2] || "";
-                    if (
-                        value.length > 0 &&
-                        value.charAt(0) === '"' &&
-                        value.charAt(value.length - 1) === '"'
-                    ) {
-                        value = value.replace(/\\n/gm, "\n");
-                    }
-                    result[key] = value.replace(/(^['"]|['"]$)/g, "");
-                }
-            });
-
-            return result;
-        } else {
-            return null;
-        }
-    }
+    public abstract getTargetFromRunArgs(): Promise<MobileTarget | undefined>;
 }

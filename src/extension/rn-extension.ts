@@ -50,6 +50,7 @@ import { LogCatMonitorManager } from "./android/logCatMonitorManager";
 import { ExtensionConfigManager } from "./extensionConfigManager";
 import { TipNotificationService } from "./tipsNotificationsService/tipsNotificationService";
 import { RNProjectObserver } from "./rnProjectObserver";
+import { TargetType } from "./generalPlatform";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -389,24 +390,29 @@ function registerReactNativeCommandPaletteCommands(): void {
         () => CommandPaletteHandler.launchAndroidEmulator(),
     );
     registerVSCodeCommand(
+        "launchIOSSimulator",
+        ErrorHelper.getInternalError(InternalErrorCode.FailedToStartIOSSimulator),
+        () => CommandPaletteHandler.launchIOSSimulator(),
+    );
+    registerVSCodeCommand(
         "runAndroidSimulator",
         ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnAndroid),
-        () => CommandPaletteHandler.runAndroid("simulator"),
+        () => CommandPaletteHandler.runAndroid(TargetType.Simulator),
     );
     registerVSCodeCommand(
         "runAndroidDevice",
         ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnAndroid),
-        () => CommandPaletteHandler.runAndroid("device"),
+        () => CommandPaletteHandler.runAndroid(TargetType.Device),
     );
     registerVSCodeCommand(
         "runIosSimulator",
         ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnIos),
-        () => CommandPaletteHandler.runIos("simulator"),
+        () => CommandPaletteHandler.runIos(TargetType.Simulator),
     );
     registerVSCodeCommand(
         "runIosDevice",
         ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnIos),
-        () => CommandPaletteHandler.runIos("device"),
+        () => CommandPaletteHandler.runIos(TargetType.Device),
     );
     registerVSCodeCommand(
         "runExponent",
