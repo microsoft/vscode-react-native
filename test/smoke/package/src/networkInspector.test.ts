@@ -142,11 +142,12 @@ export function startNetworkInspectorTests(
                 case Platform.iOS: {
                     debugConfigName = RNIosHermesDebugConfigName;
                     // We need to implicitly add target to "Debug iOS" configuration to avoid running additional simulator
-                    new LaunchConfigurationManager(
-                        project.workspaceDirectory,
-                    ).updateLaunchScenario(RNIosHermesDebugConfigName, {
-                        target: iosSimulatorManager.getSimulator().id,
-                    });
+                    new LaunchConfigurationManager(project.workspaceDirectory).updateLaunchScenario(
+                        RNIosHermesDebugConfigName,
+                        {
+                            target: iosSimulatorManager.getSimulator().id,
+                        },
+                    );
                     break;
                 }
             }
