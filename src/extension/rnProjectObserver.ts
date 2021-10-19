@@ -25,7 +25,7 @@ export class RNProjectObserver {
         this._isRNHermesProject = false;
     }
 
-    public initialize(projectRoot: string, rNPackageVersions: RNPackageVersions) {
+    public initialize(projectRoot: string, rNPackageVersions: RNPackageVersions): void {
         if (!ProjectVersionHelper.isVersionError(rNPackageVersions.reactNativeWindowsVersion)) {
             this.updateRNWindowsProjectState(true);
             this.updateRNWindowsHermesProjectState(
