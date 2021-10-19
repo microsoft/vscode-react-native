@@ -5,7 +5,7 @@ import { IRunOptions, PlatformType } from "./launchArgs";
 import { IOSPlatform } from "./ios/iOSPlatform";
 import { AndroidPlatform } from "./android/androidPlatform";
 import { WindowsPlatform } from "./windows/windowsPlatform";
-import { GeneralMobilePlatform, MobilePlatformDeps } from "../extension/generalMobilePlatform";
+import { GeneralPlatform, MobilePlatformDeps } from "./generalPlatform";
 import { ExponentPlatform } from "./exponent/exponentPlatform";
 import { MacOSPlatform } from "./macos/macOSPlatform";
 
@@ -17,7 +17,7 @@ export class PlatformResolver {
         mobilePlatformString: string,
         runOptions: IRunOptions,
         platformDeps: MobilePlatformDeps,
-    ): GeneralMobilePlatform {
+    ): GeneralPlatform {
         switch (mobilePlatformString) {
             // We lazyly load the strategies, because some components might be
             // missing on some platforms (like XCode in Windows)
@@ -32,7 +32,7 @@ export class PlatformResolver {
             case PlatformType.macOS:
                 return new MacOSPlatform(runOptions, platformDeps);
             default:
-                return new GeneralMobilePlatform(runOptions, platformDeps);
+                return new GeneralPlatform(runOptions, platformDeps);
         }
     }
 }

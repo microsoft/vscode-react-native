@@ -13,7 +13,7 @@ export interface ILaunchArgs {
     projectRoot: string;
     nodeModulesRoot: string;
     reactNativeVersions: RNPackageVersions;
-    target?: DeviceType;
+    target?: string;
     debugAdapterPort?: number;
     packagerPort?: any;
     runArguments?: string[];
@@ -22,8 +22,6 @@ export interface ILaunchArgs {
     isDirect?: boolean;
     enableDebug?: boolean;
 }
-
-export type DeviceType = "simulator" | "device";
 
 export enum PlatformType {
     Android = "android",

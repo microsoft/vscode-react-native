@@ -2,11 +2,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as assert from "assert";
-import { GeneralMobilePlatform } from "../../src/extension/generalMobilePlatform";
+import { GeneralPlatform } from "../../src/extension/generalPlatform";
 import * as fs from "fs";
 import * as path from "path";
 
-suite("generalMobilePlatform", function () {
+suite("GeneralPlatform", function () {
     suite("extensionContext", function () {
         suite("getEnvArgument", function () {
             const origEnv: any = { test1: "origEnv", test2: "origEnv", test3: "origEnv" };
@@ -38,29 +38,23 @@ suite("generalMobilePlatform", function () {
             });
 
             test("existing args should not should not depend on the existence of the envFile", function () {
-                assert.deepEqual(
-                    GeneralMobilePlatform.getEnvArgument(origEnv, undefined, fakeEnvFile),
-                    {
-                        test1: "origEnv",
-                        test2: "origEnv",
-                        test3: "origEnv",
-                    },
-                );
+                assert.deepEqual(GeneralPlatform.getEnvArgument(origEnv, undefined, fakeEnvFile), {
+                    test1: "origEnv",
+                    test2: "origEnv",
+                    test3: "origEnv",
+                });
             });
 
             test("existing args should not depend on null or undefined env and envFile", function () {
-                assert.deepEqual(
-                    GeneralMobilePlatform.getEnvArgument(origEnv, undefined, undefined),
-                    {
-                        test1: "origEnv",
-                        test2: "origEnv",
-                        test3: "origEnv",
-                    },
-                );
+                assert.deepEqual(GeneralPlatform.getEnvArgument(origEnv, undefined, undefined), {
+                    test1: "origEnv",
+                    test2: "origEnv",
+                    test3: "origEnv",
+                });
             });
 
             test("args from envFile should not overwrite existing variables", function () {
-                assert.deepEqual(GeneralMobilePlatform.getEnvArgument(origEnv, null, envFile), {
+                assert.deepEqual(GeneralPlatform.getEnvArgument(origEnv, null, envFile), {
                     test1: "origEnv",
                     test2: "origEnv",
                     test3: "origEnv",
@@ -70,7 +64,7 @@ suite("generalMobilePlatform", function () {
             });
 
             test("args from envFile and original args should be overwritten by env args", function () {
-                assert.deepEqual(GeneralMobilePlatform.getEnvArgument(origEnv, env, envFile), {
+                assert.deepEqual(GeneralPlatform.getEnvArgument(origEnv, env, envFile), {
                     test1: "origEnv",
                     test2: "env",
                     test3: "env",
@@ -89,7 +83,7 @@ suite("generalMobilePlatform", function () {
                 test("should return undefined if arguments are empty", function () {
                     const args: any[] = [];
                     assert.strictEqual(
-                        GeneralMobilePlatform.getOptFromRunArgs(args, "--param1", true),
+                        GeneralPlatform.getOptFromRunArgs(args, "--param1", true),
                         undefined,
                     );
                 });
@@ -97,15 +91,15 @@ suite("generalMobilePlatform", function () {
                 test("should return correct result for binary parameters", function () {
                     const args: any[] = ["--param1", "param2"];
                     assert.strictEqual(
-                        GeneralMobilePlatform.getOptFromRunArgs(args, "--param1", true),
+                        GeneralPlatform.getOptFromRunArgs(args, "--param1", true),
                         true,
                     );
                     assert.strictEqual(
-                        GeneralMobilePlatform.getOptFromRunArgs(args, "param2", true),
+                        GeneralPlatform.getOptFromRunArgs(args, "param2", true),
                         true,
                     );
                     assert.strictEqual(
-                        GeneralMobilePlatform.getOptFromRunArgs(args, "--unknown", true),
+                        GeneralPlatform.getOptFromRunArgs(args, "--unknown", true),
                         undefined,
                     );
                 });
@@ -119,27 +113,27 @@ suite("generalMobilePlatform", function () {
                         "param4value4",
                     ];
                     assert.strictEqual(
-                        GeneralMobilePlatform.getOptFromRunArgs(args, "--param1", false),
+                        GeneralPlatform.getOptFromRunArgs(args, "--param1", false),
                         "value1",
                     );
                     assert.strictEqual(
-                        GeneralMobilePlatform.getOptFromRunArgs(args, "--param2", false),
+                        GeneralPlatform.getOptFromRunArgs(args, "--param2", false),
                         "value2",
                     );
                     assert.strictEqual(
-                        GeneralMobilePlatform.getOptFromRunArgs(args, "--param1"),
+                        GeneralPlatform.getOptFromRunArgs(args, "--param1"),
                         "value1",
                     );
                     assert.strictEqual(
-                        GeneralMobilePlatform.getOptFromRunArgs(args, "--param2"),
+                        GeneralPlatform.getOptFromRunArgs(args, "--param2"),
                         "value2",
                     );
                     assert.strictEqual(
-                        GeneralMobilePlatform.getOptFromRunArgs(args, "param3", false),
+                        GeneralPlatform.getOptFromRunArgs(args, "param3", false),
                         "value3",
                     );
                     assert.strictEqual(
-                        GeneralMobilePlatform.getOptFromRunArgs(args, "param4", false),
+                        GeneralPlatform.getOptFromRunArgs(args, "param4", false),
                         undefined,
                     );
                 });
@@ -151,23 +145,19 @@ suite("generalMobilePlatform", function () {
                 });
 
                 test("existing binary parameter should be removed from runArguments", function () {
-                    GeneralMobilePlatform.removeRunArgument(mockRunArguments, binaryParam, true);
+                    GeneralPlatform.removeRunArgument(mockRunArguments, binaryParam, true);
                     assert.deepEqual(mockRunArguments, [paramWithValue, "value"]);
                 });
 
                 test("existing parameter and its value should be removed from runArguments", function () {
-                    GeneralMobilePlatform.removeRunArgument(
-                        mockRunArguments,
-                        paramWithValue,
-                        false,
-                    );
+                    GeneralPlatform.removeRunArgument(mockRunArguments, paramWithValue, false);
                     assert.deepEqual(mockRunArguments, [binaryParam]);
                 });
 
                 test("nothing should happen if try to remove not existing parameter", function () {
-                    GeneralMobilePlatform.removeRunArgument(mockRunArguments, "--undefined", false);
+                    GeneralPlatform.removeRunArgument(mockRunArguments, "--undefined", false);
                     assert.deepEqual(mockRunArguments, [paramWithValue, "value", binaryParam]);
-                    GeneralMobilePlatform.removeRunArgument(mockRunArguments, "--undefined", true);
+                    GeneralPlatform.removeRunArgument(mockRunArguments, "--undefined", true);
                     assert.deepEqual(mockRunArguments, [paramWithValue, "value", binaryParam]);
                 });
             });
@@ -178,11 +168,7 @@ suite("generalMobilePlatform", function () {
                 });
 
                 test("new binary parameter should be added to runArguments", function () {
-                    GeneralMobilePlatform.setRunArgument(
-                        mockRunArguments,
-                        "--newBinaryParam",
-                        true,
-                    );
+                    GeneralPlatform.setRunArgument(mockRunArguments, "--newBinaryParam", true);
                     assert.deepEqual(mockRunArguments, [
                         paramWithValue,
                         "value",
@@ -192,7 +178,7 @@ suite("generalMobilePlatform", function () {
                 });
 
                 test("new parameter with value and its value should be added to runArguments", function () {
-                    GeneralMobilePlatform.setRunArgument(
+                    GeneralPlatform.setRunArgument(
                         mockRunArguments,
                         "--newParamWithValue",
                         "itsValue",
@@ -207,25 +193,17 @@ suite("generalMobilePlatform", function () {
                 });
 
                 test("value of existing parameter with value should be overwritten by new value", function () {
-                    GeneralMobilePlatform.setRunArgument(
-                        mockRunArguments,
-                        paramWithValue,
-                        "newValue",
-                    );
+                    GeneralPlatform.setRunArgument(mockRunArguments, paramWithValue, "newValue");
                     assert.deepEqual(mockRunArguments, [paramWithValue, "newValue", binaryParam]);
                 });
 
                 test("new binary parameter should not be added to runArguments if its value if false", function () {
-                    GeneralMobilePlatform.setRunArgument(
-                        mockRunArguments,
-                        "--newBinaryParam",
-                        false,
-                    );
+                    GeneralPlatform.setRunArgument(mockRunArguments, "--newBinaryParam", false);
                     assert.deepEqual(mockRunArguments, [paramWithValue, "value", binaryParam]);
                 });
 
                 test("existing binary parameter should be removed from runArguments if its value if false", function () {
-                    GeneralMobilePlatform.setRunArgument(mockRunArguments, binaryParam, false);
+                    GeneralPlatform.setRunArgument(mockRunArguments, binaryParam, false);
                     assert.deepEqual(mockRunArguments, [paramWithValue, "value"]);
                 });
             });

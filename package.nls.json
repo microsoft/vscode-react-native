@@ -4,6 +4,7 @@
   "reactNative.workspaceTrust.description": "Trust is required to debug code in this workspace.",
   "reactNative.virtualWorkspaces.description": "Debugging is not possible in virtual workspaces.",
   "reactNative.command.launchAndroidSimulator.title": "Launch Android Emulator",
+  "reactNative.command.launchIOSSimulator.title": "Launch iOS Simulator",
   "reactNative.command.selectAndInsertDebugConfiguration.title": "Select a React Native debug configuration",
   "reactNative.command.runAndroidSimulator.title": "Run Android on Emulator",
   "reactNative.command.runAndroidDevice.title": "Run Android on Device",

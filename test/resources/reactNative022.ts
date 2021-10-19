@@ -148,7 +148,7 @@ export class ReactNative022 {
     }
 
     private installAppInAllDevices(): Promise<void> {
-        let devices = this.adbHelper.getConnectedDevices();
+        let devices = this.adbHelper.getConnectedTargets();
         return PromiseUtil.reduce(devices, device => this.installAppInDevice(device.id));
     }
 

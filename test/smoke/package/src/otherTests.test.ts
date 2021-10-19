@@ -64,7 +64,7 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
 
         // Android tests
         if (!testParameters || testParameters.RunAndroidTests) {
-            it("Save Android emulator test", async function () {
+            it("Select and save Android emulator test", async function () {
                 this.timeout(debugAndroidTestTime);
                 const launchConfigurationManager = new LaunchConfigurationManager(
                     project.workspaceDirectory,
@@ -74,22 +74,47 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
                     `Save Android emulator test (first launch)`,
                 );
                 SmokeTestLogger.info(
-                    "Android emulator save test: Terminating all Android emulators",
+                    "Select and save Android emulator test: Terminating all Android emulators",
                 );
                 await AndroidEmulatorManager.terminateAllAndroidEmulators();
                 SmokeTestLogger.info(
-                    "Android emulator save test: Starting debugging in first time",
+                    `Select and save Android emulator test: Set target field value to 'simulator' for debug config with name ${AndroidRNDebugConfigName}`,
+                );
+                launchConfigurationManager.updateLaunchScenario(AndroidRNDebugConfigName, {
+                    target: "simulator",
+                });
+                SmokeTestLogger.info(
+                    "Select and save Android emulator test: Starting debugging for the first time",
                 );
                 await automationHelper.runDebugScenarioWithRetry(AndroidRNDebugConfigName);
-                SmokeTestLogger.info("Android emulator save test: Debugging started in first time");
-                SmokeTestLogger.info("Android emulator save test: Wait until emulator starting");
+                SmokeTestLogger.info(
+                    "Select and save Android emulator test: Debugging started for the first time",
+                );
+                SmokeTestLogger.info(
+                    "Select and save Android emulator test: Wait for open quick pick",
+                );
+                try {
+                    await app.workbench.quickinput.waitForQuickInputOpened(150);
+                    SmokeTestLogger.info(
+                        "Select and save Android emulator test: Quick pick is opened",
+                    );
+                    await app.workbench.quickinput.submit(androidEmulatorManager.getEmulatorName());
+                    SmokeTestLogger.info(
+                        `Select and save Android emulator test: Emulator ${androidEmulatorManager.getEmulatorName()} is selected`,
+                    );
+                } catch {
+                    return this.skip();
+                }
+                SmokeTestLogger.info(
+                    "Select and save Android emulator test: Wait until emulator starting",
+                );
                 await androidEmulatorManager.waitUntilEmulatorStarting();
                 const isScenarioUpdated = await launchConfigurationManager.waitUntilLaunchScenarioUpdate(
                     { target: androidEmulatorManager.getEmulatorName() },
                     AndroidRNDebugConfigName,
                 );
                 SmokeTestLogger.info(
-                    `Android emulator save test: launch.json is ${
+                    `Select and save Android emulator test: launch.json is ${
                         isScenarioUpdated ? "" : "not "
                     }contains '"target": "${androidEmulatorManager.getEmulatorName()}"'`,
                 );
@@ -98,22 +123,22 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
                     false,
                     "The launch.json has not been updated",
                 );
-                SmokeTestLogger.info("Android emulator save test: Dispose all");
+                SmokeTestLogger.info("Select and save Android emulator test: Dispose all");
                 await disposeAll();
                 app = await initApp(
                     project.workspaceDirectory,
                     `Save Android emulator test (second launch)`,
                 );
                 SmokeTestLogger.info(
-                    "Android emulator save test: Terminating all Android emulators",
+                    "Select and save Android emulator test: Terminating all Android emulators",
                 );
                 await AndroidEmulatorManager.terminateAllAndroidEmulators();
                 SmokeTestLogger.info(
-                    "Android emulator save test: Starting debugging in second time",
+                    "Select and save Android emulator test: Starting debugging in second time",
                 );
                 await automationHelper.runDebugScenarioWithRetry(AndroidRNDebugConfigName);
                 SmokeTestLogger.info(
-                    "Android emulator save test: Debugging started in second time",
+                    "Select and save Android emulator test: Debugging started in second time",
                 );
                 const emulatorIsStarted = await androidEmulatorManager.waitUntilEmulatorStarting();
                 assert.strictEqual(
@@ -126,7 +151,7 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
 
         // iOS tests
         if (process.platform === "darwin" && (!testParameters || testParameters.RunIosTests)) {
-            it("Save iOS simulator test", async function () {
+            it("Select and Select and save iOS simulator test", async function () {
                 let simulator = iosSimulatorManager.getSimulator();
                 this.timeout(debugIosTestTime);
                 const launchConfigurationManager = new LaunchConfigurationManager(
@@ -135,7 +160,10 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
                 await IosSimulatorManager.shutdownAllSimulators();
                 app = await initApp(
                     project.workspaceDirectory,
-                    `Save iOS simulator test (first launch)`,
+                    `Select and save iOS simulator test (first launch)`,
+                );
+                SmokeTestLogger.info(
+                    `iOS simulator select and save test: Set target field value to 'simulator' for debug config with name ${AndroidRNDebugConfigName}`,
                 );
                 launchConfigurationManager.updateLaunchScenario(IosRNDebugConfigName, {
                     target: "simulator",
@@ -143,11 +171,11 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
                 await sleep(10000);
                 await IosSimulatorManager.shutdownAllSimulators();
                 SmokeTestLogger.info(
-                    "iOS simulator save test: Starting debugging at the first time",
+                    "iOS simulator select and save test: Starting debugging at the first time",
                 );
                 await automationHelper.runDebugScenarioWithRetry(IosRNDebugConfigName);
                 SmokeTestLogger.info(
-                    "iOS simulator save test: Debugging started at the first time",
+                    "iOS simulator select and save test: Debugging started at the first time",
                 );
                 await app.workbench.quickinput.waitForQuickInputOpened();
                 await app.workbench.quickinput.inputAndSelect(simulator.system);
@@ -163,7 +191,7 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
                     IosRNDebugConfigName,
                 );
                 SmokeTestLogger.info(
-                    `iOS simulator save test: there is ${
+                    `iOS simulator select and save test: there is ${
                         isScenarioUpdated ? "" : "no"
                     } '"target": "${simulator.id}"' in launch.json`,
                 );
@@ -176,14 +204,14 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
                 await IosSimulatorManager.shutdownAllSimulators();
                 app = await initApp(
                     project.workspaceDirectory,
-                    `Save iOS simulator test (second launch)`,
+                    `Select and save iOS simulator test (second launch)`,
                 );
                 SmokeTestLogger.info(
-                    "iOS simulator save test: Starting debugging at the second time",
+                    "iOS simulator select and save test: Starting debugging at the second time",
                 );
                 await automationHelper.runDebugScenarioWithRetry(IosRNDebugConfigName);
                 SmokeTestLogger.info(
-                    "iOS simulator save test: Debugging started at the second time",
+                    "iOS simulator select and save test: Debugging started at the second time",
                 );
                 isStarted = await iosSimulatorManager.waitUntilIosSimulatorStarting();
                 assert.strictEqual(

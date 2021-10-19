@@ -318,9 +318,21 @@ export const ERROR_STRINGS = {
         "FailedToStartAndroidEmulator",
         'The command "emulator -avd {0}" threw an exception: {1}',
     ),
-    [InternalErrorCode.VirtualDeviceSelectionError]: localize(
-        "VirtualDeviceSelectionError",
-        "Virtual device launch finished with an exception: {0}",
+    [InternalErrorCode.FailedToStartIOSSimulator]: localize(
+        "FailedToStartIOSSimulator",
+        'The command "xrun simctl boot {0}" threw an exception: {1}',
+    ),
+    [InternalErrorCode.AndroidThereIsNoAnyOnlineDebuggableTarget]: localize(
+        "AndroidThereIsNoAnyOnlineDebuggableTarget",
+        "There is no any Android debuggable online target",
+    ),
+    [InternalErrorCode.IOSThereIsNoAnyDebuggableTarget]: localize(
+        "IOSThereIsNoAnyDebuggableTarget",
+        "There is no any iOS debuggable target",
+    ),
+    [InternalErrorCode.TargetSelectionError]: localize(
+        "TargetSelectionError",
+        "The target launch finished with an exception: {0}",
     ),
     [InternalErrorCode.ReactNativemacOSIsNotInstalled]: localize(
         "ReactNativemacOSIsNotInstalled",

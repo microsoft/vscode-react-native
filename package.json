@@ -55,6 +55,12 @@
         "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       },
       {
+        "command": "reactNative.launchIOSSimulator",
+        "title": "%reactNative.command.launchIOSSimulator.title%",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
+      },
+      {
         "command": "reactNative.runAndroidSimulator",
         "title": "%reactNative.command.runAndroidSimulator.title%",
         "category": "React Native",
