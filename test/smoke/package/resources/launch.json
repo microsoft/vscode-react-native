@@ -41,6 +41,22 @@
       "trace": "verbose"
     },
     {
+      "name": "Run iOS Hermes - Experimental",
+      "request": "launch",
+      "type": "reactnativedirect",
+      "cwd": "${workspaceFolder}",
+      "enableDebug": false,
+      "platform": "ios"
+  },
+  {
+      "name": "Run Android Hermes - Experimental",
+      "request": "launch",
+      "type": "reactnativedirect",
+      "cwd": "${workspaceFolder}",
+      "enableDebug": false,
+      "platform": "android"
+  },
+    {
       "name": "Attach to Hermes application - Experimental",
       "cwd": "${workspaceFolder}",
       "type": "reactnativedirect",

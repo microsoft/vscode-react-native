@@ -19,11 +19,12 @@ import {
 } from "./helpers/utilities";
 import { androidEmulatorManager, iosSimulatorManager, vscodeManager } from "./main";
 import AutomationHelper from "./helpers/AutomationHelper";
+import { LaunchConfigurationManager } from "./helpers/launchConfigurationManager";
 
 const RunNetworkInspectorCommand = "Run Network Inspector";
 const StopNetworkInspectorCommand = "Stop Network Inspector";
-const RunAndroidOnEmulatorCommand = "Run Android on Emulator";
-const RunIOSOnSimulatorCommand = "Run iOS on Simulator";
+const RNAndroidHermesDebugConfigName = "Run Android Hermes - Experimental";
+const RNIosHermesDebugConfigName = "Run iOS Hermes - Experimental";
 
 const HERMES_APP_PACKAGE_NAME = `com.${SmokeTestsConstants.HermesAppName.toLocaleLowerCase()}`;
 const HERMES_APP_BUNDLE_ID = `org.reactjs.native.example.${SmokeTestsConstants.HermesAppName}`;
@@ -132,14 +133,27 @@ export function startNetworkInspectorTests(
             }
 
             app = await initApp(project.workspaceDirectory, testname);
-            const runApplicationCommand =
-                platform === Platform.Android
-                    ? RunAndroidOnEmulatorCommand
-                    : RunIOSOnSimulatorCommand;
+            let debugConfigName = "";
+            switch (platform) {
+                case Platform.Android: {
+                    debugConfigName = RNAndroidHermesDebugConfigName;
+                    break;
+                }
+                case Platform.iOS: {
+                    debugConfigName = RNIosHermesDebugConfigName;
+                    // We need to implicitly add target to "Debug iOS" configuration to avoid running additional simulator
+                    new LaunchConfigurationManager(
+                        project.workspaceDirectory,
+                    ).updateLaunchScenario(RNIosHermesDebugConfigName, {
+                        target: iosSimulatorManager.getSimulator().id,
+                    });
+                    break;
+                }
+            }
             SmokeTestLogger.info(
-                `${testname}: Launching the application on an ${platform} emulator via the command ${runApplicationCommand}`,
+                `${testname}: Launching the application on an ${platform} emulator via debug config '${debugConfigName}'`,
             );
-            await automationHelper.runCommandWithRetry(runApplicationCommand);
+            await automationHelper.runDebugScenarioWithRetry(debugConfigName);
             let appiumOpts: any;
             switch (platform) {
                 case Platform.Android: {
