@@ -92,4 +92,10 @@ export class QuickAccess {
         // wait and click on the best choice
         await this.code.waitAndClick(QuickInput.QUICK_INPUT_FOCUSED_ELEMENT);
     }
+
+    public async openDynamicDebugScenarios(scenario: string, index: number): Promise<void> {
+        await this.openQuickAccess(`debug ${scenario}`);
+        // wait and click on needed item
+        await this.quickInput.selectQuickInputElement(index, false);
+    }
 }

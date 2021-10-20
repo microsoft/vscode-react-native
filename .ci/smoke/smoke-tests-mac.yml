@@ -13,7 +13,7 @@ jobs:
   - job: macOS
     pool:
       name: "React Native smoke tests - macOS"
-    timeoutInMinutes: 90
+    timeoutInMinutes: 95
     steps:
       - checkout: self
         clean: true

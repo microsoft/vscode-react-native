@@ -15,6 +15,7 @@ import { smokeTestFail } from "./helpers/utilities";
 import { startLocalizationTests } from "./localization.test";
 import { testApplicationSetupManager } from "./main";
 import { startReactNativeTests } from "./nativeDebug.test";
+import { startDebuggingViaDynamicConfigsTests } from "./debugViaDynamicConfigs.test";
 import { startDebugScenariosCreationTests } from "./debugScenariosCreation.test";
 import { startOtherTests } from "./otherTests.test";
 import { startNetworkInspectorTests } from "./networkInspector.test";
@@ -75,6 +76,7 @@ export function startSmokeTests(
             args,
         );
         startNetworkInspectorTests(testApplicationSetupManager.getHermesProject(), args);
+        startDebuggingViaDynamicConfigsTests(testApplicationSetupManager.getRnProject());
         startOtherTests(testApplicationSetupManager.getRnProject(), args);
     });
 }
