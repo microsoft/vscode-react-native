@@ -83,7 +83,7 @@ export function startDebuggingViaDynamicConfigsTests(project: TestProject): void
             SmokeTestLogger.info(
                 "Start 'Debug Android' dynamic config test: open React Native Tools dynamic debug configurations",
             );
-            await this.app.workbench.quickaccess.openDynamicDebugScenarios("React Native...", 1);
+            await app.workbench.quickaccess.openDynamicDebugScenarios("React Native...", 1);
             SmokeTestLogger.info(
                 "Start 'Debug Android' dynamic config test: select and run 'Debug Android' debug config",
             );
@@ -113,7 +113,7 @@ export function startDebuggingViaDynamicConfigsTests(project: TestProject): void
             SmokeTestLogger.info(
                 "Start 'Attach to packager' dynamic config test: open React Native Tools dynamic debug configurations",
             );
-            await this.app.workbench.quickaccess.openDynamicDebugScenarios("React Native...", 1);
+            await app.workbench.quickaccess.openDynamicDebugScenarios("React Native...", 1);
             SmokeTestLogger.info(
                 "Start 'Attach to packager' dynamic config test: select and run 'Attach to packager' debug config",
             );

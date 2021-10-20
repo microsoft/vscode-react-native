@@ -138,7 +138,7 @@ export class ReactNativeDebugDynamicConfigProvider implements vscode.DebugConfig
         const picker = new MultiStepInput<DebugConfigurationState>();
         const configurationProviderHelper = new ConfigurationProviderHelper();
         await picker.run(async (input, s) => {
-            configurationProviderHelper.selectExpoHostType(input, s.config, 1, 1);
+            await configurationProviderHelper.selectExpoHostType(input, s.config, 1, 1);
         }, state);
 
         return config;
