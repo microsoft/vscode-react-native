@@ -56,6 +56,7 @@ export function startSmokeTests(
 
         startLocalizationTests(testApplicationSetupManager.getRnProject());
         startDebugScenariosCreationTests(testApplicationSetupManager.getRnProject());
+        startDebuggingViaDynamicConfigsTests(testApplicationSetupManager.getRnProject());
 
         SmokeTestLogger.info("*** Smoke tests will be run");
         startReactNativeTests(testApplicationSetupManager.getRnProject(), args);
@@ -76,7 +77,6 @@ export function startSmokeTests(
             args,
         );
         startNetworkInspectorTests(testApplicationSetupManager.getHermesProject(), args);
-        startDebuggingViaDynamicConfigsTests(testApplicationSetupManager.getRnProject());
         startOtherTests(testApplicationSetupManager.getRnProject(), args);
     });
 }
