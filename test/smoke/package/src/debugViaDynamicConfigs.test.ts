@@ -84,6 +84,7 @@ export function startDebuggingViaDynamicConfigsTests(project: TestProject): void
                 "Start 'Debug Android' dynamic config test: open React Native Tools dynamic debug configurations",
             );
             await app.workbench.quickaccess.openDynamicDebugScenarios("React Native...", 1);
+            await sleep(40 * 1000);
             SmokeTestLogger.info(
                 "Start 'Debug Android' dynamic config test: select and run 'Debug Android' debug config",
             );
@@ -114,15 +115,18 @@ export function startDebuggingViaDynamicConfigsTests(project: TestProject): void
                 "Start 'Attach to packager' dynamic config test: open React Native Tools dynamic debug configurations",
             );
             await app.workbench.quickaccess.openDynamicDebugScenarios("React Native...", 1);
+            await sleep(40 * 1000);
             SmokeTestLogger.info(
                 "Start 'Attach to packager' dynamic config test: select and run 'Attach to packager' debug config",
             );
             await app.workbench.quickinput.selectQuickInputElement(1, false);
             const hostAddress = "127.0.0.1";
+            await sleep(40 * 1000);
             SmokeTestLogger.info(
                 `Start 'Attach to packager' dynamic config test: enter ${hostAddress} address`,
             );
             await app.workbench.quickinput.inputAndSelect(hostAddress);
+            await sleep(40 * 1000);
             SmokeTestLogger.info(
                 "Start 'Attach to packager' dynamic config test: skip port changing",
             );
