@@ -593,7 +593,8 @@ export class CommandPaletteHandler {
             throw new Error(
                 localize(
                     "CouldNotFindPredefinedDebugConfig",
-                    "Couldn't find predefined debugging configuration by name {0}",
+                    "Couldn't find predefined debugging configuration by name '{0}'",
+                    debugConfigName,
                 ),
             );
         }
