@@ -91,7 +91,9 @@ export class ReactNativeProjectHelper {
         }
 
         const experimentalFeaturesContent = fs.readFileSync(experimentalFeaturesPath, "utf-8");
-        const hermesEnabled = /<UseHermes>true<\/UseHermes>/.test(experimentalFeaturesContent);
+        const hermesEnabled = /<UseHermes>\s*true\s*<\/UseHermes>/.test(
+            experimentalFeaturesContent,
+        );
         return hermesEnabled;
     }
 }
