@@ -125,7 +125,7 @@ To run React Native Tools commands via VS Code tasks, you can create a `.vscode/
 
 # Debugging React Native applications
 
-To start debugging create a new debug configuration for your ReactNative app in your `.vscode/launch.json`. Adding a new configuration can be done by opening your `launch.json` file and clicking on `Add Configuration...` button and choosing a relevant debug configuration. All available debug configurations for ReactNative can be accessed by typing in _ReactNative_ and picking one from the list populated by Intellisense as shown in the image below.
+To start debugging create a new debug configuration for your ReactNative app in your `.vscode/launch.json`. Adding a new configuration can be done by opening your `launch.json` file and clicking on `Add Configuration...` button and then selecting `React Native` option. After that the extension will prompt you to create a debugging configuration by selecting debugging parameters in dropdown lists at the top of the editor. A new debugging configuration will be generated and added to the `launch.json` file automatically as shown in the image below.
 
 ![Add React Native debug configuration](images/add-debug-configuration.gif)
 
@@ -136,6 +136,20 @@ In case you haven't created the `.vscode/launch.json` file yet, you can add a wh
 VS Code will generate a `launch.json` in your project with some default configuration settings as shown below. You can safely close this file, choose the appropriate configuration in the Configuration dropdown, and then press F5 (or click _Green Arrow_ ![Configure-gear](images/debug-icon.png) button) to start debugging your app in VS Code.
 
 ![React Native launch targets](images/debug-targets.png)
+
+The extension also allows to start debugging without creating the `launch.json` file the following ways:
+
+- Using dynamic debugging configurations
+
+  To use dynamic debugging configurations you can click on `Show all automatic degub configurations` string in the `Run and Debug` panel, then select `React Native` in the list of extensions and choose the appropriate configuration in the Configuration list to start debugging.
+
+  ![Run dynamic debugging configuration](images/dynamic-debugging-configuration.gif)
+
+- Using `Debug` button in the Editor Title area menu
+
+  To start debugging you can click the Debug button in the Editor Title area in the upper right corner. You can also select the appropriate debugging scenario by clicking the dropdown button beside the Debug button and choosing the scenario.
+
+  ![Select and run debugging command](images/debug-commands-button.png)
 
 Once app is loaded and running, [open the developer menu](https://reactnative.dev/docs/debugging#accessing-the-in-app-developer-menu) inside your application and enable remote debugging by clicking on `Debug JS Remotely` button.
 

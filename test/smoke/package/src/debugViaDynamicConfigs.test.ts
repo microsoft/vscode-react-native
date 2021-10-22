@@ -81,7 +81,7 @@ export function startDebuggingViaDynamicConfigsTests(project: TestProject): void
                 "Start 'Debug Android' dynamic config test",
             );
             // We need to wait a bit to let the extension activate
-            await sleep(20 * 1000);
+            await sleep(15 * 1000);
             SmokeTestLogger.info(
                 "Start 'Debug Android' dynamic config test: open React Native Tools dynamic debug configurations",
             );
@@ -113,7 +113,7 @@ export function startDebuggingViaDynamicConfigsTests(project: TestProject): void
                 "Start 'Attach to packager' dynamic config test",
             );
             // We need to wait a bit to let the extension activate
-            await sleep(20 * 1000);
+            await sleep(15 * 1000);
             SmokeTestLogger.info(
                 "Start 'Attach to packager' dynamic config test: open React Native Tools dynamic debug configurations",
             );
