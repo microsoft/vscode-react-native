@@ -6,7 +6,7 @@ import * as semver from "semver";
 
 import { ChildProcess } from "../../common/node/childProcess";
 import { CommandExecutor } from "../../common/commandExecutor";
-import { GeneralMobilePlatform, MobilePlatformDeps, TargetType } from "../generalMobilePlatform";
+import { MobilePlatformDeps, TargetType } from "../generalPlatform";
 import { IIOSRunOptions, PlatformType } from "../launchArgs";
 import { PlistBuddy } from "./plistBuddy";
 import { IOSDebugModeManager } from "./iOSDebugModeManager";
@@ -15,7 +15,9 @@ import { TelemetryHelper } from "../../common/telemetryHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import * as nls from "vscode-nls";
 import { AppLauncher } from "../appLauncher";
-import { IiOSSimulator, IOSSimulatorManager } from "./iOSSimulatorManager";
+import { GeneralMobilePlatform } from "../generalMobilePlatform";
+import { IDebuggableIOSTarget, IOSTarget, IOSTargetManager } from "./iOSTargetManager";
+import { ErrorHelper } from "../../common/error/errorHelper";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -26,13 +28,13 @@ export class IOSPlatform extends GeneralMobilePlatform {
     public static DEFAULT_IOS_PROJECT_RELATIVE_PATH = "ios";
 
     private plistBuddy = new PlistBuddy();
-    private targetType: TargetType = "simulator";
     private iosProjectRoot: string;
     private iosDebugModeManager: IOSDebugModeManager;
-    private simulatorManager: IOSSimulatorManager;
 
     private defaultConfiguration: string = "Debug";
     private configurationArgumentName: string = "--configuration";
+
+    protected target?: IOSTarget;
 
     // We should add the common iOS build/run errors we find to this list
     private static RUN_IOS_FAILURE_PATTERNS: PatternToFailure[] = [
@@ -52,27 +54,10 @@ export class IOSPlatform extends GeneralMobilePlatform {
 
     private static readonly RUN_IOS_SUCCESS_PATTERNS = ["BUILD SUCCEEDED"];
 
-    public showDevMenu(appLauncher: AppLauncher): Promise<void> {
-        const worker = appLauncher.getAppWorker();
-        if (worker) {
-            worker.showDevMenuCommand();
-        }
-
-        return Promise.resolve();
-    }
-
-    public reloadApp(appLauncher: AppLauncher): Promise<void> {
-        const worker = appLauncher.getAppWorker();
-        if (worker) {
-            worker.reloadAppCommand();
-        }
-        return Promise.resolve();
-    }
-
     constructor(protected runOptions: IIOSRunOptions, platformDeps: MobilePlatformDeps = {}) {
         super(runOptions, platformDeps);
 
-        this.simulatorManager = new IOSSimulatorManager();
+        this.targetManager = new IOSTargetManager();
         this.runOptions.configuration = this.getConfiguration();
 
         if (this.runOptions.iosRelativeProjectPath) {
@@ -102,70 +87,67 @@ export class IOSPlatform extends GeneralMobilePlatform {
             this.projectPath,
             schemeFromArgs ? schemeFromArgs : this.runOptions.scheme,
         );
-
-        if (this.runArguments && this.runArguments.length > 0) {
-            this.targetType =
-                this.runArguments.indexOf(`--${IOSPlatform.deviceString}`) >= 0
-                    ? IOSPlatform.deviceString
-                    : IOSPlatform.simulatorString;
-            return;
-        }
-
-        if (
-            this.runOptions.target &&
-            this.runOptions.target !== IOSPlatform.simulatorString &&
-            this.runOptions.target !== IOSPlatform.deviceString
-        ) {
-            this.targetType = IOSPlatform.simulatorString;
-            return;
-        }
-
-        this.targetType = this.runOptions.target || IOSPlatform.simulatorString;
     }
 
-    public resolveVirtualDevice(target: string): Promise<IiOSSimulator | null> {
-        if (target === "simulator") {
-            return this.simulatorManager
-                .startSelection()
-                .then((simulatorName: string | undefined) => {
-                    if (simulatorName) {
-                        const simulator = this.simulatorManager.findSimulator(simulatorName);
-                        if (simulator) {
-                            GeneralMobilePlatform.removeRunArgument(
-                                this.runArguments,
-                                "--simulator",
-                                true,
+    public async getTarget(): Promise<IOSTarget> {
+        if (!this.target) {
+            const targetFromRunArgs = await this.getTargetFromRunArgs();
+            if (targetFromRunArgs) {
+                this.target = targetFromRunArgs;
+            } else {
+                const targets = (await this.targetManager.getTargetList()) as IDebuggableIOSTarget[];
+                const targetsBySpecifiedType = targets.filter(target => {
+                    switch (this.runOptions.target) {
+                        case TargetType.Simulator:
+                            return target.isVirtualTarget;
+                        case TargetType.Device:
+                            return !target.isVirtualTarget;
+                        case undefined:
+                        case "":
+                            return true;
+                        default:
+                            return (
+                                target.id === this.runOptions.target ||
+                                target.name === this.runOptions.target
                             );
-                            GeneralMobilePlatform.setRunArgument(
-                                this.runArguments,
-                                "--udid",
-                                simulator.id,
-                            );
-                        }
-                        return simulator;
-                    } else {
-                        return null;
                     }
                 });
-        } else if (!target.includes("device")) {
-            return this.simulatorManager.collectSimulators().then(simulators => {
-                let simulator = this.simulatorManager.getSimulatorById(target, simulators);
-                if (simulator) {
-                    GeneralMobilePlatform.removeRunArgument(
-                        this.runArguments,
-                        "--simulator",
-                        false,
+                if (targetsBySpecifiedType.length) {
+                    this.target = IOSTarget.fromInterface(targetsBySpecifiedType[0]);
+                } else if (targets.length) {
+                    this.logger.warning(
+                        localize(
+                            "ThereIsNoTargetWithSpecifiedTargetType",
+                            "There is no any target with specified target type '{0}'. Continue with any target.",
+                            this.runOptions.target,
+                        ),
                     );
-                    GeneralMobilePlatform.setRunArgument(this.runArguments, "--udid", simulator.id);
+                    this.target = IOSTarget.fromInterface(targets[0]);
+                } else {
+                    throw ErrorHelper.getInternalError(
+                        InternalErrorCode.IOSThereIsNoAnyDebuggableTarget,
+                    );
                 }
-                return null;
-            });
-        } else {
-            return Promise.resolve(null);
+            }
+        }
+        return this.target;
+    }
+
+    public async showDevMenu(appLauncher: AppLauncher): Promise<void> {
+        const worker = appLauncher.getAppWorker();
+        if (worker) {
+            worker.showDevMenuCommand();
         }
     }
 
-    public runApp(): Promise<void> {
+    public async reloadApp(appLauncher: AppLauncher): Promise<void> {
+        const worker = appLauncher.getAppWorker();
+        if (worker) {
+            worker.reloadAppCommand();
+        }
+    }
+
+    public async runApp(): Promise<void> {
         let extProps = {
             platform: {
                 value: PlatformType.iOS,
@@ -179,7 +161,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
             extProps,
         );
 
-        return TelemetryHelper.generate("iOSPlatform.runApp", extProps, () => {
+        await TelemetryHelper.generate("iOSPlatform.runApp", extProps, async () => {
             // Compile, deploy, and launch the app on either a simulator or a device
             const env = GeneralMobilePlatform.getEnvArgument(
                 process.env,
@@ -208,7 +190,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
                 this.projectPath,
                 this.logger,
             ).spawnReactCommand("run-ios", this.runArguments, { env });
-            return new OutputVerifier(
+            await new OutputVerifier(
                 () =>
                     this.generateSuccessPatterns(
                         this.runOptions.reactNativeVersions.reactNativeVersion,
@@ -219,64 +201,53 @@ export class IOSPlatform extends GeneralMobilePlatform {
         });
     }
 
-    public enableJSDebuggingMode(): Promise<void> {
+    public async enableJSDebuggingMode(): Promise<void> {
         // Configure the app for debugging
-        if (this.targetType === IOSPlatform.deviceString) {
+        if (!(await this.getTarget()).isVirtualTarget) {
             // Note that currently we cannot automatically switch the device into debug mode.
             this.logger.info(
                 "Application is running on a device, please shake device and select 'Debug JS Remotely' to enable debugging.",
             );
-            return Promise.resolve();
+            return;
         }
 
         // Wait until the configuration file exists, and check to see if debugging is enabled
-        return Promise.all<boolean | string>([
+        const [debugModeEnabled, bundleId] = await Promise.all<boolean | string>([
             this.iosDebugModeManager.getAppRemoteDebuggingSetting(
                 this.runOptions.configuration,
                 this.runOptions.productName,
             ),
             this.getBundleId(),
-        ]).then(([debugModeEnabled, bundleId]) => {
-            if (debugModeEnabled) {
-                return Promise.resolve();
-            }
-
-            // Debugging must still be enabled
-            // We enable debugging by writing to a plist file that backs a NSUserDefaults object,
-            // but that file is written to by the app on occasion. To avoid races, we shut the app
-            // down before writing to the file.
-            const childProcess = new ChildProcess();
-
-            return childProcess
-                .execToString("xcrun simctl spawn booted launchctl list")
-                .then((output: string) => {
-                    // Try to find an entry that looks like UIKitApplication:com.example.myApp[0x4f37]
-                    const regex = new RegExp(`(\\S+${bundleId}\\S+)`);
-                    const match = regex.exec(output);
-
-                    // If we don't find a match, the app must not be running and so we do not need to close it
-                    return match
-                        ? childProcess.exec(`xcrun simctl spawn booted launchctl stop ${match[1]}`)
-                        : null;
-                })
-                .then(() => {
-                    // Write to the settings file while the app is not running to avoid races
-                    return this.iosDebugModeManager.setAppRemoteDebuggingSetting(
-                        /*enable=*/ true,
-                        this.runOptions.configuration,
-                        this.runOptions.productName,
-                    );
-                })
-                .then(() => {
-                    // Relaunch the app
-                    return this.runApp();
-                });
-        });
+        ]);
+        if (debugModeEnabled) {
+            return;
+        }
+        // Debugging must still be enabled
+        // We enable debugging by writing to a plist file that backs a NSUserDefaults object,
+        // but that file is written to by the app on occasion. To avoid races, we shut the app
+        // down before writing to the file.
+        const childProcess = new ChildProcess();
+        const output = await childProcess.execToString("xcrun simctl spawn booted launchctl list");
+        // Try to find an entry that looks like UIKitApplication:com.example.myApp[0x4f37]
+        const regex = new RegExp(`(\\S+${bundleId}\\S+)`);
+        const match = regex.exec(output);
+        // If we don't find a match, the app must not be running and so we do not need to close it
+        if (match) {
+            await childProcess.exec(`xcrun simctl spawn booted launchctl stop ${match[1]}`);
+        }
+        // Write to the settings file while the app is not running to avoid races
+        await this.iosDebugModeManager.setAppRemoteDebuggingSetting(
+            /*enable=*/ true,
+            this.runOptions.configuration,
+            this.runOptions.productName,
+        );
+        // Relaunch the app
+        return await this.runApp();
     }
 
-    public disableJSDebuggingMode(): Promise<void> {
-        if (this.targetType === IOSPlatform.deviceString) {
-            return Promise.resolve();
+    public async disableJSDebuggingMode(): Promise<void> {
+        if (!(await this.getTarget()).isVirtualTarget) {
+            return;
         }
         return this.iosDebugModeManager.setAppRemoteDebuggingSetting(
             /*enable=*/ false,
@@ -329,42 +300,82 @@ export class IOSPlatform extends GeneralMobilePlatform {
         return runArguments;
     }
 
-    private handleTargetArg(target: string): string[] {
-        if (target === IOSPlatform.deviceString || target === IOSPlatform.simulatorString) {
-            return [`--${this.runOptions.target}`];
-        } else {
-            if (target.indexOf(IOSPlatform.deviceString) !== -1) {
-                const deviceArgs = target.split("=");
-                return deviceArgs[1]
-                    ? [`--${IOSPlatform.deviceString}`, deviceArgs[1]]
-                    : [`--${IOSPlatform.deviceString}`];
-            } else {
-                return [`--${IOSPlatform.simulatorString}`, `${this.runOptions.target}`];
+    public async getTargetFromRunArgs(): Promise<IOSTarget | undefined> {
+        const targets = (await this.targetManager.getTargetList()) as IDebuggableIOSTarget[];
+
+        if (this.runOptions.runArguments && this.runOptions.runArguments.length > 0) {
+            const udid = GeneralMobilePlatform.getOptFromRunArgs(
+                this.runOptions.runArguments,
+                "--udid",
+            );
+            if (udid) {
+                const target = targets.find(target => target.id === udid);
+                if (target) {
+                    return IOSTarget.fromInterface(target);
+                }
             }
+
+            const device = GeneralMobilePlatform.getOptFromRunArgs(
+                this.runOptions.runArguments,
+                "--device",
+            );
+            if (device) {
+                const target = targets.find(
+                    target =>
+                        !target.isVirtualTarget && (target.id === device || target.name === device),
+                );
+                if (target) {
+                    return IOSTarget.fromInterface(target);
+                }
+            }
+
+            const simulator = GeneralMobilePlatform.getOptFromRunArgs(
+                this.runOptions.runArguments,
+                "--simulator",
+            );
+            if (simulator) {
+                const target = targets.find(
+                    target =>
+                        target.isVirtualTarget &&
+                        (target.id === simulator || target.name === simulator),
+                );
+                if (target) {
+                    return IOSTarget.fromInterface(target);
+                }
+            }
+        }
+
+        return undefined;
+    }
+
+    private handleTargetArg(target: string): string[] {
+        if (target === TargetType.Device || target === TargetType.Simulator) {
+            return [`--${target}`];
+        } else {
+            return ["--udid", target];
         }
     }
 
-    private generateSuccessPatterns(version: string): Promise<string[]> {
+    private async generateSuccessPatterns(version: string): Promise<string[]> {
         // Clone RUN_IOS_SUCCESS_PATTERNS to avoid its runtime mutation
         let successPatterns = [...IOSPlatform.RUN_IOS_SUCCESS_PATTERNS];
-        if (this.targetType === IOSPlatform.deviceString) {
+        if (!(await this.getTarget()).isVirtualTarget) {
             if (semver.gte(version, "0.60.0")) {
                 successPatterns.push("success Installed the app on the device");
             } else {
                 successPatterns.push("INSTALLATION SUCCEEDED");
             }
-            return Promise.resolve(successPatterns);
+            return successPatterns;
         } else {
-            return this.getBundleId().then(bundleId => {
-                if (semver.gte(version, "0.60.0")) {
-                    successPatterns.push(
-                        `Launching "${bundleId}"\nsuccess Successfully launched the app `,
-                    );
-                } else {
-                    successPatterns.push(`Launching ${bundleId}\n${bundleId}: `);
-                }
-                return successPatterns;
-            });
+            const bundleId = await this.getBundleId();
+            if (semver.gte(version, "0.60.0")) {
+                successPatterns.push(
+                    `Launching "${bundleId}"\nsuccess Successfully launched the app `,
+                );
+            } else {
+                successPatterns.push(`Launching ${bundleId}\n${bundleId}: `);
+            }
+            return successPatterns;
         }
     }
 

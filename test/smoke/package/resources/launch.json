@@ -7,7 +7,6 @@
       "type": "reactnative",
       "request": "launch",
       "platform": "android",
-      "target": "simulator",
       "trace": "verbose"
     },
     {
@@ -19,7 +18,7 @@
       "trace": "verbose"
     },
     {
-      "name": "Debug Windows Hermes - Experimental",
+      "name": "Debug RN Wind Hermes - Experimental",
       "cwd": "${workspaceFolder}",
       "type": "reactnativedirect",
       "request": "launch",
@@ -41,6 +40,22 @@
       "platform": "android",
       "trace": "verbose"
     },
+    {
+      "name": "Run iOS Hermes - Experimental",
+      "request": "launch",
+      "type": "reactnativedirect",
+      "cwd": "${workspaceFolder}",
+      "enableDebug": false,
+      "platform": "ios"
+  },
+  {
+      "name": "Run Android Hermes - Experimental",
+      "request": "launch",
+      "type": "reactnativedirect",
+      "cwd": "${workspaceFolder}",
+      "enableDebug": false,
+      "platform": "android"
+  },
     {
       "name": "Attach to Hermes application - Experimental",
       "cwd": "${workspaceFolder}",

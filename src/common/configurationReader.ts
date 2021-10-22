@@ -57,13 +57,12 @@ export class ConfigurationReader {
         return value ? this.readInt(value) : defaultValue;
     }
 
-    public static readIntWithDefaultAsync(
+    public static async readIntWithDefaultAsync(
         value: any,
         defaultValuePromise: Promise<number>,
     ): Promise<number> {
-        return defaultValuePromise.then(defaultValue => {
-            return this.readIntWithDefaultSync(value, defaultValue);
-        });
+        const defaultValue = await defaultValuePromise;
+        return this.readIntWithDefaultSync(value, defaultValue);
     }
 
     private static isArray(value: any): boolean {

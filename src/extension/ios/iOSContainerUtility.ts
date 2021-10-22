@@ -2,16 +2,16 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { ChildProcess } from "../../common/node/childProcess";
-import { notNullOrUndefined } from "../../common/utils";
 import { PromiseUtil } from "../../common/node/promise";
-import { IVirtualDevice } from "../VirtualDeviceManager";
-import { DeviceType } from "../launchArgs";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
-import { promises, constants } from "fs";
+import * as fs from "fs";
+import * as path from "path";
+import { IDebuggableMobileTarget } from "../mobileTarget";
+import { logger } from "vscode-debugadapter/lib/logger";
 
 /**
  * @preserve
- * Start region: the code is borrowed from https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/utils/iOSContainerUtility.tsx
+ * Start region: the code is borrowed from https://github.com/facebook/flipper/blob/c2848df7f210c363113797c0f2e3db8c5d4fd49f/desktop/app/src/server/devices/ios/iOSContainerUtility.tsx
  *
  * Copyright (c) Facebook, Inc. and its affiliates.
  *
@@ -30,78 +30,143 @@ type IdbTarget = {
     udid: string;
     state: string;
     type: string;
+    target_type?: string;
     os_version: string;
     architecture: string;
 };
 
-export interface DeviceTarget extends IVirtualDevice {
-    type: DeviceType;
-    state: string;
-}
+export type DeviceTarget = IDebuggableMobileTarget;
 
-const isIdbAvailable = PromiseUtil.promiseCacheDecorator<boolean>(isAvailable);
+export const isIdbAvailable = PromiseUtil.promiseCacheDecorator<boolean>(isAvailable);
 
 function isAvailable(): Promise<boolean> {
     if (!idbPath) {
         return Promise.resolve(false);
     }
-    return promises
-        .access(idbPath, constants.X_OK)
+    return fs.promises
+        .access(idbPath, fs.constants.X_OK)
         .then(() => true)
         .catch(() => false);
 }
 
+export async function isXcodeDetected(): Promise<boolean> {
+    return new ChildProcess()
+        .execToString("xcode-select -p")
+        .then(stdout => {
+            return fs.existsSync(stdout.trim());
+        })
+        .catch(_ => false);
+}
+
+async function queryTargetsWithoutXcodeDependency(
+    idbCompanionPath: string,
+    isAvailableFunc: (idbPath: string) => Promise<boolean>,
+): Promise<Array<DeviceTarget>> {
+    if (await isAvailableFunc(idbCompanionPath)) {
+        return new ChildProcess()
+            .execToString(`${idbCompanionPath} --list 1 --only device`)
+            .then(stdout => parseIdbTargets(stdout))
+            .catch((e: Error) => {
+                logger.warn(
+                    `Failed to query idb_companion --list 1 --only device for physical targets: ${e}`,
+                );
+                return [];
+            });
+    } else {
+        logger.warn(
+            `Unable to locate idb_companion in ${idbCompanionPath}. Try running sudo yum install -y fb-idb`,
+        );
+        return [];
+    }
+}
+
+function parseIdbTargets(lines: string): Array<DeviceTarget> {
+    return lines
+        .trim()
+        .split("\n")
+        .map(line => line.trim())
+        .filter(Boolean)
+        .map(line => JSON.parse(line))
+        .filter(({ state }: IdbTarget) => state.toLocaleLowerCase() === "booted")
+        .map<IdbTarget>(({ type, target_type, ...rest }: IdbTarget) => ({
+            type: (type || target_type) === "simulator" ? "emulator" : "physical",
+            ...rest,
+        }))
+        .map<DeviceTarget>((target: IdbTarget) => ({
+            id: target.udid,
+            isVirtualTarget: target.type === "emulator",
+            name: target.name,
+            isOnline: true,
+        }));
+}
+
+export async function idbListTargets(idbPath: string): Promise<Array<DeviceTarget>> {
+    return new ChildProcess()
+        .execToString(`${idbPath} list-targets --json`)
+        .then(stdout =>
+            // See above.
+            parseIdbTargets(stdout),
+        )
+        .catch((e: Error) => {
+            logger.warn(`Failed to query idb for targets: ${e}`);
+            return [];
+        });
+}
+
 async function targets(): Promise<Array<DeviceTarget>> {
-    const cp = new ChildProcess();
     if (process.platform !== "darwin") {
         return [];
+    }
+    const isXcodeInstalled = await isXcodeDetected();
+    if (!isXcodeInstalled) {
+        const idbCompanionPath = path.dirname(idbPath) + "/idb_companion";
+        return queryTargetsWithoutXcodeDependency(idbCompanionPath, isAvailable);
     }
 
     // Not all users have idb installed because you can still use
     // Flipper with Simulators without it.
-    // But idb is MUCH more CPU efficient than instruments, so
-    // when installed, use it.
+    // But idb is MUCH more CPU efficient than xcrun, so
+    // when installed, use it. This still holds true
+    // with the move from instruments to xcrun.
+    // TODO: Move idb availability check up.
     if (await isIdbAvailable()) {
-        return cp.execToString(`${idbPath} list-targets --json`).then(stdout =>
-            // It is safe to assume this to be non-null as it only turns null
-            // if the output redirection is misconfigured:
-            // https://stackoverflow.com/questions/27786228/node-child-process-spawn-stdout-returning-as-null
-            stdout!
-                .trim()
-                .split("\n")
-                .map(line => line.trim())
-                .filter(Boolean)
-                .map(line => JSON.parse(line))
-                .filter(({ type }: IdbTarget) => type !== "simulator")
-                .map((target: IdbTarget) => {
-                    return {
-                        id: target.udid,
-                        type: "device",
-                        name: target.name,
-                        state: target.state,
-                    };
-                }),
-        );
+        return await idbListTargets(idbPath);
     } else {
-        await cp.killOrphanedInstrumentsProcesses();
-        return cp.execToString("instruments -s devices").then(stdout =>
-            stdout!
-                .toString()
-                .split("\n")
-                .map(line => line.trim())
-                .filter(Boolean)
-                .map(line => /(.+) \([^(]+\) \[(.*)\]( \(Simulator\))?/.exec(line))
-                .filter(notNullOrUndefined)
-                .filter(([_match, _name, _udid, isSim]) => !isSim)
-                .map(([_match, name, udid]) => {
-                    return {
-                        id: udid,
-                        type: "device",
-                        name,
-                        state: "active",
-                    };
-                }),
-        );
+        return new ChildProcess()
+            .execToString("xcrun xctrace list devices")
+            .then(stdout => {
+                const targets: DeviceTarget[] = [];
+                const lines = stdout
+                    .split("\n")
+                    .map(line => line.trim())
+                    .filter(line => !!line);
+                const firstDevicesIndex = lines.findIndex(line => line === "== Devices ==") + 1;
+                const lastDevicesIndex = lines.findIndex(line => line === "== Simulators ==") - 1;
+                for (let i = firstDevicesIndex; i <= lastDevicesIndex; i++) {
+                    const line = lines[i];
+                    const params = line
+                        .split(" ")
+                        .map(el => el.trim())
+                        .filter(el => !!el);
+                    // Add only devices with system version
+                    if (
+                        params[params.length - 1].match(/\(.+\)/) &&
+                        params[params.length - 2].match(/\(.+\)/)
+                    ) {
+                        targets.push({
+                            id: params[params.length - 1].replace(/\(|\)/g, "").trim(),
+                            name: params.slice(0, params.length - 2).join(" "),
+                            isVirtualTarget: false,
+                            isOnline: true,
+                        });
+                    }
+                }
+                return targets;
+            })
+            .catch(e => {
+                logger.warn(`Failed to query for devices using xctrace: ${e}`);
+                return [];
+            });
     }
 }
 
@@ -188,5 +253,5 @@ export default {
 
 /**
  * @preserve
- * End region: https://github.com/facebook/flipper/blob/v0.79.1/desktop/app/src/utils/iOSContainerUtility.tsx
+ * End region: https://github.com/facebook/flipper/blob/c2848df7f210c363113797c0f2e3db8c5d4fd49f/desktop/app/src/server/devices/ios/iOSContainerUtility.tsx
  */

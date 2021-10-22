@@ -3,12 +3,13 @@
 
 import { ChildProcess, ISpawnResult } from "../../common/node/childProcess";
 import { CommandExecutor } from "../../common/commandExecutor";
-import { IDevice } from "../../common/device";
 import * as path from "path";
 import * as fs from "fs";
 import { ILogger } from "../log/LogHelper";
 import * as os from "os";
 import * as nls from "vscode-nls";
+import { PromiseUtil } from "../../common/node/promise";
+import { IDebuggableMobileTarget } from "../mobileTarget";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -36,22 +37,6 @@ enum KeyEvents {
     KEYCODE_MENU = 82,
 }
 
-export enum AdbDeviceType {
-    AndroidSdkEmulator, // These seem to have emulator-<port> ids
-    RemoteDevice,
-    Other,
-}
-
-export interface IAdbDevice extends IDevice {
-    isOnline: boolean;
-    type: AdbDeviceType;
-}
-
-interface AdbDeviceTypePattern {
-    pattern: RegExp;
-    adbDeviceType: AdbDeviceType;
-}
-
 export class AdbHelper {
     private nodeModulesRoot: string;
     private launchActivity: string;
@@ -59,16 +44,8 @@ export class AdbHelper {
     private commandExecutor: CommandExecutor;
     private adbExecutable: string = "";
 
-    private static ADB_DEVICE_TYPE_PATTERNS: AdbDeviceTypePattern[] = [
-        {
-            pattern: /^emulator-\d{1,5}$/gm,
-            adbDeviceType: AdbDeviceType.AndroidSdkEmulator,
-        },
-        {
-            pattern: /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}|.*_adb-tls-connect\._tcp.*)$/gm,
-            adbDeviceType: AdbDeviceType.RemoteDevice,
-        },
-    ];
+    private static readonly AndroidRemoteTargetPattern = /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}|.*_adb-tls-connect\._tcp.*)$/gm;
+    public static readonly AndroidSDKEmulatorPattern = /^emulator-\d{1,5}$/;
 
     constructor(
         projectRoot: string,
@@ -85,10 +62,55 @@ export class AdbHelper {
     /**
      * Gets the list of Android connected devices and emulators.
      */
-    public getConnectedDevices(): Promise<IAdbDevice[]> {
-        return this.childProcess.execToString(`${this.adbExecutable} devices`).then(output => {
-            return this.parseConnectedDevices(output);
-        });
+    public async getConnectedTargets(): Promise<IDebuggableMobileTarget[]> {
+        const output = await this.childProcess.execToString(`${this.adbExecutable} devices`);
+        return this.parseConnectedTargets(output);
+    }
+
+    public async findOnlineTargetById(
+        targetId: string,
+    ): Promise<IDebuggableMobileTarget | undefined> {
+        return (await this.getOnlineTargets()).find(target => target.id === targetId);
+    }
+
+    public async getAvdsNames(): Promise<string[]> {
+        const res = await this.childProcess.execToString("emulator -list-avds");
+        let emulatorsNames: string[] = [];
+        if (res) {
+            emulatorsNames = res.split(/\r?\n|\r/g);
+            const indexOfBlank = emulatorsNames.indexOf("");
+            if (indexOfBlank >= 0) {
+                emulatorsNames.splice(indexOfBlank, 1);
+            }
+        }
+        return emulatorsNames;
+    }
+
+    public isRemoteTarget(id: string): boolean {
+        return !!id.match(AdbHelper.AndroidRemoteTargetPattern);
+    }
+
+    public async getAvdNameById(emulatorId: string): Promise<string | null> {
+        try {
+            const output = await this.childProcess.execToString(
+                `${this.adbExecutable} -s ${emulatorId} emu avd name`,
+            );
+            // The command returns the name of avd by id of this running emulator.
+            // Return value example:
+            // "
+            // emuName
+            // OK
+            // "
+            if (output) {
+                // Return the name of avd: emuName
+                return output.split(/\r?\n|\r/g)[0];
+            } else {
+                return null;
+            }
+        } catch {
+            // If the command returned an error, it means that we could not find the emulator with the passed id
+            return null;
+        }
     }
 
     public setLaunchActivity(launchActivity: string): void {
@@ -98,7 +120,7 @@ export class AdbHelper {
     /**
      * Broadcasts an intent to reload the application in debug mode.
      */
-    public switchDebugMode(
+    public async switchDebugMode(
         projectRoot: string,
         packageName: string,
         enable: boolean,
@@ -108,23 +130,11 @@ export class AdbHelper {
         let enableDebugCommand = `${this.adbExecutable} ${
             debugTarget ? "-s " + debugTarget : ""
         } shell am broadcast -a "${packageName}.RELOAD_APP_ACTION" --ez jsproxy ${enable}`;
-        return new CommandExecutor(this.nodeModulesRoot, projectRoot)
-            .execute(enableDebugCommand)
-            .then(() => {
-                // We should stop and start application again after RELOAD_APP_ACTION, otherwise app going to hangs up
-                return new Promise(resolve => {
-                    setTimeout(() => {
-                        this.stopApp(projectRoot, packageName, debugTarget, appIdSuffix).then(
-                            () => {
-                                return resolve(void 0);
-                            },
-                        );
-                    }, 200); // We need a little delay after broadcast command
-                });
-            })
-            .then(() => {
-                return this.launchApp(projectRoot, packageName, debugTarget, appIdSuffix);
-            });
+        await new CommandExecutor(this.nodeModulesRoot, projectRoot).execute(enableDebugCommand);
+        // We should stop and start application again after RELOAD_APP_ACTION, otherwise app going to hangs up
+        await PromiseUtil.delay(200); // We need a little delay after broadcast command
+        await this.stopApp(projectRoot, packageName, debugTarget, appIdSuffix);
+        return this.launchApp(projectRoot, packageName, debugTarget, appIdSuffix);
     }
 
     /**
@@ -156,10 +166,9 @@ export class AdbHelper {
         return new CommandExecutor(projectRoot).execute(stopAppCommand);
     }
 
-    public apiVersion(deviceId: string): Promise<AndroidAPILevel> {
-        return this.executeQuery(deviceId, "shell getprop ro.build.version.sdk").then(output =>
-            parseInt(output, 10),
-        );
+    public async apiVersion(deviceId: string): Promise<AndroidAPILevel> {
+        const output = await this.executeQuery(deviceId, "shell getprop ro.build.version.sdk");
+        return parseInt(output, 10);
     }
 
     public reverseAdb(deviceId: string, port: number): Promise<void> {
@@ -180,10 +189,9 @@ export class AdbHelper {
         return this.commandExecutor.execute(command);
     }
 
-    public getOnlineDevices(): Promise<IAdbDevice[]> {
-        return this.getConnectedDevices().then(devices => {
-            return devices.filter(device => device.isOnline);
-        });
+    public async getOnlineTargets(): Promise<IDebuggableMobileTarget[]> {
+        const devices = await this.getConnectedTargets();
+        return devices.filter(device => device.isOnline);
     }
 
     public startLogCat(adbParameters: string[]): ISpawnResult {
@@ -191,7 +199,7 @@ export class AdbHelper {
     }
 
     public parseSdkLocation(fileContent: string, logger?: ILogger): string | null {
-        const matches = fileContent.match(/^sdk\.dir=(.+)$/m);
+        const matches = fileContent.match(/^sdk\.dir\s*=(.+)$/m);
         if (!matches || !matches[1]) {
             if (logger) {
                 logger.info(
@@ -234,38 +242,33 @@ export class AdbHelper {
     }
 
     public executeQuery(deviceId: string, command: string): Promise<string> {
-        return this.childProcess.execToString(this.generateCommandForDevice(deviceId, command));
+        return this.childProcess.execToString(this.generateCommandForTarget(deviceId, command));
     }
 
-    private parseConnectedDevices(input: string): IAdbDevice[] {
-        let result: IAdbDevice[] = [];
+    private parseConnectedTargets(input: string): IDebuggableMobileTarget[] {
+        let result: IDebuggableMobileTarget[] = [];
         let regex = new RegExp("^(\\S+)\\t(\\S+)$", "mg");
         let match = regex.exec(input);
         while (match != null) {
             result.push({
                 id: match[1],
                 isOnline: match[2] === "device",
-                type: this.extractDeviceType(match[1]),
+                isVirtualTarget: this.isVirtualTarget(match[1]),
             });
             match = regex.exec(input);
         }
         return result;
     }
 
-    private extractDeviceType(id: string): AdbDeviceType {
-        for (let pattern of AdbHelper.ADB_DEVICE_TYPE_PATTERNS) {
-            if (id.match(pattern.pattern)) {
-                return pattern.adbDeviceType;
-            }
-        }
-        return AdbDeviceType.Other;
+    public isVirtualTarget(id: string): boolean {
+        return !!id.match(AdbHelper.AndroidSDKEmulatorPattern);
     }
 
     private execute(deviceId: string, command: string): Promise<void> {
-        return this.commandExecutor.execute(this.generateCommandForDevice(deviceId, command));
+        return this.commandExecutor.execute(this.generateCommandForTarget(deviceId, command));
     }
 
-    private generateCommandForDevice(deviceId: string, adbCommand: string): string {
+    private generateCommandForTarget(deviceId: string, adbCommand: string): string {
         return `${this.adbExecutable} -s "${deviceId}" ${adbCommand}`;
     }
 

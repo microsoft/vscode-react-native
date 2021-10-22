@@ -3,6 +3,14 @@
 import * as path from "path";
 import { ChildProcess } from "./node/childProcess";
 import { HostPlatform } from "./hostPlatform";
+import customRequire from "./customRequire";
+
+export function removeModuleFromRequireCacheByName(moduleName: string): void {
+    const moduleKey = Object.keys(customRequire.cache).find(key => key.includes(moduleName));
+    if (moduleKey) {
+        delete customRequire.cache[moduleKey];
+    }
+}
 
 export function getNodeModulesGlobalPath(): Promise<string> {
     const childProcess = new ChildProcess();
@@ -34,6 +42,51 @@ export function getFormattedDateString(date: Date): string {
 
 export function getFormattedDatetimeString(date: Date): string {
     return `${getFormattedDateString(date)} ${getFormattedTimeString(date)}`;
+}
+
+export function waitUntil<T>(
+    condition: () => Promise<T | null> | T | null,
+    interval: number = 1000,
+    timeout?: number,
+): Promise<T | null> {
+    return new Promise(async resolve => {
+        let rejectTimeout: NodeJS.Timeout | undefined;
+        let сheckInterval: NodeJS.Timeout | undefined;
+
+        if (timeout) {
+            rejectTimeout = setTimeout(() => {
+                cleanup();
+                resolve(null);
+            }, timeout);
+        }
+
+        const cleanup = () => {
+            if (rejectTimeout) {
+                clearTimeout(rejectTimeout);
+            }
+            if (сheckInterval) {
+                clearInterval(сheckInterval);
+            }
+        };
+
+        const tryToResolve = async (): Promise<boolean> => {
+            const result = await condition();
+            if (result) {
+                cleanup();
+                resolve(result);
+            }
+            return !!result;
+        };
+
+        const resolved = await tryToResolve();
+        if (resolved) {
+            return;
+        }
+
+        сheckInterval = setInterval(async () => {
+            await tryToResolve();
+        }, interval);
+    });
 }
 
 function padZeroes(minDesiredLength: number, numberToPad: string): string {

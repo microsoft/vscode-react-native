@@ -77,10 +77,10 @@ export class ChildProcess {
         });
     }
 
-    public execToString(command: string, options: IExecOptions = {}): Promise<string> {
-        return this.exec(command, options).then(result =>
-            result.outcome.then(stdout => stdout.toString()),
-        );
+    public async execToString(command: string, options: IExecOptions = {}): Promise<string> {
+        const execResult = await this.exec(command, options);
+        const stdout = await execResult.outcome;
+        return stdout.toString();
     }
 
     public execFileSync(

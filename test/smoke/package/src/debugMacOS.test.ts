@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import { Application } from "../../automation";
 import * as assert from "assert";
 import * as cp from "child_process";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import { vscodeManager } from "./main";
 import { sleep } from "./helpers/utilities";
-import { Application } from "../../automation";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 import { TestRunArguments } from "./helpers/testConfigProcessor";
 import TestProject from "./helpers/testProject";
@@ -131,8 +131,8 @@ export function startDebugMacOSTests(
                 `${testname}: Searching for "Test output from debuggee" string in console`,
             );
             await automationHelper.runCommandWithRetry("Debug: Focus on Debug Console View");
-            let found = await app.workbench.debug.waitForOutput(output =>
-                output.some(line => line.indexOf("Test output from debuggee") >= 0),
+            const found = await automationHelper.waitForOutputWithRetry(
+                "Test output from debuggee",
             );
             assert.notStrictEqual(
                 found,

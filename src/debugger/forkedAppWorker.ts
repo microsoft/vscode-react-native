@@ -5,7 +5,7 @@ import * as path from "path";
 import * as url from "url";
 import * as cp from "child_process";
 import * as fs from "fs";
-import { ScriptImporter, DownloadedScript } from "./scriptImporter";
+import { ScriptImporter } from "./scriptImporter";
 import { logger } from "vscode-debugadapter";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { IDebuggeeWorker, RNAppMessage } from "./appWorker";
@@ -34,8 +34,8 @@ export class ForkedAppWorker implements IDebuggeeWorker {
     protected scriptImporter: ScriptImporter;
     protected debuggeeProcess: cp.ChildProcess | null = null;
     /** A promise that we use to make sure that worker has been loaded completely before start sending IPC messages */
-    protected workerLoaded: Promise<void>;
-    private bundleLoaded: Promise<void>;
+    protected workerLoaded: Promise<void> | undefined;
+    private bundleLoaded: Promise<void> | undefined;
     private logWriteStream: fs.WriteStream;
     private logDirectory: string | null;
 
@@ -65,7 +65,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
         }
     }
 
-    public start(): Promise<number> {
+    public async start(): Promise<number> {
         let scriptToRunPath = path.resolve(
             this.sourcesStoragePath,
             ScriptImporter.DEBUGGER_WORKER_FILENAME,
@@ -133,11 +133,12 @@ export class ForkedAppWorker implements IDebuggeeWorker {
             `Spawned debuggee process with pid ${this.debuggeeProcess.pid} listening to ${port}`,
         );
 
-        return Promise.resolve(port);
+        return port;
     }
 
-    public postMessage(rnMessage: RNAppMessage): Promise<RNAppMessage> {
-        return new Promise(resolve => {
+    public async postMessage(rnMessage: RNAppMessage): Promise<RNAppMessage> {
+        // Before sending messages, make sure that the worker is loaded
+        await new Promise(resolve => {
             if (this.workerLoaded) {
                 resolve();
             } else {
@@ -148,65 +149,60 @@ export class ForkedAppWorker implements IDebuggeeWorker {
                     }
                 }, 1000);
             }
-        }).then(() => {
-            // Before sending messages, make sure that the worker is loaded
-            const promise = this.workerLoaded.then(() => {
-                if (rnMessage.method !== "executeApplicationScript") {
-                    // Before sending messages, make sure that the app script executed
-                    if (this.bundleLoaded) {
-                        return this.bundleLoaded.then(() => {
-                            return rnMessage;
-                        });
-                    } else {
-                        return rnMessage;
-                    }
-                } else {
-                    // When packager asks worker to load bundle we download that bundle and
-                    // then set url field to point to that downloaded bundle, so the worker
-                    // will take our modified bundle
-                    if (rnMessage.url) {
-                        const packagerUrl = url.parse(rnMessage.url);
-                        packagerUrl.host = `${this.packagerAddress}:${this.packagerPort}`;
-                        rnMessage = {
-                            ...rnMessage,
-                            url: url.format(packagerUrl),
-                        };
-                        logger.verbose(
-                            `Packager requested runtime to load script from ${rnMessage.url}`,
-                        );
-                        return this.scriptImporter
-                            .downloadAppScript(<string>rnMessage.url, this.projectRootPath)
-                            .then((downloadedScript: DownloadedScript) => {
-                                this.bundleLoaded = Promise.resolve();
-                                return Object.assign({}, rnMessage, {
-                                    url: `${this.pathToFileUrl(downloadedScript.filepath)}`,
-                                });
-                            });
-                    } else {
-                        throw ErrorHelper.getInternalError(
-                            InternalErrorCode.RNMessageWithMethodExecuteApplicationScriptDoesntHaveURLProperty,
-                        );
-                    }
-                }
-            });
-            promise.then(
-                (message: RNAppMessage) => {
-                    if (this.debuggeeProcess) {
-                        this.debuggeeProcess.send({ data: message });
-                    }
-                },
-                reason =>
-                    printDebuggingError(
-                        ErrorHelper.getInternalError(
-                            InternalErrorCode.CouldntImportScriptAt,
-                            rnMessage.url,
-                        ),
-                        reason,
-                    ),
-            );
-
-            return promise;
         });
+
+        const promise = (async () => {
+            await this.workerLoaded;
+
+            if (rnMessage.method !== "executeApplicationScript") {
+                // Before sending messages, make sure that the app script executed
+                await this.bundleLoaded;
+                return rnMessage;
+            } else {
+                // When packager asks worker to load bundle we download that bundle and
+                // then set url field to point to that downloaded bundle, so the worker
+                // will take our modified bundle
+                if (rnMessage.url) {
+                    const packagerUrl = url.parse(rnMessage.url);
+                    packagerUrl.host = `${this.packagerAddress}:${this.packagerPort}`;
+                    rnMessage = {
+                        ...rnMessage,
+                        url: url.format(packagerUrl),
+                    };
+                    logger.verbose(
+                        `Packager requested runtime to load script from ${rnMessage.url}`,
+                    );
+                    const downloadedScript = await this.scriptImporter.downloadAppScript(
+                        <string>rnMessage.url,
+                        this.projectRootPath,
+                    );
+                    this.bundleLoaded = Promise.resolve();
+                    return Object.assign({}, rnMessage, {
+                        url: `${this.pathToFileUrl(downloadedScript.filepath)}`,
+                    });
+                } else {
+                    throw ErrorHelper.getInternalError(
+                        InternalErrorCode.RNMessageWithMethodExecuteApplicationScriptDoesntHaveURLProperty,
+                    );
+                }
+            }
+        })();
+        promise.then(
+            (message: RNAppMessage) => {
+                if (this.debuggeeProcess) {
+                    this.debuggeeProcess.send({ data: message });
+                }
+            },
+            reason =>
+                printDebuggingError(
+                    ErrorHelper.getInternalError(
+                        InternalErrorCode.CouldntImportScriptAt,
+                        rnMessage.url,
+                    ),
+                    reason,
+                ),
+        );
+        return promise;
     }
 
     // TODO: Replace by url.pathToFileURL method when Node 10 LTS become deprecated

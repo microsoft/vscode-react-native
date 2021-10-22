@@ -2,10 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as semver from "semver";
-
-import { GeneralMobilePlatform, MobilePlatformDeps } from "../generalMobilePlatform";
+import { MobilePlatformDeps, TargetType } from "../generalPlatform";
 import { IAndroidRunOptions, PlatformType } from "../launchArgs";
-import { AdbHelper, AndroidAPILevel, IAdbDevice, AdbDeviceType } from "./adb";
 import { Package } from "../../common/node/package";
 import { PackageNameResolver } from "./packageNameResolver";
 import { OutputVerifier, PatternToFailure } from "../../common/outputVerifier";
@@ -17,8 +15,10 @@ import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { notNullOrUndefined } from "../../common/utils";
 import { PromiseUtil } from "../../common/node/promise";
-import { AndroidEmulatorManager, IAndroidEmulator } from "./androidEmulatorManager";
 import { LogCatMonitorManager } from "./logCatMonitorManager";
+import { AndroidTarget, AndroidTargetManager } from "./androidTargetManager";
+import { AdbHelper, AndroidAPILevel } from "./adb";
+import { GeneralMobilePlatform } from "../generalMobilePlatform";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -59,22 +59,13 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         "Starting: Intent",
     ];
 
-    private debugTarget: IAdbDevice;
-    private devices: IAdbDevice[];
     private packageName: string;
     private adbHelper: AdbHelper;
-    private emulatorManager: AndroidEmulatorManager;
     private logCatMonitor: LogCatMonitor | null = null;
-
     private needsToLaunchApps: boolean = false;
 
-    public showDevMenu(deviceId?: string): Promise<void> {
-        return this.adbHelper.showDevMenu(deviceId);
-    }
-
-    public reloadApp(deviceId?: string): Promise<void> {
-        return this.adbHelper.reloadApp(deviceId);
-    }
+    protected targetManager: AndroidTargetManager;
+    protected target?: AndroidTarget;
 
     // We set remoteExtension = null so that if there is an instance of androidPlatform that wants to have it's custom remoteExtension it can. This is specifically useful for tests.
     constructor(protected runOptions: IAndroidRunOptions, platformDeps: MobilePlatformDeps = {}) {
@@ -84,34 +75,59 @@ export class AndroidPlatform extends GeneralMobilePlatform {
             runOptions.nodeModulesRoot,
             this.logger,
         );
-        this.emulatorManager = new AndroidEmulatorManager(this.adbHelper);
+        this.targetManager = new AndroidTargetManager(this.adbHelper);
     }
 
-    // TODO: remove this method when sinon will be updated to upper version. Now it is used for tests only.
-    public setAdbHelper(adbHelper: AdbHelper): void {
-        this.adbHelper = adbHelper;
+    public showDevMenu(deviceId?: string): Promise<void> {
+        return this.adbHelper.showDevMenu(deviceId);
     }
 
-    public resolveVirtualDevice(target: string): Promise<IAndroidEmulator | null> {
-        if (!target.includes("device")) {
-            return this.emulatorManager
-                .startEmulator(target)
-                .then((emulator: IAndroidEmulator | null) => {
-                    if (emulator) {
-                        GeneralMobilePlatform.setRunArgument(
-                            this.runArguments,
-                            "--deviceId",
-                            emulator.id,
-                        );
+    public reloadApp(deviceId?: string): Promise<void> {
+        return this.adbHelper.reloadApp(deviceId);
+    }
+
+    public async getTarget(): Promise<AndroidTarget> {
+        if (!this.target) {
+            const onlineTargets = await this.adbHelper.getOnlineTargets();
+            const target = await this.getTargetFromRunArgs();
+            if (target) {
+                this.target = target;
+            } else {
+                const onlineTargetsBySpecifiedType = onlineTargets.filter(target => {
+                    switch (this.runOptions.target) {
+                        case TargetType.Simulator:
+                            return target.isVirtualTarget;
+                        case TargetType.Device:
+                            return !target.isVirtualTarget;
+                        case undefined:
+                        case "":
+                            return true;
+                        default:
+                            return target.id === this.runOptions.target;
                     }
-                    return emulator;
                 });
-        } else {
-            return Promise.resolve(null);
+                if (onlineTargetsBySpecifiedType.length) {
+                    this.target = AndroidTarget.fromInterface(onlineTargetsBySpecifiedType[0]);
+                } else if (onlineTargets.length) {
+                    this.logger.warning(
+                        localize(
+                            "ThereIsNoOnlineTargetWithSpecifiedTargetType",
+                            "There is no any online target with specified target type '{0}'. Continue with any online target.",
+                            this.runOptions.target,
+                        ),
+                    );
+                    this.target = AndroidTarget.fromInterface(onlineTargets[0]);
+                } else {
+                    throw ErrorHelper.getInternalError(
+                        InternalErrorCode.AndroidThereIsNoAnyOnlineDebuggableTarget,
+                    );
+                }
+            }
         }
+        return this.target;
     }
 
-    public runApp(shouldLaunchInAllDevices: boolean = false): Promise<void> {
+    public async runApp(shouldLaunchInAllDevices: boolean = false): Promise<void> {
         let extProps: any = {
             platform: {
                 value: PlatformType.Android,
@@ -132,7 +148,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
             extProps,
         );
 
-        return TelemetryHelper.generate("AndroidPlatform.runApp", extProps, () => {
+        await TelemetryHelper.generate("AndroidPlatform.runApp", extProps, async () => {
             const env = GeneralMobilePlatform.getEnvArgument(
                 process.env,
                 this.runOptions.env,
@@ -174,55 +190,61 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                 PlatformType.Android,
             ).process(runAndroidSpawn);
 
-            return output
-                .finally(() => {
-                    return this.initializeTargetDevicesAndPackageName();
-                })
-                .then(
-                    () => [this.debugTarget],
-                    reason => {
-                        if (
-                            reason.message ===
-                                ErrorHelper.getInternalError(
-                                    InternalErrorCode.AndroidMoreThanOneDeviceOrEmulator,
-                                ).message &&
-                            this.devices.length >= 1 &&
-                            this.debugTarget
-                        ) {
-                            /* If it failed due to multiple devices, we'll apply this workaround to make it work anyways */
-                            this.needsToLaunchApps = true;
-                            return shouldLaunchInAllDevices
-                                ? this.adbHelper.getOnlineDevices()
-                                : Promise.resolve([this.debugTarget]);
-                        } else {
-                            return Promise.reject<IAdbDevice[]>(reason);
-                        }
-                    },
-                )
-                .then(devices => {
-                    return new PromiseUtil().forEach(devices, device => {
-                        return this.launchAppWithADBReverseAndLogCat(device);
-                    });
-                });
+            let devicesIdsForLaunch: string[] = [];
+            const onlineTargetsIds = (await this.adbHelper.getOnlineTargets()).map(
+                target => target.id,
+            );
+            let targetId: string | undefined;
+            try {
+                try {
+                    await output;
+                } finally {
+                    targetId = await this.getTargetIdForRunApp(onlineTargetsIds);
+                    this.packageName = await this.getPackageName();
+                    devicesIdsForLaunch = [targetId];
+                }
+            } catch (error) {
+                if (!targetId) {
+                    targetId = await this.getTargetIdForRunApp(onlineTargetsIds);
+                }
+                if (
+                    error.message ===
+                        ErrorHelper.getInternalError(
+                            InternalErrorCode.AndroidMoreThanOneDeviceOrEmulator,
+                        ).message &&
+                    onlineTargetsIds.length >= 1 &&
+                    targetId
+                ) {
+                    /* If it failed due to multiple devices, we'll apply this workaround to make it work anyways */
+                    this.needsToLaunchApps = true;
+                    devicesIdsForLaunch = shouldLaunchInAllDevices ? onlineTargetsIds : [targetId];
+                } else {
+                    throw error;
+                }
+            }
+
+            await PromiseUtil.forEach(devicesIdsForLaunch, deviceId =>
+                this.launchAppWithADBReverseAndLogCat(deviceId),
+            );
         });
     }
 
-    public enableJSDebuggingMode(): Promise<void> {
+    public async enableJSDebuggingMode(): Promise<void> {
         return this.adbHelper.switchDebugMode(
             this.runOptions.projectRoot,
             this.packageName,
             true,
-            this.debugTarget.id,
+            (await this.getTarget()).id,
             this.getAppIdSuffixFromRunArgumentsIfExists(),
         );
     }
 
-    public disableJSDebuggingMode(): Promise<void> {
+    public async disableJSDebuggingMode(): Promise<void> {
         return this.adbHelper.switchDebugMode(
             this.runOptions.projectRoot,
             this.packageName,
             false,
-            this.debugTarget.id,
+            (await this.getTarget()).id,
             this.getAppIdSuffixFromRunArgumentsIfExists(),
         );
     }
@@ -242,16 +264,9 @@ export class AndroidPlatform extends GeneralMobilePlatform {
             }
             if (this.runOptions.target) {
                 if (
-                    this.runOptions.target === AndroidPlatform.simulatorString ||
-                    this.runOptions.target === AndroidPlatform.deviceString
+                    this.runOptions.target !== TargetType.Device &&
+                    this.runOptions.target !== TargetType.Simulator
                 ) {
-                    const message = localize(
-                        "TargetIsNotSupportedForAndroid",
-                        "Target {0} is not supported for Android platform. \n If you want to use particular device or simulator for launching Android app,\n please specify device id (as in 'adb devices' output) instead.",
-                        this.runOptions.target,
-                    );
-                    this.logger.warning(message);
-                } else {
                     runArguments.push("--deviceId", this.runOptions.target);
                 }
             }
@@ -267,6 +282,37 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         }
     }
 
+    public async getTargetFromRunArgs(): Promise<AndroidTarget | undefined> {
+        if (this.runOptions.runArguments && this.runOptions.runArguments.length) {
+            const deviceId = GeneralMobilePlatform.getOptFromRunArgs(
+                this.runOptions.runArguments,
+                "--deviceId",
+            );
+            if (deviceId) {
+                return new AndroidTarget(true, this.adbHelper.isVirtualTarget(deviceId), deviceId);
+            }
+        }
+        return undefined;
+    }
+
+    private async getTargetIdForRunApp(onlineTargetsIds: string[]): Promise<string> {
+        let deviceId: string | undefined;
+        if (this.runOptions.runArguments && this.runOptions.runArguments.length) {
+            deviceId = GeneralMobilePlatform.getOptFromRunArgs(
+                this.runOptions.runArguments,
+                "--deviceId",
+            );
+        }
+        return deviceId
+            ? deviceId
+            : this.runOptions.target &&
+              this.runOptions.target !== TargetType.Simulator &&
+              this.runOptions.target !== TargetType.Device &&
+              onlineTargetsIds.find(id => id === this.runOptions.target)
+            ? this.runOptions.target
+            : (await this.getTarget()).id;
+    }
+
     private getAppIdSuffixFromRunArgumentsIfExists(): string | undefined {
         const appIdSuffixIndex = this.runArguments.indexOf("--appIdSuffix");
         if (appIdSuffixIndex > -1) {
@@ -275,107 +321,55 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         return undefined;
     }
 
-    private initializeTargetDevicesAndPackageName(): Promise<void> {
-        return this.adbHelper.getConnectedDevices().then(devices => {
-            this.devices = devices;
-            this.debugTarget = this.getTargetEmulator(devices);
-            return this.getPackageName().then(packageName => {
-                this.packageName = packageName;
-            });
-        });
-    }
-
-    private launchAppWithADBReverseAndLogCat(device: IAdbDevice): Promise<void> {
-        return this.configureADBReverseWhenApplicable(device)
-            .then(() => {
-                return this.needsToLaunchApps
-                    ? this.adbHelper.launchApp(
-                          this.runOptions.projectRoot,
-                          this.packageName,
-                          device.id,
-                      )
-                    : Promise.resolve();
-            })
-            .then(() => {
-                return this.startMonitoringLogCat(device, this.runOptions.logCatArguments);
-            });
-    }
-
-    private configureADBReverseWhenApplicable(device: IAdbDevice): Promise<void> {
-        return Promise.resolve() // For other emulators and devices we try to enable adb reverse
-            .then(() => this.adbHelper.apiVersion(device.id))
-            .then(apiVersion => {
-                if (apiVersion >= AndroidAPILevel.LOLLIPOP) {
-                    // If we support adb reverse
-                    return this.adbHelper
-                        .reverseAdb(device.id, Number(this.runOptions.packagerPort))
-                        .catch(err => {
-                            // "adb reverse" command could work incorrectly with remote devices, then skip the error and try to go on
-                            if (
-                                device.type === AdbDeviceType.RemoteDevice &&
-                                err.message.includes(
-                                    AndroidPlatform.RUN_ANDROID_FAILURE_PATTERNS[3].pattern,
-                                )
-                            ) {
-                                this.logger.warning(err.message);
-                            } else {
-                                throw err;
-                            }
-                        });
-                } else {
-                    const message = localize(
-                        "DeviceSupportsOnlyAPILevel",
-                        "Device {0} supports only API Level {1}. \n Level {2} is needed to support port forwarding via adb reverse. \n For debugging to work you'll need <Shake or press menu button> for the dev menu, \n go into <Dev Settings> and configure <Debug Server host & port for Device> to be \n an IP address of your computer that the Device can reach. More info at: \n https://facebook.github.io/react-native/docs/debugging.html#debugging-react-native-apps",
-                        device.id,
-                        apiVersion,
-                        AndroidAPILevel.LOLLIPOP,
-                    );
-                    this.logger.warning(message);
-                    return void 0;
-                }
-            });
-    }
-
-    private getPackageName(): Promise<string> {
-        return new Package(this.runOptions.projectRoot)
-            .name()
-            .then(appName =>
-                new PackageNameResolver(appName).resolvePackageName(this.runOptions.projectRoot),
-            );
-    }
-
-    /**
-     * Returns the target emulator, using the following logic:
-     * *  If an emulator is specified and it is connected, use that one.
-     * *  Otherwise, use the first one in the list.
-     */
-    private getTargetEmulator(devices: IAdbDevice[]): IAdbDevice {
-        let activeFilterFunction = (device: IAdbDevice) => {
-            return device.isOnline;
-        };
-
-        let targetFilterFunction = (device: IAdbDevice) => {
-            return device.id === this.runOptions.target && activeFilterFunction(device);
-        };
-
-        if (this.runOptions && this.runOptions.target && devices) {
-            /* check if the specified target is active */
-            const targetDevice = devices.find(targetFilterFunction);
-            if (targetDevice) {
-                return targetDevice;
-            }
+    private async launchAppWithADBReverseAndLogCat(deviceId: string): Promise<void> {
+        await this.configureADBReverseWhenApplicable(deviceId);
+        if (this.needsToLaunchApps) {
+            await this.adbHelper.launchApp(this.runOptions.projectRoot, this.packageName, deviceId);
         }
-
-        /* return the first active device in the list */
-        let activeDevices = devices && devices.filter(activeFilterFunction);
-        return activeDevices && activeDevices[0];
+        return this.startMonitoringLogCat(deviceId, this.runOptions.logCatArguments);
     }
 
-    private startMonitoringLogCat(device: IAdbDevice, logCatArguments: string[]): void {
-        LogCatMonitorManager.delMonitor(device.id); // Stop previous logcat monitor if it's running
+    private async configureADBReverseWhenApplicable(deviceId: string): Promise<void> {
+        // For other emulators and devices we try to enable adb reverse
+        const apiVersion = await this.adbHelper.apiVersion(deviceId);
+        if (apiVersion >= AndroidAPILevel.LOLLIPOP) {
+            // If we support adb reverse
+            try {
+                this.adbHelper.reverseAdb(deviceId, Number(this.runOptions.packagerPort));
+            } catch (error) {
+                // "adb reverse" command could work incorrectly with remote devices, then skip the error and try to go on
+                if (
+                    this.adbHelper.isRemoteTarget(deviceId) &&
+                    error.message.includes(AndroidPlatform.RUN_ANDROID_FAILURE_PATTERNS[3].pattern)
+                ) {
+                    this.logger.warning(error.message);
+                } else {
+                    throw error;
+                }
+            }
+        } else {
+            this.logger.warning(
+                localize(
+                    "DeviceSupportsOnlyAPILevel",
+                    "Device {0} supports only API Level {1}. \n Level {2} is needed to support port forwarding via adb reverse. \n For debugging to work you'll need <Shake or press menu button> for the dev menu, \n go into <Dev Settings> and configure <Debug Server host & port for Device> to be \n an IP address of your computer that the Device can reach. More info at: \n https://facebook.github.io/react-native/docs/debugging.html#debugging-react-native-apps",
+                    deviceId,
+                    apiVersion,
+                    AndroidAPILevel.LOLLIPOP,
+                ),
+            );
+        }
+    }
+
+    private async getPackageName(): Promise<string> {
+        const appName = await new Package(this.runOptions.projectRoot).name();
+        return new PackageNameResolver(appName).resolvePackageName(this.runOptions.projectRoot);
+    }
+
+    private startMonitoringLogCat(deviceId: string, logCatArguments: string[]): void {
+        LogCatMonitorManager.delMonitor(deviceId); // Stop previous logcat monitor if it's running
 
         // this.logCatMonitor can be mutated, so we store it locally too
-        this.logCatMonitor = new LogCatMonitor(device.id, this.adbHelper, logCatArguments);
+        this.logCatMonitor = new LogCatMonitor(deviceId, this.adbHelper, logCatArguments);
         LogCatMonitorManager.addMonitor(this.logCatMonitor);
         this.logCatMonitor
             .start() // The LogCat will continue running forever, so we don't wait for it

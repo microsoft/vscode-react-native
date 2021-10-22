@@ -50,7 +50,17 @@ suite("androidPlatform", function () {
         let fileSystem: FileSystem;
         let reactNative: ReactNative022;
         let androidPlatform: AndroidPlatform;
-        let sandbox: Sinon.SinonSandbox;
+
+        let launchAppStub: Sinon.SinonStub;
+        let getConnectedTargetsStub: Sinon.SinonStub;
+        let getOnlineTargetsStub: Sinon.SinonStub;
+        let apiVersionStub: Sinon.SinonStub;
+        let reverseAdbStub: Sinon.SinonStub;
+        let getReactNativeProjectRootStub: Sinon.SinonStub;
+        let spawnReactCommandStub: Sinon.SinonStub;
+        let getReactNativeVersionsStub: Sinon.SinonStub;
+        let installAppInDeviceStub: Sinon.SinonStub;
+
         let devices: any;
         let adbHelper: adb.AdbHelper;
 
@@ -59,16 +69,14 @@ suite("androidPlatform", function () {
         }
 
         setup(() => {
-            sandbox = sinon.sandbox.create();
-
             // Configure all the dependencies we'll use in our tests
             fileSystem = new FileSystem();
 
             adbHelper = new adb.AdbHelper(genericRunOptions.projectRoot, nodeModulesRoot);
-            sandbox.stub(
+            launchAppStub = sinon.stub(
                 adbHelper,
                 "launchApp",
-                (projectRoot_: string, packageName: string, debugTarget?: string) => {
+                async (projectRoot_: string, packageName: string, debugTarget?: string) => {
                     devices = devices.map((device: any) => {
                         if (!debugTarget) {
                             device.installedApplications[androidPackageName] = {
@@ -84,56 +92,71 @@ suite("androidPlatform", function () {
 
                         return device;
                     });
-
-                    return Promise.resolve();
                 },
             );
-            sandbox.stub(adbHelper, "getConnectedDevices", function () {
-                return Promise.resolve(devices);
+            getConnectedTargetsStub = sinon.stub(
+                adbHelper,
+                "getConnectedTargets",
+                async function () {
+                    return devices;
+                },
+            );
+            getOnlineTargetsStub = sinon.stub(adbHelper, "getOnlineTargets", async function () {
+                return devices.filter((device: any) => {
+                    return device.isOnline;
+                });
             });
-            sandbox.stub(adbHelper, "getOnlineDevices", function () {
-                return Promise.resolve(
-                    devices.filter((device: any) => {
-                        return device.isOnline;
-                    }),
-                );
+            apiVersionStub = sinon.stub(adbHelper, "apiVersion", async function () {
+                return adb.AndroidAPILevel.LOLLIPOP;
             });
-            sandbox.stub(adbHelper, "apiVersion", function () {
-                return Promise.resolve(adb.AndroidAPILevel.LOLLIPOP);
-            });
-            sandbox.stub(adbHelper, "reverseAdb", function () {
-                return Promise.resolve();
+            reverseAdbStub = sinon.stub(adbHelper, "reverseAdb", async function () {
+                return;
             });
 
             reactNative = new ReactNative022(fileSystem, adbHelper);
 
-            sandbox.stub(SettingsHelper, "getReactNativeProjectRoot", () => projectRoot);
+            getReactNativeProjectRootStub = sinon.stub(
+                SettingsHelper,
+                "getReactNativeProjectRoot",
+                () => projectRoot,
+            );
 
             androidPlatform = createAndroidPlatform(genericRunOptions);
 
-            sandbox.stub(CommandExecutor.prototype, "spawnReactCommand", function () {
-                return reactNative.runAndroid(genericRunOptions);
-            });
+            spawnReactCommandStub = sinon.stub(
+                CommandExecutor.prototype,
+                "spawnReactCommand",
+                function () {
+                    return reactNative.runAndroid(genericRunOptions);
+                },
+            );
 
-            sandbox.stub(ProjectVersionHelper, "getReactNativeVersions", function () {
-                return Promise.resolve({
-                    reactNativeVersion: "0.0.1",
-                    reactNativeWindowsVersion: "",
-                });
-            });
+            getReactNativeVersionsStub = sinon.stub(
+                ProjectVersionHelper,
+                "getReactNativeVersions",
+                async function () {
+                    return {
+                        reactNativeVersion: "0.0.1",
+                        reactNativeWindowsVersion: "",
+                    };
+                },
+            );
 
-            androidPlatform.setAdbHelper(adbHelper);
+            (androidPlatform as any).adbHelper = adbHelper;
 
-            sandbox.stub(reactNative, "installAppInDevice", function (deviceId: string) {
-                devices = devices.map((device: any) => {
-                    if (deviceId && deviceId === device.id) {
-                        device.installedApplications[androidPackageName] = {};
-                    }
+            installAppInDeviceStub = sinon.stub(
+                reactNative,
+                "installAppInDevice",
+                async function (deviceId: string) {
+                    devices = devices.map((device: any) => {
+                        if (deviceId && deviceId === device.id) {
+                            device.installedApplications[androidPackageName] = {};
+                        }
 
-                    return device;
-                });
-                return Promise.resolve();
-            });
+                        return device;
+                    });
+                },
+            );
 
             // Delete existing React Native project before creating
             rimraf.sync(projectsFolder);
@@ -146,7 +169,15 @@ suite("androidPlatform", function () {
         teardown(() => {
             // Delete existing React Native project after each test
             rimraf.sync(projectsFolder);
-            sandbox.restore();
+            launchAppStub.restore();
+            getConnectedTargetsStub.restore();
+            getOnlineTargetsStub.restore();
+            apiVersionStub.restore();
+            reverseAdbStub.restore();
+            getReactNativeProjectRootStub.restore();
+            spawnReactCommandStub.restore();
+            getReactNativeVersionsStub.restore();
+            installAppInDeviceStub.restore();
             devices = [];
         });
 
@@ -159,123 +190,82 @@ suite("androidPlatform", function () {
                 "react-native/run-android/win10-rn0.22.2/succeedsWithOneVSEmulator",
                 "react-native/run-android/osx10.10-rn0.21.0/succeedsWithOneVSEmulator",
             ],
-            () => {
+            async () => {
                 devices = fillDevices(["Nexus_5"]);
 
-                return androidPlatform
-                    .runApp()
-                    .then(() => {
-                        return (
-                            devices[0].installedApplications[androidPackageName].isInDebugMode ===
-                            false
-                        );
-                    })
-                    .then(isRunning => {
-                        isRunning.should.be.true();
-                    });
+                await androidPlatform.runApp();
+                const isRunning =
+                    devices[0].installedApplications[androidPackageName].isInDebugMode === false;
+                isRunning.should.be.true();
             },
         );
 
         testWithRecordings(
             "runApp launches the app when two emulators are connected",
             ["react-native/run-android/win10-rn0.21.0/succeedsWithTwoVSEmulators"],
-            () => {
+            async () => {
                 devices = fillDevices(["Nexus_5", "Nexus_6"]);
 
-                return androidPlatform
-                    .runApp()
-                    .then(() => {
-                        return Promise.all([
-                            Promise.resolve(
-                                devices[0].installedApplications[androidPackageName]
-                                    .isInDebugMode === false,
-                            ),
-                            Promise.resolve(
-                                devices[1].installedApplications[androidPackageName]
-                                    .isInDebugMode === false,
-                            ),
-                        ]);
-                    })
-                    .then(([isRunningOnNexus5, isRunningOnNexus6]) => {
-                        // It should be running in exactly one of these two devices
-                        isRunningOnNexus5.should.not.eql(isRunningOnNexus6);
-                    });
+                await androidPlatform.runApp();
+                const [isRunningOnNexus5, isRunningOnNexus6] = [
+                    devices[0].installedApplications[androidPackageName].isInDebugMode === false,
+                    devices[1].installedApplications[androidPackageName].isInDebugMode === false,
+                ];
+                // It should be running in exactly one of these two devices
+                isRunningOnNexus5.should.not.eql(isRunningOnNexus6);
             },
         );
 
         testWithRecordings(
             "runApp launches the app when three emulators are connected",
             ["react-native/run-android/win10-rn0.21.0/succeedsWithThreeVSEmulators"],
-            () => {
+            async () => {
                 devices = fillDevices(["Nexus_5", "Nexus_6", "Nexus_7"]);
 
-                return androidPlatform
-                    .runApp()
-                    .then(() => {
-                        return Promise.all([
-                            Promise.resolve(
-                                devices[0].installedApplications[androidPackageName]
-                                    .isInDebugMode === false,
-                            ),
-                            Promise.resolve(
-                                devices[1].installedApplications[androidPackageName]
-                                    .isInDebugMode === false,
-                            ),
-                            Promise.resolve(
-                                devices[2].installedApplications[androidPackageName]
-                                    .isInDebugMode === false,
-                            ),
-                        ]);
-                    })
-                    .then(isRunningList => {
-                        // It should be running in exactly one of these three devices
-                        isRunningList.filter(v => v).should.eql([true]);
-                    });
+                await androidPlatform.runApp();
+                const isRunningList = [
+                    devices[0].installedApplications[androidPackageName].isInDebugMode === false,
+                    devices[1].installedApplications[androidPackageName].isInDebugMode === false,
+                    devices[2].installedApplications[androidPackageName].isInDebugMode === false,
+                ];
+                // It should be running in exactly one of these three devices
+                isRunningList.filter(v => v).should.eql([true]);
             },
         );
 
         testWithRecordings(
             "runApp fails if no devices are connected",
             ["react-native/run-android/win10-rn0.21.0/failsDueToNoDevicesConnected"],
-            () => {
-                return androidPlatform.runApp().then(
-                    () => {
-                        should.assert(false, "runApp should've exited with an error");
-                    },
-                    reason => {
-                        reason.message
-                            .startsWith("Unknown error: not all success patterns were matched")
-                            .should.be.true();
-                    },
-                );
+            async () => {
+                try {
+                    await androidPlatform.runApp();
+                    should.assert(false, "runApp should've exited with an error");
+                } catch (error) {
+                    error.message
+                        .startsWith("There is no any Android debuggable online target")
+                        .should.be.true();
+                }
             },
         );
 
         testWithRecordings(
             "runApp launches the app in an online emulator only",
             ["react-native/run-android/win10-rn0.21.0/succeedsWithFiveVSEmulators"],
-            () => {
+            async () => {
                 devices = fillDevices(["Nexus_5", "Nexus_6", "Nexus_7", "Nexus_8", "Nexus_9"]);
                 devices[4].isOnline = false;
 
-                return androidPlatform
-                    .runApp()
-                    .then(() => {
-                        return (
-                            devices[4].installedApplications[androidPackageName].isInDebugMode ===
-                            false
-                        );
-                    })
-                    .then(isRunningOnOfflineDevice => {
-                        isRunningOnOfflineDevice.should.be.false();
-                    });
+                await androidPlatform.runApp();
+                const isRunningOnOfflineDevice =
+                    devices[4].installedApplications[androidPackageName].isInDebugMode === false;
+                isRunningOnOfflineDevice.should.be.false();
             },
         );
 
         testWithRecordings(
             "runApp launches the app in the device specified as target",
             ["react-native/run-android/win10-rn0.21.0/succeedsWithFiveVSEmulators"],
-            () => {
+            async () => {
                 devices = fillDevices(["Nexus_5", "Nexus_6", "Nexus_10", "Nexus_11", "Nexus_12"]);
 
                 const runOptions: any = {
@@ -290,25 +280,18 @@ suite("androidPlatform", function () {
                     nodeModulesRoot,
                 };
                 const platform = createAndroidPlatform(runOptions);
-                platform.setAdbHelper(adbHelper);
-                return platform
-                    .runApp()
-                    .then(() => {
-                        return (
-                            devices[4].installedApplications[androidPackageName].isInDebugMode ===
-                            false
-                        );
-                    })
-                    .then(isRunningOnNexus12 => {
-                        isRunningOnNexus12.should.be.true();
-                    });
+                (platform as any).adbHelper = adbHelper;
+                await platform.runApp();
+                const isRunningOnNexus12 =
+                    devices[4].installedApplications[androidPackageName].isInDebugMode === false;
+                isRunningOnNexus12.should.be.true();
             },
         );
 
         testWithRecordings(
             "runApp launches the app in a random online device if the target is offline",
             ["react-native/run-android/win10-rn0.21.0/succeedsWithTenVSEmulators"],
-            () => {
+            async () => {
                 const onlineDevicesIds = [
                     "Nexus_11",
                     "Nexus_13",
@@ -336,20 +319,14 @@ suite("androidPlatform", function () {
                     nodeModulesRoot,
                 };
                 const platform = createAndroidPlatform(runOptions);
-                platform.setAdbHelper(adbHelper);
-                return platform
-                    .runApp()
-                    .then(() => {
-                        return devices.filter(
-                            (device: any) =>
-                                device.installedApplications[androidPackageName].isInDebugMode ===
-                                false,
-                        );
-                    })
-                    .then(devicesRunningAppId => {
-                        devicesRunningAppId.length.should.eql(1);
-                        onlineDevicesIds.should.containEql(devicesRunningAppId[0].id);
-                    });
+                (platform as any).adbHelper = adbHelper;
+                await platform.runApp();
+                const devicesRunningAppId = devices.filter(
+                    (device: any) =>
+                        device.installedApplications[androidPackageName].isInDebugMode === false,
+                );
+                devicesRunningAppId.length.should.eql(1);
+                onlineDevicesIds.should.containEql(devicesRunningAppId[0].id);
             },
         );
 
@@ -360,20 +337,13 @@ suite("androidPlatform", function () {
                 "react-native/run-android/win10-rn0.22.2/succeedsWithOneVSEmulator",
                 "react-native/run-android/osx10.10-rn0.21.0/succeedsWithOneVSEmulator",
             ],
-            () => {
+            async () => {
                 devices = fillDevices(["Nexus_5"]);
 
-                return androidPlatform
-                    .runApp()
-                    .then(() => {
-                        return (
-                            devices[0].installedApplications[androidPackageName].isInDebugMode ===
-                            false
-                        );
-                    })
-                    .then(isRunning => {
-                        isRunning.should.be.true();
-                    });
+                await androidPlatform.runApp();
+                const isRunning =
+                    devices[0].installedApplications[androidPackageName].isInDebugMode === false;
+                isRunning.should.be.true();
             },
         );
 
@@ -383,55 +353,41 @@ suite("androidPlatform", function () {
                 "react-native/run-android/win10-rn0.21.0/failsDueToAndroidFolderMissing",
                 "react-native/run-android/win10-rn0.22.2/failsDueToAndroidFolderMissing",
             ],
-            () => {
+            async () => {
                 devices = fillDevices(["Nexus_5"]);
 
-                return fileSystem
-                    .rmdir(androidProjectPath)
-                    .then(() => {
-                        return androidPlatform.runApp();
-                    })
-                    .then(
-                        () => {
-                            should.assert(false, "Expected runApp to end up with an error");
-                            return false;
-                        },
-                        reason => {
-                            reason.message.should.eql(
-                                "Android project not found. (error code 1203)",
-                            );
-                            return !!devices[0].installedApplications[androidPackageName];
-                        },
-                    )
-                    .then(isRunning => {
-                        isRunning.should.be.false();
-                    });
+                await fileSystem.rmdir(androidProjectPath);
+                let isRunning: boolean;
+                try {
+                    await androidPlatform.runApp();
+                    should.assert(false, "Expected runApp to end up with an error");
+                    isRunning = false;
+                } catch (error) {
+                    error.message.should.eql("Android project not found. (error code 1203)");
+                    isRunning = !!devices[0].installedApplications[androidPackageName];
+                }
+                isRunning.should.be.false();
             },
         );
 
         testWithRecordings(
             "runApp fails when the android emulator shell is unresponsive, and shows a nice error message",
             ["react-native/run-android/osx10.10-rn0.21.0/failsDueToAdbCommandTimeout"],
-            () => {
+            async () => {
                 devices = fillDevices(["Nexus_5"]);
 
-                return androidPlatform
-                    .runApp()
-                    .then(
-                        () => {
-                            should.assert(false, "Expected runApp to end up with an error");
-                            return false;
-                        },
-                        reason => {
-                            "An Android shell command timed-out. Please retry the operation. (error code 1202)".should.eql(
-                                reason.message,
-                            );
-                            return !!devices[0].installedApplications[androidPackageName];
-                        },
-                    )
-                    .then(isRunning => {
-                        isRunning.should.be.false();
-                    });
+                let isRunning: boolean;
+                try {
+                    await androidPlatform.runApp();
+                    should.assert(false, "Expected runApp to end up with an error");
+                    isRunning = false;
+                } catch (error) {
+                    "An Android shell command timed-out. Please retry the operation. (error code 1202)".should.eql(
+                        error.message,
+                    );
+                    isRunning = !!devices[0].installedApplications[androidPackageName];
+                }
+                isRunning.should.be.false();
             },
         );
 
@@ -499,15 +455,20 @@ suite("androidPlatform", function () {
 
         test("AdbHelper should correctly parse Android Sdk Location from local.properties file content", () => {
             const adbHelper = new adb.AdbHelper("", nodeModulesRoot);
+            let getPlatformStub: Sinon.SinonStub;
             function testPaths(inputPath: string, expectedPath: string) {
-                const resultPath = adbHelper.parseSdkLocation(`sdk.dir=${inputPath}`);
-                assert.strictEqual(resultPath, expectedPath);
+                const resultPath1 = adbHelper.parseSdkLocation(`sdk.dir=${inputPath}`);
+                const resultPath2 = adbHelper.parseSdkLocation(`sdk.dir   =${inputPath}`);
+                const resultPath3 = adbHelper.parseSdkLocation(`sdk.dir = ${inputPath}`);
+                assert.strictEqual(resultPath1, expectedPath);
+                assert.strictEqual(resultPath2, expectedPath);
+                assert.strictEqual(resultPath3, expectedPath);
             }
 
             const os = require("os");
             function mockPlatform(platform: NodeJS.Platform) {
-                sandbox.restore();
-                sandbox.stub(os, "platform", function () {
+                getPlatformStub?.restore();
+                getPlatformStub = sinon.stub(os, "platform", function () {
                     return platform;
                 });
             }
@@ -539,6 +500,10 @@ suite("androidPlatform", function () {
                 String.raw`/Volumes/Macintosh HD/Users/foo/Library/Android/sdk/platform-tools`,
                 String.raw`/Volumes/Macintosh HD/Users/foo/Library/Android/sdk/platform-tools`,
             );
+
+            teardown(() => {
+                getPlatformStub?.restore();
+            });
         });
 
         test("AdbHelper getAdbPath function should correctly parse Android Sdk Location from local.properties and wrap with quotes", () => {
@@ -589,7 +554,7 @@ function fillDevices(ids: string[]): any[] {
             isOnline: true,
             installedApplications: {},
             runningApplications: {},
-            type: adb.AdbDeviceType.AndroidSdkEmulator,
+            isVirtualTarget: true,
             id: id,
         });
     });

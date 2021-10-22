@@ -1,3 +1,31 @@
+## 1.7.1
+* Improved behavior of Packager status indicator [#1680](https://github.com/microsoft/vscode-react-native/pull/1680)
+* Fixed debugging performance issue [#1684](https://github.com/microsoft/vscode-react-native/pull/1684)
+* Improved extension security [#1682](https://github.com/microsoft/vscode-react-native/pull/1682)
+* Internal changes:
+    * Smoke tests were updated to work with VS Code 1.61.0 [#1682](https://github.com/microsoft/vscode-react-native/pull/1682)
+
+
+## 1.7.0
+* Fixed forwarding security certificates for Network inspector on Windows [#1661](https://github.com/microsoft/vscode-react-native/pull/1661)
+* Improved Expo dependencies management: moved [configuration](https://github.com/microsoft/vscode-react-native#configure-dependencies-versions-for-debugging-expo-projects) of all packages versions to the `react-native.expo.dependencies` parameter [#1665](https://github.com/microsoft/vscode-react-native/pull/1665)
+* Bumped versions of Expo dependencies to the most recent ones [#1676](https://github.com/microsoft/vscode-react-native/pull/1676)
+* Improved extension security [#1658](https://github.com/microsoft/vscode-react-native/pull/1658), [#1670](https://github.com/microsoft/vscode-react-native/pull/1670)
+* Internal changes:
+    * Migrated to async/await API [#1637](https://github.com/microsoft/vscode-react-native/pull/1637)
+    * Updated WebdriverIO version in smoke tests to the latest [#1662](https://github.com/microsoft/vscode-react-native/pull/1662)
+
+
+## 1.6.1
+* Improved error logging on debugging [#1633](https://github.com/microsoft/vscode-react-native/pull/1633)
+* Improved parsing of `sdk.dir` parameter in Android `local.properties` [#1643](https://github.com/microsoft/vscode-react-native/pull/1643)
+* Fixed typos in error messages, thanks to [Alexander Sklar(@asklar)](https://github.com/asklar) [#1648](https://github.com/microsoft/vscode-react-native/pull/1648)
+* Enhanced documentation about extension commands usage [#1649](https://github.com/microsoft/vscode-react-native/pull/1649)
+* Improved tips notifications functionality [#1642](https://github.com/microsoft/vscode-react-native/pull/1642)
+* Added a settings parameter for controlling the version of the `@expo/ngrok` package [#1652](https://github.com/microsoft/vscode-react-native/pull/1652)
+* Improved extension security [#1635](https://github.com/microsoft/vscode-react-native/pull/1635), [#1640](https://github.com/microsoft/vscode-react-native/pull/1640), [#1641](https://github.com/microsoft/vscode-react-native/pull/1641)
+
+
 ## 1.6.0
 * Added support of debugging of React Native for Windows Hermes applications: [more info](https://github.com/microsoft/vscode-react-native#windows-hermes-debugging) [#1624](https://github.com/microsoft/vscode-react-native/pull/1624)
 * Added tips about rarely used extension features [#1610](https://github.com/microsoft/vscode-react-native/pull/1610)

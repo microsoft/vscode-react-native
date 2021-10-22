@@ -1,11 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
-import * as fs from "fs";
-import * as path from "path";
-import * as cp from "child_process";
-import * as utilities from "./utilities";
-import * as vscodeTest from "vscode-test";
-import * as rimraf from "rimraf";
+
 import {
     Application,
     Quality,
@@ -14,6 +9,12 @@ import {
     Logger,
     ConsoleLogger,
 } from "../../../automation";
+import * as fs from "fs";
+import * as path from "path";
+import * as cp from "child_process";
+import * as utilities from "./utilities";
+import * as vscodeTest from "vscode-test";
+import * as rimraf from "rimraf";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
 import { SmokeTestLogger } from "./smokeTestLogger";
 import { AppiumHelper } from "./appiumHelper";

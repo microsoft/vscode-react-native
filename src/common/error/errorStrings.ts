@@ -208,7 +208,7 @@ export const ERROR_STRINGS = {
     ),
     [InternalErrorCode.NgrokIsNotInstalledGlobally]: localize(
         "NgrokIsNotInstalledGlobally",
-        'It seems that "@expo/ngrok" package isn\'t installed globally. This package is required to use Expo tunnels. Please run "npm i -g @expo/ngrok" to install it globally.',
+        'It seems that "@expo/ngrok{0}" package isn\'t installed globally. This package is required to use Expo tunnels. Please run "npm i -g @expo/ngrok{0}" to install it globally.',
     ),
     [InternalErrorCode.CannotAttachToPackagerCheckPackagerRunningOnPort]: localize(
         "CannotAttachToPackagerCheckPackagerRunningOnPort",
@@ -260,7 +260,7 @@ export const ERROR_STRINGS = {
     ),
     [InternalErrorCode.WinRunCommandFailed]: localize(
         "WinRunCommandFailed",
-        "{0}\nPlease check the 'React Native: Run Windows' output channel for detales",
+        "{0}\nPlease check the 'React Native: Run Windows' output channel for details",
     ),
     [InternalErrorCode.ReactDevtoolsIsNotInstalled]: localize(
         "ReactDevtoolsIsNotInstalled",
@@ -318,9 +318,21 @@ export const ERROR_STRINGS = {
         "FailedToStartAndroidEmulator",
         'The command "emulator -avd {0}" threw an exception: {1}',
     ),
-    [InternalErrorCode.VirtualDeviceSelectionError]: localize(
-        "VirtualDeviceSelectionError",
-        "Virtual device launch finished with an exception: {0}",
+    [InternalErrorCode.FailedToStartIOSSimulator]: localize(
+        "FailedToStartIOSSimulator",
+        'The command "xrun simctl boot {0}" threw an exception: {1}',
+    ),
+    [InternalErrorCode.AndroidThereIsNoAnyOnlineDebuggableTarget]: localize(
+        "AndroidThereIsNoAnyOnlineDebuggableTarget",
+        "There is no any Android debuggable online target",
+    ),
+    [InternalErrorCode.IOSThereIsNoAnyDebuggableTarget]: localize(
+        "IOSThereIsNoAnyDebuggableTarget",
+        "There is no any iOS debuggable target",
+    ),
+    [InternalErrorCode.TargetSelectionError]: localize(
+        "TargetSelectionError",
+        "The target launch finished with an exception: {0}",
     ),
     [InternalErrorCode.ReactNativemacOSIsNotInstalled]: localize(
         "ReactNativemacOSIsNotInstalled",

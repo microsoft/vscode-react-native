@@ -352,7 +352,7 @@ export class CertificateProvider {
         deviceCsrFilePath: string,
         csr: string,
     ): Promise<string> {
-        return this.adbHelper.getOnlineDevices().then(devices => {
+        return this.adbHelper.getOnlineTargets().then(devices => {
             if (devices.length === 0) {
                 throw new Error("No Android devices found");
             }
