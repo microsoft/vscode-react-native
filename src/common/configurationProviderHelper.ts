@@ -150,7 +150,7 @@ export class ConfigurationProviderHelper {
         defaultAddress: string,
     ): Promise<Partial<ILaunchRequestArgs>> {
         delete config.address;
-        let address = await input.showInputBox({
+        const address = await input.showInputBox({
             title: localize("AddressInputTitle", "The address of the host"),
             step,
             totalSteps,
@@ -187,7 +187,7 @@ export class ConfigurationProviderHelper {
         );
         const portRegex = /^\d+$/;
 
-        let portStr = await input.showInputBox({
+        const portStr = await input.showInputBox({
             title: localize("PortInputTitle", "The port of the host"),
             step,
             totalSteps,

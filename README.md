@@ -137,11 +137,11 @@ VS Code will generate a `launch.json` in your project with some default configur
 
 ![React Native launch targets](images/debug-targets.png)
 
-The extension also allows to start debugging without creating the `launch.json` file the following ways:
+The extension also allows to start debugging without creating the `launch.json` file in one of the following ways:
 
 - Using dynamic debugging configurations
 
-  To use dynamic debugging configurations you can click on `Show all automatic degub configurations` string in the `Run and Debug` panel, then select `React Native` in the list of extensions and choose the appropriate configuration in the Configuration list to start debugging.
+  To use dynamic debugging configurations you can click on the `Show all automatic degub configurations` string in the `Run and Debug` panel, then select `React Native` in the list of extensions and choose the appropriate configuration in the Configuration list to start debugging.
 
   ![Run dynamic debugging configuration](images/dynamic-debugging-configuration.gif)
 
