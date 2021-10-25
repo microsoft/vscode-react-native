@@ -298,75 +298,75 @@
       "editor/title/run": [
         {
           "command": "reactNative.debugScenario.attachHermesApplicationExperimental",
-          "when": "isRNProject && isRNHermesProject"
+          "when": "isRNProject && isRNHermesProject && config.react-native-tools.displayDebuggingCommandsButton"
         },
         {
           "command": "reactNative.debugScenario.attachDirectIosExperimental",
-          "when": "isRNProject"
+          "when": "isRNProject && config.react-native-tools.displayDebuggingCommandsButton"
         },
         {
           "command": "reactNative.debugScenario.attachToPackager",
-          "when": "isRNProject"
+          "when": "isRNProject && config.react-native-tools.displayDebuggingCommandsButton"
         },
         {
           "command": "reactNative.debugScenario.debugAndroid",
-          "when": "isRNProject"
+          "when": "isRNProject && config.react-native-tools.displayDebuggingCommandsButton"
         },
         {
           "command": "reactNative.debugScenario.debugIos",
-          "when": "isRNProject"
+          "when": "isRNProject && config.react-native-tools.displayDebuggingCommandsButton"
         },
         {
           "command": "reactNative.debugScenario.debugWindows",
-          "when": "isRNProject && isRNWindowsProject"
+          "when": "isRNProject && isRNWindowsProject && config.react-native-tools.displayDebuggingCommandsButton"
         },
         {
           "command": "reactNative.debugScenario.debugMacos",
-          "when": "isRNProject && isRNMacOSProject"
+          "when": "isRNProject && isRNMacOSProject && config.react-native-tools.displayDebuggingCommandsButton"
         },
         {
           "command": "reactNative.debugScenario.debugInExponent",
-          "when": "isRNProject"
+          "when": "isRNProject && config.react-native-tools.displayDebuggingCommandsButton"
         },
         {
           "command": "reactNative.debugScenario.debugAndroidHermesExperimental",
-          "when": "isRNProject && isRNAndroidHermesProject"
+          "when": "isRNProject && isRNAndroidHermesProject && config.react-native-tools.displayDebuggingCommandsButton"
         },
         {
           "command": "reactNative.debugScenario.debugDirectIosExperimental",
-          "when": "isRNProject"
+          "when": "isRNProject && config.react-native-tools.displayDebuggingCommandsButton"
         },
         {
           "command": "reactNative.debugScenario.debugIosHermesExperimental",
-          "when": "isRNProject && isRNIosHermesProject"
+          "when": "isRNProject && isRNIosHermesProject && config.react-native-tools.displayDebuggingCommandsButton"
         },
         {
           "command": "reactNative.debugScenario.debugMacosHermesExperimental",
-          "when": "isRNProject && isRNMacosHermesProject"
+          "when": "isRNProject && isRNMacosHermesProject && config.react-native-tools.displayDebuggingCommandsButton"
         },
         {
           "command": "reactNative.debugScenario.debugWindowsHermesExperimental",
-          "when": "isRNProject && isRNWindowsHermesProject"
+          "when": "isRNProject && isRNWindowsHermesProject && config.react-native-tools.displayDebuggingCommandsButton"
         },
         {
           "command": "reactNative.debugScenario.runAndroid",
-          "when": "isRNProject"
+          "when": "isRNProject && config.react-native-tools.displayDebuggingCommandsButton"
         },
         {
           "command": "reactNative.debugScenario.runIos",
-          "when": "isRNProject"
+          "when": "isRNProject && config.react-native-tools.displayDebuggingCommandsButton"
         },
         {
           "command": "reactNative.debugScenario.runAndroidHermesExperimental",
-          "when": "isRNProject && isRNAndroidHermesProject"
+          "when": "isRNProject && isRNAndroidHermesProject && config.react-native-tools.displayDebuggingCommandsButton"
         },
         {
           "command": "reactNative.debugScenario.runIosHermesExperimental",
-          "when": "isRNProject && isRNIosHermesProject"
+          "when": "isRNProject && isRNIosHermesProject && config.react-native-tools.displayDebuggingCommandsButton"
         },
         {
           "command": "reactNative.debugScenario.runDirectIosExperimental",
-          "when": "isRNProject"
+          "when": "isRNProject && config.react-native-tools.displayDebuggingCommandsButton"
         }
       ],
       "commandPalette": [
@@ -1075,6 +1075,12 @@
         },
         "react-native-tools.showUserTips": {
           "description": "%reactNative.configuration.properties.react-native-tools.showUserTips.description%",
+          "type": "boolean",
+          "scope": "resource",
+          "default": true
+        },
+        "react-native-tools.displayDebuggingCommandsButton": {
+          "description": "%reactNative.configuration.properties.react-native-tools.displayDebuggingCommandsButton.description%",
           "type": "boolean",
           "scope": "resource",
           "default": true
