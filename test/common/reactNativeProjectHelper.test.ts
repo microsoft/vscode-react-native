@@ -57,6 +57,17 @@ suite("ReactNativeProjectHelper", function () {
 
             assert.strictEqual(androidHermesEnabled, false);
         });
+
+        test("isAndroidHermesEnabled should return 'false' if the Hermes engine parameter is absent in the build.gradle file", () => {
+            const buildGradleFileContent = "project.ext.react = [\n]";
+            fs.writeFileSync(buildGradleFilePath, buildGradleFileContent);
+
+            const androidHermesEnabled = ReactNativeProjectHelper.isAndroidHermesEnabled(
+                sampleReactNative022ProjectDir,
+            );
+
+            assert.strictEqual(androidHermesEnabled, false);
+        });
     });
 
     suite("isIOSHermesEnabled", () => {
@@ -93,6 +104,18 @@ suite("ReactNativeProjectHelper", function () {
                 "    # to enable hermes on iOS, change `false` to `true` and then install pods\n" +
                 "    :hermes_enabled => false\n" +
                 "  )";
+            fs.writeFileSync(podfileFilePath, podfileFileContent);
+
+            const iOSHermesEnabled = ReactNativeProjectHelper.isIOSHermesEnabled(
+                sampleReactNative022ProjectDir,
+            );
+
+            assert.strictEqual(iOSHermesEnabled, false);
+        });
+
+        test("isIOSHermesEnabled should return 'false' if the Hermes engine parameter is absent in the Podfile file", () => {
+            const podfileFileContent =
+                "  use_react_native!(\n" + "    :path => config[:reactNativePath],\n" + "  )";
             fs.writeFileSync(podfileFilePath, podfileFileContent);
 
             const iOSHermesEnabled = ReactNativeProjectHelper.isIOSHermesEnabled(
@@ -167,6 +190,20 @@ suite("ReactNativeProjectHelper", function () {
                 "    #\n" +
                 "    # Then enable this option:\n" +
                 "    #   :hermes_enabled => true\n" +
+                "  )";
+            fs.writeFileSync(podfileFilePath, podfileFileContent);
+
+            const macOSHermesEnabled = ReactNativeProjectHelper.isMacOSHermesEnabled(
+                sampleReactNative022ProjectDir,
+            );
+
+            assert.strictEqual(macOSHermesEnabled, false);
+        });
+
+        test("isMacOSHermesEnabled should return 'false' if the Hermes engine parameter is absent in the Podfile file", () => {
+            const podfileFileContent =
+                "  use_react_native!(\n" +
+                "    :path => '../node_modules/react-native-macos',\n" +
                 "  )";
             fs.writeFileSync(podfileFilePath, podfileFileContent);
 

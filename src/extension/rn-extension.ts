@@ -316,8 +316,7 @@ export async function onFolderAdded(folder: vscode.WorkspaceFolder): Promise<voi
                 ErrorHelper.getInternalError(InternalErrorCode.DebuggerStubLauncherFailed),
                 async () => {
                     let reactDirManager = new ReactDirManager(rootPath);
-                    const projectObserver = new RNProjectObserver();
-                    projectObserver.initialize(projectRootPath, versions);
+                    const projectObserver = new RNProjectObserver(projectRootPath, versions);
                     await setupAndDispose(reactDirManager);
                     ProjectsStorage.addFolder(
                         projectRootPath,
