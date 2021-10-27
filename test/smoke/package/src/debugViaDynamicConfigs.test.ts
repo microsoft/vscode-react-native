@@ -10,7 +10,7 @@ import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 import { testApplicationSetupManager } from "./main";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
 import TestProject from "./helpers/testProject";
-import { sleep } from "./helpers/utilities";
+import { sleep, waitUntil } from "./helpers/utilities";
 import AutomationHelper from "./helpers/AutomationHelper";
 
 // Time for Debugging Via Dynamic Configs Test before it reaches timeout
@@ -67,11 +67,14 @@ export function startDebuggingViaDynamicConfigsTests(project: TestProject): void
 
         afterEach(disposeAll);
 
-        function findPackagerStartedStrInLogFile() {
-            return vscodeManager.findStringInLogs(
-                packagerStartedCheck,
-                SmokeTestsConstants.ReactNativeLogFileName,
-            );
+        async function findPackagerStartedStrInLogFile() {
+            const condition = () =>
+                vscodeManager.findStringInLogs(
+                    packagerStartedCheck,
+                    SmokeTestsConstants.ReactNativeLogFileName,
+                );
+
+            return waitUntil(condition, 30000, 5000);
         }
 
         it("Start 'Debug Android' dynamic config", async function () {
