@@ -136,8 +136,7 @@ export function startDebuggingViaDynamicConfigsTests(project: TestProject): void
             SmokeTestLogger.info(
                 "Start 'Attach to packager' dynamic config test: waiting for packager started",
             );
-            await sleep(15 * 1000);
-            const packagerStarted = findPackagerStartedStrInLogFile();
+            const packagerStarted = await findPackagerStartedStrInLogFile();
             if (!packagerStarted) {
                 assert.fail("Packager started string is not found");
                 return;
