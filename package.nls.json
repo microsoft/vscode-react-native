@@ -95,5 +95,6 @@
   "reactNative.configuration.properties.react-native-tools.logLevel.description": "Logging level in extension",
   "reactNative.configuration.properties.react-native-tools.reactNativeGlobalCommandName.description": "The command name to be used to execute React Native CLI commands.",
   "reactNative.configuration.properties.react-native-tools.consoleLogsColorTheme.description": "The color theme for Network inspector logs in VS Code DevTools console",
+  "reactNative.configuration.properties.react-native-tools.displayDebuggingCommandsButton.description": "Whether to show the Debug button in the Editor Title area menu",
   "reactNative.configuration.properties.react-native-tools.showUserTips.description": "Whether to show tips about extension features"
 }

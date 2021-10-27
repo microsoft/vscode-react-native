@@ -13,7 +13,7 @@ jobs:
   - job: Windows
     pool:
       name: "React Native smoke tests - Windows"
-    timeoutInMinutes: 80
+    timeoutInMinutes: 85
     steps:
       - checkout: self
         clean: true

@@ -12,7 +12,6 @@ import * as adb from "../../../src/extension/android/adb";
 import { RecordingsHelper } from "../../resources/recordingsHelper";
 import { CommandExecutor } from "../../../src/common/commandExecutor";
 import { ProjectVersionHelper } from "../../../src/common/projectVersionHelper";
-import * as rimraf from "rimraf";
 import "should";
 import * as sinon from "sinon";
 import { SettingsHelper } from "../../../src/extension/settingsHelper";
@@ -159,7 +158,7 @@ suite("androidPlatform", function () {
             );
 
             // Delete existing React Native project before creating
-            rimraf.sync(projectsFolder);
+            fileSystem.removePathRecursivelySync(projectsFolder);
             // Create a React-Native project we'll use in our tests
             return reactNative
                 .fromProjectFileContent(rnProjectContent)
@@ -168,7 +167,7 @@ suite("androidPlatform", function () {
 
         teardown(() => {
             // Delete existing React Native project after each test
-            rimraf.sync(projectsFolder);
+            fileSystem.removePathRecursivelySync(projectsFolder);
             launchAppStub.restore();
             getConnectedTargetsStub.restore();
             getOnlineTargetsStub.restore();

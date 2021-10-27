@@ -148,12 +148,20 @@ export class IOSPlatform extends GeneralMobilePlatform {
     }
 
     public async runApp(): Promise<void> {
-        let extProps = {
+        let extProps: any = {
             platform: {
                 value: PlatformType.iOS,
                 isPii: false,
             },
         };
+
+        if (this.runOptions.isDirect) {
+            extProps.isDirect = {
+                value: true,
+                isPii: false,
+            };
+            this.projectObserver?.updateRNIosHermesProjectState(true);
+        }
 
         extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(
             this.runOptions,

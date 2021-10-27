@@ -140,6 +140,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                 value: true,
                 isPii: false,
             };
+            this.projectObserver?.updateRNAndroidHermesProjectState(true);
         }
 
         extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(

@@ -7,8 +7,8 @@ import { Packager } from "../common/packager";
 import { PackagerStatusIndicator, PackagerStatus } from "./packagerStatusIndicator";
 import { SettingsHelper } from "./settingsHelper";
 import { OutputChannelLogger } from "./log/OutputChannelLogger";
+import { RNProjectObserver } from "./rnProjectObserver";
 import * as nls from "vscode-nls";
-
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -16,6 +16,7 @@ nls.config({
 const localize = nls.loadMessageBundle();
 
 export interface MobilePlatformDeps {
+    projectObserver?: RNProjectObserver;
     packager?: Packager;
 }
 
@@ -29,6 +30,7 @@ export class GeneralPlatform {
     protected platformName: string;
     protected packager: Packager;
     protected logger: OutputChannelLogger;
+    protected projectObserver?: RNProjectObserver;
 
     protected static NO_PACKAGER_VERSION = "0.42.0";
 
@@ -45,6 +47,7 @@ export class GeneralPlatform {
                 SettingsHelper.getPackagerPort(this.runOptions.workspaceRoot),
                 new PackagerStatusIndicator(this.projectPath),
             );
+        this.projectObserver = platformDeps.projectObserver;
         this.packager.setRunOptions(runOptions);
         this.logger = OutputChannelLogger.getChannel(
             localize("ReactNativeRunPlatform", "React Native: Run {0}", this.platformName),

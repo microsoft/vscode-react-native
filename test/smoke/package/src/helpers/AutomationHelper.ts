@@ -225,6 +225,25 @@ export default class AutomationHelper {
         );
     }
 
+    public async openDynamicDebugScenariosWithRetry(
+        retryCount: number = 3,
+        pollRetryCount: number = 10,
+        pollRetryInterval: number = 1000,
+    ): Promise<void> {
+        const func = async () => {
+            await this.app.workbench.quickaccess.openDynamicDebugScenarios("React Native...", 1);
+            await this.app.workbench.quickinput.waitForQuickInputOpened();
+        };
+        const catchFunc = async () => await this.app.workbench.code.dispatchKeybinding("escape");
+        await this.retryWithSpecifiedPollRetryParameters(
+            func,
+            retryCount,
+            pollRetryCount,
+            pollRetryInterval,
+            catchFunc,
+        );
+    }
+
     public async addConfigurationWithRetry(
         retryCount: number = 3,
         pollRetryCount: number = 10,

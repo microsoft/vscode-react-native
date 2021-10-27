@@ -10,15 +10,6 @@ import {
     DEBUG_TYPES,
     DebugScenarioType,
 } from "../debugConfigTypesAndConstants";
-import { PlatformType } from "../../launchArgs";
-import { IWDPHelper } from "../../../debugger/direct/IWDPHelper";
-import { Packager } from "../../../common/packager";
-import * as nls from "vscode-nls";
-nls.config({
-    messageFormat: nls.MessageFormat.bundle,
-    bundleFormat: nls.BundleFormat.standalone,
-})();
-const localize = nls.loadMessageBundle();
 
 export class AttachConfigProvider extends BaseConfigProvider {
     private readonly defaultAddress: string;
@@ -88,25 +79,13 @@ export class AttachConfigProvider extends BaseConfigProvider {
         input: MultiStepInput<DebugConfigurationState>,
         config: Partial<ILaunchRequestArgs>,
     ): Promise<InputStep<DebugConfigurationState> | void> {
-        delete config.address;
-        let address = await input.showInputBox({
-            title: localize("AddressInputTitle", "The address of the host"),
-            step: config.type === DEBUG_TYPES.REACT_NATIVE_DIRECT ? 3 : 2,
-            totalSteps: this.maxStepCount,
-            value: this.defaultAddress,
-            prompt: localize("AddressInputPrompt", "Enter the address of the host"),
-            validate: value =>
-                Promise.resolve(
-                    value && value.trim().length > 0
-                        ? undefined
-                        : localize("AddressInputInvalid", "Enter a valid host name or IP address"),
-                ),
-        });
-
-        if (address && address.trim() !== this.defaultAddress) {
-            config.address = address.trim();
-        }
-
+        await this.configurationProviderHelper.configureAddress(
+            input,
+            config,
+            config.type === DEBUG_TYPES.REACT_NATIVE_DIRECT ? 3 : 2,
+            this.maxStepCount,
+            this.defaultAddress,
+        );
         return () => this.configurePort(input, config);
     }
 
@@ -114,40 +93,11 @@ export class AttachConfigProvider extends BaseConfigProvider {
         input: MultiStepInput<DebugConfigurationState>,
         config: Partial<ILaunchRequestArgs>,
     ): Promise<InputStep<DebugConfigurationState> | void> {
-        delete config.port;
-        const defaultPort = String(
-            config.type === DEBUG_TYPES.REACT_NATIVE_DIRECT &&
-                config.platform === PlatformType.iOS &&
-                !config.useHermesEngine
-                ? IWDPHelper.iOS_WEBKIT_DEBUG_PROXY_DEFAULT_PORT
-                : Packager.DEFAULT_PORT,
+        await this.configurationProviderHelper.configurePort(
+            input,
+            config,
+            config.type === DEBUG_TYPES.REACT_NATIVE_DIRECT ? 4 : 3,
+            this.maxStepCount,
         );
-        const portRegex = /^\d+$/;
-
-        let portStr = await input.showInputBox({
-            title: localize("PortInputTitle", "The port of the host"),
-            step: config.type === DEBUG_TYPES.REACT_NATIVE_DIRECT ? 4 : 3,
-            totalSteps: this.maxStepCount,
-            value: defaultPort,
-            prompt: localize(
-                "PortInputPrompt",
-                "Enter the port number that the debug server is listening on",
-            ),
-            validate: value =>
-                Promise.resolve(
-                    value && portRegex.test(value.trim())
-                        ? undefined
-                        : localize("PortInputInvalid", "Enter a valid port number"),
-                ),
-        });
-
-        let portNumber: number | undefined;
-        if (portStr && portRegex.test(portStr.trim())) {
-            portNumber = parseInt(portStr, 10);
-        }
-
-        if (portNumber && portNumber !== Packager.DEFAULT_PORT) {
-            config.port = portNumber;
-        }
     }
 }

@@ -65,11 +65,13 @@ export class MacOSPlatform extends GeneralPlatform {
             },
         };
 
+        this.projectObserver?.updateRNMacosProjectState(true);
         if (this.runOptions.isDirect) {
             extProps.isDirect = {
                 value: true,
                 isPii: false,
             };
+            this.projectObserver?.updateRNMacosHermesProjectState(true);
         }
 
         extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(
