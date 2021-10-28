@@ -33,7 +33,7 @@ export class SmokeTestsConstants {
     // Timeout for Windows smoke test
     public static windowsTestTimeout = 800 * 1000;
     // Timeout for Expo testing
-    public static expoTestTimeout = 700 * 1000;
+    public static expoTestTimeout = 750 * 1000;
     // Timeout for iOS testing
     public static iosTestTimeout = 700 * 1000;
     // Timeout for Android testing
