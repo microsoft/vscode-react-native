@@ -67,7 +67,7 @@ suite("androidPlatform", function () {
             return new AndroidPlatform(runOptions);
         }
 
-        setup(() => {
+        setup(async () => {
             // Configure all the dependencies we'll use in our tests
             fileSystem = new FileSystem();
 
@@ -160,7 +160,7 @@ suite("androidPlatform", function () {
             // Delete existing React Native project before creating
             fileSystem.removePathRecursivelySync(projectsFolder);
             // Create a React-Native project we'll use in our tests
-            return reactNative
+            await reactNative
                 .fromProjectFileContent(rnProjectContent)
                 .createProject(projectRoot, applicationName);
         });
