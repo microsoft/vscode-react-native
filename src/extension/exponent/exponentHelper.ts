@@ -6,6 +6,7 @@
 import * as path from "path";
 import * as semver from "semver";
 import * as vscode from "vscode";
+import { sync as globSync } from "glob";
 import * as XDL from "./xdlInterface";
 import { Package, IPackageInformation } from "../../common/node/package";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
@@ -76,7 +77,7 @@ export class ExponentHelper {
         this.logger.logStream(
             localize("CheckingIfThisIsExpoApp", "Checking if this is an Expo app."),
         );
-        isExpo = await this.isExpoApp(true);
+        isExpo = await this.isExpoManagedApp(true);
         if (!isExpo) {
             if (!(await this.appHasExpoInstalled())) {
                 // Expo requires expo package to be installed inside RN application in order to be able to run it
@@ -145,33 +146,18 @@ export class ExponentHelper {
         return false;
     }
 
-    public async appHasExpoRNSDKInstalled(): Promise<boolean> {
-        const packageJson = await this.getAppPackageInformation();
-        const reactNativeValue =
-            packageJson.dependencies && packageJson.dependencies["react-native"];
-        if (reactNativeValue) {
-            this.logger.debug(
-                `'react-native' package with value '${reactNativeValue}' is found in 'dependencies' section of package.json`,
-            );
-            if (reactNativeValue.startsWith("https://github.com/expo/react-native/archive/sdk")) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public async isExpoApp(showProgress: boolean = false): Promise<boolean> {
+    public async isExpoManagedApp(showProgress: boolean = false): Promise<boolean> {
         if (showProgress) {
             this.logger.logStream("...");
         }
 
         try {
-            const [expoInstalled, expoRNSDKInstalled] = await Promise.all([
-                this.appHasExpoInstalled(),
-                this.appHasExpoRNSDKInstalled(),
-            ]);
+            const expoInstalled = await this.appHasExpoInstalled();
+            if (!expoInstalled) return false;
+
+            const isBareWorkflowProject = await this.isBareWorkflowProject();
             if (showProgress) this.logger.logStream(".");
-            return expoInstalled && expoRNSDKInstalled;
+            return !isBareWorkflowProject;
         } catch (e) {
             this.logger.error(e.message, e, e.stack);
             if (showProgress) {
@@ -240,6 +226,34 @@ export class ExponentHelper {
             process.env["NODE_MODULES"] = await getNodeModulesGlobalPath();
             this.nodeModulesGlobalPathAddedToEnv = true;
         }
+    }
+
+    private async isBareWorkflowProject(): Promise<boolean> {
+        const packageJson = await this.getAppPackageInformation();
+
+        if (packageJson.dependencies && packageJson.dependencies.expokit) {
+            return false;
+        }
+        if (packageJson.devDependencies && packageJson.devDependencies.expokit) {
+            return false;
+        }
+
+        const xcodeprojFiles = globSync("ios/**/*.xcodeproj", {
+            absolute: true,
+            cwd: this.projectRootPath,
+        });
+        if (xcodeprojFiles.length) {
+            return true;
+        }
+        const gradleFiles = globSync("android/**/*.gradle", {
+            absolute: true,
+            cwd: this.projectRootPath,
+        });
+        if (gradleFiles.length) {
+            return true;
+        }
+
+        return false;
     }
 
     private async getArgumentsFromExpoMetroConfig(projectRoot: string): Promise<ExpMetroConfig> {

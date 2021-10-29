@@ -145,14 +145,14 @@ Tests require several environment variables to be set up before starting:
 |`ANDROID_EMULATOR`|`Nexus_5X_API_29`|Name of the emulated device|
 |`ANDROID_VERSION`|10|Version of Android installed on emulated device|
 |`IOS_SIMULATOR`|`iPhone8`|(**Only for iOS tests**) Name of the simulated device|
-|`IOS_VERSION`|14.5|(**Only for iOS tests**) Version of iOS on the simulated device|
+|`IOS_VERSION`|15.0|(**Only for iOS tests**) Version of iOS on the simulated device|
 |`CODE_VERSION`|`*`, `1.61.0`, `insiders`|Version of VS Code to download and run while running tests|
-|`EXPO_SDK_MAJOR_VERSION` (optional)|`42`, `skip`|Version of `expo-sdk` for Expo applications. If set to "skip" then the latest `expo-sdk` version will be used|
-|`RN_VERSION` (optional)|`0.64.2`, `skip`|Version of a React Native application to debug while running tests. If set to "skip" then the latest version will be installed|
+|`EXPO_SDK_MAJOR_VERSION` (optional)|`43`, `skip`|Version of `expo-sdk` for Expo applications. If set to "skip" then the latest `expo-sdk` version will be used|
+|`RN_VERSION` (optional)|`0.66.1`, `skip`|Version of a React Native application to debug while running tests. If set to "skip" then the latest version will be installed|
 |`PURE_RN_VERSION` (optional)|`0.63.4`, `skip`|Version of React Native while running tests on pure RN app with Expo. If set to "skip" then the latest version will be installed|
 |`PURE_EXPO_VERSION` (optional)|`42`, `skip`|Version of Expo while running tests on pure RN app with Expo. If set to "skip" then the latest version will be installed|
 |`RN_MAC_OS_VERSION` (optional)|`0.62.0`, `skip`|(**Only for macOS tests**) Version of a React Native application for RN macOS tests. If set to "skip" then the latest version will be installed|
-|`RN_WINDOWS_VERSION` (optional)|`0.65.0`, `skip`|(**Only for RNW tests**) Version of a React Native application for RNW tests. If set to "skip" then the latest version will be installed|
+|`RN_WINDOWS_VERSION` (optional)|`0.66.0`, `skip`|(**Only for RNW tests**) Version of a React Native application for RNW tests. If set to "skip" then the latest version will be installed|
 
 To create environment variable you can use these commands:
    * **Windows** (Powershell):
