@@ -15,6 +15,7 @@ import { ProjectVersionHelper } from "../../../src/common/projectVersionHelper";
 import "should";
 import * as sinon from "sinon";
 import { SettingsHelper } from "../../../src/extension/settingsHelper";
+import { rimrafAsync } from "../../common/utils";
 
 suite("androidPlatform", function () {
     suite("extensionContext", function () {
@@ -67,7 +68,7 @@ suite("androidPlatform", function () {
             return new AndroidPlatform(runOptions);
         }
 
-        setup(() => {
+        setup(async () => {
             // Configure all the dependencies we'll use in our tests
             fileSystem = new FileSystem();
 
@@ -158,16 +159,16 @@ suite("androidPlatform", function () {
             );
 
             // Delete existing React Native project before creating
-            fileSystem.removePathRecursivelySync(projectsFolder);
+            await rimrafAsync(projectsFolder, {});
             // Create a React-Native project we'll use in our tests
-            return reactNative
+            await reactNative
                 .fromProjectFileContent(rnProjectContent)
                 .createProject(projectRoot, applicationName);
         });
 
-        teardown(() => {
+        teardown(async () => {
             // Delete existing React Native project after each test
-            fileSystem.removePathRecursivelySync(projectsFolder);
+            await rimrafAsync(projectsFolder, {});
             launchAppStub.restore();
             getConnectedTargetsStub.restore();
             getOnlineTargetsStub.restore();
