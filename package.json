@@ -1153,7 +1153,7 @@
     "ws": "7.4.6"
   },
   "devDependencies": {
-    "@mixer/parallel-prettier": "2.0.0",
+    "@mixer/parallel-prettier": "^2.0.1",
     "@types/configstore": "4.0.0",
     "@types/ip": "1.1.0",
     "@types/mkdirp": "1.0.0",
