@@ -46,8 +46,7 @@ suite("exponentHelper", function () {
                     false,
                     { dependencies: { expo: "37.0.1" } },
                     (pattern: string, options?: any) => {
-                        if (pattern === "ios/**/*.xcodeproj") return ["ios/myProject.xcodeproj"];
-                        return [];
+                        return pattern === "ios/**/*.xcodeproj" ? ["ios/myProject.xcodeproj"] : [];
                     },
                 );
             });
@@ -56,8 +55,7 @@ suite("exponentHelper", function () {
                     false,
                     { dependencies: { expo: "37.0.1" } },
                     (pattern: string, options?: any) => {
-                        if (pattern === "android/**/*.gradle") return ["android/build.gradle"];
-                        return [];
+                        return pattern === "android/**/*.gradle" ? ["android/build.gradle"] : [];
                     },
                 );
             });
