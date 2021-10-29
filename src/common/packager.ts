@@ -119,7 +119,7 @@ export class Packager {
             args = args.concat("--resetCache");
         }
 
-        const isExpo = await this.getExponentHelper().isExpoApp(false);
+        const isExpo = await this.getExponentHelper().isExpoManagedApp(false);
         if (isExpo) {
             // Arguments below using for Expo apps
             if (!semver.gte(rnVersion, "0.57.0")) {
@@ -459,7 +459,9 @@ export class Packager {
             this.packagerProcess,
         );
         this.packagerProcess = undefined;
-        if (await new ExponentHelper(this.workspacePath, this.projectPath).isExpoApp(false)) {
+        if (
+            await new ExponentHelper(this.workspacePath, this.projectPath).isExpoManagedApp(false)
+        ) {
             this.logger.debug("Stopping Exponent");
             try {
                 await XDL.stopAll(this.projectPath);
