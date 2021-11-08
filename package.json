@@ -1067,8 +1067,8 @@
             "type": "string"
           },
           "default": {
-            "xdl": "59.2.10",
-            "@expo/metro-config": "0.2.6",
+            "xdl": "59.2.11",
+            "@expo/metro-config": "0.2.7",
             "@expo/ngrok": "^4.1.0"
           },
           "scope": "resource"
