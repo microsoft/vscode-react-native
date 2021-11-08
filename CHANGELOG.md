@@ -4,6 +4,7 @@
 * Adapted the extension for debugging Expo SDK 43 applications [#1691](https://github.com/microsoft/vscode-react-native/pull/1691)
 * Internal changes:
     * Smoke tests were updated to work with iOS 15.0 and Expo SDK 43 [#1690](https://github.com/microsoft/vscode-react-native/pull/1690), [#1691](https://github.com/microsoft/vscode-react-native/pull/1691)
+    * Bumped Node.js version in unit tests to 14 [#1695](https://github.com/microsoft/vscode-react-native/pull/1695)
 
 
 ## 1.7.1
