@@ -309,9 +309,8 @@ export class IOSPlatform extends GeneralMobilePlatform {
     }
 
     public async getTargetFromRunArgs(): Promise<IOSTarget | undefined> {
-        const targets = (await this.targetManager.getTargetList()) as IDebuggableIOSTarget[];
-
         if (this.runOptions.runArguments && this.runOptions.runArguments.length > 0) {
+            const targets = (await this.targetManager.getTargetList()) as IDebuggableIOSTarget[];
             const udid = GeneralMobilePlatform.getOptFromRunArgs(
                 this.runOptions.runArguments,
                 "--udid",
