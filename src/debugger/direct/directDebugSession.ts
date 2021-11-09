@@ -153,13 +153,13 @@ export class DirectDebugSession extends DebugSessionBase {
                 logger.log(`Connecting to ${attachArgs.port} port`);
                 await this.appLauncher.getRnCdpProxy().stopServer();
 
-                const cdpProxy: BaseCDPMessageHandler | null = attachArgs.useHermesEngine
+                const cdpProxyHandler: BaseCDPMessageHandler | null = attachArgs.useHermesEngine
                     ? new HermesCDPMessageHandler()
                     : attachArgs.platform === PlatformType.iOS
                     ? new IOSDirectCDPMessageHandler()
                     : null;
 
-                if (!cdpProxy) {
+                if (!cdpProxyHandler) {
                     throw ErrorHelper.getInternalError(
                         InternalErrorCode.CouldNotDirectDebugWithoutHermesEngine,
                         attachArgs.platform,
@@ -168,7 +168,7 @@ export class DirectDebugSession extends DebugSessionBase {
                 await this.appLauncher
                     .getRnCdpProxy()
                     .initializeServer(
-                        cdpProxy,
+                        cdpProxyHandler,
                         this.cdpProxyLogLevel,
                         this.cancellationTokenSource.token,
                     );
@@ -191,6 +191,7 @@ export class DirectDebugSession extends DebugSessionBase {
                     `http://localhost:${attachArgs.port}`,
                     90,
                     this.cancellationTokenSource.token,
+                    attachArgs.useHermesEngine,
                 );
                 this.appLauncher.getRnCdpProxy().setBrowserInspectUri(browserInspectUri);
                 await this.establishDebugSession(attachArgs);
