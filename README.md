@@ -20,7 +20,7 @@ To avoid conflicts, if both extensions are installed - the only stable version w
 This VS Code extension provides a development environment for React Native projects.
 Using this extension, you can **debug your code and quickly run `react-native` commands** from the command palette.
 
-![React Native features](images/react-features.gif)
+![React Native features](media/react-features.gif)
 
 <!-- TABLE OF CONTENTS -->
 
@@ -73,7 +73,7 @@ Please notice that the extension uses `.vscode/.react` directory at the project 
 
 In the Command Palette, type `React Native` and choose a command.
 
-![React Native commands](images/command-palette.png)
+![React Native commands](media/command-palette.png)
 
 The **Run Android** command triggers `react-native run-android` and starts your app for Android.
 
@@ -127,15 +127,15 @@ To run React Native Tools commands via VS Code tasks, you can create a `.vscode/
 
 To start debugging create a new debug configuration for your ReactNative app in your `.vscode/launch.json`. Adding a new configuration can be done by opening your `launch.json` file and clicking on `Add Configuration...` button and then selecting `React Native` option. After that the extension will prompt you to create a debugging configuration by selecting debugging parameters in dropdown lists at the top of the editor. A new debugging configuration will be generated and added to the `launch.json` file automatically as shown in the image below.
 
-![Add React Native debug configuration](images/add-debug-configuration.gif)
+![Add React Native debug configuration](media/add-debug-configuration.gif)
 
-In case you haven't created the `.vscode/launch.json` file yet, you can add a whole default debug configuration set. To do that click the debug icon ![Choose React Native debugger](images/debug-view-icon.png) in the View bar, and then click the configuration (gear) icon ![Configure-gear](images/configure-gear-icon.png), then choose the React Native debug environment.
+In case you haven't created the `.vscode/launch.json` file yet, you can add a whole default debug configuration set. To do that click the debug icon ![Choose React Native debugger](media/debug-view-icon.png) in the View bar, and then click the configuration (gear) icon ![Configure-gear](media/configure-gear-icon.png), then choose the React Native debug environment.
 
-![Choose React Native debugger](images/choose-debugger.png)
+![Choose React Native debugger](media/choose-debugger.png)
 
-VS Code will generate a `launch.json` in your project with some default configuration settings as shown below. You can safely close this file, choose the appropriate configuration in the Configuration dropdown, and then press F5 (or click _Green Arrow_ ![Configure-gear](images/debug-icon.png) button) to start debugging your app in VS Code.
+VS Code will generate a `launch.json` in your project with some default configuration settings as shown below. You can safely close this file, choose the appropriate configuration in the Configuration dropdown, and then press F5 (or click _Green Arrow_ ![Configure-gear](media/debug-icon.png) button) to start debugging your app in VS Code.
 
-![React Native launch targets](images/debug-targets.png)
+![React Native launch targets](media/debug-targets.png)
 
 The extension also allows to start debugging without creating the `launch.json` file in one of the following ways:
 
@@ -143,17 +143,17 @@ The extension also allows to start debugging without creating the `launch.json` 
 
   To use dynamic debugging configurations you can click on the `Show all automatic degub configurations` string in the `Run and Debug` panel, then select `React Native` in the list of extensions and choose the appropriate configuration in the Configuration list to start debugging.
 
-  ![Run dynamic debugging configuration](images/dynamic-debugging-configuration.gif)
+  ![Run dynamic debugging configuration](media/dynamic-debugging-configuration.gif)
 
 - Using `Debug` button in the Editor Title area menu
 
   To start debugging you can click the Debug button in the Editor Title area in the upper right corner. You can also select the appropriate debugging scenario by clicking the dropdown button beside the Debug button and choosing the scenario.
 
-  ![Select and run debugging command](images/debug-commands-button.png)
+  ![Select and run debugging command](media/debug-commands-button.png)
 
 Once app is loaded and running, [open the developer menu](https://reactnative.dev/docs/debugging#accessing-the-in-app-developer-menu) inside your application and enable remote debugging by clicking on `Debug JS Remotely` button.
 
-![React Native enable remote debug](images/enable-remote-debug.png)
+![React Native enable remote debug](media/enable-remote-debug.png)
 
 The extension allows you to debug multiple devices and configurations, please read the following sections for more information for your particular use case.
 
@@ -314,7 +314,7 @@ To start debugging in Expo follow these steps:
 1. Once the packager starts, the extension will open a separate tab with QR code to scan from the Exponent app. Once you do so, the Exponent app will connect to the packager and begin running your app.
 1. Once the app is loaded and running, [open the developer menu](https://reactnative.dev/docs/debugging#accessing-the-in-app-developer-menu) and enable remote debugging by clicking on `Debug JS Remotely` button.
 
-   ![React Native developer menu](./images/enable-remote-debug.png)
+   ![React Native developer menu](./media/enable-remote-debug.png)
 
    From here you can run and debug the app as normal.
 
@@ -680,11 +680,11 @@ module.exports = {
 <details>
 <summary>Port setup instruction</summary>
 
-![image](images/select-dev-menu.png)
+![image](media/select-dev-menu.png)
 
-![image](images/dev-menu-setup-custom-host.png)
+![image](media/dev-menu-setup-custom-host.png)
 
-![image](images/custom-host-and-port.png)
+![image](media/custom-host-and-port.png)
 
 </details>
 
@@ -773,13 +773,27 @@ The extension provides context variables for the following features:
 |`isRNTNetworkInspectorRunning` - true if the Network inspector is running|Network inspector|
 
 Using these context variables you can assign the same keyboard combination for some pair commands for more convenient use. For example, you can configure the same key bindings for `Start Packager` and `Stop Packager` commands using `when` clauses, as shown below:
-![image](images/custom-keybindings.png)
+![image](media/custom-keybindings.png)
+
+# Element inspector
+
+With the help of the [`react-devtools`](https://www.npmjs.com/package/react-devtools) package and this extension, you can conveniently explore and work with the DOM-tree.
+
+### Integration with React Native Inspector
+
+You can open the in-app developer menu and choose "Show Inspector". It will bring up an overlay that lets you tap on any UI element and see information about it:
+
+![Element inspector usage](media\element-inspector-usage.gif)
+
+Using the command of Command Palette `reactNative.command.runInspector` you can launch DevTools. Inspector will enter a special collapsed mode, and instead use the DevTools as primary UI. In this mode, clicking on something in the simulator will bring up the relevant components in the DevTools:
+
+![Element inspector usage](media\element-inspector-with-ui.gif)
 
 # Network Inspector
 
 The extension provides `Network inspector` feature to inspect outgoing network traffic in your apps. You can browse all requests being made and their responses in VS Code DevTools console.
 
-![image](images/network-inspector.png)
+![image](media/network-inspector.png)
 
 ### Network inspector requirements
 
