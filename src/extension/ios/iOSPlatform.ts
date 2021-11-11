@@ -309,9 +309,9 @@ export class IOSPlatform extends GeneralMobilePlatform {
     }
 
     public async getTargetFromRunArgs(): Promise<IOSTarget | undefined> {
-        const targets = (await this.targetManager.getTargetList()) as IDebuggableIOSTarget[];
-
         if (this.runOptions.runArguments && this.runOptions.runArguments.length > 0) {
+            const targets = (await this.targetManager.getTargetList()) as IDebuggableIOSTarget[];
+
             const udid = GeneralMobilePlatform.getOptFromRunArgs(
                 this.runOptions.runArguments,
                 "--udid",
@@ -320,6 +320,14 @@ export class IOSPlatform extends GeneralMobilePlatform {
                 const target = targets.find(target => target.id === udid);
                 if (target) {
                     return IOSTarget.fromInterface(target);
+                } else {
+                    this.logger.warning(
+                        localize(
+                            "ThereIsNoIosTargetWithSuchUdid",
+                            "There is no iOS target with such UDID: {0}",
+                            udid,
+                        ),
+                    );
                 }
             }
 
@@ -329,11 +337,18 @@ export class IOSPlatform extends GeneralMobilePlatform {
             );
             if (device) {
                 const target = targets.find(
-                    target =>
-                        !target.isVirtualTarget && (target.id === device || target.name === device),
+                    target => !target.isVirtualTarget && target.name === device,
                 );
                 if (target) {
                     return IOSTarget.fromInterface(target);
+                } else {
+                    this.logger.warning(
+                        localize(
+                            "ThereIsNoIosDeviceWithSuchName",
+                            "There is no iOS device with such name: {0}",
+                            device,
+                        ),
+                    );
                 }
             }
 
@@ -343,12 +358,18 @@ export class IOSPlatform extends GeneralMobilePlatform {
             );
             if (simulator) {
                 const target = targets.find(
-                    target =>
-                        target.isVirtualTarget &&
-                        (target.id === simulator || target.name === simulator),
+                    target => target.isVirtualTarget && target.name === simulator,
                 );
                 if (target) {
                     return IOSTarget.fromInterface(target);
+                } else {
+                    this.logger.warning(
+                        localize(
+                            "ThereIsNoIosSimulatorWithSuchName",
+                            "There is no iOS simulator with such name: {0}",
+                            simulator,
+                        ),
+                    );
                 }
             }
         }

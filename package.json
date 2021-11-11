@@ -1,7 +1,7 @@
 {
   "name": "vscode-react-native",
   "displayName": "React Native Tools",
-  "version": "1.7.1",
+  "version": "1.8.0",
   "private": true,
   "publisher": "msjsdiag",
   "icon": "media/icon.png",
@@ -1130,8 +1130,8 @@
             "type": "string"
           },
           "default": {
-            "xdl": "59.2.10",
-            "@expo/metro-config": "0.2.6",
+            "xdl": "59.2.11",
+            "@expo/metro-config": "0.2.7",
             "@expo/ngrok": "^4.1.0"
           },
           "scope": "resource"
@@ -1269,7 +1269,7 @@
     "through2": "2.0.1",
     "ts-loader": "9.0.2",
     "typescript": "3.9.7",
-    "vsce": "^1.88.0",
+    "vsce": "^2.2.0",
     "vscode-debugprotocol": "1.40.0",
     "vscode-nls-dev": "3.3.2",
     "vscode-test": "^1.5.2",

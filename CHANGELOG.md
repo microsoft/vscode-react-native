@@ -1,3 +1,12 @@
+## 1.8.0
+* Improved device and emulator targets selection [#1673](https://github.com/microsoft/vscode-react-native/pull/1673)
+* Implemented support of [debugging without creating a "launch.json" file](https://github.com/microsoft/vscode-react-native#debugging-react-native-applications). Now it's possible to start debugging via dynamic debug configurations or the Debug button in the Editor Title area menu [#1687](https://github.com/microsoft/vscode-react-native/pull/1687)
+* Adapted the extension for debugging Expo SDK 43 applications [#1691](https://github.com/microsoft/vscode-react-native/pull/1691)
+* Internal changes:
+    * Smoke tests were updated to work with iOS 15.0 and Expo SDK 43 [#1690](https://github.com/microsoft/vscode-react-native/pull/1690), [#1691](https://github.com/microsoft/vscode-react-native/pull/1691)
+    * Bumped Node.js version in unit tests to 14 [#1695](https://github.com/microsoft/vscode-react-native/pull/1695)
+
+
 ## 1.7.1
 * Improved behavior of Packager status indicator [#1680](https://github.com/microsoft/vscode-react-native/pull/1680)
 * Fixed debugging performance issue [#1684](https://github.com/microsoft/vscode-react-native/pull/1684)
