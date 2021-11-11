@@ -87,26 +87,31 @@ export class AndroidTargetManager extends MobileTargetManager {
         return undefined;
     }
 
-    public async collectTargets(): Promise<void> {
+    public async collectTargets(targetType?: TargetType): Promise<void> {
         const targetList: IMobileTarget[] = [];
 
-        let emulatorsNames: string[] = await this.adbHelper.getAvdsNames();
-        targetList.push(
-            ...emulatorsNames.map(name => {
-                return { name, isOnline: false, isVirtualTarget: true };
-            }),
-        );
+        if (!targetType || targetType === TargetType.Simulator) {
+            const emulatorsNames: string[] = await this.adbHelper.getAvdsNames();
+            targetList.push(
+                ...emulatorsNames.map(name => {
+                    return { name, isOnline: false, isVirtualTarget: true };
+                }),
+            );
+        }
 
         const onlineTargets = await this.adbHelper.getOnlineTargets();
         for (let device of onlineTargets) {
-            if (device.isVirtualTarget) {
+            if (device.isVirtualTarget && (!targetType || targetType === TargetType.Simulator)) {
                 const avdName = await this.adbHelper.getAvdNameById(device.id);
                 const emulatorTarget = targetList.find(target => target.name === avdName);
                 if (emulatorTarget) {
                     emulatorTarget.isOnline = true;
                     emulatorTarget.id = device.id;
                 }
-            } else {
+            } else if (
+                !device.isVirtualTarget &&
+                (!targetType || targetType === TargetType.Device)
+            ) {
                 targetList.push({ id: device.id, isOnline: true, isVirtualTarget: false });
             }
         }
