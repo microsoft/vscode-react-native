@@ -4,7 +4,7 @@
   "version": "1.7.1",
   "private": true,
   "publisher": "msjsdiag",
-  "icon": "images/icon.png",
+  "icon": "media/icon.png",
   "galleryBanner": {
     "color": "#3B3738",
     "theme": "dark"
@@ -48,6 +48,69 @@
   ],
   "main": "./src/extension/rn-extension",
   "contributes": {
+    "walkthroughs": [
+      {
+        "id": "RNTGetStarted",
+        "title": "Get started with React Native development",
+        "description": "Set up the environment for React Native development and explore extension functionality",
+        "steps": [
+          {
+            "id": "settingUpCommonEnvironment",
+            "title": "Setting up the environment",
+            "description": "Make sure you set up your environment correctly according to the guide described [here](https://reactnative.dev/docs/environment-setup)",
+            "media": {
+              "image": "media/environment-set-up.png",
+              "altText": "Empty image"
+            }
+          },
+          {
+            "id": "settingUpWindowsEnvironment",
+            "title": "Setting up the environment for Windows app development",
+            "description": "To develop React Native for Windows applications, you need to set up your environment in accordance with the requirements described [here](https://microsoft.github.io/react-native-windows/docs/rnw-dependencies)",
+            "when": "isWindows",
+            "media": {
+              "image": "media/rnw-set-up.png",
+              "altText": "Empty image"
+            }
+          },
+          {
+            "id": "settingUpMacOsEnvironment",
+            "title": "Setting up the environment for macOS app development",
+            "description": "To develop React Native for macOS applications, you need to set up your environment in accordance with the requirements described [here](https://microsoft.github.io/react-native-windows/docs/rnm-dependencies)",
+            "when": "isMac",
+            "media": {
+              "image": "media/rnm-set-up.png",
+              "altText": "Empty image"
+            }
+          },
+          {
+            "id": "runAndDebugReactNativeApp",
+            "title": "Run and Debug your React Native application",
+            "description": "Create a debug configuration and start debugging your React Native applications.\n[Learn more](https://github.com/microsoft/vscode-react-native#debugging-react-native-applications)",
+            "media": {
+              "markdown": "media/debug-tutor.md"
+            }
+          },
+          {
+            "id": "hermesEngine",
+            "title": "Hermes Engine",
+            "description": "The Hermes engine is an open source JavaScript engine created by Facebook to optimize building and running React Native applications. It improves app performance and decreases app size.\n[Learn more](https://github.com/microsoft/vscode-react-native#hermes-engine)",
+            "media": {
+              "image": "media/hermeslogo.svg",
+              "altText": "Empty image"
+            }
+          },
+          {
+            "id": "learnMainFeatures",
+            "title": "Learn main features",
+            "description": "The extension supports all the tools you need to quickly and easily develop your applications",
+            "media": {
+              "markdown": "media/features-tutor.md"
+            }
+          }
+        ]
+      }
+    ],
     "commands": [
       {
         "command": "reactNative.launchAndroidSimulator",
