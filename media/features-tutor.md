@@ -4,4 +4,4 @@ The extension provides special `Command Palette commands` for running React Nati
 ## Network inspector
 The extension provides `Network inspector` feature to inspect outgoing network traffic in your apps. You can browse all requests being made and their responses in VS Code DevTools console. More details about Network inspector usage and its requirements are available [here] (https://github.com/microsoft/vscode-react-native#network-inspector) in the documentation.
 ## Element inspector
-With the command `reactNative.command.runInspector` you can launch React DevTools to conveniently work with the DOM-tree of your application. Details on how you can install and use React DevTools in this extension can be found [here](https://github.com/microsoft/vscode-react-native#element-inspector).
+In the extension you can run React DevTools Element inspector to inspect the DOM-tree of your application by starting `Run Element Inspector` command in Command Palette. You can learn more about React DevTools installation and usage [here](https://github.com/microsoft/vscode-react-native#element-inspector).
