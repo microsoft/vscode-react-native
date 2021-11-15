@@ -1,6 +1,6 @@
 # Learn main features
 ## React Native commands in the Command Palette
-This extension supports many `commands of the Command Palette` for running and debugging React Native applications, and other supporting commands for convenient use of the extension. The complete list of the command you can see in the corresponding [paragraph](https://github.com/microsoft/vscode-react-native#react-native-commands-in-the-command-palette) of the documentation.
+The extension provides special `Command Palette commands` for running React Native applications on different platforms, operating with the Packager and automating some dev processes. You can find more info about supported commands [here](https://github.com/microsoft/vscode-react-native#react-native-commands-in-the-command-palette).
 ## Network inspector
 The extension provides `Network inspector` feature to inspect outgoing network traffic in your apps. You can browse all requests being made and their responses in VS Code DevTools console. Environment requirements and other details for using the Network inspector can be found in [this](https://github.com/microsoft/vscode-react-native#network-inspector) paragraph of the documentation.
 ## Element inspector
