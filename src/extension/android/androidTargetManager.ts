@@ -48,8 +48,7 @@ export class AndroidTargetManager extends MobileTargetManager {
                 return false;
             } else if (
                 target === TargetType.Simulator ||
-                target.match(AdbHelper.AndroidSDKEmulatorPattern) ||
-                (await this.adbHelper.getAvdsNames()).includes(target)
+                target.match(AdbHelper.AndroidSDKEmulatorPattern)
             ) {
                 return true;
             } else {
@@ -57,7 +56,11 @@ export class AndroidTargetManager extends MobileTargetManager {
                 if (onlineTarget) {
                     return onlineTarget.isVirtualTarget;
                 } else {
-                    throw new Error("There is no any online target");
+                    if ((await this.adbHelper.getAvdsNames()).includes(target)) {
+                        return true;
+                    } else {
+                        throw new Error("There is no any online target");
+                    }
                 }
             }
         } catch {
@@ -89,29 +92,34 @@ export class AndroidTargetManager extends MobileTargetManager {
 
     public async collectTargets(targetType?: TargetType): Promise<void> {
         const targetList: IMobileTarget[] = [];
+        const collectSimulators = !targetType || targetType === TargetType.Simulator;
+        const collectDevices = !targetType || targetType === TargetType.Device;
 
-        if (!targetType || targetType === TargetType.Simulator) {
-            const emulatorsNames: string[] = await this.adbHelper.getAvdsNames();
-            targetList.push(
-                ...emulatorsNames.map(name => {
-                    return { name, isOnline: false, isVirtualTarget: true };
-                }),
-            );
+        try {
+            if (collectSimulators) {
+                const emulatorsNames: string[] = await this.adbHelper.getAvdsNames();
+                targetList.push(
+                    ...emulatorsNames.map(name => {
+                        return { name, isOnline: false, isVirtualTarget: true };
+                    }),
+                );
+            }
+        } catch (error) {
+            if (targetType === TargetType.Simulator) {
+                throw error;
+            }
         }
 
         const onlineTargets = await this.adbHelper.getOnlineTargets();
         for (let device of onlineTargets) {
-            if (device.isVirtualTarget && (!targetType || targetType === TargetType.Simulator)) {
+            if (device.isVirtualTarget && collectSimulators) {
                 const avdName = await this.adbHelper.getAvdNameById(device.id);
                 const emulatorTarget = targetList.find(target => target.name === avdName);
                 if (emulatorTarget) {
                     emulatorTarget.isOnline = true;
                     emulatorTarget.id = device.id;
                 }
-            } else if (
-                !device.isVirtualTarget &&
-                (!targetType || targetType === TargetType.Device)
-            ) {
+            } else if (!device.isVirtualTarget && collectDevices) {
                 targetList.push({ id: device.id, isOnline: true, isVirtualTarget: false });
             }
         }
