@@ -320,11 +320,11 @@ export const ERROR_STRINGS = {
     ),
     [InternalErrorCode.FailedToStartAndroidEmulator]: localize(
         "FailedToStartAndroidEmulator",
-        'The command "emulator -avd {0}" threw an exception: {1}',
+        "An error occurred while starting the Android emulator",
     ),
     [InternalErrorCode.FailedToStartIOSSimulator]: localize(
         "FailedToStartIOSSimulator",
-        'The command "xrun simctl boot {0}" threw an exception: {1}',
+        "An error occurred while starting the iOS simulator",
     ),
     [InternalErrorCode.AndroidThereIsNoAnyOnlineDebuggableTarget]: localize(
         "AndroidThereIsNoAnyOnlineDebuggableTarget",
