@@ -9,6 +9,7 @@ import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { IDebuggableMobileTarget, IMobileTarget, MobileTarget } from "../mobileTarget";
 import { waitUntil } from "../../common/utils";
 import { TargetType } from "../generalPlatform";
+import { InternalErrorCode } from "../../common/error/internalErrorCode";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -55,15 +56,16 @@ export class AndroidTargetManager extends MobileTargetManager {
                 const onlineTarget = await this.adbHelper.findOnlineTargetById(target);
                 if (onlineTarget) {
                     return onlineTarget.isVirtualTarget;
+                } else if ((await this.adbHelper.getAvdsNames()).includes(target)) {
+                    return true;
                 } else {
-                    if ((await this.adbHelper.getAvdsNames()).includes(target)) {
-                        return true;
-                    } else {
-                        throw new Error("There is no any online target");
-                    }
+                    throw new Error("There is no any online target");
                 }
             }
-        } catch {
+        } catch (error) {
+            if (error.errorCode === InternalErrorCode.CommandFailed) {
+                throw error;
+            }
             throw new Error(
                 localize(
                     "CouldNotRecognizeTargetType",
