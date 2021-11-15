@@ -66,7 +66,7 @@
           {
             "id": "settingUpWindowsEnvironment",
             "title": "Setting up the environment for Windows app development",
-            "description": "To develop React Native for Windows applications, you need to set up your environment in accordance with the requirements described [here](https://microsoft.github.io/react-native-windows/docs/rnw-dependencies)",
+            "description": "To develop React Native for Windows applications, you need to set up your dev environment in accordance with the [official requirements](https://microsoft.github.io/react-native-windows/docs/rnw-dependencies)",
             "when": "isWindows",
             "media": {
               "image": "media/rnw-set-up.png",
