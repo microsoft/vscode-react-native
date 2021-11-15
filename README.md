@@ -64,6 +64,7 @@ Using this extension, you can **debug your code and quickly run `react-native` c
 Before going any further make sure that you:
 
 - [have a working React Native environment](https://reactnative.dev/docs/environment-setup).
+- have the [`emulator`](https://developer.android.com/studio/run/emulator-commandline) utility available in your `PATH` if you're developing Android applications
 - are using [VS Code](https://code.visualstudio.com) and have [installed this extension from the Marketplace](https://marketplace.visualstudio.com/items?itemName=msjsdiag.vscode-react-native).
 - have your React Native project root folder open in VS Code.
 - If you want to use Android emulator, please, make sure `emulator` utility is added to PATH
