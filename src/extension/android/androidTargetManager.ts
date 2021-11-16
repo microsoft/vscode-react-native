@@ -10,6 +10,7 @@ import { IDebuggableMobileTarget, IMobileTarget, MobileTarget } from "../mobileT
 import { waitUntil } from "../../common/utils";
 import { TargetType } from "../generalPlatform";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
+import { ErrorHelper } from "../../common/error/errorHelper";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -59,19 +60,14 @@ export class AndroidTargetManager extends MobileTargetManager {
                 } else if ((await this.adbHelper.getAvdsNames()).includes(target)) {
                     return true;
                 } else {
-                    throw new Error("There is no any online target");
+                    throw new Error("There is no such target");
                 }
             }
         } catch (error) {
-            if (error.errorCode === InternalErrorCode.CommandFailed) {
-                throw error;
-            }
-            throw new Error(
-                localize(
-                    "CouldNotRecognizeTargetType",
-                    "Could not recognize type of the target {0}",
-                    target,
-                ),
+            throw ErrorHelper.getNestedError(
+                error,
+                InternalErrorCode.CouldNotRecognizeTargetType,
+                target,
             );
         }
     }

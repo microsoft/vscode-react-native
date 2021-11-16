@@ -338,6 +338,10 @@ export const ERROR_STRINGS = {
         "TargetSelectionError",
         "The target launch finished with an exception: {0}",
     ),
+    [InternalErrorCode.CouldNotRecognizeTargetType]: localize(
+        "CouldNotRecognizeTargetType",
+        "Could not recognize type of the target {0}",
+    ),
     [InternalErrorCode.ReactNativemacOSIsNotInstalled]: localize(
         "ReactNativemacOSIsNotInstalled",
         "It appears you don't have 'react-native-macos' package installed. Please proceed to https://microsoft.github.io/react-native-windows/docs/rnm-getting-started for more info.",
