@@ -1,0 +1,7 @@
+{
+    "shortPeriodToRemind": 7,
+    "longPeriodToRemind": 60,
+    "popCoveragePercent": 0.1,
+    "surveyUrl": "https://www.surveymonkey.com/r/6FJGVDV",
+    "enabled": true
+}
