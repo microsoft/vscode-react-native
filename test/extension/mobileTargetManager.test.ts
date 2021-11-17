@@ -52,6 +52,7 @@ suite("MobileTargetManager", function () {
     const getPathWithoutEmulator = PromiseUtil.promiseCacheDecorator(async () => {
         const cp = new ChildProcess();
         const isWin = process.platform === "win32";
+        console.log(process.env);
         console.log(process.env.Path);
         try {
             const whereEmulatorOutput = isWin
