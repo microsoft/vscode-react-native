@@ -86,7 +86,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     }
 
     if (extensionName) {
-        const extensionFirstTimeInstalled = cachedVersionExists();
+        const extensionFirstTimeInstalled = !cachedVersionExists();
         const isUpdatedExtension = isUpdatedVersion(appVersion);
 
         if (extensionName.includes("preview")) {
