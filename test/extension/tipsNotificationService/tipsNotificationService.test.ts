@@ -317,7 +317,7 @@ suite("tipNotificationService", function () {
 
     suite("updateTipsConfig", function () {
         const tipsNotificationServicePath =
-            "../../../src/extension/tipsNotificationsService/tipsNotificationService";
+            "../../../src/extension/services/tipsNotificationsService/tipsNotificationService";
 
         const mockedTipsStorageBefore = {
             generalTips: {
