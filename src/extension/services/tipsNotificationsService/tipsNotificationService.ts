@@ -3,14 +3,15 @@
 
 import * as vscode from "vscode";
 import { IConfig, retryDownloadConfig } from "../remoteConfigHelper";
-import { TelemetryHelper } from "../../common/telemetryHelper";
-import { Telemetry } from "../../common/telemetry";
-import { ExtensionConfigManager } from "../extensionConfigManager";
+import { TelemetryHelper } from "../../../common/telemetryHelper";
+import { Telemetry } from "../../../common/telemetry";
+import { ExtensionConfigManager } from "../../extensionConfigManager";
 import tipsStorage from "./tipsStorage";
-import { findFileInFolderHierarchy } from "../../common/extensionHelper";
-import { SettingsHelper } from "../../extension/settingsHelper";
-import { OutputChannelLogger } from "../log/OutputChannelLogger";
+import { findFileInFolderHierarchy } from "../../../common/extensionHelper";
+import { SettingsHelper } from "../../settingsHelper";
+import { OutputChannelLogger } from "../../log/OutputChannelLogger";
 import * as path from "path";
+import { areSameDates } from "../../../common/utils";
 
 enum TipNotificationAction {
     GET_MORE_INFO = "tipsMoreInfo",
@@ -126,7 +127,7 @@ export class TipNotificationService implements vscode.Disposable {
             } else {
                 if (
                     this.tipsConfig.lastExtensionUsageDate &&
-                    !this.areSameDates(curDate, this.tipsConfig.lastExtensionUsageDate)
+                    !areSameDates(curDate, this.tipsConfig.lastExtensionUsageDate)
                 ) {
                     this.tipsConfig.daysLeftBeforeGeneralTip--;
                 }
@@ -429,14 +430,6 @@ export class TipNotificationService implements vscode.Disposable {
             .forEach(tipKey => {
                 delete generalTips[tipKey].knownDate;
             });
-    }
-
-    private areSameDates(date1: Date, date2: Date): boolean {
-        return (
-            date1.getFullYear() === date2.getFullYear() &&
-            date1.getMonth() === date2.getMonth() &&
-            date1.getDate() === date2.getDate()
-        );
     }
 
     private getDifferenceInDays(date1: Date, date2: Date): number {

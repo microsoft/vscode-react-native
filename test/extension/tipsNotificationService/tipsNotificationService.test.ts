@@ -5,7 +5,7 @@ import {
     TipNotificationService,
     TipNotificationConfig,
     TipsConfig,
-} from "../../../src/extension/tipsNotificationsService/tipsNotificationService";
+} from "../../../src/extension/services/tipsNotificationsService/tipsNotificationService";
 import { SettingsHelper } from "../../../src/extension/settingsHelper";
 import * as Configstore from "configstore";
 import * as assert from "assert";
