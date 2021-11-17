@@ -63,7 +63,8 @@ suite("MobileTargetManager", function () {
             return process.env.Path?.split(isWin ? ";" : ":")
                 .filter(path => !pathsToEmulatorUtility.find(emuPath => emuPath === path))
                 .join(isWin ? ";" : ":");
-        } catch {
+        } catch (error) {
+            console.log(error);
             return defaultPath;
         }
     });
