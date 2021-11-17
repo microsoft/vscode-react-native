@@ -61,7 +61,8 @@ suite("MobileTargetManager", function () {
                 .split("\n")
                 .filter(str => str.length)
                 .map(str => path.dirname(str));
-            return defaultPath?.split(isWin ? ";" : ":")
+            return defaultPath
+                ?.split(isWin ? ";" : ":")
                 .filter(path => !pathsToEmulatorUtility.find(emuPath => emuPath === path))
                 .join(isWin ? ";" : ":");
         } catch (error) {
