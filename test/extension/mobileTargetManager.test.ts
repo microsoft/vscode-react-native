@@ -56,10 +56,12 @@ suite("MobileTargetManager", function () {
             const whereEmulatorOutput = isWin
                 ? await cp.execToString("where emulator", { env: process.env })
                 : await cp.execToString("which -a emulator", { env: process.env });
+            console.log(whereEmulatorOutput);
             const pathsToEmulatorUtility = whereEmulatorOutput
                 .split("\n")
                 .filter(str => str.length)
                 .map(str => path.dirname(str));
+            console.log(pathsToEmulatorUtility);
             return process.env.Path?.split(isWin ? ";" : ":")
                 .filter(path => !pathsToEmulatorUtility.find(emuPath => emuPath === path))
                 .join(isWin ? ";" : ":");
