@@ -52,6 +52,7 @@ suite("MobileTargetManager", function () {
     const getPathWithoutEmulator = PromiseUtil.promiseCacheDecorator(async () => {
         const cp = new ChildProcess();
         const isWin = process.platform === "win32";
+        console.log(process.env.Path);
         try {
             const whereEmulatorOutput = isWin
                 ? await cp.execToString("where emulator", { env: process.env })
@@ -73,6 +74,7 @@ suite("MobileTargetManager", function () {
 
     async function executeWithoutEmulator(func: () => any) {
         process.env.Path = await getPathWithoutEmulator();
+        console.log(process.env.Path);
         await func();
         process.env.Path = defaultPath;
     }
