@@ -48,22 +48,20 @@ suite("MobileTargetManager", function () {
     let launchSimulatorStub: Sinon.SinonStub;
     let collectTargetsStub: Sinon.SinonStub;
 
-    const defaultPath = process.env.Path;
+    const isMac = process.platform === "darwin";
+    const defaultPath = process.env[isMac ? "PATH" : "Path"];
     const getPathWithoutEmulator = PromiseUtil.promiseCacheDecorator(async () => {
         const cp = new ChildProcess();
         const isWin = process.platform === "win32";
-        console.log(process.env.PATH);
         try {
             const whereEmulatorOutput = isWin
                 ? await cp.execToString("where emulator", { env: process.env })
                 : await cp.execToString("which -a emulator", { env: process.env });
-            console.log(whereEmulatorOutput);
             const pathsToEmulatorUtility = whereEmulatorOutput
                 .split("\n")
                 .filter(str => str.length)
                 .map(str => path.dirname(str));
-            console.log(pathsToEmulatorUtility);
-            return process.env.Path?.split(isWin ? ";" : ":")
+            return defaultPath?.split(isWin ? ";" : ":")
                 .filter(path => !pathsToEmulatorUtility.find(emuPath => emuPath === path))
                 .join(isWin ? ";" : ":");
         } catch (error) {
@@ -73,10 +71,9 @@ suite("MobileTargetManager", function () {
     });
 
     async function executeWithoutEmulator(func: () => any) {
-        process.env.Path = await getPathWithoutEmulator();
-        console.log(process.env.Path);
+        process.env[isMac ? "PATH" : "Path"] = await getPathWithoutEmulator();
         await func();
-        process.env.Path = defaultPath;
+        process.env[isMac ? "PATH" : "Path"] = defaultPath;
     }
 
     async function checkTargetType(
