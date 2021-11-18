@@ -11,7 +11,7 @@ import { findFileInFolderHierarchy } from "../../../common/extensionHelper";
 import { SettingsHelper } from "../../settingsHelper";
 import { OutputChannelLogger } from "../../log/OutputChannelLogger";
 import * as path from "path";
-import { areSameDates } from "../../../common/utils";
+import { areSameDates, getRandomIntInclusive } from "../../../common/utils";
 
 enum TipNotificationAction {
     GET_MORE_INFO = "tipsMoreInfo",
@@ -329,10 +329,7 @@ export class TipNotificationService implements vscode.Disposable {
                 leftIndex = 2;
         }
 
-        const randIndex: number = this.getRandomIntInclusive(
-            leftIndex,
-            generalTipsForRandom.length - 1,
-        );
+        const randIndex: number = getRandomIntInclusive(leftIndex, generalTipsForRandom.length - 1);
         const selectedGeneralTipKey: string = generalTipsForRandom[randIndex];
         const tipNotificationText = this.getGeneralTipNotificationTextByKey(selectedGeneralTipKey);
 
@@ -340,11 +337,11 @@ export class TipNotificationService implements vscode.Disposable {
 
         this._tipsConfig = await this.mergeRemoteConfigToLocal(this.tipsConfig);
         const daysBeforeNextTip: number = this.tipsConfig.allTipsShownFirstly
-            ? this.getRandomIntInclusive(
+            ? getRandomIntInclusive(
                   this.tipsConfig.minDaysToRemind,
                   this.tipsConfig.maxDaysToRemind,
               )
-            : this.getRandomIntInclusive(
+            : getRandomIntInclusive(
                   this.tipsConfig.firstTimeMinDaysToRemind,
                   this.tipsConfig.firstTimeMaxDaysToRemind,
               );
@@ -435,12 +432,6 @@ export class TipNotificationService implements vscode.Disposable {
     private getDifferenceInDays(date1: Date, date2: Date): number {
         const diffInMs = Math.abs(date2.getTime() - date1.getTime());
         return diffInMs / (1000 * 60 * 60 * 24);
-    }
-
-    private getRandomIntInclusive(min: number, max: number): number {
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
     private parseDatesInRawConfig(rawTipsConfig: TipsConfig): TipsConfig {

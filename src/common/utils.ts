@@ -37,6 +37,12 @@ export function areSameDates(date1: Date, date2: Date): boolean {
     );
 }
 
+export function getRandomIntInclusive(min: number, max: number): number {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 export function getFormattedTimeString(date: Date): string {
     const hourString = padZeroes(2, String(date.getUTCHours()));
     const minuteString = padZeroes(2, String(date.getUTCMinutes()));
@@ -50,51 +56,6 @@ export function getFormattedDateString(date: Date): string {
 
 export function getFormattedDatetimeString(date: Date): string {
     return `${getFormattedDateString(date)} ${getFormattedTimeString(date)}`;
-}
-
-export function waitUntil<T>(
-    condition: () => Promise<T | null> | T | null,
-    interval: number = 1000,
-    timeout?: number,
-): Promise<T | null> {
-    return new Promise(async resolve => {
-        let rejectTimeout: NodeJS.Timeout | undefined;
-        let сheckInterval: NodeJS.Timeout | undefined;
-
-        if (timeout) {
-            rejectTimeout = setTimeout(() => {
-                cleanup();
-                resolve(null);
-            }, timeout);
-        }
-
-        const cleanup = () => {
-            if (rejectTimeout) {
-                clearTimeout(rejectTimeout);
-            }
-            if (сheckInterval) {
-                clearInterval(сheckInterval);
-            }
-        };
-
-        const tryToResolve = async (): Promise<boolean> => {
-            const result = await condition();
-            if (result) {
-                cleanup();
-                resolve(result);
-            }
-            return !!result;
-        };
-
-        const resolved = await tryToResolve();
-        if (resolved) {
-            return;
-        }
-
-        сheckInterval = setInterval(async () => {
-            await tryToResolve();
-        }, interval);
-    });
 }
 
 function padZeroes(minDesiredLength: number, numberToPad: string): string {
