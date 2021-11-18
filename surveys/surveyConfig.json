@@ -2,6 +2,7 @@
     "shortPeriodToRemind": 30,
     "longPeriodToRemind": 90,
     "popCoveragePercent": 0.1,
+    "surveyName": "userSatisfactionSurvey",
     "surveyUrl": "https://www.surveymonkey.com/r/6FJGVDV",
     "enabled": true
 }
