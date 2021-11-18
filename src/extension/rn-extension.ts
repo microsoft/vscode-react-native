@@ -492,6 +492,11 @@ function registerReactNativeCommandPaletteCommands(): void {
         ),
         () => CommandPaletteHandler.runElementInspector(),
     );
+    registerVSCodeCommand(
+        "testEnvironment",
+        ErrorHelper.getInternalError(InternalErrorCode.FailedToTestEnvironment),
+        () => CommandPaletteHandler.testEnvironment(),
+    );
 }
 
 function registerReactNativeSpecialCommands(): void {

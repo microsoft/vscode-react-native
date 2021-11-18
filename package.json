@@ -168,6 +168,11 @@
         "category": "React Native"
       },
       {
+        "command": "reactNative.testEnvironment",
+        "title": "%reactNative.command.testEnvironment.title%",
+        "category": "React Native"
+      },
+      {
         "command": "reactNative.debugScenario.attachHermesApplicationExperimental",
         "title": "Attach to Hermes application - Experimental",
         "category": "React Native",

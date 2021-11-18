@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as vscode from "vscode";
@@ -45,6 +45,7 @@ import { TipNotificationService } from "../extension/tipsNotificationsService/ti
 import { debugConfigurations } from "./debuggingConfiguration/debugConfigTypesAndConstants";
 import { AndroidTargetManager } from "./android/androidTargetManager";
 import { IOSTargetManager } from "./ios/iOSTargetManager";
+import { runChecks } from "./validationService/checker";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -533,6 +534,10 @@ export class CommandPaletteHandler {
     public static async stopLogCatMonitor(): Promise<void> {
         const monitor = await this.selectLogCatMonitor();
         LogCatMonitorManager.delMonitor(monitor.deviceId);
+    }
+
+    public static async testEnvironment(): Promise<void> {
+        runChecks();
     }
 
     public static async selectAndInsertDebugConfiguration(

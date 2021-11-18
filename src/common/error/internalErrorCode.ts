@@ -130,4 +130,6 @@ export enum InternalErrorCode {
     // Network Inspector errors
     CouldNotStartNetworkInspector = 1601,
     CouldNotStopNetworkInspector = 1602,
+
+    FailedToTestEnvironment = 1603,
 }
