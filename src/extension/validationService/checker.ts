@@ -9,8 +9,6 @@ export const runChecks = async (): Promise<void> => {
     const outputChannel = OutputChannelLogger.getMainChannel();
     const toCheck = getChecks();
 
-    const categories = Object.values(CategoryE);
-
     const convertToEntries = (categ: CategoryE) => {
         return Promise.all(
             toCheck
@@ -19,9 +17,11 @@ export const runChecks = async (): Promise<void> => {
         );
     };
 
-    const checks = await Promise.all(
-        categories.map(async it => new Map(await convertToEntries(it))),
-    );
+    const checks = {
+        [CategoryE.Common]: new Map(await convertToEntries(CategoryE.Common)),
+        [CategoryE.Android]: new Map(await convertToEntries(CategoryE.Android)),
+        [CategoryE.iOS]: new Map(await convertToEntries(CategoryE.iOS)),
+    };
 
     outputChannel.log("Starting Environment check...", 3);
 
@@ -34,6 +34,10 @@ export const runChecks = async (): Promise<void> => {
     outputChannel.setFocusOnLogChannel();
 
     Object.entries(checks).forEach(async ([key, val]) => {
+        if (val.size === 0) {
+            return;
+        }
+
         let outStr = `\n*** ${key} ***\n`;
 
         val.forEach((execResult, validation) => {

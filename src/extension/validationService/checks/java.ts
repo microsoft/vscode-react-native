@@ -19,7 +19,7 @@ async function javaTest(): ValidationResultT {
     if (!version) {
         return {
             status: "failure",
-            comment: "Version check failed. Is JAVA insalled and working correctly?",
+            comment: "Version check failed. Is JAVA insalled?",
         };
     }
 
@@ -28,7 +28,8 @@ async function javaTest(): ValidationResultT {
     if (isOlder) {
         return {
             status: "partial-success",
-            comment: "JAVA version is older than 1.8.0. Please install JAVA 8 in case of errors",
+            comment:
+                "Detected version is older than 1.8.0. Please install JAVA 8 in case of errors",
         };
     }
 
@@ -38,7 +39,7 @@ async function javaTest(): ValidationResultT {
         return {
             status: "partial-success",
             comment:
-                "Detected JAVA version is newer than 1.12.0 " +
+                "Detected version is newer than 1.12.0 " +
                 "Please install JAVA 8 in case of errors",
         };
     }
@@ -48,7 +49,7 @@ async function javaTest(): ValidationResultT {
 
 const main: ValidationI = {
     label: "Java",
-    description: "Required for building your app",
+    description: "Required as part of Anrdoid SDK",
     category: CategoryE.Android,
     exec: javaTest,
 };

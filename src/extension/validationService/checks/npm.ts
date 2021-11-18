@@ -18,7 +18,7 @@ async function npmTest(): ValidationResultT {
     if (!version) {
         return {
             status: "failure",
-            comment: "Version check failed. Is npm insalled and working correctly?",
+            comment: "Version check failed. Is npm insalled?",
         };
     }
 

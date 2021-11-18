@@ -9,10 +9,6 @@ async function adbTest(): ValidationResultT {
     const command = "adb --version";
     const data = await executeCommand(command);
 
-    if (data.stderr) {
-        return { status: "failure" };
-    }
-
     const text = normizeStr(data.stdout).split("\n")[1];
     const reg = /version (.*?)( |$)/gi;
     const version = semver.coerce(reg.exec(text)?.[1]);
@@ -20,7 +16,7 @@ async function adbTest(): ValidationResultT {
     if (!version) {
         return {
             status: "failure",
-            comment: "ADB version check failed. Is ADB working correctly?",
+            comment: "Version check failed. Is ADB installed?",
         };
     }
 
@@ -29,7 +25,7 @@ async function adbTest(): ValidationResultT {
         ? {
               status: "partial-success",
               comment:
-                  "Detected ADB version is older than 30.0.0. " +
+                  "Detected version is older than 30.0.0. " +
                   "Please update SDK tools in case of errors",
           }
         : {

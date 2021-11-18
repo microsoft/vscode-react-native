@@ -9,13 +9,6 @@ async function emulatorTest(): ValidationResultT {
     const command = "emulator -version";
     const data = await executeCommand(command);
 
-    if (data.stderr) {
-        return {
-            status: "failure",
-            comment: "Emulator version check failed. Is Emulator installed?",
-        };
-    }
-
     const text = normizeStr(data.stdout).split("\n")[0];
     const reg = /version (.*?)( |$)/gi;
 
@@ -24,8 +17,8 @@ async function emulatorTest(): ValidationResultT {
 
     if (!version) {
         return {
-            status: "partial-success",
-            comment: "Failed to check emulator version",
+            status: "failure",
+            comment: "Version check failed. Is emulator installed?",
         };
     }
 
@@ -35,7 +28,7 @@ async function emulatorTest(): ValidationResultT {
         ? {
               status: "partial-success",
               comment:
-                  "Detected Emulator version is older than 30.0.0. " +
+                  "Detected version is older than 30.0.0. " +
                   "Please update SDK tools in case of errors",
           }
         : {

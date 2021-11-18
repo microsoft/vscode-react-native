@@ -15,7 +15,7 @@ async function nodeTest(): ValidationResultT {
     if (!version) {
         return {
             status: "failure",
-            comment: "NodeJS version check failed. Is NodeJS insalled and working correctly?",
+            comment: "Version check failed. Is NodeJS insalled?",
         };
     }
 
@@ -25,7 +25,7 @@ async function nodeTest(): ValidationResultT {
         ? {
               status: "failure",
               comment:
-                  "Detected NodeJS version is older than 12.0.0 " +
+                  "Detected version is older than 12.0.0 " +
                   "Minimal required version is 12.0.0. Please update your NodeJS installation",
           }
         : {

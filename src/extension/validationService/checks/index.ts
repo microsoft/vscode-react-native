@@ -10,11 +10,12 @@ import emulator from "./emulator";
 import env from "./env";
 import java from "./java";
 import nodeJs from "./nodeJS";
+import gradle from "./gradle";
 
 // it's infered!
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const getChecks = () => {
-    const checks = [adb, emulator, env, java, nodeJs] as const;
+    const checks = [adb, emulator, env, java, nodeJs, gradle] as const;
     // if some checks become obsolete (e.g. no need to check both npm and yarn) - write logic here
     return checks;
 };
