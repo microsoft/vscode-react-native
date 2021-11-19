@@ -366,8 +366,8 @@ export const ERROR_STRINGS = {
         "ErrorWhileStopNetworkInspector",
         "Error while stopping Network inspector",
     ),
-    [InternalErrorCode.FailedToTestEnvironment]: localize(
-        "ErrorWhileStopNetworkInspector",
+    [InternalErrorCode.FailedToTestDevEnvironment]: localize(
+        "ErrorWhileStartingEnvironment",
         "Could not test environment",
     ),
 };

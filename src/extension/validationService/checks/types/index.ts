@@ -15,7 +15,7 @@ export type ValidationResultT = Promise<{
 export interface ValidationI {
     label: string;
     description: string;
-    platform?: string; // todo: add possible platforms e.g win
+    platform?: "win32" | "darwin" | "linux"; // todo: add possible platforms e.g win
     category: CategoryE;
     exec: () => ValidationResultT;
 }

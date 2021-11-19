@@ -19,6 +19,7 @@ export enum InternalErrorCode {
     FailedToRunOnWindows = 114,
     FailedToRunOnMacOS = 115,
     DebuggingCommandFailed = 116,
+    FailedToTestDevEnvironment = 117,
 
     // Device Deployer errors
     IOSDeployNotFound = 201,
@@ -130,6 +131,4 @@ export enum InternalErrorCode {
     // Network Inspector errors
     CouldNotStartNetworkInspector = 1601,
     CouldNotStopNetworkInspector = 1602,
-
-    FailedToTestEnvironment = 1603,
 }

@@ -1,12 +1,29 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { executeCommand, normizeStr } from "../util";
+import {
+    createNotFoundMessage,
+    createVersionErrorMessage,
+    executeCommand,
+    normizeStr,
+    toLocale,
+} from "../util";
 import * as semver from "semver";
 import { CategoryE, ValidationI, ValidationResultT } from "./types";
+import * as cexists from "command-exists";
+
+const label = "Java";
 
 async function javaTest(): ValidationResultT {
+    if (!(await cexists("java"))) {
+        return {
+            status: "failure",
+            comment: createNotFoundMessage(label),
+        };
+    }
+
     const command = "java -version";
+
     const data = await executeCommand(command);
 
     // https://stackoverflow.com/questions/13483443/why-does-java-version-go-to-stderr
@@ -19,7 +36,7 @@ async function javaTest(): ValidationResultT {
     if (!version) {
         return {
             status: "failure",
-            comment: "Version check failed. Is JAVA insalled?",
+            comment: createVersionErrorMessage("label"),
         };
     }
 
@@ -48,8 +65,8 @@ async function javaTest(): ValidationResultT {
 }
 
 const main: ValidationI = {
-    label: "Java",
-    description: "Required as part of Anrdoid SDK",
+    label,
+    description: toLocale("JavaCheckDescription", "Required as part of Anrdoid SDK"),
     category: CategoryE.Android,
     exec: javaTest,
 };

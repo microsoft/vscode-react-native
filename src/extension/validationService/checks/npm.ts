@@ -1,24 +1,37 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { executeCommand, normizeStr } from "../util";
+import {
+    createNotFoundMessage,
+    createVersionErrorMessage,
+    executeCommand,
+    normizeStr,
+    toLocale,
+} from "../util";
 import * as semver from "semver";
 import { CategoryE, ValidationI, ValidationResultT } from "./types";
+import * as cexists from "command-exists";
+
+const label = "NPM";
 
 async function npmTest(): ValidationResultT {
+    if (!(await cexists("npm"))) {
+        return {
+            status: "failure",
+            comment: createNotFoundMessage(label),
+        };
+    }
+
     const command = "npm --version";
     const data = await executeCommand(command);
 
     const text = normizeStr(data.stdout).split("\n")[0];
     const version = semver.coerce(text);
 
-    console.log("parsed npm version"); // #temp!>
-    console.log(version); // #temp!>
-
     if (!version) {
         return {
             status: "failure",
-            comment: "Version check failed. Is npm insalled?",
+            comment: createVersionErrorMessage(label),
         };
     }
 
@@ -26,8 +39,8 @@ async function npmTest(): ValidationResultT {
 }
 
 const main: ValidationI = {
-    label: "NPM",
-    description: "Required for installing node packages",
+    label,
+    description: toLocale("NpmCheckDescription", "Required for installing node packages"),
     category: CategoryE.Common,
     exec: npmTest,
 };

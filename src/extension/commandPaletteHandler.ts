@@ -536,8 +536,8 @@ export class CommandPaletteHandler {
         LogCatMonitorManager.delMonitor(monitor.deviceId);
     }
 
-    public static async testEnvironment(): Promise<void> {
-        runChecks();
+    public static async testDevEnvironment(): Promise<void> {
+        await runChecks();
     }
 
     public static async selectAndInsertDebugConfiguration(

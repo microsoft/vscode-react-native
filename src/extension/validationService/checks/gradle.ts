@@ -1,11 +1,27 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { executeCommand, normizeStr } from "../util";
+import {
+    createNotFoundMessage,
+    createVersionErrorMessage,
+    executeCommand,
+    normizeStr,
+    toLocale,
+} from "../util";
 import * as semver from "semver";
 import { CategoryE, ValidationI, ValidationResultT } from "./types";
+import * as cexists from "command-exists";
 
-async function adbTest(): ValidationResultT {
+const label = "Gradle";
+
+async function gradleTest(): ValidationResultT {
+    if (!(await cexists("gradle"))) {
+        return {
+            status: "failure",
+            comment: createNotFoundMessage(label),
+        };
+    }
+
     const command = "gradle -version";
     const data = await executeCommand(command);
 
@@ -16,23 +32,21 @@ async function adbTest(): ValidationResultT {
     if (!version) {
         return {
             status: "failure",
-            comment: "Version check failed. Is gradle installed?",
+            comment: createVersionErrorMessage(label),
         };
     }
 
-    // #todo> Not sure which gradle versions are needed
+    // #todo> Not sure which gradle versions are required
     return {
         status: "success",
     };
 }
 
 const main: ValidationI = {
-    label: "Gradle",
-    description: "Requried for building your app",
+    label,
+    description: toLocale("GradleTestDescription", "Requried for building your app"),
     category: CategoryE.Android,
-    exec: adbTest,
+    exec: gradleTest,
 };
 
 export default main;
-
-main.exec().then(console.log);

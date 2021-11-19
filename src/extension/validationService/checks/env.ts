@@ -3,7 +3,7 @@
 
 import { CategoryE, ValidationI, ValidationResultT } from "./types";
 import * as fs from "fs";
-import { fromEntries } from "../util";
+import { fromEntries, toLocale } from "../util";
 
 // convert windows variables in string to actual values
 const convertPathWithVars = (str: string) =>
@@ -62,7 +62,7 @@ async function envTest(): ValidationResultT {
 
 const main: ValidationI = {
     label: "Environment variables",
-    description: "Required for other development tools",
+    description: toLocale("EnvCheckDescription", "Required for other development tools"),
     category: CategoryE.Android,
     exec: envTest,
 };
