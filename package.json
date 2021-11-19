@@ -4,7 +4,7 @@
   "version": "1.8.0",
   "private": true,
   "publisher": "msjsdiag",
-  "icon": "media/icon.png",
+  "icon": "resources/images/icon.png",
   "galleryBanner": {
     "color": "#3B3738",
     "theme": "dark"
@@ -56,30 +56,46 @@
         "steps": [
           {
             "id": "settingUpCommonEnvironment",
-            "title": "Setting up the environment",
-            "description": "Make sure you set up your environment correctly according to the guide described [here](https://reactnative.dev/docs/environment-setup)",
+            "title": "Set up the development environment",
+            "description": "For the React Native Tools extension to work correctly, you need to set up the development environment in accordance with the requirements of React Native\n[Learn more](https://reactnative.dev/docs/environment-setup)",
             "media": {
-              "image": "media/environment-set-up.png",
-              "altText": "Empty image"
+              "markdown": "resources/walkthougths/setup-env-common.md"
+            }
+          },
+          {
+            "id": "settingUpExpoEnvironment",
+            "title": "Set up the development environment",
+            "description": "The extension allows you to conveniently work with Expo applications. To get started, you need to set up the development environment in accordance with the official requirements\n[Learn more](https://reactnative.dev/docs/environment-setup)",
+            "media": {
+              "markdown": "resources/walkthougths/setup-env-expo.md"
             }
           },
           {
             "id": "settingUpWindowsEnvironment",
-            "title": "Setting up the environment for Windows app development",
+            "title": "Prepare for React Native for Windows",
             "description": "To develop React Native for Windows applications, you need to set up your dev environment in accordance with the [official requirements](https://microsoft.github.io/react-native-windows/docs/rnw-dependencies)",
             "when": "isWindows",
             "media": {
-              "image": "media/rnw-set-up.png",
+              "image": "resources/images/rnw-set-up.png",
               "altText": "Empty image"
             }
           },
           {
             "id": "settingUpMacOsEnvironment",
-            "title": "Setting up the environment for macOS app development",
+            "title": "Prepare for React Native for macOS",
             "description": "To develop React Native for macOS applications, you need to set up your dev environment in accordance with the [official requirements](https://microsoft.github.io/react-native-windows/docs/rnm-dependencies)",
             "when": "isMac",
             "media": {
-              "image": "media/rnm-set-up.png",
+              "image": "resources/images/rnm-set-up.png",
+              "altText": "Empty image"
+            }
+          },
+          {
+            "id": "hermesEngine",
+            "title": "Hermes Engine",
+            "description": "The Hermes engine is an open source JavaScript engine created by Facebook to optimize building and running React Native applications. It improves app performance and decreases app size.\n[Learn more](https://github.com/microsoft/vscode-react-native#hermes-engine)",
+            "media": {
+              "image": "resources/images/hermeslogo.svg",
               "altText": "Empty image"
             }
           },
@@ -88,16 +104,7 @@
             "title": "Run and Debug your React Native application",
             "description": "Create a debug configuration and start debugging your React Native applications.\n[Learn more](https://github.com/microsoft/vscode-react-native#debugging-react-native-applications)",
             "media": {
-              "markdown": "media/debug-tutor.md"
-            }
-          },
-          {
-            "id": "hermesEngine",
-            "title": "Hermes Engine",
-            "description": "The Hermes engine is an open source JavaScript engine created by Facebook to optimize building and running React Native applications. It improves app performance and decreases app size.\n[Learn more](https://github.com/microsoft/vscode-react-native#hermes-engine)",
-            "media": {
-              "image": "media/hermeslogo.svg",
-              "altText": "Empty image"
+              "markdown": "resources/walkthougths/debug-tutor.md"
             }
           },
           {
@@ -105,7 +112,7 @@
             "title": "Learn main features",
             "description": "The extension supports all the tools you need to quickly and easily develop your applications",
             "media": {
-              "markdown": "media/features-tutor.md"
+              "markdown": "resources/walkthougths/features-tutor.md"
             }
           }
         ]
