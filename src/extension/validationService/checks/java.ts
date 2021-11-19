@@ -15,7 +15,7 @@ import * as cexists from "command-exists";
 const label = "Java";
 
 async function javaTest(): ValidationResultT {
-    if (!(await cexists("java"))) {
+    if (!cexists.sync("java")) {
         return {
             status: "failure",
             comment: createNotFoundMessage(label),

@@ -15,7 +15,7 @@ import * as cexists from "command-exists";
 const label = "Node.JS";
 
 async function nodeTest(): ValidationResultT {
-    if (!(await cexists("node"))) {
+    if (!cexists.sync("node")) {
         return {
             status: "failure",
             comment: createNotFoundMessage(label),

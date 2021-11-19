@@ -15,7 +15,7 @@ import * as cexists from "command-exists";
 const label = "ADB";
 
 async function adbTest(): ValidationResultT {
-    if (!(await cexists("adb"))) {
+    if (!cexists.sync("adb")) {
         return {
             status: "failure",
             comment: createNotFoundMessage(label),

@@ -15,7 +15,7 @@ import * as cexists from "command-exists";
 const label = "Android Emulator";
 
 async function emulatorTest(): ValidationResultT {
-    if (!(await cexists("emulator"))) {
+    if (!cexists.sync("emulator")) {
         return {
             status: "failure",
             comment: createNotFoundMessage(label),

@@ -15,7 +15,7 @@ import * as cexists from "command-exists";
 const label = "Gradle";
 
 async function gradleTest(): ValidationResultT {
-    if (!(await cexists("gradle"))) {
+    if (!cexists.sync("gradle")) {
         return {
             status: "failure",
             comment: createNotFoundMessage(label),

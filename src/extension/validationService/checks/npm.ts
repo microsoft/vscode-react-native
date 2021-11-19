@@ -15,7 +15,7 @@ import * as cexists from "command-exists";
 const label = "NPM";
 
 async function npmTest(): ValidationResultT {
-    if (!(await cexists("npm"))) {
+    if (!cexists.sync("npm")) {
         return {
             status: "failure",
             comment: createNotFoundMessage(label),
