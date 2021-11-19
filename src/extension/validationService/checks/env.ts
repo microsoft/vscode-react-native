@@ -35,7 +35,9 @@ async function envTest(): ValidationResultT {
         };
     }
 
-    const notFoundPath = Object.entries(envVars).find(([, val]) => val && !fs.existsSync(val))?.[0];
+    const notFoundPath = Object.entries(resolvedEnv).find(
+        ([, val]) => val.resolved && !fs.existsSync(val.resolved),
+    )?.[0];
 
     if (notFoundPath) {
         return {

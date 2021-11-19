@@ -23,8 +23,6 @@ export const runChecks = async (): Promise<void> => {
         [CategoryE.iOS]: new Map(await convertToEntries(CategoryE.iOS)),
     };
 
-    outputChannel.info("Starting Environment check...");
-
     const statusToSymbol = {
         success: "✓",
         failure: "✖",
@@ -32,13 +30,16 @@ export const runChecks = async (): Promise<void> => {
     };
 
     outputChannel.setFocusOnLogChannel();
+    outputChannel.info("Starting Environment check...");
+
+    let outStr = `<<< Dev Environment verification result >>>`;
 
     Object.entries(checks).forEach(async ([key, val]) => {
         if (val.size === 0) {
             return;
         }
 
-        let outStr = `\n*** ${key} ***\n`;
+        outStr += `\n*** ${key} ***\n`;
 
         val.forEach((execResult, validation) => {
             outStr += ` ${statusToSymbol[execResult.status]} ${validation.label}`;
@@ -50,7 +51,7 @@ export const runChecks = async (): Promise<void> => {
 
             outStr += "\n";
         });
-
-        outputChannel.logStream(outStr);
     });
+
+    outputChannel.logStream(outStr);
 };
