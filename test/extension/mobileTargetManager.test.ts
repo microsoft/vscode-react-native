@@ -539,7 +539,7 @@ suite("MobileTargetManager", function () {
                     defaultSetup();
                 });
 
-                test(`Should not throw error for target equals ${TargetType.Simulator}`, async function () {
+                test(`Should not throw an error for the target equals ${TargetType.Simulator}`, async function () {
                     await executeWithoutEmulator(async () => {
                         await checkTargetType(
                             async () =>
