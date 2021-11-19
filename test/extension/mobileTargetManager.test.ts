@@ -492,7 +492,7 @@ suite("MobileTargetManager", function () {
                     }
                 });
             });
-            test(`Should not throw error in case passed target type equals '${TargetType.Device}'`, async function () {
+            test(`Should not throw an error in case the passed target type equals '${TargetType.Device}'`, async function () {
                 await executeWithoutEmulator(async () => {
                     try {
                         await targetManager.collectTargets(TargetType.Device);
