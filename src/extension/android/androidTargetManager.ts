@@ -112,7 +112,7 @@ export class AndroidTargetManager extends MobileTargetManager {
                 localize(
                     "CouldNotUseEmulators",
                     "An error occurred while trying to get installed emulators: {0}\nContinue using only online targets",
-                    error,
+                    error instanceof Error ? error.message : error.toString(),
                 ),
             );
         }
