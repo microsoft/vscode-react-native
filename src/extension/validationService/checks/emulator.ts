@@ -54,7 +54,10 @@ async function emulatorTest(): ValidationResultT {
 
 const main: ValidationI = {
     label,
-    description: toLocale("EmulatorCheckDescription", "Required for local testing"),
+    description: toLocale(
+        "EmulatorCheckDescription",
+        "Required for working with Android emulators",
+    ),
     category: CategoryE.Android,
     exec: emulatorTest,
 };

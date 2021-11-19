@@ -62,7 +62,7 @@ async function envTest(): ValidationResultT {
 
 const main: ValidationI = {
     label: "Environment variables",
-    description: toLocale("EnvCheckDescription", "Required for other development tools"),
+    description: toLocale("EnvCheckDescription", "Required for launching React Native apps"),
     category: CategoryE.Android,
     exec: envTest,
 };

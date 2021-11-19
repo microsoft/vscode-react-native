@@ -41,7 +41,7 @@ async function nodeTest(): ValidationResultT {
               status: "failure",
               comment:
                   "Detected version is older than 12.0.0 " +
-                  "Minimal required version is 12.0.0. Please update your NodeJS installation",
+                  `Minimal required version is 12.0.0. Please update your ${label} installation`,
           }
         : {
               status: "success",
