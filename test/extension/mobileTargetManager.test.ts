@@ -478,7 +478,7 @@ suite("MobileTargetManager", function () {
                 defaultSetup();
             });
 
-            test(`Should not throw error in case passed target type is undefined`, async function () {
+            test(`Should not throw an error and collect only online targets in case the passed target type is undefined`, async function () {
                 await executeWithoutEmulator(async () => {
                     try {
                         await targetManager.collectTargets();
@@ -552,7 +552,7 @@ suite("MobileTargetManager", function () {
                         );
                     });
                 });
-                test(`Should not throw error for target equals online emulator id`, async function () {
+                test(`Should not throw an error for the target equals online emulator id`, async function () {
                     await executeWithoutEmulator(async () => {
                         await checkTargetType(
                             async () =>
@@ -567,7 +567,7 @@ suite("MobileTargetManager", function () {
                         );
                     });
                 });
-                test(`Should not throw error for target equals ${TargetType.Device}`, async function () {
+                test(`Should not throw an error for the target equals ${TargetType.Device}`, async function () {
                     await executeWithoutEmulator(async () => {
                         await checkTargetType(
                             async () =>
@@ -580,7 +580,7 @@ suite("MobileTargetManager", function () {
                         );
                     });
                 });
-                test(`Should not throw error for target equals device id`, async function () {
+                test(`Should not throw an error for the target equals device id`, async function () {
                     await executeWithoutEmulator(async () => {
                         await checkTargetType(
                             async () =>
@@ -593,7 +593,7 @@ suite("MobileTargetManager", function () {
                         );
                     });
                 });
-                test(`Should throw error for target equals emulator AVD name`, async function () {
+                test(`Should throw an error for the target equals emulator AVD name`, async function () {
                     await executeWithoutEmulator(async () => {
                         await checkTargetType(
                             async () => {
