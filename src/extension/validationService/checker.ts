@@ -41,9 +41,6 @@ export const runChecks = async (): Promise<void> => {
         let outStr = `\n*** ${key} ***\n`;
 
         val.forEach((execResult, validation) => {
-            console.log(execResult.status);
-            console.log(statusToSymbol[execResult.status]);
-
             outStr += ` ${statusToSymbol[execResult.status]} ${validation.label}`;
 
             if (execResult.status !== "success") {
