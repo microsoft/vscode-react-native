@@ -103,9 +103,18 @@ export class AndroidTargetManager extends MobileTargetManager {
                 );
             }
         } catch (error) {
+            // We throw an exception only if the target type is explicitly specified,
+            // otherwise we collect only those targets that we can collect
             if (targetType === TargetType.Simulator) {
                 throw error;
             }
+            this.logger.warning(
+                localize(
+                    "CouldNotUseEmulators",
+                    "An error occurred while trying to get installed emulators: {0}\nContinue using only online targets",
+                    error,
+                ),
+            );
         }
 
         const onlineTargets = await this.adbHelper.getOnlineTargets();
