@@ -508,7 +508,7 @@ suite("MobileTargetManager", function () {
                     }
                 });
             });
-            test(`Should throw error in case passed target type equals '${TargetType.Simulator}'`, async function () {
+            test(`Should throw an error in case the passed target type equals '${TargetType.Simulator}'`, async function () {
                 await executeWithoutEmulator(async () => {
                     try {
                         await targetManager.collectTargets(TargetType.Simulator);
