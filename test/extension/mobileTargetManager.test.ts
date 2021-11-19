@@ -529,7 +529,7 @@ suite("MobileTargetManager", function () {
         });
 
         suite(
-            "Target identification in case there in no 'emulator' utility in the PATH",
+            "Target identification in case there is no 'emulator' utility in the PATH",
             function () {
                 suiteSetup(() => {
                     setupWithEmulatorCommands();
