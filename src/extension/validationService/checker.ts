@@ -23,7 +23,7 @@ export const runChecks = async (): Promise<void> => {
         [CategoryE.iOS]: new Map(await convertToEntries(CategoryE.iOS)),
     };
 
-    outputChannel.log("Starting Environment check...", 3);
+    outputChannel.info("Starting Environment check...");
 
     const statusToSymbol = {
         success: "✓",
