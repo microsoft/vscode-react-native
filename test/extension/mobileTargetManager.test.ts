@@ -469,7 +469,7 @@ suite("MobileTargetManager", function () {
             runTargetSelectionTests();
         });
 
-        suite("Collect targets in case there in no 'emulator' utility in the PATH", function () {
+        suite("Collect targets in case there is no 'emulator' utility in the PATH", function () {
             suiteSetup(() => {
                 setupWithEmulatorCommands();
             });
