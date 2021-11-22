@@ -787,11 +787,11 @@ npm install -g react-devtools
 
 You can open the in-app developer menu and choose "Show Inspector". It will bring up an overlay that lets you tap on any UI element and see information about it:
 
-![Element inspector usage](media\element-inspector-usage.gif)
+![Element inspector usage](resources/images/element-inspector-usage.gif)
 
 Using the `Run Element Inspector` Command Palette command you can launch DevTools in the extension. Inspector will enter a special collapsed mode, and use the DevTools as primary UI. In this mode, clicking on something in the simulator will bring up the relevant components in the DevTools:
 
-![Element inspector usage](media\element-inspector-with-ui.gif)
+![Element inspector usage](resources/images/element-inspector-with-ui.png)
 
 # Network Inspector
 
