@@ -64,7 +64,7 @@
           },
           {
             "id": "settingUpExpoEnvironment",
-            "title": "Set up the development environment",
+            "title": "Prepare for Expo development",
             "description": "The extension allows you to conveniently work with Expo applications. To get started, you need to set up the development environment in accordance with the official requirements\n[Learn more](https://reactnative.dev/docs/environment-setup)",
             "media": {
               "markdown": "resources/walkthougths/setup-env-expo.md"
