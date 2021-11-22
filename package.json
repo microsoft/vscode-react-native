@@ -102,7 +102,7 @@
           {
             "id": "runAndDebugReactNativeApp",
             "title": "Run and Debug your React Native application",
-            "description": "Create a debug configuration and start debugging your React Native applications.\n[Learn more](https://github.com/microsoft/vscode-react-native#debugging-react-native-applications)",
+            "description": "Create a debug configuration and start debugging your React Native application.\n[Learn more](https://github.com/microsoft/vscode-react-native#debugging-react-native-applications)",
             "media": {
               "markdown": "resources/walkthougths/debug-tutor.md"
             }
