@@ -164,6 +164,7 @@ export class CommandPaletteHandler {
         const nodeModulesRoot: string = appLauncher.getOrUpdateNodeModulesRoot();
         const adbHelper = new AdbHelper(projectPath, nodeModulesRoot);
         const androidEmulatorManager = new AndroidTargetManager(adbHelper);
+        await androidEmulatorManager.collectTargets(TargetType.Simulator);
         await androidEmulatorManager.selectAndPrepareTarget(target => target.isVirtualTarget);
     }
 

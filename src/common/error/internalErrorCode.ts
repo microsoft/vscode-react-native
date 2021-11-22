@@ -32,6 +32,7 @@ export enum InternalErrorCode {
     FailedToStartAndroidEmulator = 305,
     TargetSelectionError = 306,
     FailedToStartIOSSimulator = 307,
+    CouldNotRecognizeTargetType = 308,
 
     // iOS Platform errors
     IOSSimulatorNotLaunchable = 401,
