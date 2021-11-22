@@ -52,7 +52,7 @@
       {
         "id": "RNTGetStarted",
         "title": "Get started with React Native development",
-        "description": "Set up the environment for React Native development and explore extension functionality",
+        "description": "Your first steps to set up the environment for React Native development and explore the extension functionality",
         "steps": [
           {
             "id": "settingUpCommonEnvironment",
