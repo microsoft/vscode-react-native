@@ -7,12 +7,13 @@ To avoid conflicts with your existing installation, it is recommended to delete 
 - **Linux and macOS**: `~/.vscode/extensions/msjsdiag.vscode-react-native-<version>`
 - **Windows**: `C:\Users\<username>\.vscode\extensions\msjsdiag.vscode-react-native-<version>`
 
-### Clone the repository
+## Build the project
 
-- `git clone https://github.com/microsoft/vscode-react-native.git` to any preferrable folder
-- `cd` to the folder you just cloned
-- Run `npm install -g gulp` and `npm ci`
-- Run `gulp`
+- `git clone https://github.com/microsoft/vscode-react-native.git`
+- `cd vscode-react-native`
+- `npm ci`
+- `npm install -g gulp` and add `"gulp.autoDetect": "on"` to your vscode settings
+- Run `gulp` and check `dist` folder for extension files
 
 ## Debugging
 
