@@ -21,6 +21,11 @@ import {
     AndroidTargetManager,
 } from "../../src/extension/android/androidTargetManager";
 import { MobileTargetManager } from "../../src/extension/mobileTargetManager";
+import { ChildProcess } from "../../src/common/node/childProcess";
+import { PromiseUtil } from "../../src/common/node/promise";
+import { TargetType } from "../../src/extension/generalPlatform";
+import { InternalErrorCode } from "../../src/common/error/internalErrorCode";
+import { InternalError, NestedError } from "../../src/common/error/internalError";
 
 suite("MobileTargetManager", function () {
     const testProjectPath = path.join(__dirname, "..", "resources", "testCordovaProject");
@@ -43,15 +48,44 @@ suite("MobileTargetManager", function () {
     let launchSimulatorStub: Sinon.SinonStub;
     let collectTargetsStub: Sinon.SinonStub;
 
+    const isMac = process.platform === "darwin";
+    const defaultPath = process.env[isMac ? "PATH" : "Path"];
+    const getPathWithoutEmulator = PromiseUtil.promiseCacheDecorator(async () => {
+        const cp = new ChildProcess();
+        const isWin = process.platform === "win32";
+        try {
+            const whereEmulatorOutput = isWin
+                ? await cp.execToString("where emulator", { env: process.env })
+                : await cp.execToString("which -a emulator", { env: process.env });
+            const pathsToEmulatorUtility = whereEmulatorOutput
+                .split("\n")
+                .filter(str => str.length)
+                .map(str => path.dirname(str));
+            return defaultPath
+                ?.split(isWin ? ";" : ":")
+                .filter(path => !pathsToEmulatorUtility.find(emuPath => emuPath === path))
+                .join(isWin ? ";" : ":");
+        } catch (error) {
+            console.log(error);
+            return defaultPath;
+        }
+    });
+
+    async function executeWithoutEmulator(func: () => any) {
+        process.env[isMac ? "PATH" : "Path"] = await getPathWithoutEmulator();
+        await func();
+        process.env[isMac ? "PATH" : "Path"] = defaultPath;
+    }
+
     async function checkTargetType(
         assertFun: () => Promise<void>,
-        catchFun?: () => void,
+        catchFun?: (err?: any) => void,
     ): Promise<void> {
         try {
             await assertFun();
-        } catch {
+        } catch (err) {
             if (catchFun) {
-                catchFun();
+                catchFun(err);
             }
         }
     }
@@ -75,7 +109,7 @@ suite("MobileTargetManager", function () {
             await checkTargetType(
                 async () =>
                     assert.strictEqual(
-                        await targetManager.isVirtualTarget("simulator"),
+                        await targetManager.isVirtualTarget(TargetType.Simulator),
                         true,
                         "Could not recognize any simulator",
                     ),
@@ -125,7 +159,7 @@ suite("MobileTargetManager", function () {
             await checkTargetType(
                 async () =>
                     assert.strictEqual(
-                        await targetManager.isVirtualTarget("device"),
+                        await targetManager.isVirtualTarget(TargetType.Device),
                         false,
                         "Could not recognize any device",
                     ),
@@ -313,13 +347,78 @@ suite("MobileTargetManager", function () {
     suite("AndroidTargetManager", function () {
         let adbHelper: AdbHelper;
 
-        let getAbdsNamesStub: Sinon.SinonStub;
+        let getAvdsNamesStub: Sinon.SinonStub;
+        let getAvdNameById: Sinon.SinonStub;
         let getOnlineTargetsStub: Sinon.SinonStub;
 
-        suiteSetup(() => {
+        function defaultSetup() {
+            setupWithEmulatorCommands();
+            launchSimulatorStub = Sinon.stub(
+                targetManager as any,
+                "launchSimulator",
+                async (simulatorTarget: IMobileTarget) => {
+                    simulatorTarget.isOnline = true;
+                    switch (simulatorTarget.name) {
+                        case "emulatorName1":
+                            simulatorTarget.id = "emulator-5551";
+                            break;
+                        case "emulatorName2":
+                            simulatorTarget.id = "emulator-5552";
+                            break;
+                        case "emulatorName3":
+                            simulatorTarget.id = "emulator-5553";
+                            break;
+                        case "emulatorName4":
+                            simulatorTarget.id = "emulator-5554";
+                            break;
+                    }
+                    return AndroidTarget.fromInterface(<IDebuggableMobileTarget>simulatorTarget);
+                },
+            );
+            getAvdsNamesStub = Sinon.stub(adbHelper, "getAvdsNames", async () => {
+                return [
+                    onlineSimulator1.name,
+                    onlineSimulator2.name,
+                    offlineSimulator1.name,
+                    offlineSimulator2.name,
+                ];
+            });
+        }
+
+        function setupWithEmulatorCommands() {
             adbHelper = new AdbHelper(testProjectPath, path.join(testProjectPath, "node_modules"));
             targetManager = new AndroidTargetManager(adbHelper);
 
+            getOnlineTargetsStub = Sinon.stub(adbHelper, "getOnlineTargets", async () => {
+                return <IDebuggableMobileTarget[]>(
+                    [
+                        onlineSimulator1,
+                        onlineSimulator2,
+                        offlineSimulator1,
+                        offlineSimulator2,
+                        device1,
+                        device2,
+                    ].filter(target => target.isOnline)
+                );
+            });
+            getAvdNameById = Sinon.stub(
+                adbHelper,
+                "getAvdNameById",
+                async (targetId: string): Promise<string | undefined> => {
+                    return [
+                        onlineSimulator1,
+                        onlineSimulator2,
+                        offlineSimulator1,
+                        offlineSimulator2,
+                        device1,
+                        device2,
+                    ].find(target => target.id === targetId)?.name;
+                },
+            );
+            targetsForSelection = [];
+        }
+
+        suiteSetup(() => {
             revertTargetsStates = () => {
                 onlineSimulator1 = {
                     name: "emulatorName1",
@@ -350,79 +449,173 @@ suite("MobileTargetManager", function () {
                 device1 = { id: "deviceid1", isVirtualTarget: false, isOnline: true };
                 device2 = { id: "deviceid2", isVirtualTarget: false, isOnline: true };
             };
-
-            collectTargetsStub = Sinon.stub(targetManager as any, "collectTargets", async () => {
-                revertTargetsStates();
-                (targetManager as any).targets = [
-                    onlineSimulator1,
-                    onlineSimulator2,
-                    offlineSimulator1,
-                    offlineSimulator2,
-                    device1,
-                    device2,
-                ];
-            });
-            launchSimulatorStub = Sinon.stub(
-                targetManager as any,
-                "launchSimulator",
-                async (simulatorTarget: IMobileTarget) => {
-                    simulatorTarget.isOnline = true;
-                    switch (simulatorTarget.name) {
-                        case "emulatorName1":
-                            simulatorTarget.id = "emulator-5551";
-                            break;
-                        case "emulatorName2":
-                            simulatorTarget.id = "emulator-5552";
-                            break;
-                        case "emulatorName3":
-                            simulatorTarget.id = "emulator-5553";
-                            break;
-                        case "emulatorName4":
-                            simulatorTarget.id = "emulator-5554";
-                            break;
-                    }
-                    return AndroidTarget.fromInterface(<IDebuggableMobileTarget>simulatorTarget);
-                },
-            );
-            getAbdsNamesStub = Sinon.stub(adbHelper, "getAvdsNames", async () => {
-                return [
-                    onlineSimulator1.name,
-                    onlineSimulator2.name,
-                    offlineSimulator1.name,
-                    offlineSimulator2.name,
-                ];
-            });
-            getOnlineTargetsStub = Sinon.stub(adbHelper, "getOnlineTargets", async () => {
-                return <IDebuggableMobileTarget[]>(
-                    [
-                        onlineSimulator1,
-                        onlineSimulator2,
-                        offlineSimulator1,
-                        offlineSimulator2,
-                        device1,
-                        device2,
-                    ].filter(target => target.isOnline)
-                );
-            });
-            targetsForSelection = [];
+            defaultSetup();
         });
 
         suiteTeardown(() => {
-            getAbdsNamesStub.reset();
+            getAvdsNamesStub.reset();
             getOnlineTargetsStub.reset();
+            getAvdNameById.reset();
             launchSimulatorStub.reset();
         });
 
         suite("Target selection", function () {
             setup(async () => {
+                revertTargetsStates();
                 await targetManager.collectTargets();
+                targetsForSelection = [];
             });
 
             runTargetSelectionTests();
         });
 
+        suite("Collect targets in case there is no 'emulator' utility in the PATH", function () {
+            suiteSetup(() => {
+                setupWithEmulatorCommands();
+            });
+
+            suiteTeardown(() => {
+                defaultSetup();
+            });
+
+            test(`Should not throw an error and collect only online targets in case the passed target type is undefined`, async function () {
+                await executeWithoutEmulator(async () => {
+                    try {
+                        await targetManager.collectTargets();
+                        assert.strictEqual(
+                            (await targetManager.getTargetList()).find(target => !target.isOnline),
+                            undefined,
+                            "Should collect only online targets",
+                        );
+                    } catch (error) {
+                        assert.fail(`Error has been thrown: ${error}`);
+                    }
+                });
+            });
+            test(`Should not throw an error in case the passed target type equals '${TargetType.Device}'`, async function () {
+                await executeWithoutEmulator(async () => {
+                    try {
+                        await targetManager.collectTargets(TargetType.Device);
+                        assert.strictEqual(
+                            (await targetManager.getTargetList()).find(
+                                target => target.isVirtualTarget,
+                            ),
+                            undefined,
+                            "Should collect only devices",
+                        );
+                    } catch (error) {
+                        assert.fail(`Error has been thrown: ${error}`);
+                    }
+                });
+            });
+            test(`Should throw an error in case the passed target type equals '${TargetType.Simulator}'`, async function () {
+                await executeWithoutEmulator(async () => {
+                    try {
+                        await targetManager.collectTargets(TargetType.Simulator);
+                        assert.fail(`Did not throw error.`);
+                    } catch (error) {
+                        if (error instanceof InternalError) {
+                            assert.strictEqual(error.errorCode, InternalErrorCode.CommandFailed);
+                        } else {
+                            throw error;
+                        }
+                    }
+                });
+            });
+        });
+
         suite("Target identification", function () {
             runTargetTypeCheckTests();
         });
+
+        suite(
+            "Target identification in case there is no 'emulator' utility in the PATH",
+            function () {
+                suiteSetup(() => {
+                    setupWithEmulatorCommands();
+                });
+
+                suiteTeardown(() => {
+                    defaultSetup();
+                });
+
+                test(`Should not throw an error for the target equals ${TargetType.Simulator}`, async function () {
+                    await executeWithoutEmulator(async () => {
+                        await checkTargetType(
+                            async () =>
+                                assert.strictEqual(
+                                    await targetManager.isVirtualTarget(TargetType.Simulator),
+                                    true,
+                                    "Could not recognize any simulator",
+                                ),
+                            err => assert.fail(`Error has been thrown: ${err}`),
+                        );
+                    });
+                });
+                test(`Should not throw an error for the target equals online emulator id`, async function () {
+                    await executeWithoutEmulator(async () => {
+                        await checkTargetType(
+                            async () =>
+                                assert.strictEqual(
+                                    await targetManager.isVirtualTarget(
+                                        onlineSimulator1.id as string,
+                                    ),
+                                    true,
+                                    "Could not recognize simulator id",
+                                ),
+                            err => assert.fail(`Error has been thrown: ${err}`),
+                        );
+                    });
+                });
+                test(`Should not throw an error for the target equals ${TargetType.Device}`, async function () {
+                    await executeWithoutEmulator(async () => {
+                        await checkTargetType(
+                            async () =>
+                                assert.strictEqual(
+                                    await targetManager.isVirtualTarget(TargetType.Device),
+                                    false,
+                                    "Could not recognize any device",
+                                ),
+                            err => assert.fail(`Error has been thrown: ${err}`),
+                        );
+                    });
+                });
+                test(`Should not throw an error for the target equals device id`, async function () {
+                    await executeWithoutEmulator(async () => {
+                        await checkTargetType(
+                            async () =>
+                                assert.strictEqual(
+                                    await targetManager.isVirtualTarget(device1.id as string),
+                                    false,
+                                    "Could not recognize device id",
+                                ),
+                            err => assert.fail(`Error has been thrown: ${err}`),
+                        );
+                    });
+                });
+                test(`Should throw an error for the target equals emulator AVD name`, async function () {
+                    await executeWithoutEmulator(async () => {
+                        await checkTargetType(
+                            async () => {
+                                const isVirtualTarget = await targetManager.isVirtualTarget(
+                                    offlineSimulator1.name as string,
+                                );
+                                assert.fail(`Did not throw error and return ${isVirtualTarget}`);
+                            },
+                            (err: Error) => {
+                                if (err instanceof NestedError) {
+                                    assert.strictEqual(
+                                        err.innerError.errorCode,
+                                        InternalErrorCode.CommandFailed,
+                                    );
+                                } else {
+                                    throw err;
+                                }
+                            },
+                        );
+                    });
+                });
+            },
+        );
     });
 });
