@@ -789,7 +789,7 @@ You can open the in-app developer menu and choose "Show Inspector". It will brin
 
 ![Element inspector usage](media\element-inspector-usage.gif)
 
-Using the command of Command Palette `reactNative.command.runInspector` you can launch DevTools. Inspector will enter a special collapsed mode, and instead use the DevTools as primary UI. In this mode, clicking on something in the simulator will bring up the relevant components in the DevTools:
+Using the `Run Element Inspector` Command Palette command you can launch DevTools in the extension. Inspector will enter a special collapsed mode, and use the DevTools as primary UI. In this mode, clicking on something in the simulator will bring up the relevant components in the DevTools:
 
 ![Element inspector usage](media\element-inspector-with-ui.gif)
 
