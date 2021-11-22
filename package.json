@@ -1108,7 +1108,7 @@
         },
         "react-native-tools.logLevel": {
           "description": "%reactNative.configuration.properties.react-native-tools.logLevel.description%",
-          "type": "enum",
+          "type": "string",
           "enum": [
             "Trace",
             "Debug",
