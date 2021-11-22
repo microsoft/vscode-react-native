@@ -110,7 +110,7 @@
           {
             "id": "learnMainFeatures",
             "title": "Learn main features",
-            "description": "The extension supports all the tools you need to quickly and easily develop your applications",
+            "description": "The extension provides useful features to facilitate the development of React Native applications",
             "media": {
               "markdown": "resources/walkthougths/features-tutor.md"
             }
