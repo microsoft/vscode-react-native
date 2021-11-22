@@ -777,7 +777,11 @@ Using these context variables you can assign the same keyboard combination for s
 
 # Element inspector
 
-With the help of the [`react-devtools`](https://www.npmjs.com/package/react-devtools) package and this extension, you can conveniently explore and work with the DOM-tree.
+In the extension you can run React DevTools Element inspector to inspect the DOM-tree of your application.
+It's required to install the [`react-devtools`](https://www.npmjs.com/package/react-devtools) package globally to run React DevTools from the extension.
+\```
+npm install -g react-devtools
+\```
 
 ### Integration with React Native Inspector
 
