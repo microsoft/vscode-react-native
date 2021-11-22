@@ -9,6 +9,8 @@ import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { IDebuggableMobileTarget, IMobileTarget, MobileTarget } from "../mobileTarget";
 import { waitUntil } from "../../common/utils";
 import { TargetType } from "../generalPlatform";
+import { InternalErrorCode } from "../../common/error/internalErrorCode";
+import { ErrorHelper } from "../../common/error/errorHelper";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -48,25 +50,24 @@ export class AndroidTargetManager extends MobileTargetManager {
                 return false;
             } else if (
                 target === TargetType.Simulator ||
-                target.match(AdbHelper.AndroidSDKEmulatorPattern) ||
-                (await this.adbHelper.getAvdsNames()).includes(target)
+                target.match(AdbHelper.AndroidSDKEmulatorPattern)
             ) {
                 return true;
             } else {
                 const onlineTarget = await this.adbHelper.findOnlineTargetById(target);
                 if (onlineTarget) {
                     return onlineTarget.isVirtualTarget;
+                } else if ((await this.adbHelper.getAvdsNames()).includes(target)) {
+                    return true;
                 } else {
-                    throw new Error("There is no any online target");
+                    throw new Error("There is no such target");
                 }
             }
-        } catch {
-            throw new Error(
-                localize(
-                    "CouldNotRecognizeTargetType",
-                    "Could not recognize type of the target {0}",
-                    target,
-                ),
+        } catch (error) {
+            throw ErrorHelper.getNestedError(
+                error,
+                InternalErrorCode.CouldNotRecognizeTargetType,
+                target,
             );
         }
     }
@@ -87,26 +88,45 @@ export class AndroidTargetManager extends MobileTargetManager {
         return undefined;
     }
 
-    public async collectTargets(): Promise<void> {
+    public async collectTargets(targetType?: TargetType): Promise<void> {
         const targetList: IMobileTarget[] = [];
+        const collectSimulators = !targetType || targetType === TargetType.Simulator;
+        const collectDevices = !targetType || targetType === TargetType.Device;
 
-        let emulatorsNames: string[] = await this.adbHelper.getAvdsNames();
-        targetList.push(
-            ...emulatorsNames.map(name => {
-                return { name, isOnline: false, isVirtualTarget: true };
-            }),
-        );
+        try {
+            if (collectSimulators) {
+                const emulatorsNames: string[] = await this.adbHelper.getAvdsNames();
+                targetList.push(
+                    ...emulatorsNames.map(name => {
+                        return { name, isOnline: false, isVirtualTarget: true };
+                    }),
+                );
+            }
+        } catch (error) {
+            // We throw an exception only if the target type is explicitly specified,
+            // otherwise we collect only those targets that we can collect
+            if (targetType === TargetType.Simulator) {
+                throw error;
+            }
+            this.logger.warning(
+                localize(
+                    "CouldNotUseEmulators",
+                    "An error occurred while trying to get installed emulators: {0}\nContinue using only online targets",
+                    error instanceof Error ? error.message : error.toString(),
+                ),
+            );
+        }
 
         const onlineTargets = await this.adbHelper.getOnlineTargets();
         for (let device of onlineTargets) {
-            if (device.isVirtualTarget) {
+            if (device.isVirtualTarget && collectSimulators) {
                 const avdName = await this.adbHelper.getAvdNameById(device.id);
                 const emulatorTarget = targetList.find(target => target.name === avdName);
                 if (emulatorTarget) {
                     emulatorTarget.isOnline = true;
                     emulatorTarget.id = device.id;
                 }
-            } else {
+            } else if (!device.isVirtualTarget && collectDevices) {
                 targetList.push({ id: device.id, isOnline: true, isVirtualTarget: false });
             }
         }
