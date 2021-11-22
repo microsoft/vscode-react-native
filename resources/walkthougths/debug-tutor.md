@@ -1,5 +1,5 @@
 # Run and Debug your React Native application
-## Ways to start debug session
+## Create and run debugging scenario
 This extension supports generating debugging configuration in the `.vscode/launch.json` file by selecting debugging parameters in dropdown lists at the top of the editor.
 
 ![Add React Native debug configuration](../images/add-debug-configuration.gif)
