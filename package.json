@@ -56,7 +56,7 @@
         "steps": [
           {
             "id": "settingUpCommonEnvironment",
-            "title": "Set up the development environment",
+            "title": "Set up RN development environment",
             "description": "For the React Native Tools extension to work correctly, you need to set up the development environment in accordance with the requirements of React Native\n[Learn more](https://reactnative.dev/docs/environment-setup)",
             "media": {
               "markdown": "resources/walkthougths/setup-env-common.md"
