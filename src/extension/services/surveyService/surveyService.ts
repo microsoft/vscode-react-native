@@ -37,10 +37,11 @@ export interface SurveyConfig extends RemoteSurveyConfig {
 export class SurveyService implements vscode.Disposable {
     private static instance: SurveyService;
 
-    private readonly SURVEY_CONFIG_NAME: string;
-    private readonly MAX_WAIT_TIME_TO_SHOW_SURVEY_IN_MINUTES: number;
-    private readonly MIN_WAIT_TIME_TO_SHOW_SURVEY_IN_MINUTES: number;
-    private readonly endpointURL: string;
+    private readonly SURVEY_CONFIG_NAME: string = "surveyConfig";
+    private readonly MAX_WAIT_TIME_TO_SHOW_SURVEY_IN_MINUTES: number = 30;
+    private readonly MIN_WAIT_TIME_TO_SHOW_SURVEY_IN_MINUTES: number = 5;
+    private readonly endpointURL: string =
+        "https://microsoft.github.io/vscode-react-native/surveys/surveyConfig.json";
     private readonly downloadConfigRequest: Promise<RemoteSurveyConfig>;
 
     private cancellationTokenSource: vscode.CancellationTokenSource;
@@ -57,12 +58,6 @@ export class SurveyService implements vscode.Disposable {
     }
 
     private constructor() {
-        this.endpointURL =
-            "https://microsoft.github.io/vscode-react-native/surveys/surveyConfig.json";
-        this.SURVEY_CONFIG_NAME = "surveyConfig";
-        this.MAX_WAIT_TIME_TO_SHOW_SURVEY_IN_MINUTES = 30;
-        this.MIN_WAIT_TIME_TO_SHOW_SURVEY_IN_MINUTES = 5;
-
         this.cancellationTokenSource = new vscode.CancellationTokenSource();
         this._surveyConfig = null;
         this.extensionFirstTimeInstalled = false;
@@ -127,7 +122,7 @@ export class SurveyService implements vscode.Disposable {
                 longPeriodToRemind: 90,
                 popCoveragePercent: 0.1,
                 enabled: false,
-                daysLeftBeforeSurvey: this.extensionFirstTimeInstalled ? 30 : 0,
+                daysLeftBeforeSurvey: this.extensionFirstTimeInstalled ? 30 : 3,
                 surveyName: "none",
                 surveyUrl: "",
             };
