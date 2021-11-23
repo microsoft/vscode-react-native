@@ -7,15 +7,15 @@ export enum CategoryE {
     iOS = "iOS",
 }
 
-export type ValidationResultT = Promise<{
+export type ValidationResultT = {
     status: "failure" | "success" | "partial-success";
     comment?: string;
-}>;
+};
 
 export interface ValidationI {
     label: string;
     description: string;
-    platform?: "win32" | "darwin" | "linux"; // todo: add possible platforms e.g win
+    platform?: typeof process.platform[];
     category: CategoryE;
-    exec: () => ValidationResultT;
+    exec: () => Promise<ValidationResultT>;
 }

@@ -14,7 +14,7 @@ import * as cexists from "command-exists";
 
 const label = "NPM";
 
-async function npmTest(): ValidationResultT {
+async function test(): Promise<ValidationResultT> {
     if (!cexists.sync("npm")) {
         return {
             status: "failure",
@@ -42,7 +42,7 @@ const main: ValidationI = {
     label,
     description: toLocale("NpmCheckDescription", "Required for installing node packages"),
     category: CategoryE.Common,
-    exec: npmTest,
+    exec: test,
 };
 
 export default main;

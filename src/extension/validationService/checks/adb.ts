@@ -14,7 +14,7 @@ import * as cexists from "command-exists";
 
 const label = "ADB";
 
-async function adbTest(): ValidationResultT {
+async function test(): Promise<ValidationResultT> {
     if (!cexists.sync("adb")) {
         return {
             status: "failure",
@@ -56,8 +56,8 @@ const main: ValidationI = {
         "Required for app installition. Minimal version is 12",
     ),
     category: CategoryE.Common,
-    platform: "win32",
-    exec: adbTest,
+    platform: ["win32"],
+    exec: test,
 };
 
 export default main;

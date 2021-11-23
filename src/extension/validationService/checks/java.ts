@@ -14,7 +14,7 @@ import * as cexists from "command-exists";
 
 const label = "Java";
 
-async function javaTest(): ValidationResultT {
+async function test(): Promise<ValidationResultT> {
     if (!cexists.sync("java")) {
         return {
             status: "failure",
@@ -66,9 +66,10 @@ async function javaTest(): ValidationResultT {
 
 const main: ValidationI = {
     label,
+    platform: ["win32"],
     description: toLocale("JavaCheckDescription", "Required as part of Anrdoid SDK"),
     category: CategoryE.Android,
-    exec: javaTest,
+    exec: test,
 };
 
 export default main;

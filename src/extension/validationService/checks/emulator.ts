@@ -14,7 +14,7 @@ import * as cexists from "command-exists";
 
 const label = "Android Emulator";
 
-async function emulatorTest(): ValidationResultT {
+async function test(): Promise<ValidationResultT> {
     if (!cexists.sync("emulator")) {
         return {
             status: "failure",
@@ -54,12 +54,13 @@ async function emulatorTest(): ValidationResultT {
 
 const main: ValidationI = {
     label,
+    platform: ["win32"],
     description: toLocale(
         "EmulatorCheckDescription",
         "Required for working with Android emulators",
     ),
     category: CategoryE.Android,
-    exec: emulatorTest,
+    exec: test,
 };
 
 export default main;

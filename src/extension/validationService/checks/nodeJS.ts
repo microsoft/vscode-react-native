@@ -14,7 +14,7 @@ import * as cexists from "command-exists";
 
 const label = "Node.JS";
 
-async function nodeTest(): ValidationResultT {
+async function test(): Promise<ValidationResultT> {
     if (!cexists.sync("node")) {
         return {
             status: "failure",
@@ -55,7 +55,7 @@ const main: ValidationI = {
         "Required for code execution. Minimal version is 12",
     ),
     category: CategoryE.Common,
-    exec: nodeTest,
+    exec: test,
 };
 
 export default main;

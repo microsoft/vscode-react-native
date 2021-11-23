@@ -16,7 +16,7 @@ const envVars = {
     // JAVA_HOME ?
 };
 
-async function envTest(): ValidationResultT {
+async function test(): Promise<ValidationResultT> {
     const resolvedEnv = fromEntries(
         Object.entries(envVars).map(([key, val]) => [
             key,
@@ -64,9 +64,10 @@ async function envTest(): ValidationResultT {
 
 const main: ValidationI = {
     label: "Environment variables",
+    platform: ["win32"],
     description: toLocale("EnvCheckDescription", "Required for launching React Native apps"),
     category: CategoryE.Android,
-    exec: envTest,
+    exec: test,
 };
 
 export default main;

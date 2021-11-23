@@ -3,7 +3,7 @@
 
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { getChecks } from "./checks";
-import { CategoryE } from "./checks/types";
+import { CategoryE, ValidationResultT } from "./checks/types";
 
 export const runChecks = async (): Promise<void> => {
     const outputChannel = OutputChannelLogger.getMainChannel();
@@ -32,7 +32,7 @@ export const runChecks = async (): Promise<void> => {
     outputChannel.setFocusOnLogChannel();
     outputChannel.info("Starting Environment check...");
 
-    let outStr = `<<< Dev Environment verification result >>>`;
+    let outStr = `<<< Dev Environment verification result >>>\n`;
 
     Object.entries(checks).forEach(async ([key, val]) => {
         if (val.size === 0) {
@@ -52,6 +52,14 @@ export const runChecks = async (): Promise<void> => {
             outStr += "\n";
         });
     });
+
+    const allPassed = ([] as ValidationResultT[]).concat(
+        ...Object.entries(checks).map(it => [...it[1].values()]),
+    );
+
+    if (allPassed) {
+        outStr += `\nYou are (probably) all set to use the extension!`;
+    }
 
     outputChannel.logStream(outStr);
 };

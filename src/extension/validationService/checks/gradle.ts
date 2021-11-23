@@ -14,7 +14,7 @@ import * as cexists from "command-exists";
 
 const label = "Gradle";
 
-async function gradleTest(): ValidationResultT {
+async function test(): Promise<ValidationResultT> {
     if (!cexists.sync("gradle")) {
         return {
             status: "failure",
@@ -44,9 +44,10 @@ async function gradleTest(): ValidationResultT {
 
 const main: ValidationI = {
     label,
-    description: toLocale("GradleTestDescription", "Requried for building your app"),
+    platform: ["win32"],
+    description: toLocale("GradleTestDescription", "Requried for building android apps"),
     category: CategoryE.Android,
-    exec: gradleTest,
+    exec: test,
 };
 
 export default main;

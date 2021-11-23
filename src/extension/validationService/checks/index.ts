@@ -6,16 +6,32 @@
 // https://www.npmjs.com/package/command-exists // might find its use later on
 
 import adb from "./adb";
+import cocoaPods from "./cocoaPods";
 import emulator from "./emulator";
 import env from "./env";
+import gradle from "./gradle";
 import java from "./java";
 import nodeJs from "./nodeJS";
-import gradle from "./gradle";
+import npm from "./npm";
+import watchman from "./watchman";
+import xcodebuild from "./xcodebuild";
+import { ValidationI } from "./types";
 
-// it's infered!
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const getChecks = () => {
-    const checks = [adb, emulator, env, java, nodeJs, gradle] as const;
+export const getChecks = (): ValidationI[] => {
     // if some checks become obsolete (e.g. no need to check both npm and yarn) - write logic here
-    return checks;
+
+    const checks = [
+        adb,
+        emulator,
+        env,
+        java,
+        nodeJs,
+        gradle,
+        cocoaPods,
+        npm,
+        watchman,
+        xcodebuild,
+    ] as const;
+
+    return checks.filter(it => (it.platform ? it.platform.includes(process.platform) : true));
 };
