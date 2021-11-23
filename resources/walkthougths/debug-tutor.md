@@ -4,7 +4,7 @@ This extension supports generating debugging configuration in the `.vscode/launc
 
 ![Add React Native debug configuration](../images/add-debug-configuration.gif)
 
-To start debugging, just choose the appropriate configuration in the Configuration dropdown, and then press F5 (or click _Green Arrow_ ![Configure-gear](resources/images/debug-icon.png) button) to start debugging your app in VS Code.
+To start debugging, just choose the appropriate configuration in the Configuration dropdown, and then press F5 (or click _Green Arrow_ ![Configure-gear](../images/debug-icon.png) button) to start debugging your app in VS Code.
 
 The extension also allows to start debugging without creating the `launch.json` file in one of the following ways:
 - Using dynamic debugging configurations
