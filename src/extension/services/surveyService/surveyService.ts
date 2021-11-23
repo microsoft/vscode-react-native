@@ -44,10 +44,10 @@ export class SurveyService implements vscode.Disposable {
         "https://microsoft.github.io/vscode-react-native/surveys/surveyConfig.json";
     private readonly downloadConfigRequest: Promise<RemoteSurveyConfig>;
 
-    private cancellationTokenSource: vscode.CancellationTokenSource;
-    private _surveyConfig: SurveyConfig | null;
-    private extensionFirstTimeInstalled: boolean;
-    private promptDelayer: Delayer<Promise<void>>;
+    private cancellationTokenSource: vscode.CancellationTokenSource = new vscode.CancellationTokenSource();
+    private _surveyConfig: SurveyConfig | null = null;
+    private extensionFirstTimeInstalled: boolean = false;
+    private promptDelayer: Delayer<Promise<void>> = new Delayer();
 
     public static getInstance(): SurveyService {
         if (!SurveyService.instance) {
@@ -58,10 +58,6 @@ export class SurveyService implements vscode.Disposable {
     }
 
     private constructor() {
-        this.cancellationTokenSource = new vscode.CancellationTokenSource();
-        this._surveyConfig = null;
-        this.extensionFirstTimeInstalled = false;
-        this.promptDelayer = new Delayer();
         this.downloadConfigRequest = retryDownloadConfig<RemoteSurveyConfig>(
             this.endpointURL,
             this.cancellationTokenSource,
@@ -78,12 +74,11 @@ export class SurveyService implements vscode.Disposable {
         const curDate: Date = new Date();
 
         if (this.surveyConfig.daysLeftBeforeSurvey === 0) {
-            this._surveyConfig = await this.mergeRemoteConfigToLocal(this.surveyConfig);
             if (this.isCandidate()) {
                 this.promptDelayer.runWihtDelay(async () => {
                     await this.showSurveyNotification();
                     this.surveyConfig.daysLeftBeforeSurvey = this.surveyConfig.longPeriodToRemind;
-                    ExtensionConfigManager.config.set(this.SURVEY_CONFIG_NAME, this.surveyConfig);
+                    this.saveSurveyConfig(this.surveyConfig);
                 }, this.calculateSurveyNotificationDelay());
             } else {
                 this.surveyConfig.daysLeftBeforeSurvey = this.surveyConfig.shortPeriodToRemind;
@@ -97,7 +92,7 @@ export class SurveyService implements vscode.Disposable {
         }
 
         this.surveyConfig.lastExtensionUsageDate = curDate;
-        ExtensionConfigManager.config.set(this.SURVEY_CONFIG_NAME, this.surveyConfig);
+        this.saveSurveyConfig(this.surveyConfig);
     }
 
     public setExtensionFirstTimeInstalled(extensionFirstTimeInstalled: boolean): void {
@@ -126,17 +121,21 @@ export class SurveyService implements vscode.Disposable {
                 surveyName: "none",
                 surveyUrl: "",
             };
-
-            surveyConfig = await this.mergeRemoteConfigToLocal(surveyConfig);
-
-            ExtensionConfigManager.config.set(this.SURVEY_CONFIG_NAME, surveyConfig);
         } else {
             surveyConfig = this.prepareRawConfig(
                 ExtensionConfigManager.config.get(this.SURVEY_CONFIG_NAME),
             );
         }
 
+        surveyConfig = await this.mergeRemoteConfigToLocal(surveyConfig);
+
+        this.saveSurveyConfig(surveyConfig);
+
         this._surveyConfig = surveyConfig;
+    }
+
+    private saveSurveyConfig(surveyConfig: SurveyConfig): void {
+        ExtensionConfigManager.config.set(this.SURVEY_CONFIG_NAME, surveyConfig);
     }
 
     private calculateSurveyNotificationDelay(): number {
