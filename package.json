@@ -109,7 +109,7 @@
           },
           {
             "id": "learnMainFeatures",
-            "title": "Explore expansion features",
+            "title": "Explore extension features",
             "description": "The extension provides useful features to facilitate the development of React Native applications",
             "media": {
               "markdown": "resources/walkthougths/features-tutor.md"
