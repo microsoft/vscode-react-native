@@ -11,8 +11,8 @@ To avoid conflicts with your existing installation, it is recommended to delete 
 
 - `git clone https://github.com/microsoft/vscode-react-native.git`
 - `cd vscode-react-native`
-- `npm ci`
-- `npm install -g gulp` and add `"gulp.autoDetect": "on"` to your vscode settings
+- Run `npm ci`
+- Run `npm install -g gulp` and add `"gulp.autoDetect": "on"` to your VS Code settings
 - Run `gulp` and check `dist` folder for extension files
 
 ## Debugging
