@@ -77,7 +77,7 @@
             "when": "isWindows",
             "media": {
               "image": "resources/images/rnw-set-up.png",
-              "altText": "Empty image"
+              "altText": "React Native for Windows setup"
             }
           },
           {
@@ -87,7 +87,7 @@
             "when": "isMac",
             "media": {
               "image": "resources/images/rnm-set-up.png",
-              "altText": "Empty image"
+              "altText": "React Native for macOS setup"
             }
           },
           {
@@ -96,7 +96,7 @@
             "description": "The Hermes engine is an open source JavaScript engine created by Facebook to optimize building and running React Native applications. It improves app performance and decreases app size.\n[Learn more](https://github.com/microsoft/vscode-react-native#hermes-engine)",
             "media": {
               "image": "resources/images/hermeslogo.svg",
-              "altText": "Empty image"
+              "altText": "Hermes logo"
             }
           },
           {
@@ -108,9 +108,9 @@
             }
           },
           {
-            "id": "learnMainFeatures",
+            "id": "exploreExtensionFeatures",
             "title": "Explore extension features",
-            "description": "The extension provides useful features to facilitate the development of React Native applications",
+            "description": "The extension provides useful features to facilitate the development of React Native applications.\n[Learn more](https://github.com/microsoft/vscode-react-native#customization)",
             "media": {
               "markdown": "resources/walkthougths/features-tutor.md"
             }
