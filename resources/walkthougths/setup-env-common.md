@@ -1,5 +1,5 @@
 # Getting started
-Before going any further, please review the following information to help you successfully work with React Native Tools.
+Before going any further, please check out the following information to help you get started with React Native Tools successfully.
 
 Make sure that you:
 
