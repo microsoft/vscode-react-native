@@ -37,20 +37,18 @@ nls.config({
 const localize = nls.loadMessageBundle();
 
 export class AppLauncher {
-    private readonly cdpProxyPort: number;
-    private readonly cdpProxyHostAddress: string;
+    private readonly cdpProxyPort = generateRandomPortNumber();
+    /** localhost */
+    private readonly cdpProxyHostAddress = "127.0.0.1";
 
     private appWorker: MultipleLifetimesAppWorker | null;
     private packager: Packager;
     private exponentHelper: ExponentHelper;
-    private reactDirManager: ReactDirManager;
-    private workspaceFolder: vscode.WorkspaceFolder;
     private reactNativeVersions?: RNPackageVersions;
     private rnCdpProxy: ReactNativeCDPProxy;
     private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
     private mobilePlatform: GeneralPlatform;
     private launchScenariosManager: LaunchScenariosManager;
-    private projectObserver: RNProjectObserver;
     private debugConfigurationRoot: string;
     private nodeModulesRoot?: string;
 
@@ -95,32 +93,25 @@ export class AppLauncher {
     }
 
     constructor(
-        reactDirManager: ReactDirManager,
-        projectObserver: RNProjectObserver,
-        workspaceFolder: vscode.WorkspaceFolder,
+        private reactDirManager: ReactDirManager,
+        private projectObserver: RNProjectObserver,
+        private workspaceFolder: vscode.WorkspaceFolder,
     ) {
-        // constants definition
-        this.cdpProxyPort = generateRandomPortNumber();
-        this.cdpProxyHostAddress = "127.0.0.1"; // localhost
+        this.debugConfigurationRoot = workspaceFolder.uri.fsPath;
 
-        const rootPath = workspaceFolder.uri.fsPath;
-        this.debugConfigurationRoot = rootPath;
-        this.launchScenariosManager = new LaunchScenariosManager(this.debugConfigurationRoot);
-        const projectRootPath = SettingsHelper.getReactNativeProjectRoot(rootPath);
-        this.exponentHelper = new ExponentHelper(rootPath, projectRootPath);
-        const packagerStatusIndicator: PackagerStatusIndicator = new PackagerStatusIndicator(
-            rootPath,
+        const projectRootPath = SettingsHelper.getReactNativeProjectRoot(
+            this.debugConfigurationRoot,
         );
+
+        this.launchScenariosManager = new LaunchScenariosManager(this.debugConfigurationRoot);
+        this.exponentHelper = new ExponentHelper(this.debugConfigurationRoot, projectRootPath);
         this.packager = new Packager(
-            rootPath,
+            this.debugConfigurationRoot,
             projectRootPath,
             SettingsHelper.getPackagerPort(workspaceFolder.uri.fsPath),
-            packagerStatusIndicator,
+            new PackagerStatusIndicator(this.debugConfigurationRoot),
         );
         this.packager.setExponentHelper(this.exponentHelper);
-        this.reactDirManager = reactDirManager;
-        this.workspaceFolder = workspaceFolder;
-        this.projectObserver = projectObserver;
         this.rnCdpProxy = new ReactNativeCDPProxy(this.cdpProxyHostAddress, this.cdpProxyPort);
     }
 
@@ -179,7 +170,7 @@ export class AppLauncher {
         return this.mobilePlatform;
     }
 
-    public getOrUpdateNodeModulesRoot(forceUpdate: boolean = false): string {
+    public getOrUpdateNodeModulesRoot(forceUpdate = false): string {
         if (!this.nodeModulesRoot || forceUpdate) {
             const nodeModulesRootPath: string | null = getNodeModulesInFolderHierarchy(
                 this.packager.getProjectPath(),
@@ -193,7 +184,8 @@ export class AppLauncher {
 
             this.nodeModulesRoot = nodeModulesRootPath;
         }
-        return <string>this.nodeModulesRoot;
+
+        return this.nodeModulesRoot as string;
     }
 
     public dispose(): void {
