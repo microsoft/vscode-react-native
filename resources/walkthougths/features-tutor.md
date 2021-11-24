@@ -6,7 +6,7 @@ The extension provides `Network inspector` feature to inspect outgoing network t
 ## Element inspector
 In the extension you can run React DevTools Element inspector to inspect the DOM-tree of your application by starting `Run Element Inspector` command in Command Palette. You can learn more about React DevTools installation and usage [here](https://github.com/microsoft/vscode-react-native#element-inspector).
 ## Customization
-Also, the extension can be customized for more convenient work with your applications. Examples of customizable features:
+The extension provides different settings that can be customized according to personal preferences to improve the extension usability. Please see the [Customization](https://github.com/microsoft/vscode-react-native#customization) section in the documentation.
 - [Logging](https://github.com/microsoft/vscode-react-native#logging)
 - [Build APK and generate bundle](https://github.com/microsoft/vscode-react-native#build-apk-and-generate-bundle)
 - [Specifying custom arguments for `react-native run-*` command](https://github.com/microsoft/vscode-react-native#specifying-custom-arguments-for-react-native-run--command)
