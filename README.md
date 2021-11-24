@@ -54,6 +54,7 @@ Using this extension, you can **debug your code and quickly run `react-native` c
   - [Configure an Android LogCat Monitor](#configure-an-android-logcat-monitor)
   - [Configure dependencies versions for debugging Expo projects](#configure-dependencies-versions-for-debugging-expo-projects)
   - [Configure custom key bindings for extension commands](#configure-custom-key-bindings-for-extension-commands)
+- [Element inspector](#element-inspector)
 - [Network Inspector](#network-inspector)
 - [Developing inside a Docker Container](#developing-inside-a-docker-container)
 - [Contributing](#contributing)
@@ -780,9 +781,10 @@ Using these context variables you can assign the same keyboard combination for s
 
 In the extension you can run React DevTools Element inspector to inspect the DOM-tree of your application.
 It's required to install the [`react-devtools`](https://www.npmjs.com/package/react-devtools) package globally to run React DevTools from the extension.
-\```
+
+```
 npm install -g react-devtools
-\```
+```
 
 ### Integration with React Native Inspector
 
@@ -790,7 +792,7 @@ You can open the in-app developer menu and choose "Show Inspector". It will brin
 
 ![Element inspector usage](resources/images/element-inspector-usage.gif)
 
-Using the `Run Element Inspector` Command Palette command you can launch DevTools in the extension. Inspector will enter a special collapsed mode, and use the DevTools as primary UI. In this mode, clicking on something in the simulator will bring up the relevant components in the DevTools:
+Using the `Run Element Inspector` Command Palette command you can launch DevTools in the extension. Inspector will enter a special collapsed mode, and use the DevTools as primary UI. In this mode, clicking on something in the emulator will bring up the relevant components in the DevTools:
 
 ![Element inspector usage](resources/images/element-inspector-with-ui.png)
 
