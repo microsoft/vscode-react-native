@@ -65,7 +65,7 @@
           {
             "id": "settingUpExpoEnvironment",
             "title": "Prepare for Expo development",
-            "description": "The extension allows you to conveniently work with Expo applications. To get started, you need to set up the development environment in accordance with the extension requirements\n[Learn more](https://github.com/microsoft/vscode-react-native#expo-applications)",
+            "description": "The extension provides functionality for developing Expo applications. To get started, you need to set up the development environment in accordance with the extension requirements\n[Learn more](https://github.com/microsoft/vscode-react-native#expo-applications)",
             "media": {
               "markdown": "resources/walkthougths/setup-env-expo.md"
             }
