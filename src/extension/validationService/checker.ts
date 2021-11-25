@@ -3,31 +3,39 @@
 
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { getChecks } from "./checks";
-import { CategoryE, ValidationResultT } from "./checks/types";
+import { CategoryE, ValidationI, ValidationResultT } from "./checks/types";
+import { fromEntries } from "./util";
 
-export const runChecks = async (): Promise<void> => {
-    const outputChannel = OutputChannelLogger.getMainChannel();
-    const toCheck = getChecks();
-
-    const convertToEntries = (categ: CategoryE) => {
-        return Promise.all(
+const evaluteChecks = async (checks: ValidationI[]) => {
+    const execToEntries = (categ: CategoryE, toCheck: ValidationI[]) =>
+        Promise.all(
             toCheck
                 .filter(it => it.category === categ)
                 .map(async it => [it, await it.exec()] as const),
         );
-    };
 
-    const checks = {
-        [CategoryE.Common]: new Map(await convertToEntries(CategoryE.Common)),
-        [CategoryE.Android]: new Map(await convertToEntries(CategoryE.Android)),
-        [CategoryE.iOS]: new Map(await convertToEntries(CategoryE.iOS)),
-    };
+    return fromEntries(
+        await Promise.all(
+            Object.values(CategoryE).map(
+                async it => [it, new Map(await execToEntries(it, checks))] as const,
+            ),
+        ),
+    );
+};
 
-    const statusToSymbol = {
-        success: "✓",
-        failure: "✖",
-        "partial-success": "❔",
-    };
+const statusToSymbol = {
+    success: "✓",
+    failure: "✖",
+    "partial-success": "❔",
+};
+
+export const runChecks = async (options_?: Partial<Record<CategoryE, boolean>>): Promise<void> => {
+    const options = Object.assign(
+        { [CategoryE.Common]: true, [CategoryE.Android]: true, [CategoryE.iOS]: true },
+        options_,
+    );
+    const outputChannel = OutputChannelLogger.getMainChannel();
+    const checks = await evaluteChecks(getChecks().filter(it => options?.[it.category] === true));
 
     outputChannel.setFocusOnLogChannel();
     outputChannel.info("Starting Environment check...");

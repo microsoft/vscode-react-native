@@ -46,6 +46,7 @@ import { debugConfigurations } from "./debuggingConfiguration/debugConfigTypesAn
 import { AndroidTargetManager } from "./android/androidTargetManager";
 import { IOSTargetManager } from "./ios/iOSTargetManager";
 import { runChecks } from "./validationService/checker";
+import { CategoryE } from "./validationService/checks/types";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -538,7 +539,14 @@ export class CommandPaletteHandler {
     }
 
     public static async testDevEnvironment(): Promise<void> {
-        await runChecks();
+        const isExpo = await this.selectProject()
+            .then(it => it.getPackager().getExponentHelper().isExpoManagedApp(false))
+            .catch(err => {
+                console.log(err); // #todo!> rm
+                return false;
+            });
+
+        await runChecks({ [CategoryE.Expo]: isExpo });
     }
 
     public static async selectAndInsertDebugConfiguration(
@@ -560,10 +568,11 @@ export class CommandPaletteHandler {
 
             if (!token.isCancellationRequested && config) {
                 // Always use the first available debug configuration.
-                const cursorPosition = LaunchJsonCompletionHelper.getCursorPositionInConfigurationsArray(
-                    document,
-                    position,
-                );
+                const cursorPosition =
+                    LaunchJsonCompletionHelper.getCursorPositionInConfigurationsArray(
+                        document,
+                        position,
+                    );
                 if (!cursorPosition) {
                     return;
                 }

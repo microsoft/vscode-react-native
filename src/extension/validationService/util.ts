@@ -13,12 +13,12 @@ export const createVersionErrorMessage = (str: string): string =>
     `Version check failed. Make sure ${str} is working correctly`;
 
 // change typescript lib to es2019 ?
-export const fromEntries = <T = any>(
-    entries: Iterable<readonly [PropertyKey, T]>,
-): { [k: string]: T } =>
+export const fromEntries = <T = any, J extends PropertyKey = PropertyKey>(
+    entries: Iterable<readonly [J, T]>,
+): Record<J, T> =>
     [...entries].reduce((obj, [key, val]) => {
         obj[key] = val;
         return obj;
-    }, {});
+    }, {} as Record<J, T>);
 
 // export const flatten = (ary: any[]): unknown[] =>

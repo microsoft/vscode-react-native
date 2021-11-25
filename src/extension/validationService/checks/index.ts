@@ -15,6 +15,7 @@ import nodeJs from "./nodeJS";
 import npm from "./npm";
 import watchman from "./watchman";
 import xcodebuild from "./xcodebuild";
+import expoCli from "./expoCli";
 import { ValidationI } from "./types";
 
 export const getChecks = (): ValidationI[] => {
@@ -31,6 +32,7 @@ export const getChecks = (): ValidationI[] => {
         npm,
         watchman,
         xcodebuild,
+        expoCli,
     ] as const;
 
     return checks.filter(it => (it.platform ? it.platform.includes(process.platform) : true));

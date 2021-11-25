@@ -5,6 +5,7 @@ export enum CategoryE {
     Common = "Common",
     Android = "Android",
     iOS = "iOS",
+    Expo = "Expo",
 }
 
 export type ValidationResultT = {
