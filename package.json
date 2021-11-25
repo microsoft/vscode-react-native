@@ -77,7 +77,7 @@
             "when": "isWindows",
             "media": {
               "image": "resources/images/rnw-set-up.png",
-              "altText": "React Native for Windows setup"
+              "altText": "React Native for Windows app view"
             }
           },
           {
