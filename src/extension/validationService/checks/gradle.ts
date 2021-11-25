@@ -6,11 +6,18 @@ import {
     createVersionErrorMessage,
     executeCommand,
     normizeStr,
-    toLocale,
 } from "../util";
 import * as semver from "semver";
 import { CategoryE, ValidationI, ValidationResultT } from "./types";
 import * as cexists from "command-exists";
+import * as nls from "vscode-nls";
+
+nls.config({
+    messageFormat: nls.MessageFormat.bundle,
+    bundleFormat: nls.BundleFormat.standalone,
+})();
+
+const toLocale = nls.loadMessageBundle();
 
 const label = "Gradle";
 
@@ -44,7 +51,6 @@ async function test(): Promise<ValidationResultT> {
 
 const main: ValidationI = {
     label,
-    platform: ["win32"],
     description: toLocale("GradleTestDescription", "Requried for building android apps"),
     category: CategoryE.Android,
     exec: test,

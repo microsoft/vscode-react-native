@@ -6,11 +6,18 @@ import {
     createVersionErrorMessage,
     executeCommand,
     normizeStr,
-    toLocale,
 } from "../util";
 import * as semver from "semver";
 import { CategoryE, ValidationI, ValidationResultT } from "./types";
 import * as cexists from "command-exists";
+import * as nls from "vscode-nls";
+
+nls.config({
+    messageFormat: nls.MessageFormat.bundle,
+    bundleFormat: nls.BundleFormat.standalone,
+})();
+
+const toLocale = nls.loadMessageBundle();
 
 const label = "Java";
 
@@ -45,8 +52,7 @@ async function test(): Promise<ValidationResultT> {
     if (isOlder) {
         return {
             status: "partial-success",
-            comment:
-                "Detected version is older than 1.8.0. Please install JAVA 8 in case of errors",
+            comment: `Detected version is older than 1.8.0. Please install ${label} 8 in case of errors`,
         };
     }
 
@@ -57,7 +63,7 @@ async function test(): Promise<ValidationResultT> {
             status: "partial-success",
             comment:
                 "Detected version is newer than 1.12.0 " +
-                "Please install JAVA 8 in case of errors",
+                `Please install ${label} 8 in case of errors`,
         };
     }
 
@@ -66,7 +72,6 @@ async function test(): Promise<ValidationResultT> {
 
 const main: ValidationI = {
     label,
-    platform: ["win32"],
     description: toLocale("JavaCheckDescription", "Required as part of Anrdoid SDK"),
     category: CategoryE.Android,
     exec: test,

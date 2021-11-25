@@ -53,12 +53,12 @@ export const runChecks = async (): Promise<void> => {
         });
     });
 
-    const allPassed = ([] as ValidationResultT[]).concat(
-        ...Object.entries(checks).map(it => [...it[1].values()]),
-    );
+    const allPassed = ([] as ValidationResultT[])
+        .concat(...Object.entries(checks).map(it => [...it[1].values()]))
+        .every(it => it.status === "success");
 
     if (allPassed) {
-        outStr += `\nYou are (probably) all set to use the extension!`;
+        outStr += `\nAll the checks passed successfully!`;
     }
 
     outputChannel.logStream(outStr);

@@ -3,7 +3,15 @@
 
 import { CategoryE, ValidationI, ValidationResultT } from "./types";
 import * as fs from "fs";
-import { fromEntries, toLocale } from "../util";
+import { fromEntries } from "../util";
+import * as nls from "vscode-nls";
+
+nls.config({
+    messageFormat: nls.MessageFormat.bundle,
+    bundleFormat: nls.BundleFormat.standalone,
+})();
+
+const toLocale = nls.loadMessageBundle();
 
 // convert windows variables in string to actual values
 const convertPathWithVars = (str: string) =>

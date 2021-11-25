@@ -13,12 +13,12 @@ nls.config({
 
 const toLocale = nls.loadMessageBundle();
 
-const label = "CocoaPods";
+const label = "ios-deploy";
 
 async function test(): Promise<ValidationResultT> {
-    if (!cexists.sync("gem")) {
+    if (!cexists.sync("ios-deploy")) {
         return {
-            status: "failure",
+            status: "partial-success", // not necessary required
             comment: createNotFoundMessage(label),
         };
     }
@@ -32,8 +32,8 @@ const main: ValidationI = {
     label,
     platform: ["darwin"],
     description: toLocale(
-        "CocoaPodsTestDescription",
-        "Required for managing library dependencies of XCode projects",
+        "IosDeployTestDescription",
+        "Required for installing your app on a physical device with the CLI",
     ),
     category: CategoryE.iOS,
     exec: test,

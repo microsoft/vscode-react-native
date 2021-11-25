@@ -3,13 +3,6 @@
 
 import * as cp from "child_process";
 import { promisify } from "util";
-import * as nls from "vscode-nls";
-nls.config({
-    messageFormat: nls.MessageFormat.bundle,
-    bundleFormat: nls.BundleFormat.standalone,
-})();
-
-export const toLocale = nls.loadMessageBundle();
 
 export const executeCommand = promisify(cp.exec);
 export const normizeStr = (str: string): string => str.replace(/\r\n/g, "\n");
