@@ -1,4 +1,4 @@
-# Learn main features
+# Main extension features
 ## React Native commands in the Command Palette
 The extension provides special `Command Palette commands` for running React Native applications on different platforms, operating with the Packager and automating some dev processes. You can find more info about supported commands [here](https://github.com/microsoft/vscode-react-native#react-native-commands-in-the-command-palette).
 ## Network inspector
