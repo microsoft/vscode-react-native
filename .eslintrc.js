@@ -55,7 +55,9 @@ module.exports = {
     },
     overrides: [],
     rules: {
+        "unicorn/prefer-ternary": "warn",
         "import/no-cycle": "off",
+        "import/no-unresolved": "off", // !
         "lines-between-class-members": "off",
         "@typescript-eslint/lines-between-class-members": "off",
         "header/header": [
@@ -120,15 +122,6 @@ module.exports = {
             },
         ],
         "import/order": "warn",
-        // "import/order": [
-        //     "error",
-        //     {
-        //         alphabetize: {
-        //             caseInsensitive: true,
-        //             order: "asc",
-        //         },
-        //     },
-        // ],
         "import/prefer-default-export": "off", // default exports are bad
         "linebreak-style": "off", // git auto-fixes this
         "max-classes-per-file": "off", // eslint considers too many things to be a class
