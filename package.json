@@ -87,7 +87,7 @@
             "when": "isMac",
             "media": {
               "image": "resources/images/rnm-set-up.png",
-              "altText": "React Native for macOS setup"
+              "altText": "React Native for macOS app view"
             }
           },
           {
