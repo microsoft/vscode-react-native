@@ -5,7 +5,7 @@
 // https://www.npmjs.com/package/envinfo // does not list all required info
 // https://www.npmjs.com/package/command-exists // might find its use later on
 
-import adb from "./adb";
+import { adbAndroid, adbExpo } from "./adb";
 import cocoaPods from "./cocoaPods";
 import emulator from "./emulator";
 import env from "./env";
@@ -22,7 +22,8 @@ export const getChecks = (): ValidationI[] => {
     // if some checks become obsolete (e.g. no need to check both npm and yarn) - write logic here
 
     const checks = [
-        adb,
+        adbAndroid,
+        adbExpo,
         emulator,
         env,
         java,

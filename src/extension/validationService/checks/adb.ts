@@ -1,12 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {
-    createNotFoundMessage,
-    createVersionErrorMessage,
-    executeCommand,
-    normizeStr,
-} from "../util";
+import { createNotFoundMessage, createVersionErrorMessage, getVersion } from "../util";
 import * as semver from "semver";
 import { CategoryE, ValidationI, ValidationResultT } from "./types";
 import * as cexists from "command-exists";
@@ -29,12 +24,7 @@ async function test(): Promise<ValidationResultT> {
         };
     }
 
-    const command = "adb --version";
-    const data = await executeCommand(command);
-
-    const text = normizeStr(data.stdout).split("\n")[1];
-    const reg = /version (.*?)( |$)/gi;
-    const version = semver.coerce(reg.exec(text)?.[1]);
+    const version = await getVersion("adb --version", /^.*?\n.*?version (.*?)( |$|\n)/gi);
 
     if (!version) {
         return {
@@ -56,14 +46,24 @@ async function test(): Promise<ValidationResultT> {
           };
 }
 
-const main: ValidationI = {
+const adbAndroid: ValidationI = {
     label,
     description: toLocale(
-        "AdbCheckDescription",
+        "AdbCheckAndroidDescription",
         "Required for app installition. Minimal version is 12",
     ),
-    category: CategoryE.Common,
+    category: CategoryE.Android,
     exec: test,
 };
 
-export default main;
+const adbExpo: ValidationI = {
+    label,
+    description: toLocale(
+        "AdbCheckExpoDescription",
+        "Required for correct extension integration with Expo",
+    ),
+    category: CategoryE.Expo,
+    exec: test,
+};
+
+export { adbAndroid, adbExpo };
