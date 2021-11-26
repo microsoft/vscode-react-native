@@ -1,3 +1,9 @@
+## 1.8.1
+* Fixed debugging on reloading React Native Hermes applications [#1696](https://github.com/microsoft/vscode-react-native/pull/1696)
+* Optimized device and emulator targets selection [#1699](https://github.com/microsoft/vscode-react-native/pull/1699)
+* Added user survey notifications [#1701](https://github.com/microsoft/vscode-react-native/pull/1701)
+
+
 ## 1.8.0
 * Improved device and emulator targets selection [#1673](https://github.com/microsoft/vscode-react-native/pull/1673)
 * Implemented support of [debugging without creating a "launch.json" file](https://github.com/microsoft/vscode-react-native#debugging-react-native-applications). Now it's possible to start debugging via dynamic debug configurations or the Debug button in the Editor Title area menu [#1687](https://github.com/microsoft/vscode-react-native/pull/1687)
