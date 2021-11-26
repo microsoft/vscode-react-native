@@ -8,7 +8,7 @@
 import { adbAndroid, adbExpo } from "./adb";
 import cocoaPods from "./cocoaPods";
 import emulator from "./emulator";
-import env from "./env";
+import { androidHome } from "./env";
 import gradle from "./gradle";
 import java from "./java";
 import nodeJs from "./nodeJS";
@@ -25,7 +25,7 @@ export const getChecks = (): IValidation[] => {
         adbAndroid,
         adbExpo,
         emulator,
-        env,
+        androidHome,
         java,
         nodeJs,
         gradle,

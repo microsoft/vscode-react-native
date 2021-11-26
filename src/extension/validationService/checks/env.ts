@@ -70,11 +70,14 @@ async function test(): Promise<ValidationResultT> {
     };
 }
 
-const main: IValidation = {
-    label: "Environment variables",
-    description: toLocale("EnvCheckDescription", "Required for launching React Native apps"),
+const androidHome: IValidation = {
+    label: "ANDROID_HOME Env",
+    description: toLocale(
+        "AndroidHomeEnvCheckDescription",
+        "Required for launching React Native apps",
+    ),
     category: ValidationCategoryE.Android,
     exec: test,
 };
 
-export default main;
+export { androidHome };

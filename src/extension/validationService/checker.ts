@@ -41,10 +41,11 @@ export const runChecks = async (
         options_,
     );
     const outputChannel = OutputChannelLogger.getMainChannel();
-    const checks = await evaluteChecks(getChecks().filter(it => options?.[it.category] === true));
 
     outputChannel.setFocusOnLogChannel();
     outputChannel.info("Starting Environment check...");
+
+    const checks = await evaluteChecks(getChecks().filter(it => options?.[it.category] === true));
 
     let outStr = `<<< Dev Environment verification result >>>\n`;
 
