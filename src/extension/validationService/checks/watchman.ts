@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { createNotFoundMessage } from "../util";
-import { CategoryE, ValidationI, ValidationResultT } from "./types";
+import { ValidationCategoryE, IValidation, ValidationResultT } from "./types";
 import * as cexists from "command-exists";
 import * as nls from "vscode-nls";
 
@@ -28,11 +28,11 @@ async function test(): Promise<ValidationResultT> {
     };
 }
 
-const main: ValidationI = {
+const main: IValidation = {
     label,
     platform: ["darwin", "android"],
     description: toLocale("WatchmanTestDescription", "Required for watching file changes"),
-    category: CategoryE.Common,
+    category: ValidationCategoryE.Common,
     exec: test,
 };
 

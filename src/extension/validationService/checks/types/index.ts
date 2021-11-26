@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-export enum CategoryE {
+export enum ValidationCategoryE {
     Common = "Common",
     Android = "Android",
     iOS = "iOS",
@@ -13,10 +13,10 @@ export type ValidationResultT = {
     comment?: string;
 };
 
-export interface ValidationI {
+export interface IValidation {
     label: string;
     description: string;
     platform?: typeof process.platform[];
-    category: CategoryE;
+    category: ValidationCategoryE;
     exec: () => Promise<ValidationResultT>;
 }

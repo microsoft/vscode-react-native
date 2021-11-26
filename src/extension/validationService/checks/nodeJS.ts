@@ -8,7 +8,7 @@ import {
     normizeStr,
 } from "../util";
 import * as semver from "semver";
-import { CategoryE, ValidationI, ValidationResultT } from "./types";
+import { ValidationCategoryE, IValidation, ValidationResultT } from "./types";
 import * as cexists from "command-exists";
 import * as nls from "vscode-nls";
 
@@ -55,13 +55,13 @@ async function test(): Promise<ValidationResultT> {
           };
 }
 
-const main: ValidationI = {
+const main: IValidation = {
     label,
     description: toLocale(
         "NodejsCheckDescription",
         "Required for code execution. Minimal version is 12",
     ),
-    category: CategoryE.Common,
+    category: ValidationCategoryE.Common,
     exec: test,
 };
 

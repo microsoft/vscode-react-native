@@ -3,7 +3,7 @@
 
 import { createNotFoundMessage, createVersionErrorMessage, getVersion } from "../util";
 import * as semver from "semver";
-import { CategoryE, ValidationI, ValidationResultT } from "./types";
+import { ValidationCategoryE, IValidation, ValidationResultT } from "./types";
 import * as cexists from "command-exists";
 import * as nls from "vscode-nls";
 
@@ -46,23 +46,23 @@ async function test(): Promise<ValidationResultT> {
           };
 }
 
-const adbAndroid: ValidationI = {
+const adbAndroid: IValidation = {
     label,
     description: toLocale(
         "AdbCheckAndroidDescription",
         "Required for app installition. Minimal version is 12",
     ),
-    category: CategoryE.Android,
+    category: ValidationCategoryE.Android,
     exec: test,
 };
 
-const adbExpo: ValidationI = {
+const adbExpo: IValidation = {
     label,
     description: toLocale(
         "AdbCheckExpoDescription",
         "Required for correct extension integration with Expo",
     ),
-    category: CategoryE.Expo,
+    category: ValidationCategoryE.Expo,
     exec: test,
 };
 

@@ -8,7 +8,7 @@ import {
     normizeStr,
 } from "../util";
 import * as semver from "semver";
-import { CategoryE, ValidationI, ValidationResultT } from "./types";
+import { ValidationCategoryE, IValidation, ValidationResultT } from "./types";
 import * as cexists from "command-exists";
 import * as nls from "vscode-nls";
 
@@ -70,10 +70,10 @@ async function test(): Promise<ValidationResultT> {
     return { status: "success" };
 }
 
-const main: ValidationI = {
+const main: IValidation = {
     label,
     description: toLocale("JavaCheckDescription", "Required as part of Anrdoid SDK"),
-    category: CategoryE.Android,
+    category: ValidationCategoryE.Android,
     exec: test,
 };
 

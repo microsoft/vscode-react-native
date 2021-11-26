@@ -3,11 +3,11 @@
 
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { getChecks } from "./checks";
-import { CategoryE, ValidationI, ValidationResultT } from "./checks/types";
+import { ValidationCategoryE, IValidation, ValidationResultT } from "./checks/types";
 import { fromEntries } from "./util";
 
-const evaluteChecks = async (checks: ValidationI[]) => {
-    const execToEntries = (categ: CategoryE, toCheck: ValidationI[]) =>
+const evaluteChecks = async (checks: IValidation[]) => {
+    const execToEntries = (categ: ValidationCategoryE, toCheck: IValidation[]) =>
         Promise.all(
             toCheck
                 .filter(it => it.category === categ)
@@ -16,7 +16,7 @@ const evaluteChecks = async (checks: ValidationI[]) => {
 
     return fromEntries(
         await Promise.all(
-            Object.values(CategoryE).map(
+            Object.values(ValidationCategoryE).map(
                 async it => [it, new Map(await execToEntries(it, checks))] as const,
             ),
         ),
@@ -29,9 +29,15 @@ const statusToSymbol = {
     "partial-success": "❔",
 };
 
-export const runChecks = async (options_?: Partial<Record<CategoryE, boolean>>): Promise<void> => {
+export const runChecks = async (
+    options_?: Partial<Record<ValidationCategoryE, boolean>>,
+): Promise<void> => {
     const options = Object.assign(
-        { [CategoryE.Common]: true, [CategoryE.Android]: true, [CategoryE.iOS]: true },
+        {
+            [ValidationCategoryE.Common]: true,
+            [ValidationCategoryE.Android]: true,
+            [ValidationCategoryE.iOS]: true,
+        },
         options_,
     );
     const outputChannel = OutputChannelLogger.getMainChannel();
