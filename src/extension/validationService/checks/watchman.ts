@@ -30,9 +30,9 @@ async function test(): Promise<ValidationResultT> {
 
 const main: ValidationI = {
     label,
-    platform: ["darwin"],
+    platform: ["darwin", "android"],
     description: toLocale("WatchmanTestDescription", "Required for watching file changes"),
-    category: CategoryE.iOS,
+    category: CategoryE.Common,
     exec: test,
 };
 

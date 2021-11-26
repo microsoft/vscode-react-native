@@ -72,7 +72,6 @@ async function test(): Promise<ValidationResultT> {
 
 const main: ValidationI = {
     label: "Environment variables",
-    platform: ["win32"],
     description: toLocale("EnvCheckDescription", "Required for launching React Native apps"),
     category: CategoryE.Android,
     exec: test,

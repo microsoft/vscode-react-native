@@ -24,7 +24,7 @@ async function test(): Promise<ValidationResultT> {
         };
     }
 
-    const version = await getVersion("adb --version", /^.*?\n.*?version (.*?)( |$|\n)/gi);
+    const version = await getVersion("adb --version", /^.*\n.*version (.*?)( |$|\n)/gi);
 
     if (!version) {
         return {

@@ -539,14 +539,17 @@ export class CommandPaletteHandler {
     }
 
     public static async testDevEnvironment(): Promise<void> {
-        const isExpo = await this.selectProject()
-            .then(it => it.getPackager().getExponentHelper().isExpoManagedApp(false))
-            .catch(err => {
-                console.log(err); // #todo!> rm
-                return false;
-            });
+        const project = await this.selectProject().catch(() => undefined);
+        const shouldCheck = {
+            [CategoryE.Expo]:
+                (await project
+                    ?.getPackager()
+                    .getExponentHelper()
+                    .isExpoManagedApp(false)
+                    .catch(() => false)) || false,
+        } as const;
 
-        await runChecks({ [CategoryE.Expo]: isExpo });
+        await runChecks(shouldCheck);
     }
 
     public static async selectAndInsertDebugConfiguration(
