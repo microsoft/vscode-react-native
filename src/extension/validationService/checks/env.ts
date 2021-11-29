@@ -19,9 +19,6 @@ const convertPathWithVars = (str: string) =>
 
 const envVars = {
     ANDROID_HOME: process.env.ANDROID_HOME,
-    // "platform-tools": process.env["platform-tools"],
-    // ANDROID_SDK_ROOT: process.env.ANDROID_SDK_ROOT,
-    // JAVA_HOME ?
 };
 
 async function test(): Promise<ValidationResultT> {
