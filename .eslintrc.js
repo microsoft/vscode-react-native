@@ -43,6 +43,7 @@ module.exports = {
     },
     overrides: [],
     rules: {
+        "unicorn/no-array-reduce": "warn",
         "promise/catch-or-return": "off",
         // too much hassle, too little value
         "@typescript-eslint/no-unnecessary-type-assertion": "off",
