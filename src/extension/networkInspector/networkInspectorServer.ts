@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+/* eslint-disable */
+
 import { RSocketServer } from "rsocket-core";
 import RSocketTCPServer from "rsocket-tcp-server";
 import { AdbHelper } from "../android/adb";
