@@ -6,6 +6,8 @@ import * as fs from "fs";
 import * as path from "path";
 import { HostPlatform } from "./hostPlatform";
 
+/* eslint-disable */
+
 /**
  * Telemetry module specialized for vscode integration.
  */
