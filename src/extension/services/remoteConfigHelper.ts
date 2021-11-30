@@ -2,8 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { CancellationTokenSource } from "vscode";
-import { PromiseUtil } from "../common/node/promise";
-import { Request } from "../common/node/request";
+import { PromiseUtil } from "../../common/node/promise";
+import { Request } from "../../common/node/request";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface IConfig {}
