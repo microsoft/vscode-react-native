@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { AppLauncher } from "./appLauncher";
+import * as path from "path";
+import * as nls from "vscode-nls";
 import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { ErrorHelper } from "../common/error/errorHelper";
-import * as path from "path";
-import * as nls from "vscode-nls";
+import { AppLauncher } from "./appLauncher";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -47,7 +47,7 @@ const localize = nls.loadMessageBundle();
     const filenameAndNumber = path.basename(fullpath);
     const fileInfo = filenameAndNumber.split(":");
     const filename = path.join(normalizedDirname, fileInfo[0]);
-    let lineNumber: number = 1;
+    let lineNumber = 1;
 
     if (fileInfo.length >= 2) {
         lineNumber = parseInt(fileInfo[1], 10);

@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { IFormatter, decodeBody, FormattedBody } from "./requestBodyFormatter";
+import * as querystring from "querystring";
 import { OutputChannelLogger } from "../../log/OutputChannelLogger";
 import { Request, Response } from "../networkMessageData";
-import * as querystring from "querystring";
+import { IFormatter, decodeBody, FormattedBody } from "./requestBodyFormatter";
 
 /**
  * @preserve
@@ -47,7 +47,7 @@ export class GraphQLFormatter implements IFormatter {
             contentType.startsWith("text/html") ||
             contentType.startsWith("application/x-fb-flatbuffer")
         ) {
-            let decoded = decodeBody(response, this.logger);
+            const decoded = decodeBody(response, this.logger);
             try {
                 const data = JSON.parse(decoded);
                 return data;

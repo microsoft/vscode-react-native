@@ -3,10 +3,10 @@
 
 import * as url from "url";
 import * as path from "path";
-import { SourceMapsCombinator } from "./sourceMapsCombinator";
 import { RawSourceMap } from "source-map";
+import { SourceMapsCombinator } from "./sourceMapsCombinator";
 
-const IS_REMOTE = /^[a-zA-z]{2,}:\/\//; // Detection remote sources or specific protocols (like "webpack:///")
+const IS_REMOTE = /^[A-z]{2,}:\/\//; // Detection remote sources or specific protocols (like "webpack:///")
 
 interface ISourceMap extends RawSourceMap {
     sections?: ISourceMapSection[];
@@ -34,9 +34,9 @@ export class SourceMapUtil {
         let result: IStrictUrl | null = null;
 
         // scriptUrl = "http://localhost:8081/index.ios.bundle?platform=ios&dev=true"
-        let sourceMappingRelativeUrl = this.getSourceMapRelativeUrl(scriptBody); // sourceMappingRelativeUrl = "/index.ios.map?platform=ios&dev=true"
+        const sourceMappingRelativeUrl = this.getSourceMapRelativeUrl(scriptBody); // sourceMappingRelativeUrl = "/index.ios.map?platform=ios&dev=true"
         if (sourceMappingRelativeUrl) {
-            let sourceMappingUrl = url.parse(sourceMappingRelativeUrl);
+            const sourceMappingUrl = url.parse(sourceMappingRelativeUrl);
             sourceMappingUrl.protocol = scriptUrl.protocol;
             sourceMappingUrl.host = scriptUrl.host;
             // parse() repopulates all the properties of the URL
@@ -76,7 +76,7 @@ export class SourceMapUtil {
                 sourceMap = require("flatten-source-map")(sourceMap);
             }
 
-            let sourceMapsCombinator = new SourceMapsCombinator();
+            const sourceMapsCombinator = new SourceMapsCombinator();
             sourceMap = sourceMapsCombinator.convert(sourceMap);
 
             if (sourceMap.sources) {
@@ -136,7 +136,7 @@ export class SourceMapUtil {
      * Returns the last match if found, null otherwise.
      */
     public getSourceMapRelativeUrl(body: string): string | null {
-        let matchesList = body.match(SourceMapUtil.SourceMapURLGlobalRegex);
+        const matchesList = body.match(SourceMapUtil.SourceMapURLGlobalRegex);
         // If match is null, the body doesn't contain the source map
         if (matchesList) {
             const sourceMapMatch = matchesList[matchesList.length - 1].match(
@@ -146,16 +146,12 @@ export class SourceMapUtil {
                 // On React Native macOS 0.62 and RN Windows 0.65 sourceMappingUrl looks like:
                 // # sourceMappingURL=//localhost:8081/index.map?platform=macos&dev=true&minify=false
                 // Add 'http:' protocol to avoid errors in further processing
-                if (
-                    (sourceMapMatch[2].includes("platform=macos") ||
-                        sourceMapMatch[2].includes("platform=window")) &&
+                return (sourceMapMatch[2].includes("platform=macos") ||
+                    sourceMapMatch[2].includes("platform=window")) &&
                     !sourceMapMatch[2].includes("http:") &&
                     sourceMapMatch[2].startsWith("//")
-                ) {
-                    return "http:" + sourceMapMatch[2];
-                } else {
-                    return sourceMapMatch[2];
-                }
+                    ? "http:" + sourceMapMatch[2]
+                    : sourceMapMatch[2];
             }
         }
         return null;
@@ -177,7 +173,7 @@ export class SourceMapUtil {
             packagerLocalRoot = this.makeUnixStylePath(packagerLocalRoot);
             sourcePath = sourcePath.replace(packagerRemoteRoot, packagerLocalRoot);
         }
-        let relativeSourcePath = path.relative(sourcesRootPath, sourcePath);
+        const relativeSourcePath = path.relative(sourcesRootPath, sourcePath);
         return this.makeUnixStylePath(relativeSourcePath);
     }
 
@@ -186,7 +182,7 @@ export class SourceMapUtil {
      * This method replaces all back-slash characters in a given string with forward-slash ones.
      */
     private makeUnixStylePath(p: string): string {
-        let pathArgs = p.split(path.sep);
+        const pathArgs = p.split(path.sep);
         return path.posix.join.apply(null, pathArgs);
     }
 }

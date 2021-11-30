@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { BaseConfigProvider } from "./baseConfigProvider";
 import { MultiStepInput, InputStep } from "../multiStepInput";
 import {
     DebugConfigurationState,
@@ -11,6 +10,7 @@ import {
 } from "../debugConfigTypesAndConstants";
 import { PlatformType } from "../../launchArgs";
 import { ILaunchRequestArgs } from "../../../debugger/debugSessionBase";
+import { BaseConfigProvider } from "./baseConfigProvider";
 
 export class RunConfigProvider extends BaseConfigProvider {
     constructor() {
@@ -43,25 +43,23 @@ export class RunConfigProvider extends BaseConfigProvider {
 
         Object.assign(state.config, config);
 
-        if (state.config.platform !== PlatformType.Exponent) {
-            return async () => {
-                await this.configureApplicationType(input, state.config);
-                if (
-                    state.config.platform === PlatformType.iOS &&
-                    state.config.type === DEBUG_TYPES.REACT_NATIVE_DIRECT
-                ) {
-                    this.maxStepCount = 3;
-                    await this.configureUseHermesEngine(input, state.config);
-                    // Direct iOS debugging using ios-webkit-debug-proxy is supported
-                    // only with applications running on the device
-                    if (state.config.useHermesEngine === false) {
-                        state.config.target = "device";
-                    }
-                }
-            };
-        } else {
-            return;
-        }
+        return state.config.platform !== PlatformType.Exponent
+            ? async () => {
+                  await this.configureApplicationType(input, state.config);
+                  if (
+                      state.config.platform === PlatformType.iOS &&
+                      state.config.type === DEBUG_TYPES.REACT_NATIVE_DIRECT
+                  ) {
+                      this.maxStepCount = 3;
+                      await this.configureUseHermesEngine(input, state.config);
+                      // Direct iOS debugging using ios-webkit-debug-proxy is supported
+                      // only with applications running on the device
+                      if (state.config.useHermesEngine === false) {
+                          state.config.target = "device";
+                      }
+                  }
+              }
+            : undefined;
     }
 
     private async configureApplicationType(

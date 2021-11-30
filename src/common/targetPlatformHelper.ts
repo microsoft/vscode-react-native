@@ -2,10 +2,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as os from "os";
+import { PlatformType } from "../extension/launchArgs";
 import { ErrorHelper } from "./error/errorHelper";
 import { HostPlatform } from "./hostPlatform";
 import { InternalErrorCode } from "./error/internalErrorCode";
-import { PlatformType } from "../extension/launchArgs";
 /**
  * Defines the identifiers of all the mobile target platforms React Native supports.
  */
@@ -46,7 +46,7 @@ export class TargetPlatformHelper {
      * Checks whether the current host platform supports the target mobile platform.
      */
     public static checkTargetPlatformSupport(platformName: string): void {
-        let targetPlatformId = TargetPlatformHelper.getTargetPlatformId(platformName);
+        const targetPlatformId = TargetPlatformHelper.getTargetPlatformId(platformName);
         if (!HostPlatform.isCompatibleWithTarget(targetPlatformId)) {
             throw ErrorHelper.getInternalError(
                 InternalErrorCode.PlatformNotSupported,

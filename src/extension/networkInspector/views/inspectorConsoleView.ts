@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { InspectorView } from "./inspectorView";
-import { RequestParams } from "../clientDevice";
 import { URL, URLSearchParams } from "url";
 import * as vscode from "vscode";
+import { Base64 } from "js-base64";
+import { RequestParams } from "../clientDevice";
 import {
     Request,
     Response,
@@ -16,7 +16,7 @@ import { EditorColorThemesHelper, SystemColorTheme } from "../../../common/edito
 import { SettingsHelper } from "../../settingsHelper";
 import { combineBase64Chunks } from "../requestBodyFormatters/utils";
 import { FormattedBody } from "../requestBodyFormatters/requestBodyFormatter";
-import { Base64 } from "js-base64";
+import { InspectorView } from "./inspectorView";
 
 interface ConsoleNetworkRequestDataView {
     title: string;
@@ -225,7 +225,7 @@ export class InspectorConsoleView extends InspectorView {
     }
 
     private retrieveURLSearchParams(searchParams: URLSearchParams): Record<string, string> {
-        let formattedSearchParams: Record<string, string> = {};
+        const formattedSearchParams: Record<string, string> = {};
         searchParams.forEach((value: string, key: string) => {
             formattedSearchParams[key] = value;
         });

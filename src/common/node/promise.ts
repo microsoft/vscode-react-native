@@ -52,11 +52,7 @@ export class PromiseUtil {
         generateAsyncOperation: (value: T) => Promise<void>,
     ): Promise<void> {
         let arraySources: T[];
-        if (sources instanceof Promise) {
-            arraySources = await sources;
-        } else {
-            arraySources = sources;
-        }
+        arraySources = sources instanceof Promise ? await sources : sources;
 
         return arraySources.reduce(async (previousReduction: Promise<void>, newSource: T) => {
             await previousReduction;

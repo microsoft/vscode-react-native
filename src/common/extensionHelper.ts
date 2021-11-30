@@ -8,20 +8,12 @@ import { Package } from "./node/package";
 
 export function getExtensionVersion(): string | null {
     const packageJsonPath = findFileInFolderHierarchy(__dirname, "package.json");
-    if (packageJsonPath) {
-        return JSON.parse(fs.readFileSync(packageJsonPath, "utf-8")).version;
-    } else {
-        return null;
-    }
+    return packageJsonPath ? JSON.parse(fs.readFileSync(packageJsonPath, "utf-8")).version : null;
 }
 
 export function getExtensionName(): string | null {
     const packageJsonPath = findFileInFolderHierarchy(__dirname, "package.json");
-    if (packageJsonPath) {
-        return JSON.parse(fs.readFileSync(packageJsonPath, "utf-8")).name;
-    } else {
-        return null;
-    }
+    return packageJsonPath ? JSON.parse(fs.readFileSync(packageJsonPath, "utf-8")).name : null;
 }
 
 export function findFileInFolderHierarchy(dir: string, filename: string): string | null {
@@ -47,8 +39,8 @@ export function generateRandomPortNumber(): number {
 }
 
 export function getNodeModulesInFolderHierarchy(projectRoot: string): string | null {
-    const NODE_MODULES_FOLDER: string = "node_modules";
-    const REACT_NATIVE_MODULE: string = "react-native";
+    const NODE_MODULES_FOLDER = "node_modules";
+    const REACT_NATIVE_MODULE = "react-native";
     const pathToReactNativeModule: string = path.join(NODE_MODULES_FOLDER, REACT_NATIVE_MODULE);
 
     const nodeModulesPath: string | null = findFileInFolderHierarchy(

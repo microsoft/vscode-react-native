@@ -1,25 +1,25 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { IRunOptions, PlatformType } from "./../extension/launchArgs";
-import { GeneralPlatform } from "../extension/generalPlatform";
 import { ChildProcess } from "child_process";
-import { CommandExecutor } from "./commandExecutor";
-import { ExponentHelper } from "../extension/exponent/exponentHelper";
-import { ErrorHelper } from "./error/errorHelper";
-import { InternalErrorCode } from "./error/internalErrorCode";
-import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
-import { Package } from "./node/package";
-import { Request } from "./node/request";
-import { ProjectVersionHelper } from "./projectVersionHelper";
-import { PackagerStatusIndicator, PackagerStatus } from "../extension/packagerStatusIndicator";
-import { SettingsHelper } from "../extension/settingsHelper";
-import { AppLauncher } from "../extension/appLauncher";
 import * as path from "path";
-import * as XDL from "../extension/exponent/xdlInterface";
 import * as semver from "semver";
 import * as vscode from "vscode";
 import * as nls from "vscode-nls";
+import { GeneralPlatform } from "../extension/generalPlatform";
+import { ExponentHelper } from "../extension/exponent/exponentHelper";
+import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
+import { PackagerStatusIndicator, PackagerStatus } from "../extension/packagerStatusIndicator";
+import { SettingsHelper } from "../extension/settingsHelper";
+import { IRunOptions, PlatformType } from "./../extension/launchArgs";
+import { CommandExecutor } from "./commandExecutor";
+import { ErrorHelper } from "./error/errorHelper";
+import { InternalErrorCode } from "./error/internalErrorCode";
+import { Package } from "./node/package";
+import { Request } from "./node/request";
+import { ProjectVersionHelper } from "./projectVersionHelper";
+import { AppLauncher } from "../extension/appLauncher";
+import * as XDL from "../extension/exponent/xdlInterface";
 import { findFileInFolderHierarchy } from "./extensionHelper";
 import { FileSystem } from "./node/fileSystem";
 import { PromiseUtil } from "./node/promise";
@@ -181,19 +181,18 @@ export class Packager {
                 env = GeneralPlatform.getEnvArgument(env, null, rootEnv);
             }
 
-            let reactEnv = Object.assign({}, env, {
+            const reactEnv = Object.assign({}, env, {
                 REACT_DEBUGGER: "echo A debugger is not needed: ",
-                REACT_EDITOR:
-                    failedRNVersions.indexOf(rnVersion) < 0
-                        ? "code"
-                        : this.openFileAtLocationCommand(),
+                REACT_EDITOR: !failedRNVersions.includes(rnVersion)
+                    ? "code"
+                    : this.openFileAtLocationCommand(),
             });
 
             this.logger.info(localize("StartingPackager", "Starting Packager"));
             // The packager will continue running while we debug the application, so we can"t
             // wait for this command to finish
 
-            let spawnOptions = { env: reactEnv };
+            const spawnOptions = { env: reactEnv };
 
             const nodeModulesRoot: string = AppLauncher.getNodeModulesRootByProjectPath(
                 this.projectPath,
@@ -210,7 +209,7 @@ export class Packager {
             packagerSpawnResult.outcome.then(
                 () => {},
                 () => {},
-            ); //We ignore all outcome errors
+            ); // We ignore all outcome errors
             /* eslint-enable @typescript-eslint/no-empty-function */
         }
 
@@ -340,7 +339,7 @@ export class Packager {
     }
 
     public async isRunning(): Promise<boolean> {
-        let statusURL = `http://${this.getHost()}/status`;
+        const statusURL = `http://${this.getHost()}/status`;
         try {
             const body = await Request.request(statusURL);
             return body === "packager-status:running";
@@ -367,24 +366,22 @@ export class Packager {
     private async findOpnPackage(ReactNativeVersion: string): Promise<string> {
         try {
             let OPN_PACKAGE_NAME: string;
-            if (semver.gte(ReactNativeVersion, Packager.RN_VERSION_WITH_OPEN_PKG)) {
-                OPN_PACKAGE_NAME = Packager.OPN_PACKAGE_NAME.new;
-            } else {
-                OPN_PACKAGE_NAME = Packager.OPN_PACKAGE_NAME.old;
-            }
+            OPN_PACKAGE_NAME = semver.gte(ReactNativeVersion, Packager.RN_VERSION_WITH_OPEN_PKG)
+                ? Packager.OPN_PACKAGE_NAME.new
+                : Packager.OPN_PACKAGE_NAME.old;
 
             const nodeModulesRoot: string = AppLauncher.getNodeModulesRootByProjectPath(
                 this.projectPath,
             );
 
-            let flatDependencyPackagePath = path.resolve(
+            const flatDependencyPackagePath = path.resolve(
                 nodeModulesRoot,
                 Packager.NODE_MODULES_FODLER_NAME,
                 OPN_PACKAGE_NAME,
                 Packager.OPN_PACKAGE_MAIN_FILENAME,
             );
 
-            let nestedDependencyPackagePath = path.resolve(
+            const nestedDependencyPackagePath = path.resolve(
                 nodeModulesRoot,
                 Packager.NODE_MODULES_FODLER_NAME,
                 Packager.REACT_NATIVE_PACKAGE_NAME,
@@ -393,11 +390,11 @@ export class Packager {
                 Packager.OPN_PACKAGE_MAIN_FILENAME,
             );
 
-            let fsHelper = new FileSystem();
+            const fsHelper = new FileSystem();
 
             // Attempt to find the 'opn' package directly under the project's node_modules folder (node4 +)
             // Else, attempt to find the package within the dependent node_modules of react-native package
-            let possiblePaths = [flatDependencyPackagePath, nestedDependencyPackagePath];
+            const possiblePaths = [flatDependencyPackagePath, nestedDependencyPackagePath];
             const paths = await Promise.all(
                 possiblePaths.map(async fsPath => ((await fsHelper.exists(fsPath)) ? fsPath : "")),
             );
@@ -426,11 +423,9 @@ export class Packager {
         const packageJson = await opnPackage.parsePackageInformation();
         let JS_INJECTOR_FILEPATH: string;
         let JS_INJECTOR_FILENAME: string;
-        if (semver.gte(ReactNativeVersion, Packager.RN_VERSION_WITH_OPEN_PKG)) {
-            JS_INJECTOR_FILENAME = Packager.JS_INJECTOR_FILENAME.new;
-        } else {
-            JS_INJECTOR_FILENAME = Packager.JS_INJECTOR_FILENAME.old;
-        }
+        JS_INJECTOR_FILENAME = semver.gte(ReactNativeVersion, Packager.RN_VERSION_WITH_OPEN_PKG)
+            ? Packager.JS_INJECTOR_FILENAME.new
+            : Packager.JS_INJECTOR_FILENAME.old;
         JS_INJECTOR_FILEPATH = path.resolve(Packager.JS_INJECTOR_DIRPATH, JS_INJECTOR_FILENAME);
         if (packageJson.main !== JS_INJECTOR_FILENAME) {
             // Copy over the patched 'opn' main file
@@ -475,7 +470,7 @@ export class Packager {
     }
 
     private openFileAtLocationCommand(): string {
-        let atomScript: string = "node " + path.join(__dirname, "..", "..", "scripts", "atom");
+        const atomScript: string = "node " + path.join(__dirname, "..", "..", "scripts", "atom");
 
         //  shell-quote package incorrectly parses windows paths
         //  https://github.com/facebook/react-native/blob/master/local-cli/server/util/launchEditor.js#L83

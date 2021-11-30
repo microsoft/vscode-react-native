@@ -3,7 +3,6 @@
 
 import * as nls from "vscode-nls";
 import { MobileTargetManager } from "../mobileTargetManager";
-import { AdbHelper } from "./adb";
 import { ChildProcess } from "../../common/node/childProcess";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { IDebuggableMobileTarget, IMobileTarget, MobileTarget } from "../mobileTarget";
@@ -11,6 +10,7 @@ import { waitUntil } from "../../common/utils";
 import { TargetType } from "../generalPlatform";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ErrorHelper } from "../../common/error/errorHelper";
+import { AdbHelper } from "./adb";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -118,7 +118,7 @@ export class AndroidTargetManager extends MobileTargetManager {
         }
 
         const onlineTargets = await this.adbHelper.getOnlineTargets();
-        for (let device of onlineTargets) {
+        for (const device of onlineTargets) {
             if (device.isVirtualTarget && collectSimulators) {
                 const avdName = await this.adbHelper.getAvdNameById(device.id);
                 const emulatorTarget = targetList.find(target => target.name === avdName);
@@ -169,7 +169,7 @@ export class AndroidTargetManager extends MobileTargetManager {
 
             const condition = async () => {
                 const connectedDevices = await this.adbHelper.getOnlineTargets();
-                for (let target of connectedDevices) {
+                for (const target of connectedDevices) {
                     const onlineAvdName = await this.adbHelper.getAvdNameById(target.id);
                     if (onlineAvdName === emulatorTarget.name) {
                         return target.id;

@@ -1,16 +1,16 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import * as path from "path";
 import * as vscode from "vscode";
 import { IConfig, retryDownloadConfig } from "../remoteConfigHelper";
 import { TelemetryHelper } from "../../common/telemetryHelper";
 import { Telemetry } from "../../common/telemetry";
 import { ExtensionConfigManager } from "../extensionConfigManager";
-import tipsStorage from "./tipsStorage";
 import { findFileInFolderHierarchy } from "../../common/extensionHelper";
 import { SettingsHelper } from "../../extension/settingsHelper";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
-import * as path from "path";
+import tipsStorage from "./tipsStorage";
 
 enum TipNotificationAction {
     GET_MORE_INFO = "tipsMoreInfo",
@@ -183,13 +183,13 @@ export class TipNotificationService implements vscode.Disposable {
         storageTips: Record<string, unknown>,
         configTips: Tips,
     ): Tips {
-        for (let key in configTips) {
+        for (const key in configTips) {
             if (!(key in storageTips)) {
                 delete configTips[key];
             }
         }
 
-        for (let key in storageTips) {
+        for (const key in storageTips) {
             if (!(key in configTips)) {
                 configTips[key] = {};
             }
@@ -457,7 +457,7 @@ export class TipNotificationService implements vscode.Disposable {
 
         const parseDatesInTips = (tipsKeys: string[], tipsType: "generalTips" | "specificTips") => {
             tipsKeys.forEach(tipKey => {
-                let tip = rawTipsConfig.tips[tipsType][tipKey];
+                const tip = rawTipsConfig.tips[tipsType][tipKey];
                 if (tip.knownDate) {
                     rawTipsConfig.tips[tipsType][tipKey].knownDate = new Date(tip.knownDate);
                 }

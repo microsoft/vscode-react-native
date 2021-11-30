@@ -50,7 +50,7 @@ export function getLoggingOptions(): DevLogToFileSettings {
 export function getLoggingDirectory(): string | null {
     const loggingOptions = getLoggingOptions();
     if (loggingOptions.LogsDirectory) {
-        let dirPath = loggingOptions.LogsDirectory;
+        const dirPath = loggingOptions.LogsDirectory;
         if (!path.isAbsolute(dirPath)) {
             return null;
         }

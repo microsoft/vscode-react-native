@@ -2,32 +2,32 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as vscode from "vscode";
-import {
-    debugConfigurations,
-    DEBUG_CONFIGURATION_NAMES,
-    DebugScenarioType,
-    DebugConfigurationState,
-} from "./debugConfigTypesAndConstants";
 import { SettingsHelper } from "../settingsHelper";
 import { TelemetryHelper } from "../../common/telemetryHelper";
 import { Telemetry } from "../../common/telemetry";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
 import { ReactNativeProjectHelper } from "../../common/reactNativeProjectHelper";
 import { PlatformType } from "../launchArgs";
-import { MultiStepInput, InputStep } from "./multiStepInput";
 import { ILaunchRequestArgs } from "../../debugger/debugSessionBase";
 import { ConfigurationProviderHelper } from "../../common/configurationProviderHelper";
+import { MultiStepInput, InputStep } from "./multiStepInput";
+import {
+    debugConfigurations,
+    DEBUG_CONFIGURATION_NAMES,
+    DebugScenarioType,
+    DebugConfigurationState,
+} from "./debugConfigTypesAndConstants";
 
 export class ReactNativeDebugDynamicConfigProvider implements vscode.DebugConfigurationProvider {
     public async provideDebugConfigurations(
         folder: vscode.WorkspaceFolder | undefined,
         token?: vscode.CancellationToken, // eslint-disable-line @typescript-eslint/no-unused-vars
     ): Promise<vscode.DebugConfiguration[]> {
-        let debugConfigurationsToShow = Object.assign({}, debugConfigurations);
+        const debugConfigurationsToShow = Object.assign({}, debugConfigurations);
 
         if (folder) {
-            let rootPath = folder.uri.fsPath;
-            let projectRootPath = SettingsHelper.getReactNativeProjectRoot(rootPath);
+            const rootPath = folder.uri.fsPath;
+            const projectRootPath = SettingsHelper.getReactNativeProjectRoot(rootPath);
             const versions = await ProjectVersionHelper.tryToGetRNSemverValidVersionsFromProjectPackage(
                 projectRootPath,
                 ProjectVersionHelper.generateAllAdditionalPackages(),
@@ -36,8 +36,8 @@ export class ReactNativeDebugDynamicConfigProvider implements vscode.DebugConfig
 
             let macOSHermesEnabled = false;
             let windowsHermesEnabled = false;
-            let androidHermesEnabled = ReactNativeProjectHelper.isAndroidHermesEnabled(rootPath);
-            let iOSHermesEnabled = ReactNativeProjectHelper.isIOSHermesEnabled(rootPath);
+            const androidHermesEnabled = ReactNativeProjectHelper.isAndroidHermesEnabled(rootPath);
+            const iOSHermesEnabled = ReactNativeProjectHelper.isIOSHermesEnabled(rootPath);
 
             if (ProjectVersionHelper.isVersionError(versions.reactNativeWindowsVersion)) {
                 delete debugConfigurationsToShow[DEBUG_CONFIGURATION_NAMES.DEBUG_WINDOWS];

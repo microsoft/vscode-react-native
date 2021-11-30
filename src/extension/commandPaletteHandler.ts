@@ -1,17 +1,23 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import { spawn, ChildProcess } from "child_process";
 import * as vscode from "vscode";
+import * as nls from "vscode-nls";
+import { ProjectVersionHelper, REACT_NATIVE_PACKAGES } from "../common/projectVersionHelper";
+import { ParsedPackage, ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
+import { TargetPlatformHelper } from "../common/targetPlatformHelper";
+import { TelemetryHelper } from "../common/telemetryHelper";
+import { HostPlatform } from "../common/hostPlatform";
+import { LaunchJsonCompletionHelper } from "../common/launchJsonCompletionHelper";
+import { CommandExecutor } from "../common/commandExecutor";
+import { isWorkspaceTrusted } from "../common/extensionHelper";
 import * as XDL from "./exponent/xdlInterface";
 import { SettingsHelper } from "./settingsHelper";
 import { OutputChannelLogger } from "./log/OutputChannelLogger";
 import { TargetType, GeneralPlatform } from "./generalPlatform";
 import { AndroidPlatform } from "./android/androidPlatform";
 import { IOSPlatform } from "./ios/iOSPlatform";
-import { ProjectVersionHelper, REACT_NATIVE_PACKAGES } from "../common/projectVersionHelper";
-import { ParsedPackage, ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
-import { TargetPlatformHelper } from "../common/targetPlatformHelper";
-import { TelemetryHelper } from "../common/telemetryHelper";
 import { ProjectsStorage } from "./projectsStorage";
 import {
     IAndroidRunOptions,
@@ -21,13 +27,7 @@ import {
     PlatformType,
 } from "./launchArgs";
 import { ExponentPlatform } from "./exponent/exponentPlatform";
-import { spawn, ChildProcess } from "child_process";
-import { HostPlatform } from "../common/hostPlatform";
-import { LaunchJsonCompletionHelper } from "../common/launchJsonCompletionHelper";
 import { ReactNativeDebugConfigProvider } from "./debuggingConfiguration/reactNativeDebugConfigProvider";
-import { CommandExecutor } from "../common/commandExecutor";
-import { isWorkspaceTrusted } from "../common/extensionHelper";
-import * as nls from "vscode-nls";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { AppLauncher } from "./appLauncher";
@@ -104,10 +104,10 @@ export class CommandPaletteHandler {
     }
 
     public static async stopAllPackagers(): Promise<void> {
-        let keys = Object.keys(ProjectsStorage.projectsCache);
-        let promises: Promise<void>[] = [];
+        const keys = Object.keys(ProjectsStorage.projectsCache);
+        const promises: Promise<void>[] = [];
         keys.forEach(key => {
-            let appLauncher = ProjectsStorage.projectsCache[key];
+            const appLauncher = ProjectsStorage.projectsCache[key];
             promises.push(
                 this.executeCommandInContext("stopPackager", appLauncher.getWorkspaceFolder(), () =>
                     appLauncher.getPackager().stop().then(),
@@ -194,7 +194,7 @@ export class CommandPaletteHandler {
                 await platform.resolveMobileTarget(target);
                 await platform.beforeStartPackager();
                 await platform.startPackager();
-                await platform.runApp(/*shouldLaunchInAllDevices*/ true);
+                await platform.runApp(/* shouldLaunchInAllDevices*/ true);
                 await platform.disableJSDebuggingMode();
             },
         );
@@ -384,10 +384,10 @@ export class CommandPaletteHandler {
         if (!CommandPaletteHandler.elementInspector) {
             // Remove the following env variables to prevent running electron app in node mode.
             // https://github.com/microsoft/vscode/issues/3011#issuecomment-184577502
-            let env = Object.assign({}, process.env);
+            const env = Object.assign({}, process.env);
             delete env.ATOM_SHELL_INTERNAL_RUN_AS_NODE;
             delete env.ELECTRON_RUN_AS_NODE;
-            let command = HostPlatform.getNpmCliCommand("react-devtools");
+            const command = HostPlatform.getNpmCliCommand("react-devtools");
             CommandPaletteHandler.elementInspector = spawn(command, [], {
                 env,
             });
@@ -483,15 +483,15 @@ export class CommandPaletteHandler {
     public static getPlatformByCommandName(commandName: string): string {
         commandName = commandName.toLocaleLowerCase();
 
-        if (commandName.indexOf(PlatformType.Android) > -1) {
+        if (commandName.includes(PlatformType.Android)) {
             return PlatformType.Android;
         }
 
-        if (commandName.indexOf(PlatformType.iOS) > -1) {
+        if (commandName.includes(PlatformType.iOS)) {
             return PlatformType.iOS;
         }
 
-        if (commandName.indexOf(PlatformType.Exponent) > -1) {
+        if (commandName.includes(PlatformType.Exponent)) {
             return PlatformType.Exponent;
         }
 
@@ -508,11 +508,11 @@ export class CommandPaletteHandler {
         const target = await targetManager.selectAndPrepareTarget(target => target.isOnline);
         if (target) {
             LogCatMonitorManager.delMonitor(target.id); // Stop previous logcat monitor if it's running
-            let logCatArguments = SettingsHelper.getLogCatFilteringArgs(
+            const logCatArguments = SettingsHelper.getLogCatFilteringArgs(
                 appLauncher.getWorkspaceFolderUri(),
             );
             // this.logCatMonitor can be mutated, so we store it locally too
-            let logCatMonitor = new LogCatMonitor(target.id, adbHelper, logCatArguments);
+            const logCatMonitor = new LogCatMonitor(target.id, adbHelper, logCatArguments);
             LogCatMonitorManager.addMonitor(logCatMonitor);
             logCatMonitor
                 .start() // The LogCat will continue running forever, so we don't wait for it
@@ -734,7 +734,7 @@ export class CommandPaletteHandler {
     }
 
     private static async selectProject(): Promise<AppLauncher> {
-        let keys = Object.keys(ProjectsStorage.projectsCache);
+        const keys = Object.keys(ProjectsStorage.projectsCache);
         if (keys.length > 1) {
             return new Promise((resolve, reject) => {
                 vscode.window.showQuickPick(keys).then(selected => {
@@ -756,7 +756,7 @@ export class CommandPaletteHandler {
     }
 
     private static async selectLogCatMonitor(): Promise<LogCatMonitor> {
-        let keys = Object.keys(LogCatMonitorManager.logCatMonitorsCache);
+        const keys = Object.keys(LogCatMonitorManager.logCatMonitorsCache);
         if (keys.length > 1) {
             return new Promise((resolve, reject) => {
                 vscode.window.showQuickPick(keys).then(selected => {

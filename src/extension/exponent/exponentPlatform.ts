@@ -1,18 +1,18 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import * as url from "url";
+import * as vscode from "vscode";
+import * as nls from "vscode-nls";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ExpoHostType, IExponentRunOptions, PlatformType } from "../launchArgs";
 import { GeneralPlatform, MobilePlatformDeps } from "../generalPlatform";
-import { ExponentHelper } from "./exponentHelper";
 import { TelemetryHelper } from "../../common/telemetryHelper";
 import { QRCodeContentProvider } from "../qrCodeContentProvider";
+import { ExponentHelper } from "./exponentHelper";
 
-import * as vscode from "vscode";
 import * as XDL from "./xdlInterface";
-import * as url from "url";
-import * as nls from "vscode-nls";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -53,11 +53,9 @@ export class ExponentPlatform extends GeneralPlatform {
             // https://github.com/expo/expo-cli/blob/1d515d21200841e181518358fd9dc4c7b24c7cd6/packages/xdl/src/Project.ts#L2226-L2370
             // we added this to be sure that our Expo launching logic doesn't have any negative side effects
 
-            if (this.runOptions.expoHostType === "tunnel") {
-                await this.prepareExpoTunnels();
-            } else {
-                await XDL.stopAdbReverse(this.projectPath);
-            }
+            await (this.runOptions.expoHostType === "tunnel"
+                ? this.prepareExpoTunnels()
+                : XDL.stopAdbReverse(this.projectPath));
 
             const isAdbReversed =
                 this.runOptions.expoHostType !== "local"
@@ -107,7 +105,7 @@ export class ExponentPlatform extends GeneralPlatform {
             }
 
             if (this.runOptions.openExpoQR) {
-                let exponentPage = vscode.window.createWebviewPanel(
+                const exponentPage = vscode.window.createWebviewPanel(
                     "Expo QR Code",
                     "Expo QR Code",
                     vscode.ViewColumn.Two,

@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as semver from "semver";
 import { URL } from "url";
-import { Package } from "./node/package";
+import * as semver from "semver";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
-import { ParsedPackage } from "./reactNativeProjectHelper";
-import { RN_VERSION_ERRORS } from "./error/versionError";
 import { ILaunchArgs, PlatformType } from "../extension/launchArgs";
 import { AppLauncher } from "../extension/appLauncher";
+import { RN_VERSION_ERRORS } from "./error/versionError";
+import { Package } from "./node/package";
+import { ParsedPackage } from "./reactNativeProjectHelper";
 
 export interface PackageVersion {
     [packageName: string]: string;
@@ -98,7 +98,7 @@ export class ProjectVersionHelper {
     }
 
     public static generateAdditionalPackagesToCheckByPlatform(args: ILaunchArgs): ParsedPackage[] {
-        let additionalPackages: ParsedPackage[] = [];
+        const additionalPackages: ParsedPackage[] = [];
         if (args.platform === PlatformType.Windows) {
             additionalPackages.push(REACT_NATIVE_PACKAGES.REACT_NATIVE_WINDOWS);
         }
@@ -121,13 +121,13 @@ export class ProjectVersionHelper {
         nodeModulesRoot: string,
         additionalPackagesToCheck?: ParsedPackage[],
     ): Promise<RNPackageVersions> {
-        let parsedPackages: ParsedPackage[] = [REACT_NATIVE_PACKAGES.REACT_NATIVE];
+        const parsedPackages: ParsedPackage[] = [REACT_NATIVE_PACKAGES.REACT_NATIVE];
 
         if (additionalPackagesToCheck) {
             parsedPackages.push(...additionalPackagesToCheck);
         }
 
-        let versionPromises: Promise<PackageVersion>[] = [];
+        const versionPromises: Promise<PackageVersion>[] = [];
 
         parsedPackages.forEach(parsedPackage => {
             versionPromises.push(
@@ -160,7 +160,7 @@ export class ProjectVersionHelper {
         cwd: string,
         additionalPackagesToCheck?: ParsedPackage[],
     ): Promise<RNPackageVersions> {
-        let parsedPackages: ParsedPackage[] = [REACT_NATIVE_PACKAGES.REACT_NATIVE];
+        const parsedPackages: ParsedPackage[] = [REACT_NATIVE_PACKAGES.REACT_NATIVE];
 
         if (additionalPackagesToCheck) {
             parsedPackages.push(...additionalPackagesToCheck);
@@ -172,7 +172,7 @@ export class ProjectVersionHelper {
             const dependencies = await rootProjectPackageJson.dependencies();
             const devDependencies = await rootProjectPackageJson.devDependencies();
 
-            let parsedPackageVersions: PackageVersion = {};
+            const parsedPackageVersions: PackageVersion = {};
 
             parsedPackages.forEach(parsedPackage => {
                 try {
@@ -229,11 +229,9 @@ export class ProjectVersionHelper {
             let versionObj;
             // As some of 'react-native-windows' versions contain postfixes we cannot use 'coerce' function to parse them
             // as some critical parts of the version string will be dropped. To save this information we use 'clean' function
-            if (useSemverCoerce) {
-                versionObj = semver.coerce(version);
-            } else {
-                versionObj = semver.clean(version.replace(/[\^~<>]/g, ""), { loose: true });
-            }
+            versionObj = useSemverCoerce
+                ? semver.coerce(version)
+                : semver.clean(version.replace(/[<>^~]/g, ""), { loose: true });
             return (versionObj && versionObj.toString()) || this.SEMVER_INVALID;
         }
     }

@@ -60,14 +60,14 @@ export abstract class TelemetryGeneratorBase {
     }
 
     public addError(error: Error): TelemetryGeneratorBase {
-        let errorWithErrorCode: IHasErrorCode = <IHasErrorCode>(<Record<string, any>>error);
+        const errorWithErrorCode: IHasErrorCode = <IHasErrorCode>(<Record<string, any>>error);
         const errorCode = errorWithErrorCode.errorCode || InternalErrorCode.UnknownError;
-        this.add(`error.code${++this.errorIndex}`, errorCode, /*isPii*/ false);
+        this.add(`error.code${++this.errorIndex}`, errorCode, /* isPii*/ false);
         return this;
     }
 
     public async time<T>(name: string, codeToMeasure: { (): Promise<T> | T }): Promise<T> {
-        let startTime: [number, number] = process.hrtime();
+        const startTime: [number, number] = process.hrtime();
 
         try {
             const code = codeToMeasure();
@@ -94,15 +94,15 @@ export abstract class TelemetryGeneratorBase {
 
     public send(): void {
         if (this.currentStep) {
-            this.add("lastStepExecuted", this.currentStep, /*isPii*/ false);
+            this.add("lastStepExecuted", this.currentStep, /* isPii*/ false);
         }
 
         this.step(""); // Send the last step
     }
 
     private sendCurrentStep(): void {
-        this.add("step", this.currentStep, /*isPii*/ false);
-        let telemetryEvent: Telemetry.TelemetryEvent = new Telemetry.TelemetryEvent(
+        this.add("step", this.currentStep, /* isPii*/ false);
+        const telemetryEvent: Telemetry.TelemetryEvent = new Telemetry.TelemetryEvent(
             this.componentName,
         );
         TelemetryHelper.addTelemetryEventProperties(
@@ -118,7 +118,7 @@ export abstract class TelemetryGeneratorBase {
         piiEvaluator: { (value: string, name: string): boolean },
     ): void {
         // Object is an array, we add each element as baseNameNNN
-        let elementIndex: number = 1; // We send telemetry properties in a one-based index
+        let elementIndex = 1; // We send telemetry properties in a one-based index
         array.forEach((element: any) =>
             this.addWithPiiEvaluator(baseName + elementIndex++, element, piiEvaluator),
         );
@@ -147,18 +147,18 @@ export abstract class TelemetryGeneratorBase {
     }
 
     private combine(...components: string[]): string {
-        let nonNullComponents: string[] = components.filter((component: string) => !!component);
+        const nonNullComponents: string[] = components.filter((component: string) => !!component);
         return nonNullComponents.join(".");
     }
 
     private finishTime(name: string, startTime: [number, number]): void {
         if (!!name) {
             // not a ghost step
-            let endTime: [number, number] = process.hrtime(startTime);
+            const endTime: [number, number] = process.hrtime(startTime);
             this.add(
                 this.combine(name, "time"),
                 String(endTime[0] * 1000 + endTime[1] / 1000000),
-                /*isPii*/ false,
+                /* isPii*/ false,
             );
         }
     }

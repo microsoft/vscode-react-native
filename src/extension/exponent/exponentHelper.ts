@@ -7,18 +7,18 @@ import * as path from "path";
 import * as semver from "semver";
 import * as vscode from "vscode";
 import { sync as globSync } from "glob";
-import * as XDL from "./xdlInterface";
+import stripJSONComments = require("strip-json-comments");
+import * as nls from "vscode-nls";
 import { Package, IPackageInformation } from "../../common/node/package";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
-import stripJSONComments = require("strip-json-comments");
-import * as nls from "vscode-nls";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { getNodeModulesGlobalPath } from "../../common/utils";
 import { PackageLoader, PackageConfig } from "../../common/packageLoader";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { FileSystem } from "../../common/node/fileSystem";
 import { SettingsHelper } from "../settingsHelper";
+import * as XDL from "./xdlInterface";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,

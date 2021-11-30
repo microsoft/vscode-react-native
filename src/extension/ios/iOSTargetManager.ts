@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import * as nls from "vscode-nls";
+import { QuickPickOptions, window } from "vscode";
 import { ChildProcess } from "../../common/node/childProcess";
 import { waitUntil } from "../../common/utils";
 import { IDebuggableMobileTarget, MobileTarget } from "../mobileTarget";
 import { MobileTargetManager } from "../mobileTargetManager";
-import * as nls from "vscode-nls";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
-import { QuickPickOptions, window } from "vscode";
 import { TargetType } from "../generalPlatform";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -97,7 +97,7 @@ export class IOSTargetManager extends MobileTargetManager {
             const allDevicesOutput = await this.childProcess.execToString(
                 `${IOSTargetManager.ALL_DEVICES_LIST_COMMAND}`,
             );
-            //Output example:
+            // Output example:
             // == Devices ==
             // sierra (EFDAAD01-E1A3-5F00-A357-665B501D5520)
             // My iPhone (14.4.2) (33n546e591e707bd64c718bfc1bf3e8b7c16bfc9)
@@ -105,13 +105,13 @@ export class IOSTargetManager extends MobileTargetManager {
             // == Simulators ==
             // Apple TV (14.5) (417BDFD8-6E22-4F87-BCAA-19C241AC9548)
             // Apple TV 4K (2nd generation) (14.5) (925E6E38-0D7B-45E9-ADE0-89C20779D467)
-            //...
+            // ...
             const lines = allDevicesOutput
                 .split("\n")
                 .map(line => line.trim())
                 .filter(line => !!line);
-            const firstDevicesIndex = lines.findIndex(line => line === "== Devices ==") + 1;
-            const lastDevicesIndex = lines.findIndex(line => line === "== Simulators ==") - 1;
+            const firstDevicesIndex = lines.indexOf("== Devices ==") + 1;
+            const lastDevicesIndex = lines.indexOf("== Simulators ==") - 1;
             for (let i = firstDevicesIndex; i <= lastDevicesIndex; i++) {
                 const line = lines[i];
                 const params = line
@@ -140,11 +140,9 @@ export class IOSTargetManager extends MobileTargetManager {
     ): Promise<IOSTarget | undefined> {
         const selectedTarget = await this.startSelection(filter);
         if (selectedTarget) {
-            if (!selectedTarget.isOnline && selectedTarget.isVirtualTarget) {
-                return this.launchSimulator(selectedTarget);
-            } else {
-                return IOSTarget.fromInterface(selectedTarget);
-            }
+            return !selectedTarget.isOnline && selectedTarget.isVirtualTarget
+                ? this.launchSimulator(selectedTarget)
+                : IOSTarget.fromInterface(selectedTarget);
         }
         return undefined;
     }

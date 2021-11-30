@@ -3,11 +3,11 @@
 
 import * as vscode from "vscode";
 
+import * as nls from "vscode-nls";
 import { ISpawnResult } from "../../common/node/childProcess";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { ExecutionsFilterBeforeTimestamp } from "../../common/executionsLimiter";
 import { AdbHelper } from "./adb";
-import * as nls from "vscode-nls";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -51,7 +51,7 @@ export class LogCatMonitor implements vscode.Disposable {
 
         /* LogCat has a buffer and prints old messages when first called. To ignore them,
             we won't print messages for the first 0.5 seconds */
-        const filter = new ExecutionsFilterBeforeTimestamp(/*delayInSeconds*/ 0.5);
+        const filter = new ExecutionsFilterBeforeTimestamp(/* delayInSeconds*/ 0.5);
         this._logCatSpawn.stderr.on("data", (data: Buffer) => {
             filter.execute(() => this._logger.info(data.toString()));
         });

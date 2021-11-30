@@ -2,8 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as path from "path";
-import * as glob from "glob";
 import * as fs from "fs";
+import * as glob from "glob";
 import * as semver from "semver";
 
 import { Node } from "../../common/node/node";
@@ -91,7 +91,7 @@ export class PlistBuddy {
         } else {
             productsFolder = path.join(platformProjectRoot, "build", "Build", "Products");
         }
-        let sdkType =
+        const sdkType =
             platform === PlatformType.iOS ? this.getSdkType(simulator, scheme) : undefined;
         let configurationFolder = path.join(
             productsFolder,
@@ -259,11 +259,7 @@ export class PlistBuddy {
          * @format
          */
         let iOSCliFolderName: string;
-        if (semver.gte(rnVersion, "0.60.0")) {
-            iOSCliFolderName = "cli-platform-ios";
-        } else {
-            iOSCliFolderName = "cli";
-        }
+        iOSCliFolderName = semver.gte(rnVersion, "0.60.0") ? "cli-platform-ios" : "cli";
 
         const findXcodeProject = customRequire(
             path.join(

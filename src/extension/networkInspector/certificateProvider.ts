@@ -1,21 +1,21 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { openssl, isInstalled as opensslInstalled } from "../../common/opensslWrapperWithPromises";
 import * as path from "path";
 import * as os from "os";
 import * as fs from "fs";
-import { FileSystem as fsUtils } from "../../common/node/fileSystem";
 import * as mkdirp from "mkdirp";
 import * as tmp from "tmp-promise";
+import { v4 as uuid } from "uuid";
+import * as nls from "vscode-nls";
+import { openssl, isInstalled as opensslInstalled } from "../../common/opensslWrapperWithPromises";
+import { FileSystem as fsUtils } from "../../common/node/fileSystem";
 import { AdbHelper } from "../android/adb";
 import * as androidUtil from "../android/androidContainerUtility";
 import iosUtil from "../ios/iOSContainerUtility";
-import { v4 as uuid } from "uuid";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { NETWORK_INSPECTOR_LOG_CHANNEL_NAME } from "./networkInspectorServer";
 import { ClientOS } from "./clientUtils";
-import * as nls from "vscode-nls";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -59,7 +59,7 @@ const allowedAppNameRegex = /^[\w.-]+$/;
  * However, even when specifying this, different openssl implementations
  * wrap it differently, e.g "subject=X" vs "subject= X".
  */
-const x509SubjectCNRegex = /[=,]\s*CN=([^,]*)(,.*)?$/;
+const x509SubjectCNRegex = /[,=]\s*CN=([^,]*)(,.*)?$/;
 
 export type SecureServerConfig = {
     key: Buffer;
@@ -145,11 +145,9 @@ export class CertificateProvider {
                 return this.extractAppNameFromCSR(csr);
             })
             .then(appName => {
-                if (medium === "FS_ACCESS") {
-                    return this.getTargetDeviceId(os, appName, appDirectory, csr);
-                } else {
-                    return uuid();
-                }
+                return medium === "FS_ACCESS"
+                    ? this.getTargetDeviceId(os, appName, appDirectory, csr)
+                    : uuid();
             })
             .then(deviceId => {
                 return {

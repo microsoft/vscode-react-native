@@ -2,14 +2,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as path from "path";
+import * as nls from "vscode-nls";
 import { ErrorHelper } from "../../common/error/errorHelper";
-import { PlistBuddy } from "./plistBuddy";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { FileSystem } from "../../common/node/fileSystem";
 import { ChildProcess } from "../../common/node/childProcess";
 import { TelemetryHelper } from "../../common/telemetryHelper";
-import * as nls from "vscode-nls";
 import { PlatformType } from "../launchArgs";
+import { PlistBuddy } from "./plistBuddy";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,

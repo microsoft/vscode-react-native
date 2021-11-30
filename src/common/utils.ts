@@ -90,9 +90,7 @@ export function waitUntil<T>(
 }
 
 function padZeroes(minDesiredLength: number, numberToPad: string): string {
-    if (numberToPad.length >= minDesiredLength) {
-        return numberToPad;
-    } else {
-        return String("0".repeat(minDesiredLength) + numberToPad).slice(-minDesiredLength);
-    }
+    return numberToPad.length >= minDesiredLength
+        ? numberToPad
+        : String("0".repeat(minDesiredLength) + numberToPad).slice(-minDesiredLength);
 }

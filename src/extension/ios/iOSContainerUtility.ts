@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import * as fs from "fs";
+import * as path from "path";
+import { logger } from "vscode-debugadapter/lib/logger";
 import { ChildProcess } from "../../common/node/childProcess";
 import { PromiseUtil } from "../../common/node/promise";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
-import * as fs from "fs";
-import * as path from "path";
 import { IDebuggableMobileTarget } from "../mobileTarget";
-import { logger } from "vscode-debugadapter/lib/logger";
 
 /**
  * @preserve
@@ -129,45 +129,43 @@ async function targets(): Promise<Array<DeviceTarget>> {
     // when installed, use it. This still holds true
     // with the move from instruments to xcrun.
     // TODO: Move idb availability check up.
-    if (await isIdbAvailable()) {
-        return await idbListTargets(idbPath);
-    } else {
-        return new ChildProcess()
-            .execToString("xcrun xctrace list devices")
-            .then(stdout => {
-                const targets: DeviceTarget[] = [];
-                const lines = stdout
-                    .split("\n")
-                    .map(line => line.trim())
-                    .filter(line => !!line);
-                const firstDevicesIndex = lines.findIndex(line => line === "== Devices ==") + 1;
-                const lastDevicesIndex = lines.findIndex(line => line === "== Simulators ==") - 1;
-                for (let i = firstDevicesIndex; i <= lastDevicesIndex; i++) {
-                    const line = lines[i];
-                    const params = line
-                        .split(" ")
-                        .map(el => el.trim())
-                        .filter(el => !!el);
-                    // Add only devices with system version
-                    if (
-                        params[params.length - 1].match(/\(.+\)/) &&
-                        params[params.length - 2].match(/\(.+\)/)
-                    ) {
-                        targets.push({
-                            id: params[params.length - 1].replace(/\(|\)/g, "").trim(),
-                            name: params.slice(0, params.length - 2).join(" "),
-                            isVirtualTarget: false,
-                            isOnline: true,
-                        });
-                    }
-                }
-                return targets;
-            })
-            .catch(e => {
-                logger.warn(`Failed to query for devices using xctrace: ${e}`);
-                return [];
-            });
-    }
+    return (await isIdbAvailable())
+        ? await idbListTargets(idbPath)
+        : new ChildProcess()
+              .execToString("xcrun xctrace list devices")
+              .then(stdout => {
+                  const targets: DeviceTarget[] = [];
+                  const lines = stdout
+                      .split("\n")
+                      .map(line => line.trim())
+                      .filter(line => !!line);
+                  const firstDevicesIndex = lines.indexOf("== Devices ==") + 1;
+                  const lastDevicesIndex = lines.indexOf("== Simulators ==") - 1;
+                  for (let i = firstDevicesIndex; i <= lastDevicesIndex; i++) {
+                      const line = lines[i];
+                      const params = line
+                          .split(" ")
+                          .map(el => el.trim())
+                          .filter(el => !!el);
+                      // Add only devices with system version
+                      if (
+                          params[params.length - 1].match(/\(.+\)/) &&
+                          params[params.length - 2].match(/\(.+\)/)
+                      ) {
+                          targets.push({
+                              id: params[params.length - 1].replace(/\(|\)/g, "").trim(),
+                              name: params.slice(0, params.length - 2).join(" "),
+                              isVirtualTarget: false,
+                              isOnline: true,
+                          });
+                      }
+                  }
+                  return targets;
+              })
+              .catch(e => {
+                  logger.warn(`Failed to query for devices using xctrace: ${e}`);
+                  return [];
+              });
 }
 
 async function push(

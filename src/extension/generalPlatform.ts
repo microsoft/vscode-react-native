@@ -2,13 +2,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as fs from "fs";
-import { IRunOptions } from "./launchArgs";
+import * as nls from "vscode-nls";
 import { Packager } from "../common/packager";
+import { IRunOptions } from "./launchArgs";
 import { PackagerStatusIndicator, PackagerStatus } from "./packagerStatusIndicator";
 import { SettingsHelper } from "./settingsHelper";
 import { OutputChannelLogger } from "./log/OutputChannelLogger";
 import { RNProjectObserver } from "./rnProjectObserver";
-import * as nls from "vscode-nls";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -163,18 +163,13 @@ export class GeneralPlatform {
             if (optIdx > -1) {
                 result = binary ? true : runArguments[optIdx + 1];
             } else {
-                for (let i = 0; i < runArguments.length; i++) {
-                    const arg = runArguments[i];
-                    if (arg.indexOf(optName) > -1) {
+                for (const arg of runArguments) {
+                    if (arg.includes(optName)) {
                         if (binary) {
                             result = true;
                         } else {
                             const tokens = arg.split("=");
-                            if (tokens.length > 1) {
-                                result = tokens[1].trim();
-                            } else {
-                                result = undefined;
-                            }
+                            result = tokens.length > 1 ? tokens[1].trim() : undefined;
                         }
                     }
                 }
@@ -182,11 +177,7 @@ export class GeneralPlatform {
 
             // Binary parameters can either exists (e.g. be true) or be absent. You can not pass false binary parameter.
             if (binary) {
-                if (result === undefined) {
-                    return undefined;
-                } else {
-                    return true;
-                }
+                return result === undefined ? undefined : true;
             }
 
             if (result) {
@@ -207,13 +198,13 @@ export class GeneralPlatform {
     }
 
     public static getEnvArgument(processEnv: any, env?: any, envFile?: string): any {
-        let modifyEnv = Object.assign({}, processEnv);
+        const modifyEnv = Object.assign({}, processEnv);
 
         if (envFile) {
             // .env variables never overwrite existing variables
             const argsFromEnvFile = this.readEnvFile(envFile);
             if (argsFromEnvFile != null) {
-                for (let key in argsFromEnvFile) {
+                for (const key in argsFromEnvFile) {
                     if (!modifyEnv[key] && argsFromEnvFile.hasOwnProperty(key)) {
                         modifyEnv[key] = argsFromEnvFile[key];
                     }
@@ -223,7 +214,7 @@ export class GeneralPlatform {
 
         if (env) {
             // launch config env vars overwrite .env vars
-            for (let key in env) {
+            for (const key in env) {
                 if (env.hasOwnProperty(key)) {
                     modifyEnv[key] = env[key];
                 }
@@ -235,7 +226,7 @@ export class GeneralPlatform {
     private static readEnvFile(filePath: string): any {
         if (fs.existsSync(filePath)) {
             let buffer = fs.readFileSync(filePath, "utf8");
-            let result = {};
+            const result = {};
 
             // Strip BOM
             if (buffer && buffer[0] === "\uFEFF") {
@@ -243,7 +234,7 @@ export class GeneralPlatform {
             }
 
             buffer.split("\n").forEach((line: string) => {
-                const r = line.match(/^\s*([\w\.\-]+)\s*=\s*(.*)?\s*$/);
+                const r = line.match(/^\s*([\w.\-]+)\s*=\s*(.*)?\s*$/);
                 if (r !== null) {
                     const key = r[1];
                     let value = r[2] || "";
@@ -254,7 +245,7 @@ export class GeneralPlatform {
                     ) {
                         value = value.replace(/\\n/gm, "\n");
                     }
-                    result[key] = value.replace(/(^['"]|['"]$)/g, "");
+                    result[key] = value.replace(/(^["']|["']$)/g, "");
                 }
             });
 

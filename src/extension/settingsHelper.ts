@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
-import * as vscode from "vscode";
 import * as path from "path";
+import * as vscode from "vscode";
 import { ConfigurationReader } from "../common/configurationReader";
 import { Packager } from "../common/packager";
-import { LogLevel } from "./log/LogHelper";
 import { SystemColorTheme } from "../common/editorColorThemesHelper";
+import { LogLevel } from "./log/LogHelper";
 import { PackagerStatusIndicator } from "./packagerStatusIndicator";
 
 export class SettingsHelper {
@@ -14,7 +14,7 @@ export class SettingsHelper {
      */
     public static getPackagerPort(fsPath: string): number {
         const projectRoot = SettingsHelper.getReactNativeProjectRoot(fsPath);
-        let uri = vscode.Uri.file(projectRoot);
+        const uri = vscode.Uri.file(projectRoot);
         const workspaceConfiguration = vscode.workspace.getConfiguration(
             "react-native.packager",
             uri,
@@ -36,7 +36,7 @@ export class SettingsHelper {
             null,
         );
         if (workspaceConfiguration.has("logLevel")) {
-            let logLevelString: string = ConfigurationReader.readString(
+            const logLevelString: string = ConfigurationReader.readString(
                 workspaceConfiguration.get("logLevel"),
             );
             return <LogLevel>parseInt(LogLevel[<any>logLevelString], 10);
@@ -48,17 +48,15 @@ export class SettingsHelper {
      * Get the React Native project root path
      */
     public static getReactNativeProjectRoot(fsPath: string): string {
-        let uri = vscode.Uri.file(fsPath);
+        const uri = vscode.Uri.file(fsPath);
         const workspaceConfiguration = vscode.workspace.getConfiguration("react-native-tools", uri);
         if (workspaceConfiguration.has("projectRoot")) {
-            let projectRoot: string = ConfigurationReader.readString(
+            const projectRoot: string = ConfigurationReader.readString(
                 workspaceConfiguration.get("projectRoot"),
             );
-            if (path.isAbsolute(projectRoot)) {
-                return projectRoot;
-            } else {
-                return path.resolve(uri.fsPath, projectRoot);
-            }
+            return path.isAbsolute(projectRoot)
+                ? projectRoot
+                : path.resolve(uri.fsPath, projectRoot);
         }
         return uri.fsPath;
     }
@@ -89,7 +87,7 @@ export class SettingsHelper {
             "react-native",
             uri,
         );
-        const configKey: string = `${platform}.runArguments.${target}`;
+        const configKey = `${platform}.runArguments.${target}`;
         if (workspaceConfiguration.has(configKey)) {
             return ConfigurationReader.readArray(workspaceConfiguration.get(configKey));
         }
@@ -106,7 +104,7 @@ export class SettingsHelper {
             "react-native",
             uri,
         );
-        const configKey: string = `${platform}.env.${target}`;
+        const configKey = `${platform}.env.${target}`;
         if (workspaceConfiguration.has(configKey)) {
             return ConfigurationReader.readObject(workspaceConfiguration.get(configKey));
         }
@@ -123,7 +121,7 @@ export class SettingsHelper {
             "react-native",
             uri,
         );
-        const configKey: string = `${platform}.envFile.${target}`;
+        const configKey = `${platform}.envFile.${target}`;
         if (workspaceConfiguration.has(configKey)) {
             return ConfigurationReader.readString(workspaceConfiguration.get(configKey));
         }
@@ -150,7 +148,7 @@ export class SettingsHelper {
      */
     public static getPackagerStatusIndicatorPattern(fsPath: string): string {
         const projectRoot = SettingsHelper.getReactNativeProjectRoot(fsPath);
-        let uri = vscode.Uri.file(projectRoot);
+        const uri = vscode.Uri.file(projectRoot);
         const workspaceConfiguration = vscode.workspace.getConfiguration(
             "react-native.packager",
             uri,

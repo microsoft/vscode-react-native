@@ -8,8 +8,8 @@
  * @format
  */
 
-import { exec as opensslWithCallback, Action } from "openssl-wrapper";
 import * as child_process from "child_process";
+import { exec as opensslWithCallback, Action } from "openssl-wrapper";
 
 export function openssl(action: Action, options: Record<string, any>): Promise<string> {
     return new Promise((resolve, reject) => {

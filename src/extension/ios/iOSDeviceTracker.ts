@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import { ChildProcess, execFile } from "child_process";
 import { AbstractDeviceTracker } from "../abstractDeviceTracker";
-import iosUtil, { DeviceTarget, isXcodeDetected } from "./iOSContainerUtility";
 import { DeviceStorage } from "../networkInspector/devices/deviceStorage";
 import { ClientOS } from "../networkInspector/clientUtils";
 import { IOSClienDevice } from "../networkInspector/devices/iOSClienDevice";
 import { findFileInFolderHierarchy } from "../../common/extensionHelper";
-import { ChildProcess, execFile } from "child_process";
+import iosUtil, { DeviceTarget, isXcodeDetected } from "./iOSContainerUtility";
 import { IDebuggableIOSTarget, IOSTargetManager } from "./iOSTargetManager";
 
 export class IOSDeviceTracker extends AbstractDeviceTracker {
@@ -46,7 +46,7 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
     }
 
     private processDevices(activeDevices: Array<DeviceTarget>, isVirtualTarget: boolean): void {
-        let currentDevicesIds = new Set(
+        const currentDevicesIds = new Set(
             [...DeviceStorage.devices.entries()]
                 .filter(
                     entry =>

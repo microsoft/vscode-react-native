@@ -3,6 +3,7 @@
 
 import * as path from "path";
 import * as cp from "child_process";
+import * as nls from "vscode-nls";
 import { ILogger } from "../extension/log/LogHelper";
 import { NullLogger } from "../extension/log/NullLogger";
 import { ProjectVersionHelper } from "../common/projectVersionHelper";
@@ -10,7 +11,6 @@ import { ISpawnResult } from "./node/childProcess";
 import { HostPlatform, HostPlatformId } from "./hostPlatform";
 import { ErrorHelper } from "./error/errorHelper";
 import { InternalErrorCode } from "./error/internalErrorCode";
-import * as nls from "vscode-nls";
 import { Node } from "./node/node";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,

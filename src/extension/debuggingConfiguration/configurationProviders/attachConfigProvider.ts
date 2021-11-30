@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { BaseConfigProvider } from "./baseConfigProvider";
 import { MultiStepInput, InputStep } from "../multiStepInput";
 import { ILaunchRequestArgs } from "../../../debugger/debugSessionBase";
 import {
@@ -10,6 +9,7 @@ import {
     DEBUG_TYPES,
     DebugScenarioType,
 } from "../debugConfigTypesAndConstants";
+import { BaseConfigProvider } from "./baseConfigProvider";
 
 export class AttachConfigProvider extends BaseConfigProvider {
     private readonly defaultAddress: string;

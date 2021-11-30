@@ -5,13 +5,13 @@ import * as path from "path";
 import * as url from "url";
 import * as cp from "child_process";
 import * as fs from "fs";
-import { ScriptImporter } from "./scriptImporter";
 import { logger } from "vscode-debugadapter";
 import { ErrorHelper } from "../common/error/errorHelper";
-import { IDebuggeeWorker, RNAppMessage } from "./appWorker";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { getLoggingDirectory } from "../extension/log/LogHelper";
 import { generateRandomPortNumber } from "../common/extensionHelper";
+import { IDebuggeeWorker, RNAppMessage } from "./appWorker";
+import { ScriptImporter } from "./scriptImporter";
 
 function printDebuggingError(error: Error, reason: any) {
     const nestedError = ErrorHelper.getNestedError(
@@ -66,7 +66,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
     }
 
     public async start(): Promise<number> {
-        let scriptToRunPath = path.resolve(
+        const scriptToRunPath = path.resolve(
             this.sourcesStoragePath,
             ScriptImporter.DEBUGGER_WORKER_FILENAME,
         );

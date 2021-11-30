@@ -5,11 +5,11 @@
  * Formatter for the Output channel.
  */
 
-import * as vscode from "vscode";
-import { ILogger, LogLevel, LogHelper, getLoggingDirectory } from "./LogHelper";
 import * as fs from "fs";
 import * as path from "path";
+import * as vscode from "vscode";
 import { getFormattedDatetimeString } from "../../common/utils";
+import { ILogger, LogLevel, LogHelper, getLoggingDirectory } from "./LogHelper";
 
 const channels: { [channelName: string]: OutputChannelLogger } = {};
 

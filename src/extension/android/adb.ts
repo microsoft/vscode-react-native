@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { ChildProcess, ISpawnResult } from "../../common/node/childProcess";
-import { CommandExecutor } from "../../common/commandExecutor";
 import * as path from "path";
 import * as fs from "fs";
-import { ILogger } from "../log/LogHelper";
 import * as os from "os";
 import * as nls from "vscode-nls";
+import { ILogger } from "../log/LogHelper";
+import { CommandExecutor } from "../../common/commandExecutor";
+import { ChildProcess, ISpawnResult } from "../../common/node/childProcess";
 import { PromiseUtil } from "../../common/node/promise";
 import { IDebuggableMobileTarget } from "../mobileTarget";
 nls.config({
@@ -44,7 +44,7 @@ export class AdbHelper {
     private commandExecutor: CommandExecutor;
     private adbExecutable: string = "";
 
-    private static readonly AndroidRemoteTargetPattern = /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}|.*_adb-tls-connect\._tcp.*)$/gm;
+    private static readonly AndroidRemoteTargetPattern = /^((?:\d{1,3}\.){3}\d{1,3}:\d{1,5}|.*_adb-tls-con{2}ect\._tcp.*)$/gm;
     public static readonly AndroidSDKEmulatorPattern = /^emulator-\d{1,5}$/;
 
     constructor(
@@ -101,12 +101,7 @@ export class AdbHelper {
             // emuName
             // OK
             // "
-            if (output) {
-                // Return the name of avd: emuName
-                return output.split(/\r?\n|\r/g)[0];
-            } else {
-                return null;
-            }
+            return output ? output.split(/\r?\n|\r/g)[0] : null;
         } catch {
             // If the command returned an error, it means that we could not find the emulator with the passed id
             return null;
@@ -127,7 +122,7 @@ export class AdbHelper {
         debugTarget?: string,
         appIdSuffix?: string,
     ): Promise<void> {
-        let enableDebugCommand = `${this.adbExecutable} ${
+        const enableDebugCommand = `${this.adbExecutable} ${
             debugTarget ? "-s " + debugTarget : ""
         } shell am broadcast -a "${packageName}.RELOAD_APP_ACTION" --ez jsproxy ${enable}`;
         await new CommandExecutor(this.nodeModulesRoot, projectRoot).execute(enableDebugCommand);
@@ -146,7 +141,7 @@ export class AdbHelper {
         debugTarget?: string,
         appIdSuffix?: string,
     ): Promise<void> {
-        let launchAppCommand = `${this.adbExecutable} ${
+        const launchAppCommand = `${this.adbExecutable} ${
             debugTarget ? "-s " + debugTarget : ""
         } shell am start -n ${packageName}${appIdSuffix ? "." + appIdSuffix : ""}/${packageName}.${
             this.launchActivity
@@ -160,7 +155,7 @@ export class AdbHelper {
         debugTarget?: string,
         appIdSuffix?: string,
     ): Promise<void> {
-        let stopAppCommand = `${this.adbExecutable} ${
+        const stopAppCommand = `${this.adbExecutable} ${
             debugTarget ? "-s " + debugTarget : ""
         } shell am force-stop ${packageName}${appIdSuffix ? "." + appIdSuffix : ""}`;
         return new CommandExecutor(projectRoot).execute(stopAppCommand);
@@ -176,14 +171,14 @@ export class AdbHelper {
     }
 
     public showDevMenu(deviceId?: string): Promise<void> {
-        let command = `${this.adbExecutable} ${
+        const command = `${this.adbExecutable} ${
             deviceId ? "-s " + deviceId : ""
         } shell input keyevent ${KeyEvents.KEYCODE_MENU}`;
         return this.commandExecutor.execute(command);
     }
 
     public reloadApp(deviceId?: string): Promise<void> {
-        let command = `${this.adbExecutable} ${
+        const command = `${this.adbExecutable} ${
             deviceId ? "-s " + deviceId : ""
         } shell input text "RR"`;
         return this.commandExecutor.execute(command);
@@ -195,7 +190,7 @@ export class AdbHelper {
     }
 
     public startLogCat(adbParameters: string[]): ISpawnResult {
-        return this.childProcess.spawn(this.adbExecutable.replace(/\"/g, ""), adbParameters);
+        return this.childProcess.spawn(this.adbExecutable.replace(/"/g, ""), adbParameters);
     }
 
     public parseSdkLocation(fileContent: string, logger?: ILogger): string | null {
@@ -246,8 +241,8 @@ export class AdbHelper {
     }
 
     private parseConnectedTargets(input: string): IDebuggableMobileTarget[] {
-        let result: IDebuggableMobileTarget[] = [];
-        let regex = new RegExp("^(\\S+)\\t(\\S+)$", "mg");
+        const result: IDebuggableMobileTarget[] = [];
+        const regex = new RegExp("^(\\S+)\\t(\\S+)$", "mg");
         let match = regex.exec(input);
         while (match != null) {
             result.push({

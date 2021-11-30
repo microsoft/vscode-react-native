@@ -82,7 +82,7 @@ export class OutputVerifier {
                 matches = errorsAndOutput.match(pattern.pattern);
                 return matches && matches.length;
             } else {
-                return errorsAndOutput.indexOf(pattern.pattern as string) !== -1;
+                return errorsAndOutput.includes(pattern.pattern as string);
             }
         });
 
@@ -102,7 +102,7 @@ export class OutputVerifier {
     // We check that all the patterns appeared on the output
     private areAllSuccessPatternsPresent(successPatterns: string[]): boolean {
         return successPatterns.every(pattern => {
-            let patternRe = new RegExp(pattern, "i");
+            const patternRe = new RegExp(pattern, "i");
             return patternRe.test(this.output);
         });
     }
