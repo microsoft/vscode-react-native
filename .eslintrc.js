@@ -20,12 +20,10 @@ module.exports = {
     },
     plugins: ["@typescript-eslint", "prettier", "import", "promise", "unicorn", "header"],
     extends: [
-        "airbnb-typescript/base",
         "plugin:@typescript-eslint/eslint-recommended",
         "plugin:@typescript-eslint/recommended",
         "plugin:@typescript-eslint/recommended-requiring-type-checking",
         "plugin:promise/recommended",
-        "plugin:unicorn/recommended",
         "plugin:import/warnings",
         "plugin:import/errors",
         "plugin:import/typescript",
@@ -88,6 +86,7 @@ module.exports = {
     //
     // import/no-extraneous-dependences // disable
     rules: {
+        "no-useless-return": "off",
         "import/no-mutable-exports": "off", // please fix this
         "@typescript-eslint/prefer-regexp-exec": "off",
         "@typescript-eslint/no-namespace": "off",
@@ -95,19 +94,12 @@ module.exports = {
         "import/no-extraneous-dependencies": "off",
         "no-await-in-loop": "warn",
         "@typescript-eslint/require-await": "warn",
-        "unicorn/no-null": "off",
-        "unicorn/import-style": "off",
         "consistent-return": "off",
-        "unicorn/error-message": "off",
-        "unicorn/explicit-length-check": "off",
-        "unicorn/no-array-reduce": "warn",
         "promise/catch-or-return": "off",
         // too much hassle, too little value
         "@typescript-eslint/no-unnecessary-type-assertion": "off",
         "@typescript-eslint/no-explicit-any": "off",
-        "unicorn/catch-error-name": "off",
         "import/no-require": "off",
-        "unicorn/no-array-for-each": "off",
         "@typescript-eslint/explicit-function-return-type": "off",
         // '@typescript-eslint/member-ordering': [
         //   'warn',
@@ -154,7 +146,6 @@ module.exports = {
         ],
         // disallow function implicitly returning any
         "class-methods-use-this": "off",
-        "unicorn/no-abusive-eslint-disable": "off",
         "header/header": [
             "error",
             "line",
@@ -184,8 +175,7 @@ module.exports = {
         "lines-between-class-members": "off",
         // eslint considers too many things to be a class
         "max-classes-per-file": "off",
-        // superseeded by unicorn/no-nested-ternary
-        "no-nested-ternary": "off",
+        "no-nested-ternary": "warn",
         "no-plusplus": "off",
         "no-restricted-syntax": [
             "error",
@@ -228,7 +218,6 @@ module.exports = {
         "@typescript-eslint/no-unsafe-call": "off", // !
         semi: ["error", "always"],
         "promise/param-names": "off",
-        "unicorn/no-array-push-push": "warn",
         "unicorn/filename-case": [
             "warn",
             {
@@ -238,11 +227,7 @@ module.exports = {
                 ignore: [/rn-extension\.ts/],
             },
         ],
-        "unicorn/no-useless-undefined": "off",
         "unicorn/prefer-ternary": "warn",
-        "unicorn/no-null": "warn",
-        // interferes with typescript best practices
-        "unicorn/prevent-abbreviations": "off", // most abbreviations are well-known
     },
 
     globals: {
