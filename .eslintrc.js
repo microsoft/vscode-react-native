@@ -116,6 +116,8 @@ module.exports = {
         //     },
         //   },
         // ],
+        "no-empty-function": "off",
+        "@typescript-eslint/no-empty-function": "off",
         "@typescript-eslint/explicit-module-boundary-types": [
             "warn",
             {
