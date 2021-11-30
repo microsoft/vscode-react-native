@@ -88,6 +88,16 @@ module.exports = {
     //
     // import/no-extraneous-dependences // disable
     rules: {
+        "import/no-extraneous-dependencies": "off",
+        "no-param-reassign": "off", // !!
+        "no-await-in-loop": "warn",
+        "promise/param-names": "off",
+        "@typescript-eslint/require-await": "warn",
+        "unicorn/no-null": "off",
+        "unicorn/import-style": "off",
+        "consistent-return": "off",
+        "unicorn/error-message": "off",
+        "unicorn/explicit-length-check": "off",
         "unicorn/no-array-reduce": "warn",
         "promise/catch-or-return": "off",
         // too much hassle, too little value
