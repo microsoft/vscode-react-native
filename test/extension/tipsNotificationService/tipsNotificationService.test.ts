@@ -5,7 +5,7 @@ import {
     TipNotificationService,
     TipNotificationConfig,
     TipsConfig,
-} from "../../../src/extension/tipsNotificationsService/tipsNotificationService";
+} from "../../../src/extension/services/tipsNotificationsService/tipsNotificationService";
 import { SettingsHelper } from "../../../src/extension/settingsHelper";
 import * as Configstore from "configstore";
 import * as assert from "assert";
@@ -317,7 +317,7 @@ suite("tipNotificationService", function () {
 
     suite("updateTipsConfig", function () {
         const tipsNotificationServicePath =
-            "../../../src/extension/tipsNotificationsService/tipsNotificationService";
+            "../../../src/extension/services/tipsNotificationsService/tipsNotificationService";
 
         const mockedTipsStorageBefore = {
             generalTips: {

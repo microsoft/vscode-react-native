@@ -26,7 +26,7 @@ import {
     mockCallFrames,
     mockResults,
 } from "./cdpConstants";
-import { waitUntil } from "../../src/common/utils";
+import { PromiseUtil } from "../../src/common/node/promise";
 
 suite("reactNativeCDPProxy", function () {
     const cdpProxyHostAddress = "127.0.0.1"; // localhost
@@ -79,7 +79,7 @@ suite("reactNativeCDPProxy", function () {
         debugConnection = new Connection(await WebSocketTransport.create(proxyUri));
 
         // Due to the time limit, sooner or later this cycle will end
-        await waitUntil(() => !!targetConnection, 1000, 5000);
+        await PromiseUtil.waitUntil(() => !!targetConnection, 1000, 5000);
     });
 
     suiteTeardown(() => {
