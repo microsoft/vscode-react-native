@@ -127,7 +127,7 @@ module.exports = {
             "warn",
             {
                 ignoreParameters: true,
-                ignoreProperties: false,
+                ignoreProperties: true,
             },
         ],
         "@typescript-eslint/no-unsafe-assignment": "off",
