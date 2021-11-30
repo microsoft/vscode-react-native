@@ -96,7 +96,6 @@ module.exports = {
         "@typescript-eslint/require-await": "warn",
         "consistent-return": "off",
         "promise/catch-or-return": "off",
-        // too much hassle, too little value
         "@typescript-eslint/no-unnecessary-type-assertion": "off",
         "@typescript-eslint/no-explicit-any": "off",
         "import/no-require": "off",
@@ -144,7 +143,6 @@ module.exports = {
                 variables: true,
             },
         ],
-        // disallow function implicitly returning any
         "class-methods-use-this": "off",
         "header/header": [
             "error",
@@ -168,12 +166,9 @@ module.exports = {
         "import/no-cycle": "off",
         "import/no-unresolved": "off",
         "import/order": "warn",
-        // default exports are bad
         "import/prefer-default-export": "off",
-        // git auto-fixes this
         "linebreak-style": "off",
         "lines-between-class-members": "off",
-        // eslint considers too many things to be a class
         "max-classes-per-file": "off",
         "no-nested-ternary": "warn",
         "no-plusplus": "off",
@@ -196,7 +191,6 @@ module.exports = {
             },
         ],
         "no-underscore-dangle": "off",
-        // interferes with @typescript-eslint/no-floating-promises
         "no-void": [
             "error",
             {
