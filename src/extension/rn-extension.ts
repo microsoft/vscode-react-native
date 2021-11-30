@@ -24,6 +24,11 @@ import { Telemetry } from "../common/telemetry";
 import { TelemetryHelper, ICommandTelemetryProperties } from "../common/telemetryHelper";
 import { DebugSessionBase } from "../debugger/debugSessionBase";
 import { CONTEXT_VARIABLES_NAMES } from "../common/contextVariablesNames";
+import {
+    getExtensionVersion,
+    getExtensionName,
+    findFileInFolderHierarchy,
+} from "../common/extensionHelper";
 import { CommandPaletteHandler } from "./commandPaletteHandler";
 import { SettingsHelper } from "./settingsHelper";
 import { ReactDirManager } from "./reactDirManager";
@@ -41,11 +46,6 @@ import {
 import { ReactNativeSessionManager } from "./reactNativeSessionManager";
 import { ProjectsStorage } from "./projectsStorage";
 import { AppLauncher } from "./appLauncher";
-import {
-    getExtensionVersion,
-    getExtensionName,
-    findFileInFolderHierarchy,
-} from "../common/extensionHelper";
 import { LogCatMonitorManager } from "./android/logCatMonitorManager";
 import { ExtensionConfigManager } from "./extensionConfigManager";
 import { TipNotificationService } from "./tipsNotificationsService/tipsNotificationService";
