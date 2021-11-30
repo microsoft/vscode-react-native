@@ -20,12 +20,10 @@ module.exports = {
     },
     plugins: ["@typescript-eslint", "prettier", "import", "promise", "unicorn", "header"],
     extends: [
-        "airbnb-typescript/base",
         "plugin:@typescript-eslint/eslint-recommended",
         "plugin:@typescript-eslint/recommended",
         "plugin:@typescript-eslint/recommended-requiring-type-checking",
         "plugin:promise/recommended",
-        "plugin:unicorn/recommended",
         "plugin:import/warnings",
         "plugin:import/errors",
         "plugin:import/typescript",
@@ -88,24 +86,19 @@ module.exports = {
     //
     // import/no-extraneous-dependences // disable
     rules: {
+        "no-useless-return": "off",
+        "import/no-mutable-exports": "off", // please fix this
+        "@typescript-eslint/prefer-regexp-exec": "off",
+        "@typescript-eslint/no-namespace": "off",
+        "@typescript-eslint/no-misused-promises": "off",
         "import/no-extraneous-dependencies": "off",
-        "no-param-reassign": "off", // !!
         "no-await-in-loop": "warn",
-        "promise/param-names": "off",
         "@typescript-eslint/require-await": "warn",
-        "unicorn/no-null": "off",
-        "unicorn/import-style": "off",
         "consistent-return": "off",
-        "unicorn/error-message": "off",
-        "unicorn/explicit-length-check": "off",
-        "unicorn/no-array-reduce": "warn",
         "promise/catch-or-return": "off",
-        // too much hassle, too little value
         "@typescript-eslint/no-unnecessary-type-assertion": "off",
         "@typescript-eslint/no-explicit-any": "off",
-        "unicorn/catch-error-name": "off",
         "import/no-require": "off",
-        "unicorn/no-array-for-each": "off",
         "@typescript-eslint/explicit-function-return-type": "off",
         // '@typescript-eslint/member-ordering': [
         //   'warn',
@@ -134,7 +127,7 @@ module.exports = {
             "warn",
             {
                 ignoreParameters: true,
-                ignoreProperties: false,
+                ignoreProperties: true,
             },
         ],
         "@typescript-eslint/no-unsafe-assignment": "off",
@@ -150,9 +143,7 @@ module.exports = {
                 variables: true,
             },
         ],
-        // disallow function implicitly returning any
         "class-methods-use-this": "off",
-        "consistent-return": "warn",
         "header/header": [
             "error",
             "line",
@@ -175,15 +166,11 @@ module.exports = {
         "import/no-cycle": "off",
         "import/no-unresolved": "off",
         "import/order": "warn",
-        // default exports are bad
         "import/prefer-default-export": "off",
-        // git auto-fixes this
         "linebreak-style": "off",
         "lines-between-class-members": "off",
-        // eslint considers too many things to be a class
         "max-classes-per-file": "off",
-        // superseeded by unicorn/no-nested-ternary
-        "no-nested-ternary": "off",
+        "no-nested-ternary": "warn",
         "no-plusplus": "off",
         "no-restricted-syntax": [
             "error",
@@ -204,7 +191,6 @@ module.exports = {
             },
         ],
         "no-underscore-dangle": "off",
-        // interferes with @typescript-eslint/no-floating-promises
         "no-void": [
             "error",
             {
@@ -221,12 +207,11 @@ module.exports = {
             "double",
             { avoidEscape: true, allowTemplateLiterals: true },
         ],
-        "spaced-comment": "warn",
+        "spaced-comment": ["error", "always", { markers: ["/"] }],
         "no-param-reassign": "warn",
         "@typescript-eslint/no-unsafe-call": "off", // !
         semi: ["error", "always"],
-        "promise/param-names": "warn",
-        "unicorn/no-array-push-push": "warn",
+        "promise/param-names": "off",
         "unicorn/filename-case": [
             "warn",
             {
@@ -236,11 +221,18 @@ module.exports = {
                 ignore: [/rn-extension\.ts/],
             },
         ],
-        "unicorn/no-useless-undefined": "off",
         "unicorn/prefer-ternary": "warn",
-        "unicorn/no-null": "warn",
-        // interferes with typescript best practices
-        "unicorn/prevent-abbreviations": "off", // most abbreviations are well-known
+        "unicorn/better-regex": "warn",
+        "unicorn/no-array-reduce": "warn",
+        "unicorn/no-for-loop": "warn",
+        "unicorn/no-instanceof-array": "warn",
+        "unicorn/no-new-array": "warn",
+        "unicorn/no-new-buffer": "warn",
+        "unicorn/prefer-array-index-of": "warn",
+        "unicorn/prefer-array-some": "warn",
+        "unicorn/prefer-array-find": "warn",
+        "unicorn/prefer-array-find": "warn",
+        "unicorn/prefer-includes": "warn",
     },
 
     globals: {
