@@ -42,11 +42,60 @@ module.exports = {
         },
     },
     overrides: [],
+    // reduce?
+    // "import/no-require": "off",
+    // while true ???
+    // no-await-in-loop // warrning
+    // unicorn/explicit-length-check // disable
+    // Promise resolve reject // disable
+    // eror name disable // disable
+    // disable eslint for every file
+    // unicorn/better-regex // ?? warrning
+    // return arrow function types networkInspectorServer
+    // @typescript-eslint/require-await // warrning
+    // unicorn/no-null       // warrning
+    // unicorn/import-style // disable
+    // @typescript-eslint/ numbers something concatination.
+    // unicorn/no-object-as-default-parameter // disable
+    // prefer-object-spread // disable
+    // prefer-object-spread // disable
+    // no esle something // fix
+    // src/common/customRequire // disable eslint rule for eval
+    // src/common/entryPointHandler // disable eslint rule for process.exit
+    // no-promise-in-callback // disable
+    // unicorn/no-for-loop // warrning
+    // consistent return // disable
+    // unicorn/prefer-spread // disable
+    // @typescript-eslint/no-namespace // disable
+    // @typescript-eslint/no-misused-promises // disable
+    // @typescript-eslint/no-misused-promises // warrning
+    // @typescript-eslint/no-misused-promises // warrning
+    // prefer-arrow-function // ?warrning
+    // func-names // ?disable
+    // no-return-assignment // warrning
+    // @typescript-eslint/prefer-regexp-exec // disable
+    // @typescript-eslint/prefer-regexp-exec // disable
+    //
+    //the code is borrowed from // disable eslint
+    //
+    // promise always resolve // ?
+    // global-require // ?disable
+    // should be listed in devdeps disable // !!
+    // no-template-curly-in-string // disable
+    // @typescript-eslint/dot-notation
+    // no-array-push // disable ?
+    // unicorn/explicit-length-check // disable
+    //
+    // import/no-extraneous-dependences // disable
     rules: {
         "unicorn/no-array-reduce": "warn",
         "promise/catch-or-return": "off",
         // too much hassle, too little value
         "@typescript-eslint/no-unnecessary-type-assertion": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "unicorn/catch-error-name": "off",
+        "import/no-require": "off",
+        "unicorn/no-array-for-each": "off",
         "@typescript-eslint/explicit-function-return-type": "off",
         // '@typescript-eslint/member-ordering': [
         //   'warn',
