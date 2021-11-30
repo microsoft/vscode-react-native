@@ -207,7 +207,7 @@ module.exports = {
             "double",
             { avoidEscape: true, allowTemplateLiterals: true },
         ],
-        "spaced-comment": "warn",
+        "spaced-comment": ["error", "always", { markers: ["/"] }],
         "no-param-reassign": "warn",
         "@typescript-eslint/no-unsafe-call": "off", // !
         semi: ["error", "always"],
@@ -222,6 +222,17 @@ module.exports = {
             },
         ],
         "unicorn/prefer-ternary": "warn",
+        "unicorn/better-regex": "warn",
+        "unicorn/no-array-reduce": "warn",
+        "unicorn/no-for-loop": "warn",
+        "unicorn/no-instanceof-array": "warn",
+        "unicorn/no-new-array": "warn",
+        "unicorn/no-new-buffer": "warn",
+        "unicorn/prefer-array-index-of": "warn",
+        "unicorn/prefer-array-some": "warn",
+        "unicorn/prefer-array-find": "warn",
+        "unicorn/prefer-array-find": "warn",
+        "unicorn/prefer-includes": "warn",
     },
 
     globals: {
