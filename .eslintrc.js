@@ -88,10 +88,12 @@ module.exports = {
     //
     // import/no-extraneous-dependences // disable
     rules: {
+        "import/no-mutable-exports": "off", // please fix this
+        "@typescript-eslint/prefer-regexp-exec": "off",
+        "@typescript-eslint/no-namespace": "off",
+        "@typescript-eslint/no-misused-promises": "off",
         "import/no-extraneous-dependencies": "off",
-        "no-param-reassign": "off", // !!
         "no-await-in-loop": "warn",
-        "promise/param-names": "off",
         "@typescript-eslint/require-await": "warn",
         "unicorn/no-null": "off",
         "unicorn/import-style": "off",
@@ -152,7 +154,7 @@ module.exports = {
         ],
         // disallow function implicitly returning any
         "class-methods-use-this": "off",
-        "consistent-return": "warn",
+        "unicorn/no-abusive-eslint-disable": "off",
         "header/header": [
             "error",
             "line",
@@ -225,7 +227,7 @@ module.exports = {
         "no-param-reassign": "warn",
         "@typescript-eslint/no-unsafe-call": "off", // !
         semi: ["error", "always"],
-        "promise/param-names": "warn",
+        "promise/param-names": "off",
         "unicorn/no-array-push-push": "warn",
         "unicorn/filename-case": [
             "warn",
