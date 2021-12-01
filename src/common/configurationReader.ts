@@ -8,9 +8,8 @@ export class ConfigurationReader {
     public static readString(value: any): string {
         if (this.isString(value)) {
             return value;
-        } else {
-            throw ErrorHelper.getInternalError(InternalErrorCode.ExpectedStringValue, value);
         }
+        throw ErrorHelper.getInternalError(InternalErrorCode.ExpectedStringValue, value);
     }
 
     public static readBoolean(value: any): boolean {
@@ -18,25 +17,22 @@ export class ConfigurationReader {
             return value;
         } else if (value === "true" || value === "false") {
             return value === "true";
-        } else {
-            throw ErrorHelper.getInternalError(InternalErrorCode.ExpectedBooleanValue, value);
         }
+        throw ErrorHelper.getInternalError(InternalErrorCode.ExpectedBooleanValue, value);
     }
 
     public static readArray(value: any): Array<any> {
         if (this.isArray(value)) {
             return value;
-        } else {
-            throw ErrorHelper.getInternalError(InternalErrorCode.ExpectedArrayValue, value);
         }
+        throw ErrorHelper.getInternalError(InternalErrorCode.ExpectedArrayValue, value);
     }
 
     public static readObject(value: any): Record<string, any> {
         if (this.isObject(value)) {
             return value;
-        } else {
-            throw ErrorHelper.getInternalError(InternalErrorCode.ExpectedObjectValue, value);
         }
+        throw ErrorHelper.getInternalError(InternalErrorCode.ExpectedObjectValue, value);
     }
 
     /* We try to read an integer. It can be either an integer, or a string that can be parsed as an integer */
@@ -45,9 +41,8 @@ export class ConfigurationReader {
             return value;
         } else if (this.isString(value)) {
             return parseInt(value, 10);
-        } else {
-            throw ErrorHelper.getInternalError(InternalErrorCode.ExpectedIntegerValue, value);
         }
+        throw ErrorHelper.getInternalError(InternalErrorCode.ExpectedIntegerValue, value);
     }
 
     /* We try to read an integer. If it's a falsable value we return the default value, if not we behave like this.readInt(value)

@@ -13,6 +13,7 @@ import { QRCodeContentProvider } from "../qrCodeContentProvider";
 import { ExponentHelper } from "./exponentHelper";
 
 import * as XDL from "./xdlInterface";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -140,14 +141,11 @@ export class ExponentPlatform extends GeneralPlatform {
         }
 
         return await this.exponentHelper.loginToExponent(
-            async (message, password) => {
-                return (
-                    (await vscode.window.showInputBox({
-                        placeHolder: message,
-                        password: password,
-                    })) || ""
-                );
-            },
+            async (message, password) =>
+                (await vscode.window.showInputBox({
+                    placeHolder: message,
+                    password,
+                })) || "",
             async message => {
                 const okButton = { title: "Ok" };
                 const cancelButton = { title: "Cancel", isCloseAffordance: true };

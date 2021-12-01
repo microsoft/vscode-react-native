@@ -54,6 +54,7 @@ import { TipNotificationService } from "./services/tipsNotificationsService/tips
 import { SurveyService } from "./services/surveyService/surveyService";
 import { RNProjectObserver } from "./rnProjectObserver";
 import { TargetType } from "./generalPlatform";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -137,7 +138,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         appVersion,
         ErrorHelper.getInternalError(InternalErrorCode.ExtensionActivationFailed),
         reporter,
-        async function activateRunApp() {
+        async () => {
             EXTENSION_CONTEXT.subscriptions.push(
                 vscode.workspace.onDidChangeWorkspaceFolders(event =>
                     onChangeWorkspaceFolders(event),
@@ -232,7 +233,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 }
 
 export function deactivate(): Promise<void> {
-    return new Promise<void>(function (resolve) {
+    return new Promise<void>(resolve => {
         // Kill any packager processes that we spawned
         void entryPointHandler.runFunction(
             "extension.deactivate",
@@ -245,9 +246,7 @@ export function deactivate(): Promise<void> {
                     dynamicDebugConfigProvider = null;
                 }
                 void CommandPaletteHandler.stopAllPackagers()
-                    .then(() => {
-                        return CommandPaletteHandler.stopElementInspector();
-                    })
+                    .then(() => CommandPaletteHandler.stopElementInspector())
                     .then(() => {
                         LogCatMonitorManager.cleanUp();
                         // Tell vscode that we are done with deactivation

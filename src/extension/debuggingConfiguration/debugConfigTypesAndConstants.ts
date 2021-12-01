@@ -6,6 +6,7 @@ import * as nls from "vscode-nls";
 import { PlatformType } from "../launchArgs";
 import { ILaunchRequestArgs } from "../../debugger/debugSessionBase";
 import { IWDPHelper } from "../../debugger/direct/IWDPHelper";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,

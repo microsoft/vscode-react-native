@@ -11,6 +11,7 @@ import {
 import * as semver from "semver";
 import * as nls from "vscode-nls";
 import { SettingsHelper } from "./settingsHelper";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,

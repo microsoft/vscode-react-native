@@ -3,10 +3,10 @@
 
 import { URL } from "url";
 import * as semver from "semver";
-import { ErrorHelper } from "../common/error/errorHelper";
-import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { ILaunchArgs, PlatformType } from "../extension/launchArgs";
 import { AppLauncher } from "../extension/appLauncher";
+import { ErrorHelper } from "./error/errorHelper";
+import { InternalErrorCode } from "./error/internalErrorCode";
 import { RN_VERSION_ERRORS } from "./error/versionError";
 import { Package } from "./node/package";
 import { ParsedPackage } from "./reactNativeProjectHelper";
@@ -139,9 +139,11 @@ export class ProjectVersionHelper {
         });
 
         const packageVersionArray = await Promise.all(versionPromises);
-        const packageVersions = packageVersionArray.reduce((allPackageVersions, packageVersion) => {
-            return Object.assign(allPackageVersions, packageVersion);
-        }, {});
+        const packageVersions = packageVersionArray.reduce(
+            (allPackageVersions, packageVersion) =>
+                Object.assign(allPackageVersions, packageVersion),
+            {},
+        );
         if (ProjectVersionHelper.isVersionError(packageVersions["react-native"])) {
             throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativePackageIsNotInstalled);
         }

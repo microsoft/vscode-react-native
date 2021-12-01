@@ -8,6 +8,7 @@ import { ISpawnResult } from "../../common/node/childProcess";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { ExecutionsFilterBeforeTimestamp } from "../../common/executionsLimiter";
 import { AdbHelper } from "./adb";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,

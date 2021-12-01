@@ -6,6 +6,7 @@
  */
 import * as path from "path";
 import * as mkdirp from "mkdirp";
+
 export enum LogLevel {
     None = 0,
     Trace = 1,

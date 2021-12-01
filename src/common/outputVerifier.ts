@@ -87,9 +87,8 @@ export class OutputVerifier {
             if (pattern.pattern instanceof RegExp) {
                 matches = errorsAndOutput.match(pattern.pattern);
                 return matches && matches.length;
-            } else {
-                return errorsAndOutput.includes(pattern.pattern as string);
             }
+            return errorsAndOutput.includes(pattern.pattern as string);
         });
 
         const errorCode = patternThatAppeared ? patternThatAppeared.errorCode : null;
@@ -98,9 +97,8 @@ export class OutputVerifier {
             if (matches && matches.length) {
                 matches = matches.map(value => value.trim());
                 return ErrorHelper.getInternalError(errorCode, matches.join("\n"));
-            } else {
-                return ErrorHelper.getInternalError(errorCode);
             }
+            return ErrorHelper.getInternalError(errorCode);
         }
         return null;
     }

@@ -47,9 +47,8 @@ export class AttachConfigProvider extends BaseConfigProvider {
         if (state.config.type === DEBUG_TYPES.REACT_NATIVE_DIRECT) {
             this.maxStepCount++;
             return () => this.configureDirectPlatform(input, state.config);
-        } else {
-            return () => this.configureAddress(input, state.config);
         }
+        return () => this.configureAddress(input, state.config);
     }
 
     private async configureDirectPlatform(

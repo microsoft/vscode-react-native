@@ -18,6 +18,7 @@ import { PlatformType } from "../../extension/launchArgs";
 import { BaseCDPMessageHandler } from "../../cdp-proxy/CDPMessageHandlers/baseCDPMessageHandler";
 import { TipNotificationService } from "../../extension/services/tipsNotificationsService/tipsNotificationService";
 import { IWDPHelper } from "./IWDPHelper";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,

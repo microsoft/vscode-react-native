@@ -72,10 +72,10 @@ export async function currentUser(): Promise<XDLPackage.IUser> {
 export async function login(username: string, password: string): Promise<XDLPackage.IUser> {
     const xdl = await getXDLPackage();
     return await (xdl.User
-        ? xdl.User.loginAsync("user-pass", { username: username, password: password })
+        ? xdl.User.loginAsync("user-pass", { username, password })
         : xdl.UserManager.loginAsync("user-pass", {
-              username: username,
-              password: password,
+              username,
+              password,
           }));
 }
 

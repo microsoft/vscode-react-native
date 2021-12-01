@@ -5,6 +5,7 @@ import * as path from "path";
 import * as vscode from "vscode";
 import { getLocation } from "jsonc-parser";
 import * as nls from "vscode-nls";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,

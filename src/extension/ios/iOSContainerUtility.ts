@@ -52,10 +52,8 @@ function isAvailable(): Promise<boolean> {
 export async function isXcodeDetected(): Promise<boolean> {
     return new ChildProcess()
         .execToString("xcode-select -p")
-        .then(stdout => {
-            return fs.existsSync(stdout.trim());
-        })
-        .catch(() => false);
+        .then(stdout => fs.existsSync(stdout.trim()))
+        .catch(_ => false);
 }
 
 async function queryTargetsWithoutXcodeDependency(
@@ -74,12 +72,11 @@ async function queryTargetsWithoutXcodeDependency(
                 );
                 return [];
             });
-    } else {
-        logger.warn(
-            `Unable to locate idb_companion in ${idbCompanionPath}. Try running sudo yum install -y fb-idb`,
-        );
-        return [];
     }
+    logger.warn(
+        `Unable to locate idb_companion in ${idbCompanionPath}. Try running sudo yum install -y fb-idb`,
+    );
+    return [];
 }
 
 function parseIdbTargets(lines: string): Array<DeviceTarget> {

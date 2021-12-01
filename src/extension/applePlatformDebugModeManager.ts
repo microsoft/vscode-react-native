@@ -4,6 +4,7 @@
 import * as nls from "vscode-nls";
 import { PromiseUtil } from "../common/node/promise";
 import { OutputChannelLogger } from "./log/OutputChannelLogger";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,

@@ -178,11 +178,10 @@ export class OutputChannelLogger implements ILogger {
     private get channel(): vscode.OutputChannel {
         if (this.outputChannel) {
             return this.outputChannel;
-        } else {
-            this.outputChannel = vscode.window.createOutputChannel(this.channelName);
-            this.outputChannel.show(this.preserveFocus);
-            return this.outputChannel;
         }
+        this.outputChannel = vscode.window.createOutputChannel(this.channelName);
+        this.outputChannel.show(this.preserveFocus);
+        return this.outputChannel;
     }
 
     private set channel(channel: vscode.OutputChannel) {

@@ -9,6 +9,7 @@ import { GeneralPlatform, TargetType } from "./generalPlatform";
 import { IMobileTarget, MobileTarget } from "./mobileTarget";
 import { MobileTargetManager } from "./mobileTargetManager";
 import { IOSPlatform } from "./ios/iOSPlatform";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
