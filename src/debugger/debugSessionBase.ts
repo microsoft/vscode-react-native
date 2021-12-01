@@ -13,6 +13,8 @@ import { InternalError, NestedError } from "../common/error/internalError";
 import { IRunOptions, PlatformType } from "../extension/launchArgs";
 import { AppLauncher } from "../extension/appLauncher";
 import { LogLevel } from "../extension/log/LogHelper";
+import { RNPackageVersions } from "../common/projectVersionHelper";
+import { getNodeModulesInFolderHierarchy } from "../common/extensionHelper";
 import * as nls from "vscode-nls";
 import { SettingsHelper } from "../extension/settingsHelper";
 nls.config({
@@ -230,4 +232,30 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
             ErrorDestination.User,
         );
     }
+
+    private prepareAttachRunOptions(attachArgs: IAttachRequestArgs, packageVersions: RNPackageVersions): any{
+        const workspaceFolder: vscode.WorkspaceFolder = <vscode.WorkspaceFolder>(
+            vscode.workspace.getWorkspaceFolder(vscode.Uri.file(attachArgs.cwd))
+        );
+        const nodeModulesRootPath: string | null = getNodeModulesInFolderHierarchy(
+            this.appLauncher.getPackager().getProjectPath(),
+        );
+        const projectRootPath = SettingsHelper.getReactNativeProjectRoot(attachArgs.cwd);
+
+        let runOptions: any = {
+            platform: attachArgs.platform,
+            workspaceRoot: workspaceFolder.uri.fsPath,
+            projectRoot: projectRootPath,
+            nodeModulesRoot: nodeModulesRootPath,
+            reactNativeVersions: packageVersions,
+            env: Object.assign({}, process.env),
+            envFile: SettingsHelper.getEnvFile(
+                attachArgs.platform,
+                attachArgs.target,
+                this.appLauncher.getWorkspaceFolderUri(),
+            ),
+            // env, envfile 
+        }
+        return runOptions;
+    } 
 }
