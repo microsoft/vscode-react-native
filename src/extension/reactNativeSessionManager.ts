@@ -4,7 +4,7 @@
 import * as Net from "net";
 import * as vscode from "vscode";
 import { RNDebugSession } from "../debugger/rnDebugSession";
-import { DebugSessionBase, TerminateEventArgs } from "../debugger/debugSessionBase";
+import { TerminateEventArgs } from "../debugger/debugSessionBase";
 import { DirectDebugSession } from "../debugger/direct/directDebugSession";
 import { DEBUG_TYPES } from "./debuggingConfiguration/debugConfigTypesAndConstants";
 
