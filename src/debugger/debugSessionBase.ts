@@ -13,10 +13,11 @@ import { InternalError, NestedError } from "../common/error/internalError";
 import { IRunOptions, PlatformType } from "../extension/launchArgs";
 import { AppLauncher } from "../extension/appLauncher";
 import { LogLevel } from "../extension/log/LogHelper";
-import { RNPackageVersions } from "../common/projectVersionHelper";
+import { ProjectVersionHelper, RNPackageVersions } from "../common/projectVersionHelper";
 import { getNodeModulesInFolderHierarchy } from "../common/extensionHelper";
 import * as nls from "vscode-nls";
 import { SettingsHelper } from "../extension/settingsHelper";
+import { version } from "process";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -233,7 +234,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         );
     }
 
-    private prepareAttachRunOptions(attachArgs: IAttachRequestArgs, packageVersions: RNPackageVersions): any{
+    protected prepareAttachRunOptions(attachArgs: IAttachRequestArgs, packageVersions: RNPackageVersions): any{
         const workspaceFolder: vscode.WorkspaceFolder = <vscode.WorkspaceFolder>(
             vscode.workspace.getWorkspaceFolder(vscode.Uri.file(attachArgs.cwd))
         );
@@ -248,14 +249,18 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
             projectRoot: projectRootPath,
             nodeModulesRoot: nodeModulesRootPath,
             reactNativeVersions: packageVersions,
-            env: Object.assign({}, process.env),
-            envFile: SettingsHelper.getEnvFile(
-                attachArgs.platform,
-                attachArgs.target,
-                this.appLauncher.getWorkspaceFolderUri(),
-            ),
-            // env, envfile 
-        }
+            env: attachArgs.env,
+            envFile: attachArgs.envFile
+        };
         return runOptions;
-    } 
+    }
+
+    protected async preparePackagerBeforeAttach(runOptions: IAttachRequestArgs): Promise<any>{
+        if (!await this.appLauncher.getPackager().isRunning()){
+            const version = await ProjectVersionHelper.getReactNativeVersions(SettingsHelper.getReactNativeProjectRoot(runOptions.cwd));
+            runOptions = this.prepareAttachRunOptions(runOptions, version);
+            this.appLauncher.getPackager().setRunOptions(runOptions);
+            this.appLauncher.getPackager().start();
+        }
+    }
 }

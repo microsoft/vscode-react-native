@@ -20,6 +20,8 @@ import { JsDebugConfigAdapter } from "./jsDebugConfigAdapter";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import * as nls from "vscode-nls";
+import { NONAME } from "dns";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -130,7 +132,12 @@ export class RNDebugSession extends DebugSessionBase {
                         this.cancellationTokenSource.token,
                     );
 
-                    await this.appLauncher.getPackager().start();
+                    if (attachArgs.request == "attach"){
+                        await this.preparePackagerBeforeAttach(attachArgs);
+                    }
+                    else{
+                        await this.appLauncher.getPackager().start();
+                    }
 
                     logger.log(
                         localize("StartingDebuggerAppWorker", "Starting debugger app worker."),
