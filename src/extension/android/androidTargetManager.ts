@@ -6,8 +6,8 @@ import { MobileTargetManager } from "../mobileTargetManager";
 import { ChildProcess } from "../../common/node/childProcess";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { IDebuggableMobileTarget, IMobileTarget, MobileTarget } from "../mobileTarget";
-import { waitUntil } from "../../common/utils";
 import { TargetType } from "../generalPlatform";
+import { PromiseUtil } from "../../common/node/promise";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { AdbHelper } from "./adb";
@@ -178,7 +178,7 @@ export class AndroidTargetManager extends MobileTargetManager {
                 return null;
             };
 
-            return waitUntil<string>(
+            return PromiseUtil.waitUntil<string>(
                 condition,
                 1000,
                 AndroidTargetManager.EMULATOR_START_TIMEOUT * 1000,

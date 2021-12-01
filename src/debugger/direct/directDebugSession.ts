@@ -16,7 +16,7 @@ import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { IOSDirectCDPMessageHandler } from "../../cdp-proxy/CDPMessageHandlers/iOSDirectCDPMessageHandler";
 import { PlatformType } from "../../extension/launchArgs";
 import { BaseCDPMessageHandler } from "../../cdp-proxy/CDPMessageHandlers/baseCDPMessageHandler";
-import { TipNotificationService } from "../../extension/tipsNotificationsService/tipsNotificationService";
+import { TipNotificationService } from "../../extension/services/tipsNotificationsService/tipsNotificationService";
 import { IWDPHelper } from "./IWDPHelper";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,

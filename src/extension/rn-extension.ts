@@ -48,7 +48,8 @@ import { ProjectsStorage } from "./projectsStorage";
 import { AppLauncher } from "./appLauncher";
 import { LogCatMonitorManager } from "./android/logCatMonitorManager";
 import { ExtensionConfigManager } from "./extensionConfigManager";
-import { TipNotificationService } from "./tipsNotificationsService/tipsNotificationService";
+import { TipNotificationService } from "./services/tipsNotificationsService/tipsNotificationService";
+import { SurveyService } from "./services/surveyService/surveyService";
 import { RNProjectObserver } from "./rnProjectObserver";
 import { TargetType } from "./generalPlatform";
 nls.config({
@@ -85,6 +86,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     }
 
     if (extensionName) {
+        const extensionFirstTimeInstalled = !cachedVersionExists();
         const isUpdatedExtension = isUpdatedVersion(appVersion);
 
         if (extensionName.includes("preview")) {
@@ -100,6 +102,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         }
 
         TipNotificationService.getInstance().showTipNotification();
+
+        SurveyService.getInstance().setExtensionFirstTimeInstalled(extensionFirstTimeInstalled);
+        SurveyService.getInstance().promptSurvey();
     }
 
     outputChannelLogger.debug("Begin to activate...");
@@ -139,6 +144,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
                 vscode.workspace.onDidChangeConfiguration(() => onChangeConfiguration()),
             );
             EXTENSION_CONTEXT.subscriptions.push(TipNotificationService.getInstance());
+            EXTENSION_CONTEXT.subscriptions.push(SurveyService.getInstance());
 
             EXTENSION_CONTEXT.subscriptions.push(
                 vscode.debug.registerDebugConfigurationProvider(
@@ -706,14 +712,15 @@ function showTwoVersionFoundNotification(): boolean {
 }
 
 function isUpdatedVersion(currentVersion: string): boolean {
-    if (
-        !ExtensionConfigManager.config.has("version") ||
-        ExtensionConfigManager.config.get("version") !== currentVersion
-    ) {
+    if (!cachedVersionExists() || ExtensionConfigManager.config.get("version") !== currentVersion) {
         ExtensionConfigManager.config.set("version", currentVersion);
         return true;
     }
     return false;
+}
+
+function cachedVersionExists(): boolean {
+    return ExtensionConfigManager.config.has("version");
 }
 
 function showChangelogNotificationOnUpdate(currentVersion: string) {

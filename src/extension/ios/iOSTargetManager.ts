@@ -4,7 +4,7 @@
 import * as nls from "vscode-nls";
 import { QuickPickOptions, window } from "vscode";
 import { ChildProcess } from "../../common/node/childProcess";
-import { waitUntil } from "../../common/utils";
+import { PromiseUtil } from "../../common/node/promise";
 import { IDebuggableMobileTarget, MobileTarget } from "../mobileTarget";
 import { MobileTargetManager } from "../mobileTargetManager";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
@@ -248,7 +248,7 @@ export class IOSTargetManager extends MobileTargetManager {
                 return onlineTarget ? true : null;
             };
 
-            return waitUntil<boolean>(
+            return PromiseUtil.waitUntil<boolean>(
                 condition,
                 1000,
                 IOSTargetManager.SIMULATOR_START_TIMEOUT * 1000,

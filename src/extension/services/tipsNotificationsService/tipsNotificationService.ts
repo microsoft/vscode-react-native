@@ -4,13 +4,14 @@
 import * as path from "path";
 import * as vscode from "vscode";
 import { IConfig, retryDownloadConfig } from "../remoteConfigHelper";
-import { TelemetryHelper } from "../../common/telemetryHelper";
-import { Telemetry } from "../../common/telemetry";
-import { ExtensionConfigManager } from "../extensionConfigManager";
-import { findFileInFolderHierarchy } from "../../common/extensionHelper";
-import { SettingsHelper } from "../../extension/settingsHelper";
-import { OutputChannelLogger } from "../log/OutputChannelLogger";
+import { TelemetryHelper } from "../../../common/telemetryHelper";
+import { Telemetry } from "../../../common/telemetry";
+import { ExtensionConfigManager } from "../../extensionConfigManager";
 import tipsStorage from "./tipsStorage";
+import { findFileInFolderHierarchy } from "../../../common/extensionHelper";
+import { SettingsHelper } from "../../settingsHelper";
+import { OutputChannelLogger } from "../../log/OutputChannelLogger";
+import { areSameDates, getRandomIntInclusive } from "../../../common/utils";
 
 enum TipNotificationAction {
     GET_MORE_INFO = "tipsMoreInfo",
@@ -126,7 +127,7 @@ export class TipNotificationService implements vscode.Disposable {
             } else {
                 if (
                     this.tipsConfig.lastExtensionUsageDate &&
-                    !this.areSameDates(curDate, this.tipsConfig.lastExtensionUsageDate)
+                    !areSameDates(curDate, this.tipsConfig.lastExtensionUsageDate)
                 ) {
                     this.tipsConfig.daysLeftBeforeGeneralTip--;
                 }
@@ -328,10 +329,7 @@ export class TipNotificationService implements vscode.Disposable {
                 leftIndex = 2;
         }
 
-        const randIndex: number = this.getRandomIntInclusive(
-            leftIndex,
-            generalTipsForRandom.length - 1,
-        );
+        const randIndex: number = getRandomIntInclusive(leftIndex, generalTipsForRandom.length - 1);
         const selectedGeneralTipKey: string = generalTipsForRandom[randIndex];
         const tipNotificationText = this.getGeneralTipNotificationTextByKey(selectedGeneralTipKey);
 
@@ -339,11 +337,11 @@ export class TipNotificationService implements vscode.Disposable {
 
         this._tipsConfig = await this.mergeRemoteConfigToLocal(this.tipsConfig);
         const daysBeforeNextTip: number = this.tipsConfig.allTipsShownFirstly
-            ? this.getRandomIntInclusive(
+            ? getRandomIntInclusive(
                   this.tipsConfig.minDaysToRemind,
                   this.tipsConfig.maxDaysToRemind,
               )
-            : this.getRandomIntInclusive(
+            : getRandomIntInclusive(
                   this.tipsConfig.firstTimeMinDaysToRemind,
                   this.tipsConfig.firstTimeMaxDaysToRemind,
               );
@@ -431,23 +429,9 @@ export class TipNotificationService implements vscode.Disposable {
             });
     }
 
-    private areSameDates(date1: Date, date2: Date): boolean {
-        return (
-            date1.getFullYear() === date2.getFullYear() &&
-            date1.getMonth() === date2.getMonth() &&
-            date1.getDate() === date2.getDate()
-        );
-    }
-
     private getDifferenceInDays(date1: Date, date2: Date): number {
         const diffInMs = Math.abs(date2.getTime() - date1.getTime());
         return diffInMs / (1000 * 60 * 60 * 24);
-    }
-
-    private getRandomIntInclusive(min: number, max: number): number {
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
     private parseDatesInRawConfig(rawTipsConfig: TipsConfig): TipsConfig {
