@@ -235,6 +235,11 @@ module.exports = {
         "unicorn/prefer-array-find": "warn",
         "unicorn/prefer-array-find": "warn",
         "unicorn/prefer-includes": "warn",
+        "no-nested-ternary": "off",
+        "promise/always-return": "off",
+        yoda: "warn",
+        "use-isnan": "warn",
+        "valid-typeof": "warn",
     },
 
     globals: {
