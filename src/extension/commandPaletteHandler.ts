@@ -555,11 +555,10 @@ export class CommandPaletteHandler {
 
             if (!token.isCancellationRequested && config) {
                 // Always use the first available debug configuration.
-                const cursorPosition =
-                    LaunchJsonCompletionHelper.getCursorPositionInConfigurationsArray(
-                        document,
-                        position,
-                    );
+                const cursorPosition = LaunchJsonCompletionHelper.getCursorPositionInConfigurationsArray(
+                    document,
+                    position,
+                );
                 if (!cursorPosition) {
                     return;
                 }

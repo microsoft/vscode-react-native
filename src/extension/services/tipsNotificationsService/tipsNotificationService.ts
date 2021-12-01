@@ -7,11 +7,11 @@ import { IConfig, retryDownloadConfig } from "../remoteConfigHelper";
 import { TelemetryHelper } from "../../../common/telemetryHelper";
 import { Telemetry } from "../../../common/telemetry";
 import { ExtensionConfigManager } from "../../extensionConfigManager";
-import tipsStorage from "./tipsStorage";
 import { findFileInFolderHierarchy } from "../../../common/extensionHelper";
 import { SettingsHelper } from "../../settingsHelper";
 import { OutputChannelLogger } from "../../log/OutputChannelLogger";
 import { areSameDates, getRandomIntInclusive } from "../../../common/utils";
+import tipsStorage from "./tipsStorage";
 
 enum TipNotificationAction {
     GET_MORE_INFO = "tipsMoreInfo",

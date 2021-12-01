@@ -2,11 +2,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as vscode from "vscode";
-import { IExperiment } from "./IExperiment";
 import { TelemetryHelper } from "../../../common/telemetryHelper";
 import { Telemetry } from "../../../common/telemetry";
 import { ExtensionConfigManager } from "../../extensionConfigManager";
 import { IConfig, retryDownloadConfig } from "../remoteConfigHelper";
+import { IExperiment } from "./IExperiment";
 
 export enum ExperimentStatuses {
     ENABLED = "enabled",

@@ -2,13 +2,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as vscode from "vscode";
+import * as nls from "vscode-nls";
 import { IConfig, retryDownloadConfig } from "../remoteConfigHelper";
 import { ExtensionConfigManager } from "../../extensionConfigManager";
 import { TelemetryHelper } from "../../../common/telemetryHelper";
 import { Telemetry } from "../../../common/telemetry";
 import { areSameDates, getRandomIntInclusive } from "../../../common/utils";
 import { Delayer } from "../../../common/node/promise";
-import * as nls from "vscode-nls";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -111,21 +111,17 @@ export class SurveyService implements vscode.Disposable {
         }
 
         let surveyConfig: SurveyConfig;
-        if (!ExtensionConfigManager.config.has(this.SURVEY_CONFIG_NAME)) {
-            surveyConfig = {
-                shortPeriodToRemind: 30,
-                longPeriodToRemind: 90,
-                popCoveragePercent: 0.1,
-                enabled: false,
-                daysLeftBeforeSurvey: this.extensionFirstTimeInstalled ? 30 : 3,
-                surveyName: "none",
-                surveyUrl: "",
-            };
-        } else {
-            surveyConfig = this.prepareRawConfig(
-                ExtensionConfigManager.config.get(this.SURVEY_CONFIG_NAME),
-            );
-        }
+        surveyConfig = !ExtensionConfigManager.config.has(this.SURVEY_CONFIG_NAME)
+            ? {
+                  shortPeriodToRemind: 30,
+                  longPeriodToRemind: 90,
+                  popCoveragePercent: 0.1,
+                  enabled: false,
+                  daysLeftBeforeSurvey: this.extensionFirstTimeInstalled ? 30 : 3,
+                  surveyName: "none",
+                  surveyUrl: "",
+              }
+            : this.prepareRawConfig(ExtensionConfigManager.config.get(this.SURVEY_CONFIG_NAME));
 
         surveyConfig = await this.mergeRemoteConfigToLocal(surveyConfig);
 
