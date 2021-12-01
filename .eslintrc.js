@@ -40,84 +40,9 @@ module.exports = {
         },
     },
     overrides: [],
-    // reduce?
-    // "import/no-require": "off",
-    // while true ???
-    // no-await-in-loop // warrning
-    // unicorn/explicit-length-check // disable
-    // Promise resolve reject // disable
-    // eror name disable // disable
-    // disable eslint for every file
-    // unicorn/better-regex // ?? warrning
-    // return arrow function types networkInspectorServer
-    // @typescript-eslint/require-await // warrning
-    // unicorn/no-null       // warrning
-    // unicorn/import-style // disable
-    // @typescript-eslint/ numbers something concatination.
-    // unicorn/no-object-as-default-parameter // disable
-    // prefer-object-spread // disable
-    // prefer-object-spread // disable
-    // no esle something // fix
-    // src/common/customRequire // disable eslint rule for eval
-    // src/common/entryPointHandler // disable eslint rule for process.exit
-    // no-promise-in-callback // disable
-    // unicorn/no-for-loop // warrning
-    // consistent return // disable
-    // unicorn/prefer-spread // disable
-    // @typescript-eslint/no-namespace // disable
-    // @typescript-eslint/no-misused-promises // disable
-    // @typescript-eslint/no-misused-promises // warrning
-    // @typescript-eslint/no-misused-promises // warrning
-    // prefer-arrow-function // ?warrning
-    // func-names // ?disable
-    // no-return-assignment // warrning
-    // @typescript-eslint/prefer-regexp-exec // disable
-    // @typescript-eslint/prefer-regexp-exec // disable
-    //
-    //the code is borrowed from // disable eslint
-    //
-    // promise always resolve // ?
-    // global-require // ?disable
-    // should be listed in devdeps disable // !!
-    // no-template-curly-in-string // disable
-    // @typescript-eslint/dot-notation
-    // no-array-push // disable ?
-    // unicorn/explicit-length-check // disable
-    //
-    // import/no-extraneous-dependences // disable
     rules: {
-        "no-useless-return": "off",
-        "import/no-mutable-exports": "off", // please fix this
-        "@typescript-eslint/prefer-regexp-exec": "off",
-        "@typescript-eslint/no-namespace": "off",
-        "@typescript-eslint/no-misused-promises": "off",
-        "import/no-extraneous-dependencies": "off",
-        "no-await-in-loop": "warn",
-        "@typescript-eslint/require-await": "warn",
-        "consistent-return": "off",
-        "promise/catch-or-return": "off",
-        "@typescript-eslint/no-unnecessary-type-assertion": "off",
-        "@typescript-eslint/no-explicit-any": "off",
-        "import/no-require": "off",
+        "@typescript-eslint/dot-notation": "warn",
         "@typescript-eslint/explicit-function-return-type": "off",
-        // '@typescript-eslint/member-ordering': [
-        //   'warn',
-        //   {
-        //     classes: {
-        //       memberTypes: [
-        //         'static-field',
-        //         'static-method',
-        //         'instance-field',
-        //         'constructor',
-        //         'public-instance-method',
-        //         'protected-instance-method',
-        //         'private-instance-method',
-        //       ],
-        //     },
-        //   },
-        // ],
-        "no-empty-function": "off",
-        "@typescript-eslint/no-empty-function": "off",
         "@typescript-eslint/explicit-module-boundary-types": [
             "warn",
             {
@@ -125,6 +50,8 @@ module.exports = {
             },
         ],
         "@typescript-eslint/lines-between-class-members": "off",
+        "@typescript-eslint/no-empty-function": "off",
+        "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/no-inferrable-types": [
             "warn",
             {
@@ -132,7 +59,12 @@ module.exports = {
                 ignoreProperties: true,
             },
         ],
+        "@typescript-eslint/no-misused-promises": "off",
+        "@typescript-eslint/no-namespace": "off",
+        "@typescript-eslint/no-shadow": "off",
+        "@typescript-eslint/no-unnecessary-type-assertion": "off",
         "@typescript-eslint/no-unsafe-assignment": "off",
+        "@typescript-eslint/no-unsafe-call": "off",
         "@typescript-eslint/no-unsafe-member-access": "off",
         "@typescript-eslint/no-unsafe-return": "off",
         "@typescript-eslint/no-use-before-define": [
@@ -145,7 +77,20 @@ module.exports = {
                 variables: true,
             },
         ],
+        "@typescript-eslint/prefer-regexp-exec": "off",
+        "@typescript-eslint/quotes": [
+            "error",
+            "double",
+            {
+                allowTemplateLiterals: true,
+                avoidEscape: true,
+            },
+        ],
+        "@typescript-eslint/require-await": "warn",
+        "arrow-body-style": "warn",
         "class-methods-use-this": "off",
+        "consistent-return": "off",
+        eqeqeq: "warn",
         "header/header": [
             "error",
             "line",
@@ -165,15 +110,45 @@ module.exports = {
                 tsx: "never",
             },
         ],
+        "import/newline-after-import": "warn",
         "import/no-cycle": "off",
+        "import/no-extraneous-dependencies": "off",
+        "import/no-mutable-exports": "off",
+        "import/no-require": "off",
         "import/no-unresolved": "off",
+        "import/no-useless-path-segments": "warn",
         "import/order": "warn",
         "import/prefer-default-export": "off",
         "linebreak-style": "off",
         "lines-between-class-members": "off",
         "max-classes-per-file": "off",
+        "no-async-promise-executor": "warn",
+        "no-await-in-loop": "warn",
+        "no-else-return": "warn",
+        // '@typescript-eslint/member-ordering': [
+        //     'warn',
+        //     {
+        //         classes: {
+        //             memberTypes: [
+        //                 'static-field',
+        //                 'static-method',
+        //                 'instance-field',
+        //                 'constructor',
+        //                 'public-instance-method',
+        //                 'protected-instance-method',
+        //                 'private-instance-method',
+        //             ],
+        //         },
+        //     },
+        // ],
+        "no-empty-function": "off",
+        "no-extra-boolean-cast": "warn",
+        "no-lonely-if": "warn",
         "no-nested-ternary": "warn",
+        "no-nested-ternary": "off",
+        "no-param-reassign": "warn",
         "no-plusplus": "off",
+        "no-restricted-globals": "warn",
         "no-restricted-syntax": [
             "error",
             {
@@ -192,28 +167,33 @@ module.exports = {
                 selector: "WithStatement",
             },
         ],
+        "no-shadow": "off",
         "no-underscore-dangle": "off",
+        "no-unneeded-ternary": "warn",
+        "no-useless-escape": "warn",
+        "no-useless-return": "off",
         "no-void": [
             "error",
             {
                 allowAsStatement: true,
             },
         ],
+        "object-shorthand": "warn",
+        "prefer-arrow-callback": "warn",
         "prefer-destructuring": "off",
         "prettier/prettier": ["error", prettierConfig],
-        "no-shadow": "off",
-        "@typescript-eslint/no-shadow": "off",
-        quotes: "off",
-        "@typescript-eslint/quotes": [
-            "error",
-            "double",
-            { avoidEscape: true, allowTemplateLiterals: true },
-        ],
-        "spaced-comment": ["error", "always", { markers: ["/"] }],
-        "no-param-reassign": "warn",
-        "@typescript-eslint/no-unsafe-call": "off", // !
-        semi: ["error", "always"],
+        "promise/always-return": "off",
+        "promise/catch-or-return": "off",
         "promise/param-names": "off",
+        "promise/valid-params": "warn",
+        "spaced-comment": [
+            "error",
+            "always",
+            {
+                markers: ["/"],
+            },
+        ],
+        "unicorn/better-regex": "warn",
         "unicorn/filename-case": [
             "warn",
             {
@@ -223,23 +203,19 @@ module.exports = {
                 ignore: [/rn-extension\.ts/],
             },
         ],
-        "unicorn/prefer-ternary": "warn",
-        "unicorn/better-regex": "warn",
         "unicorn/no-array-reduce": "warn",
         "unicorn/no-for-loop": "warn",
         "unicorn/no-instanceof-array": "warn",
         "unicorn/no-new-array": "warn",
         "unicorn/no-new-buffer": "warn",
+        "unicorn/prefer-array-find": "warn",
         "unicorn/prefer-array-index-of": "warn",
         "unicorn/prefer-array-some": "warn",
-        "unicorn/prefer-array-find": "warn",
-        "unicorn/prefer-array-find": "warn",
         "unicorn/prefer-includes": "warn",
-        "no-nested-ternary": "off",
-        "promise/always-return": "off",
-        yoda: "warn",
+        "unicorn/prefer-ternary": "warn",
         "use-isnan": "warn",
         "valid-typeof": "warn",
+        yoda: "warn",
     },
 
     globals: {
