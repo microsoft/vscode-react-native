@@ -45,8 +45,8 @@ import { TipNotificationService } from "./services/tipsNotificationsService/tips
 import { debugConfigurations } from "./debuggingConfiguration/debugConfigTypesAndConstants";
 import { AndroidTargetManager } from "./android/androidTargetManager";
 import { IOSTargetManager } from "./ios/iOSTargetManager";
-import { runChecks } from "./validationService/checker";
-import { ValidationCategoryE } from "./validationService/checks/types";
+import { runChecks } from "./services/validationService/checker";
+import { ValidationCategoryE } from "./services/validationService/checks/types";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,

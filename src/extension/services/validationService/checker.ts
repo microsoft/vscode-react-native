@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { OutputChannelLogger } from "../log/OutputChannelLogger";
+import { OutputChannelLogger } from "../../log/OutputChannelLogger";
 import { getChecks } from "./checks";
 import { ValidationCategoryE, IValidation, ValidationResultT } from "./checks/types";
 import { fromEntries } from "./util";
