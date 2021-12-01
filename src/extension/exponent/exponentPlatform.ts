@@ -98,7 +98,7 @@ export class ExponentPlatform extends GeneralPlatform {
                 default:
                     exponentUrl = await XDL.getUrl(this.projectPath, { dev: true, minify: false });
             }
-            exponentUrl = "exp://" + url.parse(exponentUrl).host;
+            exponentUrl = `exp://${String(url.parse(exponentUrl).host)}`;
 
             if (!exponentUrl) {
                 throw ErrorHelper.getInternalError(InternalErrorCode.ExpectedExponentTunnelPath);
@@ -126,9 +126,9 @@ export class ExponentPlatform extends GeneralPlatform {
 
             const copyButton = localize("CopyToClipboard", "Copy to clipboard");
 
-            vscode.window.showInformationMessage(outputMessage, copyButton).then(selection => {
+            void vscode.window.showInformationMessage(outputMessage, copyButton).then(selection => {
                 if (selection === copyButton) {
-                    vscode.env.clipboard.writeText(exponentUrl);
+                    void vscode.env.clipboard.writeText(exponentUrl);
                 }
             });
         });

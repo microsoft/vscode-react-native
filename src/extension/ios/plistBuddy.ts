@@ -162,9 +162,9 @@ export class PlistBuddy {
     ): Promise<void> {
         // Attempt to set the value, and if it fails due to the key not existing attempt to create the key
         try {
-            await this.invokePlistBuddy(`Set ${property} ${value}`, plistFile);
+            await this.invokePlistBuddy(`Set ${property} ${String(value)}`, plistFile);
         } catch (e) {
-            await this.invokePlistBuddy(`Add ${property} bool ${value}`, plistFile);
+            await this.invokePlistBuddy(`Add ${property} bool ${String(value)}`, plistFile);
         }
     }
 
@@ -258,8 +258,7 @@ export class PlistBuddy {
          * @flow
          * @format
          */
-        let iOSCliFolderName: string;
-        iOSCliFolderName = semver.gte(rnVersion, "0.60.0") ? "cli-platform-ios" : "cli";
+        const iOSCliFolderName = semver.gte(rnVersion, "0.60.0") ? "cli-platform-ios" : "cli";
 
         const findXcodeProject = customRequire(
             path.join(

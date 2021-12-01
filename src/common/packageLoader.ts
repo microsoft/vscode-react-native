@@ -34,7 +34,7 @@ export class PackageConfig {
     }
 
     public getStringForInstall(): string {
-        return this.packageName + this.getVersion(true);
+        return `${this.packageName}${this.getVersion(true) || "undefined"}`;
     }
 
     public getStringForRequire(): string {

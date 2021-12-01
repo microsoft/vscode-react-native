@@ -56,7 +56,7 @@ export class DirectDebugSession extends DebugSessionBase {
             },
         };
 
-        TipNotificationService.getInstance().setKnownDateForFeatureById(
+        void TipNotificationService.getInstance().setKnownDateForFeatureById(
             "directDebuggingWithHermes",
         );
 
@@ -214,7 +214,7 @@ export class DirectDebugSession extends DebugSessionBase {
     ): Promise<void> {
         this.iOSWKDebugProxyHelper.cleanUp();
         this.onDidTerminateDebugSessionHandler.dispose();
-        super.disconnectRequest(response, args, request);
+        void super.disconnectRequest(response, args, request);
     }
 
     protected async establishDebugSession(attachArgs: IAttachRequestArgs): Promise<void> {
@@ -244,7 +244,7 @@ export class DirectDebugSession extends DebugSessionBase {
             debugSession.configuration.rnDebugSessionId === this.session.id &&
             debugSession.type === this.pwaNodeSessionName
         ) {
-            vscode.commands.executeCommand(this.stopCommand, this.session);
+            void vscode.commands.executeCommand(this.stopCommand, this.session);
         }
     }
 

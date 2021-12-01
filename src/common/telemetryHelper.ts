@@ -222,12 +222,11 @@ export class TelemetryHelper {
                 }
             } else {
                 // This is a not known option. We"ll assume that both the option and the value are pii
-                telemetryProperties[
-                    "unknownOption" + unknownOptionIndex + ".name"
-                ] = this.telemetryProperty(key, /* isPii*/ true);
-                telemetryProperties[
-                    "unknownOption" + unknownOptionIndex++ + ".value"
-                ] = this.telemetryProperty(value, /* isPii*/ true);
+                const property1 = `unknownOption${unknownOptionIndex}.name`;
+                const property2 = `unknownOption${unknownOptionIndex++}.value`;
+                // are you sure about this?
+                telemetryProperties[property1] = this.telemetryProperty(key, /* isPii*/ true);
+                telemetryProperties[property2] = this.telemetryProperty(value, /* isPii*/ true);
             }
         });
         return telemetryProperties;
@@ -283,7 +282,8 @@ export class TelemetryHelper {
         isPii: boolean,
     ): void {
         for (const [i, element] of propertyValue.entries()) {
-            TelemetryHelper.setTelemetryEventProperty(event, propertyName + i, element, isPii);
+            const property = propertyName + String(i);
+            TelemetryHelper.setTelemetryEventProperty(event, property, element, isPii);
         }
     }
 }

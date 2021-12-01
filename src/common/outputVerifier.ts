@@ -33,8 +33,14 @@ export class OutputVerifier {
 
     public async process(spawnResult: ISpawnResult): Promise<void> {
         // Store all output
-        this.store(spawnResult.stdout, newContent => (this.output += newContent));
-        this.store(spawnResult.stderr, newContent => (this.errors += newContent));
+        this.store(spawnResult.stdout, newContent => {
+            this.output += newContent;
+            return this.output;
+        });
+        this.store(spawnResult.stderr, newContent => {
+            this.errors += newContent;
+            return this.errors;
+        });
 
         let processError: InternalError | undefined;
 

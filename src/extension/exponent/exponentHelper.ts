@@ -72,12 +72,11 @@ export class ExponentHelper {
     }
 
     public async configureExponentEnvironment(): Promise<void> {
-        let isExpo: boolean;
         await this.lazilyInitialize();
         this.logger.logStream(
             localize("CheckingIfThisIsExpoApp", "Checking if this is an Expo app."),
         );
-        isExpo = await this.isExpoManagedApp(true);
+        const isExpo = await this.isExpoManagedApp(true);
         if (!isExpo) {
             if (!(await this.appHasExpoInstalled())) {
                 // Expo requires expo package to be installed inside RN application in order to be able to run it
@@ -469,8 +468,8 @@ var entryPoint = require('${entryPoint}');`;
         if (!this.hasInitialized) {
             this.hasInitialized = true;
             await this.preloadExponentDependency();
-            XDL.configReactNativeVersionWarnings();
-            XDL.attachLoggerStream(this.projectRootPath, {
+            void XDL.configReactNativeVersionWarnings();
+            void XDL.attachLoggerStream(this.projectRootPath, {
                 stream: {
                     write: (chunk: any) => {
                         if (chunk.level <= 30) {

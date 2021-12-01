@@ -75,7 +75,7 @@ export class SurveyService implements vscode.Disposable {
 
         if (this.surveyConfig.daysLeftBeforeSurvey === 0) {
             if (this.isCandidate()) {
-                this.promptDelayer.runWihtDelay(async () => {
+                void this.promptDelayer.runWihtDelay(async () => {
                     await this.showSurveyNotification();
                     this.surveyConfig.daysLeftBeforeSurvey = this.surveyConfig.longPeriodToRemind;
                     this.saveSurveyConfig(this.surveyConfig);
@@ -168,7 +168,7 @@ export class SurveyService implements vscode.Disposable {
             );
         }
         if (selection === giveFeedbackButtonText && this.surveyConfig.surveyUrl) {
-            vscode.env.openExternal(vscode.Uri.parse(this.surveyConfig.surveyUrl));
+            void vscode.env.openExternal(vscode.Uri.parse(this.surveyConfig.surveyUrl));
             this.sendSurveyNotificationReactionTelemetry(
                 this.surveyConfig.surveyName,
                 SurveyNotificationReaction.ACCEPT,

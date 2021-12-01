@@ -233,7 +233,7 @@ export class InspectorConsoleView extends InspectorView {
     }
 
     private getRequestDurationString(requestTimestamp: number, responseTimestamp: number): string {
-        return Math.abs(responseTimestamp - requestTimestamp) + "ms";
+        return String(Math.abs(responseTimestamp - requestTimestamp)) + "ms";
     }
 
     private prepareHeadersViewObject(headers: Header[]): Record<string, string> {

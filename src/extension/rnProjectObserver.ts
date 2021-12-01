@@ -160,6 +160,6 @@ export class RNProjectObserver {
     }
 
     private updateContextState(contextVarName: string, value: boolean) {
-        commands.executeCommand("setContext", contextVarName, value);
+        void commands.executeCommand("setContext", contextVarName, value);
     }
 }

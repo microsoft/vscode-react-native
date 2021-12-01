@@ -71,7 +71,7 @@ export class MacOSDebugModeManager extends ApplePlatformDebugModeManager {
         try {
             return await this.findPlistFile(configuration, productName);
         } catch (reason) {
-            this.logger.debug(`Failed one attempt to find plist file: ${reason}`);
+            this.logger.debug(`Failed one attempt to find plist file: ${String(reason)}`);
             return "";
         }
     }

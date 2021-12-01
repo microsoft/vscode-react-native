@@ -33,7 +33,7 @@ export class IWDPHelper {
                 reject(new Error("Unable to start ios_webkit_debug_proxy: " + err));
             });
             // Allow some time for the spawned process to error out
-            PromiseUtil.delay(250).then(() => resolve());
+            void PromiseUtil.delay(250).then(() => resolve());
         });
     }
 

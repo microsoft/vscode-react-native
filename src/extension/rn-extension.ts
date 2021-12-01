@@ -101,10 +101,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
             TipNotificationService.getInstance().updateTipsConfig();
         }
 
-        TipNotificationService.getInstance().showTipNotification();
+        void TipNotificationService.getInstance().showTipNotification();
 
         SurveyService.getInstance().setExtensionFirstTimeInstalled(extensionFirstTimeInstalled);
-        SurveyService.getInstance().promptSurvey();
+        void SurveyService.getInstance().promptSurvey();
     }
 
     outputChannelLogger.debug("Begin to activate...");
@@ -116,7 +116,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         Telemetry.APPINSIGHTS_INSTRUMENTATIONKEY,
     );
     const configProvider = (debugConfigProvider = new ReactNativeDebugConfigProvider());
-    const dymConfigProvider = (dynamicDebugConfigProvider = new ReactNativeDebugDynamicConfigProvider());
+    const dymConfigProvider = (dynamicDebugConfigProvider =
+        new ReactNativeDebugDynamicConfigProvider());
     const completionItemProviderInst = new LaunchJsonCompletionProvider();
     const workspaceFolders: readonly vscode.WorkspaceFolder[] | undefined =
         vscode.workspace.workspaceFolders;
@@ -231,7 +232,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 export function deactivate(): Promise<void> {
     return new Promise<void>(function (resolve) {
         // Kill any packager processes that we spawned
-        entryPointHandler.runFunction(
+        void entryPointHandler.runFunction(
             "extension.deactivate",
             ErrorHelper.getInternalError(InternalErrorCode.FailedToStopPackagerOnExit),
             () => {
@@ -241,7 +242,7 @@ export function deactivate(): Promise<void> {
                 if (dynamicDebugConfigProvider) {
                     dynamicDebugConfigProvider = null;
                 }
-                CommandPaletteHandler.stopAllPackagers()
+                void CommandPaletteHandler.stopAllPackagers()
                     .then(() => {
                         return CommandPaletteHandler.stopElementInspector();
                     })
@@ -265,7 +266,7 @@ function onChangeWorkspaceFolders(event: vscode.WorkspaceFoldersChangeEvent) {
 
     if (event.added.length) {
         event.added.forEach(folder => {
-            onFolderAdded(folder);
+            void onFolderAdded(folder);
         });
     }
 }
@@ -339,7 +340,7 @@ export async function onFolderAdded(folder: vscode.WorkspaceFolder): Promise<voi
 }
 
 function activateCommands(): void {
-    vscode.commands.executeCommand("setContext", CONTEXT_VARIABLES_NAMES.IS_RN_PROJECT, true);
+    void vscode.commands.executeCommand("setContext", CONTEXT_VARIABLES_NAMES.IS_RN_PROJECT, true);
 }
 
 function onFolderRemoved(folder: vscode.WorkspaceFolder): void {
@@ -380,7 +381,7 @@ function isSupportedVersion(version: string): boolean {
             "React Native Tools need React Native version 0.19.0 or later to be installed in <PROJECT_ROOT>/node_modules/",
         );
         const longMessage = `${shortMessage}: ${version}`;
-        vscode.window.showWarningMessage(shortMessage);
+        void vscode.window.showWarningMessage(shortMessage);
         outputChannelLogger.warning(longMessage);
         return false;
     }
@@ -700,7 +701,7 @@ function registerReactNativeSpecialCommands(): void {
 
 function showTwoVersionFoundNotification(): boolean {
     if (vscode.extensions.getExtension("msjsdiag.vscode-react-native")) {
-        vscode.window.showInformationMessage(
+        void vscode.window.showInformationMessage(
             localize(
                 "RNTTwoVersionsFound",
                 "React Native Tools: Both Stable and Preview extensions are installed. Stable will be used. Disable or remove it to work with Preview version.",
@@ -726,7 +727,7 @@ function cachedVersionExists(): boolean {
 function showChangelogNotificationOnUpdate(currentVersion: string) {
     const changelogFile = findFileInFolderHierarchy(__dirname, "CHANGELOG.md");
     if (changelogFile) {
-        vscode.window
+        void vscode.window
             .showInformationMessage(
                 localize(
                     "RNTHaveBeenUpdatedToVersion",
@@ -736,7 +737,7 @@ function showChangelogNotificationOnUpdate(currentVersion: string) {
                 localize("MoreDetails", "More details"),
             )
             .then(() => {
-                vscode.commands.executeCommand(
+                void vscode.commands.executeCommand(
                     "markdown.showPreview",
                     vscode.Uri.file(changelogFile),
                 );

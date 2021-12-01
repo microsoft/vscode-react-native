@@ -267,7 +267,9 @@ export class CertificateProvider {
 
         if (medium === "WWW") {
             return fsUtils.writeFileToFolder(certFolder, filename, contents).catch(e => {
-                throw new Error(`Failed to write ${filename} to temporary folder. Error: ${e}`);
+                throw new Error(
+                    `Failed to write ${filename} to temporary folder. Error: ${String(e)}`,
+                );
             });
         }
 
@@ -322,8 +324,9 @@ export class CertificateProvider {
                         });
                 }
                 throw new Error(
-                    `Invalid appDirectory recieved from ${os} device: ${destination}: ` +
+                    `Invalid appDirectory recieved from ${os} device: ${destination}: ${String(
                         err.toString(),
+                    )}`,
                 );
             });
         }
@@ -339,7 +342,7 @@ export class CertificateProvider {
     ): Promise<void> {
         return tmp.dir({ unsafeCleanup: true }).then(dir => {
             const filePath = path.resolve(dir.path, filename);
-            fs.promises
+            void fs.promises
                 .writeFile(filePath, contents)
                 .then(() => iosUtil.push(udid, filePath, bundleId, destination, this.logger));
         });
@@ -435,10 +438,9 @@ export class CertificateProvider {
             .then(deviceCsr => {
                 // Santitize both of the string before comparation
                 // The csr string extraction on client side return string in both way
-                const [sanitizedDeviceCsr, sanitizedClientCsr] = [
-                    deviceCsr.toString(),
-                    csr,
-                ].map(s => this.santitizeString(s));
+                const [sanitizedDeviceCsr, sanitizedClientCsr] = [deviceCsr.toString(), csr].map(
+                    s => this.santitizeString(s),
+                );
                 const isMatch = sanitizedDeviceCsr === sanitizedClientCsr;
                 return { isMatch: isMatch, foundCsr: sanitizedDeviceCsr };
             });

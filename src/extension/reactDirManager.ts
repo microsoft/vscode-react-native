@@ -36,7 +36,7 @@ export class ReactDirManager implements vscode.Disposable {
 
     public dispose(): void {
         this.isDisposed = true;
-        new EntryPointHandler(
+        void new EntryPointHandler(
             ProcessType.Extension,
             OutputChannelLogger.getMainChannel(),
         ).runFunction(

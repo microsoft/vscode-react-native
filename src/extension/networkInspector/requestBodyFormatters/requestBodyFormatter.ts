@@ -52,7 +52,9 @@ export class RequestBodyFormatter {
                 }
             } catch (err) {
                 this.logger.debug(
-                    `RequestBodyFormatter exception from ${formatter.constructor.name} ${err.message}`,
+                    `RequestBodyFormatter exception from ${formatter.constructor.name} ${String(
+                        err.message,
+                    )}`,
                 );
             }
         }
@@ -106,7 +108,7 @@ export function decodeBody(container: Request | Response, logger?: OutputChannel
         logger?.debug(
             `Network inspector failed to decode request/response body (size: ${
                 container.data.length
-            }): ${err.toString()}`,
+            }): ${String(err.toString())}`,
         );
         return "";
     }

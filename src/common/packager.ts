@@ -205,19 +205,14 @@ export class Packager {
             ).spawnReactPackager(args, spawnOptions);
             this.packagerProcess = packagerSpawnResult.spawnedProcess;
 
-            /* eslint-disable @typescript-eslint/no-empty-function */
-            packagerSpawnResult.outcome.then(
-                () => {},
-                () => {},
-            ); // We ignore all outcome errors
-            /* eslint-enable @typescript-eslint/no-empty-function */
+            packagerSpawnResult.outcome.catch(() => {}); // We ignore all outcome errors
         }
 
         await this.awaitStart();
         if (executedStartPackagerCmd) {
             this.logger.info(localize("PackagerStarted", "Packager started."));
             this.packagerStatus = PackagerStatus.PACKAGER_STARTED;
-            vscode.commands.executeCommand(
+            void vscode.commands.executeCommand(
                 "setContext",
                 CONTEXT_VARIABLES_NAMES.IS_RN_PACKAGER_RUNNING,
                 true,
@@ -271,7 +266,7 @@ export class Packager {
             successfullyStopped = true;
         }
         this.setPackagerStopStateUI();
-        vscode.commands.executeCommand(
+        void vscode.commands.executeCommand(
             "setContext",
             CONTEXT_VARIABLES_NAMES.IS_RN_PACKAGER_RUNNING,
             false,
@@ -365,8 +360,10 @@ export class Packager {
 
     private async findOpnPackage(ReactNativeVersion: string): Promise<string> {
         try {
-            let OPN_PACKAGE_NAME: string;
-            OPN_PACKAGE_NAME = semver.gte(ReactNativeVersion, Packager.RN_VERSION_WITH_OPEN_PKG)
+            const OPN_PACKAGE_NAME = semver.gte(
+                ReactNativeVersion,
+                Packager.RN_VERSION_WITH_OPEN_PKG,
+            )
                 ? Packager.OPN_PACKAGE_NAME.new
                 : Packager.OPN_PACKAGE_NAME.old;
 
@@ -411,22 +408,23 @@ export class Packager {
     }
 
     private async monkeyPatchOpnForRNPackager(ReactNativeVersion: string): Promise<void> {
-        let opnPackage: Package;
-        let destnFilePath: string;
-
         // Finds the 'opn' or 'open' package
         const opnIndexFilePath = await this.findOpnPackage(ReactNativeVersion);
-        destnFilePath = opnIndexFilePath;
+        const destnFilePath = opnIndexFilePath;
         // Read the package's "package.json"
-        opnPackage = new Package(path.resolve(path.dirname(destnFilePath)));
+        const opnPackage = new Package(path.resolve(path.dirname(destnFilePath)));
 
         const packageJson = await opnPackage.parsePackageInformation();
-        let JS_INJECTOR_FILEPATH: string;
-        let JS_INJECTOR_FILENAME: string;
-        JS_INJECTOR_FILENAME = semver.gte(ReactNativeVersion, Packager.RN_VERSION_WITH_OPEN_PKG)
+        const JS_INJECTOR_FILENAME = semver.gte(
+            ReactNativeVersion,
+            Packager.RN_VERSION_WITH_OPEN_PKG,
+        )
             ? Packager.JS_INJECTOR_FILENAME.new
             : Packager.JS_INJECTOR_FILENAME.old;
-        JS_INJECTOR_FILEPATH = path.resolve(Packager.JS_INJECTOR_DIRPATH, JS_INJECTOR_FILENAME);
+        const JS_INJECTOR_FILEPATH = path.resolve(
+            Packager.JS_INJECTOR_DIRPATH,
+            JS_INJECTOR_FILENAME,
+        );
         if (packageJson.main !== JS_INJECTOR_FILENAME) {
             // Copy over the patched 'opn' main file
             await new FileSystem().copyFile(

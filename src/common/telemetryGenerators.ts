@@ -120,7 +120,8 @@ export abstract class TelemetryGeneratorBase {
         // Object is an array, we add each element as baseNameNNN
         let elementIndex = 1; // We send telemetry properties in a one-based index
         array.forEach((element: any) =>
-            this.addWithPiiEvaluator(baseName + elementIndex++, element, piiEvaluator),
+            // are sure about this?
+            this.addWithPiiEvaluator(baseName + String(elementIndex++), element, piiEvaluator),
         );
     }
 

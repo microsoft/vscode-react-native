@@ -19,8 +19,7 @@ export class ReactNativeSessionManager
         executable: vscode.DebugAdapterExecutable | undefined,
     ): vscode.ProviderResult<vscode.DebugAdapterDescriptor> {
         const debugServer = Net.createServer(socket => {
-            let rnDebugSession: DebugSessionBase;
-            rnDebugSession =
+            const rnDebugSession =
                 session.type === DEBUG_TYPES.REACT_NATIVE
                     ? new RNDebugSession(session)
                     : new DirectDebugSession(session);

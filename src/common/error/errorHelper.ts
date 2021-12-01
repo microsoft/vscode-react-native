@@ -56,7 +56,7 @@ export class ErrorHelper {
 
         let result: string = <string>errorMessage;
         for (const [i, optionalArg] of optionalArgs.entries()) {
-            result = result.replace(new RegExp("\\{" + i + "\\}", "g"), optionalArg);
+            result = result.replace(new RegExp(`\\{${i}\\}`, "g"), optionalArg);
         }
 
         return result;

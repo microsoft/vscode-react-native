@@ -258,7 +258,9 @@ export class CommandPaletteHandler {
     }
 
     public static async runWindows(): Promise<void> {
-        TipNotificationService.getInstance().setKnownDateForFeatureById("debuggingRNWAndMacOSApps");
+        void TipNotificationService.getInstance().setKnownDateForFeatureById(
+            "debuggingRNWAndMacOSApps",
+        );
         const additionalPackagesToCheck: ParsedPackage[] = [
             REACT_NATIVE_PACKAGES.REACT_NATIVE_WINDOWS,
         ];
@@ -284,7 +286,9 @@ export class CommandPaletteHandler {
     }
 
     public static async runMacOS(): Promise<void> {
-        TipNotificationService.getInstance().setKnownDateForFeatureById("debuggingRNWAndMacOSApps");
+        void TipNotificationService.getInstance().setKnownDateForFeatureById(
+            "debuggingRNWAndMacOSApps",
+        );
         const additionalPackagesToCheck: ParsedPackage[] = [
             REACT_NATIVE_PACKAGES.REACT_NATIVE_MACOS,
         ];
@@ -349,9 +353,10 @@ export class CommandPaletteHandler {
             .catch(() => {}); // Ignore any errors
         if (process.platform === "win32") {
             const nodeModulesRoot = appLauncher.getOrUpdateNodeModulesRoot();
-            ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(nodeModulesRoot, [
-                REACT_NATIVE_PACKAGES.REACT_NATIVE_WINDOWS,
-            ]).then(RNPackageVersions => {
+            void ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
+                nodeModulesRoot,
+                [REACT_NATIVE_PACKAGES.REACT_NATIVE_WINDOWS],
+            ).then(RNPackageVersions => {
                 const isRNWProject = !ProjectVersionHelper.isVersionError(
                     RNPackageVersions.reactNativeWindowsVersion,
                 );
@@ -379,7 +384,7 @@ export class CommandPaletteHandler {
     }
 
     public static async runElementInspector(): Promise<void> {
-        TipNotificationService.getInstance().setKnownDateForFeatureById("elementInspector");
+        void TipNotificationService.getInstance().setKnownDateForFeatureById("elementInspector");
 
         if (!CommandPaletteHandler.elementInspector) {
             // Remove the following env variables to prevent running electron app in node mode.
@@ -417,7 +422,7 @@ export class CommandPaletteHandler {
     public static stopElementInspector(): void {
         return CommandPaletteHandler.elementInspector
             ? CommandPaletteHandler.elementInspector.kill()
-            : void 0;
+            : undefined;
     }
 
     public static async startNetworkInspector(): Promise<void> {
@@ -444,7 +449,7 @@ export class CommandPaletteHandler {
                 }
                 await androidDeviceTracker.start();
                 await networkInspector.start(adbHelper);
-                vscode.commands.executeCommand(
+                void vscode.commands.executeCommand(
                     "setContext",
                     CONTEXT_VARIABLES_NAMES.IS_RNT_NETWORK_INSPECTOR_RUNNING,
                     true,
@@ -473,7 +478,7 @@ export class CommandPaletteHandler {
             CommandPaletteHandler.networkInspectorModule = null;
             InspectorViewFactory.clearCache();
         }
-        vscode.commands.executeCommand(
+        void vscode.commands.executeCommand(
             "setContext",
             CONTEXT_VARIABLES_NAMES.IS_RNT_NETWORK_INSPECTOR_RUNNING,
             false,
@@ -499,7 +504,7 @@ export class CommandPaletteHandler {
     }
 
     public static async startLogCatMonitor(): Promise<void> {
-        TipNotificationService.getInstance().setKnownDateForFeatureById("logCatMonitor");
+        void TipNotificationService.getInstance().setKnownDateForFeatureById("logCatMonitor");
         const appLauncher = await this.selectProject();
         const projectPath = appLauncher.getPackager().getProjectPath();
         const nodeModulesRoot: string = appLauncher.getOrUpdateNodeModulesRoot();
@@ -522,7 +527,7 @@ export class CommandPaletteHandler {
                     ),
                 );
         } else {
-            vscode.window.showErrorMessage(
+            void vscode.window.showErrorMessage(
                 localize(
                     "OnlineAndroidDeviceNotFound",
                     "Could not find a proper online Android device to start a LogCat monitor",
@@ -589,7 +594,7 @@ export class CommandPaletteHandler {
         const debugConfig = debugConfigurations[debugConfigName];
         if (debugConfig) {
             debugConfig.isDynamic = true;
-            vscode.debug.startDebugging(appLauncher.getWorkspaceFolder(), debugConfig);
+            void vscode.debug.startDebugging(appLauncher.getWorkspaceFolder(), debugConfig);
         } else {
             throw new Error(
                 localize(
@@ -668,7 +673,7 @@ export class CommandPaletteHandler {
                 // Execute the operation
                 await operation();
             } else {
-                vscode.window.showErrorMessage(
+                void vscode.window.showErrorMessage(
                     `${projectRoot} workspace is not a React Native project.`,
                 );
             }
@@ -698,7 +703,7 @@ export class CommandPaletteHandler {
             response.url,
         );
         CommandPaletteHandler.logger.info(publishedOutput);
-        vscode.window.showInformationMessage(publishedOutput);
+        void vscode.window.showInformationMessage(publishedOutput);
         return true;
     }
 

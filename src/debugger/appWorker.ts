@@ -365,7 +365,7 @@ function fetch(url) {
                 });
                 if (!this.cancellationToken.isCancellationRequested) {
                     setTimeout(() => {
-                        this.start(true /* retryAttempt */);
+                        void this.start(true /* retryAttempt */);
                     }, 100);
                 }
             });
@@ -385,7 +385,7 @@ function fetch(url) {
 
             // In an attempt to catch failures in starting the packager on first attempt,
             // wait for 300 ms before resolving the promise
-            PromiseUtil.delay(300).then(() => resolve());
+            void PromiseUtil.delay(300).then(() => resolve());
         });
     }
 
@@ -469,7 +469,7 @@ function fetch(url) {
             logger.verbose(`To RN APP: ${stringified}`);
             this.socketToApp.send(stringified);
         } catch (exception) {
-            const messageToShow = stringified || "" + message; // Try to show the stringified version, but show the toString if unavailable
+            const messageToShow = stringified || String(message); // Try to show the stringified version, but show the toString if unavailable
             printDebuggingError(
                 ErrorHelper.getInternalError(
                     InternalErrorCode.FailedToSendMessageToTheReactNativeApp,

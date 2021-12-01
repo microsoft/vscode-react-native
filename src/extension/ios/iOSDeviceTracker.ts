@@ -119,7 +119,9 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
             (err, stdout, stderr) => {
                 if (!err?.killed) {
                     this.logger.error(
-                        `Port forwarding app failed to start: ${err?.message}, ${stdout}, ${stderr}`,
+                        `Port forwarding app failed to start: ${String(
+                            err?.message,
+                        )}, ${stdout}, ${stderr}`,
                     );
                 }
             },
@@ -129,7 +131,7 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
             this.logger.error("Port forwarding app error", err);
         });
         childProcess.addListener("exit", code => {
-            this.logger.debug(`Port forwarding app exited with code ${code}`);
+            this.logger.debug(`Port forwarding app exited with code ${String(code)}`);
         });
         return childProcess;
     }

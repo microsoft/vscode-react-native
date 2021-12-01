@@ -95,7 +95,7 @@ export class CommandExecutor {
         if (packagerProcess) {
             if (HostPlatform.getPlatformId() === HostPlatformId.WINDOWS) {
                 const res = await this.childProcess.exec(
-                    "taskkill /pid " + packagerProcess.pid + " /T /F",
+                    `taskkill /pid ${packagerProcess.pid} /T /F`,
                 );
                 await res.outcome;
             } else {
@@ -129,10 +129,11 @@ export class CommandExecutor {
     public async spawnWithProgress(
         command: string,
         args: string[],
-        options: Options = { verbosity: CommandVerbosity.OUTPUT },
+        options_: Options,
     ): Promise<void> {
-        const spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options);
-        const commandWithArgs = command + " " + args.join(" ");
+        const options = Object.assign(options_, { verbosity: CommandVerbosity.OUTPUT });
+        const spawnOptions = { cwd: this.currentWorkingDirectory, ...options };
+        const commandWithArgs = `${command} ${args.join(" ")}`;
         const timeBetweenDots = 1500;
         let lastDotTime = 0;
 

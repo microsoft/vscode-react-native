@@ -51,8 +51,7 @@ export class PromiseUtil {
         sources: T[] | Promise<T[]>,
         generateAsyncOperation: (value: T) => Promise<void>,
     ): Promise<void> {
-        let arraySources: T[];
-        arraySources = sources instanceof Promise ? await sources : sources;
+        const arraySources: T[] = sources instanceof Promise ? await sources : sources;
 
         return arraySources.reduce(async (previousReduction: Promise<void>, newSource: T) => {
             await previousReduction;
@@ -113,10 +112,10 @@ export class PromiseUtil {
         func: (...args: any[]) => Promise<T>,
         context: Record<string, any> | null = null,
     ): (...args: any[]) => Promise<T> {
-        let promise: Promise<T>;
+        let promise: Promise<T> | undefined;
         return (...args: any[]): Promise<T> => {
             if (!promise) {
-                promise = func.apply(context, args);
+                promise = func.apply(context, args) as Promise<T>;
             }
             return promise;
         };

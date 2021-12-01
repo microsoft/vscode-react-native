@@ -232,7 +232,7 @@ export class TipNotificationService implements vscode.Disposable {
                     path.normalize(`file://${readmeFile}${anchorLink}`),
                 );
 
-                vscode.commands.executeCommand("markdown.showPreview", uriFile);
+                void vscode.commands.executeCommand("markdown.showPreview", uriFile);
             }
         }
 

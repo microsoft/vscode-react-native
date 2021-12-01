@@ -55,7 +55,7 @@ export async function isXcodeDetected(): Promise<boolean> {
         .then(stdout => {
             return fs.existsSync(stdout.trim());
         })
-        .catch(_ => false);
+        .catch(() => false);
 }
 
 async function queryTargetsWithoutXcodeDependency(

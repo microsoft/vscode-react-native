@@ -115,9 +115,9 @@ export class ForkedAppWorker implements IDebuggeeWorker {
             );
             this.logWriteStream.on("error", err => {
                 logger.error(
-                    `Error creating log file at path: ${
-                        this.logDirectory
-                    }. Error: ${err.toString()}\n`,
+                    `Error creating log file at path: ${String(this.logDirectory)}. Error: ${String(
+                        err.toString(),
+                    )}\n`,
                 );
             });
             this.debuggeeProcess.stdout.pipe(this.logWriteStream);
@@ -138,7 +138,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
 
     public async postMessage(rnMessage: RNAppMessage): Promise<RNAppMessage> {
         // Before sending messages, make sure that the worker is loaded
-        await new Promise(resolve => {
+        await new Promise<void>(resolve => {
             if (this.workerLoaded) {
                 resolve();
             } else {
@@ -170,10 +170,10 @@ export class ForkedAppWorker implements IDebuggeeWorker {
                         url: url.format(packagerUrl),
                     };
                     logger.verbose(
-                        `Packager requested runtime to load script from ${rnMessage.url}`,
+                        `Packager requested runtime to load script from ${String(rnMessage.url)}`,
                     );
                     const downloadedScript = await this.scriptImporter.downloadAppScript(
-                        <string>rnMessage.url,
+                        rnMessage.url as string,
                         this.projectRootPath,
                     );
                     this.bundleLoaded = Promise.resolve();

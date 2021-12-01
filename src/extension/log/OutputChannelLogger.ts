@@ -66,9 +66,9 @@ export class OutputChannelLogger implements ILogger {
             this.channelLogFileStream = fs.createWriteStream(this.channelLogFilePath);
             this.channelLogFileStream.on("error", err => {
                 this.error(
-                    `Error writing to log file at path: ${
-                        this.channelLogFilePath
-                    }. Error: ${err.toString()}\n`,
+                    `Error writing to log file at path: ${String(
+                        this.channelLogFilePath,
+                    )}. Error: ${String(err.toString())}\n`,
                 );
             });
         }
@@ -130,10 +130,10 @@ export class OutputChannelLogger implements ILogger {
         }
 
         // Print the error stack if necessary
-        if (logStack && error && (<Error>error).stack) {
-            this.channel.appendLine(`Stack: ${(<Error>error).stack}`);
+        if (logStack && error && error.stack) {
+            this.channel.appendLine(`Stack: ${error.stack}`);
             if (this.channelLogFileStream) {
-                this.channelLogFileStream.write(`Stack: ${(<Error>error).stack}`);
+                this.channelLogFileStream.write(`Stack: ${error.stack}`);
             }
         }
     }

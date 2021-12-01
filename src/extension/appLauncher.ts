@@ -193,7 +193,7 @@ export class AppLauncher {
 
     public dispose(): void {
         this.packager.getStatusIndicator().dispose();
-        this.packager.stop(true);
+        void this.packager.stop(true);
         this.mobilePlatform.dispose();
     }
 

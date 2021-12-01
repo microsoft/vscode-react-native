@@ -73,6 +73,7 @@ export class SourceMapUtil {
                     return value.map != null;
                 });
 
+                // eslint-disable-next-line @typescript-eslint/no-var-requires
                 sourceMap = require("flatten-source-map")(sourceMap);
             }
 

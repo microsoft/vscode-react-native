@@ -225,11 +225,10 @@ export class ProjectVersionHelper {
     public static processVersion(version: string, useSemverCoerce: boolean = true): string {
         try {
             return new URL(version) && `${this.SEMVER_INVALID}: URL`;
-        } catch (err) {
-            let versionObj;
+        } catch {
             // As some of 'react-native-windows' versions contain postfixes we cannot use 'coerce' function to parse them
             // as some critical parts of the version string will be dropped. To save this information we use 'clean' function
-            versionObj = useSemverCoerce
+            const versionObj = useSemverCoerce
                 ? semver.coerce(version)
                 : semver.clean(version.replace(/[<>^~]/g, ""), { loose: true });
             return (versionObj && versionObj.toString()) || this.SEMVER_INVALID;

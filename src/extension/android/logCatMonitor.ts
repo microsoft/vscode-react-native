@@ -44,7 +44,9 @@ export class LogCatMonitor implements vscode.Disposable {
         const logCatArguments = this.getLogCatArguments();
         const adbParameters = ["-s", this.deviceId, "logcat"].concat(logCatArguments);
         this._logger.debug(
-            `Monitoring LogCat for device ${this.deviceId} with arguments: ${logCatArguments}`,
+            `Monitoring LogCat for device ${this.deviceId} with arguments: ${String(
+                logCatArguments,
+            )}`,
         );
 
         this._logCatSpawn = this.adbHelper.startLogCat(adbParameters);
@@ -99,7 +101,7 @@ export class LogCatMonitor implements vscode.Disposable {
         // We use the setting if it's defined, or the defaults if it's not
         return this.isNullOrUndefined(this._userProvidedLogCatArguments) // "" is a valid value, so we can't just if () this
             ? LogCatMonitor.DEFAULT_PARAMETERS
-            : ("" + this._userProvidedLogCatArguments).split(" "); // Parse string and split into string[]
+            : String(this._userProvidedLogCatArguments).split(" "); // Parse string and split into string[]
     }
 
     private isNullOrUndefined(value: any): boolean {

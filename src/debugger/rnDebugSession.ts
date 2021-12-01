@@ -178,7 +178,7 @@ export class RNDebugSession extends DebugSessionBase {
                         ) {
                             if (this.nodeSession) {
                                 this.debugSessionStatus = DebugSessionStatus.ConnectionPending;
-                                this.nodeSession.customRequest(this.terminateCommand);
+                                void this.nodeSession.customRequest(this.terminateCommand);
                             }
                         }
                     });
@@ -275,7 +275,7 @@ export class RNDebugSession extends DebugSessionBase {
             if (this.debugSessionStatus === DebugSessionStatus.ConnectionPending) {
                 this.establishDebugSession(this.previousAttachArgs);
             } else {
-                vscode.commands.executeCommand(this.stopCommand, this.session);
+                void vscode.commands.executeCommand(this.stopCommand, this.session);
             }
         }
     }

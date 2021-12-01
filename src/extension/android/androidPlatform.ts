@@ -336,7 +336,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         if (apiVersion >= AndroidAPILevel.LOLLIPOP) {
             // If we support adb reverse
             try {
-                this.adbHelper.reverseAdb(deviceId, Number(this.runOptions.packagerPort));
+                void this.adbHelper.reverseAdb(deviceId, Number(this.runOptions.packagerPort));
             } catch (error) {
                 // "adb reverse" command could work incorrectly with remote devices, then skip the error and try to go on
                 if (
