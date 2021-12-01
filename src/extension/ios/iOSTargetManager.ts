@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { ChildProcess } from "../../common/node/childProcess";
-import { waitUntil } from "../../common/utils";
+import { PromiseUtil } from "../../common/node/promise";
 import { IDebuggableMobileTarget, MobileTarget } from "../mobileTarget";
 import { MobileTargetManager } from "../mobileTargetManager";
 import * as nls from "vscode-nls";
@@ -250,7 +250,7 @@ export class IOSTargetManager extends MobileTargetManager {
                 return onlineTarget ? true : null;
             };
 
-            return waitUntil<boolean>(
+            return PromiseUtil.waitUntil<boolean>(
                 condition,
                 1000,
                 IOSTargetManager.SIMULATOR_START_TIMEOUT * 1000,

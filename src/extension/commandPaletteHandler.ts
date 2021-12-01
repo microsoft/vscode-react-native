@@ -41,7 +41,7 @@ import { InspectorViewFactory } from "./networkInspector/views/inspectorViewFact
 import { WindowsPlatform } from "./windows/windowsPlatform";
 import { CONTEXT_VARIABLES_NAMES } from "../common/contextVariablesNames";
 import { MacOSPlatform } from "./macos/macOSPlatform";
-import { TipNotificationService } from "../extension/tipsNotificationsService/tipsNotificationService";
+import { TipNotificationService } from "./services/tipsNotificationsService/tipsNotificationService";
 import { debugConfigurations } from "./debuggingConfiguration/debugConfigTypesAndConstants";
 import { AndroidTargetManager } from "./android/androidTargetManager";
 import { IOSTargetManager } from "./ios/iOSTargetManager";
