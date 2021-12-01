@@ -73,7 +73,7 @@ export const runChecks = async (
         .every(it => it.status === "success");
 
     if (allPassed) {
-        outStr += `\nAll the checks passed successfully!`;
+        outStr += `\nAll checks passed successfully!`;
     }
 
     outputChannel.logStream(outStr);
