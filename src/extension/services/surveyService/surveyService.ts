@@ -9,6 +9,7 @@ import { TelemetryHelper } from "../../../common/telemetryHelper";
 import { Telemetry } from "../../../common/telemetry";
 import { areSameDates, getRandomIntInclusive } from "../../../common/utils";
 import { Delayer } from "../../../common/node/promise";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,

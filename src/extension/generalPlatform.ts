@@ -9,6 +9,7 @@ import { PackagerStatusIndicator, PackagerStatus } from "./packagerStatusIndicat
 import { SettingsHelper } from "./settingsHelper";
 import { OutputChannelLogger } from "./log/OutputChannelLogger";
 import { RNProjectObserver } from "./rnProjectObserver";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -250,8 +251,7 @@ export class GeneralPlatform {
             });
 
             return result;
-        } else {
-            return null;
         }
+        return null;
     }
 }

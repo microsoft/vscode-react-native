@@ -9,6 +9,7 @@ import { IDebuggableMobileTarget, MobileTarget } from "../mobileTarget";
 import { MobileTargetManager } from "../mobileTargetManager";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { TargetType } from "../generalPlatform";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -153,18 +154,16 @@ export class IOSTargetManager extends MobileTargetManager {
                 return false;
             } else if (targetString === TargetType.Simulator) {
                 return true;
-            } else {
-                const target = (
-                    await this.getTargetList(
-                        target => target.id === targetString || target.name === targetString,
-                    )
-                )[0];
-                if (target) {
-                    return target.isVirtualTarget;
-                } else {
-                    throw Error("There is no any target with specified target string");
-                }
             }
+            const target = (
+                await this.getTargetList(
+                    target => target.id === targetString || target.name === targetString,
+                )
+            )[0];
+            if (target) {
+                return target.isVirtualTarget;
+            }
+            throw Error("There is no any target with specified target string");
         } catch {
             throw new Error(
                 localize(

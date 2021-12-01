@@ -53,16 +53,14 @@ export class AndroidTargetManager extends MobileTargetManager {
                 target.match(AdbHelper.AndroidSDKEmulatorPattern)
             ) {
                 return true;
-            } else {
-                const onlineTarget = await this.adbHelper.findOnlineTargetById(target);
-                if (onlineTarget) {
-                    return onlineTarget.isVirtualTarget;
-                } else if ((await this.adbHelper.getAvdsNames()).includes(target)) {
-                    return true;
-                } else {
-                    throw new Error("There is no such target");
-                }
             }
+            const onlineTarget = await this.adbHelper.findOnlineTargetById(target);
+            if (onlineTarget) {
+                return onlineTarget.isVirtualTarget;
+            } else if ((await this.adbHelper.getAvdsNames()).includes(target)) {
+                return true;
+            }
+            throw new Error("There is no such target");
         } catch (error) {
             throw ErrorHelper.getNestedError(
                 error,
@@ -79,10 +77,9 @@ export class AndroidTargetManager extends MobileTargetManager {
         if (selectedTarget) {
             if (!selectedTarget.isOnline && selectedTarget.isVirtualTarget) {
                 return this.launchSimulator(selectedTarget);
-            } else {
-                if (selectedTarget.id) {
-                    return AndroidTarget.fromInterface(<IDebuggableMobileTarget>selectedTarget);
-                }
+            }
+            if (selectedTarget.id) {
+                return AndroidTarget.fromInterface(<IDebuggableMobileTarget>selectedTarget);
             }
         }
         return undefined;
@@ -97,9 +94,11 @@ export class AndroidTargetManager extends MobileTargetManager {
             if (collectSimulators) {
                 const emulatorsNames: string[] = await this.adbHelper.getAvdsNames();
                 targetList.push(
-                    ...emulatorsNames.map(name => {
-                        return { name, isOnline: false, isVirtualTarget: true };
-                    }),
+                    ...emulatorsNames.map(name => ({
+                        name,
+                        isOnline: false,
+                        isVirtualTarget: true,
+                    })),
                 );
             }
         } catch (error) {

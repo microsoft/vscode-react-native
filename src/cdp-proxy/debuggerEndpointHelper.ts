@@ -3,7 +3,9 @@
 
 import * as URL from "url";
 import * as ipModule from "ip";
+
 const dns = require("dns").promises;
+
 import * as http from "http";
 import * as https from "https";
 import { CancellationToken } from "vscode";

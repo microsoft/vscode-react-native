@@ -18,6 +18,7 @@ import {
 } from "../extension/debuggingConfiguration/debugConfigTypesAndConstants";
 import { IWDPHelper } from "../debugger/direct/IWDPHelper";
 import { Packager } from "./packager";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,

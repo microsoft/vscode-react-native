@@ -16,6 +16,7 @@ import iosUtil from "../ios/iOSContainerUtility";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { NETWORK_INSPECTOR_LOG_CHANNEL_NAME } from "./networkInspectorServer";
 import { ClientOS } from "./clientUtils";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -92,15 +93,13 @@ export class CertificateProvider {
     }
 
     public loadSecureServerConfig(): Promise<SecureServerConfig> {
-        return this.certificateSetup.then(() => {
-            return {
-                key: fs.readFileSync(serverKey),
-                cert: fs.readFileSync(serverCert),
-                ca: fs.readFileSync(caCert),
-                requestCert: true,
-                rejectUnauthorized: true, // can be false if necessary as we don't strictly need to verify the client
-            };
-        });
+        return this.certificateSetup.then(() => ({
+            key: fs.readFileSync(serverKey),
+            cert: fs.readFileSync(serverCert),
+            ca: fs.readFileSync(caCert),
+            requestCert: true,
+            rejectUnauthorized: true, // can be false if necessary as we don't strictly need to verify the client
+        }));
     }
 
     public async processCertificateSigningRequest(
@@ -141,19 +140,15 @@ export class CertificateProvider {
                     certFolder,
                 ),
             )
-            .then(() => {
-                return this.extractAppNameFromCSR(csr);
-            })
-            .then(appName => {
-                return medium === "FS_ACCESS"
+            .then(() => this.extractAppNameFromCSR(csr))
+            .then(appName =>
+                medium === "FS_ACCESS"
                     ? this.getTargetDeviceId(os, appName, appDirectory, csr)
-                    : uuid();
-            })
-            .then(deviceId => {
-                return {
-                    deviceId,
-                };
-            });
+                    : uuid(),
+            )
+            .then(deviceId => ({
+                deviceId,
+            }));
     }
 
     public extractAppNameFromCSR(csr: string): Promise<string> {
@@ -165,21 +160,20 @@ export class CertificateProvider {
                     subject: true,
                     nameopt: true,
                     RFC2253: false,
-                }).then(subject => {
-                    return [path, subject];
-                }),
+                }).then(subject => [path, subject]),
             )
-            .then(([path, subject]) => {
-                return new Promise<string>(function (resolve, reject) {
-                    fs.unlink(path, err => {
-                        if (err) {
-                            reject(err);
-                        } else {
-                            resolve(subject);
-                        }
-                    });
-                });
-            })
+            .then(
+                ([path, subject]) =>
+                    new Promise<string>((resolve, reject) => {
+                        fs.unlink(path, err => {
+                            if (err) {
+                                reject(err);
+                            } else {
+                                resolve(subject);
+                            }
+                        });
+                    }),
+            )
             .then(subject => {
                 const matches = subject.trim().match(x509SubjectCNRegex);
                 if (!matches || matches.length < 2) {
@@ -234,16 +228,16 @@ export class CertificateProvider {
     }
 
     private generateClientCertificate(csr: string): Promise<string> {
-        return this.writeToTempFile(csr).then(path => {
-            return openssl("x509", {
+        return this.writeToTempFile(csr).then(path =>
+            openssl("x509", {
                 req: true,
                 in: path,
                 CA: caCert,
                 CAkey: caKey,
                 CAcreateserial: true,
                 CAserial: serverSrl,
-            });
-        });
+            }),
+        );
     }
 
     private getRelativePathInAppContainer(absolutePath: string) {
@@ -306,11 +300,9 @@ export class CertificateProvider {
                     // Writing directly to FS failed. It's probably a physical device.
                     const relativePathInsideApp = this.getRelativePathInAppContainer(destination);
                     return appNamePromise
-                        .then(appName => {
-                            return this.getTargetiOSDeviceId(appName, destination, csr);
-                        })
-                        .then(udid => {
-                            return appNamePromise.then(appName =>
+                        .then(appName => this.getTargetiOSDeviceId(appName, destination, csr))
+                        .then(udid =>
+                            appNamePromise.then(appName =>
                                 this.pushFileToiOSDevice(
                                     udid,
                                     appName,
@@ -318,8 +310,8 @@ export class CertificateProvider {
                                     filename,
                                     contents,
                                 ),
-                            );
-                        });
+                            ),
+                        );
                 }
                 throw new Error(
                     `Invalid appDirectory recieved from ${os} device: ${destination}: ` +
@@ -356,9 +348,7 @@ export class CertificateProvider {
             }
             const deviceMatchList = devices.map(device =>
                 this.androidDeviceHasMatchingCSR(deviceCsrFilePath, device.id, appName, csr)
-                    .then(result => {
-                        return { id: device.id, ...result, error: null };
-                    })
+                    .then(result => ({ id: device.id, ...result, error: null }))
                     .catch(e => {
                         this.logger.error(
                             `Unable to check for matching CSR in ${device.id}:${appName}`,
@@ -408,11 +398,12 @@ export class CertificateProvider {
                 throw new Error("No iOS devices found");
             }
             const deviceMatchList = targets.map(target =>
-                this.iOSDeviceHasMatchingCSR(deviceCsrFilePath, target.id, appName, csr).then(
-                    isMatch => {
-                        return { id: target.id, isMatch };
-                    },
-                ),
+                this.iOSDeviceHasMatchingCSR(
+                    deviceCsrFilePath,
+                    target.id,
+                    appName,
+                    csr,
+                ).then(isMatch => ({ id: target.id, isMatch })),
             );
             return Promise.all(deviceMatchList).then(devices => {
                 const matchingIds = devices.filter(m => m.isMatch).map(m => m.id);
@@ -440,7 +431,7 @@ export class CertificateProvider {
                     csr,
                 ].map(s => this.santitizeString(s));
                 const isMatch = sanitizedDeviceCsr === sanitizedClientCsr;
-                return { isMatch: isMatch, foundCsr: sanitizedDeviceCsr };
+                return { isMatch, foundCsr: sanitizedDeviceCsr };
             });
     }
 
@@ -455,8 +446,8 @@ export class CertificateProvider {
         );
         return tmp
             .dir({ unsafeCleanup: true })
-            .then(dir => {
-                return iosUtil
+            .then(dir =>
+                iosUtil
                     .pull(
                         deviceId,
                         originalFile,
@@ -464,10 +455,10 @@ export class CertificateProvider {
                         path.join(dir.path, csrFileName),
                         this.logger,
                     )
-                    .then(() => dir);
-            })
-            .then(dir => {
-                return fs.promises
+                    .then(() => dir),
+            )
+            .then(dir =>
+                fs.promises
                     .readdir(dir.path)
                     .then(items => {
                         if (items.length > 1) {
@@ -483,8 +474,8 @@ export class CertificateProvider {
                         return fs.promises
                             .readFile(copiedFile)
                             .then(data => this.santitizeString(data.toString()));
-                    });
-            })
+                    }),
+            )
             .then(csrFromDevice => csrFromDevice === this.santitizeString(csr));
     }
 

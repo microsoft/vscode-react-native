@@ -15,7 +15,7 @@ import { isWorkspaceTrusted } from "../common/extensionHelper";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { CONTEXT_VARIABLES_NAMES } from "../common/contextVariablesNames";
-import { TipNotificationService } from "../extension/services/tipsNotificationsService/tipsNotificationService";
+import { TipNotificationService } from "./services/tipsNotificationsService/tipsNotificationService";
 import * as XDL from "./exponent/xdlInterface";
 import { SettingsHelper } from "./settingsHelper";
 import { OutputChannelLogger } from "./log/OutputChannelLogger";
@@ -45,6 +45,7 @@ import { MacOSPlatform } from "./macos/macOSPlatform";
 import { debugConfigurations } from "./debuggingConfiguration/debugConfigTypesAndConstants";
 import { AndroidTargetManager } from "./android/androidTargetManager";
 import { IOSTargetManager } from "./ios/iOSTargetManager";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -705,22 +706,20 @@ export class CommandPaletteHandler {
     private static async loginToExponent(appLauncher: AppLauncher): Promise<XDL.IUser> {
         try {
             return await appLauncher.getExponentHelper().loginToExponent(
-                (message, password) => {
-                    return new Promise((resolve, reject) => {
+                (message, password) =>
+                    new Promise((resolve, reject) => {
                         vscode.window
-                            .showInputBox({ placeHolder: message, password: password })
+                            .showInputBox({ placeHolder: message, password })
                             .then(login => {
                                 resolve(login || "");
                             }, reject);
-                    });
-                },
-                message => {
-                    return new Promise((resolve, reject) => {
+                    }),
+                message =>
+                    new Promise((resolve, reject) => {
                         vscode.window.showInformationMessage(message).then(password => {
                             resolve(password || "");
                         }, reject);
-                    });
-                },
+                    }),
             );
         } catch (err) {
             CommandPaletteHandler.logger.warning(
@@ -747,12 +746,11 @@ export class CommandPaletteHandler {
         } else if (keys.length === 1) {
             this.logger.debug(`Command palette: once project ${keys[0]}`);
             return ProjectsStorage.projectsCache[keys[0]];
-        } else {
-            throw ErrorHelper.getInternalError(
-                InternalErrorCode.WorkspaceNotFound,
-                "Current workspace does not contain React Native projects.",
-            );
         }
+        throw ErrorHelper.getInternalError(
+            InternalErrorCode.WorkspaceNotFound,
+            "Current workspace does not contain React Native projects.",
+        );
     }
 
     private static async selectLogCatMonitor(): Promise<LogCatMonitor> {
@@ -769,11 +767,10 @@ export class CommandPaletteHandler {
         } else if (keys.length === 1) {
             this.logger.debug(`Command palette: once LogCat monitor ${keys[0]}`);
             return LogCatMonitorManager.logCatMonitorsCache[keys[0]];
-        } else {
-            throw ErrorHelper.getInternalError(
-                InternalErrorCode.AndroidCouldNotFindActiveLogCatMonitor,
-            );
         }
+        throw ErrorHelper.getInternalError(
+            InternalErrorCode.AndroidCouldNotFindActiveLogCatMonitor,
+        );
     }
 
     private static getRunOptions(
@@ -808,13 +805,13 @@ export class CommandPaletteHandler {
             | IIOSRunOptions
             | IWindowsRunOptions
             | ImacOSRunOptions = {
-            platform: platform,
+            platform,
             workspaceRoot: appLauncher.getWorkspaceFolderUri().fsPath,
-            projectRoot: projectRoot,
-            packagerPort: packagerPort,
+            projectRoot,
+            packagerPort,
             runArguments: runArgs,
             env: envArgs,
-            envFile: envFile,
+            envFile,
             reactNativeVersions: appLauncher.getReactNativeVersions() || {
                 reactNativeVersion: "",
                 reactNativeWindowsVersion: "",

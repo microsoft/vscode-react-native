@@ -13,7 +13,7 @@ import { PackagerStatusIndicator, PackagerStatus } from "../extension/packagerSt
 import { SettingsHelper } from "../extension/settingsHelper";
 import { AppLauncher } from "../extension/appLauncher";
 import * as XDL from "../extension/exponent/xdlInterface";
-import { IRunOptions, PlatformType } from "./../extension/launchArgs";
+import { IRunOptions, PlatformType } from "../extension/launchArgs";
 import { CommandExecutor } from "./commandExecutor";
 import { ErrorHelper } from "./error/errorHelper";
 import { InternalErrorCode } from "./error/internalErrorCode";
@@ -24,6 +24,7 @@ import { findFileInFolderHierarchy } from "./extensionHelper";
 import { FileSystem } from "./node/fileSystem";
 import { PromiseUtil } from "./node/promise";
 import { CONTEXT_VARIABLES_NAMES } from "./contextVariablesNames";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -398,9 +399,7 @@ export class Packager {
             const paths = await Promise.all(
                 possiblePaths.map(async fsPath => ((await fsHelper.exists(fsPath)) ? fsPath : "")),
             );
-            const packagePath = paths.find(fsPath => {
-                return !!fsPath;
-            });
+            const packagePath = paths.find(fsPath => !!fsPath);
             if (packagePath) {
                 return packagePath;
             }

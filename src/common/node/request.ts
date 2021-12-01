@@ -7,7 +7,7 @@ import https = require("https");
 export class Request {
     public static request(url: string, expectStatusOK = false, isHttps = false): Promise<string> {
         return new Promise((resolve, reject) => {
-            const req = (isHttps ? https : http).get(url, function (res) {
+            const req = (isHttps ? https : http).get(url, res => {
                 let responseString = "";
                 res.on("data", (data: Buffer) => {
                     responseString += data.toString();

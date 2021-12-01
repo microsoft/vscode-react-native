@@ -10,6 +10,7 @@ import { ChildProcess } from "../../common/node/childProcess";
 import { TelemetryHelper } from "../../common/telemetryHelper";
 import { PlatformType } from "../launchArgs";
 import { PlistBuddy } from "./plistBuddy";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,

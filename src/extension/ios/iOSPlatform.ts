@@ -18,6 +18,7 @@ import { ErrorHelper } from "../../common/error/errorHelper";
 import { IDebuggableIOSTarget, IOSTarget, IOSTargetManager } from "./iOSTargetManager";
 import { IOSDebugModeManager } from "./iOSDebugModeManager";
 import { PlistBuddy } from "./plistBuddy";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -320,15 +321,14 @@ export class IOSPlatform extends GeneralMobilePlatform {
                 const target = targets.find(target => target.id === udid);
                 if (target) {
                     return IOSTarget.fromInterface(target);
-                } else {
-                    this.logger.warning(
-                        localize(
-                            "ThereIsNoIosTargetWithSuchUdid",
-                            "There is no iOS target with such UDID: {0}",
-                            udid,
-                        ),
-                    );
                 }
+                this.logger.warning(
+                    localize(
+                        "ThereIsNoIosTargetWithSuchUdid",
+                        "There is no iOS target with such UDID: {0}",
+                        udid,
+                    ),
+                );
             }
 
             const device = GeneralMobilePlatform.getOptFromRunArgs(
@@ -341,15 +341,14 @@ export class IOSPlatform extends GeneralMobilePlatform {
                 );
                 if (target) {
                     return IOSTarget.fromInterface(target);
-                } else {
-                    this.logger.warning(
-                        localize(
-                            "ThereIsNoIosDeviceWithSuchName",
-                            "There is no iOS device with such name: {0}",
-                            device,
-                        ),
-                    );
                 }
+                this.logger.warning(
+                    localize(
+                        "ThereIsNoIosDeviceWithSuchName",
+                        "There is no iOS device with such name: {0}",
+                        device,
+                    ),
+                );
             }
 
             const simulator = GeneralMobilePlatform.getOptFromRunArgs(
@@ -362,15 +361,14 @@ export class IOSPlatform extends GeneralMobilePlatform {
                 );
                 if (target) {
                     return IOSTarget.fromInterface(target);
-                } else {
-                    this.logger.warning(
-                        localize(
-                            "ThereIsNoIosSimulatorWithSuchName",
-                            "There is no iOS simulator with such name: {0}",
-                            simulator,
-                        ),
-                    );
                 }
+                this.logger.warning(
+                    localize(
+                        "ThereIsNoIosSimulatorWithSuchName",
+                        "There is no iOS simulator with such name: {0}",
+                        simulator,
+                    ),
+                );
             }
         }
 
@@ -393,17 +391,14 @@ export class IOSPlatform extends GeneralMobilePlatform {
                 successPatterns.push("INSTALLATION SUCCEEDED");
             }
             return successPatterns;
-        } else {
-            const bundleId = await this.getBundleId();
-            if (semver.gte(version, "0.60.0")) {
-                successPatterns.push(
-                    `Launching "${bundleId}"\nsuccess Successfully launched the app `,
-                );
-            } else {
-                successPatterns.push(`Launching ${bundleId}\n${bundleId}: `);
-            }
-            return successPatterns;
         }
+        const bundleId = await this.getBundleId();
+        if (semver.gte(version, "0.60.0")) {
+            successPatterns.push(`Launching "${bundleId}"\nsuccess Successfully launched the app `);
+        } else {
+            successPatterns.push(`Launching ${bundleId}\n${bundleId}: `);
+        }
+        return successPatterns;
     }
 
     private getConfiguration(): string {

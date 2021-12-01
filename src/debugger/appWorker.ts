@@ -16,6 +16,7 @@ import { FileSystem } from "../common/node/fileSystem";
 import { PromiseUtil } from "../common/node/promise";
 import { ForkedAppWorker } from "./forkedAppWorker";
 import { ScriptImporter } from "./scriptImporter";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,

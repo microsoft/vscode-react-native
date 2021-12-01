@@ -7,6 +7,7 @@ import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { AppLauncher } from "./appLauncher";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,

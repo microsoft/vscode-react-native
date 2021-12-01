@@ -124,13 +124,11 @@ export class TipNotificationService implements vscode.Disposable {
             this.deleteOutdatedKnownDate();
             if (this.tipsConfig.daysLeftBeforeGeneralTip === 0) {
                 tipResponse = await this.showRandomGeneralTipNotification();
-            } else {
-                if (
-                    this.tipsConfig.lastExtensionUsageDate &&
-                    !areSameDates(curDate, this.tipsConfig.lastExtensionUsageDate)
-                ) {
-                    this.tipsConfig.daysLeftBeforeGeneralTip--;
-                }
+            } else if (
+                this.tipsConfig.lastExtensionUsageDate &&
+                !areSameDates(curDate, this.tipsConfig.lastExtensionUsageDate)
+            ) {
+                this.tipsConfig.daysLeftBeforeGeneralTip--;
             }
         } else {
             tipResponse = await this.showSpecificTipNotification(<string>specificTipKey);
@@ -301,14 +299,13 @@ export class TipNotificationService implements vscode.Disposable {
                 this.tipsConfig.allTipsShownFirstly = true;
             }
         } else {
-            generalTipsForRandom = generalTipsKeys.sort((tipId1, tipId2) => {
-                return (
+            generalTipsForRandom = generalTipsKeys.sort(
+                (tipId1, tipId2) =>
                     // According to ECMAScript standard: The exact moment of midnight at the beginning of
                     // 01 January, 1970 UTC is represented by the value +0.
                     (generalTips[tipId2].shownDate ?? new Date(+0)).getTime() -
-                    (generalTips[tipId1].shownDate ?? new Date(+0)).getTime()
-                );
-            });
+                    (generalTips[tipId1].shownDate ?? new Date(+0)).getTime(),
+            );
         }
 
         let leftIndex: number;

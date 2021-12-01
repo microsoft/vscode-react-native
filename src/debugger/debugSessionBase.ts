@@ -15,6 +15,7 @@ import { IRunOptions, PlatformType } from "../extension/launchArgs";
 import { AppLauncher } from "../extension/appLauncher";
 
 import { SettingsHelper } from "../extension/settingsHelper";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,

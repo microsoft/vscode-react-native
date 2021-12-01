@@ -33,6 +33,7 @@ import { LaunchScenariosManager } from "./launchScenariosManager";
 import { createAdditionalWorkspaceFolder, onFolderAdded } from "./rn-extension";
 import { RNProjectObserver } from "./rnProjectObserver";
 import { GeneralMobilePlatform } from "./generalMobilePlatform";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,

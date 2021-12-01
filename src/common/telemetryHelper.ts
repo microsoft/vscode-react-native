@@ -112,7 +112,7 @@ export class TelemetryHelper {
             return;
         }
 
-        Object.keys(properties).forEach(function (propertyName: string): void {
+        Object.keys(properties).forEach((propertyName: string): void => {
             TelemetryHelper.addTelemetryEventProperty(
                 event,
                 propertyName,

@@ -19,6 +19,7 @@ import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { FileSystem } from "../../common/node/fileSystem";
 import { SettingsHelper } from "../settingsHelper";
 import * as XDL from "./xdlInterface";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -216,14 +217,14 @@ export class ExponentHelper {
 
     public removeNodeModulesPathFromEnvIfWasSet(): void {
         if (this.nodeModulesGlobalPathAddedToEnv) {
-            delete process.env["NODE_MODULES"];
+            delete process.env.NODE_MODULES;
             this.nodeModulesGlobalPathAddedToEnv = false;
         }
     }
 
     public async addNodeModulesPathToEnvIfNotPresent(): Promise<void> {
-        if (!process.env["NODE_MODULES"]) {
-            process.env["NODE_MODULES"] = await getNodeModulesGlobalPath();
+        if (!process.env.NODE_MODULES) {
+            process.env.NODE_MODULES = await getNodeModulesGlobalPath();
             this.nodeModulesGlobalPathAddedToEnv = true;
         }
     }

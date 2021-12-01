@@ -73,7 +73,7 @@ export class ChildProcess {
                     },
                 );
             });
-            resolveRes({ process: process, outcome: outcome });
+            resolveRes({ process, outcome });
         });
     }
 
@@ -152,11 +152,11 @@ export class ChildProcess {
             });
         });
         return {
-            spawnedProcess: spawnedProcess,
+            spawnedProcess,
             stdin: spawnedProcess.stdin,
             stdout: spawnedProcess.stdout,
             stderr: spawnedProcess.stderr,
-            outcome: outcome,
+            outcome,
         };
     }
 

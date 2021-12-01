@@ -69,9 +69,7 @@ export class SourceMapUtil {
 
             if (sourceMap.sections) {
                 // TODO: there is a need to handle value.map == null, make a fake map
-                sourceMap.sections = sourceMap.sections.filter(value => {
-                    return value.map != null;
-                });
+                sourceMap.sections = sourceMap.sections.filter(value => value.map != null);
 
                 sourceMap = require("flatten-source-map")(sourceMap);
             }
@@ -80,16 +78,16 @@ export class SourceMapUtil {
             sourceMap = sourceMapsCombinator.convert(sourceMap);
 
             if (sourceMap.sources) {
-                sourceMap.sources = sourceMap.sources.map(sourcePath => {
-                    return IS_REMOTE.test(sourcePath)
+                sourceMap.sources = sourceMap.sources.map(sourcePath =>
+                    IS_REMOTE.test(sourcePath)
                         ? sourcePath
                         : this.updateSourceMapPath(
                               sourcePath,
                               sourcesRootPath,
                               packagerRemoteRoot,
                               packagerLocalRoot,
-                          );
-                });
+                          ),
+                );
             }
 
             delete sourceMap.sourcesContent;

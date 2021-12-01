@@ -152,7 +152,7 @@ export abstract class TelemetryGeneratorBase {
     }
 
     private finishTime(name: string, startTime: [number, number]): void {
-        if (!!name) {
+        if (name) {
             // not a ghost step
             const endTime: [number, number] = process.hrtime(startTime);
             this.add(

@@ -19,6 +19,7 @@ import { AndroidTarget, AndroidTargetManager } from "./androidTargetManager";
 import { AdbHelper, AndroidAPILevel } from "./adb";
 import { LogCatMonitor } from "./logCatMonitor";
 import { PackageNameResolver } from "./packageNameResolver";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,

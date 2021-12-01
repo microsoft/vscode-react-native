@@ -45,12 +45,10 @@ export class PackageNameResolver {
                     packageName = this.getDefaultPackageName(this.applicationName);
                 }
                 return packageName;
-            } else {
-                return this.getDefaultPackageName(this.applicationName);
             }
-        } else {
             return this.getDefaultPackageName(this.applicationName);
         }
+        return this.getDefaultPackageName(this.applicationName);
     }
 
     /**

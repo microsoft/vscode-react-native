@@ -11,11 +11,7 @@ export class PromiseUtil {
         sources: T[],
         promiseGenerator: (source: T) => Promise<void>,
     ): Promise<void> {
-        await Promise.all(
-            sources.map(source => {
-                return promiseGenerator(source);
-            }),
-        );
+        await Promise.all(sources.map(source => promiseGenerator(source)));
     }
     /**
      * Retries an operation a given number of times. For each retry, a condition is checked.
