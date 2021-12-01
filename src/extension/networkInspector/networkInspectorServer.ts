@@ -19,7 +19,7 @@ import * as net from "net";
 import * as tls from "tls";
 import * as nls from "vscode-nls";
 import { InspectorViewType } from "./views/inspectorView";
-import { TipNotificationService } from "../../extension/tipsNotificationsService/tipsNotificationService";
+import { TipNotificationService } from "../services/tipsNotificationsService/tipsNotificationService";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,

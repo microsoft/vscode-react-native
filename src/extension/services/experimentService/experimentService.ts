@@ -3,9 +3,9 @@
 
 import * as vscode from "vscode";
 import { IExperiment } from "./IExperiment";
-import { TelemetryHelper } from "../../common/telemetryHelper";
-import { Telemetry } from "../../common/telemetry";
-import { ExtensionConfigManager } from "../extensionConfigManager";
+import { TelemetryHelper } from "../../../common/telemetryHelper";
+import { Telemetry } from "../../../common/telemetry";
+import { ExtensionConfigManager } from "../../extensionConfigManager";
 import { IConfig, retryDownloadConfig } from "../remoteConfigHelper";
 
 export enum ExperimentStatuses {
