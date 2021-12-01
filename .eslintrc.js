@@ -145,7 +145,6 @@ module.exports = {
         "no-extra-boolean-cast": "warn",
         "no-lonely-if": "warn",
         "no-nested-ternary": "warn",
-        "no-nested-ternary": "off",
         "no-param-reassign": "warn",
         "no-plusplus": "off",
         "no-restricted-globals": "warn",
