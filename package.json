@@ -1100,9 +1100,11 @@
   },
   "scripts": {
     "build": "gulp build",
+    "lint": "npx gulp lint",
     "vscode:prepublish": "gulp",
     "test": "node ./test/runTest.js",
     "test-localization": "node ./test/localization/runTest.js",
+    "prepare": "husky install",
     "prepare-smoke-tests": "cd test/smoke && gulp prepare-smoke-tests && yarn --cwd ./vscode install",
     "smoke-tests": "cd test/smoke && gulp prepare-smoke-tests && yarn --cwd ./vscode install && yarn --cwd ./vscode/test/smoke mocha",
     "quick-smoke-tests": "cd test/smoke/vscode/test/smoke && yarn mocha --skip-setup"
@@ -1181,7 +1183,14 @@
     "del": "2.2.0",
     "devtools-protocol": "0.0.762508",
     "eslint": "7.19.0",
+    "eslint-config-prettier": "^7.2.0",
+    "eslint-import-resolver-node": "^0.3.4",
+    "eslint-import-resolver-typescript": "^2.4.0",
     "eslint-plugin-header": "3.1.1",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-prettier": "^3.3.1",
+    "eslint-plugin-promise": "^4.3.1",
+    "eslint-plugin-unicorn": "^28.0.2",
     "event-stream": "3.3.4",
     "fancy-log": "1.3.3",
     "gulp": "4.0.2",
@@ -1190,6 +1199,7 @@
     "gulp-preprocess": "3.0.3",
     "gulp-sourcemaps": "2.6.5",
     "gulp-typescript": "5.0.1",
+    "husky": "^7.0.4",
     "minimist": "1.2.5",
     "mocha": "^9.1.2",
     "mocha-junit-reporter": "^2.0.2",
@@ -1211,14 +1221,7 @@
     "vscode-nls-dev": "3.3.2",
     "vscode-test": "^1.5.2",
     "webpack": "5.28.0",
-    "webpack-bundle-analyzer": "4.4.0",
-    "eslint-config-prettier": "^7.2.0",
-    "eslint-import-resolver-node": "^0.3.4",
-    "eslint-import-resolver-typescript": "^2.4.0",
-    "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-prettier": "^3.3.1",
-    "eslint-plugin-promise": "^4.3.1",
-    "eslint-plugin-unicorn": "^28.0.2"
+    "webpack-bundle-analyzer": "4.4.0"
   },
   "extensionDependencies": [
     "ms-vscode.js-debug"

@@ -22,7 +22,6 @@ const vscodeTest = require("vscode-test");
 const cp = require("child_process");
 
 const copyright = GulpExtras.checkCopyright;
-const imports = GulpExtras.checkImports;
 const executeCommand = GulpExtras.executeCommand;
 const tsProject = ts.createProject("tsconfig.json");
 
@@ -276,11 +275,6 @@ async function test(inspectCodeCoverage = false) {
     }
 }
 
-gulp.task("check-imports", () => {
-    const tsProject = ts.createProject("tsconfig.json");
-    return tsProject.src().pipe(imports());
-});
-
 gulp.task("check-copyright", () => {
     return gulp
         .src([
@@ -323,7 +317,7 @@ const runPrettier = (onlyStaged, fix, callback) => {
 };
 
 const runEslint = (fix, callback) => {
-    let args = ["--color", "src/**/*.ts"];
+    let args = ["src/**/*.ts"];
     if (fix) {
         args.push("--fix");
     }
@@ -337,11 +331,11 @@ const runEslint = (fix, callback) => {
 
 gulp.task("format:prettier", callback => runPrettier(false, true, callback));
 gulp.task("format:eslint", callback => runEslint(true, callback));
-gulp.task("format", gulp.series("format:prettier", "format:eslint"));
+gulp.task("format", gulp.series("format:eslint"));
 
 gulp.task("lint:prettier", callback => runPrettier(false, false, callback));
 gulp.task("lint:eslint", callback => runEslint(false, callback));
-gulp.task("lint", gulp.parallel("lint:prettier", "lint:eslint"));
+gulp.task("lint", gulp.series("lint:eslint"));
 
 /** Run webpack to bundle the extension output files */
 gulp.task("webpack-bundle", async () => {
@@ -376,7 +370,7 @@ gulp.task("clean", () => {
 // be an issue on Windows platforms)
 gulp.task(
     "build",
-    gulp.series("check-imports", "lint", function runBuild(done) {
+    gulp.series("lint", function runBuild(done) {
         build(true, true).once("finish", () => {
             done();
         });
@@ -385,7 +379,7 @@ gulp.task(
 
 gulp.task(
     "build-dev",
-    gulp.series("check-imports", "lint", function runBuild(done) {
+    gulp.series(function runBuild(done) {
         build(false, false).once("finish", () => {
             done();
         });
