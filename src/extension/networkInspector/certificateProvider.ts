@@ -330,6 +330,7 @@ export class CertificateProvider {
                 );
             });
         }
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         return Promise.reject(new Error(`Unsupported device os: ${os}`));
     }
 
@@ -438,9 +439,10 @@ export class CertificateProvider {
             .then(deviceCsr => {
                 // Santitize both of the string before comparation
                 // The csr string extraction on client side return string in both way
-                const [sanitizedDeviceCsr, sanitizedClientCsr] = [deviceCsr.toString(), csr].map(
-                    s => this.santitizeString(s),
-                );
+                const [sanitizedDeviceCsr, sanitizedClientCsr] = [
+                    deviceCsr.toString(),
+                    csr,
+                ].map(s => this.santitizeString(s));
                 const isMatch = sanitizedDeviceCsr === sanitizedClientCsr;
                 return { isMatch: isMatch, foundCsr: sanitizedDeviceCsr };
             });

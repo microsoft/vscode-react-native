@@ -204,6 +204,7 @@ export class GeneralPlatform {
             // .env variables never overwrite existing variables
             const argsFromEnvFile = this.readEnvFile(envFile);
             if (argsFromEnvFile != null) {
+                // eslint-disable-next-line no-restricted-syntax
                 for (const key in argsFromEnvFile) {
                     if (!modifyEnv[key] && argsFromEnvFile.hasOwnProperty(key)) {
                         modifyEnv[key] = argsFromEnvFile[key];
@@ -214,6 +215,7 @@ export class GeneralPlatform {
 
         if (env) {
             // launch config env vars overwrite .env vars
+            // eslint-disable-next-line no-restricted-syntax
             for (const key in env) {
                 if (env.hasOwnProperty(key)) {
                     modifyEnv[key] = env[key];

@@ -163,7 +163,7 @@ export class AndroidTargetManager extends MobileTargetManager {
                         ),
                     );
                 }
-                reject(new Error(`Virtual device launch finished with an exception: ${error}`));
+                reject(new Error(`Virtual device launch finished with an exception: ${String(error)}`));
             });
             emulatorProcess.spawnedProcess.unref();
 

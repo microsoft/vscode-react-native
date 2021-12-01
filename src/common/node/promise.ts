@@ -70,10 +70,12 @@ export class PromiseUtil {
     ): Promise<T | null> {
         return new Promise(async resolve => {
             let rejectTimeout: NodeJS.Timeout | undefined;
+            // eslint-disable-next-line prefer-const
             let сheckInterval: NodeJS.Timeout | undefined;
 
             if (timeout) {
                 rejectTimeout = setTimeout(() => {
+                    // eslint-disable-next-line @typescript-eslint/no-use-before-define
                     cleanup();
                     resolve(null);
                 }, timeout);

@@ -68,7 +68,9 @@ async function queryTargetsWithoutXcodeDependency(
             .then(stdout => parseIdbTargets(stdout))
             .catch((e: Error) => {
                 logger.warn(
-                    `Failed to query idb_companion --list 1 --only device for physical targets: ${e}`,
+                    `Failed to query idb_companion --list 1 --only device for physical targets: ${String(
+                        e,
+                    )}`,
                 );
                 return [];
             });
@@ -108,7 +110,7 @@ export async function idbListTargets(idbPath: string): Promise<Array<DeviceTarge
             parseIdbTargets(stdout),
         )
         .catch((e: Error) => {
-            logger.warn(`Failed to query idb for targets: ${e}`);
+            logger.warn(`Failed to query idb for targets: ${String(e)}`);
             return [];
         });
 }
@@ -163,7 +165,7 @@ async function targets(): Promise<Array<DeviceTarget>> {
                   return targets;
               })
               .catch(e => {
-                  logger.warn(`Failed to query for devices using xctrace: ${e}`);
+                  logger.warn(`Failed to query for devices using xctrace: ${String(e)}`);
                   return [];
               });
 }

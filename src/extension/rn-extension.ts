@@ -3,7 +3,9 @@
 // @ifdef DEBUG
 try {
     /* tslint:disable:no-var-requires */
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     require("fs").statSync(`${__filename}.map`); // We check if source maps are available
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     require("source-map-support").install(); // If they are, we enable stack traces translation to typescript
     /* tslint:enable:no-var-requires */
 } catch (exceptions) {
@@ -109,6 +111,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
     outputChannelLogger.debug("Begin to activate...");
     outputChannelLogger.debug(`Extension version: ${appVersion}`);
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const ExtensionTelemetryReporter = require("vscode-extension-telemetry").default;
     const reporter = new ExtensionTelemetryReporter(
         APP_NAME,
@@ -116,8 +119,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         Telemetry.APPINSIGHTS_INSTRUMENTATIONKEY,
     );
     const configProvider = (debugConfigProvider = new ReactNativeDebugConfigProvider());
-    const dymConfigProvider = (dynamicDebugConfigProvider =
-        new ReactNativeDebugDynamicConfigProvider());
+    const dymConfigProvider = (dynamicDebugConfigProvider = new ReactNativeDebugDynamicConfigProvider());
     const completionItemProviderInst = new LaunchJsonCompletionProvider();
     const workspaceFolders: readonly vscode.WorkspaceFolder[] | undefined =
         vscode.workspace.workspaceFolders;

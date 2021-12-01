@@ -184,12 +184,14 @@ export class TipNotificationService implements vscode.Disposable {
         storageTips: Record<string, unknown>,
         configTips: Tips,
     ): Tips {
+        // eslint-disable-next-line no-restricted-syntax
         for (const key in configTips) {
             if (!(key in storageTips)) {
                 delete configTips[key];
             }
         }
 
+        // eslint-disable-next-line no-restricted-syntax
         for (const key in storageTips) {
             if (!(key in configTips)) {
                 configTips[key] = {};
