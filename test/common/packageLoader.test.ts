@@ -102,6 +102,8 @@ suite("packageLoader", async () => {
         });
 
         test("The package loader should install packages in node_modules where these packages are not present", async function () {
+            console.log("process.env", process.env);
+
             if (!fs.existsSync(sampleProjectPath)) {
                 console.log(`Path ${sampleProjectPath} doesn't exist`);
             }
