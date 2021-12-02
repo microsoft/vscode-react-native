@@ -47,7 +47,7 @@ async function test(): Promise<ValidationResultT> {
     if (notFoundPath) {
         return {
             status: "failure",
-            comment: `"${notFoundPath}" does not point to existing path`,
+            comment: `"${notFoundPath}" does not point to an existing path`,
         };
     }
 
