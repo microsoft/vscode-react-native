@@ -20,6 +20,10 @@ const filter = require("gulp-filter");
 const del = require("del");
 const vscodeTest = require("vscode-test");
 const cp = require("child_process");
+const { promisify } = require("util");
+const assert = require("assert");
+const through2 = require("through2");
+const { Transform } = require("readable-stream");
 
 const copyright = GulpExtras.checkCopyright;
 const executeCommand = GulpExtras.executeCommand;
@@ -59,7 +63,6 @@ const defaultLanguages = [
 
 const srcPath = "src";
 const testPath = "test";
-const buildDir = "src";
 const distDir = "dist";
 const distSrcDir = `${distDir}/src`;
 
@@ -316,11 +319,41 @@ const runPrettier = (onlyStaged, fix, callback) => {
     child.on("exit", code => (code ? callback(`Prettier exited with code ${code}`) : callback()));
 };
 
-const runEslint = (fix, callback, color = true) => {
-    let args = [...[color ? ["--color"] : ["--no-color"]], "src/**/*.ts"];
-    if (fix) {
-        args.push("--fix");
+const findChangedFiles = async () => {
+    const data = await promisify(cp.exec)("git diff --name-only HEAD");
+    return data.stderr
+        ? assert(false, data.stderr)
+        : data.stdout.replace(/\r\n/g, "\n").split("\n");
+};
+
+/**
+ * @typedef {{color: boolean, fix: boolean, changedOnly: boolean}} OptionsT
+ */
+
+/**
+ *
+ * @param {*} callback
+ * @param {OptionsT} options_
+ */
+const runEslint = async (callback, options_) => {
+    /** @type {OptionsT} */
+    const options = Object.assign({ color: true, fix: false, changedOnly: false }, options_);
+
+    const files = options.changedOnly
+        ? await findChangedFiles().then(it => it.filter(it => it.startsWith("src")))
+        : ["src/**/*.ts"];
+
+    if (files.length === 0) {
+        callback();
+        return;
     }
+
+    const args = [
+        ...(options.color ? ["--color"] : ["--no-color"]),
+        ...(options.fix ? ["--fix"] : []),
+        ...files,
+    ];
+
     const child = cp.fork("./node_modules/eslint/bin/eslint.js", args, {
         stdio: "inherit",
         cwd: __dirname,
@@ -330,19 +363,21 @@ const runEslint = (fix, callback, color = true) => {
 };
 
 gulp.task("format:prettier", callback => runPrettier(false, true, callback));
-gulp.task("format:eslint", callback => runEslint(true, callback));
+gulp.task("format:eslint", callback => runEslint(callback, { fix: true }));
 gulp.task("format", gulp.series("format:eslint"));
 
 gulp.task("lint:prettier", callback => runPrettier(false, false, callback));
-gulp.task("lint:eslint", callback => runEslint(false, callback));
+gulp.task("lint:eslint", callback => runEslint(callback, { fix: false }));
 gulp.task("lint", gulp.series("lint:eslint"));
-gulp.task("lint-no-color", callback => runEslint(true, callback, false));
+gulp.task("lint-pre-commit", callback =>
+    runEslint(callback, { fix: false, color: false, changedOnly: true }),
+);
 
 /** Run webpack to bundle the extension output files */
 gulp.task("webpack-bundle", async () => {
     const packages = [
         {
-            entry: `${buildDir}/extension/rn-extension.ts`,
+            entry: `${srcPath}/extension/rn-extension.ts`,
             filename: "rn-extension.js",
             library: true,
         },
