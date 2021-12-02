@@ -133,10 +133,7 @@ export class RNDebugSession extends DebugSessionBase {
                     );
 
                     if (attachArgs.request == "attach"){
-                        await this.preparePackagerBeforeAttach(attachArgs);
-                    }
-                    else{
-                        await this.appLauncher.getPackager().start();
+                        await this.preparePackagerBeforeAttach(attachArgs, versions);
                     }
 
                     logger.log(
