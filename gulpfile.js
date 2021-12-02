@@ -316,8 +316,8 @@ const runPrettier = (onlyStaged, fix, callback) => {
     child.on("exit", code => (code ? callback(`Prettier exited with code ${code}`) : callback()));
 };
 
-const runEslint = (fix, callback) => {
-    let args = ["src/**/*.ts"];
+const runEslint = (fix, callback, color = true) => {
+    let args = [...[color ? ["--color"] : ["--no-color"]], "src/**/*.ts"];
     if (fix) {
         args.push("--fix");
     }
@@ -336,6 +336,7 @@ gulp.task("format", gulp.series("format:eslint"));
 gulp.task("lint:prettier", callback => runPrettier(false, false, callback));
 gulp.task("lint:eslint", callback => runEslint(false, callback));
 gulp.task("lint", gulp.series("lint:eslint"));
+gulp.task("lint-no-color", callback => runEslint(true, callback, false));
 
 /** Run webpack to bundle the extension output files */
 gulp.task("webpack-bundle", async () => {
