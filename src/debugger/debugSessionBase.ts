@@ -17,7 +17,7 @@ import { ProjectVersionHelper, RNPackageVersions } from "../common/projectVersio
 import { getNodeModulesInFolderHierarchy } from "../common/extensionHelper";
 import * as nls from "vscode-nls";
 import { SettingsHelper } from "../extension/settingsHelper";
-import { version } from "process";
+import { version, versions } from "process";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -255,10 +255,9 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         return runOptions;
     }
 
-    protected async preparePackagerBeforeAttach(runOptions: IAttachRequestArgs): Promise<any>{
+    protected async preparePackagerBeforeAttach(runOptions: IAttachRequestArgs, versions: RNPackageVersions): Promise<any>{
         if (!await this.appLauncher.getPackager().isRunning()){
-            const version = await ProjectVersionHelper.getReactNativeVersions(SettingsHelper.getReactNativeProjectRoot(runOptions.cwd));
-            runOptions = this.prepareAttachRunOptions(runOptions, version);
+            runOptions = this.prepareAttachRunOptions(runOptions, versions);
             this.appLauncher.getPackager().setRunOptions(runOptions);
             this.appLauncher.getPackager().start();
         }
