@@ -6,7 +6,7 @@ import {
     ExperimentConfig,
     ExperimentStatuses,
     ExperimentResult,
-} from "../../../src/extension/experimentService/experimentService";
+} from "../../../src/extension/services/experimentService/experimentService";
 import * as Configstore from "configstore";
 import * as assert from "assert";
 
