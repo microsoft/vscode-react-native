@@ -105,11 +105,13 @@ suite("packageLoader", async () => {
             console.log("process.env", process.env);
             console.log(
                 "npm v",
-                cp.execSync(`${HostPlatform.getNpmCliCommand("npm")} -v`, {
-                    cwd: sampleProjectPath,
-                }),
+                cp
+                    .execSync(`${HostPlatform.getNpmCliCommand("npm")} -v`, {
+                        cwd: sampleProjectPath,
+                    })
+                    .toString(),
             );
-            console.log("node v", cp.execSync("node -v"));
+            console.log("node v", cp.execSync("node -v").toString());
 
             if (!fs.existsSync(sampleProjectPath)) {
                 console.log(`Path ${sampleProjectPath} doesn't exist`);
