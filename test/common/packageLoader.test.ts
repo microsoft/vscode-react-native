@@ -43,10 +43,7 @@ suite("packageLoader", async () => {
         const sampleProjectNodeModulesPath = path.join(sampleProjectPath, "node_modules");
         const sampleProjectPackageLockJsonPath = path.join(sampleProjectPath, "package-lock.json");
 
-        const commandExecutor = new CommandExecutor(
-            sampleProjectNodeModulesPath,
-            sampleProjectPath,
-        );
+        const commandExecutor = new CommandExecutor(sampleProjectPath, sampleProjectPath);
 
         let findFileInFolderHierarchyStub: Sinon.SinonStub | undefined;
         let getVersionFromExtensionNodeModulesStub: Sinon.SinonStub | undefined;
