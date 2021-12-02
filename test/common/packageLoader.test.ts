@@ -3,6 +3,8 @@
 
 import * as assert from "assert";
 import * as path from "path";
+import * as fs from "fs";
+import * as cp from "child_process";
 import rimraf = require("rimraf");
 import * as sinon from "sinon";
 import * as extensionHelper from "../../src/common/extensionHelper";
@@ -100,6 +102,29 @@ suite("packageLoader", async () => {
         });
 
         test("The package loader should install packages in node_modules where these packages are not present", async function () {
+            if (!fs.existsSync(sampleProjectPath)) {
+                console.log(`Path ${sampleProjectPath} doesn't exist`);
+            }
+
+            if (!fs.existsSync(path.join(sampleProjectPath, "package.json"))) {
+                console.log(`Path ${sampleProjectPath}⁄package.json doesn't exist`);
+            }
+
+            try {
+                console.log(
+                    "installing mkdirp@1.0.4 rimraf@3.0.1 --verbose --no-save --global-style",
+                );
+                const res = cp.execSync(
+                    `${HostPlatform.getNpmCliCommand(
+                        "npm",
+                    )} install mkdirp@1.0.4 rimraf@3.0.1 --verbose --no-save --global-style`,
+                    { cwd: sampleProjectPath },
+                );
+                console.log(res);
+            } catch (err) {
+                console.log(err);
+            }
+
             this.timeout(packageLoaderTestTimeout);
             // There is the problem with '--no-save' flag for 'npm install' command for npm v6.
             // Installing npm dependencies with the `--no-save` flag will remove

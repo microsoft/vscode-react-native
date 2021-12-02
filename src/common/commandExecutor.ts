@@ -196,6 +196,8 @@ export class CommandExecutor {
         const spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options);
         const commandWithArgs = command + " " + args.join(" ");
 
+        console.log("CE_commandWithArgs", commandWithArgs);
+        console.log("CE_spawnOptions", spawnOptions);
         this.logger.debug(
             CommandExecutor.getCommandStatusString(commandWithArgs, CommandStatus.Start),
         );
