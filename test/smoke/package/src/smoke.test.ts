@@ -59,13 +59,15 @@ export function startSmokeTests(
         startDebuggingViaDynamicConfigsTests(testApplicationSetupManager.getRnProject());
 
         SmokeTestLogger.info("*** Smoke tests will be run");
-        startReactNativeTests(testApplicationSetupManager.getRnProject(), args);
-        startDirectDebugTests(testApplicationSetupManager.getHermesProject(), args);
-        startExpoTests(
-            testApplicationSetupManager.getExpoProject(),
-            testApplicationSetupManager.getPureRnProject(),
-            args,
-        );
+        if (false) {
+            startReactNativeTests(testApplicationSetupManager.getRnProject(), args);
+            startDirectDebugTests(testApplicationSetupManager.getHermesProject(), args);
+            startExpoTests(
+                testApplicationSetupManager.getExpoProject(),
+                testApplicationSetupManager.getPureRnProject(),
+                args,
+            );
+        }
         startDebugMacOSTests(
             testApplicationSetupManager.getMacOSRnProject(),
             testApplicationSetupManager.getMacOSRnHermesProject(),
