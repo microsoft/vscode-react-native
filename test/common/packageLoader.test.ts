@@ -43,6 +43,7 @@ suite("packageLoader", async () => {
         const sampleProjectNodeModulesPath = path.join(sampleProjectPath, "node_modules");
         const sampleProjectPackageLockJsonPath = path.join(sampleProjectPath, "package-lock.json");
 
+        console.log("sampleProjectPath", sampleProjectPath);
         const commandExecutor = new CommandExecutor(sampleProjectPath, sampleProjectPath);
 
         let findFileInFolderHierarchyStub: Sinon.SinonStub | undefined;
