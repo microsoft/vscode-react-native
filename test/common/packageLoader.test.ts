@@ -12,7 +12,7 @@ import { PackageLoader, PackageConfig } from "../../src/common/packageLoader";
 import { CommandExecutor } from "../../src/common/commandExecutor";
 import { HostPlatform } from "../../src/common/hostPlatform";
 
-const packageLoaderTestTimeout = 1000 * 60;
+const packageLoaderTestTimeout = 2 * 60 * 1000;
 // We need to import xdlInterface to import PackageLoad correctly.
 // Probably a problem is related to import of static functions into test files
 console.log(XDL);
@@ -83,6 +83,7 @@ suite("packageLoader", async () => {
         });
 
         suiteTeardown(function () {
+            this.timeout(packageLoaderTestTimeout);
             findFileInFolderHierarchyStub?.restore();
             getVersionFromExtensionNodeModulesStub?.restore();
             tryToRequireAfterInstallSpy?.restore();
@@ -93,6 +94,7 @@ suite("packageLoader", async () => {
         });
 
         teardown(function () {
+            this.timeout(packageLoaderTestTimeout);
             findFileInFolderHierarchyStub?.reset();
             getVersionFromExtensionNodeModulesStub?.reset();
             tryToRequireAfterInstallSpy?.reset();
