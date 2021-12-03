@@ -14,7 +14,7 @@ import { PackageLoader, PackageConfig } from "../../src/common/packageLoader";
 import { CommandExecutor } from "../../src/common/commandExecutor";
 import { HostPlatform } from "../../src/common/hostPlatform";
 
-const packageLoaderTestTimeout = 1000 * 60;
+const packageLoaderTestTimeout = 2 * 60 * 1000;
 // We need to import xdlInterface to import PackageLoad correctly.
 // Probably a problem is related to import of static functions into test files
 console.log(XDL);
@@ -93,6 +93,7 @@ suite("packageLoader", async () => {
         });
 
         teardown(function () {
+            this.timeout(packageLoaderTestTimeout);
             findFileInFolderHierarchyStub?.reset();
             getVersionFromExtensionNodeModulesStub?.reset();
             tryToRequireAfterInstallSpy?.reset();
@@ -119,21 +120,6 @@ suite("packageLoader", async () => {
 
             if (!fs.existsSync(path.join(sampleProjectPath, "package.json"))) {
                 console.log(`Path ${sampleProjectPath}⁄package.json doesn't exist`);
-            }
-
-            try {
-                console.log(
-                    "installing mkdirp@1.0.4 rimraf@3.0.1 --verbose --no-save --global-style",
-                );
-                const res = cp.execSync(
-                    `${HostPlatform.getNpmCliCommand(
-                        "npm",
-                    )} install mkdirp@1.0.4 rimraf@3.0.1 --verbose --no-save --global-style`,
-                    { cwd: sampleProjectPath },
-                );
-                console.log(res);
-            } catch (err) {
-                console.log(err);
             }
 
             this.timeout(packageLoaderTestTimeout);
