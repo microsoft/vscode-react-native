@@ -11,28 +11,28 @@ import * as fs from "fs";
 import { ParsedPackage } from "../../src/common/reactNativeProjectHelper";
 
 suite("projectVersionHelper", function () {
-    const sampleReactNative022ProjectDir = path.join(
+    const sampleReactNativeProjectDir = path.join(
         __dirname,
         "..",
         "resources",
-        "sampleReactNative022Project",
+        "sampleReactNativeProject",
     );
 
-    const nodeModulesRoot: string = sampleReactNative022ProjectDir;
+    const nodeModulesRoot: string = sampleReactNativeProjectDir;
 
     test("getReactNativeVersionsFromProjectPackage should return object containing version strings if 'version' field is found in project's package.json file", async () => {
         let additionalPackages: ParsedPackage[] = [];
         additionalPackages.push(REACT_NATIVE_PACKAGES.REACT_NATIVE_WINDOWS);
         const versions = await ProjectVersionHelper.getReactNativeVersionsFromProjectPackage(
-            sampleReactNative022ProjectDir,
+            sampleReactNativeProjectDir,
             additionalPackages,
         );
-        assert.strictEqual(versions.reactNativeVersion, "0.22.2");
-        assert.strictEqual(versions.reactNativeWindowsVersion, "0.60.0-vnext.68");
+        assert.strictEqual(versions.reactNativeVersion, "0.65.0");
+        assert.strictEqual(versions.reactNativeWindowsVersion, "0.65.9");
     });
 
     suite("getReactNativeVersionsFromProjectWithIncorrectPackageJson", () => {
-        const packageJsonPath = path.join(sampleReactNative022ProjectDir, "package.json");
+        const packageJsonPath = path.join(sampleReactNativeProjectDir, "package.json");
         const packageJsonContent = fs.readFileSync(packageJsonPath, "utf8");
         const versionObj = {
             devDependencies: {},
@@ -50,7 +50,7 @@ suite("projectVersionHelper", function () {
             let additionalPackages: ParsedPackage[] = [];
             additionalPackages.push(REACT_NATIVE_PACKAGES.REACT_NATIVE_WINDOWS);
             const versions = await ProjectVersionHelper.getReactNativeVersionsFromProjectPackage(
-                sampleReactNative022ProjectDir,
+                sampleReactNativeProjectDir,
                 additionalPackages,
             );
             assert.strictEqual(
@@ -66,12 +66,12 @@ suite("projectVersionHelper", function () {
 
     suite("getReactNativeVersionsFromNodeModules", () => {
         const reactNativePackageDir = path.join(
-            sampleReactNative022ProjectDir,
+            sampleReactNativeProjectDir,
             "node_modules",
             "react-native",
         );
         const reactNativeWindowsPackageDir = path.join(
-            sampleReactNative022ProjectDir,
+            sampleReactNativeProjectDir,
             "node_modules",
             "react-native-windows",
         );
@@ -84,7 +84,7 @@ suite("projectVersionHelper", function () {
 
         suiteTeardown(() => {
             fsHelper.removePathRecursivelySync(
-                path.join(sampleReactNative022ProjectDir, "node_modules"),
+                path.join(sampleReactNativeProjectDir, "node_modules"),
             );
         });
 

@@ -31,7 +31,7 @@ const tsProject = ts.createProject("tsconfig.json");
  */
 const isNightly = process.argv.includes("--nightly");
 
-const vscodeVersionForTests = "1.61.0";
+const vscodeVersionForTests = "1.62.3";
 
 const fullExtensionName = isNightly
     ? "msjsdiag.vscode-react-native-preview"
@@ -76,7 +76,7 @@ const options = minimist(process.argv.slice(2), knownOptions);
 let lintSources = [srcPath, testPath].map(tsFolder => tsFolder + "/**/*.ts");
 lintSources = lintSources.concat([
     "!src/typings/**",
-    "!test/resources/sampleReactNative022Project/**",
+    "!test/resources/sampleReactNativeProject/**",
     "!test/smoke/**",
     "!/SmokeTestLogs/**",
 ]);
@@ -291,7 +291,7 @@ gulp.task("check-copyright", () => {
             "!node_modules/**",
             "!test/**/*.js",
             "!SampleApplication/**",
-            "!test/resources/sampleReactNative022Project/**/*.js",
+            "!test/resources/sampleReactNativeProject/**/*.js",
             "!test/smoke/package/node_modules/**",
             "!test/smoke/automation/node_modules/**",
             "!test/smoke/resources/**",
@@ -363,7 +363,7 @@ gulp.task("clean", () => {
         "test/**/*.js.map",
         "out/",
         "dist",
-        "!test/resources/sampleReactNative022Project/**/*.js",
+        "!test/resources/sampleReactNativeProject/**/*.js",
         ".vscode-test/",
         "nls.*.json",
         "!test/smoke/**/*",
