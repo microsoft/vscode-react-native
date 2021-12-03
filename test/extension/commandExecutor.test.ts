@@ -21,11 +21,11 @@ suite("commandExecutor", function () {
 
         let appLauncherStub: Sinon.SinonStub;
         let Log = new ConsoleLogger();
-        const sampleReactNative022ProjectDir = path.join(
+        const sampleReactNativeProjectDir = path.join(
             __dirname,
             "..",
             "resources",
-            "sampleReactNative022Project",
+            "sampleReactNative065Project",
         );
 
         let nodeModulesRoot: string;
@@ -54,7 +54,7 @@ suite("commandExecutor", function () {
                 (projectRoot: string) => nodeModulesRoot,
             );
 
-            nodeModulesRoot = sampleReactNative022ProjectDir;
+            nodeModulesRoot = sampleReactNativeProjectDir;
         });
 
         test("should execute a command", async function () {
@@ -137,7 +137,7 @@ suite("commandExecutor", function () {
 
         suite("getReactNativeVersion", () => {
             const reactNativePackageDir = path.join(
-                sampleReactNative022ProjectDir,
+                sampleReactNativeProjectDir,
                 "node_modules",
                 "react-native",
             );
@@ -149,17 +149,17 @@ suite("commandExecutor", function () {
 
             suiteTeardown(() => {
                 fsHelper.removePathRecursivelySync(
-                    path.join(sampleReactNative022ProjectDir, "node_modules"),
+                    path.join(sampleReactNativeProjectDir, "node_modules"),
                 );
             });
 
             test("getReactNativeVersion should return version string if 'version' field is found in react-native package package.json file from node_modules", async () => {
                 const commandExecutor: CommandExecutor = new CommandExecutor(
                     nodeModulesRoot,
-                    sampleReactNative022ProjectDir,
+                    sampleReactNativeProjectDir,
                 );
                 const versionObj = {
-                    version: "^0.22.0",
+                    version: "0.65.0",
                 };
 
                 fs.writeFileSync(
@@ -168,13 +168,13 @@ suite("commandExecutor", function () {
                 );
 
                 const version = await commandExecutor.getReactNativeVersion();
-                assert.strictEqual(version, "0.22.0");
+                assert.strictEqual(version, "0.65.0");
             });
 
             test("getReactNativeVersion should return version string if there isn't 'version' field in react-native package's package.json file", async () => {
                 const commandExecutor: CommandExecutor = new CommandExecutor(
                     nodeModulesRoot,
-                    sampleReactNative022ProjectDir,
+                    sampleReactNativeProjectDir,
                 );
                 const testObj = {
                     test: "test",
@@ -186,7 +186,7 @@ suite("commandExecutor", function () {
                 );
 
                 const version = await commandExecutor.getReactNativeVersion();
-                assert.strictEqual(version, "0.22.2");
+                assert.strictEqual(version, "0.65.0");
             });
         });
 
@@ -197,14 +197,14 @@ suite("commandExecutor", function () {
 
             test("selectReactNativeCLI should return local CLI", (done: Mocha.Done) => {
                 const localCLIPath = path.join(
-                    sampleReactNative022ProjectDir,
+                    sampleReactNativeProjectDir,
                     "node_modules",
                     ".bin",
                     "react-native",
                 );
                 let commandExecutor: CommandExecutor = new CommandExecutor(
                     nodeModulesRoot,
-                    sampleReactNative022ProjectDir,
+                    sampleReactNativeProjectDir,
                 );
                 CommandExecutor.ReactNativeCommand =
                     RNGlobalCLINameContent["react-native-tools.reactNativeGlobalCommandName"];
@@ -219,7 +219,7 @@ suite("commandExecutor", function () {
                 ] = randomHash;
                 let commandExecutor: CommandExecutor = new CommandExecutor(
                     nodeModulesRoot,
-                    sampleReactNative022ProjectDir,
+                    sampleReactNativeProjectDir,
                 );
                 CommandExecutor.ReactNativeCommand =
                     RNGlobalCLINameContent["react-native-tools.reactNativeGlobalCommandName"];

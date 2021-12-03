@@ -22,14 +22,14 @@ suite("rn-extension", function () {
         suite("createAdditionalWorkspaceFolder returns a new workspace folder", function () {
             const fsHelper = new Node.FileSystem();
             const nodeModulesFolderName: string = "node_modules";
-            const sampleReactNative022ProjectDir = path.join(
+            const sampleReactNativeProjectDir = path.join(
                 __dirname,
                 "..",
                 "resources",
-                "sampleReactNative022Project",
+                "sampleReactNative065Project",
             );
             const nodeModulesDir: string = path.join(
-                sampleReactNative022ProjectDir,
+                sampleReactNativeProjectDir,
                 nodeModulesFolderName,
             );
 
@@ -39,7 +39,7 @@ suite("rn-extension", function () {
 
             suiteTeardown(() => {
                 fsHelper.removePathRecursivelySync(
-                    path.join(sampleReactNative022ProjectDir, nodeModulesFolderName),
+                    path.join(sampleReactNativeProjectDir, nodeModulesFolderName),
                 );
             });
 
@@ -67,7 +67,7 @@ suite("rn-extension", function () {
 
                 const innerProjectName: string = "innerSampleProject";
                 const innerProjectDir: string = path.join(
-                    sampleReactNative022ProjectDir,
+                    sampleReactNativeProjectDir,
                     innerProjectName,
                 );
                 const innerNodeModulesDir: string = path.join(

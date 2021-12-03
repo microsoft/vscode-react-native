@@ -9,16 +9,16 @@ import { ReactNativeProjectHelper } from "../../src/common/reactNativeProjectHel
 
 suite("ReactNativeProjectHelper", function () {
     const fsHelper = new Node.FileSystem();
-    const sampleReactNative022ProjectDir = path.join(
+    const sampleReactNativeProjectDir = path.join(
         __dirname,
         "..",
         "resources",
-        "sampleReactNative022Project",
+        "sampleReactNative065Project",
     );
 
     suite("isAndroidHermesEnabled", () => {
         const buildGradleFilePath = path.join(
-            sampleReactNative022ProjectDir,
+            sampleReactNativeProjectDir,
             "android",
             "app",
             "build.gradle",
@@ -29,9 +29,7 @@ suite("ReactNativeProjectHelper", function () {
         });
 
         suiteTeardown(() => {
-            fsHelper.removePathRecursivelySync(
-                path.join(sampleReactNative022ProjectDir, "android"),
-            );
+            fsHelper.removePathRecursivelySync(path.join(sampleReactNativeProjectDir, "android"));
         });
 
         test("isAndroidHermesEnabled should return 'true' if Hermes engine is enabled in the build.gradle file", () => {
@@ -40,7 +38,7 @@ suite("ReactNativeProjectHelper", function () {
             fs.writeFileSync(buildGradleFilePath, buildGradleFileContent);
 
             const androidHermesEnabled = ReactNativeProjectHelper.isAndroidHermesEnabled(
-                sampleReactNative022ProjectDir,
+                sampleReactNativeProjectDir,
             );
 
             assert.strictEqual(androidHermesEnabled, true);
@@ -52,7 +50,7 @@ suite("ReactNativeProjectHelper", function () {
             fs.writeFileSync(buildGradleFilePath, buildGradleFileContent);
 
             const androidHermesEnabled = ReactNativeProjectHelper.isAndroidHermesEnabled(
-                sampleReactNative022ProjectDir,
+                sampleReactNativeProjectDir,
             );
 
             assert.strictEqual(androidHermesEnabled, false);
@@ -63,7 +61,7 @@ suite("ReactNativeProjectHelper", function () {
             fs.writeFileSync(buildGradleFilePath, buildGradleFileContent);
 
             const androidHermesEnabled = ReactNativeProjectHelper.isAndroidHermesEnabled(
-                sampleReactNative022ProjectDir,
+                sampleReactNativeProjectDir,
             );
 
             assert.strictEqual(androidHermesEnabled, false);
@@ -71,14 +69,14 @@ suite("ReactNativeProjectHelper", function () {
     });
 
     suite("isIOSHermesEnabled", () => {
-        const podfileFilePath = path.join(sampleReactNative022ProjectDir, "ios", "Podfile");
+        const podfileFilePath = path.join(sampleReactNativeProjectDir, "ios", "Podfile");
 
         suiteSetup(() => {
             fsHelper.makeDirectoryRecursiveSync(path.dirname(podfileFilePath));
         });
 
         suiteTeardown(() => {
-            fsHelper.removePathRecursivelySync(path.join(sampleReactNative022ProjectDir, "ios"));
+            fsHelper.removePathRecursivelySync(path.join(sampleReactNativeProjectDir, "ios"));
         });
 
         test("isIOSHermesEnabled should return 'true' if Hermes engine is enabled in the Podfile file", () => {
@@ -91,7 +89,7 @@ suite("ReactNativeProjectHelper", function () {
             fs.writeFileSync(podfileFilePath, podfileFileContent);
 
             const iOSHermesEnabled = ReactNativeProjectHelper.isIOSHermesEnabled(
-                sampleReactNative022ProjectDir,
+                sampleReactNativeProjectDir,
             );
 
             assert.strictEqual(iOSHermesEnabled, true);
@@ -107,7 +105,7 @@ suite("ReactNativeProjectHelper", function () {
             fs.writeFileSync(podfileFilePath, podfileFileContent);
 
             const iOSHermesEnabled = ReactNativeProjectHelper.isIOSHermesEnabled(
-                sampleReactNative022ProjectDir,
+                sampleReactNativeProjectDir,
             );
 
             assert.strictEqual(iOSHermesEnabled, false);
@@ -119,7 +117,7 @@ suite("ReactNativeProjectHelper", function () {
             fs.writeFileSync(podfileFilePath, podfileFileContent);
 
             const iOSHermesEnabled = ReactNativeProjectHelper.isIOSHermesEnabled(
-                sampleReactNative022ProjectDir,
+                sampleReactNativeProjectDir,
             );
 
             assert.strictEqual(iOSHermesEnabled, false);
@@ -127,14 +125,14 @@ suite("ReactNativeProjectHelper", function () {
     });
 
     suite("isMacOSHermesEnabled", () => {
-        const podfileFilePath = path.join(sampleReactNative022ProjectDir, "macos", "Podfile");
+        const podfileFilePath = path.join(sampleReactNativeProjectDir, "macos", "Podfile");
 
         suiteSetup(() => {
             fsHelper.makeDirectoryRecursiveSync(path.dirname(podfileFilePath));
         });
 
         suiteTeardown(() => {
-            fsHelper.removePathRecursivelySync(path.join(sampleReactNative022ProjectDir, "macos"));
+            fsHelper.removePathRecursivelySync(path.join(sampleReactNativeProjectDir, "macos"));
         });
 
         test("isMacOSHermesEnabled should return 'true' if the 'hermes_enabled' parameter in the Podfile file is uncommented and equal to 'true'", () => {
@@ -150,7 +148,7 @@ suite("ReactNativeProjectHelper", function () {
             fs.writeFileSync(podfileFilePath, podfileFileContent);
 
             const macOSHermesEnabled = ReactNativeProjectHelper.isMacOSHermesEnabled(
-                sampleReactNative022ProjectDir,
+                sampleReactNativeProjectDir,
             );
 
             assert.strictEqual(macOSHermesEnabled, true);
@@ -175,7 +173,7 @@ suite("ReactNativeProjectHelper", function () {
             fs.writeFileSync(podfileFilePath, podfileFileContent);
 
             const macOSHermesEnabled = ReactNativeProjectHelper.isMacOSHermesEnabled(
-                sampleReactNative022ProjectDir,
+                sampleReactNativeProjectDir,
             );
 
             assert.strictEqual(macOSHermesEnabled, true);
@@ -194,7 +192,7 @@ suite("ReactNativeProjectHelper", function () {
             fs.writeFileSync(podfileFilePath, podfileFileContent);
 
             const macOSHermesEnabled = ReactNativeProjectHelper.isMacOSHermesEnabled(
-                sampleReactNative022ProjectDir,
+                sampleReactNativeProjectDir,
             );
 
             assert.strictEqual(macOSHermesEnabled, false);
@@ -208,7 +206,7 @@ suite("ReactNativeProjectHelper", function () {
             fs.writeFileSync(podfileFilePath, podfileFileContent);
 
             const macOSHermesEnabled = ReactNativeProjectHelper.isMacOSHermesEnabled(
-                sampleReactNative022ProjectDir,
+                sampleReactNativeProjectDir,
             );
 
             assert.strictEqual(macOSHermesEnabled, false);
@@ -217,7 +215,7 @@ suite("ReactNativeProjectHelper", function () {
 
     suite("isWindowsHermesEnabled", () => {
         const experimentalFeaturesFilePath = path.join(
-            sampleReactNative022ProjectDir,
+            sampleReactNativeProjectDir,
             "windows",
             "ExperimentalFeatures.props",
         );
@@ -227,9 +225,7 @@ suite("ReactNativeProjectHelper", function () {
         });
 
         suiteTeardown(() => {
-            fsHelper.removePathRecursivelySync(
-                path.join(sampleReactNative022ProjectDir, "windows"),
-            );
+            fsHelper.removePathRecursivelySync(path.join(sampleReactNativeProjectDir, "windows"));
         });
 
         test("isWindowsHermesEnabled should return 'true' if Hermes engine is enabled in the ExperimentalFeatures.props file", () => {
@@ -246,7 +242,7 @@ suite("ReactNativeProjectHelper", function () {
             fs.writeFileSync(experimentalFeaturesFilePath, experimentalFeaturesFileContent);
 
             const windowsHermesEnabled = ReactNativeProjectHelper.isWindowsHermesEnabled(
-                sampleReactNative022ProjectDir,
+                sampleReactNativeProjectDir,
             );
 
             assert.strictEqual(windowsHermesEnabled, true);
@@ -266,18 +262,16 @@ suite("ReactNativeProjectHelper", function () {
             fs.writeFileSync(experimentalFeaturesFilePath, experimentalFeaturesFileContent);
 
             const windowsHermesEnabled = ReactNativeProjectHelper.isWindowsHermesEnabled(
-                sampleReactNative022ProjectDir,
+                sampleReactNativeProjectDir,
             );
 
             assert.strictEqual(windowsHermesEnabled, false);
         });
 
         test("isWindowsHermesEnabled should return 'fasle' if there is no the ExperimentalFeatures.props file", () => {
-            fsHelper.removePathRecursivelySync(
-                path.join(sampleReactNative022ProjectDir, "windows"),
-            );
+            fsHelper.removePathRecursivelySync(path.join(sampleReactNativeProjectDir, "windows"));
             const windowsHermesEnabled = ReactNativeProjectHelper.isWindowsHermesEnabled(
-                sampleReactNative022ProjectDir,
+                sampleReactNativeProjectDir,
             );
             assert.strictEqual(windowsHermesEnabled, false);
         });

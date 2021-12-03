@@ -7,7 +7,7 @@ import * as assert from "assert";
 import { AndroidPlatform } from "../../../src/extension/android/androidPlatform";
 import { IAndroidRunOptions, PlatformType } from "../../../src/extension/launchArgs";
 import { FileSystem } from "../../../src/common/node/fileSystem";
-import { ReactNative022 } from "../../resources/reactNative022";
+import { ReactNative022 } from "../../resources/reactNative065";
 import * as adb from "../../../src/extension/android/adb";
 import { RecordingsHelper } from "../../resources/recordingsHelper";
 import { CommandExecutor } from "../../../src/common/commandExecutor";

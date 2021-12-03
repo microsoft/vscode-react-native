@@ -38,7 +38,7 @@
         "SampleApplication/.vscode",
         "ReactTypings",
         "tools/",
-        "test/resources/sampleReactNative022Project/",
+        "test/resources/sampleReactNative065Project",
         "test/smoke/"
     ],
     "compileOnSave": false,

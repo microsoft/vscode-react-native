@@ -12,11 +12,10 @@ import { Recording, Simulator } from "./processExecution/simulator";
 import { AdbHelper } from "../../src/extension/android/adb";
 import { APKSerializer } from "./simulators/apkSerializer";
 
-const sampleRNProjectPath = path.join(__dirname, "sampleReactNative022Project");
+const sampleRNProjectPath = path.join(__dirname, "sampleReactNative065Project");
 const processExecutionsRecordingsPath = path.join(__dirname, "processExecutionsRecordings");
 
-/* This class simulates calling the React-Native CLI v0.22. It currently supports react-native init
-    and react-native run-android. */
+// This class simulates calling the React-Native CLI v0.65.
 export class ReactNative022 {
     public static DEFAULT_PROJECT_FILE = path.join(sampleRNProjectPath, "package.json");
 

@@ -1,13 +1,13 @@
 {
-  "name": "sampleReactNative022Project",
+  "name": "sampleReactNative065Project",
   "version": "0.0.1",
   "private": true,
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start"
   },
   "dependencies": {
-    "react": "^0.14.7",
-    "react-native": "^0.22.2",
-    "react-native-windows": "~0.60.0-vnext.68"
+    "react": "17.0.2",
+    "react-native": "0.65.0",
+    "react-native-windows": "0.65.0"
   }
 }
