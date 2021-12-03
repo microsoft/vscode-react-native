@@ -5,6 +5,14 @@ import { OutputChannelLogger } from "../../log/OutputChannelLogger";
 import { getChecks } from "./checks";
 import { ValidationCategoryE, IValidation, ValidationResultT } from "./checks/types";
 import { fromEntries } from "./util";
+import * as nls from "vscode-nls";
+
+nls.config({
+    messageFormat: nls.MessageFormat.bundle,
+    bundleFormat: nls.BundleFormat.standalone,
+})();
+
+const toLocale = nls.loadMessageBundle();
 
 const evaluteChecks = async (checks: IValidation[]) => {
     const execToEntries = (categ: ValidationCategoryE, toCheck: IValidation[]) =>
@@ -47,7 +55,10 @@ export const runChecks = async (
 
     const checks = await evaluteChecks(getChecks().filter(it => options?.[it.category] === true));
 
-    let outStr = `<<< Dev Environment verification result >>>\n`;
+    let outStr = `<<< ${toLocale(
+        "DevEnvVerificationHeader",
+        "Dev Environment verification result",
+    )} >>>\n`;
 
     Object.entries(checks).forEach(async ([key, val]) => {
         if (val.size === 0) {
@@ -73,7 +84,10 @@ export const runChecks = async (
         .every(it => it.status === "success");
 
     if (allPassed) {
-        outStr += `\nAll checks passed successfully!`;
+        outStr += `\n${toLocale(
+            "DevEnvVerificationFooter",
+            "All checks passed successfully!",
+        )}\n\n`;
     }
 
     outputChannel.logStream(outStr);
