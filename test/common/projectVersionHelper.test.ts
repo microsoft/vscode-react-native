@@ -28,7 +28,7 @@ suite("projectVersionHelper", function () {
             additionalPackages,
         );
         assert.strictEqual(versions.reactNativeVersion, "0.65.0");
-        assert.strictEqual(versions.reactNativeWindowsVersion, "0.65.0");
+        assert.strictEqual(versions.reactNativeWindowsVersion, "0.65.9");
     });
 
     suite("getReactNativeVersionsFromProjectWithIncorrectPackageJson", () => {
