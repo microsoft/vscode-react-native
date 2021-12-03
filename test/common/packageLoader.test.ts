@@ -38,7 +38,7 @@ suite("packageLoader", async () => {
             __dirname,
             "..",
             "resources",
-            "sampleReactNative065Project",
+            "sampleReactNativeProject",
         );
         const sampleProjectNodeModulesPath = path.join(sampleProjectPath, "node_modules");
         const sampleProjectPackageLockJsonPath = path.join(sampleProjectPath, "package-lock.json");

@@ -26,7 +26,7 @@ suite("rn-extension", function () {
                 __dirname,
                 "..",
                 "resources",
-                "sampleReactNative065Project",
+                "sampleReactNativeProject",
             );
             const nodeModulesDir: string = path.join(
                 sampleReactNativeProjectDir,

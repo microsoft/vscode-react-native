@@ -13,7 +13,7 @@ suite("ReactNativeProjectHelper", function () {
         __dirname,
         "..",
         "resources",
-        "sampleReactNative065Project",
+        "sampleReactNativeProject",
     );
 
     suite("isAndroidHermesEnabled", () => {

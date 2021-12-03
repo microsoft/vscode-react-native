@@ -12,7 +12,7 @@ import { Recording, Simulator } from "./processExecution/simulator";
 import { AdbHelper } from "../../src/extension/android/adb";
 import { APKSerializer } from "./simulators/apkSerializer";
 
-const sampleRNProjectPath = path.join(__dirname, "sampleReactNative065Project");
+const sampleRNProjectPath = path.join(__dirname, "sampleReactNativeProject");
 const processExecutionsRecordingsPath = path.join(__dirname, "processExecutionsRecordings");
 
 // This class simulates calling the React-Native CLI v0.65.

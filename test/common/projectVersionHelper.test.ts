@@ -15,7 +15,7 @@ suite("projectVersionHelper", function () {
         __dirname,
         "..",
         "resources",
-        "sampleReactNative065Project",
+        "sampleReactNativeProject",
     );
 
     const nodeModulesRoot: string = sampleReactNativeProjectDir;

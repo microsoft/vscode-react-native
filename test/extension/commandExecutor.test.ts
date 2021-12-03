@@ -25,7 +25,7 @@ suite("commandExecutor", function () {
             __dirname,
             "..",
             "resources",
-            "sampleReactNative065Project",
+            "sampleReactNativeProject",
         );
 
         let nodeModulesRoot: string;
