@@ -42,8 +42,6 @@ async function test(): Promise<ValidationResultT> {
     const vNewReg = /java (.*?)( |$)/gi;
     const version = semver.coerce(vOldReg.exec(text)?.[1] || vNewReg.exec(text)?.[1]);
 
-    console.log(`Detected Java Version: ${version}`); // #todo> rm
-
     if (!version) {
         return {
             status: "failure",
