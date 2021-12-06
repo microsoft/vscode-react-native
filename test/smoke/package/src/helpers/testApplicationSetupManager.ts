@@ -390,7 +390,7 @@ export class TestApplicationSetupManager {
     }
 
     private prepareReactNativeProjectForMacOSHermesApplication(project: TestProject): void {
-        const hermesEngineDarwinInstallCommand = "yarn add hermes-engine-darwin@^0.4.3";
+        const hermesEngineDarwinInstallCommand = "yarn add hermes-engine-darwin@~0.5.3";
         SmokeTestLogger.projectPatchingLog(
             `*** Installing the hermes-engine-darwin package via '${hermesEngineDarwinInstallCommand}' in ${project.workspaceDirectory}...`,
         );
@@ -399,6 +399,12 @@ export class TestApplicationSetupManager {
             { cwd: project.workspaceDirectory },
             vscodeManager.getSetupEnvironmentLogDir(),
         );
+
+        // We need to remove old Pods dependencies to avoid errors while preparing Hermes project
+        // This step may be redundant in newer versions of the RN for mac
+        const macOSPodsDir = path.join(project.getPlatformFolder("macos"), "Pods");
+        SmokeTestLogger.info(`*** Deleting macOS Pods directory: ${macOSPodsDir}`);
+        rimraf.sync(macOSPodsDir);
 
         this.copyPodfileFromSample(project, "macos");
         this.execPodInstallCommand(project, "macos");
