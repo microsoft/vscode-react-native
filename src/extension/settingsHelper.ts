@@ -83,10 +83,8 @@ export class SettingsHelper {
         target: "device" | "simulator",
         uri: vscode.Uri,
     ): string[] {
-        const workspaceConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(
-            "react-native",
-            uri,
-        );
+        const workspaceConfiguration: vscode.WorkspaceConfiguration =
+            vscode.workspace.getConfiguration("react-native", uri);
         const configKey = `${platform}.runArguments.${target}`;
         if (workspaceConfiguration.has(configKey)) {
             return ConfigurationReader.readArray(workspaceConfiguration.get(configKey));
@@ -100,10 +98,8 @@ export class SettingsHelper {
         target: "device" | "simulator",
         uri: vscode.Uri,
     ): any {
-        const workspaceConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(
-            "react-native",
-            uri,
-        );
+        const workspaceConfiguration: vscode.WorkspaceConfiguration =
+            vscode.workspace.getConfiguration("react-native", uri);
         const configKey = `${platform}.env.${target}`;
         if (workspaceConfiguration.has(configKey)) {
             return ConfigurationReader.readObject(workspaceConfiguration.get(configKey));
@@ -117,10 +113,8 @@ export class SettingsHelper {
         target: "device" | "simulator",
         uri: vscode.Uri,
     ): string {
-        const workspaceConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(
-            "react-native",
-            uri,
-        );
+        const workspaceConfiguration: vscode.WorkspaceConfiguration =
+            vscode.workspace.getConfiguration("react-native", uri);
         const configKey = `${platform}.envFile.${target}`;
         if (workspaceConfiguration.has(configKey)) {
             return ConfigurationReader.readString(workspaceConfiguration.get(configKey));
@@ -168,10 +162,8 @@ export class SettingsHelper {
     }
 
     public static getLogCatFilteringArgs(uri: vscode.Uri): string[] | undefined {
-        const workspaceConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(
-            "react-native",
-            uri,
-        );
+        const workspaceConfiguration: vscode.WorkspaceConfiguration =
+            vscode.workspace.getConfiguration("react-native", uri);
         if (workspaceConfiguration.has("android.logCatArguments")) {
             return ConfigurationReader.readArray(
                 workspaceConfiguration.get("android.logCatArguments"),
@@ -181,9 +173,8 @@ export class SettingsHelper {
     }
 
     public static getExpoDependencyVersion(packageName: string): string | undefined {
-        const workspaceConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(
-            "react-native.expo.dependencies",
-        );
+        const workspaceConfiguration: vscode.WorkspaceConfiguration =
+            vscode.workspace.getConfiguration("react-native.expo.dependencies");
         if (workspaceConfiguration.has(packageName)) {
             const packageVersion = ConfigurationReader.readString(
                 workspaceConfiguration.get(packageName),

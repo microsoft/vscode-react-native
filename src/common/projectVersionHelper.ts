@@ -179,19 +179,17 @@ export class ProjectVersionHelper {
             parsedPackages.forEach(parsedPackage => {
                 try {
                     if (dependencies[parsedPackage.packageName]) {
-                        parsedPackageVersions[
-                            parsedPackage.packageName
-                        ] = ProjectVersionHelper.processVersion(
-                            dependencies[parsedPackage.packageName],
-                            parsedPackage.useSemverCoerce,
-                        );
+                        parsedPackageVersions[parsedPackage.packageName] =
+                            ProjectVersionHelper.processVersion(
+                                dependencies[parsedPackage.packageName],
+                                parsedPackage.useSemverCoerce,
+                            );
                     } else if (devDependencies[parsedPackage.packageName]) {
-                        parsedPackageVersions[
-                            parsedPackage.packageName
-                        ] = ProjectVersionHelper.processVersion(
-                            devDependencies[parsedPackage.packageName],
-                            parsedPackage.useSemverCoerce,
-                        );
+                        parsedPackageVersions[parsedPackage.packageName] =
+                            ProjectVersionHelper.processVersion(
+                                devDependencies[parsedPackage.packageName],
+                                parsedPackage.useSemverCoerce,
+                            );
                     } else {
                         parsedPackageVersions[parsedPackage.packageName] =
                             RN_VERSION_ERRORS.MISSING_DEPENDENCY_IN_PROJECT_PACKAGE_FILE;

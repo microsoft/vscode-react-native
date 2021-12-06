@@ -9,7 +9,8 @@ import { DirectDebugSession } from "../debugger/direct/directDebugSession";
 import { DEBUG_TYPES } from "./debuggingConfiguration/debugConfigTypesAndConstants";
 
 export class ReactNativeSessionManager
-    implements vscode.DebugAdapterDescriptorFactory, vscode.Disposable {
+    implements vscode.DebugAdapterDescriptorFactory, vscode.Disposable
+{
     private servers = new Map<string, Net.Server>();
     private connections = new Map<string, Net.Socket>();
 

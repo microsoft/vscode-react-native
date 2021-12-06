@@ -120,7 +120,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         Telemetry.APPINSIGHTS_INSTRUMENTATIONKEY,
     );
     const configProvider = (debugConfigProvider = new ReactNativeDebugConfigProvider());
-    const dymConfigProvider = (dynamicDebugConfigProvider = new ReactNativeDebugDynamicConfigProvider());
+    const dymConfigProvider = (dynamicDebugConfigProvider =
+        new ReactNativeDebugDynamicConfigProvider());
     const completionItemProviderInst = new LaunchJsonCompletionProvider();
     const workspaceFolders: readonly vscode.WorkspaceFolder[] | undefined =
         vscode.workspace.workspaceFolders;

@@ -22,7 +22,8 @@ export interface IStrictUrl extends url.Url {
 }
 
 export class SourceMapUtil {
-    private static SourceMapURLGlobalRegex: RegExp = /\/\/(#|@) sourceMappingURL=((?!data:).+?)\s*$/gm;
+    private static SourceMapURLGlobalRegex: RegExp =
+        /\/\/(#|@) sourceMappingURL=((?!data:).+?)\s*$/gm;
     private static SourceMapURLRegex: RegExp = /\/\/(#|@) sourceMappingURL=((?!data:).+?)\s*$/m;
     private static SourceURLRegex: RegExp = /^\/\/[#@] ?sourceURL=(.+)$/m;
 

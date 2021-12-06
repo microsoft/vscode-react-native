@@ -20,9 +20,8 @@ export class DebugScenarioNameGenerator {
         useHermesEngine: boolean = false,
         isExperimental: boolean = false,
     ): string {
-        const debugScenarioName: DebugScenarioName = this.createScenarioAccordingToDebugScenarioType(
-            debugScenarioType,
-        );
+        const debugScenarioName: DebugScenarioName =
+            this.createScenarioAccordingToDebugScenarioType(debugScenarioType);
         debugScenarioName.platformType = this.getPlatformTypeName(platformType);
         if (debugType === DEBUG_TYPES.REACT_NATIVE) {
             this.configureNotDirectModeScenario(

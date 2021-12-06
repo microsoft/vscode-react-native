@@ -28,11 +28,12 @@ export class ReactNativeDebugDynamicConfigProvider implements vscode.DebugConfig
         if (folder) {
             const rootPath = folder.uri.fsPath;
             const projectRootPath = SettingsHelper.getReactNativeProjectRoot(rootPath);
-            const versions = await ProjectVersionHelper.tryToGetRNSemverValidVersionsFromProjectPackage(
-                projectRootPath,
-                ProjectVersionHelper.generateAllAdditionalPackages(),
-                projectRootPath,
-            );
+            const versions =
+                await ProjectVersionHelper.tryToGetRNSemverValidVersionsFromProjectPackage(
+                    projectRootPath,
+                    ProjectVersionHelper.generateAllAdditionalPackages(),
+                    projectRootPath,
+                );
 
             let macOSHermesEnabled = false;
             let windowsHermesEnabled = false;

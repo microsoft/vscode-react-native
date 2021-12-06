@@ -67,7 +67,8 @@ export interface ILaunchRequestArgs
         IAttachRequestArgs {}
 
 export abstract class DebugSessionBase extends LoggingDebugSession {
-    protected static rootSessionTerminatedEventEmitter: vscode.EventEmitter<TerminateEventArgs> = new vscode.EventEmitter<TerminateEventArgs>();
+    protected static rootSessionTerminatedEventEmitter: vscode.EventEmitter<TerminateEventArgs> =
+        new vscode.EventEmitter<TerminateEventArgs>();
     public static readonly onDidTerminateRootDebugSession =
         DebugSessionBase.rootSessionTerminatedEventEmitter.event;
 

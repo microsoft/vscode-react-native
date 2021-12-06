@@ -45,7 +45,8 @@ export class AdbHelper {
     private commandExecutor: CommandExecutor;
     private adbExecutable: string = "";
 
-    private static readonly AndroidRemoteTargetPattern = /^((?:\d{1,3}\.){3}\d{1,3}:\d{1,5}|.*_adb-tls-con{2}ect\._tcp.*)$/gm;
+    private static readonly AndroidRemoteTargetPattern =
+        /^((?:\d{1,3}\.){3}\d{1,3}:\d{1,5}|.*_adb-tls-con{2}ect\._tcp.*)$/gm;
     public static readonly AndroidSDKEmulatorPattern = /^emulator-\d{1,5}$/;
 
     constructor(

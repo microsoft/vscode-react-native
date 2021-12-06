@@ -32,22 +32,21 @@ const ngrokPackageConfig = new PackageConfig(
 // So we should workaround it passing all packages for install to only one npm install command
 const EXPO_DEPS: PackageConfig[] = [xdlPackageConfig, metroConfigPackageConfig];
 
-export const getXDLPackage: () => Promise<
-    typeof XDLPackage
-> = PackageLoader.getInstance().generateGetPackageFunction<typeof XDLPackage>(
-    xdlPackageConfig,
-    ...EXPO_DEPS,
-);
-export const getMetroConfigPackage: () => Promise<
-    typeof MetroConfigPackage
-> = PackageLoader.getInstance().generateGetPackageFunction<typeof MetroConfigPackage>(
-    metroConfigPackageConfig,
-    ...EXPO_DEPS,
-);
-export const getNgrokResolver: () => Promise<XDLPackage.ResolveNgrok> = PackageLoader.getInstance().generateGetPackageFunction<XDLPackage.ResolveNgrok>(
-    ngrokPackageConfig,
-    ...EXPO_DEPS,
-);
+export const getXDLPackage: () => Promise<typeof XDLPackage> =
+    PackageLoader.getInstance().generateGetPackageFunction<typeof XDLPackage>(
+        xdlPackageConfig,
+        ...EXPO_DEPS,
+    );
+export const getMetroConfigPackage: () => Promise<typeof MetroConfigPackage> =
+    PackageLoader.getInstance().generateGetPackageFunction<typeof MetroConfigPackage>(
+        metroConfigPackageConfig,
+        ...EXPO_DEPS,
+    );
+export const getNgrokResolver: () => Promise<XDLPackage.ResolveNgrok> =
+    PackageLoader.getInstance().generateGetPackageFunction<XDLPackage.ResolveNgrok>(
+        ngrokPackageConfig,
+        ...EXPO_DEPS,
+    );
 
 export type IUser = XDLPackage.IUser;
 

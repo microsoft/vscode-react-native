@@ -45,7 +45,8 @@ export class SurveyService implements vscode.Disposable {
         "https://microsoft.github.io/vscode-react-native/surveys/surveyConfig.json";
     private readonly downloadConfigRequest: Promise<RemoteSurveyConfig>;
 
-    private cancellationTokenSource: vscode.CancellationTokenSource = new vscode.CancellationTokenSource();
+    private cancellationTokenSource: vscode.CancellationTokenSource =
+        new vscode.CancellationTokenSource();
     private _surveyConfig: SurveyConfig | null = null;
     private extensionFirstTimeInstalled: boolean = false;
     private promptDelayer: Delayer<Promise<void>> = new Delayer();

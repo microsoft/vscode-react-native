@@ -216,9 +216,8 @@ export class InspectorConsoleView extends InspectorView {
         };
 
         if (url.search) {
-            networkRequestConsoleView.networkRequestData[
-                "Request Query Parameters"
-            ] = this.retrieveURLSearchParams(url.searchParams);
+            networkRequestConsoleView.networkRequestData["Request Query Parameters"] =
+                this.retrieveURLSearchParams(url.searchParams);
         }
 
         return networkRequestConsoleView;

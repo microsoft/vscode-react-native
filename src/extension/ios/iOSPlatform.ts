@@ -96,7 +96,8 @@ export class IOSPlatform extends GeneralMobilePlatform {
             if (targetFromRunArgs) {
                 this.target = targetFromRunArgs;
             } else {
-                const targets = (await this.targetManager.getTargetList()) as IDebuggableIOSTarget[];
+                const targets =
+                    (await this.targetManager.getTargetList()) as IDebuggableIOSTarget[];
                 const targetsBySpecifiedType = targets.filter(target => {
                     switch (this.runOptions.target) {
                         case TargetType.Simulator:

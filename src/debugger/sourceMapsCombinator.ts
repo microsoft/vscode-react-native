@@ -64,9 +64,8 @@ export class SourceMapsCombinator {
                     line: item.originalLine,
                     column: item.originalColumn,
                 };
-                const tsPosition: NullableMappedPosition = consumers[
-                    item.source
-                ].originalPositionFor(jsPosition);
+                const tsPosition: NullableMappedPosition =
+                    consumers[item.source].originalPositionFor(jsPosition);
 
                 if (tsPosition.source === null) {
                     // Some positions from react native generated bundle can not translate to TS source positions

@@ -402,12 +402,9 @@ export class CertificateProvider {
                 throw new Error("No iOS devices found");
             }
             const deviceMatchList = targets.map(target =>
-                this.iOSDeviceHasMatchingCSR(
-                    deviceCsrFilePath,
-                    target.id,
-                    appName,
-                    csr,
-                ).then(isMatch => ({ id: target.id, isMatch })),
+                this.iOSDeviceHasMatchingCSR(deviceCsrFilePath, target.id, appName, csr).then(
+                    isMatch => ({ id: target.id, isMatch }),
+                ),
             );
             return Promise.all(deviceMatchList).then(devices => {
                 const matchingIds = devices.filter(m => m.isMatch).map(m => m.id);
@@ -430,10 +427,9 @@ export class CertificateProvider {
             .then(deviceCsr => {
                 // Santitize both of the string before comparation
                 // The csr string extraction on client side return string in both way
-                const [sanitizedDeviceCsr, sanitizedClientCsr] = [
-                    deviceCsr.toString(),
-                    csr,
-                ].map(s => this.santitizeString(s));
+                const [sanitizedDeviceCsr, sanitizedClientCsr] = [deviceCsr.toString(), csr].map(
+                    s => this.santitizeString(s),
+                );
                 const isMatch = sanitizedDeviceCsr === sanitizedClientCsr;
                 return { isMatch, foundCsr: sanitizedDeviceCsr };
             });

@@ -89,9 +89,8 @@ export class AppLauncher {
     }
 
     public static getNodeModulesRootByProjectPath(projectRootPath: string): string {
-        const appLauncher: AppLauncher = AppLauncher.getAppLauncherByProjectRootPath(
-            projectRootPath,
-        );
+        const appLauncher: AppLauncher =
+            AppLauncher.getAppLauncherByProjectRootPath(projectRootPath);
 
         return appLauncher.getOrUpdateNodeModulesRoot();
     }
@@ -269,10 +268,11 @@ export class AppLauncher {
         }
 
         try {
-            const versions = await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
-                mobilePlatformOptions.nodeModulesRoot,
-                ProjectVersionHelper.generateAdditionalPackagesToCheckByPlatform(launchArgs),
-            );
+            const versions =
+                await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
+                    mobilePlatformOptions.nodeModulesRoot,
+                    ProjectVersionHelper.generateAdditionalPackagesToCheckByPlatform(launchArgs),
+                );
             mobilePlatformOptions.reactNativeVersions = versions;
             extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(
                 launchArgs,
