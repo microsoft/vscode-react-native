@@ -3,8 +3,6 @@
 
 import * as assert from "assert";
 import * as path from "path";
-import * as fs from "fs";
-import * as cp from "child_process";
 import rimraf = require("rimraf");
 import * as sinon from "sinon";
 import * as extensionHelper from "../../src/common/extensionHelper";
@@ -45,7 +43,6 @@ suite("packageLoader", async () => {
         const sampleProjectNodeModulesPath = path.join(sampleProjectPath, "node_modules");
         const sampleProjectPackageLockJsonPath = path.join(sampleProjectPath, "package-lock.json");
 
-        console.log("sampleProjectPath", sampleProjectPath);
         const commandExecutor = new CommandExecutor(sampleProjectPath, sampleProjectPath);
 
         let findFileInFolderHierarchyStub: Sinon.SinonStub | undefined;
@@ -104,25 +101,6 @@ suite("packageLoader", async () => {
         });
 
         test("The package loader should install packages in node_modules where these packages are not present", async function () {
-            console.log("process.env", process.env);
-            console.log(
-                "npm v",
-                cp
-                    .execSync(`${HostPlatform.getNpmCliCommand("npm")} -v`, {
-                        cwd: sampleProjectPath,
-                    })
-                    .toString(),
-            );
-            console.log("node v", cp.execSync("node -v").toString());
-
-            if (!fs.existsSync(sampleProjectPath)) {
-                console.log(`Path ${sampleProjectPath} doesn't exist`);
-            }
-
-            if (!fs.existsSync(path.join(sampleProjectPath, "package.json"))) {
-                console.log(`Path ${sampleProjectPath}⁄package.json doesn't exist`);
-            }
-
             this.timeout(packageLoaderTestTimeout);
             // There is the problem with '--no-save' flag for 'npm install' command for npm v6.
             // Installing npm dependencies with the `--no-save` flag will remove
