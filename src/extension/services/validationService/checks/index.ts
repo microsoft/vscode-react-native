@@ -14,6 +14,7 @@ import java from "./java";
 import nodeJs from "./nodeJS";
 import npm from "./npm";
 import watchman from "./watchman";
+import iosDeploy from "./iosDeploy";
 import xcodebuild from "./xcodebuild";
 import expoCli from "./expoCli";
 import { IValidation } from "./types";
@@ -22,6 +23,7 @@ export const getChecks = (): IValidation[] => {
     // if some checks become obsolete (e.g. no need to check both npm and yarn) - write logic here
 
     const checks = [
+        iosDeploy,
         adbAndroid,
         adbExpo,
         emulator,
