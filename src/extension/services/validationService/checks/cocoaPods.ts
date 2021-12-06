@@ -16,7 +16,7 @@ const toLocale = nls.loadMessageBundle();
 const label = "CocoaPods";
 
 async function test(): Promise<ValidationResultT> {
-    if (!cexists.sync("gem")) {
+    if (!cexists.sync("pod")) {
         return {
             status: "failure",
             comment: createNotFoundMessage(label),
