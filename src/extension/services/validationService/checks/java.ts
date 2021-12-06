@@ -64,17 +64,6 @@ async function test(): Promise<ValidationResultT> {
         };
     }
 
-    // const isNewer = semver.gt(version, "1.12.0");
-
-    // if (isNewer) {
-    //     return {
-    //         status: "partial-success",
-    //         comment:
-    //             "Detected version is newer than 1.12.0 " +
-    //             `Please install ${label} 8 in case of errors`,
-    //     };
-    // }
-
     return { status: "success" };
 }
 
