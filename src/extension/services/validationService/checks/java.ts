@@ -36,9 +36,13 @@ async function test(): Promise<ValidationResultT> {
     // https://stackoverflow.com/questions/13483443/why-does-java-version-go-to-stderr
     // `java -version` goes to stderr...
     const text = normizeStr(data.stderr).split("\n")[0];
-    const reg = /version "(.*?)"( |$)/gi;
     // something like 1.8.0
-    const version = semver.coerce(reg.exec(text)?.[1]);
+    const vOldReg = /version "(.*?)"( |$)/gi;
+    // something like 11.0.12
+    const vNewReg = /java (.*?)( |$)/gi;
+    const version = semver.coerce(vOldReg.exec(text)?.[1] || vNewReg.exec(text)?.[1]);
+
+    console.log(`Detected Java Version: ${version}`); // #todo> rm
 
     if (!version) {
         return {
@@ -47,6 +51,8 @@ async function test(): Promise<ValidationResultT> {
         };
     }
 
+    // the fact that version format has changed after java8 does not
+    // change this line, but it is something to keep in mind
     const isOlder = semver.lt(version, "1.8.0");
 
     if (isOlder) {
