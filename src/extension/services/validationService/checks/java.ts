@@ -37,8 +37,12 @@ async function test(): Promise<ValidationResultT> {
     // `java -version` goes to stderr...
     const text = normizeStr(data.stderr).split("\n")[0];
     // something like 1.8.0
+    // example `java -version` output: java version "16.0.1" 2021-04-20
     const vOldReg = /version "(.*?)"( |$)/gi;
     // something like 11.0.12
+    // this regex parses the output of `java --version`, which should not be required,
+    // but let's leave it here just to be sure nothing breaks in future java versions
+    // example `java --version` output: java 16.0.1 2021-04-20
     const vNewReg = /java (.*?)( |$)/gi;
     const version = semver.coerce(vOldReg.exec(text)?.[1] || vNewReg.exec(text)?.[1]);
 
