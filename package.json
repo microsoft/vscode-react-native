@@ -1219,7 +1219,7 @@
     "vsce": "^2.2.0",
     "vscode-debugprotocol": "1.40.0",
     "vscode-nls-dev": "3.3.2",
-    "vscode-test": "^1.5.2",
+    "vscode-test": "^1.6.1",
     "webpack": "5.28.0",
     "webpack-bundle-analyzer": "4.4.0"
   },
