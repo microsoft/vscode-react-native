@@ -128,7 +128,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     let extProps: ICommandTelemetryProperties = {};
     if (workspaceFolders) {
         extProps = {
-            ["workspaceFoldersCount"]: { value: workspaceFolders.length, isPii: false },
+            workspaceFoldersCount: { value: workspaceFolders.length, isPii: false },
         };
     }
 

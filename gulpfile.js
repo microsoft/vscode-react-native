@@ -335,7 +335,7 @@ const findChangedFiles = async () => {
  * @param {*} callback
  * @param {OptionsT} options_
  */
-const runEslint = async (callback, options_) => {
+const runEslint = async options_ => {
     /** @type {OptionsT} */
     const options = Object.assign({ color: true, fix: false, changedOnly: false }, options_);
 
@@ -344,7 +344,6 @@ const runEslint = async (callback, options_) => {
         : ["src/**/*.ts"];
 
     if (files.length === 0) {
-        callback();
         return;
     }
 
@@ -359,18 +358,26 @@ const runEslint = async (callback, options_) => {
         cwd: __dirname,
     });
 
-    child.on("exit", code => (code ? callback(`Eslint exited with code ${code}`) : callback()));
+    await new Promise((resolve, reject) => {
+        child.on("exit", code => {
+            if (code) {
+                reject(`Eslint exited with code ${code}`);
+            } else {
+                resolve();
+            }
+        });
+    });
 };
 
 gulp.task("format:prettier", callback => runPrettier(false, true, callback));
-gulp.task("format:eslint", callback => runEslint(callback, { fix: true }));
+gulp.task("format:eslint", callback => runEslint({ fix: true }));
 gulp.task("format", gulp.series("format:eslint"));
 
 gulp.task("lint:prettier", callback => runPrettier(false, false, callback));
-gulp.task("lint:eslint", callback => runEslint(callback, { fix: false }));
-gulp.task("lint", gulp.series("lint:eslint"));
+gulp.task("lint:eslint", callback => runEslint({ fix: false }));
+gulp.task("lint", callback => runEslint({ fix: false }));
 gulp.task("lint-pre-commit", callback =>
-    runEslint(callback, { fix: false, color: false, changedOnly: true }),
+    runEslint({ fix: false, color: false, changedOnly: true }),
 );
 
 /** Run webpack to bundle the extension output files */
@@ -413,14 +420,11 @@ gulp.task(
     }),
 );
 
-gulp.task(
-    "build-dev",
-    gulp.series(function runBuild(done) {
-        build(false, false).once("finish", () => {
-            done();
-        });
-    }),
-);
+gulp.task("build-dev", () => {
+    build(true, false).once("finish", () => {
+        done();
+    });
+});
 
 gulp.task("quick-build", gulp.series("build-dev"));
 

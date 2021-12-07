@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+/* eslint-disable */
+
 import * as fs from "fs";
 import * as path from "path";
 import { logger } from "vscode-debugadapter/lib/logger";
@@ -52,7 +54,9 @@ function isAvailable(): Promise<boolean> {
 export async function isXcodeDetected(): Promise<boolean> {
     return new ChildProcess()
         .execToString("xcode-select -p")
-        .then(stdout => fs.existsSync(stdout.trim()))
+        .then(stdout => {
+            return fs.existsSync(stdout.trim());
+        })
         .catch(_ => false);
 }
 
@@ -66,17 +70,16 @@ async function queryTargetsWithoutXcodeDependency(
             .then(stdout => parseIdbTargets(stdout))
             .catch((e: Error) => {
                 logger.warn(
-                    `Failed to query idb_companion --list 1 --only device for physical targets: ${String(
-                        e,
-                    )}`,
+                    `Failed to query idb_companion --list 1 --only device for physical targets: ${e}`,
                 );
                 return [];
             });
+    } else {
+        logger.warn(
+            `Unable to locate idb_companion in ${idbCompanionPath}. Try running sudo yum install -y fb-idb`,
+        );
+        return [];
     }
-    logger.warn(
-        `Unable to locate idb_companion in ${idbCompanionPath}. Try running sudo yum install -y fb-idb`,
-    );
-    return [];
 }
 
 function parseIdbTargets(lines: string): Array<DeviceTarget> {
@@ -107,7 +110,7 @@ export async function idbListTargets(idbPath: string): Promise<Array<DeviceTarge
             parseIdbTargets(stdout),
         )
         .catch((e: Error) => {
-            logger.warn(`Failed to query idb for targets: ${String(e)}`);
+            logger.warn(`Failed to query idb for targets: ${e}`);
             return [];
         });
 }
@@ -162,7 +165,7 @@ async function targets(): Promise<Array<DeviceTarget>> {
                   return targets;
               })
               .catch(e => {
-                  logger.warn(`Failed to query for devices using xctrace: ${String(e)}`);
+                  logger.warn(`Failed to query for devices using xctrace: ${e}`);
                   return [];
               });
 }

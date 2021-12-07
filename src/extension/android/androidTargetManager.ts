@@ -179,7 +179,7 @@ export class AndroidTargetManager extends MobileTargetManager {
                 return null;
             };
 
-            return PromiseUtil.waitUntil<string>(
+            void PromiseUtil.waitUntil<string>(
                 condition,
                 1000,
                 AndroidTargetManager.EMULATOR_START_TIMEOUT * 1000,

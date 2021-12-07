@@ -159,7 +159,7 @@ export class GeneralPlatform {
     ): any {
         if (runArguments.length > 0) {
             const optIdx = runArguments.indexOf(optName);
-            let result: any = undefined;
+            let result: any;
 
             if (optIdx > -1) {
                 result = binary ? true : runArguments[optIdx + 1];

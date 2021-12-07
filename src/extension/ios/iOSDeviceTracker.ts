@@ -17,9 +17,9 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
 
     constructor() {
         super();
-        this.portForwardingClientPath =
-            (findFileInFolderHierarchy(__dirname, "static/PortForwardingMacApp.app") || __dirname) +
-            "/Contents/MacOS/PortForwardingMacApp";
+        this.portForwardingClientPath = `${
+            findFileInFolderHierarchy(__dirname, "static/PortForwardingMacApp.app") || __dirname
+        }/Contents/MacOS/PortForwardingMacApp`;
         this.iOSTargetManager = new IOSTargetManager();
         this.portForwarders = [];
     }

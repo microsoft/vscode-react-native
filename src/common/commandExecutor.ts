@@ -130,10 +130,9 @@ export class CommandExecutor {
     public async spawnWithProgress(
         command: string,
         args: string[],
-        options_: Options,
+        options: Options = { verbosity: CommandVerbosity.OUTPUT },
     ): Promise<void> {
-        const options = Object.assign(options_, { verbosity: CommandVerbosity.OUTPUT });
-        const spawnOptions = { cwd: this.currentWorkingDirectory, ...options };
+        const spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options);
         const commandWithArgs = `${command} ${args.join(" ")}`;
         const timeBetweenDots = 1500;
         let lastDotTime = 0;
@@ -196,7 +195,7 @@ export class CommandExecutor {
         options: Options = {},
     ): ISpawnResult {
         const spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options);
-        const commandWithArgs = command + " " + args.join(" ");
+        const commandWithArgs = `${command} ${args.join(" ")}`;
 
         this.logger.debug(
             CommandExecutor.getCommandStatusString(commandWithArgs, CommandStatus.Start),

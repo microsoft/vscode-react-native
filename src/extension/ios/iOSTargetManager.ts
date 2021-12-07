@@ -247,7 +247,7 @@ export class IOSTargetManager extends MobileTargetManager {
                 return onlineTarget ? true : null;
             };
 
-            return PromiseUtil.waitUntil<boolean>(
+            void PromiseUtil.waitUntil<boolean>(
                 condition,
                 1000,
                 IOSTargetManager.SIMULATOR_START_TIMEOUT * 1000,

@@ -112,9 +112,11 @@ export class SurveyService implements vscode.Disposable {
             return;
         }
 
-        let surveyConfig: SurveyConfig;
-        surveyConfig = !ExtensionConfigManager.config.has(this.SURVEY_CONFIG_NAME)
-            ? {
+        const surveyConfigBase: SurveyConfig = ExtensionConfigManager.config.has(
+            this.SURVEY_CONFIG_NAME,
+        )
+            ? this.prepareRawConfig(ExtensionConfigManager.config.get(this.SURVEY_CONFIG_NAME))
+            : {
                   shortPeriodToRemind: 30,
                   longPeriodToRemind: 90,
                   popCoveragePercent: 0.1,
@@ -122,10 +124,9 @@ export class SurveyService implements vscode.Disposable {
                   daysLeftBeforeSurvey: this.extensionFirstTimeInstalled ? 30 : 3,
                   surveyName: "none",
                   surveyUrl: "",
-              }
-            : this.prepareRawConfig(ExtensionConfigManager.config.get(this.SURVEY_CONFIG_NAME));
+              };
 
-        surveyConfig = await this.mergeRemoteConfigToLocal(surveyConfig);
+        const surveyConfig = await this.mergeRemoteConfigToLocal(surveyConfigBase);
 
         this.saveSurveyConfig(surveyConfig);
 

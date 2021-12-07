@@ -54,7 +54,7 @@ export class OutputVerifier {
         const patternsError = this.findAnyFailurePattern(failurePatterns);
         if (patternsError) {
             if (processError) {
-                processError.message += "\n" + patternsError.message;
+                processError.message += `\n${patternsError.message}`;
                 throw processError;
             }
             throw patternsError;

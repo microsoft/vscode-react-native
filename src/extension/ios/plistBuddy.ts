@@ -84,7 +84,7 @@ export class PlistBuddy {
                     rnVersions.reactNativeVersion,
                 );
                 if (platform === PlatformType.macOS) {
-                    scheme = scheme + "-macOS";
+                    scheme = `${scheme}-macOS`;
                 }
             }
             productsFolder = path.join(platformProjectRoot, "build", scheme, "Build", "Products");

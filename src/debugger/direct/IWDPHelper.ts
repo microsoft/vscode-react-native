@@ -30,7 +30,7 @@ export class IWDPHelper {
             const portRange = `null:${proxyPort},:${proxyRangeStart}-${proxyRangeEnd}`;
             this.iOSWebkitDebugProxyProcess = cp.spawn("ios_webkit_debug_proxy", ["-c", portRange]);
             this.iOSWebkitDebugProxyProcess.on("error", err => {
-                reject(new Error("Unable to start ios_webkit_debug_proxy: " + String(err)));
+                reject(new Error(`Unable to start ios_webkit_debug_proxy: ${String(err)}`));
             });
             // Allow some time for the spawned process to error out
             void PromiseUtil.delay(250).then(() => resolve());

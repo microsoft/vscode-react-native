@@ -113,7 +113,7 @@ export class SourceMapUtil {
         // Update the body with the new location of the source map on storage.
         return scriptBody.replace(
             SourceMapUtil.SourceMapURLRegex,
-            "//# sourceMappingURL=" + path.basename(sourceMappingUrl.pathname),
+            `//# sourceMappingURL=${path.basename(sourceMappingUrl.pathname)}`,
         );
     }
 
@@ -137,24 +137,25 @@ export class SourceMapUtil {
      */
     public getSourceMapRelativeUrl(body: string): string | null {
         const matchesList = body.match(SourceMapUtil.SourceMapURLGlobalRegex);
+        const sourceMapMatch = matchesList?.[matchesList.length - 1].match(
+            SourceMapUtil.SourceMapURLRegex,
+        );
+
         // If match is null, the body doesn't contain the source map
-        if (matchesList) {
-            const sourceMapMatch = matchesList[matchesList.length - 1].match(
-                SourceMapUtil.SourceMapURLRegex,
-            );
-            if (sourceMapMatch) {
-                // On React Native macOS 0.62 and RN Windows 0.65 sourceMappingUrl looks like:
-                // # sourceMappingURL=//localhost:8081/index.map?platform=macos&dev=true&minify=false
-                // Add 'http:' protocol to avoid errors in further processing
-                return (sourceMapMatch[2].includes("platform=macos") ||
-                    sourceMapMatch[2].includes("platform=window")) &&
-                    !sourceMapMatch[2].includes("http:") &&
-                    sourceMapMatch[2].startsWith("//")
-                    ? "http:" + sourceMapMatch[2]
-                    : sourceMapMatch[2];
-            }
+        if (!matchesList || !sourceMapMatch) {
+            return null;
         }
-        return null;
+
+        const el = sourceMapMatch[2];
+        // On React Native macOS 0.62 and RN Windows 0.65 sourceMappingUrl looks like:
+        // # sourceMappingURL=//localhost:8081/index.map?platform=macos&dev=true&minify=false
+        // Add 'http:' protocol to avoid errors in further processing
+        const macOsOrWin =
+            (el.includes("platform=macos") || el.includes("platform=window")) &&
+            el.startsWith("//") &&
+            !el.includes("http:");
+
+        return macOsOrWin ? `http:${el}` : el;
     }
 
     /**

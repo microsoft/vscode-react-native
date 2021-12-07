@@ -53,7 +53,7 @@ export abstract class TelemetryGeneratorBase {
         } catch (error) {
             // We don"t want to crash the functionality if the telemetry fails.
             // This error message will be a javascript error message, so it"s not pii
-            this.addString("telemetryGenerationError." + baseName, String(error), () => false);
+            this.addString(`telemetryGenerationError.${baseName}`, String(error), () => false);
         }
 
         return this;
@@ -118,10 +118,8 @@ export abstract class TelemetryGeneratorBase {
         piiEvaluator: { (value: string, name: string): boolean },
     ): void {
         // Object is an array, we add each element as baseNameNNN
-        let elementIndex = 1; // We send telemetry properties in a one-based index
-        array.forEach((element: any) =>
-            // are sure about this?
-            this.addWithPiiEvaluator(baseName + String(elementIndex++), element, piiEvaluator),
+        array.forEach((element: any, i) =>
+            this.addWithPiiEvaluator(baseName + String(i + 1), element, piiEvaluator),
         );
     }
 
@@ -132,7 +130,7 @@ export abstract class TelemetryGeneratorBase {
     ): void {
         // Object is a hash, we add each element as baseName.KEY
         Object.keys(hash).forEach((key: string) =>
-            this.addWithPiiEvaluator(baseName + "." + key, hash[key], piiEvaluator),
+            this.addWithPiiEvaluator(`${baseName}.${key}`, hash[key], piiEvaluator),
         );
     }
 
