@@ -10,7 +10,7 @@ import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { InternalError, NestedError } from "../common/error/internalError";
-import { IRunOptions, PlatformType } from "../extension/launchArgs";
+import { ILaunchArgs, IRunOptions, PlatformType } from "../extension/launchArgs";
 import { AppLauncher } from "../extension/appLauncher";
 import { LogLevel } from "../extension/log/LogHelper";
 import { ProjectVersionHelper, RNPackageVersions } from "../common/projectVersionHelper";
@@ -234,31 +234,16 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         );
     }
 
-    protected prepareAttachRunOptions(attachArgs: IAttachRequestArgs, packageVersions: RNPackageVersions): any{
-        const workspaceFolder: vscode.WorkspaceFolder = <vscode.WorkspaceFolder>(
-            vscode.workspace.getWorkspaceFolder(vscode.Uri.file(attachArgs.cwd))
-        );
-        const nodeModulesRootPath: string | null = getNodeModulesInFolderHierarchy(
-            this.appLauncher.getPackager().getProjectPath(),
-        );
-        const projectRootPath = SettingsHelper.getReactNativeProjectRoot(attachArgs.cwd);
-
-        let runOptions: any = {
-            platform: attachArgs.platform,
-            workspaceRoot: workspaceFolder.uri.fsPath,
-            projectRoot: projectRootPath,
-            nodeModulesRoot: nodeModulesRootPath,
-            reactNativeVersions: packageVersions,
-            env: attachArgs.env,
-            envFile: attachArgs.envFile
-        };
-        return runOptions;
-    }
-
-    protected async preparePackagerBeforeAttach(runOptions: IAttachRequestArgs, versions: RNPackageVersions): Promise<any>{
-        if (!await this.appLauncher.getPackager().isRunning()){
-            runOptions = this.prepareAttachRunOptions(runOptions, versions);
-            this.appLauncher.getPackager().setRunOptions(runOptions);
+    protected async preparePackagerBeforeAttach(
+        args: IAttachRequestArgs,
+        reactNativeVersions: RNPackageVersions,
+    ): Promise<any> {
+        if (!(await this.appLauncher.getPackager().isRunning())) {
+            const attachArgs: ILaunchArgs = Object.assign(
+                { reactNativeVersions },
+                this.appLauncher.prepareBaseRunOptions(args),
+            );
+            this.appLauncher.getPackager().setRunOptions(attachArgs);
             this.appLauncher.getPackager().start();
         }
     }

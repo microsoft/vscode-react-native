@@ -132,7 +132,7 @@ export class RNDebugSession extends DebugSessionBase {
                         this.cancellationTokenSource.token,
                     );
 
-                    if (attachArgs.request == "attach"){
+                    if (attachArgs.request == "attach") {
                         await this.preparePackagerBeforeAttach(attachArgs, versions);
                     }
 

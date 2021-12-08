@@ -25,11 +25,13 @@ import { generateRandomPortNumber } from "../common/extensionHelper";
 import { DEBUG_TYPES } from "./debuggingConfiguration/debugConfigTypesAndConstants";
 import * as nls from "vscode-nls";
 import { MultipleLifetimesAppWorker } from "../debugger/appWorker";
-import { PlatformType } from "./launchArgs";
+import { IBaseArgs, ILaunchArgs, PlatformType } from "./launchArgs";
 import { LaunchScenariosManager } from "./launchScenariosManager";
 import { createAdditionalWorkspaceFolder, onFolderAdded } from "./rn-extension";
 import { RNProjectObserver } from "./rnProjectObserver";
 import { GeneralMobilePlatform } from "./generalMobilePlatform";
+import { dir } from "console";
+import { versions } from "process";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -232,14 +234,6 @@ export class AppLauncher {
             mobilePlatformOptions.debugLaunchActivity = launchArgs.launchActivity;
         }
 
-        if (launchArgs.type === DEBUG_TYPES.REACT_NATIVE_DIRECT) {
-            mobilePlatformOptions.isDirect = true;
-        }
-
-        mobilePlatformOptions.packagerPort = SettingsHelper.getPackagerPort(
-            launchArgs.cwd || launchArgs.program,
-        );
-
         const platformDeps: MobilePlatformDeps = {
             packager: this.packager,
             projectObserver: this.projectObserver,
@@ -422,21 +416,36 @@ export class AppLauncher {
         }
     }
 
-    private requestSetup(args: any): any {
+    public prepareBaseRunOptions(args: any): IBaseArgs {
+        let direct;
+        if (args.type === DEBUG_TYPES.REACT_NATIVE_DIRECT) {
+            direct = true;
+        }
         const workspaceFolder: vscode.WorkspaceFolder = <vscode.WorkspaceFolder>(
             vscode.workspace.getWorkspaceFolder(vscode.Uri.file(args.cwd || args.program))
         );
         const projectRootPath = this.getProjectRoot(args);
-        let mobilePlatformOptions: any = {
+        let mobilePlatformOptions: IBaseArgs = {
+            platform: args.platform,
             workspaceRoot: workspaceFolder.uri.fsPath,
             projectRoot: projectRootPath,
-            platform: args.platform,
             env: args.env,
             envFile: args.envFile,
-            target: args.target || "simulator",
-            enableDebug: args.enableDebug,
             nodeModulesRoot: this.getOrUpdateNodeModulesRoot(),
+            isDirect: direct,
+            packagerPort: SettingsHelper.getPackagerPort(args.cwd || args.program),
         };
+        return mobilePlatformOptions;
+    }
+
+    private requestSetup(args: any): any {
+        const workspaceFolder: vscode.WorkspaceFolder = <vscode.WorkspaceFolder>(
+            vscode.workspace.getWorkspaceFolder(vscode.Uri.file(args.cwd || args.program))
+        );
+        let mobilePlatformOptions: any = Object.assign(
+            { target: args.target, enableDebug: args.enableDebug },
+            this.prepareBaseRunOptions(args),
+        );
 
         if (args.platform === PlatformType.Exponent) {
             mobilePlatformOptions.expoHostType = args.expoHostType || "lan";
@@ -458,7 +467,6 @@ export class AppLauncher {
         } else {
             mobilePlatformOptions.runArguments = args.runArguments;
         }
-
         return mobilePlatformOptions;
     }
 
