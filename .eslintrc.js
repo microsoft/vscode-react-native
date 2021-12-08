@@ -1,22 +1,19 @@
 const prettierConfig = require("./package.json").prettier;
 
 module.exports = {
-    ignorePatterns: ["**/*.d.ts", "**/*.js"],
     root: true,
+    ignorePatterns: ["**/*.d.ts", "**/*.js"],
     env: {
         node: true,
         browser: false,
         es2020: true,
     },
     parserOptions: {
-        parser: require.resolve("@typescript-eslint/parser"),
-        tsconfigRootDir: __dirname,
         ecmaVersion: 2020,
-        sourceType: "module",
+        parser: require.resolve("@typescript-eslint/parser"),
         project: "./tsconfig.json",
-        // ecmaFeatures: {
-        //   jsx: false,
-        // },
+        sourceType: "module",
+        tsconfigRootDir: __dirname,
     },
     plugins: ["@typescript-eslint", "prettier", "import", "promise", "unicorn", "header"],
     extends: [

@@ -298,12 +298,11 @@ gulp.task("check-copyright", () => {
         .pipe(copyright());
 });
 
-const runPrettier = (onlyStaged, fix, callback) => {
+const runPrettier = async fix => {
     const child = cp.fork(
         "./node_modules/@mixer/parallel-prettier/dist/index.js",
         [
             fix ? "--write" : "--list-different",
-            "src/**/*.ts",
             "test/**/*.ts",
             "gulpfile.js",
             "*.md",
@@ -316,7 +315,11 @@ const runPrettier = (onlyStaged, fix, callback) => {
         },
     );
 
-    child.on("exit", code => (code ? callback(`Prettier exited with code ${code}`) : callback()));
+    await new Promise((resolve, reject) => {
+        child.on("exit", code => {
+            code ? reject(`Prettier exited with code ${code}`) : resolve();
+        });
+    });
 };
 
 const findChangedFiles = async () => {
@@ -331,8 +334,6 @@ const findChangedFiles = async () => {
  */
 
 /**
- *
- * @param {*} callback
  * @param {OptionsT} options_
  */
 const runEslint = async options_ => {
@@ -360,22 +361,18 @@ const runEslint = async options_ => {
 
     await new Promise((resolve, reject) => {
         child.on("exit", code => {
-            if (code) {
-                reject(`Eslint exited with code ${code}`);
-            } else {
-                resolve();
-            }
+            code ? reject(`Eslint exited with code ${code}`) : resolve();
         });
     });
 };
 
-gulp.task("format:prettier", callback => runPrettier(false, true, callback));
+gulp.task("format:prettier", callback => runPrettier(true));
 gulp.task("format:eslint", callback => runEslint({ fix: true }));
-gulp.task("format", gulp.series("format:eslint"));
+gulp.task("format", gulp.series("format:prettier", "format:eslint"));
 
-gulp.task("lint:prettier", callback => runPrettier(false, false, callback));
+gulp.task("lint:prettier", callback => runPrettier(false));
 gulp.task("lint:eslint", callback => runEslint({ fix: false }));
-gulp.task("lint", callback => runEslint({ fix: false }));
+gulp.task("lint", gulp.series("lint:prettier", "lint:eslint"));
 gulp.task("lint-pre-commit", callback =>
     runEslint({ fix: false, color: false, changedOnly: true }),
 );
