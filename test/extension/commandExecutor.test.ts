@@ -214,9 +214,8 @@ suite("commandExecutor", function () {
 
             test("selectReactNativeCLI should return global CLI", (done: Mocha.Done) => {
                 const randomHash = new Crypto().hash(Math.random().toString(36).substring(2, 15));
-                RNGlobalCLINameContent[
-                    "react-native-tools.reactNativeGlobalCommandName"
-                ] = randomHash;
+                RNGlobalCLINameContent["react-native-tools.reactNativeGlobalCommandName"] =
+                    randomHash;
                 let commandExecutor: CommandExecutor = new CommandExecutor(
                     nodeModulesRoot,
                     sampleReactNativeProjectDir,
