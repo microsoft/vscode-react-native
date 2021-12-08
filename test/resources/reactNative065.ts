@@ -12,12 +12,11 @@ import { Recording, Simulator } from "./processExecution/simulator";
 import { AdbHelper } from "../../src/extension/android/adb";
 import { APKSerializer } from "./simulators/apkSerializer";
 
-const sampleRNProjectPath = path.join(__dirname, "sampleReactNative022Project");
+const sampleRNProjectPath = path.join(__dirname, "sampleReactNativeProject");
 const processExecutionsRecordingsPath = path.join(__dirname, "processExecutionsRecordings");
 
-/* This class simulates calling the React-Native CLI v0.22. It currently supports react-native init
-    and react-native run-android. */
-export class ReactNative022 {
+// This class simulates calling the React-Native CLI v0.65.
+export class ReactNative065 {
     public static DEFAULT_PROJECT_FILE = path.join(sampleRNProjectPath, "package.json");
 
     private static ANDROID_APK_RELATIVE_PATH = "android/app/build/outputs/apk/app-debug.apk";
@@ -134,7 +133,7 @@ export class ReactNative022 {
             .then(() => {
                 this.androidAPKPath = path.join(
                     this.projectRoot,
-                    ReactNative022.ANDROID_APK_RELATIVE_PATH,
+                    ReactNative065.ANDROID_APK_RELATIVE_PATH,
                 );
                 return new APKSerializer(this.fileSystem).writeApk(this.androidAPKPath, {
                     packageName: this.androidPackageName,
@@ -204,6 +203,6 @@ export class ReactNative022 {
 
     private readDefaultProjectFile(): Promise<string | Buffer> {
         const realFileSystem = new FileSystem(); // We always use the real file system (not the mock one) to read the sample project
-        return realFileSystem.readFile(ReactNative022.DEFAULT_PROJECT_FILE);
+        return realFileSystem.readFile(ReactNative065.DEFAULT_PROJECT_FILE);
     }
 }
