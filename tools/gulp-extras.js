@@ -85,8 +85,9 @@ function checkImports() {
                 var modulePath = re.exec(importStatement);
                 if (modulePath && modulePath[1]) {
                     var moduleFilePath = path.resolve(workingDirectory, modulePath[1] + ".ts");
+                    var moduleFilePath2 = path.resolve(workingDirectory, modulePath[1] + "/index.ts");
 
-                    if (!existsCaseSensitive(moduleFilePath)) {
+                    if (!existsCaseSensitive(moduleFilePath) && !existsCaseSensitive(moduleFilePath2)) {
                         logError(pluginName, file, `unresolved import: "${modulePath[1]}"`);
                         hadErrors = true;
                     }

@@ -12,7 +12,7 @@ import { PackageLoader, PackageConfig } from "../../src/common/packageLoader";
 import { CommandExecutor } from "../../src/common/commandExecutor";
 import { HostPlatform } from "../../src/common/hostPlatform";
 
-const packageLoaderTestTimeout = 1000 * 60;
+const packageLoaderTestTimeout = 3 * 60 * 1000;
 // We need to import xdlInterface to import PackageLoad correctly.
 // Probably a problem is related to import of static functions into test files
 console.log(XDL);
@@ -38,15 +38,12 @@ suite("packageLoader", async () => {
             __dirname,
             "..",
             "resources",
-            "sampleReactNative022Project",
+            "sampleReactNativeProject",
         );
         const sampleProjectNodeModulesPath = path.join(sampleProjectPath, "node_modules");
         const sampleProjectPackageLockJsonPath = path.join(sampleProjectPath, "package-lock.json");
 
-        const commandExecutor = new CommandExecutor(
-            sampleProjectNodeModulesPath,
-            sampleProjectPath,
-        );
+        const commandExecutor = new CommandExecutor(sampleProjectPath, sampleProjectPath);
 
         let findFileInFolderHierarchyStub: Sinon.SinonStub | undefined;
         let getVersionFromExtensionNodeModulesStub: Sinon.SinonStub | undefined;
@@ -83,6 +80,7 @@ suite("packageLoader", async () => {
         });
 
         suiteTeardown(function () {
+            this.timeout(packageLoaderTestTimeout);
             findFileInFolderHierarchyStub?.restore();
             getVersionFromExtensionNodeModulesStub?.restore();
             tryToRequireAfterInstallSpy?.restore();
@@ -93,6 +91,7 @@ suite("packageLoader", async () => {
         });
 
         teardown(function () {
+            this.timeout(packageLoaderTestTimeout);
             findFileInFolderHierarchyStub?.reset();
             getVersionFromExtensionNodeModulesStub?.reset();
             tryToRequireAfterInstallSpy?.reset();

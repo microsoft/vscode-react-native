@@ -44,7 +44,8 @@
     "onCommand:reactNative.publishToExpHost",
     "onCommand:reactNative.showDevMenu",
     "onCommand:reactNative.reloadApp",
-    "onCommand:reactNative.runInspector"
+    "onCommand:reactNative.runInspector",
+    "onCommand:reactNative.testDevEnvironment"
   ],
   "main": "./src/extension/rn-extension",
   "contributes": {
@@ -165,6 +166,11 @@
       {
         "command": "reactNative.stopNetworkInspector",
         "title": "%reactNative.command.stopNetworkInspector.title%",
+        "category": "React Native"
+      },
+      {
+        "command": "reactNative.testDevEnvironment",
+        "title": "%reactNative.command.testDevEnvironment.title%",
         "category": "React Native"
       },
       {
@@ -1126,6 +1132,7 @@
     ]
   },
   "dependencies": {
+    "command-exists": "1.2.9",
     "configstore": "5.0.1",
     "extract-opts": "2.2.0",
     "flatten-source-map": "0.0.2",
@@ -1154,6 +1161,7 @@
   },
   "devDependencies": {
     "@mixer/parallel-prettier": "^2.0.1",
+    "@types/command-exists": "^1.2.0",
     "@types/configstore": "4.0.0",
     "@types/ip": "1.1.0",
     "@types/mkdirp": "1.0.0",
@@ -1209,7 +1217,7 @@
     "vsce": "^2.2.0",
     "vscode-debugprotocol": "1.40.0",
     "vscode-nls-dev": "3.3.2",
-    "vscode-test": "^1.5.2",
+    "vscode-test": "^1.6.1",
     "webpack": "5.28.0",
     "webpack-bundle-analyzer": "4.4.0"
   },
