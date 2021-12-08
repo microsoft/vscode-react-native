@@ -13,11 +13,10 @@ import { InternalError, NestedError } from "../common/error/internalError";
 import { ILaunchArgs, IRunOptions, PlatformType } from "../extension/launchArgs";
 import { AppLauncher } from "../extension/appLauncher";
 import { LogLevel } from "../extension/log/LogHelper";
-import { ProjectVersionHelper, RNPackageVersions } from "../common/projectVersionHelper";
-import { getNodeModulesInFolderHierarchy } from "../common/extensionHelper";
+import { RNPackageVersions } from "../common/projectVersionHelper";
 import * as nls from "vscode-nls";
 import { SettingsHelper } from "../extension/settingsHelper";
-import { version, versions } from "process";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,

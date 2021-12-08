@@ -25,13 +25,12 @@ import { generateRandomPortNumber } from "../common/extensionHelper";
 import { DEBUG_TYPES } from "./debuggingConfiguration/debugConfigTypesAndConstants";
 import * as nls from "vscode-nls";
 import { MultipleLifetimesAppWorker } from "../debugger/appWorker";
-import { IBaseArgs, ILaunchArgs, PlatformType } from "./launchArgs";
+import { IBaseArgs, PlatformType } from "./launchArgs";
 import { LaunchScenariosManager } from "./launchScenariosManager";
 import { createAdditionalWorkspaceFolder, onFolderAdded } from "./rn-extension";
 import { RNProjectObserver } from "./rnProjectObserver";
 import { GeneralMobilePlatform } from "./generalMobilePlatform";
-import { dir } from "console";
-import { versions } from "process";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
