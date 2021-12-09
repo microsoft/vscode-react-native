@@ -211,7 +211,7 @@ export class AppLauncher {
         const workspaceFolder: vscode.WorkspaceFolder = <vscode.WorkspaceFolder>(
             vscode.workspace.getWorkspaceFolder(vscode.Uri.file(args.cwd || args.program))
         );
-        let baseRunOptions: IBaseArgs = {
+        const baseRunOptions: IBaseArgs = {
             platform: args.platform,
             workspaceRoot: workspaceFolder.uri.fsPath,
             projectRoot: this.getProjectRoot(args),
