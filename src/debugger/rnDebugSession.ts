@@ -20,7 +20,6 @@ import { JsDebugConfigAdapter } from "./jsDebugConfigAdapter";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import * as nls from "vscode-nls";
-
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,

@@ -16,7 +16,7 @@ export interface IBaseArgs {
     env?: any;
     envFile?: string;
     isDirect?: boolean;
-    packagerPort?: any;
+    packagerPort?: number;
 }
 
 export interface ILaunchArgs extends IBaseArgs {

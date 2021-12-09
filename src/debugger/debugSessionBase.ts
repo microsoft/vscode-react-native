@@ -243,7 +243,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
                 this.appLauncher.prepareBaseRunOptions(args),
             );
             this.appLauncher.getPackager().setRunOptions(attachArgs);
-            this.appLauncher.getPackager().start();
+            await this.appLauncher.getPackager().start();
         }
     }
 }

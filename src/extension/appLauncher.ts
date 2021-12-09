@@ -207,6 +207,23 @@ export class AppLauncher {
         return SettingsHelper.getPackagerPort(projectFolder);
     }
 
+    public prepareBaseRunOptions(args: any): IBaseArgs {
+        const workspaceFolder: vscode.WorkspaceFolder = <vscode.WorkspaceFolder>(
+            vscode.workspace.getWorkspaceFolder(vscode.Uri.file(args.cwd || args.program))
+        );
+        let baseRunOptions: IBaseArgs = {
+            platform: args.platform,
+            workspaceRoot: workspaceFolder.uri.fsPath,
+            projectRoot: this.getProjectRoot(args),
+            env: args.env,
+            envFile: args.envFile,
+            nodeModulesRoot: this.getOrUpdateNodeModulesRoot(),
+            isDirect: args.type === DEBUG_TYPES.REACT_NATIVE_DIRECT ? true: undefined,
+            packagerPort: SettingsHelper.getPackagerPort(args.cwd || args.program),
+        };
+        return baseRunOptions;
+    }
+
     public async launch(launchArgs: any): Promise<any> {
         let mobilePlatformOptions = this.requestSetup(launchArgs);
 
@@ -413,28 +430,6 @@ export class AppLauncher {
                 }
             }
         }
-    }
-
-    public prepareBaseRunOptions(args: any): IBaseArgs {
-        let direct;
-        if (args.type === DEBUG_TYPES.REACT_NATIVE_DIRECT) {
-            direct = true;
-        }
-        const workspaceFolder: vscode.WorkspaceFolder = <vscode.WorkspaceFolder>(
-            vscode.workspace.getWorkspaceFolder(vscode.Uri.file(args.cwd || args.program))
-        );
-        const projectRootPath = this.getProjectRoot(args);
-        let mobilePlatformOptions: IBaseArgs = {
-            platform: args.platform,
-            workspaceRoot: workspaceFolder.uri.fsPath,
-            projectRoot: projectRootPath,
-            env: args.env,
-            envFile: args.envFile,
-            nodeModulesRoot: this.getOrUpdateNodeModulesRoot(),
-            isDirect: direct,
-            packagerPort: SettingsHelper.getPackagerPort(args.cwd || args.program),
-        };
-        return mobilePlatformOptions;
     }
 
     private requestSetup(args: any): any {
