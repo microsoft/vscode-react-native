@@ -218,7 +218,7 @@ export class AppLauncher {
             env: args.env,
             envFile: args.envFile,
             nodeModulesRoot: this.getOrUpdateNodeModulesRoot(),
-            isDirect: args.type === DEBUG_TYPES.REACT_NATIVE_DIRECT ? true: undefined,
+            isDirect: args.type === DEBUG_TYPES.REACT_NATIVE_DIRECT,
             packagerPort: SettingsHelper.getPackagerPort(args.cwd || args.program),
         };
         return baseRunOptions;
