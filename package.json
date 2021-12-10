@@ -484,6 +484,19 @@
                 "type": "string",
                 "description": "%reactNative.attach.program.description%"
               },
+              "env": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "description": "%reactNative.attach.env.description%",
+                "default": {}
+              },
+              "envFile": {
+                "type": "string",
+                "description": "%reactNative.attach.envFile.description%",
+                "default": "${workspaceFolder}/.env"
+              },
               "cwd": {
                 "type": "string",
                 "description": "%reactNative.attach.cwd.description%",
