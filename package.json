@@ -727,6 +727,19 @@
                 "description": "%reactNative.attach.cwd.description%",
                 "default": "${workspaceFolder}"
               },
+              "env": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "description": "%reactNative.attach.env.description%",
+                "default": {}
+              },
+              "envFile": {
+                "type": "string",
+                "description": "%reactNative.attach.envFile.description%",
+                "default": "${workspaceFolder}/.env"
+              },
               "useHermesEngine": {
                 "type": "boolean",
                 "description": "%reactNative.direct.attach.useHermesEngine.description%",
