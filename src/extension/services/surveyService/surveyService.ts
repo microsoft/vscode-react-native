@@ -112,7 +112,7 @@ export class SurveyService implements vscode.Disposable {
             return;
         }
 
-        const surveyConfigBase: SurveyConfig = ExtensionConfigManager.config.has(
+        const surveyConfigLocal: SurveyConfig = ExtensionConfigManager.config.has(
             this.SURVEY_CONFIG_NAME,
         )
             ? this.prepareRawConfig(ExtensionConfigManager.config.get(this.SURVEY_CONFIG_NAME))
@@ -126,7 +126,7 @@ export class SurveyService implements vscode.Disposable {
                   surveyUrl: "",
               };
 
-        const surveyConfig = await this.mergeRemoteConfigToLocal(surveyConfigBase);
+        const surveyConfig = await this.mergeRemoteConfigToLocal(surveyConfigLocal);
 
         this.saveSurveyConfig(surveyConfig);
 

@@ -366,16 +366,14 @@ const runEslint = async options_ => {
     });
 };
 
-gulp.task("format:prettier", callback => runPrettier(true));
-gulp.task("format:eslint", callback => runEslint({ fix: true }));
+gulp.task("format:prettier", () => runPrettier(true));
+gulp.task("format:eslint", () => runEslint({ fix: true }));
 gulp.task("format", gulp.series("format:prettier", "format:eslint"));
 
-gulp.task("lint:prettier", callback => runPrettier(false));
-gulp.task("lint:eslint", callback => runEslint({ fix: false }));
+gulp.task("lint:prettier", () => runPrettier(false));
+gulp.task("lint:eslint", () => runEslint({ fix: false }));
 gulp.task("lint", gulp.series("lint:prettier", "lint:eslint"));
-gulp.task("lint-pre-commit", callback =>
-    runEslint({ fix: false, color: false, changedOnly: true }),
-);
+gulp.task("lint-pre-commit", () => runEslint({ fix: false, color: false, changedOnly: true }));
 
 /** Run webpack to bundle the extension output files */
 gulp.task("webpack-bundle", async () => {
