@@ -118,7 +118,7 @@ export class ChildProcess {
                 if (code === 0) {
                     resolve();
                 } else {
-                    const commandWithArgs = command + " " + args.join(" ");
+                    const commandWithArgs = `${command} ${args.join(" ")}`;
                     if (showStdOutputsOnError) {
                         let details = "";
                         if (stdoutChunks.length > 0) {

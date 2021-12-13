@@ -78,8 +78,7 @@ suite("inspectorConsoleView", function () {
                     { key: "Connection", value: "Keep-Alive" },
                     { key: "Content-Type", value: "application/json;charset=utf-8" },
                 ],
-                data:
-                    "eyJ0ZXN0U3RyIjoidGVzdCIsInRlc3RPYmoiOnsidGVzdE51bSI6MTMyNCwidGVzdFN0cjEiOiJ0\nZXN0MSJ9fQ==\n",
+                data: "eyJ0ZXN0U3RyIjoidGVzdCIsInRlc3RPYmoiOnsidGVzdE51bSI6MTMyNCwidGVzdFN0cjEiOiJ0\nZXN0MSJ9fQ==\n",
                 id: "6826df34-173d-4351-a7e5-d435328f2e54",
                 method: "POST",
                 timestamp: 1617959200269,
@@ -143,8 +142,7 @@ suite("inspectorConsoleView", function () {
                     { key: "Connection", value: "Keep-Alive" },
                     { key: "Content-Type", value: "application/json;charset=utf-8" },
                 ],
-                data:
-                    "eyJxdWVyeSI6Ilxue1xucmF0ZXMoY3VycmVuY3k6IFwiVVNEXCIpIHtcbmN1cnJlbmN5XG5yYXRlXG59XG59XG4ifQ==",
+                data: "eyJxdWVyeSI6Ilxue1xucmF0ZXMoY3VycmVuY3k6IFwiVVNEXCIpIHtcbmN1cnJlbmN5XG5yYXRlXG59XG59XG4ifQ==",
                 id: "6826df34-173d-4351-a7e5-d435328f2e54",
                 method: "POST",
                 timestamp: 1617959200269,
@@ -156,8 +154,7 @@ suite("inspectorConsoleView", function () {
                     { key: "server", value: "cloudflare" },
                     { key: "content-type", value: "application/json;charset=utf-8" },
                 ],
-                data:
-                    "H4sIAAAAAAAA/6tWSkksSVSyqlYqSixJLVayiq5WSi4tKkrNS65UslJydHVR0gFLATnGembmxkq1sbW1AO2x5pE2AAAA\n",
+                data: "H4sIAAAAAAAA/6tWSkksSVSyqlYqSixJLVayiq5WSi4tKkrNS65UslJydHVR0gFLATnGembmxkq1sbW1AO2x5pE2AAAA\n",
                 id: "6826df34-173d-4351-a7e5-d435328f2e54",
                 index: 0,
                 isMock: false,
@@ -210,8 +207,7 @@ suite("inspectorConsoleView", function () {
                 id: "6826df34-173d-4351-a7e5-d435328f2e54",
                 method: "GET",
                 timestamp: 1617959200269,
-                url:
-                    "https://test.org?query=query%20aTest(%24arg1%3A%20String!)%20%7B%20test(who%3A%20%24arg1)%20%7D&operationName=aTest&variables=%7B%22arg1%22%3A%22me%22%7D",
+                url: "https://test.org?query=query%20aTest(%24arg1%3A%20String!)%20%7B%20test(who%3A%20%24arg1)%20%7D&operationName=aTest&variables=%7B%22arg1%22%3A%22me%22%7D",
             };
             const response: Response = {
                 headers: [

@@ -215,18 +215,18 @@ export class TelemetryHelper {
                 // This is a known option. We"ll check the list to decide if it"s pii or not
                 if (typeof value !== "undefined") {
                     // We encrypt all options values unless they are specifically marked as nonPii
-                    telemetryProperties["options." + key] = this.telemetryProperty(
+                    telemetryProperties[`options.${key}`] = this.telemetryProperty(
                         value,
                         !nonPiiOptions.includes(key),
                     );
                 }
             } else {
                 // This is a not known option. We"ll assume that both the option and the value are pii
-                const property1 = `unknownOption${unknownOptionIndex}.name`;
-                const property2 = `unknownOption${unknownOptionIndex++}.value`;
-                // are you sure about this?
-                telemetryProperties[property1] = this.telemetryProperty(key, /* isPii*/ true);
-                telemetryProperties[property2] = this.telemetryProperty(value, /* isPii*/ true);
+                telemetryProperties[`unknownOption${unknownOptionIndex}.name`] =
+                    this.telemetryProperty(key, /* isPii*/ true);
+                telemetryProperties[`unknownOption${unknownOptionIndex}.value`] =
+                    this.telemetryProperty(value, /* isPii*/ true);
+                unknownOptionIndex++;
             }
         });
         return telemetryProperties;

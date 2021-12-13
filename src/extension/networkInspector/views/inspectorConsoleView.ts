@@ -232,7 +232,7 @@ export class InspectorConsoleView extends InspectorView {
     }
 
     private getRequestDurationString(requestTimestamp: number, responseTimestamp: number): string {
-        return String(Math.abs(responseTimestamp - requestTimestamp)) + "ms";
+        return `${String(Math.abs(responseTimestamp - requestTimestamp))}ms`;
     }
 
     private prepareHeadersViewObject(headers: Header[]): Record<string, string> {
@@ -249,9 +249,10 @@ export class InspectorConsoleView extends InspectorView {
             typeof responseBody === "string" &&
             responseBody.length > this.maxResponseBodyLength
         ) {
-            networkRequestData.networkRequestData["Response Body"] =
-                responseBody.substring(0, this.maxResponseBodyLength) +
-                "... (Response body exceeds output limit, the rest its part is omitted)";
+            networkRequestData.networkRequestData["Response Body"] = `${responseBody.substring(
+                0,
+                this.maxResponseBodyLength,
+            )}... (Response body exceeds output limit, the rest its part is omitted)`;
         }
 
         console.log(

@@ -467,7 +467,7 @@ export class Packager {
     }
 
     private openFileAtLocationCommand(): string {
-        const atomScript: string = "node " + path.join(__dirname, "..", "..", "scripts", "atom");
+        const atomScript = `node ${path.join(__dirname, "..", "..", "scripts", "atom")}`;
 
         //  shell-quote package incorrectly parses windows paths
         //  https://github.com/facebook/react-native/blob/master/local-cli/server/util/launchEditor.js#L83

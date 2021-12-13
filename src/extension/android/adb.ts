@@ -125,7 +125,7 @@ export class AdbHelper {
         appIdSuffix?: string,
     ): Promise<void> {
         const enableDebugCommand = `${this.adbExecutable} ${
-            debugTarget ? "-s " + debugTarget : ""
+            debugTarget ? `-s ${debugTarget}` : ""
         } shell am broadcast -a "${packageName}.RELOAD_APP_ACTION" --ez jsproxy ${String(enable)}`;
         await new CommandExecutor(this.nodeModulesRoot, projectRoot).execute(enableDebugCommand);
         // We should stop and start application again after RELOAD_APP_ACTION, otherwise app going to hangs up
@@ -144,8 +144,8 @@ export class AdbHelper {
         appIdSuffix?: string,
     ): Promise<void> {
         const launchAppCommand = `${this.adbExecutable} ${
-            debugTarget ? "-s " + debugTarget : ""
-        } shell am start -n ${packageName}${appIdSuffix ? "." + appIdSuffix : ""}/${packageName}.${
+            debugTarget ? `-s ${debugTarget}` : ""
+        } shell am start -n ${packageName}${appIdSuffix ? `.${appIdSuffix}` : ""}/${packageName}.${
             this.launchActivity
         }`;
         return new CommandExecutor(projectRoot).execute(launchAppCommand);
@@ -158,8 +158,8 @@ export class AdbHelper {
         appIdSuffix?: string,
     ): Promise<void> {
         const stopAppCommand = `${this.adbExecutable} ${
-            debugTarget ? "-s " + debugTarget : ""
-        } shell am force-stop ${packageName}${appIdSuffix ? "." + appIdSuffix : ""}`;
+            debugTarget ? `-s ${debugTarget}` : ""
+        } shell am force-stop ${packageName}${appIdSuffix ? `.${appIdSuffix}` : ""}`;
         return new CommandExecutor(projectRoot).execute(stopAppCommand);
     }
 
@@ -174,14 +174,14 @@ export class AdbHelper {
 
     public showDevMenu(deviceId?: string): Promise<void> {
         const command = `${this.adbExecutable} ${
-            deviceId ? "-s " + deviceId : ""
+            deviceId ? `-s ${deviceId}` : ""
         } shell input keyevent ${KeyEvents.KEYCODE_MENU}`;
         return this.commandExecutor.execute(command);
     }
 
     public reloadApp(deviceId?: string): Promise<void> {
         const command = `${this.adbExecutable} ${
-            deviceId ? "-s " + deviceId : ""
+            deviceId ? `-s ${deviceId}` : ""
         } shell input text "RR"`;
         return this.commandExecutor.execute(command);
     }

@@ -298,12 +298,11 @@ gulp.task("check-copyright", () => {
         .pipe(copyright());
 });
 
-const runPrettier = (onlyStaged, fix, callback) => {
+const runPrettier = async fix => {
     const child = cp.fork(
         "./node_modules/@mixer/parallel-prettier/dist/index.js",
         [
             fix ? "--write" : "--list-different",
-            "src/**/*.ts",
             "test/**/*.ts",
             "gulpfile.js",
             "*.md",
@@ -316,7 +315,11 @@ const runPrettier = (onlyStaged, fix, callback) => {
         },
     );
 
-    child.on("exit", code => (code ? callback(`Prettier exited with code ${code}`) : callback()));
+    await new Promise((resolve, reject) => {
+        child.on("exit", code => {
+            code ? reject(`Prettier exited with code ${code}`) : resolve();
+        });
+    });
 };
 
 const findChangedFiles = async () => {
@@ -331,11 +334,9 @@ const findChangedFiles = async () => {
  */
 
 /**
- *
- * @param {*} callback
  * @param {OptionsT} options_
  */
-const runEslint = async (callback, options_) => {
+const runEslint = async options_ => {
     /** @type {OptionsT} */
     const options = Object.assign({ color: true, fix: false, changedOnly: false }, options_);
 
@@ -344,7 +345,6 @@ const runEslint = async (callback, options_) => {
         : ["src/**/*.ts"];
 
     if (files.length === 0) {
-        callback();
         return;
     }
 
@@ -359,19 +359,21 @@ const runEslint = async (callback, options_) => {
         cwd: __dirname,
     });
 
-    child.on("exit", code => (code ? callback(`Eslint exited with code ${code}`) : callback()));
+    await new Promise((resolve, reject) => {
+        child.on("exit", code => {
+            code ? reject(`Eslint exited with code ${code}`) : resolve();
+        });
+    });
 };
 
-gulp.task("format:prettier", callback => runPrettier(false, true, callback));
-gulp.task("format:eslint", callback => runEslint(callback, { fix: true }));
-gulp.task("format", gulp.series("format:eslint"));
+gulp.task("format:prettier", () => runPrettier(true));
+gulp.task("format:eslint", () => runEslint({ fix: true }));
+gulp.task("format", gulp.series("format:prettier", "format:eslint"));
 
-gulp.task("lint:prettier", callback => runPrettier(false, false, callback));
-gulp.task("lint:eslint", callback => runEslint(callback, { fix: false }));
-gulp.task("lint", gulp.series("lint:eslint"));
-gulp.task("lint-pre-commit", callback =>
-    runEslint(callback, { fix: false, color: false, changedOnly: true }),
-);
+gulp.task("lint:prettier", () => runPrettier(false));
+gulp.task("lint:eslint", () => runEslint({ fix: false }));
+gulp.task("lint", gulp.series("lint:prettier", "lint:eslint"));
+gulp.task("lint-pre-commit", () => runEslint({ fix: false, color: false, changedOnly: true }));
 
 /** Run webpack to bundle the extension output files */
 gulp.task("webpack-bundle", async () => {
@@ -413,14 +415,11 @@ gulp.task(
     }),
 );
 
-gulp.task(
-    "build-dev",
-    gulp.series(function runBuild(done) {
-        build(false, false).once("finish", () => {
-            done();
-        });
-    }),
-);
+gulp.task("build-dev", () => {
+    build(true, false).once("finish", () => {
+        done();
+    });
+});
 
 gulp.task("quick-build", gulp.series("build-dev"));
 

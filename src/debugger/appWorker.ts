@@ -413,7 +413,7 @@ function fetch(url) {
 
     private onMessage(message: string) {
         try {
-            logger.verbose("From RN APP: " + message);
+            logger.verbose(`From RN APP: ${message}`);
             const object = <RNAppMessage>JSON.parse(message);
             if (object.method === "prepareJSRuntime") {
                 // In RN 0.40 Android runtime doesn't seem to be sending "$disconnected" event

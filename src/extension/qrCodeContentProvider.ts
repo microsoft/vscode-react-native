@@ -19,7 +19,7 @@ export class QRCodeContentProvider implements TextDocumentContentProvider {
 
         if (!this.cache[stringUri]) {
             const imageBuffer: Buffer = qr.imageSync(stringUri);
-            this.cache[stringUri] = "data:image/png;base64," + imageBuffer.toString("base64");
+            this.cache[stringUri] = `data:image/png;base64,${imageBuffer.toString("base64")}`;
         }
         const message = localize(
             "QRCodeInstructions",

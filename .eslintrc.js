@@ -1,22 +1,19 @@
 const prettierConfig = require("./package.json").prettier;
 
 module.exports = {
-    ignorePatterns: ["**/*.d.ts", "**/*.js"],
     root: true,
+    ignorePatterns: ["**/*.d.ts", "**/*.js"],
     env: {
         node: true,
         browser: false,
         es2020: true,
     },
     parserOptions: {
-        parser: require.resolve("@typescript-eslint/parser"),
-        tsconfigRootDir: __dirname,
         ecmaVersion: 2020,
-        sourceType: "module",
+        parser: require.resolve("@typescript-eslint/parser"),
         project: "./tsconfig.json",
-        // ecmaFeatures: {
-        //   jsx: false,
-        // },
+        sourceType: "module",
+        tsconfigRootDir: __dirname,
     },
     plugins: ["@typescript-eslint", "prettier", "import", "promise", "unicorn", "header"],
     extends: [
@@ -41,6 +38,7 @@ module.exports = {
     },
     overrides: [],
     rules: {
+        // before adding new rules - https://github.com/prettier/eslint-plugin-prettier/issues/65
         "@typescript-eslint/dot-notation": "warn",
         "@typescript-eslint/explicit-function-return-type": "off",
         "@typescript-eslint/explicit-module-boundary-types": [
@@ -78,16 +76,7 @@ module.exports = {
             },
         ],
         "@typescript-eslint/prefer-regexp-exec": "off",
-        "@typescript-eslint/quotes": [
-            "error",
-            "double",
-            {
-                allowTemplateLiterals: true,
-                avoidEscape: true,
-            },
-        ],
         "@typescript-eslint/require-await": "warn",
-        "arrow-body-style": "warn",
         "class-methods-use-this": "off",
         "consistent-return": "off",
         eqeqeq: "warn",
@@ -125,28 +114,13 @@ module.exports = {
         "no-async-promise-executor": "warn",
         "no-await-in-loop": "warn",
         "no-else-return": "warn",
-        // '@typescript-eslint/member-ordering': [
-        //     'warn',
-        //     {
-        //         classes: {
-        //             memberTypes: [
-        //                 'static-field',
-        //                 'static-method',
-        //                 'instance-field',
-        //                 'constructor',
-        //                 'public-instance-method',
-        //                 'protected-instance-method',
-        //                 'private-instance-method',
-        //             ],
-        //         },
-        //     },
-        // ],
         "no-empty-function": "off",
         "no-extra-boolean-cast": "warn",
         "no-lonely-if": "warn",
         "no-nested-ternary": "warn",
         "no-param-reassign": "warn",
         "no-plusplus": "off",
+        "no-promise-executor-return": "error",
         "no-restricted-globals": "warn",
         "no-restricted-syntax": [
             "error",
@@ -167,8 +141,10 @@ module.exports = {
             },
         ],
         "no-shadow": "off",
+        "no-undef-init": "error",
         "no-underscore-dangle": "off",
         "no-unneeded-ternary": "warn",
+        "no-useless-computed-key": "error",
         "no-useless-escape": "warn",
         "no-useless-return": "off",
         "no-void": [
@@ -178,8 +154,8 @@ module.exports = {
             },
         ],
         "object-shorthand": "warn",
-        "prefer-arrow-callback": "warn",
         "prefer-destructuring": "off",
+        "prefer-template": "error",
         "prettier/prettier": ["error", prettierConfig],
         "promise/always-return": "off",
         "promise/catch-or-return": "off",

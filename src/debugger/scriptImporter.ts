@@ -25,7 +25,7 @@ interface IStrictUrl extends url.Url {
 
 export class ScriptImporter {
     public static DEBUGGER_WORKER_FILE_BASENAME = "debuggerWorker";
-    public static DEBUGGER_WORKER_FILENAME = ScriptImporter.DEBUGGER_WORKER_FILE_BASENAME + ".js";
+    public static DEBUGGER_WORKER_FILENAME = `${ScriptImporter.DEBUGGER_WORKER_FILE_BASENAME}.js`;
     private packagerAddress: string;
     private packagerPort: number;
     private sourcesStoragePath: string;
@@ -121,9 +121,7 @@ export class ScriptImporter {
             sourcesStoragePath,
             ScriptImporter.DEBUGGER_WORKER_FILENAME,
         );
-        logger.verbose(
-            "About to download: " + debuggerWorkerURL + " to: " + debuggerWorkerLocalPath,
-        );
+        logger.verbose(`About to download: ${debuggerWorkerURL} to: ${debuggerWorkerLocalPath}`);
 
         const body = await Request.request(debuggerWorkerURL, true);
 

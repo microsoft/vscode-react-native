@@ -56,7 +56,9 @@ export class PromiseUtil {
     }
 
     public static async delay(duration: number): Promise<void> {
-        return new Promise<void>(resolve => setTimeout(resolve, duration));
+        return new Promise<void>(resolve => {
+            setTimeout(resolve, duration);
+        });
     }
 
     public static waitUntil<T>(
