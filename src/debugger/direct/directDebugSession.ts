@@ -185,7 +185,7 @@ export class DirectDebugSession extends DebugSessionBase {
                     attachArgs.port = results.targetPort;
                 }
 
-                if (attachArgs.request == "attach") {
+                if (attachArgs.request === "attach") {
                     await this.preparePackagerBeforeAttach(attachArgs, versions);
                 }
 
