@@ -12,7 +12,7 @@ import { PackageLoader, PackageConfig } from "../../src/common/packageLoader";
 import { CommandExecutor } from "../../src/common/commandExecutor";
 import { HostPlatform } from "../../src/common/hostPlatform";
 
-const packageLoaderTestTimeout = 3 * 60 * 1000;
+const packageLoaderTestTimeout = 4 * 60 * 1000;
 // We need to import xdlInterface to import PackageLoad correctly.
 // Probably a problem is related to import of static functions into test files
 console.log(XDL);
