@@ -236,7 +236,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
     protected async preparePackagerBeforeAttach(
         args: IAttachRequestArgs,
         reactNativeVersions: RNPackageVersions,
-    ): Promise<any> {
+    ): Promise<void> {
         if (!(await this.appLauncher.getPackager().isRunning())) {
             const runOptions: ILaunchArgs = Object.assign(
                 { reactNativeVersions },
