@@ -242,7 +242,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
                 { reactNativeVersions },
                 this.appLauncher.prepareBaseRunOptions(args),
             );
-            this.appLauncher.getPackager().setRunOptions(attachArgs);
+            this.appLauncher.getPackager().setRunOptions(runOptions);
             await this.appLauncher.getPackager().start();
         }
     }
