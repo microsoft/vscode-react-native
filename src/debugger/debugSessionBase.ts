@@ -10,11 +10,13 @@ import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { InternalError, NestedError } from "../common/error/internalError";
-import { IRunOptions, PlatformType } from "../extension/launchArgs";
+import { ILaunchArgs, IRunOptions, PlatformType } from "../extension/launchArgs";
 import { AppLauncher } from "../extension/appLauncher";
 import { LogLevel } from "../extension/log/LogHelper";
+import { RNPackageVersions } from "../common/projectVersionHelper";
 import * as nls from "vscode-nls";
 import { SettingsHelper } from "../extension/settingsHelper";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -229,5 +231,19 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
             undefined,
             ErrorDestination.User,
         );
+    }
+
+    protected async preparePackagerBeforeAttach(
+        args: IAttachRequestArgs,
+        reactNativeVersions: RNPackageVersions,
+    ): Promise<void> {
+        if (!(await this.appLauncher.getPackager().isRunning())) {
+            const runOptions: ILaunchArgs = Object.assign(
+                { reactNativeVersions },
+                this.appLauncher.prepareBaseRunOptions(args),
+            );
+            this.appLauncher.getPackager().setRunOptions(runOptions);
+            await this.appLauncher.getPackager().start();
+        }
     }
 }
