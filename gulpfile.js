@@ -278,26 +278,6 @@ async function test(inspectCodeCoverage = false) {
     }
 }
 
-gulp.task("check-copyright", () => {
-    return gulp
-        .src([
-            "**/*.ts",
-            "**/*.js",
-            "!**/*.d.ts",
-            "!coverage/**",
-            "!node_modules/**",
-            "!test/**/*.js",
-            "!SampleApplication/**",
-            "!test/resources/sampleReactNativeProject/**/*.js",
-            "!test/smoke/package/node_modules/**",
-            "!test/smoke/automation/node_modules/**",
-            "!test/smoke/resources/**",
-            "!test/smoke/vscode/**",
-            "!dist/**",
-        ])
-        .pipe(copyright());
-});
-
 const runPrettier = async fix => {
     const child = cp.fork(
         "./node_modules/@mixer/parallel-prettier/dist/index.js",
