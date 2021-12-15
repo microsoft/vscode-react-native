@@ -281,9 +281,13 @@ export class TelemetryHelper {
         propertyValue: any,
         isPii: boolean,
     ): void {
-        for (const [i, element] of propertyValue.entries()) {
-            const property = propertyName + String(i);
-            TelemetryHelper.setTelemetryEventProperty(event, property, element, isPii);
+        for (let i: number = 0; i < propertyValue.length; i++) {
+            TelemetryHelper.setTelemetryEventProperty(
+                event,
+                propertyName + String(i),
+                propertyValue[i],
+                isPii,
+            );
         }
     }
 }

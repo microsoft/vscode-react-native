@@ -178,7 +178,7 @@ module.exports = {
             },
         ],
         "unicorn/no-array-reduce": "warn",
-        "unicorn/no-for-loop": "warn",
+        "unicorn/no-for-loop": isFix ? "off" : "warn",
         "unicorn/no-instanceof-array": "warn",
         "unicorn/no-new-array": "warn",
         "unicorn/no-new-buffer": "warn",
