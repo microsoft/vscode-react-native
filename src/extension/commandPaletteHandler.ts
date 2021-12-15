@@ -47,6 +47,7 @@ import { AndroidTargetManager } from "./android/androidTargetManager";
 import { IOSTargetManager } from "./ios/iOSTargetManager";
 import { runChecks } from "./services/validationService/checker";
 import { ValidationCategoryE } from "./services/validationService/checks/types";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,

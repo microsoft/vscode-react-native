@@ -281,7 +281,7 @@ export class TelemetryHelper {
         propertyValue: any,
         isPii: boolean,
     ): void {
-        for (let i: number = 0; i < propertyValue.length; i++) {
+        for (let i = 0; i < propertyValue.length; i++) {
             TelemetryHelper.setTelemetryEventProperty(
                 event,
                 propertyName + String(i),
