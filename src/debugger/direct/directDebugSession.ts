@@ -186,7 +186,9 @@ export class DirectDebugSession extends DebugSessionBase {
                     attachArgs.port = results.targetPort;
                 }
 
-                await this.appLauncher.getPackager().start();
+                if (attachArgs.request === "attach") {
+                    await this.preparePackagerBeforeAttach(attachArgs, versions);
+                }
 
                 const browserInspectUri = await this.debuggerEndpointHelper.retryGetWSEndpoint(
                     `http://localhost:${attachArgs.port}`,

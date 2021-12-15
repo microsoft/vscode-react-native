@@ -131,7 +131,9 @@ export class RNDebugSession extends DebugSessionBase {
                         this.cancellationTokenSource.token,
                     );
 
-                    await this.appLauncher.getPackager().start();
+                    if (attachArgs.request === "attach") {
+                        await this.preparePackagerBeforeAttach(attachArgs, versions);
+                    }
 
                     logger.log(
                         localize("StartingDebuggerAppWorker", "Starting debugger app worker."),
