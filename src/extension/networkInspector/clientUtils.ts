@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 /* eslint-disable */
+/* eslint-enable prettier/prettier*/
 
 import { ClientIdConstituents, ClientQuery } from "./clientDevice";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";

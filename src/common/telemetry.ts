@@ -7,6 +7,7 @@ import * as path from "path";
 import { HostPlatform } from "./hostPlatform";
 
 /* eslint-disable */
+/* eslint-enable prettier/prettier*/
 
 /**
  * Telemetry module specialized for vscode integration.

@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 /* eslint-disable */
+/* eslint-enable prettier/prettier*/
 
 import { IFormatter, FormattedBody } from "./requestBodyFormatter";
 import { Response } from "../networkMessageData";

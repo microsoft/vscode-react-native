@@ -1,5 +1,7 @@
 const prettierConfig = require("./package.json").prettier;
 
+const isFix = process.argv.includes("--fix");
+
 module.exports = {
     root: true,
     ignorePatterns: ["**/*.d.ts", "**/*.js"],
@@ -31,9 +33,6 @@ module.exports = {
         "import/resolver": {
             [require.resolve("eslint-import-resolver-typescript")]: {},
             [require.resolve("eslint-import-resolver-node")]: {},
-            // [require.resolve("eslint-import-resolver-webpack")]: {
-            //     config: path.resolve(__dirname, "./build/webpack.config.js"),
-            // },
         },
     },
     overrides: [],
@@ -187,7 +186,7 @@ module.exports = {
         "unicorn/prefer-array-index-of": "warn",
         "unicorn/prefer-array-some": "warn",
         "unicorn/prefer-includes": "warn",
-        "unicorn/prefer-ternary": "warn",
+        "unicorn/prefer-ternary": isFix ? "off" : "warn",
         "use-isnan": "warn",
         "valid-typeof": "warn",
         yoda: "warn",

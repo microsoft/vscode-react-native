@@ -54,9 +54,11 @@ export class ExponentPlatform extends GeneralPlatform {
             // https://github.com/expo/expo-cli/blob/1d515d21200841e181518358fd9dc4c7b24c7cd6/packages/xdl/src/Project.ts#L2226-L2370
             // we added this to be sure that our Expo launching logic doesn't have any negative side effects
 
-            await (this.runOptions.expoHostType === "tunnel"
-                ? this.prepareExpoTunnels()
-                : XDL.stopAdbReverse(this.projectPath));
+            if (this.runOptions.expoHostType === "tunnel") {
+                await this.prepareExpoTunnels();
+            } else {
+                await XDL.stopAdbReverse(this.projectPath);
+            }
 
             const isAdbReversed =
                 this.runOptions.expoHostType !== "local"

@@ -1,4 +1,6 @@
-/* eslint-disable header/header */
+/* eslint-disable */
+/* eslint-enable prettier/prettier*/
+
 /**
  * Copyright (c) Facebook, Inc. and its affiliates.
  *
