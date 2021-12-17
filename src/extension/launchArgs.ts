@@ -7,19 +7,23 @@ import { RNPackageVersions } from "../common/projectVersionHelper";
  * Defines the supported launch arguments.
  * Add more arguments here as needed.
  */
-export interface ILaunchArgs {
+
+export interface IBaseArgs {
     platform: string;
     workspaceRoot: string;
     projectRoot: string;
     nodeModulesRoot: string;
-    reactNativeVersions: RNPackageVersions;
-    target?: string;
-    debugAdapterPort?: number;
-    packagerPort?: any;
-    runArguments?: string[];
     env?: any;
     envFile?: string;
     isDirect?: boolean;
+    packagerPort?: number;
+}
+
+export interface ILaunchArgs extends IBaseArgs {
+    reactNativeVersions: RNPackageVersions;
+    target?: string;
+    debugAdapterPort?: number;
+    runArguments?: string[];
     enableDebug?: boolean;
 }
 

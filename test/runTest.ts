@@ -19,7 +19,7 @@ async function launchTests() {
         await runTests({
             extensionDevelopmentPath,
             extensionTestsPath,
-            version: "1.61.0",
+            version: "stable",
         });
     } catch (err) {
         console.error(err);
