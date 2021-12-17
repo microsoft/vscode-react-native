@@ -1132,7 +1132,6 @@
   },
   "scripts": {
     "build": "gulp build",
-    "lint": "npx gulp lint-no-color",
     "vscode:prepublish": "gulp",
     "test": "node ./test/runTest.js",
     "test-localization": "node ./test/localization/runTest.js",
