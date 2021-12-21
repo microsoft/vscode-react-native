@@ -1136,7 +1136,7 @@
     "test": "node ./test/runTest.js",
     "test-localization": "node ./test/localization/runTest.js",
     "prepare": "husky install",
-    "prepare-smoke-tests": "cd test/smoke && gulp prepare-smoke-tests && yarn --cwd ./vscode install",
+    "prepare-smoke-tests": "cd test/smoke && gulp prepare-smoke-tests && where node && node --version && yarn --cwd ./vscode install",
     "smoke-tests": "cd test/smoke && gulp prepare-smoke-tests && yarn --cwd ./vscode install && yarn --cwd ./vscode/test/smoke mocha",
     "quick-smoke-tests": "cd test/smoke/vscode/test/smoke && yarn mocha --skip-setup"
   },
