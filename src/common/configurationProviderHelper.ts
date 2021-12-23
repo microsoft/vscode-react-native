@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import * as nls from "vscode-nls";
 import {
     MultiStepInput,
     IQuickPickParameters,
 } from "../extension/debuggingConfiguration/multiStepInput";
 import { ILaunchRequestArgs } from "../debugger/debugSessionBase";
-import { Packager } from "./packager";
 import { ExpoHostType, PlatformType } from "../extension/launchArgs";
 import {
     DebugConfigurationState,
@@ -17,7 +17,8 @@ import {
     DEBUG_TYPES,
 } from "../extension/debuggingConfiguration/debugConfigTypesAndConstants";
 import { IWDPHelper } from "../debugger/direct/IWDPHelper";
-import * as nls from "vscode-nls";
+import { Packager } from "./packager";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -32,7 +33,7 @@ export class ConfigurationProviderHelper {
         step: number,
         totalSteps: number,
     ): Promise<Partial<ILaunchRequestArgs>> {
-        let pick = await input.showQuickPick<
+        const pick = await input.showQuickPick<
             DebugConfigurationQuickPickItem,
             IQuickPickParameters<DebugConfigurationQuickPickItem>
         >({
@@ -58,7 +59,7 @@ export class ConfigurationProviderHelper {
         step: number,
         totalSteps: number,
     ): Promise<Partial<ILaunchRequestArgs>> {
-        let pick = await input.showQuickPick<
+        const pick = await input.showQuickPick<
             DebugConfigurationQuickPickItem,
             IQuickPickParameters<DebugConfigurationQuickPickItem>
         >({
@@ -90,7 +91,7 @@ export class ConfigurationProviderHelper {
         step: number,
         totalSteps: number,
     ): Promise<Partial<ILaunchRequestArgs>> {
-        let shouldUseHermes = await input.showQuickPick<
+        const shouldUseHermes = await input.showQuickPick<
             DebugConfigurationQuickPickItem,
             IQuickPickParameters<DebugConfigurationQuickPickItem>
         >({
@@ -122,7 +123,7 @@ export class ConfigurationProviderHelper {
         step: number,
         totalSteps: number,
     ): Promise<Partial<ILaunchRequestArgs>> {
-        let pick = await input.showQuickPick<
+        const pick = await input.showQuickPick<
             DebugConfigurationQuickPickItem,
             IQuickPickParameters<DebugConfigurationQuickPickItem>
         >({

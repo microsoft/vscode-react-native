@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { FileSystem } from "../../common/node/fileSystem";
 import * as path from "path";
+import { FileSystem } from "../../common/node/fileSystem";
 
 export class PackageNameResolver {
     private static PackageNameRegexp: RegExp = /package="(.+?)"/;
@@ -23,7 +23,7 @@ export class PackageNameResolver {
      * which is the application name prefixed with the default prefix.
      */
     public resolvePackageName(projectRoot: string): Promise<string> {
-        let expectedAndroidManifestPath = path.join.apply(
+        const expectedAndroidManifestPath = path.join.apply(
             this,
             [projectRoot].concat(PackageNameResolver.DefaultManifestLocation),
         );
@@ -36,7 +36,7 @@ export class PackageNameResolver {
      */
     private async readPackageName(manifestPath: string): Promise<string> {
         if (manifestPath) {
-            let fs = new FileSystem();
+            const fs = new FileSystem();
             const exists = await fs.exists(manifestPath);
             if (exists) {
                 const manifestContent = await fs.readFile(manifestPath);
@@ -45,12 +45,10 @@ export class PackageNameResolver {
                     packageName = this.getDefaultPackageName(this.applicationName);
                 }
                 return packageName;
-            } else {
-                return this.getDefaultPackageName(this.applicationName);
             }
-        } else {
             return this.getDefaultPackageName(this.applicationName);
         }
+        return this.getDefaultPackageName(this.applicationName);
     }
 
     /**
@@ -66,7 +64,7 @@ export class PackageNameResolver {
      */
     private parsePackageName(manifestContents: string) {
         // first we remove all the comments from the file
-        let match = manifestContents.match(PackageNameResolver.PackageNameRegexp);
+        const match = manifestContents.match(PackageNameResolver.PackageNameRegexp);
         return match ? match[1] : null;
     }
 }

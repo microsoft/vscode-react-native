@@ -177,7 +177,7 @@ export class MultiStepInput<S> implements IMultiStepInput<S> {
                 input.title = title;
                 input.step = step;
                 input.totalSteps = totalSteps;
-                input.password = password ? true : false;
+                input.password = !!password;
                 input.value = value || "";
                 input.prompt = prompt;
                 input.ignoreFocusOut = true;

@@ -46,7 +46,7 @@ export class JsDebugConfigAdapter {
     }
 
     private static getExistingExtraArgs(attachArgs: IAttachRequestArgs): any {
-        let existingExtraArgs: any = {};
+        const existingExtraArgs: any = {};
         if (attachArgs.env) {
             existingExtraArgs.env = attachArgs.env;
         }

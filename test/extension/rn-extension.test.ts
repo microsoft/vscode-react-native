@@ -13,9 +13,8 @@ suite("rn-extension", function () {
     suite("createAdditionalWorkspaceFolder", function () {
         test("createAdditionalWorkspaceFolder returns null", function () {
             const folderPath: string = "folderPath";
-            const result: vscode.WorkspaceFolder | null = createAdditionalWorkspaceFolder(
-                folderPath,
-            );
+            const result: vscode.WorkspaceFolder | null =
+                createAdditionalWorkspaceFolder(folderPath);
             assert.strictEqual(result, null);
         });
 
@@ -46,9 +45,8 @@ suite("rn-extension", function () {
             test("createAdditionalWorkspaceFolder should create a worspace folder, return the created folder with index increaed by 1", function () {
                 const currentCountOfWorkspaceFolders: number = getCountOfWorkspaceFolders();
 
-                const result: vscode.WorkspaceFolder | null = createAdditionalWorkspaceFolder(
-                    nodeModulesDir,
-                );
+                const result: vscode.WorkspaceFolder | null =
+                    createAdditionalWorkspaceFolder(nodeModulesDir);
 
                 const expectedURI = vscode.Uri.file(nodeModulesDir);
                 const expectedIndex: number = currentCountOfWorkspaceFolders + 1;
@@ -83,9 +81,8 @@ suite("rn-extension", function () {
 
                 createAdditionalWorkspaceFolder(nodeModulesDir);
 
-                const result: vscode.WorkspaceFolder | null = createAdditionalWorkspaceFolder(
-                    innerNodeModulesDir,
-                );
+                const result: vscode.WorkspaceFolder | null =
+                    createAdditionalWorkspaceFolder(innerNodeModulesDir);
 
                 const expectedURI = vscode.Uri.file(innerNodeModulesDir);
                 const expectedIndex: number = currentCountOfWorkspaceFolders + 2;

@@ -2,8 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as path from "path";
-import * as glob from "glob";
 import * as fs from "fs";
+import * as glob from "glob";
 import * as semver from "semver";
 
 import { Node } from "../../common/node/node";
@@ -84,14 +84,14 @@ export class PlistBuddy {
                     rnVersions.reactNativeVersion,
                 );
                 if (platform === PlatformType.macOS) {
-                    scheme = scheme + "-macOS";
+                    scheme = `${scheme}-macOS`;
                 }
             }
             productsFolder = path.join(platformProjectRoot, "build", scheme, "Build", "Products");
         } else {
             productsFolder = path.join(platformProjectRoot, "build", "Build", "Products");
         }
-        let sdkType =
+        const sdkType =
             platform === PlatformType.iOS ? this.getSdkType(simulator, scheme) : undefined;
         let configurationFolder = path.join(
             productsFolder,
@@ -162,9 +162,9 @@ export class PlistBuddy {
     ): Promise<void> {
         // Attempt to set the value, and if it fails due to the key not existing attempt to create the key
         try {
-            await this.invokePlistBuddy(`Set ${property} ${value}`, plistFile);
+            await this.invokePlistBuddy(`Set ${property} ${String(value)}`, plistFile);
         } catch (e) {
-            await this.invokePlistBuddy(`Add ${property} bool ${value}`, plistFile);
+            await this.invokePlistBuddy(`Add ${property} bool ${String(value)}`, plistFile);
         }
     }
 
@@ -258,12 +258,7 @@ export class PlistBuddy {
          * @flow
          * @format
          */
-        let iOSCliFolderName: string;
-        if (semver.gte(rnVersion, "0.60.0")) {
-            iOSCliFolderName = "cli-platform-ios";
-        } else {
-            iOSCliFolderName = "cli";
-        }
+        const iOSCliFolderName = semver.gte(rnVersion, "0.60.0") ? "cli-platform-ios" : "cli";
 
         const findXcodeProject = customRequire(
             path.join(

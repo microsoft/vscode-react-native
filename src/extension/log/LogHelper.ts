@@ -6,6 +6,7 @@
  */
 import * as path from "path";
 import * as mkdirp from "mkdirp";
+
 export enum LogLevel {
     None = 0,
     Trace = 1,
@@ -50,7 +51,7 @@ export function getLoggingOptions(): DevLogToFileSettings {
 export function getLoggingDirectory(): string | null {
     const loggingOptions = getLoggingOptions();
     if (loggingOptions.LogsDirectory) {
-        let dirPath = loggingOptions.LogsDirectory;
+        const dirPath = loggingOptions.LogsDirectory;
         if (!path.isAbsolute(dirPath)) {
             return null;
         }
@@ -62,6 +63,7 @@ export function getLoggingDirectory(): string | null {
 
 function getLogLevel() {
     try {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         const SettingsHelper = require("../settingsHelper").SettingsHelper;
         return SettingsHelper.getLogLevel();
     } catch (err) {

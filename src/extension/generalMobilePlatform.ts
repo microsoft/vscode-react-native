@@ -1,14 +1,15 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import * as nls from "vscode-nls";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { TelemetryHelper } from "../common/telemetryHelper";
 import { GeneralPlatform, TargetType } from "./generalPlatform";
 import { IMobileTarget, MobileTarget } from "./mobileTarget";
 import { MobileTargetManager } from "./mobileTargetManager";
-import * as nls from "vscode-nls";
 import { IOSPlatform } from "./ios/iOSPlatform";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,

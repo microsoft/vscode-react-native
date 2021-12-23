@@ -44,9 +44,8 @@ suite("appLauncher", function () {
 
     suite("getOrCreateAppLauncherByProjectRootPath", function () {
         test("getOrCreateAppLauncherByProjectRootPath creates an AppLauncher", async function () {
-            let isAppLauncherExist: boolean = !!ProjectsStorage.projectsCache[
-                sampleReactNativeProjectDir.toLowerCase()
-            ];
+            let isAppLauncherExist: boolean =
+                !!ProjectsStorage.projectsCache[sampleReactNativeProjectDir.toLowerCase()];
 
             let appLauncherTest: AppLauncher;
 
@@ -71,9 +70,8 @@ suite("appLauncher", function () {
                 appLauncher.getPackager().getProjectPath(),
                 sampleReactNativeProjectDir,
             );
-            isAppLauncherExist = !!ProjectsStorage.projectsCache[
-                sampleReactNativeProjectDir.toLowerCase()
-            ];
+            isAppLauncherExist =
+                !!ProjectsStorage.projectsCache[sampleReactNativeProjectDir.toLowerCase()];
             assert.strictEqual(isAppLauncherExist, true);
         });
     });

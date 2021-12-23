@@ -1,4 +1,6 @@
-/* eslint-disable header/header */
+/* eslint-disable */
+/* eslint-enable prettier/prettier*/
+
 /**
  * Copyright (c) Facebook, Inc. and its affiliates.
  *
@@ -8,8 +10,8 @@
  * @format
  */
 
-import { exec as opensslWithCallback, Action } from "openssl-wrapper";
 import * as child_process from "child_process";
+import { exec as opensslWithCallback, Action } from "openssl-wrapper";
 
 export function openssl(action: Action, options: Record<string, any>): Promise<string> {
     return new Promise((resolve, reject) => {
