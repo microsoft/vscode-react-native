@@ -179,9 +179,8 @@ suite("tipNotificationService", function () {
                 const generalTipsKeysBefore = Object.keys(tipsConfigBefore.tips.generalTips);
 
                 for (let i = 0; i < generalTipsKeysBefore.length - 1; i++) {
-                    tipsConfigBefore.tips.generalTips[
-                        generalTipsKeysBefore[i]
-                    ].shownDate = shownDate;
+                    tipsConfigBefore.tips.generalTips[generalTipsKeysBefore[i]].shownDate =
+                        shownDate;
                 }
 
                 config.set(tipsConfigName, tipsConfigBefore);
@@ -353,7 +352,8 @@ suite("tipNotificationService", function () {
                     default: mockedTipsStorageBefore,
                 },
             })["TipNotificationService"];
-            const mockedTipsNotificationServiceInstanceBefore = mockedTipsNotificationServiceBefore.getInstance();
+            const mockedTipsNotificationServiceInstanceBefore =
+                mockedTipsNotificationServiceBefore.getInstance();
 
             await (<any>mockedTipsNotificationServiceInstanceBefore).initializeTipsConfig();
 
@@ -381,7 +381,8 @@ suite("tipNotificationService", function () {
                     default: mockedTipsStorageAfter,
                 },
             })["TipNotificationService"];
-            const mockedTipsNotificationServiceInstanceAfter = mockedTipsNotificationServiceAfter.getInstance();
+            const mockedTipsNotificationServiceInstanceAfter =
+                mockedTipsNotificationServiceAfter.getInstance();
 
             await mockedTipsNotificationServiceInstanceAfter.updateTipsConfig();
 
@@ -424,7 +425,8 @@ suite("tipNotificationService", function () {
                     default: mockedTipsStorageBefore,
                 },
             })["TipNotificationService"];
-            const mockedTipsNotificationServiceInstanceBefore = mockedTipsNotificationServiceBefore.getInstance();
+            const mockedTipsNotificationServiceInstanceBefore =
+                mockedTipsNotificationServiceBefore.getInstance();
 
             await SettingsHelper.setShowTips(false);
             await (<any>mockedTipsNotificationServiceInstanceBefore).initializeTipsConfig();
@@ -461,7 +463,8 @@ suite("tipNotificationService", function () {
                     default: mockedTipsStorageAfter,
                 },
             })["TipNotificationService"];
-            const mockedTipsNotificationServiceInstanceAfter = mockedTipsNotificationServiceAfter.getInstance();
+            const mockedTipsNotificationServiceInstanceAfter =
+                mockedTipsNotificationServiceAfter.getInstance();
 
             await mockedTipsNotificationServiceInstanceAfter.updateTipsConfig();
 
@@ -506,7 +509,8 @@ suite("tipNotificationService", function () {
                     default: mockedTipsStorageBefore,
                 },
             })["TipNotificationService"];
-            const mockedTipsNotificationServiceInstanceBefore = mockedTipsNotificationServiceBefore.getInstance();
+            const mockedTipsNotificationServiceInstanceBefore =
+                mockedTipsNotificationServiceBefore.getInstance();
 
             await (<any>mockedTipsNotificationServiceInstanceBefore).initializeTipsConfig();
 
@@ -538,7 +542,8 @@ suite("tipNotificationService", function () {
                     default: mockedTipsStorageAfter,
                 },
             })["TipNotificationService"];
-            const mockedTipsNotificationServiceInstanceAfter = mockedTipsNotificationServiceAfter.getInstance();
+            const mockedTipsNotificationServiceInstanceAfter =
+                mockedTipsNotificationServiceAfter.getInstance();
 
             await mockedTipsNotificationServiceInstanceAfter.updateTipsConfig();
 

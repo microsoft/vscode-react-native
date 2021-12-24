@@ -50,8 +50,7 @@ suite("requestBodyFormatter", function () {
                     { key: "Accept-Encoding", value: "gzip" },
                     { key: "Content-Type", value: "application/json;charset=utf-8" },
                 ],
-                data:
-                    "eyJkYXRhU3RyIjogInRlc3QifQp7ImRhdGFOdW0iOiAxMjN9CnsiZGF0YUFyciI6IFsxLCAyXX0=",
+                data: "eyJkYXRhU3RyIjogInRlc3QifQp7ImRhdGFOdW0iOiAxMjN9CnsiZGF0YUFyciI6IFsxLCAyXX0=",
                 id: "6826df34-173d-4351-a7e5-d435328f2e54",
                 timestamp: 1617959201269,
                 url: "https://test.org",

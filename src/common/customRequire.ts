@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+/* eslint-disable */
+/* eslint-enable prettier/prettier*/
+
 interface CustomRequire extends NodeRequireFunction {
     cache: any;
 }
@@ -16,9 +19,9 @@ try {
             : eval("require");
 } catch {
     // Use a noop in case both `__non_webpack_require__` and `require` does not exist
-    customRequire = ((() => {
+    customRequire = (() => {
         customRequire.cache = {}; // eslint-disable-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-empty-function
-    }) as any) as CustomRequire;
+    }) as any as CustomRequire;
 }
 
 export default customRequire;

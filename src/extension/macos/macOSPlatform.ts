@@ -1,10 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as semver from "semver";
 import * as path from "path";
+import * as semver from "semver";
 import { GeneralPlatform, MobilePlatformDeps, TargetType } from "../generalPlatform";
-import { MacOSDebugModeManager } from "./macOSDebugModeManager";
 import { ImacOSRunOptions, PlatformType } from "../launchArgs";
 import { OutputVerifier, PatternToFailure } from "../../common/outputVerifier";
 import { TelemetryHelper } from "../../common/telemetryHelper";
@@ -12,6 +11,7 @@ import { CommandExecutor } from "../../common/commandExecutor";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { PlistBuddy } from "../ios/plistBuddy";
 import { ChildProcess } from "../../common/node/childProcess";
+import { MacOSDebugModeManager } from "./macOSDebugModeManager";
 
 /**
  * macOS specific platform implementation for debugging RN applications.
@@ -90,7 +90,7 @@ export class MacOSPlatform extends GeneralPlatform {
             if (
                 !semver.valid(
                     this.runOptions.reactNativeVersions.reactNativeVersion,
-                ) /*Custom RN implementations should support this flag*/ ||
+                ) /* Custom RN implementations should support this flag*/ ||
                 semver.gte(
                     this.runOptions.reactNativeVersions.reactNativeVersion,
                     MacOSPlatform.NO_PACKAGER_VERSION,
@@ -117,12 +117,12 @@ export class MacOSPlatform extends GeneralPlatform {
     }
 
     public getRunArguments(): string[] {
-        let runArguments: string[] = [];
+        const runArguments: string[] = [];
 
         if (this.runOptions.runArguments && this.runOptions.runArguments.length > 0) {
             runArguments.push(...this.runOptions.runArguments);
         } else {
-            let target =
+            const target =
                 this.runOptions.target === TargetType.Simulator ? "" : this.runOptions.target;
             if (target) {
                 runArguments.push(`--${target}`);
@@ -153,7 +153,7 @@ export class MacOSPlatform extends GeneralPlatform {
         await this.terminateMacOSapp(<string>appName);
         // Write to the settings file while the app is not running to avoid races
         await this.macOSDebugModeManager.setAppRemoteDebuggingSetting(
-            /*enable=*/ true,
+            /* enable=*/ true,
             this.runOptions.configuration,
             this.runOptions.productName,
         );
@@ -163,7 +163,7 @@ export class MacOSPlatform extends GeneralPlatform {
 
     public disableJSDebuggingMode(): Promise<void> {
         return this.macOSDebugModeManager.setAppRemoteDebuggingSetting(
-            /*enable=*/ false,
+            /* enable=*/ false,
             this.runOptions.configuration,
             this.runOptions.productName,
         );
@@ -198,7 +198,7 @@ export class MacOSPlatform extends GeneralPlatform {
     }
 
     private async terminateMacOSapp(appName: string): Promise<void> {
-        let childProcess = new ChildProcess();
+        const childProcess = new ChildProcess();
         // An example of the output from the command above:
         // 40943 ??         4:13.97 node /Users/user/Documents/rn_for_mac_proj/node_modules/.bin/react-native start --port 8081
         // 40959 ??         0:10.36 /Users/user/.nvm/versions/node/v10.19.0/bin/node /Users/user/Documents/rn_for_mac_proj/node_modules/metro/node_modules/jest-worker/build/workers/processChild.js

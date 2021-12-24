@@ -66,45 +66,6 @@ function existsCaseSensitive(filePath) {
     return false;
 }
 
-/**
- * Plugin to verify if import statements use correct casing
- */
-function checkImports() {
-    const pluginName = "check-imports";
-    let hadErrors = false;
-    const re = /(?:\s|^)(?:[^\n:]*).*from ["'](\.[^"']*)["'];/;
-
-    return through.obj(function (file, encoding, callback) {
-        if (file.isBuffer()) {
-            var fileContents = file.contents.toString(encoding);
-            var importStatements = fileContents.match(new RegExp(re.source, "g")) || [];
-            var workingDirectory = path.dirname(file.path);
-
-            importStatements.forEach(function (importStatement) {
-
-                var modulePath = re.exec(importStatement);
-                if (modulePath && modulePath[1]) {
-                    var moduleFilePath = path.resolve(workingDirectory, modulePath[1] + ".ts");
-                    var moduleFilePath2 = path.resolve(workingDirectory, modulePath[1] + "/index.ts");
-
-                    if (!existsCaseSensitive(moduleFilePath) && !existsCaseSensitive(moduleFilePath2)) {
-                        logError(pluginName, file, `unresolved import: "${modulePath[1]}"`);
-                        hadErrors = true;
-                    }
-                }
-            });
-        }
-
-        callback(null, file);
-    },
-        function (callback) {
-            if (hadErrors) {
-                return this.emit("error", new PluginError(pluginName, "Failed import casing check"));
-            }
-            callback();
-        });
-}
-
 function executeCommand(command, args, callback, opts) {
     const proc = child_process.spawn(command + (process.platform === "win32" ? ".cmd" : ""), args, opts);
     let errorSignaled = false;
@@ -136,6 +97,5 @@ function executeCommand(command, args, callback, opts) {
 
 module.exports = {
     checkCopyright,
-    checkImports,
     executeCommand
 }

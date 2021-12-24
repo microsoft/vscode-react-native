@@ -1,24 +1,26 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+// eslint-disable-next-line @typescript-eslint/triple-slash-reference
 /// <reference path="exponentHelper.d.ts" />
 
 import * as path from "path";
 import * as semver from "semver";
 import * as vscode from "vscode";
 import { sync as globSync } from "glob";
-import * as XDL from "./xdlInterface";
+import stripJSONComments = require("strip-json-comments");
+import * as nls from "vscode-nls";
 import { Package, IPackageInformation } from "../../common/node/package";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
-import stripJSONComments = require("strip-json-comments");
-import * as nls from "vscode-nls";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { getNodeModulesGlobalPath } from "../../common/utils";
 import { PackageLoader, PackageConfig } from "../../common/packageLoader";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { FileSystem } from "../../common/node/fileSystem";
 import { SettingsHelper } from "../settingsHelper";
+import * as XDL from "./xdlInterface";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -72,12 +74,11 @@ export class ExponentHelper {
     }
 
     public async configureExponentEnvironment(): Promise<void> {
-        let isExpo: boolean;
         await this.lazilyInitialize();
         this.logger.logStream(
             localize("CheckingIfThisIsExpoApp", "Checking if this is an Expo app."),
         );
-        isExpo = await this.isExpoManagedApp(true);
+        const isExpo = await this.isExpoManagedApp(true);
         if (!isExpo) {
             if (!(await this.appHasExpoInstalled())) {
                 // Expo requires expo package to be installed inside RN application in order to be able to run it
@@ -216,14 +217,14 @@ export class ExponentHelper {
 
     public removeNodeModulesPathFromEnvIfWasSet(): void {
         if (this.nodeModulesGlobalPathAddedToEnv) {
-            delete process.env["NODE_MODULES"];
+            delete process.env.NODE_MODULES;
             this.nodeModulesGlobalPathAddedToEnv = false;
         }
     }
 
     public async addNodeModulesPathToEnvIfNotPresent(): Promise<void> {
-        if (!process.env["NODE_MODULES"]) {
-            process.env["NODE_MODULES"] = await getNodeModulesGlobalPath();
+        if (!process.env.NODE_MODULES) {
+            process.env.NODE_MODULES = await getNodeModulesGlobalPath();
             this.nodeModulesGlobalPathAddedToEnv = true;
         }
     }
@@ -469,8 +470,8 @@ var entryPoint = require('${entryPoint}');`;
         if (!this.hasInitialized) {
             this.hasInitialized = true;
             await this.preloadExponentDependency();
-            XDL.configReactNativeVersionWarnings();
-            XDL.attachLoggerStream(this.projectRootPath, {
+            void XDL.configReactNativeVersionWarnings();
+            void XDL.attachLoggerStream(this.projectRootPath, {
                 stream: {
                     write: (chunk: any) => {
                         if (chunk.level <= 30) {

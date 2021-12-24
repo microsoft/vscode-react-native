@@ -83,7 +83,7 @@ export class WindowsPlatform extends GeneralPlatform {
             if (
                 !semver.valid(
                     this.runOptions.reactNativeVersions.reactNativeVersion,
-                ) /*Custom RN implementations should support this flag*/ ||
+                ) /* Custom RN implementations should support this flag*/ ||
                 semver.gte(
                     this.runOptions.reactNativeVersions.reactNativeVersion,
                     WindowsPlatform.NO_PACKAGER_VERSION,
@@ -110,12 +110,12 @@ export class WindowsPlatform extends GeneralPlatform {
     }
 
     public getRunArguments(): string[] {
-        let runArguments: string[] = [];
+        const runArguments: string[] = [];
 
         if (this.runOptions.runArguments && this.runOptions.runArguments.length > 0) {
             runArguments.push(...this.runOptions.runArguments);
         } else {
-            let target =
+            const target =
                 this.runOptions.target === TargetType.Simulator ? "" : this.runOptions.target;
             if (target) {
                 runArguments.push(`--${target}`);

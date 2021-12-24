@@ -3,9 +3,9 @@
 
 import * as pathModule from "path";
 
-import { FileSystem } from "./fileSystem";
 import { ErrorHelper } from "../error/errorHelper";
 import { InternalErrorCode } from "../error/internalErrorCode";
+import { FileSystem } from "./fileSystem";
 
 interface IPackageDependencyDict {
     [packageName: string]: string;

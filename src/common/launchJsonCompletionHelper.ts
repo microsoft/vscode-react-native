@@ -80,7 +80,6 @@ export class LaunchJsonCompletionHelper {
                 return false;
             }
             startLineNumber -= 1;
-            continue;
         }
         return false;
     }

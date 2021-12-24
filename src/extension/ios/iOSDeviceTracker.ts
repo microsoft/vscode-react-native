@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import { ChildProcess, execFile } from "child_process";
 import { AbstractDeviceTracker } from "../abstractDeviceTracker";
-import iosUtil, { DeviceTarget, isXcodeDetected } from "./iOSContainerUtility";
 import { DeviceStorage } from "../networkInspector/devices/deviceStorage";
 import { ClientOS } from "../networkInspector/clientUtils";
 import { IOSClienDevice } from "../networkInspector/devices/iOSClienDevice";
 import { findFileInFolderHierarchy } from "../../common/extensionHelper";
-import { ChildProcess, execFile } from "child_process";
+import iosUtil, { DeviceTarget, isXcodeDetected } from "./iOSContainerUtility";
 import { IDebuggableIOSTarget, IOSTargetManager } from "./iOSTargetManager";
 
 export class IOSDeviceTracker extends AbstractDeviceTracker {
@@ -17,9 +17,9 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
 
     constructor() {
         super();
-        this.portForwardingClientPath =
-            (findFileInFolderHierarchy(__dirname, "static/PortForwardingMacApp.app") || __dirname) +
-            "/Contents/MacOS/PortForwardingMacApp";
+        this.portForwardingClientPath = `${
+            findFileInFolderHierarchy(__dirname, "static/PortForwardingMacApp.app") || __dirname
+        }/Contents/MacOS/PortForwardingMacApp`;
         this.iOSTargetManager = new IOSTargetManager();
         this.portForwarders = [];
     }
@@ -46,7 +46,7 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
     }
 
     private processDevices(activeDevices: Array<DeviceTarget>, isVirtualTarget: boolean): void {
-        let currentDevicesIds = new Set(
+        const currentDevicesIds = new Set(
             [...DeviceStorage.devices.entries()]
                 .filter(
                     entry =>
@@ -119,7 +119,9 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
             (err, stdout, stderr) => {
                 if (!err?.killed) {
                     this.logger.error(
-                        `Port forwarding app failed to start: ${err?.message}, ${stdout}, ${stderr}`,
+                        `Port forwarding app failed to start: ${String(
+                            err?.message,
+                        )}, ${stdout}, ${stderr}`,
                     );
                 }
             },
@@ -129,7 +131,7 @@ export class IOSDeviceTracker extends AbstractDeviceTracker {
             this.logger.error("Port forwarding app error", err);
         });
         childProcess.addListener("exit", code => {
-            this.logger.debug(`Port forwarding app exited with code ${code}`);
+            this.logger.debug(`Port forwarding app exited with code ${String(code)}`);
         });
         return childProcess;
     }

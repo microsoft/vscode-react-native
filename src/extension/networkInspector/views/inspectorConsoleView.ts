@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { InspectorView } from "./inspectorView";
-import { RequestParams } from "../clientDevice";
 import { URL, URLSearchParams } from "url";
 import * as vscode from "vscode";
+import { Base64 } from "js-base64";
+import { RequestParams } from "../clientDevice";
 import {
     Request,
     Response,
@@ -16,7 +16,7 @@ import { EditorColorThemesHelper, SystemColorTheme } from "../../../common/edito
 import { SettingsHelper } from "../../settingsHelper";
 import { combineBase64Chunks } from "../requestBodyFormatters/utils";
 import { FormattedBody } from "../requestBodyFormatters/requestBodyFormatter";
-import { Base64 } from "js-base64";
+import { InspectorView } from "./inspectorView";
 
 interface ConsoleNetworkRequestDataView {
     title: string;
@@ -216,16 +216,15 @@ export class InspectorConsoleView extends InspectorView {
         };
 
         if (url.search) {
-            networkRequestConsoleView.networkRequestData[
-                "Request Query Parameters"
-            ] = this.retrieveURLSearchParams(url.searchParams);
+            networkRequestConsoleView.networkRequestData["Request Query Parameters"] =
+                this.retrieveURLSearchParams(url.searchParams);
         }
 
         return networkRequestConsoleView;
     }
 
     private retrieveURLSearchParams(searchParams: URLSearchParams): Record<string, string> {
-        let formattedSearchParams: Record<string, string> = {};
+        const formattedSearchParams: Record<string, string> = {};
         searchParams.forEach((value: string, key: string) => {
             formattedSearchParams[key] = value;
         });
@@ -233,7 +232,7 @@ export class InspectorConsoleView extends InspectorView {
     }
 
     private getRequestDurationString(requestTimestamp: number, responseTimestamp: number): string {
-        return Math.abs(responseTimestamp - requestTimestamp) + "ms";
+        return `${String(Math.abs(responseTimestamp - requestTimestamp))}ms`;
     }
 
     private prepareHeadersViewObject(headers: Header[]): Record<string, string> {
@@ -250,9 +249,10 @@ export class InspectorConsoleView extends InspectorView {
             typeof responseBody === "string" &&
             responseBody.length > this.maxResponseBodyLength
         ) {
-            networkRequestData.networkRequestData["Response Body"] =
-                responseBody.substring(0, this.maxResponseBodyLength) +
-                "... (Response body exceeds output limit, the rest its part is omitted)";
+            networkRequestData.networkRequestData["Response Body"] = `${responseBody.substring(
+                0,
+                this.maxResponseBodyLength,
+            )}... (Response body exceeds output limit, the rest its part is omitted)`;
         }
 
         console.log(

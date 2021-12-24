@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import * as nls from "vscode-nls";
 import {
     basicCheck,
     createNotFoundMessage,
@@ -8,7 +9,6 @@ import {
     parseVersion,
 } from "../util";
 import { ValidationCategoryE, IValidation, ValidationResultT } from "./types";
-import * as nls from "vscode-nls";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,

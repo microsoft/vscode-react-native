@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import * as path from "path";
 import { ChildProcess } from "./node/childProcess";
 import { TargetPlatformId } from "./targetPlatformHelper";
-import * as path from "path";
 
 /**
  * Interface defining the host (desktop) platform specific operations.

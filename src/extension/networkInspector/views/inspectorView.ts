@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { RequestParams } from "../clientDevice";
 import { Disposable } from "vscode";
+import { RequestParams } from "../clientDevice";
 import { Request, Response, PartialResponse } from "../networkMessageData";
 import { RequestBodyFormatter } from "../requestBodyFormatters/requestBodyFormatter";
 import { OutputChannelLogger } from "../../log/OutputChannelLogger";

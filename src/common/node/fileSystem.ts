@@ -75,7 +75,7 @@ export class FileSystem {
      *  Helper (synchronous) function to create a directory recursively
      */
     public makeDirectoryRecursiveSync(dirPath: string): void {
-        let parentPath = path.dirname(dirPath);
+        const parentPath = path.dirname(dirPath);
         if (!this.existsSync(parentPath)) {
             this.makeDirectoryRecursiveSync(parentPath);
         }
@@ -166,9 +166,9 @@ export class FileSystem {
 
     public removePathRecursivelySync(p: string): void {
         if (this.fs.existsSync(p)) {
-            let stats = this.fs.statSync(p);
+            const stats = this.fs.statSync(p);
             if (stats.isDirectory()) {
-                let contents = this.fs.readdirSync(p);
+                const contents = this.fs.readdirSync(p);
                 contents.forEach(childPath =>
                     this.removePathRecursivelySync(path.join(p, childPath)),
                 );

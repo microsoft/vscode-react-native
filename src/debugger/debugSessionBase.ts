@@ -1,20 +1,19 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as vscode from "vscode";
 import * as path from "path";
+import * as vscode from "vscode";
 import { LoggingDebugSession, Logger, logger, ErrorDestination } from "vscode-debugadapter";
 import { DebugProtocol } from "vscode-debugprotocol";
-import { getLoggingDirectory, LogHelper } from "../extension/log/LogHelper";
+import * as nls from "vscode-nls";
+import { getLoggingDirectory, LogHelper, LogLevel } from "../extension/log/LogHelper";
 import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { InternalError, NestedError } from "../common/error/internalError";
 import { ILaunchArgs, IRunOptions, PlatformType } from "../extension/launchArgs";
 import { AppLauncher } from "../extension/appLauncher";
-import { LogLevel } from "../extension/log/LogHelper";
 import { RNPackageVersions } from "../common/projectVersionHelper";
-import * as nls from "vscode-nls";
 import { SettingsHelper } from "../extension/settingsHelper";
 
 nls.config({
@@ -68,7 +67,8 @@ export interface ILaunchRequestArgs
         IAttachRequestArgs {}
 
 export abstract class DebugSessionBase extends LoggingDebugSession {
-    protected static rootSessionTerminatedEventEmitter: vscode.EventEmitter<TerminateEventArgs> = new vscode.EventEmitter<TerminateEventArgs>();
+    protected static rootSessionTerminatedEventEmitter: vscode.EventEmitter<TerminateEventArgs> =
+        new vscode.EventEmitter<TerminateEventArgs>();
     public static readonly onDidTerminateRootDebugSession =
         DebugSessionBase.rootSessionTerminatedEventEmitter.event;
 

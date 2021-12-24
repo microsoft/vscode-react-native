@@ -4,20 +4,21 @@
 import * as path from "path";
 import * as semver from "semver";
 
+import * as nls from "vscode-nls";
 import { ChildProcess } from "../../common/node/childProcess";
 import { CommandExecutor } from "../../common/commandExecutor";
 import { MobilePlatformDeps, TargetType } from "../generalPlatform";
 import { IIOSRunOptions, PlatformType } from "../launchArgs";
-import { PlistBuddy } from "./plistBuddy";
-import { IOSDebugModeManager } from "./iOSDebugModeManager";
 import { OutputVerifier, PatternToFailure } from "../../common/outputVerifier";
 import { TelemetryHelper } from "../../common/telemetryHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
-import * as nls from "vscode-nls";
 import { AppLauncher } from "../appLauncher";
 import { GeneralMobilePlatform } from "../generalMobilePlatform";
-import { IDebuggableIOSTarget, IOSTarget, IOSTargetManager } from "./iOSTargetManager";
 import { ErrorHelper } from "../../common/error/errorHelper";
+import { IDebuggableIOSTarget, IOSTarget, IOSTargetManager } from "./iOSTargetManager";
+import { IOSDebugModeManager } from "./iOSDebugModeManager";
+import { PlistBuddy } from "./plistBuddy";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -95,7 +96,8 @@ export class IOSPlatform extends GeneralMobilePlatform {
             if (targetFromRunArgs) {
                 this.target = targetFromRunArgs;
             } else {
-                const targets = (await this.targetManager.getTargetList()) as IDebuggableIOSTarget[];
+                const targets =
+                    (await this.targetManager.getTargetList()) as IDebuggableIOSTarget[];
                 const targetsBySpecifiedType = targets.filter(target => {
                     switch (this.runOptions.target) {
                         case TargetType.Simulator:
@@ -180,7 +182,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
             if (
                 !semver.valid(
                     this.runOptions.reactNativeVersions.reactNativeVersion,
-                ) /*Custom RN implementations should support this flag*/ ||
+                ) /* Custom RN implementations should support this flag*/ ||
                 semver.gte(
                     this.runOptions.reactNativeVersions.reactNativeVersion,
                     IOSPlatform.NO_PACKAGER_VERSION,
@@ -237,7 +239,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
         const childProcess = new ChildProcess();
         const output = await childProcess.execToString("xcrun simctl spawn booted launchctl list");
         // Try to find an entry that looks like UIKitApplication:com.example.myApp[0x4f37]
-        const regex = new RegExp(`(\\S+${bundleId}\\S+)`);
+        const regex = new RegExp(`(\\S+${String(bundleId)}\\S+)`);
         const match = regex.exec(output);
         // If we don't find a match, the app must not be running and so we do not need to close it
         if (match) {
@@ -245,7 +247,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
         }
         // Write to the settings file while the app is not running to avoid races
         await this.iosDebugModeManager.setAppRemoteDebuggingSetting(
-            /*enable=*/ true,
+            /* enable=*/ true,
             this.runOptions.configuration,
             this.runOptions.productName,
         );
@@ -258,7 +260,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
             return;
         }
         return this.iosDebugModeManager.setAppRemoteDebuggingSetting(
-            /*enable=*/ false,
+            /* enable=*/ false,
             this.runOptions.configuration,
             this.runOptions.productName,
         );
@@ -320,15 +322,14 @@ export class IOSPlatform extends GeneralMobilePlatform {
                 const target = targets.find(target => target.id === udid);
                 if (target) {
                     return IOSTarget.fromInterface(target);
-                } else {
-                    this.logger.warning(
-                        localize(
-                            "ThereIsNoIosTargetWithSuchUdid",
-                            "There is no iOS target with such UDID: {0}",
-                            udid,
-                        ),
-                    );
                 }
+                this.logger.warning(
+                    localize(
+                        "ThereIsNoIosTargetWithSuchUdid",
+                        "There is no iOS target with such UDID: {0}",
+                        udid,
+                    ),
+                );
             }
 
             const device = GeneralMobilePlatform.getOptFromRunArgs(
@@ -341,15 +342,14 @@ export class IOSPlatform extends GeneralMobilePlatform {
                 );
                 if (target) {
                     return IOSTarget.fromInterface(target);
-                } else {
-                    this.logger.warning(
-                        localize(
-                            "ThereIsNoIosDeviceWithSuchName",
-                            "There is no iOS device with such name: {0}",
-                            device,
-                        ),
-                    );
                 }
+                this.logger.warning(
+                    localize(
+                        "ThereIsNoIosDeviceWithSuchName",
+                        "There is no iOS device with such name: {0}",
+                        device,
+                    ),
+                );
             }
 
             const simulator = GeneralMobilePlatform.getOptFromRunArgs(
@@ -362,15 +362,14 @@ export class IOSPlatform extends GeneralMobilePlatform {
                 );
                 if (target) {
                     return IOSTarget.fromInterface(target);
-                } else {
-                    this.logger.warning(
-                        localize(
-                            "ThereIsNoIosSimulatorWithSuchName",
-                            "There is no iOS simulator with such name: {0}",
-                            simulator,
-                        ),
-                    );
                 }
+                this.logger.warning(
+                    localize(
+                        "ThereIsNoIosSimulatorWithSuchName",
+                        "There is no iOS simulator with such name: {0}",
+                        simulator,
+                    ),
+                );
             }
         }
 
@@ -378,16 +377,14 @@ export class IOSPlatform extends GeneralMobilePlatform {
     }
 
     private handleTargetArg(target: string): string[] {
-        if (target === TargetType.Device || target === TargetType.Simulator) {
-            return [`--${target}`];
-        } else {
-            return ["--udid", target];
-        }
+        return target === TargetType.Device || target === TargetType.Simulator
+            ? [`--${target}`]
+            : ["--udid", target];
     }
 
     private async generateSuccessPatterns(version: string): Promise<string[]> {
         // Clone RUN_IOS_SUCCESS_PATTERNS to avoid its runtime mutation
-        let successPatterns = [...IOSPlatform.RUN_IOS_SUCCESS_PATTERNS];
+        const successPatterns = [...IOSPlatform.RUN_IOS_SUCCESS_PATTERNS];
         if (!(await this.getTarget()).isVirtualTarget) {
             if (semver.gte(version, "0.60.0")) {
                 successPatterns.push("success Installed the app on the device");
@@ -395,17 +392,14 @@ export class IOSPlatform extends GeneralMobilePlatform {
                 successPatterns.push("INSTALLATION SUCCEEDED");
             }
             return successPatterns;
-        } else {
-            const bundleId = await this.getBundleId();
-            if (semver.gte(version, "0.60.0")) {
-                successPatterns.push(
-                    `Launching "${bundleId}"\nsuccess Successfully launched the app `,
-                );
-            } else {
-                successPatterns.push(`Launching ${bundleId}\n${bundleId}: `);
-            }
-            return successPatterns;
         }
+        const bundleId = await this.getBundleId();
+        if (semver.gte(version, "0.60.0")) {
+            successPatterns.push(`Launching "${bundleId}"\nsuccess Successfully launched the app `);
+        } else {
+            successPatterns.push(`Launching ${bundleId}\n${bundleId}: `);
+        }
+        return successPatterns;
     }
 
     private getConfiguration(): string {
