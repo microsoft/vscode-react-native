@@ -2,14 +2,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import {
+    basicCheck,
     createNotFoundMessage,
     createVersionErrorMessage,
-    executeCommand,
-    normizeStr,
+    parseVersion,
 } from "../util";
-import * as semver from "semver";
 import { ValidationCategoryE, IValidation, ValidationResultT } from "./types";
-import * as cexists from "command-exists";
 import * as nls from "vscode-nls";
 
 nls.config({
@@ -22,37 +20,36 @@ const toLocale = nls.loadMessageBundle();
 const label = "Node.JS";
 
 async function test(): Promise<ValidationResultT> {
-    if (!cexists.sync("node")) {
+    const result = await basicCheck({
+        command: "node",
+        versionRange: "12.0.0",
+        getVersion: parseVersion.bind(null, "node --version"),
+    });
+
+    if (!result.exists) {
         return {
             status: "failure",
             comment: createNotFoundMessage(label),
         };
     }
-    const command = "node --version";
-    const data = await executeCommand(command);
 
-    const text = normizeStr(data.stdout).split("\n")[0];
-    const version = semver.coerce(text);
-
-    if (!version) {
+    if (result.versionCompare === undefined) {
         return {
             status: "failure",
             comment: createVersionErrorMessage(label),
         };
     }
 
-    const isOlder = semver.lt(version, "12.0.0");
+    if (result.versionCompare === -1) {
+        return {
+            status: "failure",
+            comment:
+                "Detected version is older than 12.0.0 " +
+                `Minimal required version is 12.0.0. Please update your ${label} installation`,
+        };
+    }
 
-    return isOlder
-        ? {
-              status: "failure",
-              comment:
-                  "Detected version is older than 12.0.0 " +
-                  `Minimal required version is 12.0.0. Please update your ${label} installation`,
-          }
-        : {
-              status: "success",
-          };
+    return { status: "success" };
 }
 
 const main: IValidation = {

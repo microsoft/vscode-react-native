@@ -1,9 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { createNotFoundMessage } from "../util";
+import { basicCheck, createNotFoundMessage } from "../util";
 import { ValidationCategoryE, IValidation, ValidationResultT } from "./types";
-import * as cexists from "command-exists";
 import * as nls from "vscode-nls";
 
 nls.config({
@@ -16,7 +15,11 @@ const toLocale = nls.loadMessageBundle();
 const label = "ios-deploy";
 
 async function test(): Promise<ValidationResultT> {
-    if (!cexists.sync("ios-deploy")) {
+    const result = await basicCheck({
+        command: "ios-deploy",
+    });
+
+    if (!result.exists) {
         return {
             status: "partial-success", // not necessary required
             comment: createNotFoundMessage(label),

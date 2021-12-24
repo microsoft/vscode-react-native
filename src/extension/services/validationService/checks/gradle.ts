@@ -2,14 +2,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import {
+    basicCheck,
     createNotFoundMessage,
     createVersionErrorMessage,
-    executeCommand,
-    normizeStr,
+    parseVersion,
 } from "../util";
-import * as semver from "semver";
 import { ValidationCategoryE, IValidation, ValidationResultT } from "./types";
-import * as cexists from "command-exists";
 import * as nls from "vscode-nls";
 
 nls.config({
@@ -22,28 +20,25 @@ const toLocale = nls.loadMessageBundle();
 const label = "Gradle";
 
 async function test(): Promise<ValidationResultT> {
-    if (!cexists.sync("gradle")) {
+    const result = await basicCheck({
+        command: "gradle",
+        getVersion: parseVersion.bind(null, "gradle -version", /Gradle (.*?)( |$)/gim),
+    });
+
+    if (!result.exists) {
         return {
             status: "failure",
             comment: createNotFoundMessage(label),
         };
     }
 
-    const command = "gradle -version";
-    const data = await executeCommand(command);
-
-    const text = normizeStr(data.stdout).split("\n")[2];
-    const reg = /Gradle (.*?)( |$)/gi;
-    const version = semver.coerce(reg.exec(text)?.[1]);
-
-    if (!version) {
+    if (result.versionCompare === undefined) {
         return {
             status: "failure",
             comment: createVersionErrorMessage(label),
         };
     }
 
-    // #todo> Not sure which gradle versions are required
     return {
         status: "success",
     };

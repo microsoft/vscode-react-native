@@ -4,6 +4,7 @@
 import * as cp from "child_process";
 import { promisify } from "util";
 import * as semver from "semver";
+import * as commandExists from "command-exists";
 
 export const executeCommand = promisify(cp.exec);
 export const normizeStr = (str: string): string => str.replace(/\r\n/g, "\n");
@@ -13,15 +14,53 @@ export const createNotFoundMessage = (str: string): string =>
 export const createVersionErrorMessage = (str: string): string =>
     `Version check failed. Make sure ${str} is working correctly`;
 
-/** Run command and parse output with regex. If command does not exist - throws an error. */
-export const getVersion = async (
+export const basicCheck = async (arg: {
+    command: string;
+    getVersion?: () => Promise<string | null | undefined>;
+    versionRange?: semver.Range | string;
+}): Promise<{ exists: boolean; versionCompare: 0 | 1 | -1 | undefined }> => {
+    const result = {
+        exists: true,
+        /**
+         * 0 - within range
+         * 1 - gt ranged. -1 if lt range*/
+        versionCompare: undefined as -1 | 0 | 1 | undefined,
+    };
+
+    if (!commandExists.sync(arg.command)) {
+        result.exists = false;
+        return result;
+    }
+
+    const version = await arg.getVersion?.();
+
+    if (!version) {
+        return result;
+    }
+
+    if (!arg.versionRange) {
+        result.versionCompare = 0;
+        return result;
+    }
+
+    result.versionCompare = semver.gtr(version, arg.versionRange)
+        ? 1
+        : semver.ltr(version, arg.versionRange)
+        ? -1
+        : 0;
+
+    return result;
+};
+
+/** Run command and parse output with regex. Get first capturing group. If command does not exist - throws an error. */
+export const parseVersion = async (
     command: string,
-    reg: RegExp,
+    reg?: RegExp,
     prop: "stdout" | "stderr" = "stdout",
 ): Promise<semver.SemVer | null> => {
     const data = await executeCommand(command);
-    const version = semver.coerce(reg.exec(normizeStr(data[prop]))?.[1]);
-    return version;
+    const text = normizeStr(data[prop]);
+    return semver.coerce(reg ? reg.exec(text)?.[1] : text);
 };
 
 // change typescript lib to es2019 ?
