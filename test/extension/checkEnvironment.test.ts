@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as proxyquire from "proxyquire";
 import * as assert from "assert";
 import { promises as fs } from "fs";
 import * as os from "os";
 import * as path from "path";
+import * as proxyquire from "proxyquire";
 
 suite("checkEnvironment", function () {
     suite("basicCheck", function () {
@@ -121,7 +121,7 @@ suite("checkEnvironment", function () {
         };
 
         test("should succeed on correct env", async () => {
-            const tempdir = await fs.mkdtemp(os.tmpdir());
+            const tempdir = await fs.mkdtemp(path.join(os.tmpdir(), "foo"));
             setEnv(tempdir);
 
             const result = await envTest();
@@ -136,9 +136,6 @@ suite("checkEnvironment", function () {
 
             const result = await envTest();
 
-            console.log("result >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-            console.log(result);
-
             assert(result.status === "failure");
 
             restoreEnv();
@@ -146,10 +143,10 @@ suite("checkEnvironment", function () {
 
         test("should succeed on path with env values", async () => {
             const varName = "some-weired-variable-abcd";
-            const tempDir = await fs.mkdtemp(os.tmpdir());
-            await fs.mkdir(path.join(tempDir, "foo"));
+            const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "foo"));
+            await fs.mkdir(path.join(tempDir, "bar"));
 
-            process.env[varName] = "foo";
+            process.env[varName] = "bar";
 
             setEnv(`${tempDir}/%${varName}%`);
 
