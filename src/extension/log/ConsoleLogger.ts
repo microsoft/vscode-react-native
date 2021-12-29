@@ -27,8 +27,8 @@ export class ConsoleLogger implements ILogger {
         console.error(ConsoleLogger.getFormattedMessage(errorMessage, LogLevel.Error));
 
         // Print the error stack if necessary
-        if (logStack && error && (<Error>error).stack) {
-            console.error(`Stack: ${(<Error>error).stack}`);
+        if (logStack && error && error.stack) {
+            console.error(`Stack: ${error.stack}`);
         }
     }
 

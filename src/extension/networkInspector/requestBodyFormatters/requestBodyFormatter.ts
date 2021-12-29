@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { Request, Response, Header } from "../networkMessageData";
 import { Base64 } from "js-base64";
 import * as pako from "pako";
-import { JSONFormatter } from "./jsonFormatter";
+import { Request, Response, Header } from "../networkMessageData";
 import { OutputChannelLogger } from "../../log/OutputChannelLogger";
+import { notNullOrUndefined } from "../../../common/utils";
+import { JSONFormatter } from "./jsonFormatter";
 import { ImageFormatter } from "./imageFormatter";
 import { GraphQLFormatter } from "./graphQLFormatter";
 import { FormUrlencodedFormatter } from "./formUrlencodedFormatter";
-import { notNullOrUndefined } from "../../../common/utils";
 
 export type FormattedBody = string | Record<string, any> | Array<Record<string, any>>;
 
@@ -35,7 +35,7 @@ export class RequestBodyFormatter {
     public formatBody(container: Request | Response): FormattedBody {
         const contentType = getHeaderValue(container.headers, "content-type");
 
-        for (let formatter of this.formatters) {
+        for (const formatter of this.formatters) {
             try {
                 let formattedRes = null;
                 // if container is a response
@@ -52,7 +52,9 @@ export class RequestBodyFormatter {
                 }
             } catch (err) {
                 this.logger.debug(
-                    `RequestBodyFormatter exception from ${formatter.constructor.name} ${err.message}`,
+                    `RequestBodyFormatter exception from ${formatter.constructor.name} ${String(
+                        err.message,
+                    )}`,
                 );
             }
         }
@@ -106,7 +108,7 @@ export function decodeBody(container: Request | Response, logger?: OutputChannel
         logger?.debug(
             `Network inspector failed to decode request/response body (size: ${
                 container.data.length
-            }): ${err.toString()}`,
+            }): ${String(err.toString())}`,
         );
         return "";
     }

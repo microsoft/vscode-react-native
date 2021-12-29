@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { createNotFoundMessage, createVersionErrorMessage, getVersion } from "../util";
 import * as semver from "semver";
-import { ValidationCategoryE, IValidation, ValidationResultT } from "./types";
 import * as cexists from "command-exists";
 import * as nls from "vscode-nls";
+import { createNotFoundMessage, createVersionErrorMessage, getVersion } from "../util";
+import { ValidationCategoryE, IValidation, ValidationResultT } from "./types";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,

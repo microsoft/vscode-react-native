@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import * as path from "path";
 import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
+import { AppLauncher } from "../extension/appLauncher";
 import { CommandExecutor, CommandVerbosity } from "./commandExecutor";
 import customRequire from "./customRequire";
 import { findFileInFolderHierarchy, getVersionFromExtensionNodeModules } from "./extensionHelper";
 import { HostPlatform } from "./hostPlatform";
-import * as path from "path";
-import { AppLauncher } from "../extension/appLauncher";
 import { PromiseUtil } from "./node/promise";
 
 const WRONG_VERSION_ERROR =
@@ -34,7 +34,7 @@ export class PackageConfig {
     }
 
     public getStringForInstall(): string {
-        return this.packageName + this.getVersion(true);
+        return `${this.packageName}${String(this.getVersion(true))}`;
     }
 
     public getStringForRequire(): string {
@@ -199,7 +199,7 @@ export class PackageLoader {
                 if (this.requireQueue.length) {
                     this.packagesQueue = this.getUniquePackages(this.packagesQueue);
                     packagesForInstall.forEach(module => {
-                        const index = this.packagesQueue.findIndex(el => el === module);
+                        const index = this.packagesQueue.indexOf(module);
                         if (index !== -1) {
                             this.packagesQueue.splice(index, 1);
                         }

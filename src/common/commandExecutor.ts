@@ -3,15 +3,16 @@
 
 import * as path from "path";
 import * as cp from "child_process";
+import * as nls from "vscode-nls";
 import { ILogger } from "../extension/log/LogHelper";
 import { NullLogger } from "../extension/log/NullLogger";
-import { ProjectVersionHelper } from "../common/projectVersionHelper";
+import { ProjectVersionHelper } from "./projectVersionHelper";
 import { ISpawnResult } from "./node/childProcess";
 import { HostPlatform, HostPlatformId } from "./hostPlatform";
 import { ErrorHelper } from "./error/errorHelper";
 import { InternalErrorCode } from "./error/internalErrorCode";
-import * as nls from "vscode-nls";
 import { Node } from "./node/node";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -95,7 +96,7 @@ export class CommandExecutor {
         if (packagerProcess) {
             if (HostPlatform.getPlatformId() === HostPlatformId.WINDOWS) {
                 const res = await this.childProcess.exec(
-                    "taskkill /pid " + packagerProcess.pid + " /T /F",
+                    `taskkill /pid ${packagerProcess.pid} /T /F`,
                 );
                 await res.outcome;
             } else {
@@ -132,7 +133,7 @@ export class CommandExecutor {
         options: Options = { verbosity: CommandVerbosity.OUTPUT },
     ): Promise<void> {
         const spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options);
-        const commandWithArgs = command + " " + args.join(" ");
+        const commandWithArgs = `${command} ${args.join(" ")}`;
         const timeBetweenDots = 1500;
         let lastDotTime = 0;
 
@@ -194,7 +195,7 @@ export class CommandExecutor {
         options: Options = {},
     ): ISpawnResult {
         const spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options);
-        const commandWithArgs = command + " " + args.join(" ");
+        const commandWithArgs = `${command} ${args.join(" ")}`;
 
         this.logger.debug(
             CommandExecutor.getCommandStatusString(commandWithArgs, CommandStatus.Start),

@@ -2,20 +2,21 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as path from "path";
+import { EventEmitter } from "events";
 import * as vscode from "vscode";
 import * as WebSocket from "ws";
-import { EventEmitter } from "events";
+import { logger } from "vscode-debugadapter";
+import * as nls from "vscode-nls";
 import { ensurePackagerRunning } from "../common/packagerStatus";
 import { ErrorHelper } from "../common/error/errorHelper";
-import { logger } from "vscode-debugadapter";
 import { ExecutionsLimiter } from "../common/executionsLimiter";
-import { ForkedAppWorker } from "./forkedAppWorker";
-import { ScriptImporter } from "./scriptImporter";
 import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
-import * as nls from "vscode-nls";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { FileSystem } from "../common/node/fileSystem";
 import { PromiseUtil } from "../common/node/promise";
+import { ForkedAppWorker } from "./forkedAppWorker";
+import { ScriptImporter } from "./scriptImporter";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -277,7 +278,7 @@ function fetch(url) {
     }
 
     public async downloadAndPatchDebuggerWorker(): Promise<void> {
-        let scriptToRunPath = path.resolve(
+        const scriptToRunPath = path.resolve(
             this.sourcesStoragePath,
             ScriptImporter.DEBUGGER_WORKER_FILENAME,
         );
@@ -342,13 +343,13 @@ function fetch(url) {
                 this.onSocketOpened();
             });
             this.socketToApp.on("close", () => {
-                this.executionLimiter.execute("onSocketClose.msg", /*limitInSeconds*/ 10, () => {
+                this.executionLimiter.execute("onSocketClose.msg", /* limitInSeconds*/ 10, () => {
                     /*
                      * It is not the best idea to compare with the message, but this is the only thing React Native gives that is unique when
                      * it closes the socket because it already has a connection to a debugger.
                      * https://github.com/facebook/react-native/blob/588f01e9982775f0699c7bfd56623d4ed3949810/local-cli/server/util/webSocketProxy.js#L38
                      */
-                    let msgKey = "_closeMessage";
+                    const msgKey = "_closeMessage";
                     if (this.socketToApp[msgKey] === "Another debugger is already connected") {
                         reject(
                             ErrorHelper.getInternalError(
@@ -365,7 +366,7 @@ function fetch(url) {
                 });
                 if (!this.cancellationToken.isCancellationRequested) {
                     setTimeout(() => {
-                        this.start(true /* retryAttempt */);
+                        void this.start(true /* retryAttempt */);
                     }, 100);
                 }
             });
@@ -385,7 +386,7 @@ function fetch(url) {
 
             // In an attempt to catch failures in starting the packager on first attempt,
             // wait for 300 ms before resolving the promise
-            PromiseUtil.delay(300).then(() => resolve());
+            void PromiseUtil.delay(300).then(() => resolve());
         });
     }
 
@@ -394,7 +395,7 @@ function fetch(url) {
     }
 
     private onSocketOpened() {
-        this.executionLimiter.execute("onSocketOpened.msg", /*limitInSeconds*/ 10, () =>
+        this.executionLimiter.execute("onSocketOpened.msg", /* limitInSeconds*/ 10, () =>
             logger.log(
                 localize(
                     "EstablishedConnectionWithPackagerToReactNativeApp",
@@ -412,8 +413,8 @@ function fetch(url) {
 
     private onMessage(message: string) {
         try {
-            logger.verbose("From RN APP: " + message);
-            let object = <RNAppMessage>JSON.parse(message);
+            logger.verbose(`From RN APP: ${message}`);
+            const object = <RNAppMessage>JSON.parse(message);
             if (object.method === "prepareJSRuntime") {
                 // In RN 0.40 Android runtime doesn't seem to be sending "$disconnected" event
                 // when user reloads an app, hence we need to try to kill it here either.
@@ -463,13 +464,13 @@ function fetch(url) {
     }
 
     private sendMessageToApp(message: any): void {
-        let stringified: string = "";
+        let stringified = "";
         try {
             stringified = JSON.stringify(message);
             logger.verbose(`To RN APP: ${stringified}`);
             this.socketToApp.send(stringified);
         } catch (exception) {
-            let messageToShow = stringified || "" + message; // Try to show the stringified version, but show the toString if unavailable
+            const messageToShow = stringified || String(message); // Try to show the stringified version, but show the toString if unavailable
             printDebuggingError(
                 ErrorHelper.getInternalError(
                     InternalErrorCode.FailedToSendMessageToTheReactNativeApp,

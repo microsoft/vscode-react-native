@@ -2,22 +2,23 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as vscode from "vscode";
-import { ProjectVersionHelper } from "../../common/projectVersionHelper";
 import { logger } from "vscode-debugadapter";
-import { TelemetryHelper } from "../../common/telemetryHelper";
 import { DebugProtocol } from "vscode-debugprotocol";
+import * as nls from "vscode-nls";
+import { ProjectVersionHelper } from "../../common/projectVersionHelper";
+import { TelemetryHelper } from "../../common/telemetryHelper";
 import { HermesCDPMessageHandler } from "../../cdp-proxy/CDPMessageHandlers/hermesCDPMessageHandler";
 import { DebugSessionBase, IAttachRequestArgs, ILaunchRequestArgs } from "../debugSessionBase";
 import { JsDebugConfigAdapter } from "../jsDebugConfigAdapter";
 import { DebuggerEndpointHelper } from "../../cdp-proxy/debuggerEndpointHelper";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
-import * as nls from "vscode-nls";
 import { IOSDirectCDPMessageHandler } from "../../cdp-proxy/CDPMessageHandlers/iOSDirectCDPMessageHandler";
 import { PlatformType } from "../../extension/launchArgs";
-import { IWDPHelper } from "./IWDPHelper";
 import { BaseCDPMessageHandler } from "../../cdp-proxy/CDPMessageHandlers/baseCDPMessageHandler";
 import { TipNotificationService } from "../../extension/services/tipsNotificationsService/tipsNotificationService";
+import { IWDPHelper } from "./IWDPHelper";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -56,7 +57,7 @@ export class DirectDebugSession extends DebugSessionBase {
             },
         };
 
-        TipNotificationService.getInstance().setKnownDateForFeatureById(
+        void TipNotificationService.getInstance().setKnownDateForFeatureById(
             "directDebuggingWithHermes",
         );
 
@@ -216,7 +217,7 @@ export class DirectDebugSession extends DebugSessionBase {
     ): Promise<void> {
         this.iOSWKDebugProxyHelper.cleanUp();
         this.onDidTerminateDebugSessionHandler.dispose();
-        super.disconnectRequest(response, args, request);
+        void super.disconnectRequest(response, args, request);
     }
 
     protected async establishDebugSession(attachArgs: IAttachRequestArgs): Promise<void> {
@@ -246,7 +247,7 @@ export class DirectDebugSession extends DebugSessionBase {
             debugSession.configuration.rnDebugSessionId === this.session.id &&
             debugSession.type === this.pwaNodeSessionName
         ) {
-            vscode.commands.executeCommand(this.stopCommand, this.session);
+            void vscode.commands.executeCommand(this.stopCommand, this.session);
         }
     }
 

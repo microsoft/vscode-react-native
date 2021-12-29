@@ -1,7 +1,6 @@
 // Place your settings in this file to overwrite default and user settings.
 {
     "javascript.validate.enable": false,
-    "editor.formatOnSave": true,
     "editor.formatOnSaveMode": "modifications",
     "files.trimTrailingWhitespace": true,
     "editor.insertSpaces": true,

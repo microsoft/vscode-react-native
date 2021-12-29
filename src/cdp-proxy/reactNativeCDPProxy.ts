@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import { IncomingMessage } from "http";
 import {
     Connection,
     Server,
@@ -9,7 +10,6 @@ import {
     IProtocolError,
     IProtocolSuccess,
 } from "vscode-cdp-proxy";
-import { IncomingMessage } from "http";
 import { CancellationToken } from "vscode";
 import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
 import { LogLevel } from "../extension/log/LogHelper";
@@ -42,7 +42,7 @@ export class ReactNativeCDPProxy {
         this.hostAddress = hostAddress;
         this.logger = OutputChannelLogger.getChannel(
             "React Native Chrome Proxy",
-            process.env.REACT_NATIVE_TOOLS_LAZY_LOGS === "false" ? false : true,
+            process.env.REACT_NATIVE_TOOLS_LAZY_LOGS !== "false",
             false,
             true,
         );

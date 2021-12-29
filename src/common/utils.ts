@@ -51,7 +51,8 @@ export function getFormattedTimeString(date: Date): string {
 }
 
 export function getFormattedDateString(date: Date): string {
-    return date.getUTCFullYear() + "-" + `${date.getUTCMonth() + 1}` + "-" + date.getUTCDate();
+    const month = date.getUTCMonth() + 1;
+    return `${date.getUTCFullYear()}-${month}-${date.getUTCDate()}`;
 }
 
 export function getFormattedDatetimeString(date: Date): string {
@@ -59,9 +60,7 @@ export function getFormattedDatetimeString(date: Date): string {
 }
 
 function padZeroes(minDesiredLength: number, numberToPad: string): string {
-    if (numberToPad.length >= minDesiredLength) {
-        return numberToPad;
-    } else {
-        return String("0".repeat(minDesiredLength) + numberToPad).slice(-minDesiredLength);
-    }
+    return numberToPad.length >= minDesiredLength
+        ? numberToPad
+        : String("0".repeat(minDesiredLength) + numberToPad).slice(-minDesiredLength);
 }

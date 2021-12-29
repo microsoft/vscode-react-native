@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as semver from "semver";
 import { URL } from "url";
-import { Package } from "./node/package";
-import { ErrorHelper } from "../common/error/errorHelper";
-import { InternalErrorCode } from "../common/error/internalErrorCode";
-import { ParsedPackage } from "./reactNativeProjectHelper";
-import { RN_VERSION_ERRORS } from "./error/versionError";
+import * as semver from "semver";
 import { ILaunchArgs, PlatformType } from "../extension/launchArgs";
 import { AppLauncher } from "../extension/appLauncher";
+import { ErrorHelper } from "./error/errorHelper";
+import { InternalErrorCode } from "./error/internalErrorCode";
+import { RN_VERSION_ERRORS } from "./error/versionError";
+import { Package } from "./node/package";
+import { ParsedPackage } from "./reactNativeProjectHelper";
 
 export interface PackageVersion {
     [packageName: string]: string;
@@ -98,7 +98,7 @@ export class ProjectVersionHelper {
     }
 
     public static generateAdditionalPackagesToCheckByPlatform(args: ILaunchArgs): ParsedPackage[] {
-        let additionalPackages: ParsedPackage[] = [];
+        const additionalPackages: ParsedPackage[] = [];
         if (args.platform === PlatformType.Windows) {
             additionalPackages.push(REACT_NATIVE_PACKAGES.REACT_NATIVE_WINDOWS);
         }
@@ -121,13 +121,13 @@ export class ProjectVersionHelper {
         nodeModulesRoot: string,
         additionalPackagesToCheck?: ParsedPackage[],
     ): Promise<RNPackageVersions> {
-        let parsedPackages: ParsedPackage[] = [REACT_NATIVE_PACKAGES.REACT_NATIVE];
+        const parsedPackages: ParsedPackage[] = [REACT_NATIVE_PACKAGES.REACT_NATIVE];
 
         if (additionalPackagesToCheck) {
             parsedPackages.push(...additionalPackagesToCheck);
         }
 
-        let versionPromises: Promise<PackageVersion>[] = [];
+        const versionPromises: Promise<PackageVersion>[] = [];
 
         parsedPackages.forEach(parsedPackage => {
             versionPromises.push(
@@ -139,9 +139,11 @@ export class ProjectVersionHelper {
         });
 
         const packageVersionArray = await Promise.all(versionPromises);
-        const packageVersions = packageVersionArray.reduce((allPackageVersions, packageVersion) => {
-            return Object.assign(allPackageVersions, packageVersion);
-        }, {});
+        const packageVersions = packageVersionArray.reduce(
+            (allPackageVersions, packageVersion) =>
+                Object.assign(allPackageVersions, packageVersion),
+            {},
+        );
         if (ProjectVersionHelper.isVersionError(packageVersions["react-native"])) {
             throw ErrorHelper.getInternalError(InternalErrorCode.ReactNativePackageIsNotInstalled);
         }
@@ -160,7 +162,7 @@ export class ProjectVersionHelper {
         cwd: string,
         additionalPackagesToCheck?: ParsedPackage[],
     ): Promise<RNPackageVersions> {
-        let parsedPackages: ParsedPackage[] = [REACT_NATIVE_PACKAGES.REACT_NATIVE];
+        const parsedPackages: ParsedPackage[] = [REACT_NATIVE_PACKAGES.REACT_NATIVE];
 
         if (additionalPackagesToCheck) {
             parsedPackages.push(...additionalPackagesToCheck);
@@ -172,24 +174,22 @@ export class ProjectVersionHelper {
             const dependencies = await rootProjectPackageJson.dependencies();
             const devDependencies = await rootProjectPackageJson.devDependencies();
 
-            let parsedPackageVersions: PackageVersion = {};
+            const parsedPackageVersions: PackageVersion = {};
 
             parsedPackages.forEach(parsedPackage => {
                 try {
                     if (dependencies[parsedPackage.packageName]) {
-                        parsedPackageVersions[
-                            parsedPackage.packageName
-                        ] = ProjectVersionHelper.processVersion(
-                            dependencies[parsedPackage.packageName],
-                            parsedPackage.useSemverCoerce,
-                        );
+                        parsedPackageVersions[parsedPackage.packageName] =
+                            ProjectVersionHelper.processVersion(
+                                dependencies[parsedPackage.packageName],
+                                parsedPackage.useSemverCoerce,
+                            );
                     } else if (devDependencies[parsedPackage.packageName]) {
-                        parsedPackageVersions[
-                            parsedPackage.packageName
-                        ] = ProjectVersionHelper.processVersion(
-                            devDependencies[parsedPackage.packageName],
-                            parsedPackage.useSemverCoerce,
-                        );
+                        parsedPackageVersions[parsedPackage.packageName] =
+                            ProjectVersionHelper.processVersion(
+                                devDependencies[parsedPackage.packageName],
+                                parsedPackage.useSemverCoerce,
+                            );
                     } else {
                         parsedPackageVersions[parsedPackage.packageName] =
                             RN_VERSION_ERRORS.MISSING_DEPENDENCY_IN_PROJECT_PACKAGE_FILE;
@@ -225,15 +225,12 @@ export class ProjectVersionHelper {
     public static processVersion(version: string, useSemverCoerce: boolean = true): string {
         try {
             return new URL(version) && `${this.SEMVER_INVALID}: URL`;
-        } catch (err) {
-            let versionObj;
+        } catch {
             // As some of 'react-native-windows' versions contain postfixes we cannot use 'coerce' function to parse them
             // as some critical parts of the version string will be dropped. To save this information we use 'clean' function
-            if (useSemverCoerce) {
-                versionObj = semver.coerce(version);
-            } else {
-                versionObj = semver.clean(version.replace(/[\^~<>]/g, ""), { loose: true });
-            }
+            const versionObj = useSemverCoerce
+                ? semver.coerce(version)
+                : semver.clean(version.replace(/[<>^~]/g, ""), { loose: true });
             return (versionObj && versionObj.toString()) || this.SEMVER_INVALID;
         }
     }

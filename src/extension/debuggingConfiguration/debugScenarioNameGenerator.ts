@@ -2,8 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { PlatformType } from "../launchArgs";
-import { DebugScenarioType } from "./debugConfigTypesAndConstants";
-import { DEBUG_TYPES } from "./debugConfigTypesAndConstants";
+import { DebugScenarioType, DEBUG_TYPES } from "./debugConfigTypesAndConstants";
 
 interface DebugScenarioName {
     debugScenarioType: string;
@@ -21,9 +20,8 @@ export class DebugScenarioNameGenerator {
         useHermesEngine: boolean = false,
         isExperimental: boolean = false,
     ): string {
-        let debugScenarioName: DebugScenarioName = this.createScenarioAccordingToDebugScenarioType(
-            debugScenarioType,
-        );
+        const debugScenarioName: DebugScenarioName =
+            this.createScenarioAccordingToDebugScenarioType(debugScenarioType);
         debugScenarioName.platformType = this.getPlatformTypeName(platformType);
         if (debugType === DEBUG_TYPES.REACT_NATIVE) {
             this.configureNotDirectModeScenario(

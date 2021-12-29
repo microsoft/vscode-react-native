@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { ValidationCategoryE, IValidation, ValidationResultT } from "./types";
 import * as fs from "fs";
-import { fromEntries } from "../util";
 import * as nls from "vscode-nls";
+import { fromEntries } from "../util";
+import { ValidationCategoryE, IValidation, ValidationResultT } from "./types";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
