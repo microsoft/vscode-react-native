@@ -56,7 +56,7 @@ const adbAndroid: IValidation = {
     label,
     description: toLocale(
         "AdbCheckAndroidDescription",
-        "Required for app installition. Minimal version is 12",
+        "Required for app installation. Minimal version is 12",
     ),
     category: ValidationCategoryE.Android,
     exec: test,
