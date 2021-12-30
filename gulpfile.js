@@ -302,15 +302,8 @@ const runPrettier = async fix => {
     });
 };
 
-const findChangedFiles = async () => {
-    const data = await promisify(cp.exec)("git diff --name-only HEAD");
-    return data.stderr
-        ? assert(false, data.stderr)
-        : data.stdout.replace(/\r\n/g, "\n").split("\n");
-};
-
 /**
- * @typedef {{color: boolean, fix: boolean, changedOnly: boolean}} OptionsT
+ * @typedef {{color: boolean, fix: boolean}} OptionsT
  */
 
 /**
@@ -318,15 +311,9 @@ const findChangedFiles = async () => {
  */
 const runEslint = async options_ => {
     /** @type {OptionsT} */
-    const options = Object.assign({ color: true, fix: false, changedOnly: false }, options_);
+    const options = Object.assign({ color: true, fix: false }, options_);
 
-    const files = options.changedOnly
-        ? await findChangedFiles().then(it => it.filter(it => it.startsWith("src")))
-        : ["src/**/*.ts"];
-
-    if (files.length === 0) {
-        return;
-    }
+    const files = ["src/**/*.ts"];
 
     const args = [
         ...(options.color ? ["--color"] : ["--no-color"]),
@@ -353,7 +340,6 @@ gulp.task("format", gulp.series("format:prettier", "format:eslint"));
 gulp.task("lint:prettier", () => runPrettier(false));
 gulp.task("lint:eslint", () => runEslint({ fix: false }));
 gulp.task("lint", gulp.series("lint:prettier", "lint:eslint"));
-gulp.task("lint-pre-commit", () => runEslint({ fix: false, color: false, changedOnly: true }));
 
 /** Run webpack to bundle the extension output files */
 gulp.task("webpack-bundle", async () => {
