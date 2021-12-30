@@ -17,9 +17,9 @@ export const createVersionErrorMessage = (str: string): string =>
 interface IBasicCheckResult {
     exists: boolean;
     /**
-     *  - 0 - within range
-     *  - 1 - gt range
-     *  - 1 - lt range*/
+     *  - 0 : within range
+     *  - 1 : gt range
+     *  - -1 : lt range*/
     versionCompare?: 0 | 1 | -1;
 }
 
