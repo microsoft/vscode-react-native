@@ -340,7 +340,6 @@ gulp.task("format", gulp.series("format:prettier", "format:eslint"));
 gulp.task("lint:prettier", () => runPrettier(false));
 gulp.task("lint:eslint", () => runEslint({ fix: false }));
 gulp.task("lint", gulp.series("lint:prettier", "lint:eslint"));
-gulp.task("lint-pre-commit", () => runEslint({ fix: false, color: false }));
 
 /** Run webpack to bundle the extension output files */
 gulp.task("webpack-bundle", async () => {
