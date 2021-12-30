@@ -14,18 +14,23 @@ export const createNotFoundMessage = (str: string): string =>
 export const createVersionErrorMessage = (str: string): string =>
     `Version check failed. Make sure ${str} is working correctly`;
 
+interface IBasicCheckResult {
+    exists: boolean;
+    /**
+     *  - 0 - within range
+     *  - 1 - gt range
+     *  - 1 - lt range*/
+    versionCompare?: 0 | 1 | -1;
+}
+
 export const basicCheck = async (arg: {
     command: string;
     getVersion?: () => Promise<string | null | undefined>;
     versionRange?: semver.Range | string;
-}): Promise<{ exists: boolean; versionCompare: 0 | 1 | -1 | undefined }> => {
+}): Promise<IBasicCheckResult> => {
     const result = {
         exists: true,
-        /**
-         * 0 - within range
-         * 1 - gt ranged. -1 if lt range*/
-        versionCompare: undefined as -1 | 0 | 1 | undefined,
-    };
+    } as IBasicCheckResult;
 
     if (!commandExists.sync(arg.command)) {
         result.exists = false;

@@ -10,25 +10,21 @@ import * as proxyquire from "proxyquire";
 suite("checkEnvironment", function () {
     suite("basicCheck", function () {
         const commandExistsStub = { sync: () => true };
-        const abc = proxyquire("../../src/extension/services/validationService/util", {
+        const fakeUtil = proxyquire("../../src/extension/services/validationService/util", {
             "command-exists": commandExistsStub,
         }) as typeof import("../../src/extension/services/validationService/util");
 
-        console.log(abc);
-
         test("command should exist", async () => {
             commandExistsStub.sync = () => true;
-            assert.deepStrictEqual(await abc.basicCheck({ command: "whatever" }), {
+            assert.deepStrictEqual(await fakeUtil.basicCheck({ command: "whatever" }), {
                 exists: true,
-                versionCompare: undefined,
             });
         });
 
         test("command should not exist", async () => {
             commandExistsStub.sync = () => false;
-            assert.deepStrictEqual(await abc.basicCheck({ command: "whatever" }), {
+            assert.deepStrictEqual(await fakeUtil.basicCheck({ command: "whatever" }), {
                 exists: false,
-                versionCompare: undefined,
             });
         });
 
@@ -38,7 +34,7 @@ suite("checkEnvironment", function () {
             let wasExecuted = false;
 
             assert.deepStrictEqual(
-                await abc.basicCheck({
+                await fakeUtil.basicCheck({
                     command: "whatever",
                     getVersion: async () => ((wasExecuted = true), "0.0.1"),
                 }),
@@ -55,7 +51,7 @@ suite("checkEnvironment", function () {
             commandExistsStub.sync = () => true;
 
             assert.deepStrictEqual(
-                await abc.basicCheck({
+                await fakeUtil.basicCheck({
                     command: "whatever",
                     getVersion: async () => "0.0.1",
                     versionRange: ">0.0.1",
@@ -71,7 +67,7 @@ suite("checkEnvironment", function () {
             commandExistsStub.sync = () => true;
 
             assert.deepStrictEqual(
-                await abc.basicCheck({
+                await fakeUtil.basicCheck({
                     command: "whatever",
                     getVersion: async () => "0.0.1",
                     versionRange: "<0.0.1",
@@ -87,7 +83,7 @@ suite("checkEnvironment", function () {
             commandExistsStub.sync = () => true;
 
             assert.deepStrictEqual(
-                await abc.basicCheck({
+                await fakeUtil.basicCheck({
                     command: "whatever",
                     getVersion: async () => "0.0.1",
                     versionRange: "=0.0.1",
