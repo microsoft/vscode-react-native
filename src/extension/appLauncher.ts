@@ -88,9 +88,7 @@ export class AppLauncher {
         return appLauncher;
     }
 
-    public static getNodeModulesRootByProjectPath(
-        projectRootPath: string
-        ): string {
+    public static getNodeModulesRootByProjectPath(projectRootPath: string): string {
         const appLauncher: AppLauncher =
             AppLauncher.getAppLauncherByProjectRootPath(projectRootPath);
 
