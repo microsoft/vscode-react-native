@@ -17,11 +17,11 @@ const toLocale = nls.loadMessageBundle();
 const convertPathWithVars = (str: string) =>
     str.replace(/%([^%]+)%/g, (_, n) => process.env[n] || _);
 
-const envVars = {
-    ANDROID_HOME: process.env.ANDROID_HOME,
-};
-
 async function test(): Promise<ValidationResultT> {
+    const envVars = {
+        ANDROID_HOME: process.env.ANDROID_HOME,
+    };
+
     const resolvedEnv = fromEntries(
         Object.entries(envVars).map(([key, val]) => [
             key,
