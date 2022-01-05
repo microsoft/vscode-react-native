@@ -793,6 +793,8 @@ Before using the Network inspector, please make sure that your system meets the 
   - Linux: `sudo apt-get install openssl`
 - (macOS only) [`idb`](https://fbidb.io/docs/installation/) utility is installed. It's required to interact with iOS physical devices
 
+The Network inspector uses functional of the Flipper plugin integrated to React Native apps. Please make sure that it's enabled in your application. You can use [this guide](https://fbflipper.com/docs/getting-started/react-native/) to integate Flipper into your projects.
+
 ### Network inspector usage
 
 - To run the Network inspector you can use `Run Network Inspector` Command Palette command</br>
