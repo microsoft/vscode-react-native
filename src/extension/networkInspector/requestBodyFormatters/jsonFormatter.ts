@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+/* eslint-disable */
+/* eslint-enable prettier/prettier*/
+
 import { OutputChannelLogger } from "../../log/OutputChannelLogger";
 import { Request, Response } from "../networkMessageData";
 import { IFormatter, decodeBody, FormattedBody } from "./requestBodyFormatter";

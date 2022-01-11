@@ -2,13 +2,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as vscode from "vscode";
+import * as nls from "vscode-nls";
 import { IConfig, retryDownloadConfig } from "../remoteConfigHelper";
 import { ExtensionConfigManager } from "../../extensionConfigManager";
 import { TelemetryHelper } from "../../../common/telemetryHelper";
 import { Telemetry } from "../../../common/telemetry";
 import { areSameDates, getRandomIntInclusive } from "../../../common/utils";
 import { Delayer } from "../../../common/node/promise";
-import * as nls from "vscode-nls";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -44,7 +45,8 @@ export class SurveyService implements vscode.Disposable {
         "https://microsoft.github.io/vscode-react-native/surveys/surveyConfig.json";
     private readonly downloadConfigRequest: Promise<RemoteSurveyConfig>;
 
-    private cancellationTokenSource: vscode.CancellationTokenSource = new vscode.CancellationTokenSource();
+    private cancellationTokenSource: vscode.CancellationTokenSource =
+        new vscode.CancellationTokenSource();
     private _surveyConfig: SurveyConfig | null = null;
     private extensionFirstTimeInstalled: boolean = false;
     private promptDelayer: Delayer<Promise<void>> = new Delayer();
@@ -75,7 +77,7 @@ export class SurveyService implements vscode.Disposable {
 
         if (this.surveyConfig.daysLeftBeforeSurvey === 0) {
             if (this.isCandidate()) {
-                this.promptDelayer.runWihtDelay(async () => {
+                void this.promptDelayer.runWihtDelay(async () => {
                     await this.showSurveyNotification();
                     this.surveyConfig.daysLeftBeforeSurvey = this.surveyConfig.longPeriodToRemind;
                     this.saveSurveyConfig(this.surveyConfig);
@@ -110,24 +112,21 @@ export class SurveyService implements vscode.Disposable {
             return;
         }
 
-        let surveyConfig: SurveyConfig;
-        if (!ExtensionConfigManager.config.has(this.SURVEY_CONFIG_NAME)) {
-            surveyConfig = {
-                shortPeriodToRemind: 30,
-                longPeriodToRemind: 90,
-                popCoveragePercent: 0.1,
-                enabled: false,
-                daysLeftBeforeSurvey: this.extensionFirstTimeInstalled ? 30 : 3,
-                surveyName: "none",
-                surveyUrl: "",
-            };
-        } else {
-            surveyConfig = this.prepareRawConfig(
-                ExtensionConfigManager.config.get(this.SURVEY_CONFIG_NAME),
-            );
-        }
+        const surveyConfigLocal: SurveyConfig = ExtensionConfigManager.config.has(
+            this.SURVEY_CONFIG_NAME,
+        )
+            ? this.prepareRawConfig(ExtensionConfigManager.config.get(this.SURVEY_CONFIG_NAME))
+            : {
+                  shortPeriodToRemind: 30,
+                  longPeriodToRemind: 90,
+                  popCoveragePercent: 0.1,
+                  enabled: false,
+                  daysLeftBeforeSurvey: this.extensionFirstTimeInstalled ? 30 : 3,
+                  surveyName: "none",
+                  surveyUrl: "",
+              };
 
-        surveyConfig = await this.mergeRemoteConfigToLocal(surveyConfig);
+        const surveyConfig = await this.mergeRemoteConfigToLocal(surveyConfigLocal);
 
         this.saveSurveyConfig(surveyConfig);
 
@@ -172,7 +171,7 @@ export class SurveyService implements vscode.Disposable {
             );
         }
         if (selection === giveFeedbackButtonText && this.surveyConfig.surveyUrl) {
-            vscode.env.openExternal(vscode.Uri.parse(this.surveyConfig.surveyUrl));
+            void vscode.env.openExternal(vscode.Uri.parse(this.surveyConfig.surveyUrl));
             this.sendSurveyNotificationReactionTelemetry(
                 this.surveyConfig.surveyName,
                 SurveyNotificationReaction.ACCEPT,

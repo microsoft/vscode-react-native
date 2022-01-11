@@ -100,8 +100,10 @@ export function startNetworkInspectorTests(
                 '  "Request Body": {\n    "testStr": "test",\n    "testObj": {\n      "testNum": 1234,\n      "testStr1": "test1"\n    }\n  }';
             const responseBodyStr =
                 '  "Response Body": {\n    "testStr": "testSuccess",\n    "testNun": 123,\n    "testArr": [\n      1,\n      2\n    ]\n  }';
-            const requestHeadersPattern = /"Request Headers".*?"Content-Type": "application\/json; charset=utf-8".*?\}/s;
-            const responseHeadersPattern = /"Response Headers".*?"Content-Type": "application\/json; charset=utf-8".*?\}/s;
+            const requestHeadersPattern =
+                /"Request Headers".*?"Content-Type": "application\/json; charset=utf-8".*?\}/s;
+            const responseHeadersPattern =
+                /"Response Headers".*?"Content-Type": "application\/json; charset=utf-8".*?\}/s;
 
             return (
                 postRequestData.includes(requestTitle) &&
@@ -117,7 +119,8 @@ export function startNetworkInspectorTests(
             const requestQueryParameters =
                 '  "Request Query Parameters": {\n    "param1": "test",\n    "param2": "123"\n  }';
             const responseBodyStr = '  "Response Body": "GET request success: testSuccess"';
-            const responseHeadersPattern = /"Response Headers".*?"Content-Type": "text\/html; charset=utf-8".*?\}/s;
+            const responseHeadersPattern =
+                /"Response Headers".*?"Content-Type": "text\/html; charset=utf-8".*?\}/s;
 
             return (
                 getRequestData.includes(requestTitle) &&

@@ -53,7 +53,8 @@ suite("experimentService", function () {
             expConfig: ExperimentConfig,
         ) {
             experimentService.downloadedExperimentsConfig = [expConfig];
-            experimentService.experimentsInstances = await experimentService.initializeExperimentsInstances();
+            experimentService.experimentsInstances =
+                await experimentService.initializeExperimentsInstances();
         }
 
         teardown(() => {

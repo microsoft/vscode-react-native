@@ -1,17 +1,27 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import { spawn, ChildProcess } from "child_process";
 import * as vscode from "vscode";
+import * as nls from "vscode-nls";
+import { ProjectVersionHelper, REACT_NATIVE_PACKAGES } from "../common/projectVersionHelper";
+import { ParsedPackage, ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
+import { TargetPlatformHelper } from "../common/targetPlatformHelper";
+import { TelemetryHelper } from "../common/telemetryHelper";
+import { HostPlatform } from "../common/hostPlatform";
+import { LaunchJsonCompletionHelper } from "../common/launchJsonCompletionHelper";
+import { CommandExecutor } from "../common/commandExecutor";
+import { isWorkspaceTrusted } from "../common/extensionHelper";
+import { ErrorHelper } from "../common/error/errorHelper";
+import { InternalErrorCode } from "../common/error/internalErrorCode";
+import { CONTEXT_VARIABLES_NAMES } from "../common/contextVariablesNames";
+import { TipNotificationService } from "./services/tipsNotificationsService/tipsNotificationService";
 import * as XDL from "./exponent/xdlInterface";
 import { SettingsHelper } from "./settingsHelper";
 import { OutputChannelLogger } from "./log/OutputChannelLogger";
 import { TargetType, GeneralPlatform } from "./generalPlatform";
 import { AndroidPlatform } from "./android/androidPlatform";
 import { IOSPlatform } from "./ios/iOSPlatform";
-import { ProjectVersionHelper, REACT_NATIVE_PACKAGES } from "../common/projectVersionHelper";
-import { ParsedPackage, ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
-import { TargetPlatformHelper } from "../common/targetPlatformHelper";
-import { TelemetryHelper } from "../common/telemetryHelper";
 import { ProjectsStorage } from "./projectsStorage";
 import {
     IAndroidRunOptions,
@@ -21,15 +31,7 @@ import {
     PlatformType,
 } from "./launchArgs";
 import { ExponentPlatform } from "./exponent/exponentPlatform";
-import { spawn, ChildProcess } from "child_process";
-import { HostPlatform } from "../common/hostPlatform";
-import { LaunchJsonCompletionHelper } from "../common/launchJsonCompletionHelper";
 import { ReactNativeDebugConfigProvider } from "./debuggingConfiguration/reactNativeDebugConfigProvider";
-import { CommandExecutor } from "../common/commandExecutor";
-import { isWorkspaceTrusted } from "../common/extensionHelper";
-import * as nls from "vscode-nls";
-import { ErrorHelper } from "../common/error/errorHelper";
-import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { AppLauncher } from "./appLauncher";
 import { AndroidDeviceTracker } from "./android/androidDeviceTracker";
 import { IOSDeviceTracker } from "./ios/iOSDeviceTracker";
@@ -39,14 +41,13 @@ import { LogCatMonitorManager } from "./android/logCatMonitorManager";
 import { NetworkInspectorServer } from "./networkInspector/networkInspectorServer";
 import { InspectorViewFactory } from "./networkInspector/views/inspectorViewFactory";
 import { WindowsPlatform } from "./windows/windowsPlatform";
-import { CONTEXT_VARIABLES_NAMES } from "../common/contextVariablesNames";
 import { MacOSPlatform } from "./macos/macOSPlatform";
-import { TipNotificationService } from "./services/tipsNotificationsService/tipsNotificationService";
 import { debugConfigurations } from "./debuggingConfiguration/debugConfigTypesAndConstants";
 import { AndroidTargetManager } from "./android/androidTargetManager";
 import { IOSTargetManager } from "./ios/iOSTargetManager";
 import { runChecks } from "./services/validationService/checker";
 import { ValidationCategoryE } from "./services/validationService/checks/types";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -106,10 +107,10 @@ export class CommandPaletteHandler {
     }
 
     public static async stopAllPackagers(): Promise<void> {
-        let keys = Object.keys(ProjectsStorage.projectsCache);
-        let promises: Promise<void>[] = [];
+        const keys = Object.keys(ProjectsStorage.projectsCache);
+        const promises: Promise<void>[] = [];
         keys.forEach(key => {
-            let appLauncher = ProjectsStorage.projectsCache[key];
+            const appLauncher = ProjectsStorage.projectsCache[key];
             promises.push(
                 this.executeCommandInContext("stopPackager", appLauncher.getWorkspaceFolder(), () =>
                     appLauncher.getPackager().stop().then(),
@@ -196,7 +197,7 @@ export class CommandPaletteHandler {
                 await platform.resolveMobileTarget(target);
                 await platform.beforeStartPackager();
                 await platform.startPackager();
-                await platform.runApp(/*shouldLaunchInAllDevices*/ true);
+                await platform.runApp(/* shouldLaunchInAllDevices*/ true);
                 await platform.disableJSDebuggingMode();
             },
         );
@@ -260,7 +261,9 @@ export class CommandPaletteHandler {
     }
 
     public static async runWindows(): Promise<void> {
-        TipNotificationService.getInstance().setKnownDateForFeatureById("debuggingRNWAndMacOSApps");
+        void TipNotificationService.getInstance().setKnownDateForFeatureById(
+            "debuggingRNWAndMacOSApps",
+        );
         const additionalPackagesToCheck: ParsedPackage[] = [
             REACT_NATIVE_PACKAGES.REACT_NATIVE_WINDOWS,
         ];
@@ -286,7 +289,9 @@ export class CommandPaletteHandler {
     }
 
     public static async runMacOS(): Promise<void> {
-        TipNotificationService.getInstance().setKnownDateForFeatureById("debuggingRNWAndMacOSApps");
+        void TipNotificationService.getInstance().setKnownDateForFeatureById(
+            "debuggingRNWAndMacOSApps",
+        );
         const additionalPackagesToCheck: ParsedPackage[] = [
             REACT_NATIVE_PACKAGES.REACT_NATIVE_MACOS,
         ];
@@ -351,9 +356,10 @@ export class CommandPaletteHandler {
             .catch(() => {}); // Ignore any errors
         if (process.platform === "win32") {
             const nodeModulesRoot = appLauncher.getOrUpdateNodeModulesRoot();
-            ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(nodeModulesRoot, [
-                REACT_NATIVE_PACKAGES.REACT_NATIVE_WINDOWS,
-            ]).then(RNPackageVersions => {
+            void ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
+                nodeModulesRoot,
+                [REACT_NATIVE_PACKAGES.REACT_NATIVE_WINDOWS],
+            ).then(RNPackageVersions => {
                 const isRNWProject = !ProjectVersionHelper.isVersionError(
                     RNPackageVersions.reactNativeWindowsVersion,
                 );
@@ -381,15 +387,15 @@ export class CommandPaletteHandler {
     }
 
     public static async runElementInspector(): Promise<void> {
-        TipNotificationService.getInstance().setKnownDateForFeatureById("elementInspector");
+        void TipNotificationService.getInstance().setKnownDateForFeatureById("elementInspector");
 
         if (!CommandPaletteHandler.elementInspector) {
             // Remove the following env variables to prevent running electron app in node mode.
             // https://github.com/microsoft/vscode/issues/3011#issuecomment-184577502
-            let env = Object.assign({}, process.env);
+            const env = Object.assign({}, process.env);
             delete env.ATOM_SHELL_INTERNAL_RUN_AS_NODE;
             delete env.ELECTRON_RUN_AS_NODE;
-            let command = HostPlatform.getNpmCliCommand("react-devtools");
+            const command = HostPlatform.getNpmCliCommand("react-devtools");
             CommandPaletteHandler.elementInspector = spawn(command, [], {
                 env,
             });
@@ -419,7 +425,7 @@ export class CommandPaletteHandler {
     public static stopElementInspector(): void {
         return CommandPaletteHandler.elementInspector
             ? CommandPaletteHandler.elementInspector.kill()
-            : void 0;
+            : undefined;
     }
 
     public static async startNetworkInspector(): Promise<void> {
@@ -446,7 +452,7 @@ export class CommandPaletteHandler {
                 }
                 await androidDeviceTracker.start();
                 await networkInspector.start(adbHelper);
-                vscode.commands.executeCommand(
+                void vscode.commands.executeCommand(
                     "setContext",
                     CONTEXT_VARIABLES_NAMES.IS_RNT_NETWORK_INSPECTOR_RUNNING,
                     true,
@@ -475,7 +481,7 @@ export class CommandPaletteHandler {
             CommandPaletteHandler.networkInspectorModule = null;
             InspectorViewFactory.clearCache();
         }
-        vscode.commands.executeCommand(
+        void vscode.commands.executeCommand(
             "setContext",
             CONTEXT_VARIABLES_NAMES.IS_RNT_NETWORK_INSPECTOR_RUNNING,
             false,
@@ -485,15 +491,15 @@ export class CommandPaletteHandler {
     public static getPlatformByCommandName(commandName: string): string {
         commandName = commandName.toLocaleLowerCase();
 
-        if (commandName.indexOf(PlatformType.Android) > -1) {
+        if (commandName.includes(PlatformType.Android)) {
             return PlatformType.Android;
         }
 
-        if (commandName.indexOf(PlatformType.iOS) > -1) {
+        if (commandName.includes(PlatformType.iOS)) {
             return PlatformType.iOS;
         }
 
-        if (commandName.indexOf(PlatformType.Exponent) > -1) {
+        if (commandName.includes(PlatformType.Exponent)) {
             return PlatformType.Exponent;
         }
 
@@ -501,7 +507,7 @@ export class CommandPaletteHandler {
     }
 
     public static async startLogCatMonitor(): Promise<void> {
-        TipNotificationService.getInstance().setKnownDateForFeatureById("logCatMonitor");
+        void TipNotificationService.getInstance().setKnownDateForFeatureById("logCatMonitor");
         const appLauncher = await this.selectProject();
         const projectPath = appLauncher.getPackager().getProjectPath();
         const nodeModulesRoot: string = appLauncher.getOrUpdateNodeModulesRoot();
@@ -510,11 +516,11 @@ export class CommandPaletteHandler {
         const target = await targetManager.selectAndPrepareTarget(target => target.isOnline);
         if (target) {
             LogCatMonitorManager.delMonitor(target.id); // Stop previous logcat monitor if it's running
-            let logCatArguments = SettingsHelper.getLogCatFilteringArgs(
+            const logCatArguments = SettingsHelper.getLogCatFilteringArgs(
                 appLauncher.getWorkspaceFolderUri(),
             );
             // this.logCatMonitor can be mutated, so we store it locally too
-            let logCatMonitor = new LogCatMonitor(target.id, adbHelper, logCatArguments);
+            const logCatMonitor = new LogCatMonitor(target.id, adbHelper, logCatArguments);
             LogCatMonitorManager.addMonitor(logCatMonitor);
             logCatMonitor
                 .start() // The LogCat will continue running forever, so we don't wait for it
@@ -524,7 +530,7 @@ export class CommandPaletteHandler {
                     ),
                 );
         } else {
-            vscode.window.showErrorMessage(
+            void vscode.window.showErrorMessage(
                 localize(
                     "OnlineAndroidDeviceNotFound",
                     "Could not find a proper online Android device to start a LogCat monitor",
@@ -571,10 +577,11 @@ export class CommandPaletteHandler {
 
             if (!token.isCancellationRequested && config) {
                 // Always use the first available debug configuration.
-                const cursorPosition = LaunchJsonCompletionHelper.getCursorPositionInConfigurationsArray(
-                    document,
-                    position,
-                );
+                const cursorPosition =
+                    LaunchJsonCompletionHelper.getCursorPositionInConfigurationsArray(
+                        document,
+                        position,
+                    );
                 if (!cursorPosition) {
                     return;
                 }
@@ -605,7 +612,7 @@ export class CommandPaletteHandler {
         const debugConfig = debugConfigurations[debugConfigName];
         if (debugConfig) {
             debugConfig.isDynamic = true;
-            vscode.debug.startDebugging(appLauncher.getWorkspaceFolder(), debugConfig);
+            void vscode.debug.startDebugging(appLauncher.getWorkspaceFolder(), debugConfig);
         } else {
             throw new Error(
                 localize(
@@ -684,7 +691,7 @@ export class CommandPaletteHandler {
                 // Execute the operation
                 await operation();
             } else {
-                vscode.window.showErrorMessage(
+                void vscode.window.showErrorMessage(
                     `${projectRoot} workspace is not a React Native project.`,
                 );
             }
@@ -714,29 +721,27 @@ export class CommandPaletteHandler {
             response.url,
         );
         CommandPaletteHandler.logger.info(publishedOutput);
-        vscode.window.showInformationMessage(publishedOutput);
+        void vscode.window.showInformationMessage(publishedOutput);
         return true;
     }
 
     private static async loginToExponent(appLauncher: AppLauncher): Promise<XDL.IUser> {
         try {
             return await appLauncher.getExponentHelper().loginToExponent(
-                (message, password) => {
-                    return new Promise((resolve, reject) => {
+                (message, password) =>
+                    new Promise((resolve, reject) => {
                         vscode.window
-                            .showInputBox({ placeHolder: message, password: password })
+                            .showInputBox({ placeHolder: message, password })
                             .then(login => {
                                 resolve(login || "");
                             }, reject);
-                    });
-                },
-                message => {
-                    return new Promise((resolve, reject) => {
+                    }),
+                message =>
+                    new Promise((resolve, reject) => {
                         vscode.window.showInformationMessage(message).then(password => {
                             resolve(password || "");
                         }, reject);
-                    });
-                },
+                    }),
             );
         } catch (err) {
             CommandPaletteHandler.logger.warning(
@@ -750,7 +755,7 @@ export class CommandPaletteHandler {
     }
 
     private static async selectProject(): Promise<AppLauncher> {
-        let keys = Object.keys(ProjectsStorage.projectsCache);
+        const keys = Object.keys(ProjectsStorage.projectsCache);
         if (keys.length > 1) {
             return new Promise((resolve, reject) => {
                 vscode.window.showQuickPick(keys).then(selected => {
@@ -763,16 +768,15 @@ export class CommandPaletteHandler {
         } else if (keys.length === 1) {
             this.logger.debug(`Command palette: once project ${keys[0]}`);
             return ProjectsStorage.projectsCache[keys[0]];
-        } else {
-            throw ErrorHelper.getInternalError(
-                InternalErrorCode.WorkspaceNotFound,
-                "Current workspace does not contain React Native projects.",
-            );
         }
+        throw ErrorHelper.getInternalError(
+            InternalErrorCode.WorkspaceNotFound,
+            "Current workspace does not contain React Native projects.",
+        );
     }
 
     private static async selectLogCatMonitor(): Promise<LogCatMonitor> {
-        let keys = Object.keys(LogCatMonitorManager.logCatMonitorsCache);
+        const keys = Object.keys(LogCatMonitorManager.logCatMonitorsCache);
         if (keys.length > 1) {
             return new Promise((resolve, reject) => {
                 vscode.window.showQuickPick(keys).then(selected => {
@@ -785,11 +789,10 @@ export class CommandPaletteHandler {
         } else if (keys.length === 1) {
             this.logger.debug(`Command palette: once LogCat monitor ${keys[0]}`);
             return LogCatMonitorManager.logCatMonitorsCache[keys[0]];
-        } else {
-            throw ErrorHelper.getInternalError(
-                InternalErrorCode.AndroidCouldNotFindActiveLogCatMonitor,
-            );
         }
+        throw ErrorHelper.getInternalError(
+            InternalErrorCode.AndroidCouldNotFindActiveLogCatMonitor,
+        );
     }
 
     private static getRunOptions(
@@ -824,13 +827,13 @@ export class CommandPaletteHandler {
             | IIOSRunOptions
             | IWindowsRunOptions
             | ImacOSRunOptions = {
-            platform: platform,
+            platform,
             workspaceRoot: appLauncher.getWorkspaceFolderUri().fsPath,
-            projectRoot: projectRoot,
-            packagerPort: packagerPort,
+            projectRoot,
+            packagerPort,
             runArguments: runArgs,
             env: envArgs,
-            envFile: envFile,
+            envFile,
             reactNativeVersions: appLauncher.getReactNativeVersions() || {
                 reactNativeVersion: "",
                 reactNativeWindowsVersion: "",

@@ -2,20 +2,23 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as vscode from "vscode";
+import * as nls from "vscode-nls";
 import { TelemetryHelper } from "../../common/telemetryHelper";
 import { Telemetry } from "../../common/telemetry";
-import { debugConfigurations, DEBUG_CONFIGURATION_NAMES } from "./debugConfigTypesAndConstants";
-import { DebugScenarioNameGenerator } from "./debugScenarioNameGenerator";
 import { ILaunchRequestArgs } from "../../debugger/debugSessionBase";
 import {
+    debugConfigurations,
+    DEBUG_CONFIGURATION_NAMES,
     DEBUG_TYPES,
     DebugScenarioType,
     DebugConfigurationQuickPickItem,
     DebugConfigurationState,
 } from "./debugConfigTypesAndConstants";
+import { DebugScenarioNameGenerator } from "./debugScenarioNameGenerator";
+
 import { MultiStepInput, IMultiStepInput, InputStep, IQuickPickParameters } from "./multiStepInput";
 import { ConfigProviderFactory } from "./configurationProviders/configProviderFactory";
-import * as nls from "vscode-nls";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -160,11 +163,11 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             const configPicker = this.prepareDebugConfigPicker();
             const disposables: vscode.Disposable[] = [];
             const pickHandler = () => {
-                let chosenConfigsEvent = TelemetryHelper.createTelemetryEvent(
+                const chosenConfigsEvent = TelemetryHelper.createTelemetryEvent(
                     "chosenDebugConfigurations",
                 );
-                let selected: string[] = configPicker.selectedItems.map(element => element.label);
-                chosenConfigsEvent.properties["selectedItems"] = selected;
+                const selected: string[] = configPicker.selectedItems.map(element => element.label);
+                chosenConfigsEvent.properties.selectedItems = selected;
                 Telemetry.send(chosenConfigsEvent);
                 const launchConfig = this.gatherDebugScenarios(selected);
                 disposables.forEach(d => d.dispose());
@@ -193,24 +196,23 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
 
         if (Object.keys(state.config).length === 0) {
             return;
-        } else {
-            if (state.config.type === DEBUG_TYPES.REACT_NATIVE_DIRECT) {
-                state.config.name = DebugScenarioNameGenerator.createScenarioName(
-                    state.scenarioType,
-                    state.config.type,
-                    state.config.platform,
-                    state.config.useHermesEngine !== false,
-                    true,
-                );
-            } else {
-                state.config.name = DebugScenarioNameGenerator.createScenarioName(
-                    state.scenarioType,
-                    state.config.type || DEBUG_TYPES.REACT_NATIVE,
-                    state.config.platform,
-                );
-            }
-            return state.config as vscode.DebugConfiguration;
         }
+        if (state.config.type === DEBUG_TYPES.REACT_NATIVE_DIRECT) {
+            state.config.name = DebugScenarioNameGenerator.createScenarioName(
+                state.scenarioType,
+                state.config.type,
+                state.config.platform,
+                state.config.useHermesEngine !== false,
+                true,
+            );
+        } else {
+            state.config.name = DebugScenarioNameGenerator.createScenarioName(
+                state.scenarioType,
+                state.config.type || DEBUG_TYPES.REACT_NATIVE,
+                state.config.platform,
+            );
+        }
+        return state.config as vscode.DebugConfiguration;
     }
 
     private async pickDebugConfiguration(
@@ -234,7 +236,7 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
     }
 
     private gatherDebugScenarios(selectedItems: string[]): vscode.DebugConfiguration[] {
-        let launchConfig: vscode.DebugConfiguration[] = selectedItems.map(
+        const launchConfig: vscode.DebugConfiguration[] = selectedItems.map(
             element => debugConfigurations[element],
         );
         return launchConfig;

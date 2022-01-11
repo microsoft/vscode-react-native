@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+// eslint-disable-next-line @typescript-eslint/triple-slash-reference
 /// <reference path="./../typings/debugger/sourceMapsCombinator.d.ts" />
 
 import * as fs from "fs";
@@ -16,7 +17,7 @@ import {
 } from "source-map";
 import * as sourceMapResolve from "source-map-resolve";
 
-const DISK_LETTER_RE: RegExp = /^(?:[a-z]{2,}:\/\/\/)?[a-z]:/i;
+const DISK_LETTER_RE = /^(?:[a-z]{2,}:\/{3})?[a-z]:/i;
 
 export class SourceMapsCombinator {
     public convert(rawBundleSourcemap: RawSourceMap): RawSourceMap {
@@ -24,10 +25,10 @@ export class SourceMapsCombinator {
         const consumers: { [key: string]: SourceMapConsumer } = rawBundleSourcemap.sources.reduce(
             (result: { [key: string]: SourceMapConsumer }, file) => {
                 // Skip files inside node_modules
-                if (file.indexOf("node_modules") >= 0) return result;
+                if (file.includes("node_modules")) return result;
 
                 try {
-                    let consumer: SourceMapConsumer | null = this.getSourceMapConsumerFrom(file);
+                    const consumer: SourceMapConsumer | null = this.getSourceMapConsumerFrom(file);
                     if (consumer) result[file] = consumer;
                 } finally {
                     return result;
@@ -51,7 +52,7 @@ export class SourceMapsCombinator {
             }
 
             // Copy mappings
-            let mapping: Mapping = {
+            const mapping: Mapping = {
                 generated: { line: item.generatedLine, column: item.generatedColumn },
                 original: { line: item.originalLine, column: item.originalColumn },
                 source: item.source,
@@ -59,10 +60,12 @@ export class SourceMapsCombinator {
             };
 
             if (consumers[item.source]) {
-                let jsPosition: Position = { line: item.originalLine, column: item.originalColumn };
-                let tsPosition: NullableMappedPosition = consumers[item.source].originalPositionFor(
-                    jsPosition,
-                );
+                const jsPosition: Position = {
+                    line: item.originalLine,
+                    column: item.originalColumn,
+                };
+                const tsPosition: NullableMappedPosition =
+                    consumers[item.source].originalPositionFor(jsPosition);
 
                 if (tsPosition.source === null) {
                     // Some positions from react native generated bundle can not translate to TS source positions
@@ -98,14 +101,14 @@ export class SourceMapsCombinator {
     }
 
     private getSourceMapConsumerFrom(generatedFile: string): SourceMapConsumer | null {
-        let code = fs.readFileSync(generatedFile);
+        const code = fs.readFileSync(generatedFile);
 
-        let consumer = this.readSourcemap(generatedFile, code.toString());
+        const consumer = this.readSourcemap(generatedFile, code.toString());
         return consumer;
     }
 
     private readSourcemap(file: string, code: string): SourceMapConsumer | null {
-        let result = sourceMapResolve.resolveSync(
+        const result = sourceMapResolve.resolveSync(
             code,
             file,
             readFileSync.bind(null, getDiskLetter(file)),
@@ -120,11 +123,9 @@ export class SourceMapsCombinator {
 // Hack for source-map-resolve and cutted disk letter
 // https://github.com/lydell/source-map-resolve/issues/9
 function readFileSync(diskLetter: string, filePath: string) {
-    if (filePath.match(DISK_LETTER_RE)) {
-        return fs.readFileSync(filePath);
-    } else {
-        return fs.readFileSync(`${diskLetter}${filePath}`);
-    }
+    return filePath.match(DISK_LETTER_RE)
+        ? fs.readFileSync(filePath)
+        : fs.readFileSync(`${diskLetter}${filePath}`);
 }
 
 function getDiskLetter(filePath: string): string {

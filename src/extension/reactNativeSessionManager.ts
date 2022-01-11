@@ -1,15 +1,16 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as vscode from "vscode";
 import * as Net from "net";
-import { DEBUG_TYPES } from "./debuggingConfiguration/debugConfigTypesAndConstants";
+import * as vscode from "vscode";
 import { RNDebugSession } from "../debugger/rnDebugSession";
-import { DebugSessionBase, TerminateEventArgs } from "../debugger/debugSessionBase";
+import { TerminateEventArgs } from "../debugger/debugSessionBase";
 import { DirectDebugSession } from "../debugger/direct/directDebugSession";
+import { DEBUG_TYPES } from "./debuggingConfiguration/debugConfigTypesAndConstants";
 
 export class ReactNativeSessionManager
-    implements vscode.DebugAdapterDescriptorFactory, vscode.Disposable {
+    implements vscode.DebugAdapterDescriptorFactory, vscode.Disposable
+{
     private servers = new Map<string, Net.Server>();
     private connections = new Map<string, Net.Socket>();
 
@@ -19,12 +20,10 @@ export class ReactNativeSessionManager
         executable: vscode.DebugAdapterExecutable | undefined,
     ): vscode.ProviderResult<vscode.DebugAdapterDescriptor> {
         const debugServer = Net.createServer(socket => {
-            let rnDebugSession: DebugSessionBase;
-            if (session.type === DEBUG_TYPES.REACT_NATIVE) {
-                rnDebugSession = new RNDebugSession(session);
-            } else {
-                rnDebugSession = new DirectDebugSession(session);
-            }
+            const rnDebugSession =
+                session.type === DEBUG_TYPES.REACT_NATIVE
+                    ? new RNDebugSession(session)
+                    : new DirectDebugSession(session);
 
             this.connections.set(session.id, socket);
 
@@ -44,7 +43,7 @@ export class ReactNativeSessionManager
             this.servers.get(terminateEvent.debugSession.id),
         );
 
-        let connection = this.connections.get(terminateEvent.debugSession.id);
+        const connection = this.connections.get(terminateEvent.debugSession.id);
         if (connection) {
             if (terminateEvent.args.forcedStop) {
                 this.destroyConnection(connection);

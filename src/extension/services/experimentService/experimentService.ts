@@ -2,11 +2,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as vscode from "vscode";
-import { IExperiment } from "./IExperiment";
 import { TelemetryHelper } from "../../../common/telemetryHelper";
 import { Telemetry } from "../../../common/telemetry";
 import { ExtensionConfigManager } from "../../extensionConfigManager";
 import { IConfig, retryDownloadConfig } from "../remoteConfigHelper";
+import { IExperiment } from "./IExperiment";
 
 export enum ExperimentStatuses {
     ENABLED = "enabled",
@@ -54,7 +54,7 @@ export class ExperimentService implements vscode.Disposable {
             this.experimentsInstances = await this.initializeExperimentsInstances();
         }
 
-        let experimentResults: Array<ExperimentResult> = await Promise.all(
+        const experimentResults: Array<ExperimentResult> = await Promise.all(
             this.downloadedExperimentsConfig.map(expConfig => this.executeExperiment(expConfig)),
         );
 
@@ -79,8 +79,8 @@ export class ExperimentService implements vscode.Disposable {
     }
 
     private async executeExperiment(expConfig: ExperimentConfig): Promise<ExperimentResult> {
-        let curExperimentParameters = ExtensionConfigManager.config.get(expConfig.experimentName);
-        let expInstance = this.experimentsInstances.get(expConfig.experimentName);
+        const curExperimentParameters = ExtensionConfigManager.config.get(expConfig.experimentName);
+        const expInstance = this.experimentsInstances.get(expConfig.experimentName);
 
         let expResult: ExperimentResult;
         if (expInstance && expConfig.enabled) {
@@ -108,12 +108,12 @@ export class ExperimentService implements vscode.Disposable {
     }
 
     private async initializeExperimentsInstances(): Promise<Map<string, IExperiment>> {
-        let expInstances = new Map<string, IExperiment>();
+        const expInstances = new Map<string, IExperiment>();
 
         if (this.downloadedExperimentsConfig) {
-            for (let expConfig of this.downloadedExperimentsConfig) {
+            for (const expConfig of this.downloadedExperimentsConfig) {
                 try {
-                    let expClass = await import(`./experiments/${expConfig.experimentName}`);
+                    const expClass = await import(`./experiments/${expConfig.experimentName}`);
                     expInstances.set(expConfig.experimentName, new expClass.default());
                 } catch (err) {
                     expConfig.enabled = false;

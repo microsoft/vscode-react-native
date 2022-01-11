@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { AdbHelper } from "./adb";
 import { DeviceStorage } from "../networkInspector/devices/deviceStorage";
 import { AndroidClientDevice } from "../networkInspector/devices/androidClientDevice";
 import { NetworkInspectorServer } from "../networkInspector/networkInspectorServer";
 import { DeviceStatus } from "../networkInspector/devices/baseClientDevice";
 import { ClientOS } from "../networkInspector/clientUtils";
 import { AbstractDeviceTracker } from "../abstractDeviceTracker";
+import { AdbHelper } from "./adb";
 
 export class AndroidDeviceTracker extends AbstractDeviceTracker {
     private adbHelper: AdbHelper;
@@ -29,7 +29,7 @@ export class AndroidDeviceTracker extends AbstractDeviceTracker {
 
     protected async queryDevices(): Promise<void> {
         const onlineDevices = await this.adbHelper.getOnlineTargets();
-        let currentDevicesIds = new Set(
+        const currentDevicesIds = new Set(
             [...DeviceStorage.devices.keys()].filter(
                 key => DeviceStorage.devices.get(key) instanceof AndroidClientDevice,
             ),
