@@ -41,7 +41,7 @@
     "vinyl-fs": "^3.0.3",
     "vinyl-source-stream": "^1.1.0",
     "webdriverio": "7.12.2",
-    "xdl": "59.2.10"
+    "xdl": "59.2.23"
   },
   "resolutions": {
     "lodash": "^4.17.21"

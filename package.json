@@ -1169,8 +1169,8 @@
             "type": "string"
           },
           "default": {
-            "xdl": "59.2.16",
-            "@expo/metro-config": "0.3.3",
+            "xdl": "59.2.23",
+            "@expo/metro-config": "0.3.8",
             "@expo/ngrok": "^4.1.0"
           },
           "scope": "resource"
@@ -1321,7 +1321,7 @@
     "typescript": "3.9.7",
     "vsce": "^2.2.0",
     "vscode-debugprotocol": "1.40.0",
-    "vscode-nls-dev": "3.3.2",
+    "vscode-nls-dev": "^4.0.0",
     "vscode-test": "^1.6.1",
     "webpack": "5.28.0",
     "webpack-bundle-analyzer": "4.4.0"
