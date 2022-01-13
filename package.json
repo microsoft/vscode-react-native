@@ -4,7 +4,7 @@
   "version": "1.8.1",
   "private": true,
   "publisher": "msjsdiag",
-  "icon": "images/icon.png",
+  "icon": "resources/images/icon.png",
   "galleryBanner": {
     "color": "#3B3738",
     "theme": "dark"
@@ -49,6 +49,76 @@
   ],
   "main": "./src/extension/rn-extension",
   "contributes": {
+    "walkthroughs": [
+      {
+        "id": "RNTGetStarted",
+        "title": "Get started with React Native development",
+        "description": "Your first steps to set up the environment for React Native development and explore the extension functionality",
+        "steps": [
+          {
+            "id": "settingUpCommonEnvironment",
+            "title": "Set up RN development environment",
+            "description": "To develop React Native applications in the React Native Tools extension, you need to set up your development environment in accordance with the requirements of React Native.\n[Learn more](https://reactnative.dev/docs/environment-setup)",
+            "media": {
+              "markdown": "resources/walkthougths/setup-env-common.md"
+            }
+          },
+          {
+            "id": "settingUpExpoEnvironment",
+            "title": "Prepare for Expo development",
+            "description": "The extension provides functionality for developing Expo applications. To get started, you need to set up the development environment in accordance with the extension requirements.\n[Learn more](https://github.com/microsoft/vscode-react-native#expo-applications)",
+            "media": {
+              "markdown": "resources/walkthougths/setup-env-expo.md"
+            }
+          },
+          {
+            "id": "settingUpWindowsEnvironment",
+            "title": "Prepare for React Native for Windows",
+            "description": "To develop React Native for Windows applications, you need to set up your dev environment in accordance with the [official requirements](https://microsoft.github.io/react-native-windows/docs/rnw-dependencies).",
+            "when": "isWindows",
+            "media": {
+              "image": "resources/images/rnw-set-up.png",
+              "altText": "React Native for Windows app view"
+            }
+          },
+          {
+            "id": "settingUpMacOsEnvironment",
+            "title": "Prepare for React Native for macOS",
+            "description": "To develop React Native for macOS applications, you need to set up your dev environment in accordance with the [official requirements](https://microsoft.github.io/react-native-windows/docs/rnm-dependencies).",
+            "when": "isMac",
+            "media": {
+              "image": "resources/images/rnm-set-up.png",
+              "altText": "React Native for macOS app view"
+            }
+          },
+          {
+            "id": "hermesEngine",
+            "title": "Hermes Engine",
+            "description": "The Hermes engine is an open source JavaScript engine created by Facebook to optimize building and running React Native applications. It improves app performance and decreases app size.\n[Learn more](https://github.com/microsoft/vscode-react-native#hermes-engine)",
+            "media": {
+              "image": "resources/images/hermeslogo.svg",
+              "altText": "Hermes logo"
+            }
+          },
+          {
+            "id": "runAndDebugReactNativeApp",
+            "title": "Run and Debug your React Native application",
+            "description": "Create a debug configuration and start debugging your React Native application.\n[Learn more](https://github.com/microsoft/vscode-react-native#debugging-react-native-applications)",
+            "media": {
+              "markdown": "resources/walkthougths/debug-tutor.md"
+            }
+          },
+          {
+            "id": "exploreExtensionFeatures",
+            "title": "Explore extension features",
+            "description": "The extension provides useful features to facilitate the development of React Native applications.\n[Learn more](https://github.com/microsoft/vscode-react-native#customization)",
+            "media": {
+              "markdown": "resources/walkthougths/features-tutor.md"
+            }
+          }
+        ]
+      }
+    ],
     "commands": [
       {
         "command": "reactNative.launchAndroidSimulator",
