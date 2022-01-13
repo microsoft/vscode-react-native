@@ -1,3 +1,13 @@
+## 1.9.0
+* Added the `Check development environment configuration` Command Palette command intended for checking user's React Native development environment for common problems [#1702](https://github.com/microsoft/vscode-react-native/pull/1702)
+* Added `env` and `envFile` paramenters to attach debugging configurations [#1707](https://github.com/microsoft/vscode-react-native/pull/1707)
+* Contributed React Native Tools getting started guide to the [`Get Started` page](https://code.visualstudio.com/updates/v1_57#_new-getting-started-experience) of VS Code [#1698](https://github.com/microsoft/vscode-react-native/pull/1698)
+* Enhanced documentation about the Network inspector and Element inspector [#1716](https://github.com/microsoft/vscode-react-native/pull/1716), [#1698](https://github.com/microsoft/vscode-react-native/pull/1698)
+* Internal changes:
+    * Unit tests improvements [#1706](https://github.com/microsoft/vscode-react-native/pull/1706), [#1711](https://github.com/microsoft/vscode-react-native/pull/1711), [#1709](https://github.com/microsoft/vscode-react-native/pull/1709)
+    * Enhanced ESLint rules and fixed code style [#1708](https://github.com/microsoft/vscode-react-native/pull/1708)
+
+
 ## 1.8.1
 * Fixed debugging on reloading React Native Hermes applications [#1696](https://github.com/microsoft/vscode-react-native/pull/1696)
 * Optimized device and emulator targets selection [#1699](https://github.com/microsoft/vscode-react-native/pull/1699)
