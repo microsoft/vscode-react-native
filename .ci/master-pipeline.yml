@@ -15,15 +15,6 @@ jobs:
         clean: true
       - template: common-validation.yml
 
-  - job: Windows
-    pool:
-      vmImage: windows-latest
-    timeoutInMinutes: 20
-    steps:
-      - checkout: self
-        clean: true
-      - template: common-validation.yml
-
       - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
         displayName: "Component Detection"
         inputs:
@@ -54,6 +45,15 @@ jobs:
         displayName: "Publish artifacts: drop-win"
         inputs:
           ArtifactName: "drop-win"
+
+  - job: Windows
+    pool:
+      vmImage: windows-latest
+    timeoutInMinutes: 20
+    steps:
+      - checkout: self
+        clean: true
+      - template: common-validation.yml
 
   - job: macOS
     pool:
