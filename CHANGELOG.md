@@ -3,9 +3,11 @@
 * Added `env` and `envFile` paramenters to attach debugging configurations [#1707](https://github.com/microsoft/vscode-react-native/pull/1707)
 * Contributed React Native Tools getting started guide to the [`Get Started` page](https://code.visualstudio.com/updates/v1_57#_new-getting-started-experience) of VS Code [#1698](https://github.com/microsoft/vscode-react-native/pull/1698)
 * Enhanced documentation about the Network inspector and Element inspector [#1716](https://github.com/microsoft/vscode-react-native/pull/1716), [#1698](https://github.com/microsoft/vscode-react-native/pull/1698)
+* Improved extension security [#1723](https://github.com/microsoft/vscode-react-native/pull/1723), [#1726](https://github.com/microsoft/vscode-react-native/pull/1726)
 * Internal changes:
     * Unit tests improvements [#1706](https://github.com/microsoft/vscode-react-native/pull/1706), [#1711](https://github.com/microsoft/vscode-react-native/pull/1711), [#1709](https://github.com/microsoft/vscode-react-native/pull/1709)
-    * Enhanced ESLint rules and fixed code style [#1708](https://github.com/microsoft/vscode-react-native/pull/1708)
+    * Enhanced ESLint rules and code style [#1708](https://github.com/microsoft/vscode-react-native/pull/1708)
+    * Moved master build and extension packaging to Linux [#1722](https://github.com/microsoft/vscode-react-native/pull/1722)
 
 
 ## 1.8.1
