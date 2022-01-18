@@ -24,6 +24,7 @@ import { findFileInFolderHierarchy } from "./extensionHelper";
 import { FileSystem } from "./node/fileSystem";
 import { PromiseUtil } from "./node/promise";
 import { CONTEXT_VARIABLES_NAMES } from "./contextVariablesNames";
+import * as WebSocket from "ws";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -40,6 +41,7 @@ export class Packager {
         OutputChannelLogger.MAIN_CHANNEL_NAME,
         true,
     );
+    private packagerSocket: WebSocket;
 
     // old name for RN < 0.60.0, new for versions >= 0.60.0
     private static JS_INJECTOR_FILENAME = {
@@ -342,6 +344,54 @@ export class Packager {
         } catch (error) {
             return false;
         }
+    }
+
+    public async forMessage(
+        message: string,
+        arg: { level: string; type: string; mode: string },
+    ): Promise<void> {
+        await this.awaitStart();
+
+        if (!this.packagerSocket || this.packagerSocket.CLOSED || this.packagerSocket.CLOSING) {
+            const wsUrl = `ws://${this.getHost()}/events`;
+            this.packagerSocket = new WebSocket(wsUrl, {
+                origin: "http://localhost:8081/debugger-ui", // random url because of packager bug
+            });
+        }
+
+        return new Promise<void>((resolve, reject) => {
+            const resolveHandler = async (handlerArg: string) => {
+                const parsed: {
+                    data: any;
+                    type: string;
+                    level: string;
+                    mode: string;
+                } = JSON.parse(handlerArg);
+
+                const value = parsed.data?.[0];
+
+                if (
+                    arg.level !== parsed.level ||
+                    arg.type !== parsed.type ||
+                    arg.mode !== parsed.mode ||
+                    !value ||
+                    typeof value !== "string"
+                ) {
+                    return;
+                }
+
+                if (value.includes(message)) {
+                    resolve();
+                    this.packagerSocket.removeListener("message", resolveHandler);
+                    this.packagerSocket.removeListener("error", reject);
+                    this.packagerSocket.removeListener("close", reject);
+                }
+            };
+
+            this.packagerSocket.addListener("error", reject);
+            this.packagerSocket.addListener("close", reject);
+            this.packagerSocket.addListener("message", resolveHandler);
+        });
     }
 
     private async awaitStart(retryCount = 60, delay = 3000): Promise<void> {
