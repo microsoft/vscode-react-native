@@ -5,6 +5,7 @@ import * as cp from "child_process";
 import { promisify } from "util";
 import * as semver from "semver";
 import * as commandExists from "command-exists";
+import { PowerShell } from 'node-powershell'
 
 export const executeCommand = promisify(cp.exec);
 export const normizeStr = (str: string): string => str.replace(/\r\n/g, "\n");
@@ -55,6 +56,12 @@ export const basicCheck = async (arg: {
         : 0;
 
     return result;
+};
+
+export const runPowershellCommand = async (
+  command: string,
+): Promise<string> => {
+    return (await PowerShell.$`${command}`).raw
 };
 
 /** Run command and parse output with regex. Get first capturing group. If command does not exist - throws an error. */

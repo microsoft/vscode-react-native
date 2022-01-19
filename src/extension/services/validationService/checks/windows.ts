@@ -13,8 +13,9 @@ nls.config({
 const label = 'Windows';
 
 async function test(): Promise<ValidationResultT> {
-    let version = require('os').release().split('.').join();
-    if (parseInt(version) > 10016299)
+    const version = require('os').release();
+    const semver = require('semver')
+    if (semver.gte(version, '10.0.16299'))
     {
         return {
             status: "success",
@@ -22,7 +23,7 @@ async function test(): Promise<ValidationResultT> {
     }
 
     return {
-        status: "success",
+        status: "failure",
         comment: createNotFoundMessage(label),
     };
 }
@@ -31,7 +32,7 @@ const toLocale = nls.loadMessageBundle();
 
 const main: IValidation = {
     label,
-    platform: ["darwin"],
+    platform: ["win32"],
     description: toLocale("RNWBuildTestDescription", "Required for building RNW apps"),
     category: ValidationCategoryE.Windows,
     exec: test,
