@@ -23,8 +23,8 @@ export interface IStrictUrl extends url.Url {
 
 export class SourceMapUtil {
     private static SourceMapURLGlobalRegex: RegExp =
-        /\/\/(#|@) sourceMappingURL=((?!data:).+?)\s*$/gm;
-    private static SourceMapURLRegex: RegExp = /\/\/(#|@) sourceMappingURL=((?!data:).+?)\s*$/m;
+        /\/\/(#|@) sourceMappingURL=((?!data:)[^ ]+?)\s*$/gm;
+    private static SourceMapURLRegex: RegExp = /\/\/(#|@) sourceMappingURL=((?!data:)[^ ]+?)\s*$/m;
     private static SourceURLRegex: RegExp = /^\/\/[#@] ?sourceURL=(.+)$/m;
 
     /**
@@ -110,11 +110,15 @@ export class SourceMapUtil {
      * Updates source map URLs in the script body.
      */
     public updateScriptPaths(scriptBody: string, sourceMappingUrl: IStrictUrl): string {
-        // Update the body with the new location of the source map on storage.
-        return scriptBody.replace(
-            SourceMapUtil.SourceMapURLRegex,
-            `//# sourceMappingURL=${path.basename(sourceMappingUrl.pathname)}`,
-        );
+        const sourceMapMatch = this.searchSourceMapURL(scriptBody);
+        if (sourceMapMatch) {
+            // Update the body with the new location of the source map on storage.
+            return scriptBody.replace(
+                sourceMapMatch[0],
+                `//# sourceMappingURL=${path.basename(sourceMappingUrl.pathname)}`,
+            );
+        }
+        return scriptBody;
     }
 
     /**
@@ -136,26 +140,32 @@ export class SourceMapUtil {
      * Returns the last match if found, null otherwise.
      */
     public getSourceMapRelativeUrl(body: string): string | null {
-        const matchesList = body.match(SourceMapUtil.SourceMapURLGlobalRegex);
-        const sourceMapMatch = matchesList?.[matchesList.length - 1].match(
-            SourceMapUtil.SourceMapURLRegex,
-        );
-
+        const sourceMapMatch = this.searchSourceMapURL(body);
         // If match is null, the body doesn't contain the source map
-        if (!matchesList || !sourceMapMatch) {
-            return null;
+        if (sourceMapMatch) {
+            // On React Native macOS 0.62 and RN Windows 0.65 sourceMappingUrl looks like:
+            // # sourceMappingURL=//localhost:8081/index.map?platform=macos&dev=true&minify=false
+            // Add 'http:' protocol to avoid errors in further processing
+            const el = sourceMapMatch[2];
+            const macOsOrWin =
+                (el.includes("platform=macos") || el.includes("platform=window")) &&
+                el.startsWith("//") &&
+                !el.includes("http:");
+
+            return macOsOrWin ? `http:${el}` : el;
+        }
+        return null;
+    }
+
+    private searchSourceMapURL(str: string): RegExpMatchArray | null {
+        const matchesList = str
+            .match(SourceMapUtil.SourceMapURLGlobalRegex)
+            ?.filter(s => !s.includes("\\n"));
+        if (matchesList && matchesList.length) {
+            return matchesList[matchesList.length - 1].match(SourceMapUtil.SourceMapURLRegex);
         }
 
-        const el = sourceMapMatch[2];
-        // On React Native macOS 0.62 and RN Windows 0.65 sourceMappingUrl looks like:
-        // # sourceMappingURL=//localhost:8081/index.map?platform=macos&dev=true&minify=false
-        // Add 'http:' protocol to avoid errors in further processing
-        const macOsOrWin =
-            (el.includes("platform=macos") || el.includes("platform=window")) &&
-            el.startsWith("//") &&
-            !el.includes("http:");
-
-        return macOsOrWin ? `http:${el}` : el;
+        return null;
     }
 
     /**
