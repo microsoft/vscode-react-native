@@ -32,8 +32,16 @@ nls.config({
 })();
 const localize = nls.loadMessageBundle();
 
+interface MetroData {
+    data: any;
+    type: string;
+    level: string;
+    mode: string;
+}
+
 export class Packager {
     public static DEFAULT_PORT = 8081;
+    packagerSocket: WebSocket;
     private packagerProcess: ChildProcess | undefined;
     private packagerStatus: PackagerStatus;
     private packagerStatusIndicator: PackagerStatusIndicator;
@@ -41,7 +49,6 @@ export class Packager {
         OutputChannelLogger.MAIN_CHANNEL_NAME,
         true,
     );
-    private packagerSocket: WebSocket;
 
     // old name for RN < 0.60.0, new for versions >= 0.60.0
     private static JS_INJECTOR_FILENAME = {
@@ -346,27 +353,19 @@ export class Packager {
         }
     }
 
-    public async forMessage(
-        message: string,
-        arg: { level: string; type: string; mode: string },
-    ): Promise<void> {
+    public async forMessage(message: string, arg: Omit<MetroData, "data">): Promise<void> {
         await this.awaitStart();
 
         if (!this.packagerSocket || this.packagerSocket.CLOSED || this.packagerSocket.CLOSING) {
             const wsUrl = `ws://${this.getHost()}/events`;
             this.packagerSocket = new WebSocket(wsUrl, {
-                origin: "http://localhost:8081/debugger-ui", // random url because of packager bug
+                origin: `http://${this.getHost()}/debugger-ui`, // random url because of packager bug
             });
         }
 
         return new Promise<void>((resolve, reject) => {
             const resolveHandler = async (handlerArg: string) => {
-                const parsed: {
-                    data: any;
-                    type: string;
-                    level: string;
-                    mode: string;
-                } = JSON.parse(handlerArg);
+                const parsed: MetroData = JSON.parse(handlerArg);
 
                 const value = parsed.data?.[0];
 

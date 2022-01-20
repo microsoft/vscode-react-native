@@ -35,15 +35,8 @@ export class DirectDebugSession extends DebugSessionBase {
         this.debuggerEndpointHelper = new DebuggerEndpointHelper();
         this.iOSWKDebugProxyHelper = new IWDPHelper();
 
-        this.onDidTerminateDebugSessionHandler = vscode.debug.onDidTerminateDebugSession(arg => {
-            this.handleTerminateDebugSession.bind(this);
-        });
-    }
-
-    private async onDisconnectMessage(response: any) {
-        this.showError(
-            ErrorHelper.getInternalError(InternalErrorCode.AnotherDebuggerConnectedToPackager),
-            response,
+        this.onDidTerminateDebugSessionHandler = vscode.debug.onDidTerminateDebugSession(
+            this.handleTerminateDebugSession.bind(this),
         );
     }
 
@@ -139,7 +132,17 @@ export class DirectDebugSession extends DebugSessionBase {
                     level: "warn",
                     mode: "BRIDGE",
                 })
-                .then(this.onDisconnectMessage.bind(this, response), () => {});
+                .then(
+                    () => {
+                        this.showError(
+                            ErrorHelper.getInternalError(
+                                InternalErrorCode.AnotherDebuggerConnectedToPackager,
+                            ),
+                            response,
+                        );
+                    },
+                    () => {},
+                );
 
             logger.log("Attaching to the application");
             logger.verbose(`Attaching to the application: ${JSON.stringify(attachArgs, null, 2)}`);
@@ -235,6 +238,7 @@ export class DirectDebugSession extends DebugSessionBase {
         this.iOSWKDebugProxyHelper.cleanUp();
         this.onDidTerminateDebugSessionHandler.dispose();
         void super.disconnectRequest(response, args, request);
+        this.appLauncher.getPackager().packagerSocket.close();
     }
 
     protected async establishDebugSession(attachArgs: IAttachRequestArgs): Promise<void> {
