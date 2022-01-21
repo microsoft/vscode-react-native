@@ -25,6 +25,7 @@ import { FileSystem } from "./node/fileSystem";
 import { PromiseUtil } from "./node/promise";
 import { CONTEXT_VARIABLES_NAMES } from "./contextVariablesNames";
 import * as WebSocket from "ws";
+import * as assert from "assert";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -32,7 +33,7 @@ nls.config({
 })();
 const localize = nls.loadMessageBundle();
 
-interface MetroData {
+interface MetroEventData {
     data: any;
     type: string;
     level: string;
@@ -41,7 +42,7 @@ interface MetroData {
 
 export class Packager {
     public static DEFAULT_PORT = 8081;
-    packagerSocket: WebSocket;
+    private packagerSocket?: WebSocket;
     private packagerProcess: ChildProcess | undefined;
     private packagerStatus: PackagerStatus;
     private packagerStatusIndicator: PackagerStatusIndicator;
@@ -78,6 +79,10 @@ export class Packager {
         this.packagerStatus = PackagerStatus.PACKAGER_STOPPED;
         this.packagerStatusIndicator =
             packagerStatusIndicator || new PackagerStatusIndicator(projectPath);
+    }
+
+    closeWsConnection(): void {
+        this.packagerSocket?.close();
     }
 
     public setExponentHelper(expoHelper: ExponentHelper): void {
@@ -353,7 +358,7 @@ export class Packager {
         }
     }
 
-    public async forMessage(message: string, arg: Omit<MetroData, "data">): Promise<void> {
+    public async forMessage(message: string, arg: Omit<MetroEventData, "data">): Promise<void> {
         await this.awaitStart();
 
         if (!this.packagerSocket || this.packagerSocket.CLOSED || this.packagerSocket.CLOSING) {
@@ -365,8 +370,7 @@ export class Packager {
 
         return new Promise<void>((resolve, reject) => {
             const resolveHandler = async (handlerArg: string) => {
-                const parsed: MetroData = JSON.parse(handlerArg);
-
+                const parsed: MetroEventData = JSON.parse(handlerArg);
                 const value = parsed.data?.[0];
 
                 if (
@@ -380,6 +384,7 @@ export class Packager {
                 }
 
                 if (value.includes(message)) {
+                    assert(this.packagerSocket);
                     resolve();
                     this.packagerSocket.removeListener("message", resolveHandler);
                     this.packagerSocket.removeListener("error", reject);
@@ -387,6 +392,7 @@ export class Packager {
                 }
             };
 
+            assert(this.packagerSocket);
             this.packagerSocket.addListener("error", reject);
             this.packagerSocket.addListener("close", reject);
             this.packagerSocket.addListener("message", resolveHandler);

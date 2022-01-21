@@ -125,24 +125,28 @@ export class DirectDebugSession extends DebugSessionBase {
         try {
             await this.initializeSettings(attachArgs);
 
-            void this.appLauncher
-                .getPackager()
-                .forMessage("Already connected:", {
+            const packager = this.appLauncher.getPackager();
+            const args: Parameters<typeof packager.forMessage> = [
+                // message indicates that another debugger has connected
+                "Already connected:",
+                {
                     type: "client_log",
                     level: "warn",
                     mode: "BRIDGE",
-                })
-                .then(
-                    () => {
-                        this.showError(
-                            ErrorHelper.getInternalError(
-                                InternalErrorCode.AnotherDebuggerConnectedToPackager,
-                            ),
-                            response,
-                        );
-                    },
-                    () => {},
-                );
+                },
+            ];
+
+            void packager.forMessage(...args).then(
+                () => {
+                    this.showError(
+                        ErrorHelper.getInternalError(
+                            InternalErrorCode.AnotherDebuggerConnectedToPackager,
+                        ),
+                        response,
+                    );
+                },
+                () => {},
+            );
 
             logger.log("Attaching to the application");
             logger.verbose(`Attaching to the application: ${JSON.stringify(attachArgs, null, 2)}`);
@@ -237,8 +241,8 @@ export class DirectDebugSession extends DebugSessionBase {
     ): Promise<void> {
         this.iOSWKDebugProxyHelper.cleanUp();
         this.onDidTerminateDebugSessionHandler.dispose();
+        this.appLauncher.getPackager().closeWsConnection();
         void super.disconnectRequest(response, args, request);
-        this.appLauncher.getPackager().packagerSocket.close();
     }
 
     protected async establishDebugSession(attachArgs: IAttachRequestArgs): Promise<void> {
