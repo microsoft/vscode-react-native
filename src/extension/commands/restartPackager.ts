@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { ErrorHelper } from "../../common/error/errorHelper";
-import { InternalError } from "../../common/error/internalError";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
 import { SettingsHelper } from "../settingsHelper";

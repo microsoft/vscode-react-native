@@ -3,7 +3,6 @@
 
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
-import { ProjectVersionHelper } from "../../common/projectVersionHelper";
 import { ReactNativeCommand, selectProject } from "./_util";
 
 export class StopPackager extends ReactNativeCommand {
