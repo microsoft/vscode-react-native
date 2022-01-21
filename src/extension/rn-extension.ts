@@ -435,21 +435,21 @@ function registerReactNativeCommandPaletteCommands(): void {
         ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnMacOS),
         () => CommandPaletteHandler.runMacOS(),
     );
-    registerVSCodeCommand(
-        "startPackager",
-        ErrorHelper.getInternalError(InternalErrorCode.FailedToStartPackager),
-        () => CommandPaletteHandler.startPackager(),
-    );
-    registerVSCodeCommand(
-        "stopPackager",
-        ErrorHelper.getInternalError(InternalErrorCode.FailedToStopPackager),
-        () => CommandPaletteHandler.stopPackager(),
-    );
-    registerVSCodeCommand(
-        "restartPackager",
-        ErrorHelper.getInternalError(InternalErrorCode.FailedToRestartPackager),
-        () => CommandPaletteHandler.restartPackager(),
-    );
+    // registerVSCodeCommand(
+    //     "startPackager",
+    //     ErrorHelper.getInternalError(InternalErrorCode.FailedToStartPackager),
+    //     () => CommandPaletteHandler.startPackager(),
+    // );
+    // registerVSCodeCommand(
+    //     "stopPackager",
+    //     ErrorHelper.getInternalError(InternalErrorCode.FailedToStopPackager),
+    //     () => CommandPaletteHandler.stopPackager(),
+    // );
+    // registerVSCodeCommand(
+    //     "restartPackager",
+    //     ErrorHelper.getInternalError(InternalErrorCode.FailedToRestartPackager),
+    //     () => CommandPaletteHandler.restartPackager(),
+    // );
     registerVSCodeCommand(
         "publishToExpHost",
         ErrorHelper.getInternalError(InternalErrorCode.FailedToPublishToExpHost),
@@ -702,6 +702,7 @@ function registerReactNativeSpecialCommands(): void {
             );
         },
     );
+    void registerBetterCommands();
 }
 
 function showTwoVersionFoundNotification(): boolean {
@@ -772,4 +773,12 @@ function registerVSCodeCommand(
             );
         }),
     );
+}
+
+async function registerBetterCommands() {
+    const result = await import("./commands");
+    Object.values(result).forEach(it => {
+        const command = new it(entryPointHandler);
+        EXTENSION_CONTEXT.subscriptions.push(command.register());
+    });
 }
