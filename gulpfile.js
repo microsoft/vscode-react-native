@@ -381,7 +381,7 @@ gulp.task(
     }),
 );
 
-gulp.task("build-dev", () => {
+gulp.task("build-dev", function runDevBuild(done) {
     build(true, false).once("finish", () => {
         done();
     });
