@@ -3,9 +3,11 @@
 
 import { ChildProcess } from "child_process";
 import * as path from "path";
+import * as assert from "assert";
 import * as semver from "semver";
 import * as vscode from "vscode";
 import * as nls from "vscode-nls";
+import * as WebSocket from "ws";
 import { GeneralPlatform } from "../extension/generalPlatform";
 import { ExponentHelper } from "../extension/exponent/exponentHelper";
 import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
@@ -24,8 +26,6 @@ import { findFileInFolderHierarchy } from "./extensionHelper";
 import { FileSystem } from "./node/fileSystem";
 import { PromiseUtil } from "./node/promise";
 import { CONTEXT_VARIABLES_NAMES } from "./contextVariablesNames";
-import * as WebSocket from "ws";
-import * as assert from "assert";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -81,7 +81,7 @@ export class Packager {
             packagerStatusIndicator || new PackagerStatusIndicator(projectPath);
     }
 
-    closeWsConnection(): void {
+    public closeWsConnection(): void {
         this.packagerSocket?.close();
     }
 
