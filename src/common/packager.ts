@@ -3,9 +3,11 @@
 
 import { ChildProcess } from "child_process";
 import * as path from "path";
+import * as assert from "assert";
 import * as semver from "semver";
 import * as vscode from "vscode";
 import * as nls from "vscode-nls";
+import * as WebSocket from "ws";
 import { GeneralPlatform } from "../extension/generalPlatform";
 import { ExponentHelper } from "../extension/exponent/exponentHelper";
 import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
@@ -31,8 +33,16 @@ nls.config({
 })();
 const localize = nls.loadMessageBundle();
 
+interface MetroEventData {
+    data: any;
+    type: string;
+    level: string;
+    mode: string;
+}
+
 export class Packager {
     public static DEFAULT_PORT = 8081;
+    private packagerSocket?: WebSocket;
     private packagerProcess: ChildProcess | undefined;
     private packagerStatus: PackagerStatus;
     private packagerStatusIndicator: PackagerStatusIndicator;
@@ -69,6 +79,10 @@ export class Packager {
         this.packagerStatus = PackagerStatus.PACKAGER_STOPPED;
         this.packagerStatusIndicator =
             packagerStatusIndicator || new PackagerStatusIndicator(projectPath);
+    }
+
+    public closeWsConnection(): void {
+        this.packagerSocket?.close();
     }
 
     public setExponentHelper(expoHelper: ExponentHelper): void {
@@ -342,6 +356,47 @@ export class Packager {
         } catch (error) {
             return false;
         }
+    }
+
+    public async forMessage(message: string, arg: Omit<MetroEventData, "data">): Promise<void> {
+        await this.awaitStart();
+
+        if (!this.packagerSocket || this.packagerSocket.CLOSED || this.packagerSocket.CLOSING) {
+            const wsUrl = `ws://${this.getHost()}/events`;
+            this.packagerSocket = new WebSocket(wsUrl, {
+                origin: `http://${this.getHost()}/debugger-ui`, // random url because of packager bug
+            });
+        }
+
+        return new Promise<void>((resolve, reject) => {
+            const resolveHandler = async (handlerArg: string) => {
+                const parsed: MetroEventData = JSON.parse(handlerArg);
+                const value = parsed.data?.[0];
+
+                if (
+                    arg.level !== parsed.level ||
+                    arg.type !== parsed.type ||
+                    arg.mode !== parsed.mode ||
+                    !value ||
+                    typeof value !== "string"
+                ) {
+                    return;
+                }
+
+                if (value.includes(message)) {
+                    assert(this.packagerSocket);
+                    resolve();
+                    this.packagerSocket.removeListener("message", resolveHandler);
+                    this.packagerSocket.removeListener("error", reject);
+                    this.packagerSocket.removeListener("close", reject);
+                }
+            };
+
+            assert(this.packagerSocket);
+            this.packagerSocket.addListener("error", reject);
+            this.packagerSocket.addListener("close", reject);
+            this.packagerSocket.addListener("message", resolveHandler);
+        });
     }
 
     private async awaitStart(retryCount = 60, delay = 3000): Promise<void> {
