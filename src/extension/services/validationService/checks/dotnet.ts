@@ -1,23 +1,34 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { IValidation, ValidationCategoryE, ValidationResultT } from "./types";
 import * as nls from "vscode-nls";
-import { createNotFoundMessage, runPowershellCommand } from "../util";
+import {
+    basicCheck,
+    createNotFoundMessage,
+    createVersionErrorMessage,
+    executeCommand,
+    parseVersion,
+} from "../util";
+import { IValidation, ValidationCategoryE, ValidationResultT } from "./types";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
 })();
 
-const label = 'DotNet';
+const label = "DotNet";
 
 async function test(): Promise<ValidationResultT> {
-    const command = "dotnet --info | Where-Object { $_ -like  '*Microsoft.NETCore.App 3.1*'}";
-    if (await runPowershellCommand(`(${command} -ne $null) -and (${command}.Length -ge 1)`) == 'True')
-    {
+    const command = "dotnet --info";
+    const data = await executeCommand(command);
+    if (data.stdout) {
+        if (data.stdout.includes("Microsoft.NETCore.App 3.1"))
+            return {
+                status: "success",
+            };
         return {
-            status: "success",
+            status: "failure",
+            comment: createVersionErrorMessage(label),
         };
     }
     return {

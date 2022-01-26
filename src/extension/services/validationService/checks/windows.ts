@@ -1,30 +1,30 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { IValidation, ValidationCategoryE, ValidationResultT } from "./types";
+import * as os from "os";
 import * as nls from "vscode-nls";
-import { createNotFoundMessage } from "../util";
+import * as semver from "semver";
+import { createVersionErrorMessage } from "../util";
+import { IValidation, ValidationCategoryE, ValidationResultT } from "./types";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
 })();
 
-const label = 'Windows';
+const label = "Windows";
 
 async function test(): Promise<ValidationResultT> {
-    const version = require('os').release();
-    const semver = require('semver')
-    if (semver.gte(version, '10.0.16299'))
-    {
+    const version = os.release();
+
+    if (semver.gte(version, "10.0.16299")) {
         return {
             status: "success",
         };
     }
-
     return {
         status: "failure",
-        comment: createNotFoundMessage(label),
+        comment: createVersionErrorMessage(label),
     };
 }
 

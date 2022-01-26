@@ -1,26 +1,30 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { IValidation, ValidationCategoryE, ValidationResultT } from "./types";
 import * as nls from "vscode-nls";
-import { createNotFoundMessage, runPowershellCommand } from "../util";
+import { executeCommand } from "../util";
+import { IValidation, ValidationCategoryE, ValidationResultT } from "./types";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
 })();
 
-const label = 'LongPathSupport';
+const label = "LongPathSupport";
 
 async function test(): Promise<ValidationResultT> {
-    const command = '(Get-ItemProperty HKLM:/SYSTEM/CurrentControlSet/Control/FileSystem -Name LongPathsEnabled).LongPathsEnabled';
-    if (parseInt(await runPowershellCommand(command)))
-        return {
-            status: "success",
-        };
+    const command =
+        "reg query HKLM\\SYSTEM\\CurrentControlSet\\Control\\FileSystem /v LongPathsEnabled";
+    const data = await executeCommand(command);
+    if (data.stdout) {
+        if (data.stdout.includes(" 0x1"))
+            return {
+                status: "success",
+            };
+    }
     return {
         status: "failure",
-        comment: createNotFoundMessage(label),
+        comment: "Long path support is not activated",
     };
 }
 
