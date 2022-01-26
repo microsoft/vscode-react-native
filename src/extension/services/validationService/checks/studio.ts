@@ -86,4 +86,3 @@ const main: IValidation = {
 };
 
 export default main;
-test()
