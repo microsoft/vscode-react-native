@@ -65,47 +65,48 @@ export class CommandPaletteHandler {
     private static networkInspectorModule: NetworkInspectorModule | null;
     private static logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
 
-    /**
-     * Starts the React Native packager
-     */
-    public static async startPackager(): Promise<void> {
-        const appLauncher = await this.selectProject();
-        await this.trustedWorkspaceRequired(
-            appLauncher.getPackager().getProjectPath(),
-            "Start Packager",
-        );
-        const nodeModulesRoot = appLauncher.getOrUpdateNodeModulesRoot();
-        await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(nodeModulesRoot);
-        await this.executeCommandInContext(
-            "startPackager",
-            appLauncher.getWorkspaceFolder(),
-            async () => {
-                if (await appLauncher.getPackager().isRunning()) {
-                    await appLauncher.getPackager().stop();
-                }
-            },
-        );
-        return await appLauncher.getPackager().start();
-    }
+    // /**
+    //  * Starts the React Native packager
+    //  */
+    // public static async startPackager(): Promise<void> {
+    //     const appLauncher = await this.selectProject();
+    //     await this.trustedWorkspaceRequired(
+    //         appLauncher.getPackager().getProjectPath(),
+    //         "Start Packager",
+    //     );
+    //     const nodeModulesRoot = appLauncher.getOrUpdateNodeModulesRoot();
+    //     await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(nodeModulesRoot);
+    //     await this.executeCommandInContext(
+    //         "startPackager",
+    //         appLauncher.getWorkspaceFolder(),
+    //         async () => {
+    //             if (await appLauncher.getPackager().isRunning()) {
+    //                 await appLauncher.getPackager().stop();
+    //             }
+    //         },
+    //     );
+    //     return await appLauncher.getPackager().start();
+    // }
 
-    /**
-     * Kills the React Native packager invoked by the extension's packager
-     */
-    public static async stopPackager(): Promise<void> {
-        const appLauncher = await this.selectProject();
-        await this.trustedWorkspaceRequired(
-            appLauncher.getPackager().getProjectPath(),
-            "Stop Packager",
-        );
-        return await this.executeCommandInContext(
-            "stopPackager",
-            appLauncher.getWorkspaceFolder(),
-            async () => {
-                await appLauncher.getPackager().stop();
-            },
-        );
-    }
+    // /**
+    //  * Kills the React Native packager invoked by the extension's packager
+    //  */
+    // public static async stopPackager(): Promise<void> {
+    //     const appLauncher = await this.selectProject();
+    //     await this.trustedWorkspaceRequired(
+    //         appLauncher.getPackager().getProjectPath(),
+    //         "Stop Packager",
+    //     );
+    //     return await this.executeCommandInContext(
+    //         "stopPackager",
+    //         appLauncher.getWorkspaceFolder(),
+    //         async () => {
+    //             await appLauncher.getPackager().stop();
+    //         },
+    //     );
+    // }
 
+    // do not remove
     public static async stopAllPackagers(): Promise<void> {
         const keys = Object.keys(ProjectsStorage.projectsCache);
         const promises: Promise<void>[] = [];
@@ -124,57 +125,57 @@ export class CommandPaletteHandler {
     /**
      * Restarts the React Native packager
      */
-    public static async restartPackager(): Promise<void> {
-        const appLauncher = await this.selectProject();
-        await this.trustedWorkspaceRequired(
-            appLauncher.getPackager().getProjectPath(),
-            "Restart Packager",
-        );
-        const nodeModulesRoot = appLauncher.getOrUpdateNodeModulesRoot();
-        await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(nodeModulesRoot);
-        return await this.executeCommandInContext(
-            "restartPackager",
-            appLauncher.getWorkspaceFolder(),
-            () => this.runRestartPackagerCommandAndUpdateStatus(appLauncher),
-        );
-    }
+    // public static async restartPackager(): Promise<void> {
+    //     const appLauncher = await this.selectProject();
+    //     await this.trustedWorkspaceRequired(
+    //         appLauncher.getPackager().getProjectPath(),
+    //         "Restart Packager",
+    //     );
+    //     const nodeModulesRoot = appLauncher.getOrUpdateNodeModulesRoot();
+    //     await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(nodeModulesRoot);
+    //     return await this.executeCommandInContext(
+    //         "restartPackager",
+    //         appLauncher.getWorkspaceFolder(),
+    //         () => this.runRestartPackagerCommandAndUpdateStatus(appLauncher),
+    //     );
+    // }
 
     /**
      * Execute command to publish to exponent host.
      */
-    public static async publishToExpHost(): Promise<void> {
-        const appLauncher = await this.selectProject();
-        await this.executeCommandInContext(
-            "publishToExpHost",
-            appLauncher.getWorkspaceFolder(),
-            async () => {
-                if (!(await this.executePublishToExpHost(appLauncher))) {
-                    CommandPaletteHandler.logger.warning(
-                        localize(
-                            "ExponentPublishingWasUnsuccessfulMakeSureYoureLoggedInToExpo",
-                            "Publishing was unsuccessful. Please make sure you are logged in Expo and your project is a valid Expo project",
-                        ),
-                    );
-                }
-            },
-        );
-    }
+    // public static async publishToExpHost(): Promise<void> {
+    //     const appLauncher = await this.selectProject();
+    //     await this.executeCommandInContext(
+    //         "publishToExpHost",
+    //         appLauncher.getWorkspaceFolder(),
+    //         async () => {
+    //             if (!(await this.executePublishToExpHost(appLauncher))) {
+    //                 CommandPaletteHandler.logger.warning(
+    //                     localize(
+    //                         "ExponentPublishingWasUnsuccessfulMakeSureYoureLoggedInToExpo",
+    //                         "Publishing was unsuccessful. Please make sure you are logged in Expo and your project is a valid Expo project",
+    //                     ),
+    //                 );
+    //             }
+    //         },
+    //     );
+    // }
 
-    public static async launchAndroidEmulator(): Promise<void> {
-        const appLauncher = await this.selectProject();
-        const projectPath = appLauncher.getPackager().getProjectPath();
-        const nodeModulesRoot = appLauncher.getOrUpdateNodeModulesRoot();
-        const adbHelper = new AdbHelper(projectPath, nodeModulesRoot);
-        const androidEmulatorManager = new AndroidTargetManager(adbHelper);
-        await androidEmulatorManager.collectTargets(TargetType.Simulator);
-        await androidEmulatorManager.selectAndPrepareTarget(target => target.isVirtualTarget);
-    }
+    // public static async launchAndroidEmulator(): Promise<void> {
+    //     const appLauncher = await this.selectProject();
+    //     const projectPath = appLauncher.getPackager().getProjectPath();
+    //     const nodeModulesRoot = appLauncher.getOrUpdateNodeModulesRoot();
+    //     const adbHelper = new AdbHelper(projectPath, nodeModulesRoot);
+    //     const androidEmulatorManager = new AndroidTargetManager(adbHelper);
+    //     await androidEmulatorManager.collectTargets(TargetType.Simulator);
+    //     await androidEmulatorManager.selectAndPrepareTarget(target => target.isVirtualTarget);
+    // }
 
-    public static async launchIOSSimulator(): Promise<void> {
-        const targetManager = new IOSTargetManager();
-        await targetManager.collectTargets(TargetType.Simulator);
-        await targetManager.selectAndPrepareTarget(target => target.isVirtualTarget);
-    }
+    // public static async launchIOSSimulator(): Promise<void> {
+    //     const targetManager = new IOSTargetManager();
+    //     await targetManager.collectTargets(TargetType.Simulator);
+    //     await targetManager.selectAndPrepareTarget(target => target.isVirtualTarget);
+    // }
 
     /**
      * Executes the 'react-native run-android' command
