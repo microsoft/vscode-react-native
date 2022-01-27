@@ -15,6 +15,7 @@ import { isWorkspaceTrusted } from "../common/extensionHelper";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { CONTEXT_VARIABLES_NAMES } from "../common/contextVariablesNames";
+import { RNProjectObserver } from "./rnProjectObserver";
 import { TipNotificationService } from "./services/tipsNotificationsService/tipsNotificationService";
 import * as XDL from "./exponent/xdlInterface";
 import { SettingsHelper } from "./settingsHelper";
@@ -47,6 +48,8 @@ import { AndroidTargetManager } from "./android/androidTargetManager";
 import { IOSTargetManager } from "./ios/iOSTargetManager";
 import { runChecks } from "./services/validationService/checker";
 import { ValidationCategoryE } from "./services/validationService/checks/types";
+// import { test } from "shelljs";
+// import { version } from "websocket";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -545,7 +548,23 @@ export class CommandPaletteHandler {
     }
 
     public static async testDevEnvironment(): Promise<void> {
+        const createRNProjectObserver = async (
+            project: AppLauncher | undefined,
+        ): Promise<RNProjectObserver | undefined> => {
+            if (project) {
+                const rootPath = project.getWorkspaceFolderUri().fsPath;
+                const nodeModulesRoot = project.getOrUpdateNodeModulesRoot();
+                const projectRootPath = SettingsHelper.getReactNativeProjectRoot(rootPath);
+                const versions =
+                    await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
+                        nodeModulesRoot,
+                    );
+                return new RNProjectObserver(projectRootPath, versions);
+            }
+            return undefined;
+        };
         const project = await this.selectProject().catch(() => undefined);
+        const projectObserver = await createRNProjectObserver(project);
         const shouldCheck = {
             [ValidationCategoryE.Expo]:
                 (await project
@@ -553,6 +572,7 @@ export class CommandPaletteHandler {
                     .getExponentHelper()
                     .isExpoManagedApp(false)
                     .catch(() => false)) || false,
+            [ValidationCategoryE.Windows]: projectObserver?.isRNWindowsProject || false,
         } as const;
 
         await runChecks(shouldCheck);

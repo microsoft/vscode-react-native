@@ -45,7 +45,7 @@ export const runChecks = async (
             [ValidationCategoryE.Common]: true,
             [ValidationCategoryE.Android]: true,
             [ValidationCategoryE.iOS]: true,
-            [ValidationCategoryE.Windows]: true
+            [ValidationCategoryE.Windows]: true,
         },
         options_,
     );
