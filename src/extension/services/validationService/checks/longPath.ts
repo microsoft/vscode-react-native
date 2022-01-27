@@ -24,7 +24,7 @@ async function test(): Promise<ValidationResultT> {
     }
     return {
         status: "failure",
-        comment: "Long path support is not activated",
+        comment: "Long path support is disabled",
     };
 }
 
