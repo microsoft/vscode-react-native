@@ -65,10 +65,6 @@ async function test(): Promise<ValidationResultT> {
             };
         }
 
-        return {
-            status: "failure",
-            comment: createVersionErrorMessage(label),
-        };
     }
     return {
         status: "failure",
