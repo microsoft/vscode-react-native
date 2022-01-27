@@ -549,24 +549,21 @@ export class CommandPaletteHandler {
 
     public static async testDevEnvironment(): Promise<void> {
         const createRNProjectObserver = async (
-            project: AppLauncher | undefined,
-        ): Promise<RNProjectObserver | undefined> => {
-            if (project) {
-                const rootPath = project.getWorkspaceFolderUri().fsPath;
-                const nodeModulesRoot = project.getOrUpdateNodeModulesRoot();
-                const projectRootPath = SettingsHelper.getReactNativeProjectRoot(rootPath);
-                const versions =
-                    await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
-                        nodeModulesRoot,
-                        [REACT_NATIVE_PACKAGES.REACT_NATIVE_WINDOWS],
-                    );
-                console.log(versions);
-                return new RNProjectObserver(projectRootPath, versions);
-            }
-            return undefined;
+            project: AppLauncher,
+        ): Promise<RNProjectObserver> => {
+            const rootPath = project.getWorkspaceFolderUri().fsPath;
+            const nodeModulesRoot = project.getOrUpdateNodeModulesRoot();
+            const projectRootPath = SettingsHelper.getReactNativeProjectRoot(rootPath);
+            const versions =
+                await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
+                    nodeModulesRoot,
+                    [REACT_NATIVE_PACKAGES.REACT_NATIVE_WINDOWS],
+                );
+            return new RNProjectObserver(projectRootPath, versions);
         };
         const project = await this.selectProject().catch(() => undefined);
-        const projectObserver = await createRNProjectObserver(project).catch(() => undefined);
+        const projectObserver =
+            project && (await createRNProjectObserver(project).catch(() => undefined));
         const shouldCheck = {
             [ValidationCategoryE.Expo]:
                 (await project
