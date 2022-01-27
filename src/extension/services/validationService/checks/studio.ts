@@ -55,8 +55,8 @@ async function test(): Promise<ValidationResultT> {
             return {
                 status: "success",
             };
-       }
-       if (result.versionCompare === -1) {
+        }
+        if (result.versionCompare === -1) {
             return {
                 status: "partial-success",
                 comment:
@@ -64,7 +64,6 @@ async function test(): Promise<ValidationResultT> {
                     "Please update Visual Studio in case of errors",
             };
         }
-
     }
     return {
         status: "failure",
