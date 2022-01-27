@@ -17,6 +17,12 @@ import watchman from "./watchman";
 import iosDeploy from "./iosDeploy";
 import xcodebuild from "./xcodebuild";
 import expoCli from "./expoCli";
+import devmode from "./devmode";
+import studio from "./studio";
+import longPath from "./longPath";
+import windows from "./windows";
+import dotnet from "./dotnet";
+
 import { IValidation } from "./types";
 
 export const getChecks = (): IValidation[] => {
@@ -36,6 +42,11 @@ export const getChecks = (): IValidation[] => {
         watchman,
         xcodebuild,
         expoCli,
+        devmode,
+        studio,
+        longPath,
+        windows,
+        dotnet,
     ] as const;
 
     return checks.filter(it => (it.platform ? it.platform.includes(process.platform) : true));
