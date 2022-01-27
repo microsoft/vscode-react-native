@@ -558,13 +558,15 @@ export class CommandPaletteHandler {
                 const versions =
                     await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
                         nodeModulesRoot,
+                        [REACT_NATIVE_PACKAGES.REACT_NATIVE_WINDOWS],
                     );
+                console.log(versions);
                 return new RNProjectObserver(projectRootPath, versions);
             }
             return undefined;
         };
         const project = await this.selectProject().catch(() => undefined);
-        const projectObserver = await createRNProjectObserver(project);
+        const projectObserver = await createRNProjectObserver(project).catch(() => undefined);
         const shouldCheck = {
             [ValidationCategoryE.Expo]:
                 (await project
