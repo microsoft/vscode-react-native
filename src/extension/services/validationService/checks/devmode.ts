@@ -34,7 +34,7 @@ const toLocale = nls.loadMessageBundle();
 const main: IValidation = {
     label,
     platform: ["win32"],
-    description: toLocale("DeveloperMode", "Required for building RNW apps"),
+    description: toLocale("DeveloperModeTestDescription", "Required for building RNW apps"),
     category: ValidationCategoryE.Windows,
     exec: test,
 };

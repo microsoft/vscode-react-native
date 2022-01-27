@@ -55,7 +55,8 @@ async function test(): Promise<ValidationResultT> {
             return {
                 status: "success",
             };
-        } else if (result.versionCompare === -1) {
+       }
+       if (result.versionCompare === -1) {
             return {
                 status: "partial-success",
                 comment:
@@ -64,10 +65,6 @@ async function test(): Promise<ValidationResultT> {
             };
         }
 
-        return {
-            status: "failure",
-            comment: createVersionErrorMessage(label),
-        };
     }
     return {
         status: "failure",
