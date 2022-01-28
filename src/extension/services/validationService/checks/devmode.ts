@@ -25,7 +25,7 @@ async function test(): Promise<ValidationResultT> {
 
     return {
         status: "failure",
-        comment: "Devmode is inactive.",
+        comment: "Developer mode is disabled",
     };
 }
 
