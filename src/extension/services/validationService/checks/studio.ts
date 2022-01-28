@@ -48,7 +48,7 @@ async function test(): Promise<ValidationResultT> {
                 if (!pathToComponent.stdout) {
                     return {
                         status: "failure",
-                        comment: `Check if ${comp} installed.`,
+                        comment: `Please check if ${comp} is installed`,
                     };
                 }
             }
