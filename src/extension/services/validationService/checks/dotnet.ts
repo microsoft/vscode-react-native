@@ -10,7 +10,7 @@ nls.config({
     bundleFormat: nls.BundleFormat.standalone,
 })();
 
-const label = "DotNet";
+const label = ".NET Core 3.1";
 
 async function test(): Promise<ValidationResultT> {
     const command = "dotnet --info";
