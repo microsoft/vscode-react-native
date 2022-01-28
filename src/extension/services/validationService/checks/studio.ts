@@ -19,7 +19,7 @@ nls.config({
 const label = "Compilers, build tools, SDKs and Visual Studio";
 
 async function test(): Promise<ValidationResultT> {
-    let path = "";
+    let vswherePath = "";
     if (process.env["ProgramFiles(x86)"]) {
         path = `${process.env["ProgramFiles(x86)"]}/Microsoft Visual Studio/Installer/vswhere.exe`;
     } else {
