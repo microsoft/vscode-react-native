@@ -16,7 +16,7 @@ nls.config({
     bundleFormat: nls.BundleFormat.standalone,
 })();
 
-const label = "VisualStudio";
+const label = "Compilers, build tools, SDKs and Visual Studio";
 
 async function test(): Promise<ValidationResultT> {
     let path = "";
