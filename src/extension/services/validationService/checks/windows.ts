@@ -12,7 +12,7 @@ nls.config({
     bundleFormat: nls.BundleFormat.standalone,
 })();
 
-const label = "Windows";
+const label = "Windows version > 10.0.16299.0";
 
 async function test(): Promise<ValidationResultT> {
     const version = os.release();
