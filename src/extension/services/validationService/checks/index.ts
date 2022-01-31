@@ -18,7 +18,7 @@ import iosDeploy from "./iosDeploy";
 import xcodebuild from "./xcodebuild";
 import expoCli from "./expoCli";
 import devmode from "./devmode";
-import visualStudio from "./studio";
+import visualStudio from "./visualStudio";
 import longPath from "./longPath";
 import windows from "./windows";
 import dotnet from "./dotnet";
