@@ -14,7 +14,12 @@ nls.config({
 const label = "Compilers, build tools, SDKs and Visual Studio";
 
 async function test(): Promise<ValidationResultT> {
-    const vswherePath = `\"C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe"`;
+    let vswherePath = ``;
+    if (process.env["ProgramFiles(x86)"]) {
+        vswherePath = `"${process.env["ProgramFiles(x86)"]}\\Microsoft Visual Studio\\Installer\\vswhere.exe"`;
+    } else {
+        vswherePath = `"C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe"`;
+    }
     const components = [
         "Microsoft.Component.MSBuild",
         "Microsoft.VisualStudio.Component.VC.Tools.x86.x64",
@@ -25,7 +30,6 @@ async function test(): Promise<ValidationResultT> {
     const command = `${vswherePath} -property catalog_productDisplayVersion`;
     const result = await executeCommand(command);
     if (result) {
-        console.log("result 1");
         const versions = normizeStr(result.stdout).split("\n");
         let valid = false;
         for (const version of versions) {
