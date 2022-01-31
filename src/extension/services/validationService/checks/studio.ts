@@ -2,13 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as nls from "vscode-nls";
-import {
-    basicCheck,
-    createNotFoundMessage,
-    createVersionErrorMessage,
-    executeCommand,
-    parseVersion,
-} from "../util";
+import * as semver from "semver";
+import { createNotFoundMessage, executeCommand, normizeStr } from "../util";
 import { IValidation, ValidationCategoryE, ValidationResultT } from "./types";
 
 nls.config({
@@ -19,13 +14,7 @@ nls.config({
 const label = "Compilers, build tools, SDKs and Visual Studio";
 
 async function test(): Promise<ValidationResultT> {
-    let vswherePath = "";
-    if (process.env["ProgramFiles(x86)"]) {
-        path = `${process.env["ProgramFiles(x86)"]}/Microsoft Visual Studio/Installer/vswhere.exe`;
-    } else {
-        path = "C:\\Program Files (x86)\\Microsoft Visual Studio/Installer/vswhere.exe";
-    }
-
+    const vswherePath = `\"C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe"`;
     const components = [
         "Microsoft.Component.MSBuild",
         "Microsoft.VisualStudio.Component.VC.Tools.x86.x64",
@@ -33,17 +22,21 @@ async function test(): Promise<ValidationResultT> {
         "Microsoft.VisualStudio.ComponentGroup.NativeDesktop.Core",
         "Microsoft.VisualStudio.Component.Windows10SDK.19041",
     ];
-    const command = `${path} -property catalog_productDisplayVersion`;
-    const result = await basicCheck({
-        command: '"C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe"',
-        versionRange: "16.5",
-        getVersion: parseVersion.bind(null, command),
-    });
-    if (result.exists) {
-        if (result.versionCompare === 1) {
+    const command = `${vswherePath} -property catalog_productDisplayVersion`;
+    const result = await executeCommand(command);
+    if (result) {
+        console.log("result 1");
+        const versions = normizeStr(result.stdout).split("\n");
+        let valid = false;
+        for (const version of versions) {
+            if (version) {
+                if (semver.gtr(version, "16.5")) valid = true;
+            }
+        }
+        if (valid) {
             for (const comp of components) {
                 const pathToComponent = await executeCommand(
-                    `\"C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe\"  -requires ${comp}  -property productPath`,
+                    `${vswherePath}  -requires ${comp}  -property productPath`,
                 );
                 if (!pathToComponent.stdout) {
                     return {
@@ -56,14 +49,12 @@ async function test(): Promise<ValidationResultT> {
                 status: "success",
             };
         }
-        if (result.versionCompare === -1) {
-            return {
-                status: "partial-success",
-                comment:
-                    "Detected version is older than 16.5. " +
-                    "Please update Visual Studio in case of errors",
-            };
-        }
+        return {
+            status: "partial-success",
+            comment:
+                "Detected version is older than 16.5. " +
+                "Please update Visual Studio in case of errors",
+        };
     }
     return {
         status: "failure",
@@ -76,7 +67,7 @@ const toLocale = nls.loadMessageBundle();
 const main: IValidation = {
     label,
     platform: ["win32"],
-    description: toLocale("VisualStudioCheckDescription", "Required for building RNW apps"),
+    description: toLocale("VisualStudioCheckDescription", "Required for testing RNW apps"),
     category: ValidationCategoryE.Windows,
     exec: test,
 };
