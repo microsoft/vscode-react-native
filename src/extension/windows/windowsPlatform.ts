@@ -9,6 +9,7 @@ import { TelemetryHelper } from "../../common/telemetryHelper";
 import { CommandExecutor } from "../../common/commandExecutor";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { AppLauncher } from "../appLauncher";
+import { ProjectVersionHelper } from "../../common/projectVersionHelper";
 
 /**
  * Windows specific platform implementation for debugging RN applications.
@@ -70,7 +71,13 @@ export class WindowsPlatform extends GeneralPlatform {
             );
 
             if (
-                semver.gte(this.runOptions.reactNativeVersions.reactNativeWindowsVersion, "0.63.0")
+                semver.gte(
+                    this.runOptions.reactNativeVersions.reactNativeWindowsVersion,
+                    "0.63.0",
+                ) ||
+                ProjectVersionHelper.isCanaryVersion(
+                    this.runOptions.reactNativeVersions.reactNativeWindowsVersion,
+                )
             ) {
                 this.runArguments.push("--logging");
                 if (enableDebug) {
@@ -87,6 +94,9 @@ export class WindowsPlatform extends GeneralPlatform {
                 semver.gte(
                     this.runOptions.reactNativeVersions.reactNativeVersion,
                     WindowsPlatform.NO_PACKAGER_VERSION,
+                ) ||
+                ProjectVersionHelper.isCanaryVersion(
+                    this.runOptions.reactNativeVersions.reactNativeVersion,
                 )
             ) {
                 this.runArguments.push("--no-packager");

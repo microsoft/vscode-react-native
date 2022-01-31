@@ -89,7 +89,10 @@ export class ScriptImporter {
                     scriptBody,
                     <IStrictUrl>sourceMappingUrl,
                 );
-                if (semver.gte(rnVersions.reactNativeVersion, "0.61.0")) {
+                if (
+                    semver.gte(rnVersions.reactNativeVersion, "0.61.0") ||
+                    ProjectVersionHelper.isCanaryVersion(rnVersions.reactNativeVersion)
+                ) {
                     scriptBody = this.sourceMapUtil.removeSourceURL(scriptBody);
                 }
             });
@@ -139,7 +142,8 @@ export class ScriptImporter {
                 !semver.valid(
                     rnVersion,
                 ) /* Custom RN implementations should support new packager*/ ||
-                semver.gte(rnVersion, "0.50.0")
+                semver.gte(rnVersion, "0.50.0") ||
+                ProjectVersionHelper.isCanaryVersion(rnVersion)
             ) {
                 newPackager = "debugger-ui/";
             }

@@ -75,7 +75,10 @@ export class PlistBuddy {
     ): Promise<IOSBuildLocationData> {
         const rnVersions = await ProjectVersionHelper.getReactNativeVersions(projectRoot);
         let productsFolder;
-        if (semver.gte(rnVersions.reactNativeVersion, "0.59.0")) {
+        if (
+            semver.gte(rnVersions.reactNativeVersion, "0.59.0") ||
+            ProjectVersionHelper.isCanaryVersion(rnVersions.reactNativeVersion)
+        ) {
             if (!scheme) {
                 // If no scheme were provided via runOptions.scheme or via runArguments then try to get scheme using the way RN CLI does.
                 scheme = this.getInferredScheme(
@@ -258,7 +261,10 @@ export class PlistBuddy {
          * @flow
          * @format
          */
-        const iOSCliFolderName = semver.gte(rnVersion, "0.60.0") ? "cli-platform-ios" : "cli";
+        const iOSCliFolderName =
+            semver.gte(rnVersion, "0.60.0") || ProjectVersionHelper.isCanaryVersion(rnVersion)
+                ? "cli-platform-ios"
+                : "cli";
 
         const findXcodeProject = customRequire(
             path.join(
