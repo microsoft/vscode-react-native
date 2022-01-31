@@ -18,7 +18,7 @@ import iosDeploy from "./iosDeploy";
 import xcodebuild from "./xcodebuild";
 import expoCli from "./expoCli";
 import devmode from "./devmode";
-import studio from "./studio";
+import visualStudio from "./studio";
 import longPath from "./longPath";
 import windows from "./windows";
 import dotnet from "./dotnet";
@@ -43,7 +43,7 @@ export const getChecks = (): IValidation[] => {
         xcodebuild,
         expoCli,
         devmode,
-        studio,
+        visualStudio,
         longPath,
         windows,
         dotnet,
