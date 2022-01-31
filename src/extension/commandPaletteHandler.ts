@@ -549,9 +549,10 @@ export class CommandPaletteHandler {
         const createRNProjectObserver = async (
             project: AppLauncher,
         ): Promise<RNProjectObserver> => {
-            const rootPath = project.getWorkspaceFolderUri().fsPath;
             const nodeModulesRoot = project.getOrUpdateNodeModulesRoot();
-            const projectRootPath = SettingsHelper.getReactNativeProjectRoot(rootPath);
+            const projectRootPath = SettingsHelper.getReactNativeProjectRoot(
+                project.getWorkspaceFolderUri().fsPath,
+            );
             const versions =
                 await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
                     nodeModulesRoot,
