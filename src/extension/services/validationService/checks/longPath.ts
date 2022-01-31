@@ -9,6 +9,7 @@ nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
 })();
+const toLocale = nls.loadMessageBundle();
 
 const label = "LongPathSupport";
 
@@ -27,8 +28,6 @@ async function test(): Promise<ValidationResultT> {
         comment: "Long path support is disabled",
     };
 }
-
-const toLocale = nls.loadMessageBundle();
 
 const main: IValidation = {
     label,

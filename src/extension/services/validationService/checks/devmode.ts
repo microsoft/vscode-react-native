@@ -9,6 +9,7 @@ nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
 })();
+const toLocale = nls.loadMessageBundle();
 
 const label = "DeveloperMode";
 
@@ -28,8 +29,6 @@ async function test(): Promise<ValidationResultT> {
         comment: "Developer mode is disabled",
     };
 }
-
-const toLocale = nls.loadMessageBundle();
 
 const main: IValidation = {
     label,

@@ -9,6 +9,7 @@ nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
 })();
+const toLocale = nls.loadMessageBundle();
 
 const label = ".NET Core 3.1";
 
@@ -30,8 +31,6 @@ async function test(): Promise<ValidationResultT> {
         comment: createNotFoundMessage(label),
     };
 }
-
-const toLocale = nls.loadMessageBundle();
 
 const main: IValidation = {
     label,

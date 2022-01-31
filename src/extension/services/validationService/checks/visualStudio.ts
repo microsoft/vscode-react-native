@@ -10,6 +10,7 @@ nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
 })();
+const toLocale = nls.loadMessageBundle();
 
 const label = "Compilers, build tools, SDKs and Visual Studio";
 
@@ -65,8 +66,6 @@ async function test(): Promise<ValidationResultT> {
         comment: createNotFoundMessage(label),
     };
 }
-
-const toLocale = nls.loadMessageBundle();
 
 const main: IValidation = {
     label,
