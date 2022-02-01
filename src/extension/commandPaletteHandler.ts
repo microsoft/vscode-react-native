@@ -15,6 +15,7 @@ import { isWorkspaceTrusted } from "../common/extensionHelper";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { CONTEXT_VARIABLES_NAMES } from "../common/contextVariablesNames";
+import { RNProjectObserver } from "./rnProjectObserver";
 import { TipNotificationService } from "./services/tipsNotificationsService/tipsNotificationService";
 import * as XDL from "./exponent/xdlInterface";
 import { SettingsHelper } from "./settingsHelper";
@@ -545,7 +546,23 @@ export class CommandPaletteHandler {
     }
 
     public static async testDevEnvironment(): Promise<void> {
+        const createRNProjectObserver = async (
+            project: AppLauncher,
+        ): Promise<RNProjectObserver> => {
+            const nodeModulesRoot = project.getOrUpdateNodeModulesRoot();
+            const projectRootPath = SettingsHelper.getReactNativeProjectRoot(
+                project.getWorkspaceFolderUri().fsPath,
+            );
+            const versions =
+                await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
+                    nodeModulesRoot,
+                    [REACT_NATIVE_PACKAGES.REACT_NATIVE_WINDOWS],
+                );
+            return new RNProjectObserver(projectRootPath, versions);
+        };
         const project = await this.selectProject().catch(() => undefined);
+        const projectObserver =
+            project && (await createRNProjectObserver(project).catch(() => undefined));
         const shouldCheck = {
             [ValidationCategoryE.Expo]:
                 (await project
@@ -553,6 +570,7 @@ export class CommandPaletteHandler {
                     .getExponentHelper()
                     .isExpoManagedApp(false)
                     .catch(() => false)) || false,
+            [ValidationCategoryE.Windows]: projectObserver?.isRNWindowsProject || false,
         } as const;
 
         await runChecks(shouldCheck);
