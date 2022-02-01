@@ -400,12 +400,6 @@ export class TestApplicationSetupManager {
             vscodeManager.getSetupEnvironmentLogDir(),
         );
 
-        // We need to remove old Pods dependencies to avoid errors while preparing Hermes project
-        // This step may be redundant in newer versions of the RN for mac
-        const macOSPodsDir = path.join(project.getPlatformFolder("macos"), "Pods");
-        SmokeTestLogger.info(`*** Deleting macOS Pods directory: ${macOSPodsDir}`);
-        rimraf.sync(macOSPodsDir);
-
         this.copyPodfileFromSample(project, "macos");
         this.execPodInstallCommand(project, "macos");
     }
