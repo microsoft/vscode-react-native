@@ -70,7 +70,7 @@ async function test(): Promise<ValidationResultT> {
 const main: IValidation = {
     label,
     platform: ["win32"],
-    description: toLocale("VisualStudioCheckDescription", "Required for testing RNW apps"),
+    description: toLocale("VisualStudioCheckDescription", "Required for building RNW apps"),
     category: ValidationCategoryE.Windows,
     exec: test,
 };
