@@ -4,7 +4,6 @@
 import * as os from "os";
 import * as nls from "vscode-nls";
 import * as semver from "semver";
-import { createVersionErrorMessage } from "../util";
 import { IValidation, ValidationCategoryE, ValidationResultT } from "./types";
 
 nls.config({
@@ -25,7 +24,7 @@ async function test(): Promise<ValidationResultT> {
     }
     return {
         status: "failure",
-        comment: createVersionErrorMessage(label),
+        comment: `Unsupported version of Windows detected - ${version}. Please, update Windows in case of errors.`,
     };
 }
 

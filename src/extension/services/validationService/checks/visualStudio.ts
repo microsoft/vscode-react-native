@@ -32,13 +32,8 @@ async function test(): Promise<ValidationResultT> {
     const result = await executeCommand(command);
     if (result) {
         const versions = normizeStr(result.stdout).split("\n");
-        let valid = false;
-        for (const version of versions) {
-            if (version) {
-                if (semver.gtr(version, "16.5")) valid = true;
-            }
-        }
-        if (valid) {
+        const valid = (version: string) => semver.gtr(version, "16.5");
+        if (versions.some(valid)) {
             for (const comp of components) {
                 const pathToComponent = await executeCommand(
                     `${vswherePath}  -requires ${comp}  -property productPath`,
