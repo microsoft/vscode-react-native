@@ -30,7 +30,7 @@ async function test(): Promise<ValidationResultT> {
     ];
     const command = `${vswherePath} -property catalog_productDisplayVersion`;
     const result = await executeCommand(command);
-    if (result) {
+    if (result.stdout) {
         const versions = normizeStr(result.stdout).split("\n");
         const valid = (version: string) => semver.gtr(version, "16.5");
         if (versions.some(valid)) {
