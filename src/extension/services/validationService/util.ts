@@ -63,7 +63,12 @@ export const parseVersion = async (
     reg?: RegExp,
     prop: "stdout" | "stderr" = "stdout",
 ): Promise<semver.SemVer | null> => {
-    const data = await executeCommand(command);
+    const data = await executeCommand(command).catch(() => {});
+
+    if (!data) {
+        return null;
+    }
+
     const text = normizeStr(data[prop]);
     return semver.coerce(reg ? reg.exec(text)?.[1] : text);
 };
