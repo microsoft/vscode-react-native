@@ -274,7 +274,7 @@ export class TestApplicationSetupManager {
             `*** Getting latest React Native version supported by ${printIsLatest}Expo ${printSpecifiedMajorVersion}...`,
         );
 
-        const content = (await (await fetch("https://exp.host/--/api/v2/versions")).json()) as any;
+        const content = await (await fetch("https://exp.host/--/api/v2/versions")).json();
 
         if (content.sdkVersions) {
             let usesSdkVersion: string | undefined;
