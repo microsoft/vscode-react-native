@@ -26,6 +26,10 @@ interface IStrictUrl extends url.Url {
 export class ScriptImporter {
     public static DEBUGGER_WORKER_FILE_BASENAME = "debuggerWorker";
     public static DEBUGGER_WORKER_FILENAME = `${ScriptImporter.DEBUGGER_WORKER_FILE_BASENAME}.js`;
+
+    private static readonly REMOVE_SOURCE_URL_VERSION = "0.61.0";
+    private static readonly DEBUGGER_UI_SUPPORTED_VERSION = "0.50.0";
+
     private packagerAddress: string;
     private packagerPort: number;
     private sourcesStoragePath: string;
@@ -90,7 +94,10 @@ export class ScriptImporter {
                     <IStrictUrl>sourceMappingUrl,
                 );
                 if (
-                    semver.gte(rnVersions.reactNativeVersion, "0.61.0") ||
+                    semver.gte(
+                        rnVersions.reactNativeVersion,
+                        ScriptImporter.REMOVE_SOURCE_URL_VERSION,
+                    ) ||
                     ProjectVersionHelper.isCanaryVersion(rnVersions.reactNativeVersion)
                 ) {
                     scriptBody = this.sourceMapUtil.removeSourceURL(scriptBody);
@@ -142,7 +149,7 @@ export class ScriptImporter {
                 !semver.valid(
                     rnVersion,
                 ) /* Custom RN implementations should support new packager*/ ||
-                semver.gte(rnVersion, "0.50.0") ||
+                semver.gte(rnVersion, ScriptImporter.DEBUGGER_UI_SUPPORTED_VERSION) ||
                 ProjectVersionHelper.isCanaryVersion(rnVersion)
             ) {
                 newPackager = "debugger-ui/";

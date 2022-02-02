@@ -17,6 +17,7 @@ import { ProjectVersionHelper } from "../../common/projectVersionHelper";
 export class WindowsPlatform extends GeneralPlatform {
     protected static NO_PACKAGER_VERSION = "0.53.0";
 
+    private static readonly RNW_CLI_EXISTS_VERSION = "0.63.0";
     private static SUCCESS_PATTERNS = ["Starting the app"];
     private static FAILURE_PATTERNS: PatternToFailure[] = [
         {
@@ -73,7 +74,7 @@ export class WindowsPlatform extends GeneralPlatform {
             if (
                 semver.gte(
                     this.runOptions.reactNativeVersions.reactNativeWindowsVersion,
-                    "0.63.0",
+                    WindowsPlatform.RNW_CLI_EXISTS_VERSION,
                 ) ||
                 ProjectVersionHelper.isCanaryVersion(
                     this.runOptions.reactNativeVersions.reactNativeWindowsVersion,

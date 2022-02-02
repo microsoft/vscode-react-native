@@ -29,6 +29,8 @@ const localize = nls.loadMessageBundle();
 export class IOSPlatform extends GeneralMobilePlatform {
     public static DEFAULT_IOS_PROJECT_RELATIVE_PATH = "ios";
 
+    private static readonly NEW_RN_CLI_BEHAVIOUR_VERSION = "0.60.0";
+
     private plistBuddy = new PlistBuddy();
     private iosProjectRoot: string;
     private iosDebugModeManager: IOSDebugModeManager;
@@ -197,7 +199,10 @@ export class IOSPlatform extends GeneralMobilePlatform {
             // Since @react-native-community/cli@2.1.0 build output are hidden by default
             // we are using `--verbose` to show it as it contains `BUILD SUCCESSFUL` and other patterns
             if (
-                semver.gte(this.runOptions.reactNativeVersions.reactNativeVersion, "0.60.0") ||
+                semver.gte(
+                    this.runOptions.reactNativeVersions.reactNativeVersion,
+                    IOSPlatform.NEW_RN_CLI_BEHAVIOUR_VERSION,
+                ) ||
                 ProjectVersionHelper.isCanaryVersion(
                     this.runOptions.reactNativeVersions.reactNativeVersion,
                 )
@@ -395,7 +400,10 @@ export class IOSPlatform extends GeneralMobilePlatform {
         // Clone RUN_IOS_SUCCESS_PATTERNS to avoid its runtime mutation
         const successPatterns = [...IOSPlatform.RUN_IOS_SUCCESS_PATTERNS];
         if (!(await this.getTarget()).isVirtualTarget) {
-            if (semver.gte(version, "0.60.0") || ProjectVersionHelper.isCanaryVersion(version)) {
+            if (
+                semver.gte(version, IOSPlatform.NEW_RN_CLI_BEHAVIOUR_VERSION) ||
+                ProjectVersionHelper.isCanaryVersion(version)
+            ) {
                 successPatterns.push("success Installed the app on the device");
             } else {
                 successPatterns.push("INSTALLATION SUCCEEDED");
@@ -403,7 +411,10 @@ export class IOSPlatform extends GeneralMobilePlatform {
             return successPatterns;
         }
         const bundleId = await this.getBundleId();
-        if (semver.gte(version, "0.60.0") || ProjectVersionHelper.isCanaryVersion(version)) {
+        if (
+            semver.gte(version, IOSPlatform.NEW_RN_CLI_BEHAVIOUR_VERSION) ||
+            ProjectVersionHelper.isCanaryVersion(version)
+        ) {
             successPatterns.push(`Launching "${bundleId}"\nsuccess Successfully launched the app `);
         } else {
             successPatterns.push(`Launching ${bundleId}\n${bundleId}: `);
