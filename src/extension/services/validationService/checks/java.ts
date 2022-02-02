@@ -44,7 +44,7 @@ async function test(): Promise<ValidationResultT> {
     if (result.versionCompare === -1) {
         return {
             status: "partial-success",
-            comment: `Detected version is older than 1.8.0. Please install ${label} 8 in case of errors`,
+            comment: `Detected version is older than 1.8.0. Please install ${label} 8 or 11 in case of errors`,
         };
     }
 

@@ -17,7 +17,6 @@ import {
     generateRandomPortNumber,
 } from "../common/extensionHelper";
 import { ReactNativeCDPProxy } from "../cdp-proxy/reactNativeCDPProxy";
-
 import { MultipleLifetimesAppWorker } from "../debugger/appWorker";
 import { ProjectsStorage } from "./projectsStorage";
 import { PlatformResolver } from "./platformResolver";
