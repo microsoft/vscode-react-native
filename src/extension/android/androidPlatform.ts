@@ -14,6 +14,7 @@ import { ErrorHelper } from "../../common/error/errorHelper";
 import { notNullOrUndefined } from "../../common/utils";
 import { PromiseUtil } from "../../common/node/promise";
 import { GeneralMobilePlatform } from "../generalMobilePlatform";
+import { ProjectVersionHelper } from "../../common/projectVersionHelper";
 import { LogCatMonitorManager } from "./logCatMonitorManager";
 import { AndroidTarget, AndroidTargetManager } from "./androidTargetManager";
 import { AdbHelper, AndroidAPILevel } from "./adb";
@@ -164,6 +165,9 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                 semver.gte(
                     this.runOptions.reactNativeVersions.reactNativeVersion,
                     AndroidPlatform.NO_PACKAGER_VERSION,
+                ) ||
+                ProjectVersionHelper.isCanaryVersion(
+                    this.runOptions.reactNativeVersions.reactNativeVersion,
                 )
             ) {
                 this.runArguments.push("--no-packager");

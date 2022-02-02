@@ -416,12 +416,11 @@ export class Packager {
 
     private async findOpnPackage(ReactNativeVersion: string): Promise<string> {
         try {
-            const OPN_PACKAGE_NAME = semver.gte(
-                ReactNativeVersion,
-                Packager.RN_VERSION_WITH_OPEN_PKG,
-            )
-                ? Packager.OPN_PACKAGE_NAME.new
-                : Packager.OPN_PACKAGE_NAME.old;
+            const OPN_PACKAGE_NAME =
+                semver.gte(ReactNativeVersion, Packager.RN_VERSION_WITH_OPEN_PKG) ||
+                ProjectVersionHelper.isCanaryVersion(ReactNativeVersion)
+                    ? Packager.OPN_PACKAGE_NAME.new
+                    : Packager.OPN_PACKAGE_NAME.old;
 
             const nodeModulesRoot: string = AppLauncher.getNodeModulesRootByProjectPath(
                 this.projectPath,
@@ -469,12 +468,11 @@ export class Packager {
         const opnPackage = new Package(path.resolve(path.dirname(destnFilePath)));
 
         const packageJson = await opnPackage.parsePackageInformation();
-        const JS_INJECTOR_FILENAME = semver.gte(
-            ReactNativeVersion,
-            Packager.RN_VERSION_WITH_OPEN_PKG,
-        )
-            ? Packager.JS_INJECTOR_FILENAME.new
-            : Packager.JS_INJECTOR_FILENAME.old;
+        const JS_INJECTOR_FILENAME =
+            semver.gte(ReactNativeVersion, Packager.RN_VERSION_WITH_OPEN_PKG) ||
+            ProjectVersionHelper.isCanaryVersion(ReactNativeVersion)
+                ? Packager.JS_INJECTOR_FILENAME.new
+                : Packager.JS_INJECTOR_FILENAME.old;
         const JS_INJECTOR_FILEPATH = path.resolve(
             Packager.JS_INJECTOR_DIRPATH,
             JS_INJECTOR_FILENAME,
