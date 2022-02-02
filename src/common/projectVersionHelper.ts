@@ -222,6 +222,12 @@ export class ProjectVersionHelper {
         return version.toLowerCase().includes("error");
     }
 
+    // We should work with daily canary builds of react-native since those are also newer than 0.19,
+    // and allow earlier testing of the extension on newer builds of react-native
+    public static isCanaryVersion(version: string): boolean {
+        return semver.major(version) === 0 && semver.minor(version) === 0;
+    }
+
     public static processVersion(version: string, useSemverCoerce: boolean = true): string {
         try {
             return new URL(version) && `${this.SEMVER_INVALID}: URL`;

@@ -373,14 +373,12 @@ async function setupAndDispose<T extends ISetupableDisposable>(
     return setuptableDisposable;
 }
 
-// We should work with daily canary builds of react-native since those are also newer than 0.19,
-// and allow earlier testing of the extension on newer builds of react-native
-function isCanaryVersion(version: string): boolean {
-    return semver.major(version) === 0 && semver.minor(version) === 0;
-}
-
 function isSupportedVersion(version: string): boolean {
-    if (!!semver.valid(version) && !semver.gte(version, "0.19.0") && !isCanaryVersion(version)) {
+    if (
+        !!semver.valid(version) &&
+        !semver.gte(version, "0.19.0") &&
+        !ProjectVersionHelper.isCanaryVersion(version)
+    ) {
         TelemetryHelper.sendSimpleEvent("unsupportedRNVersion", { rnVersion: version });
         const shortMessage = localize(
             "ReactNativeToolsRequiresMoreRecentVersionThan019",
