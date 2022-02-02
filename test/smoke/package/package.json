@@ -34,7 +34,7 @@
     "portastic": "^1.0.1",
     "rimraf": "^2.6.1",
     "tree-kill": "^1.2.2",
-    "ts-node": "^10.2.1",
+    "ts-node": "10.4.0",
     "typescript": "4.4.2",
     "url-parse": "^1.5.2",
     "vinyl-fs": "^3.0.3",
