@@ -1,9 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import * as assert from "assert";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
-import { ReactNativeCommand, selectProject } from "./_util";
+import { ReactNativeCommand } from "./_util";
 
 export class StopPackager extends ReactNativeCommand {
     codeName = "stopPackager";
@@ -11,8 +12,7 @@ export class StopPackager extends ReactNativeCommand {
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToStopPackager);
 
     async baseFn() {
-        const appLauncher = await selectProject();
-
-        await appLauncher.getPackager().stop();
+        assert(this.project);
+        await this.project.getPackager().stop();
     }
 }

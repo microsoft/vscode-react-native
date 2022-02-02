@@ -41,6 +41,7 @@ export enum CommandStatus {
 }
 
 export class CommandExecutor {
+    // #wtf>
     public static ReactNativeCommand: string | null;
     private childProcess = new Node.ChildProcess();
 

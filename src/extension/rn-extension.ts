@@ -396,51 +396,51 @@ function isSupportedVersion(version: string): boolean {
 }
 
 function registerReactNativeCommandPaletteCommands(): void {
-    registerVSCodeCommand(
-        "launchAndroidSimulator",
-        ErrorHelper.getInternalError(InternalErrorCode.FailedToStartAndroidEmulator),
-        () => CommandPaletteHandler.launchAndroidEmulator(),
-    );
-    registerVSCodeCommand(
-        "launchIOSSimulator",
-        ErrorHelper.getInternalError(InternalErrorCode.FailedToStartIOSSimulator),
-        () => CommandPaletteHandler.launchIOSSimulator(),
-    );
-    registerVSCodeCommand(
-        "runAndroidSimulator",
-        ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnAndroid),
-        () => CommandPaletteHandler.runAndroid(TargetType.Simulator),
-    );
-    registerVSCodeCommand(
-        "runAndroidDevice",
-        ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnAndroid),
-        () => CommandPaletteHandler.runAndroid(TargetType.Device),
-    );
-    registerVSCodeCommand(
-        "runIosSimulator",
-        ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnIos),
-        () => CommandPaletteHandler.runIos(TargetType.Simulator),
-    );
-    registerVSCodeCommand(
-        "runIosDevice",
-        ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnIos),
-        () => CommandPaletteHandler.runIos(TargetType.Device),
-    );
-    registerVSCodeCommand(
-        "runExponent",
-        ErrorHelper.getInternalError(InternalErrorCode.FailedToRunExponent),
-        () => CommandPaletteHandler.runExponent(),
-    );
-    registerVSCodeCommand(
-        "runWindows",
-        ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnWindows),
-        () => CommandPaletteHandler.runWindows(),
-    );
-    registerVSCodeCommand(
-        "runMacOS",
-        ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnMacOS),
-        () => CommandPaletteHandler.runMacOS(),
-    );
+    // registerVSCodeCommand(
+    //     "launchAndroidSimulator",
+    //     ErrorHelper.getInternalError(InternalErrorCode.FailedToStartAndroidEmulator),
+    //     () => CommandPaletteHandler.launchAndroidEmulator(),
+    // );
+    // registerVSCodeCommand(
+    //     "launchIOSSimulator",
+    //     ErrorHelper.getInternalError(InternalErrorCode.FailedToStartIOSSimulator),
+    //     () => CommandPaletteHandler.launchIOSSimulator(),
+    // );
+    // registerVSCodeCommand(
+    //     "runAndroidSimulator",
+    //     ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnAndroid),
+    //     () => CommandPaletteHandler.runAndroid(TargetType.Simulator),
+    // );
+    // registerVSCodeCommand(
+    //     "runAndroidDevice",
+    //     ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnAndroid),
+    //     () => CommandPaletteHandler.runAndroid(TargetType.Device),
+    // );
+    // registerVSCodeCommand(
+    //     "runIosSimulator",
+    //     ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnIos),
+    //     () => CommandPaletteHandler.runIos(TargetType.Simulator),
+    // );
+    // registerVSCodeCommand(
+    //     "runIosDevice",
+    //     ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnIos),
+    //     () => CommandPaletteHandler.runIos(TargetType.Device),
+    // );
+    // registerVSCodeCommand(
+    //     "runExponent",
+    //     ErrorHelper.getInternalError(InternalErrorCode.FailedToRunExponent),
+    //     () => CommandPaletteHandler.runExponent(),
+    // );
+    // registerVSCodeCommand(
+    //     "runWindows",
+    //     ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnWindows),
+    //     () => CommandPaletteHandler.runWindows(),
+    // );
+    // registerVSCodeCommand(
+    //     "runMacOS",
+    //     ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnMacOS),
+    //     () => CommandPaletteHandler.runMacOS(),
+    // );
     // registerVSCodeCommand(
     //     "startPackager",
     //     ErrorHelper.getInternalError(InternalErrorCode.FailedToStartPackager),
@@ -456,60 +456,60 @@ function registerReactNativeCommandPaletteCommands(): void {
     //     ErrorHelper.getInternalError(InternalErrorCode.FailedToRestartPackager),
     //     () => CommandPaletteHandler.restartPackager(),
     // );
-    registerVSCodeCommand(
-        "publishToExpHost",
-        ErrorHelper.getInternalError(InternalErrorCode.FailedToPublishToExpHost),
-        () => CommandPaletteHandler.publishToExpHost(),
-    );
-    registerVSCodeCommand(
-        "startLogCatMonitor",
-        ErrorHelper.getInternalError(InternalErrorCode.AndroidCouldNotStartLogCatMonitor),
-        () => CommandPaletteHandler.startLogCatMonitor(),
-    );
-    registerVSCodeCommand(
-        "stopLogCatMonitor",
-        ErrorHelper.getInternalError(InternalErrorCode.AndroidCouldNotStopLogCatMonitor),
-        () => CommandPaletteHandler.stopLogCatMonitor(),
-    );
-    registerVSCodeCommand(
-        "startNetworkInspector",
-        ErrorHelper.getInternalError(InternalErrorCode.CouldNotStartNetworkInspector),
-        () => CommandPaletteHandler.startNetworkInspector(),
-    );
-    registerVSCodeCommand(
-        "stopNetworkInspector",
-        ErrorHelper.getInternalError(InternalErrorCode.CouldNotStopNetworkInspector),
-        () => CommandPaletteHandler.stopNetworkInspector(),
-    );
-    registerVSCodeCommand(
-        "showDevMenu",
-        ErrorHelper.getInternalError(
-            InternalErrorCode.CommandFailed,
-            localize("ReactNativeShowDevMenu", "React Native: Show Developer Menu for app"),
-        ),
-        () => CommandPaletteHandler.showDevMenu(),
-    );
-    registerVSCodeCommand(
-        "reloadApp",
-        ErrorHelper.getInternalError(
-            InternalErrorCode.CommandFailed,
-            localize("ReactNativeReloadApp", "React Native: Reload App"),
-        ),
-        () => CommandPaletteHandler.reloadApp(),
-    );
-    registerVSCodeCommand(
-        "runInspector",
-        ErrorHelper.getInternalError(
-            InternalErrorCode.CommandFailed,
-            localize("ReactNativeRunElementInspector", "React Native: Run Element Inspector"),
-        ),
-        () => CommandPaletteHandler.runElementInspector(),
-    );
-    registerVSCodeCommand(
-        "testDevEnvironment",
-        ErrorHelper.getInternalError(InternalErrorCode.FailedToTestDevEnvironment),
-        () => CommandPaletteHandler.testDevEnvironment(),
-    );
+    // registerVSCodeCommand(
+    //     "publishToExpHost",
+    //     ErrorHelper.getInternalError(InternalErrorCode.FailedToPublishToExpHost),
+    //     () => CommandPaletteHandler.publishToExpHost(),
+    // );
+    // registerVSCodeCommand(
+    //     "startLogCatMonitor",
+    //     ErrorHelper.getInternalError(InternalErrorCode.AndroidCouldNotStartLogCatMonitor),
+    //     () => CommandPaletteHandler.startLogCatMonitor(),
+    // );
+    // registerVSCodeCommand(
+    //     "stopLogCatMonitor",
+    //     ErrorHelper.getInternalError(InternalErrorCode.AndroidCouldNotStopLogCatMonitor),
+    //     () => CommandPaletteHandler.stopLogCatMonitor(),
+    // );
+    // registerVSCodeCommand(
+    //     "startNetworkInspector",
+    //     ErrorHelper.getInternalError(InternalErrorCode.CouldNotStartNetworkInspector),
+    //     () => CommandPaletteHandler.startNetworkInspector(),
+    // );
+    // registerVSCodeCommand(
+    //     "stopNetworkInspector",
+    //     ErrorHelper.getInternalError(InternalErrorCode.CouldNotStopNetworkInspector),
+    //     () => CommandPaletteHandler.stopNetworkInspector(),
+    // );
+    // registerVSCodeCommand(
+    //     "showDevMenu",
+    //     ErrorHelper.getInternalError(
+    //         InternalErrorCode.CommandFailed,
+    //         localize("ReactNativeShowDevMenu", "React Native: Show Developer Menu for app"),
+    //     ),
+    //     () => CommandPaletteHandler.showDevMenu(),
+    // );
+    // registerVSCodeCommand(
+    //     "reloadApp",
+    //     ErrorHelper.getInternalError(
+    //         InternalErrorCode.CommandFailed,
+    //         localize("ReactNativeReloadApp", "React Native: Reload App"),
+    //     ),
+    //     () => CommandPaletteHandler.reloadApp(),
+    // );
+    // registerVSCodeCommand(
+    //     "runInspector",
+    //     ErrorHelper.getInternalError(
+    //         InternalErrorCode.CommandFailed,
+    //         localize("ReactNativeRunElementInspector", "React Native: Run Element Inspector"),
+    //     ),
+    //     () => CommandPaletteHandler.runElementInspector(),
+    // );
+    // registerVSCodeCommand(
+    //     "testDevEnvironment",
+    //     ErrorHelper.getInternalError(InternalErrorCode.FailedToTestDevEnvironment),
+    //     () => CommandPaletteHandler.testDevEnvironment(),
+    // );
 }
 
 function registerReactNativeSpecialCommands(): void {
