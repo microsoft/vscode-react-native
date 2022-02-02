@@ -6,6 +6,7 @@ import * as fs from "fs";
 import * as semver from "semver";
 import * as rimraf from "rimraf";
 import * as utilities from "./utilities";
+import fetch from "node-fetch";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
 import { SmokeTestLogger } from "./smokeTestLogger";
 import { vscodeManager } from "../main";
@@ -272,63 +273,42 @@ export class TestApplicationSetupManager {
         SmokeTestLogger.info(
             `*** Getting latest React Native version supported by ${printIsLatest}Expo ${printSpecifiedMajorVersion}...`,
         );
-        return new Promise((resolve, reject) => {
-            utilities.getContents(
-                "https://exp.host/--/api/v2/versions",
-                null,
-                null,
-                function (error, versionsContent) {
-                    if (error) {
-                        reject(error);
+
+        const content = await (await fetch("https://exp.host/--/api/v2/versions")).json();
+
+        if (content.sdkVersions) {
+            let usesSdkVersion: string | undefined;
+            if (expoSdkMajorVersion) {
+                usesSdkVersion = Object.keys(content.sdkVersions).find(
+                    version => semver.major(version) === parseInt(expoSdkMajorVersion),
+                );
+                if (!usesSdkVersion) {
+                    SmokeTestLogger.warn(
+                        `*** Сould not find the version of Expo sdk matching the specified version - ${printSpecifiedMajorVersion}`,
+                    );
+                }
+            }
+            if (!usesSdkVersion) {
+                usesSdkVersion = Object.keys(content.sdkVersions).sort((ver1, ver2) => {
+                    if (semver.lt(ver1, ver2)) {
+                        return 1;
+                    } else if (semver.gt(ver1, ver2)) {
+                        return -1;
                     }
-                    try {
-                        const content = JSON.parse(versionsContent);
-                        if (content.sdkVersions) {
-                            let usesSdkVersion: string | undefined;
-                            if (expoSdkMajorVersion) {
-                                usesSdkVersion = Object.keys(content.sdkVersions).find(
-                                    version =>
-                                        semver.major(version) === parseInt(expoSdkMajorVersion),
-                                );
-                                if (!usesSdkVersion) {
-                                    SmokeTestLogger.warn(
-                                        `*** Сould not find the version of Expo sdk matching the specified version - ${printSpecifiedMajorVersion}`,
-                                    );
-                                }
-                            }
-                            if (!usesSdkVersion) {
-                                usesSdkVersion = Object.keys(content.sdkVersions).sort(
-                                    (ver1, ver2) => {
-                                        if (semver.lt(ver1, ver2)) {
-                                            return 1;
-                                        } else if (semver.gt(ver1, ver2)) {
-                                            return -1;
-                                        }
-                                        return 0;
-                                    },
-                                )[0];
-                            }
-                            if (content.sdkVersions[usesSdkVersion]) {
-                                if (
-                                    content.sdkVersions[usesSdkVersion].facebookReactNativeVersion
-                                ) {
-                                    SmokeTestLogger.success(
-                                        `*** Latest React Native version supported by Expo ${printSpecifiedMajorVersion}: ${content.sdkVersions[usesSdkVersion].facebookReactNativeVersion}`,
-                                    );
-                                    resolve(
-                                        content.sdkVersions[usesSdkVersion]
-                                            .facebookReactNativeVersion as string,
-                                    );
-                                }
-                            }
-                        }
-                        reject("Received object is incorrect");
-                    } catch (error) {
-                        reject(error);
-                    }
-                },
-            );
-        });
+                    return 0;
+                })[0];
+            }
+            if (
+                content.sdkVersions[usesSdkVersion] &&
+                content.sdkVersions[usesSdkVersion].facebookReactNativeVersion
+            ) {
+                SmokeTestLogger.success(
+                    `*** Latest React Native version supported by Expo ${printSpecifiedMajorVersion}: ${content.sdkVersions[usesSdkVersion].facebookReactNativeVersion}`,
+                );
+                return content.sdkVersions[usesSdkVersion].facebookReactNativeVersion as string;
+            }
+        }
+        throw new Error("Received object is incorrect");
     }
 
     private prepareWithCacheMiddleware(
@@ -399,12 +379,6 @@ export class TestApplicationSetupManager {
             { cwd: project.workspaceDirectory },
             vscodeManager.getSetupEnvironmentLogDir(),
         );
-
-        // We need to remove old Pods dependencies to avoid errors while preparing Hermes project
-        // This step may be redundant in newer versions of the RN for mac
-        const macOSPodsDir = path.join(project.getPlatformFolder("macos"), "Pods");
-        SmokeTestLogger.info(`*** Deleting macOS Pods directory: ${macOSPodsDir}`);
-        rimraf.sync(macOSPodsDir);
 
         this.copyPodfileFromSample(project, "macos");
         this.execPodInstallCommand(project, "macos");
