@@ -39,7 +39,7 @@
     "url-parse": "^1.5.2",
     "vinyl-fs": "^3.0.3",
     "vinyl-source-stream": "^1.1.0",
-    "webdriverio": "7.16.14",
+    "webdriverio": "7.14.1",
     "xdl": "59.2.24"
   },
   "resolutions": {
