@@ -298,13 +298,14 @@ export class TestApplicationSetupManager {
                     return 0;
                 })[0];
             }
-            if (content.sdkVersions[usesSdkVersion]) {
-                if (content.sdkVersions[usesSdkVersion].facebookReactNativeVersion) {
-                    SmokeTestLogger.success(
-                        `*** Latest React Native version supported by Expo ${printSpecifiedMajorVersion}: ${content.sdkVersions[usesSdkVersion].facebookReactNativeVersion}`,
-                    );
-                    return content.sdkVersions[usesSdkVersion].facebookReactNativeVersion as string;
-                }
+            if (
+                content.sdkVersions[usesSdkVersion] &&
+                content.sdkVersions[usesSdkVersion].facebookReactNativeVersion
+            ) {
+                SmokeTestLogger.success(
+                    `*** Latest React Native version supported by Expo ${printSpecifiedMajorVersion}: ${content.sdkVersions[usesSdkVersion].facebookReactNativeVersion}`,
+                );
+                return content.sdkVersions[usesSdkVersion].facebookReactNativeVersion as string;
             }
         }
         throw new Error("Received object is incorrect");
