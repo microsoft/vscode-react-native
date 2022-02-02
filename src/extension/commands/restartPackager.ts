@@ -1,11 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import * as assert from "assert";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
 import { SettingsHelper } from "../settingsHelper";
-import { ReactNativeCommand, selectProject } from "./_util";
+import { ReactNativeCommand } from "./_util";
 
 export class RestartPackager extends ReactNativeCommand {
     codeName = "restartPackager";
@@ -13,13 +14,13 @@ export class RestartPackager extends ReactNativeCommand {
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToRestartPackager);
 
     async baseFn() {
-        const appLauncher = await selectProject();
-        const nodeModulesRoot = appLauncher.getOrUpdateNodeModulesRoot();
+        assert(this.project);
+        const nodeModulesRoot = this.project.getOrUpdateNodeModulesRoot();
         // #todo> why is this required?
         await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(nodeModulesRoot);
 
-        return await appLauncher
+        return await this.project
             .getPackager()
-            .restart(SettingsHelper.getPackagerPort(appLauncher.getWorkspaceFolderUri().fsPath));
+            .restart(SettingsHelper.getPackagerPort(this.project.getWorkspaceFolderUri().fsPath));
     }
 }
