@@ -19,7 +19,6 @@ nls.config({
 })();
 const localize = nls.loadMessageBundle();
 
-// #todo> wtf
 export class ReloadApp extends Command {
     codeName = "reloadApp";
     label = "ReloadApp";
@@ -38,7 +37,6 @@ export class ReloadApp extends Command {
             },
         );
 
-        // #todo> why no condition here
         androidPlatform.reloadApp().catch(() => {});
 
         if (process.platform === "win32") {
