@@ -1,3 +1,11 @@
+## 1.9.1
+* Fixed debugging issues caused by incorrect sourcemap URL detection if some additional packages were installed, such as `react-native-cn-quill` [#1730](https://github.com/microsoft/vscode-react-native/pull/1730)
+* Fixed extension's debugger behavior in case another debugger has connected to React Native iOS Hermes application [#1729](https://github.com/microsoft/vscode-react-native/pull/1729)
+* Implemented support for projects with React Native canary builds, thanks to [Andrew Coates(@acoates-ms)](https://github.com/acoates-ms) [#1734](https://github.com/microsoft/vscode-react-native/pull/1734), [#1736](https://github.com/microsoft/vscode-react-native/pull/1736)
+* Implemented user's development environment checking for common problems for React Native Windows projects [#1733](https://github.com/microsoft/vscode-react-native/pull/1733)
+* Improved extension security [#1739](https://github.com/microsoft/vscode-react-native/pull/1739)
+
+
 ## 1.9.0
 * Added the `Check development environment configuration` Command Palette command intended for checking user's React Native development environment for common problems [#1702](https://github.com/microsoft/vscode-react-native/pull/1702)
 * Added `env` and `envFile` paramenters to attach debugging configurations [#1707](https://github.com/microsoft/vscode-react-native/pull/1707)
