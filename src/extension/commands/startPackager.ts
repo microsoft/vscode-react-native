@@ -5,7 +5,7 @@ import * as assert from "assert";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
-import { ReactNativeCommand } from "./_util";
+import { ReactNativeCommand } from "./util/reactNativeCommand";
 
 export class StartPackager extends ReactNativeCommand {
     codeName = "startPackager";

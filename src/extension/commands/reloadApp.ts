@@ -10,7 +10,8 @@ import { PlatformType } from "../launchArgs";
 import { AndroidPlatform } from "../android/androidPlatform";
 import { IOSPlatform } from "../ios/iOSPlatform";
 import { WindowsPlatform } from "../windows/windowsPlatform";
-import { Command, getRunOptions } from "./_util";
+import { getRunOptions } from "./util";
+import { Command } from "./util/command";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,

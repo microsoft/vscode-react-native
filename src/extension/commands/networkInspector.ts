@@ -13,7 +13,7 @@ import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { NetworkInspectorServer } from "../networkInspector/networkInspectorServer";
 import { CONTEXT_VARIABLES_NAMES } from "../../common/contextVariablesNames";
 import { InspectorViewFactory } from "../networkInspector/views/inspectorViewFactory";
-import { Command } from "./_util";
+import { Command } from "./util/command";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,

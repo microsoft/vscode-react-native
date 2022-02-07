@@ -10,7 +10,8 @@ import { AppLauncher } from "../appLauncher";
 import { TargetType } from "../generalPlatform";
 import { IOSPlatform } from "../ios/iOSPlatform";
 import { PlatformType } from "../launchArgs";
-import { getRunOptions, ReactNativeCommand } from "./_util";
+import { getRunOptions } from "./util";
+import { ReactNativeCommand } from "./util/reactNativeCommand";
 
 abstract class RunIos extends ReactNativeCommand {
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnIos);

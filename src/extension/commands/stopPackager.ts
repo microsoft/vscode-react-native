@@ -4,7 +4,7 @@
 import * as assert from "assert";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
-import { ReactNativeCommand } from "./_util";
+import { ReactNativeCommand } from "./util/reactNativeCommand";
 
 export class StopPackager extends ReactNativeCommand {
     codeName = "stopPackager";

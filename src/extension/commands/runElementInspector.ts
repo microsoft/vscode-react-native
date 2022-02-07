@@ -9,7 +9,7 @@ import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { TipNotificationService } from "../services/tipsNotificationsService/tipsNotificationService";
 import { HostPlatform } from "../../common/hostPlatform";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
-import { Command } from "./_util";
+import { Command } from "./util/command";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,

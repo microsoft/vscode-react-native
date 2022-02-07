@@ -10,7 +10,8 @@ import { TargetPlatformHelper } from "../../common/targetPlatformHelper";
 import { PlatformType } from "../launchArgs";
 import { MacOSPlatform } from "../macos/macOSPlatform";
 import { TipNotificationService } from "../services/tipsNotificationsService/tipsNotificationService";
-import { getRunOptions, ReactNativeCommand } from "./_util";
+import { getRunOptions } from "./util";
+import { ReactNativeCommand } from "./util/reactNativeCommand";
 
 export class RunMacOS extends ReactNativeCommand {
     codeName = "runMacOS";

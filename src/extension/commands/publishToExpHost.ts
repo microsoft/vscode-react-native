@@ -9,7 +9,8 @@ import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import * as XDL from "../exponent/xdlInterface";
 import { RunExponent } from "./runExponent";
-import { loginToExponent, ReactNativeCommand } from "./_util";
+import { loginToExponent } from "./util";
+import { ReactNativeCommand } from "./util/reactNativeCommand";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,

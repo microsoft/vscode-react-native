@@ -10,7 +10,8 @@ import { TargetPlatformHelper } from "../../common/targetPlatformHelper";
 import { PlatformType } from "../launchArgs";
 import { TipNotificationService } from "../services/tipsNotificationsService/tipsNotificationService";
 import { WindowsPlatform } from "../windows/windowsPlatform";
-import { getRunOptions, ReactNativeCommand } from "./_util";
+import { getRunOptions } from "./util";
+import { ReactNativeCommand } from "./util/reactNativeCommand";
 
 export class RunWindows extends ReactNativeCommand {
     codeName = "runWindows";

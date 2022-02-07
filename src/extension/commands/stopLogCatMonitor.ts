@@ -7,7 +7,7 @@ import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { LogCatMonitorManager } from "../android/logCatMonitorManager";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
-import { Command } from "./_util";
+import { Command } from "./util/command";
 
 export class StopLogCatMonitor extends Command {
     codeName = "stopLogCatMonitor";

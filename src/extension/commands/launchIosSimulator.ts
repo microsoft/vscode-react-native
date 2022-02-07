@@ -5,7 +5,7 @@ import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { TargetType } from "../generalPlatform";
 import { IOSTargetManager } from "../ios/iOSTargetManager";
-import { Command } from "./_util";
+import { Command } from "./util/command";
 
 // #todo> codeName differs from Class Name
 export class LaunchIOSSimulator extends Command {

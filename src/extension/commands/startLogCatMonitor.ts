@@ -13,7 +13,7 @@ import { LogCatMonitorManager } from "../android/logCatMonitorManager";
 import { TipNotificationService } from "../services/tipsNotificationsService/tipsNotificationService";
 import { SettingsHelper } from "../settingsHelper";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
-import { Command } from "./_util";
+import { Command } from "./util/command";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,

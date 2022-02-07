@@ -10,7 +10,8 @@ import { AndroidPlatform } from "../android/androidPlatform";
 import { AppLauncher } from "../appLauncher";
 import { TargetType } from "../generalPlatform";
 import { PlatformType } from "../launchArgs";
-import { getRunOptions, ReactNativeCommand } from "./_util";
+import { getRunOptions } from "./util";
+import { ReactNativeCommand } from "./util/reactNativeCommand";
 
 abstract class RunAndroid extends ReactNativeCommand {
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnAndroid);

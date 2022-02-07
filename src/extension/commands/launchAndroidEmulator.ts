@@ -7,7 +7,7 @@ import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { AdbHelper } from "../android/adb";
 import { AndroidTargetManager } from "../android/androidTargetManager";
 import { TargetType } from "../generalPlatform";
-import { Command } from "./_util";
+import { Command } from "./util/command";
 
 // #todo> codeName differs from Class Name
 export class LaunchAndroidEmulator extends Command {

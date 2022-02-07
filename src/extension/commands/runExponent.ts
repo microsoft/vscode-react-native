@@ -7,7 +7,8 @@ import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
 import { ExponentPlatform } from "../exponent/exponentPlatform";
 import { PlatformType } from "../launchArgs";
-import { getRunOptions, loginToExponent, ReactNativeCommand } from "./_util";
+import { getRunOptions, loginToExponent } from "./util";
+import { ReactNativeCommand } from "./util/reactNativeCommand";
 
 export class RunExponent extends ReactNativeCommand {
     codeName = "runExponent";
