@@ -20,6 +20,7 @@
   "reactNative.command.showDevMenu.title": "Show Dev Menu",
   "reactNative.command.reloadApp.title": "Reload App",
   "reactNative.command.runInspector.title": "Run Element Inspector",
+  "reactNative.command.stopInspector.title": "Stop Element Inspector",
   "reactNative.command.startLogCatMonitor.title": "Run React Native LogCat Monitor",
   "reactNative.command.stopLogCatMonitor.title": "Stop React Native LogCat Monitor",
   "reactNative.command.startNetworkInspector.title": "Run Network Inspector",
