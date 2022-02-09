@@ -18,6 +18,7 @@
         "noImplicitThis": true,
         "noImplicitReturns": true,
         "noEmitOnError": true,
+        "noUnusedLocals": true,
         "noFallthroughCasesInSwitch": true,
         "forceConsistentCasingInFileNames": true,
         "skipLibCheck": true,
