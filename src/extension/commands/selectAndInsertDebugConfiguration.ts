@@ -2,15 +2,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as assert from "assert";
+import * as vscode from "vscode";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
-import { AdbHelper } from "../android/adb";
-import { AndroidTargetManager } from "../android/androidTargetManager";
-import { TargetType } from "../generalPlatform";
-import { Command } from "./util/command";
-import * as vscode from "vscode";
 import { debugConfigProvider } from "../rn-extension";
 import { LaunchJsonCompletionHelper } from "../../common/launchJsonCompletionHelper";
+import { Command } from "./util/command";
 
 export class SelectAndInsertDebugConfiguration extends Command {
     codeName = "selectAndInsertDebugConfiguration";

@@ -3,21 +3,15 @@
 
 import * as assert from "assert";
 import * as nls from "vscode-nls";
+import * as vscode from "vscode";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
-import { ProjectVersionHelper, REACT_NATIVE_PACKAGES } from "../../common/projectVersionHelper";
-import { PlatformType } from "../launchArgs";
-import { AndroidPlatform } from "../android/androidPlatform";
-import { IOSPlatform } from "../ios/iOSPlatform";
-import { WindowsPlatform } from "../windows/windowsPlatform";
-import { getRunOptions } from "./util";
-import { Command } from "./util/command";
 import { AppLauncher } from "../appLauncher";
 import {
     debugConfigurations,
     DEBUG_CONFIGURATION_NAMES,
 } from "../debuggingConfiguration/debugConfigTypesAndConstants";
-import * as vscode from "vscode";
+import { Command } from "./util/command";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,

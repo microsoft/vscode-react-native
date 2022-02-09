@@ -17,7 +17,6 @@ import * as semver from "semver";
 import * as nls from "vscode-nls";
 import { EntryPointHandler, ProcessType } from "../common/entryPointHandler";
 import { ErrorHelper } from "../common/error/errorHelper";
-import { InternalError } from "../common/error/internalError";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { ProjectVersionHelper } from "../common/projectVersionHelper";
 import { Telemetry } from "../common/telemetry";
@@ -29,16 +28,12 @@ import {
     getExtensionName,
     findFileInFolderHierarchy,
 } from "../common/extensionHelper";
-import { CommandPaletteHandler } from "./commandPaletteHandler";
 import { SettingsHelper } from "./settingsHelper";
 import { ReactDirManager } from "./reactDirManager";
 import { OutputChannelLogger } from "./log/OutputChannelLogger";
 import { ReactNativeDebugConfigProvider } from "./debuggingConfiguration/reactNativeDebugConfigProvider";
 import { ReactNativeDebugDynamicConfigProvider } from "./debuggingConfiguration/reactNativeDebugDynamicConfigProvider";
-import {
-    DEBUG_CONFIGURATION_NAMES,
-    DEBUG_TYPES,
-} from "./debuggingConfiguration/debugConfigTypesAndConstants";
+import { DEBUG_TYPES } from "./debuggingConfiguration/debugConfigTypesAndConstants";
 import {
     LaunchJsonCompletionProvider,
     JsonLanguages,
@@ -51,7 +46,6 @@ import { ExtensionConfigManager } from "./extensionConfigManager";
 import { TipNotificationService } from "./services/tipsNotificationsService/tipsNotificationService";
 import { SurveyService } from "./services/surveyService/surveyService";
 import { RNProjectObserver } from "./rnProjectObserver";
-import { TargetType } from "./generalPlatform";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -65,8 +59,6 @@ const entryPointHandler = new EntryPointHandler(ProcessType.Extension, outputCha
 // #todo>
 // #review> are we sure we need null here and this is the correct place for this?
 export let debugConfigProvider: ReactNativeDebugConfigProvider | null;
-let dynamicDebugConfigProvider: ReactNativeDebugDynamicConfigProvider | null;
-
 const APP_NAME = "react-native-tools";
 
 interface ISetupableDisposable extends vscode.Disposable {
@@ -120,8 +112,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         Telemetry.APPINSIGHTS_INSTRUMENTATIONKEY,
     );
     const configProvider = (debugConfigProvider = new ReactNativeDebugConfigProvider());
-    const dymConfigProvider = (dynamicDebugConfigProvider =
-        new ReactNativeDebugDynamicConfigProvider());
+    const dymConfigProvider = new ReactNativeDebugDynamicConfigProvider();
     const completionItemProviderInst = new LaunchJsonCompletionProvider();
     const workspaceFolders: readonly vscode.WorkspaceFolder[] | undefined =
         vscode.workspace.workspaceFolders;
@@ -241,7 +232,6 @@ export function deactivate(): Promise<void> {
             ErrorHelper.getInternalError(InternalErrorCode.FailedToStopPackagerOnExit),
             async () => {
                 debugConfigProvider = null;
-                dynamicDebugConfigProvider = null;
 
                 // #review> now it's gonna send more telemetry than previous solution
                 // and relation to command is less clear. Not sure how to better approach this
