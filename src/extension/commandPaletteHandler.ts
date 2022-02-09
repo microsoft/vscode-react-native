@@ -107,21 +107,19 @@ export class CommandPaletteHandler {
     //     );
     // }
 
-    // do not remove
-    public static async stopAllPackagers(): Promise<void> {
-        const keys = Object.keys(ProjectsStorage.projectsCache);
-        const promises: Promise<void>[] = [];
-        keys.forEach(key => {
-            const appLauncher = ProjectsStorage.projectsCache[key];
-            promises.push(
-                this.executeCommandInContext("stopPackager", appLauncher.getWorkspaceFolder(), () =>
-                    appLauncher.getPackager().stop().then(),
-                ),
-            );
-        });
+    // public static async stopAllPackagers(): Promise<void> {
+    //     const keys = Object.keys(ProjectsStorage.projectsCache);
+    //     const promises = keys.map(key => {
+    //         const appLauncher = ProjectsStorage.projectsCache[key];
+    //         return this.executeCommandInContext(
+    //             "stopPackager",
+    //             appLauncher.getWorkspaceFolder(),
+    //             () => appLauncher.getPackager().stop(),
+    //         );
+    //     });
 
-        await Promise.all(promises);
-    }
+    //     await Promise.all(promises);
+    // }
 
     /**
      * Restarts the React Native packager
@@ -425,12 +423,11 @@ export class CommandPaletteHandler {
     //     }
     // }
 
-    // #todo>
-    public static stopElementInspector(): void {
-        return CommandPaletteHandler.elementInspector
-            ? CommandPaletteHandler.elementInspector.kill()
-            : undefined;
-    }
+    // public static stopElementInspector(): void {
+    //     return CommandPaletteHandler.elementInspector
+    //         ? CommandPaletteHandler.elementInspector.kill()
+    //         : undefined;
+    // }
 
     // public static async startNetworkInspector(): Promise<void> {
     //     if (!CommandPaletteHandler.networkInspectorModule) {
@@ -628,22 +625,22 @@ export class CommandPaletteHandler {
         }
     }
 
-    public static async startDebuggingScenario(debugConfigName: string): Promise<void> {
-        const appLauncher = await this.selectProject();
-        const debugConfig = debugConfigurations[debugConfigName];
-        if (debugConfig) {
-            debugConfig.isDynamic = true;
-            void vscode.debug.startDebugging(appLauncher.getWorkspaceFolder(), debugConfig);
-        } else {
-            throw new Error(
-                localize(
-                    "CouldNotFindPredefinedDebugConfig",
-                    "Couldn't find predefined debugging configuration by name '{0}'",
-                    debugConfigName,
-                ),
-            );
-        }
-    }
+    // public static async startDebuggingScenario(debugConfigName: string): Promise<void> {
+    //     const appLauncher = await this.selectProject();
+    //     const debugConfig = debugConfigurations[debugConfigName];
+    //     if (debugConfig) {
+    //         debugConfig.isDynamic = true;
+    //         void vscode.debug.startDebugging(appLauncher.getWorkspaceFolder(), debugConfig);
+    //     } else {
+    //         throw new Error(
+    //             localize(
+    //                 "CouldNotFindPredefinedDebugConfig",
+    //                 "Couldn't find predefined debugging configuration by name '{0}'",
+    //                 debugConfigName,
+    //             ),
+    //         );
+    //     }
+    // }
 
     // private static async trustedWorkspaceRequired(
     //     projectRoot: string,
@@ -658,67 +655,67 @@ export class CommandPaletteHandler {
     //     }
     // }
 
-    private static createPlatform(
-        appLauncher: AppLauncher,
-        platform: PlatformType,
-        platformClass: typeof GeneralPlatform,
-        target?: TargetType,
-    ): GeneralPlatform {
-        const runOptions = CommandPaletteHandler.getRunOptions(appLauncher, platform, target);
-        // #todo> why is this required?
-        runOptions.nodeModulesRoot = appLauncher.getOrUpdateNodeModulesRoot();
+    // private static createPlatform(
+    //     appLauncher: AppLauncher,
+    //     platform: PlatformType,
+    //     platformClass: typeof GeneralPlatform,
+    //     target?: TargetType,
+    // ): GeneralPlatform {
+    //     const runOptions = CommandPaletteHandler.getRunOptions(appLauncher, platform, target);
+    //     // #todo> why is this required?
+    //     runOptions.nodeModulesRoot = appLauncher.getOrUpdateNodeModulesRoot();
 
-        return new platformClass(runOptions, {
-            packager: appLauncher.getPackager(),
-        });
-    }
+    //     return new platformClass(runOptions, {
+    //         packager: appLauncher.getPackager(),
+    //     });
+    // }
 
-    private static async runRestartPackagerCommandAndUpdateStatus(
-        appLauncher: AppLauncher,
-    ): Promise<void> {
-        await appLauncher
-            .getPackager()
-            .restart(SettingsHelper.getPackagerPort(appLauncher.getWorkspaceFolderUri().fsPath));
-    }
+    // private static async runRestartPackagerCommandAndUpdateStatus(
+    //     appLauncher: AppLauncher,
+    // ): Promise<void> {
+    //     await appLauncher
+    //         .getPackager()
+    //         .restart(SettingsHelper.getPackagerPort(appLauncher.getWorkspaceFolderUri().fsPath));
+    // }
 
-    /**
-     * Ensures that we are in a React Native project and then executes the operation
-     * Otherwise, displays an error message banner
-     * {operation} - a function that performs the expected operation
-     */
-    private static async executeCommandInContext(
-        rnCommand: string,
-        workspaceFolder: vscode.WorkspaceFolder,
-        operation: () => Promise<void>,
-    ): Promise<void> {
-        const extProps = {
-            platform: {
-                value: CommandPaletteHandler.getPlatformByCommandName(rnCommand),
-                isPii: false,
-            },
-        };
+    // /**
+    //  * Ensures that we are in a React Native project and then executes the operation
+    //  * Otherwise, displays an error message banner
+    //  * {operation} - a function that performs the expected operation
+    //  */
+    // private static async executeCommandInContext(
+    //     rnCommand: string,
+    //     workspaceFolder: vscode.WorkspaceFolder,
+    //     operation: () => Promise<void>,
+    // ): Promise<void> {
+    //     const extProps = {
+    //         platform: {
+    //             value: CommandPaletteHandler.getPlatformByCommandName(rnCommand),
+    //             isPii: false,
+    //         },
+    //     };
 
-        await TelemetryHelper.generate("RNCommand", extProps, async generator => {
-            generator.add("command", rnCommand, false);
-            const projectRoot = SettingsHelper.getReactNativeProjectRoot(
-                workspaceFolder.uri.fsPath,
-            );
-            this.logger.debug(`Command palette: run project ${projectRoot} in context`);
-            const isRNProject = await ReactNativeProjectHelper.isReactNativeProject(projectRoot);
-            generator.add("isRNProject", isRNProject, false);
-            if (isRNProject) {
-                // Bring the log channel to focus
-                this.logger.setFocusOnLogChannel();
+    //     await TelemetryHelper.generate("RNCommand", extProps, async generator => {
+    //         generator.add("command", rnCommand, false);
+    //         const projectRoot = SettingsHelper.getReactNativeProjectRoot(
+    //             workspaceFolder.uri.fsPath,
+    //         );
+    //         this.logger.debug(`Command palette: run project ${projectRoot} in context`);
+    //         const isRNProject = await ReactNativeProjectHelper.isReactNativeProject(projectRoot);
+    //         generator.add("isRNProject", isRNProject, false);
+    //         if (isRNProject) {
+    //             // Bring the log channel to focus
+    //             this.logger.setFocusOnLogChannel();
 
-                // Execute the operation
-                await operation();
-            } else {
-                void vscode.window.showErrorMessage(
-                    `${projectRoot} workspace is not a React Native project.`,
-                );
-            }
-        });
-    }
+    //             // Execute the operation
+    //             await operation();
+    //         } else {
+    //             void vscode.window.showErrorMessage(
+    //                 `${projectRoot} workspace is not a React Native project.`,
+    //             );
+    //         }
+    //     });
+    // }
 
     /**
      * Publish project to exponent server. In order to do this we need to make sure the user is logged in exponent and the packager is running.
@@ -747,34 +744,34 @@ export class CommandPaletteHandler {
     //     return true;
     // }
 
-    private static async loginToExponent(appLauncher: AppLauncher): Promise<XDL.IUser> {
-        try {
-            return await appLauncher.getExponentHelper().loginToExponent(
-                (message, password) =>
-                    new Promise((resolve, reject) => {
-                        vscode.window
-                            .showInputBox({ placeHolder: message, password })
-                            .then(login => {
-                                resolve(login || "");
-                            }, reject);
-                    }),
-                message =>
-                    new Promise((resolve, reject) => {
-                        vscode.window.showInformationMessage(message).then(password => {
-                            resolve(password || "");
-                        }, reject);
-                    }),
-            );
-        } catch (err) {
-            CommandPaletteHandler.logger.warning(
-                localize(
-                    "ExpoErrorOccuredMakeSureYouAreLoggedIn",
-                    "An error has occured. Please make sure you are logged in to Expo, your project is setup correctly for publishing and your packager is running as Expo.",
-                ),
-            );
-            throw err;
-        }
-    }
+    // private static async loginToExponent(appLauncher: AppLauncher): Promise<XDL.IUser> {
+    //     try {
+    //         return await appLauncher.getExponentHelper().loginToExponent(
+    //             (message, password) =>
+    //                 new Promise((resolve, reject) => {
+    //                     vscode.window
+    //                         .showInputBox({ placeHolder: message, password })
+    //                         .then(login => {
+    //                             resolve(login || "");
+    //                         }, reject);
+    //                 }),
+    //             message =>
+    //                 new Promise((resolve, reject) => {
+    //                     vscode.window.showInformationMessage(message).then(password => {
+    //                         resolve(password || "");
+    //                     }, reject);
+    //                 }),
+    //         );
+    //     } catch (err) {
+    //         CommandPaletteHandler.logger.warning(
+    //             localize(
+    //                 "ExpoErrorOccuredMakeSureYouAreLoggedIn",
+    //                 "An error has occured. Please make sure you are logged in to Expo, your project is setup correctly for publishing and your packager is running as Expo.",
+    //             ),
+    //         );
+    //         throw err;
+    //     }
+    // }
 
     private static async selectProject(): Promise<AppLauncher> {
         const keys = Object.keys(ProjectsStorage.projectsCache);
@@ -797,81 +794,81 @@ export class CommandPaletteHandler {
         );
     }
 
-    private static async selectLogCatMonitor(): Promise<LogCatMonitor> {
-        const keys = Object.keys(LogCatMonitorManager.logCatMonitorsCache);
-        if (keys.length > 1) {
-            return new Promise((resolve, reject) => {
-                vscode.window.showQuickPick(keys).then(selected => {
-                    if (selected) {
-                        this.logger.debug(`Command palette: selected LogCat monitor ${selected}`);
-                        resolve(LogCatMonitorManager.logCatMonitorsCache[selected]);
-                    }
-                }, reject);
-            });
-        } else if (keys.length === 1) {
-            this.logger.debug(`Command palette: once LogCat monitor ${keys[0]}`);
-            return LogCatMonitorManager.logCatMonitorsCache[keys[0]];
-        }
-        throw ErrorHelper.getInternalError(
-            InternalErrorCode.AndroidCouldNotFindActiveLogCatMonitor,
-        );
-    }
+    // private static async selectLogCatMonitor(): Promise<LogCatMonitor> {
+    //     const keys = Object.keys(LogCatMonitorManager.logCatMonitorsCache);
+    //     if (keys.length > 1) {
+    //         return new Promise((resolve, reject) => {
+    //             vscode.window.showQuickPick(keys).then(selected => {
+    //                 if (selected) {
+    //                     this.logger.debug(`Command palette: selected LogCat monitor ${selected}`);
+    //                     resolve(LogCatMonitorManager.logCatMonitorsCache[selected]);
+    //                 }
+    //             }, reject);
+    //         });
+    //     } else if (keys.length === 1) {
+    //         this.logger.debug(`Command palette: once LogCat monitor ${keys[0]}`);
+    //         return LogCatMonitorManager.logCatMonitorsCache[keys[0]];
+    //     }
+    //     throw ErrorHelper.getInternalError(
+    //         InternalErrorCode.AndroidCouldNotFindActiveLogCatMonitor,
+    //     );
+    // }
 
-    private static getRunOptions(
-        appLauncher: AppLauncher,
-        platform: PlatformType,
-        target: TargetType = TargetType.Simulator,
-    ): IAndroidRunOptions | IIOSRunOptions | IWindowsRunOptions | ImacOSRunOptions {
-        const packagerPort = SettingsHelper.getPackagerPort(
-            appLauncher.getWorkspaceFolderUri().fsPath,
-        );
-        const runArgs = SettingsHelper.getRunArgs(
-            platform,
-            target,
-            appLauncher.getWorkspaceFolderUri(),
-        );
-        const envArgs = SettingsHelper.getEnvArgs(
-            platform,
-            target,
-            appLauncher.getWorkspaceFolderUri(),
-        );
-        const envFile = SettingsHelper.getEnvFile(
-            platform,
-            target,
-            appLauncher.getWorkspaceFolderUri(),
-        );
-        const projectRoot = SettingsHelper.getReactNativeProjectRoot(
-            appLauncher.getWorkspaceFolderUri().fsPath,
-        );
-        const nodeModulesRoot = appLauncher.getOrUpdateNodeModulesRoot();
-        const runOptions:
-            | IAndroidRunOptions
-            | IIOSRunOptions
-            | IWindowsRunOptions
-            | ImacOSRunOptions = {
-            platform,
-            workspaceRoot: appLauncher.getWorkspaceFolderUri().fsPath,
-            projectRoot,
-            packagerPort,
-            runArguments: runArgs,
-            env: envArgs,
-            envFile,
-            reactNativeVersions: appLauncher.getReactNativeVersions() || {
-                reactNativeVersion: "",
-                reactNativeWindowsVersion: "",
-                reactNativeMacOSVersion: "",
-            },
-            nodeModulesRoot,
-        };
+    // private static getRunOptions(
+    //     appLauncher: AppLauncher,
+    //     platform: PlatformType,
+    //     target: TargetType = TargetType.Simulator,
+    // ): IAndroidRunOptions | IIOSRunOptions | IWindowsRunOptions | ImacOSRunOptions {
+    //     const packagerPort = SettingsHelper.getPackagerPort(
+    //         appLauncher.getWorkspaceFolderUri().fsPath,
+    //     );
+    //     const runArgs = SettingsHelper.getRunArgs(
+    //         platform,
+    //         target,
+    //         appLauncher.getWorkspaceFolderUri(),
+    //     );
+    //     const envArgs = SettingsHelper.getEnvArgs(
+    //         platform,
+    //         target,
+    //         appLauncher.getWorkspaceFolderUri(),
+    //     );
+    //     const envFile = SettingsHelper.getEnvFile(
+    //         platform,
+    //         target,
+    //         appLauncher.getWorkspaceFolderUri(),
+    //     );
+    //     const projectRoot = SettingsHelper.getReactNativeProjectRoot(
+    //         appLauncher.getWorkspaceFolderUri().fsPath,
+    //     );
+    //     const nodeModulesRoot = appLauncher.getOrUpdateNodeModulesRoot();
+    //     const runOptions:
+    //         | IAndroidRunOptions
+    //         | IIOSRunOptions
+    //         | IWindowsRunOptions
+    //         | ImacOSRunOptions = {
+    //         platform,
+    //         workspaceRoot: appLauncher.getWorkspaceFolderUri().fsPath,
+    //         projectRoot,
+    //         packagerPort,
+    //         runArguments: runArgs,
+    //         env: envArgs,
+    //         envFile,
+    //         reactNativeVersions: appLauncher.getReactNativeVersions() || {
+    //             reactNativeVersion: "",
+    //             reactNativeWindowsVersion: "",
+    //             reactNativeMacOSVersion: "",
+    //         },
+    //         nodeModulesRoot,
+    //     };
 
-        if (platform === PlatformType.iOS && target === "device") {
-            runOptions.target = "device";
-        }
+    //     if (platform === PlatformType.iOS && target === "device") {
+    //         runOptions.target = "device";
+    //     }
 
-        CommandExecutor.ReactNativeCommand = SettingsHelper.getReactNativeGlobalCommandName(
-            appLauncher.getWorkspaceFolderUri(),
-        );
+    //     CommandExecutor.ReactNativeCommand = SettingsHelper.getReactNativeGlobalCommandName(
+    //         appLauncher.getWorkspaceFolderUri(),
+    //     );
 
-        return runOptions;
-    }
+    //     return runOptions;
+    // }
 }

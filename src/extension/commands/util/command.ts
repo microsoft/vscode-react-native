@@ -15,6 +15,8 @@ import { ProjectsStorage } from "../../projectsStorage";
 export abstract class Command {
     private static instances = new Set<typeof Command>();
 
+    private entryPointHandler?: EntryPointHandler;
+
     abstract readonly codeName: string;
     abstract readonly label: string;
     abstract readonly error: InternalError;
@@ -34,15 +36,17 @@ export abstract class Command {
 
     protected project?: AppLauncher;
 
-    constructor(private entryPointHandler: EntryPointHandler) {
+    constructor() {
         assert(!Command.instances.has(new.target), "Command can only be created once");
         Command.instances.add(new.target);
     }
 
-    abstract baseFn(): Promise<void>; // add vscode command arguments
+    abstract baseFn(...args: any[]): Promise<void>; // add vscode command arguments
 
     protected createHandler(fn = this.baseFn.bind(this)) {
         return async (...args: any[]) => {
+            assert(this.entryPointHandler, "this.entryPointHandler is not defined");
+
             const outputChannelLogger = OutputChannelLogger.getMainChannel();
 
             if (this.requiresProject) {
@@ -84,7 +88,9 @@ export abstract class Command {
 
     register = (() => {
         let isCalled = false;
-        return () => {
+        return (entryPointHandler: EntryPointHandler) => {
+            this.entryPointHandler = entryPointHandler;
+
             assert(!isCalled, "Command can only be registered once");
             isCalled = true;
             return vscode.commands.registerCommand(
@@ -112,13 +118,9 @@ export abstract class Command {
 
         const selected = await vscode.window.showQuickPick(projectKeys).then(it => it);
 
-        if (selected) {
-            logger.debug(`Command palette: selected project ${selected}`);
-            return ProjectsStorage.projectsCache[selected];
-        }
+        assert(selected, "Selection canceled");
 
-        // #todo!> memory leak
-        // left it as is to keep old behavior rn
-        return new Promise(() => {}) as Promise<AppLauncher>;
+        logger.debug(`Command palette: selected project ${selected}`);
+        return ProjectsStorage.projectsCache[selected];
     }
 }

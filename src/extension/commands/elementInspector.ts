@@ -21,10 +21,6 @@ const localize = nls.loadMessageBundle();
 let elementInspector: import("child_process").ChildProcess | undefined;
 
 export class RunElementInspector extends Command {
-    static deactivate() {
-        elementInspector?.kill();
-    }
-
     codeName = "runInspector";
     label = "Run Element Inspector";
     error = ErrorHelper.getInternalError(
@@ -71,5 +67,18 @@ export class RunElementInspector extends Command {
         elementInspector.once("exit", () => {
             elementInspector = undefined;
         });
+    }
+}
+
+export class StopElementInspector extends Command {
+    codeName = "stopInspector";
+    label = "Stop Element Inspector";
+    error = ErrorHelper.getInternalError(
+        InternalErrorCode.CommandFailed,
+        localize("ReactNativeStopElementInspector", "React Native: Stop Element Inspector"),
+    );
+
+    async baseFn() {
+        await elementInspector?.kill();
     }
 }

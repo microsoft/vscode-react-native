@@ -31,7 +31,7 @@ function selectLogCatMonitor() {
 
     if (keys.length > 1) {
         return new Promise(vscode.window.showQuickPick(keys).then).then(selected => {
-            assert(selected); // #review> memory leak in old behavior. Ask me for explanation
+            assert(selected, "Selection canceled");
             logger.debug(`Command palette: selected LogCat monitor ${selected}`);
             return LogCatMonitorManager.logCatMonitorsCache[selected];
         });

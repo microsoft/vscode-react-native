@@ -16,7 +16,7 @@ export class TestDevEnvironment extends Command {
     label = "Check development environment configuration";
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToTestDevEnvironment);
 
-    async createRNProjectObserver() {
+    private async createRNProjectObserver() {
         assert(this.project);
 
         const nodeModulesRoot = this.project.getOrUpdateNodeModulesRoot();

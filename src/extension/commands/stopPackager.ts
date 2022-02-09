@@ -4,6 +4,7 @@
 import * as assert from "assert";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
+import { AppLauncher } from "../appLauncher";
 import { ReactNativeCommand } from "./util/reactNativeCommand";
 
 export class StopPackager extends ReactNativeCommand {
@@ -11,8 +12,10 @@ export class StopPackager extends ReactNativeCommand {
     label = "Stop Packager";
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToStopPackager);
 
-    async baseFn() {
-        assert(this.project);
-        await this.project.getPackager().stop();
+    // this function requires argument because we need it in extension 'deactivate' hook
+    async baseFn(projectArg?: AppLauncher) {
+        const project = projectArg || this.project;
+        assert(project);
+        await project.getPackager().stop();
     }
 }

@@ -62,7 +62,9 @@ const localize = nls.loadMessageBundle();
 /* all components use the same packager instance */
 const outputChannelLogger = OutputChannelLogger.getMainChannel();
 const entryPointHandler = new EntryPointHandler(ProcessType.Extension, outputChannelLogger);
-let debugConfigProvider: ReactNativeDebugConfigProvider | null;
+// #todo>
+// #review> are we sure we need null here and this is the correct place for this?
+export let debugConfigProvider: ReactNativeDebugConfigProvider | null;
 let dynamicDebugConfigProvider: ReactNativeDebugDynamicConfigProvider | null;
 
 const APP_NAME = "react-native-tools";
@@ -237,22 +239,23 @@ export function deactivate(): Promise<void> {
         void entryPointHandler.runFunction(
             "extension.deactivate",
             ErrorHelper.getInternalError(InternalErrorCode.FailedToStopPackagerOnExit),
-            () => {
-                if (debugConfigProvider) {
-                    debugConfigProvider = null;
-                }
-                if (dynamicDebugConfigProvider) {
-                    dynamicDebugConfigProvider = null;
-                }
-                void CommandPaletteHandler.stopAllPackagers()
-                    .then(() => CommandPaletteHandler.stopElementInspector())
-                    .then(() => {
-                        LogCatMonitorManager.cleanUp();
-                        // Tell vscode that we are done with deactivation
-                        resolve();
-                    });
+            async () => {
+                debugConfigProvider = null;
+                dynamicDebugConfigProvider = null;
+
+                // #review> now it's gonna send more telemetry than previous solution
+                // and relation to command is less clear. Not sure how to better approach this
+
+                await Promise.all(
+                    Object.values(ProjectsStorage.projectsCache).map(it =>
+                        vscode.commands.executeCommand("stopPackager", it),
+                    ),
+                );
+                await vscode.commands.executeCommand("stopInspector");
+                LogCatMonitorManager.cleanUp();
+                resolve();
             },
-            /* errorsAreFatal*/ true,
+            true,
         );
     });
 }
@@ -513,201 +516,201 @@ function registerReactNativeCommandPaletteCommands(): void {
 }
 
 function registerReactNativeSpecialCommands(): void {
-    registerVSCodeCommand(
-        "debugScenario.attachHermesApplicationExperimental",
-        ErrorHelper.getInternalError(
-            InternalErrorCode.DebuggingCommandFailed,
-            DEBUG_CONFIGURATION_NAMES.ATTACH_TO_HERMES_APPLICATION_EXPERIMENTAL,
-        ),
-        () =>
-            CommandPaletteHandler.startDebuggingScenario(
-                DEBUG_CONFIGURATION_NAMES.ATTACH_TO_HERMES_APPLICATION_EXPERIMENTAL,
-            ),
-    );
-    registerVSCodeCommand(
-        "debugScenario.attachDirectIosExperimental",
-        ErrorHelper.getInternalError(
-            InternalErrorCode.DebuggingCommandFailed,
-            DEBUG_CONFIGURATION_NAMES.ATTACH_TO_DIRECT_IOS_EXPERIMENTAL,
-        ),
-        () =>
-            CommandPaletteHandler.startDebuggingScenario(
-                DEBUG_CONFIGURATION_NAMES.ATTACH_TO_DIRECT_IOS_EXPERIMENTAL,
-            ),
-    );
-    registerVSCodeCommand(
-        "debugScenario.attachToPackager",
-        ErrorHelper.getInternalError(
-            InternalErrorCode.DebuggingCommandFailed,
-            DEBUG_CONFIGURATION_NAMES.ATTACH_TO_PACKAGER,
-        ),
-        () =>
-            CommandPaletteHandler.startDebuggingScenario(
-                DEBUG_CONFIGURATION_NAMES.ATTACH_TO_PACKAGER,
-            ),
-    );
-    registerVSCodeCommand(
-        "debugScenario.debugAndroid",
-        ErrorHelper.getInternalError(
-            InternalErrorCode.DebuggingCommandFailed,
-            DEBUG_CONFIGURATION_NAMES.DEBUG_ANDROID,
-        ),
-        () => CommandPaletteHandler.startDebuggingScenario(DEBUG_CONFIGURATION_NAMES.DEBUG_ANDROID),
-    );
-    registerVSCodeCommand(
-        "debugScenario.debugIos",
-        ErrorHelper.getInternalError(
-            InternalErrorCode.DebuggingCommandFailed,
-            DEBUG_CONFIGURATION_NAMES.DEBUG_IOS,
-        ),
-        () => CommandPaletteHandler.startDebuggingScenario(DEBUG_CONFIGURATION_NAMES.DEBUG_IOS),
-    );
-    registerVSCodeCommand(
-        "debugScenario.debugWindows",
-        ErrorHelper.getInternalError(
-            InternalErrorCode.DebuggingCommandFailed,
-            DEBUG_CONFIGURATION_NAMES.DEBUG_WINDOWS,
-        ),
-        () => CommandPaletteHandler.startDebuggingScenario(DEBUG_CONFIGURATION_NAMES.DEBUG_WINDOWS),
-    );
-    registerVSCodeCommand(
-        "debugScenario.debugMacos",
-        ErrorHelper.getInternalError(
-            InternalErrorCode.DebuggingCommandFailed,
-            DEBUG_CONFIGURATION_NAMES.DEBUG_MACOS,
-        ),
-        () => CommandPaletteHandler.startDebuggingScenario(DEBUG_CONFIGURATION_NAMES.DEBUG_MACOS),
-    );
-    registerVSCodeCommand(
-        "debugScenario.debugInExponent",
-        ErrorHelper.getInternalError(
-            InternalErrorCode.DebuggingCommandFailed,
-            DEBUG_CONFIGURATION_NAMES.DEBUG_IN_EXPONENT,
-        ),
-        () =>
-            CommandPaletteHandler.startDebuggingScenario(
-                DEBUG_CONFIGURATION_NAMES.DEBUG_IN_EXPONENT,
-            ),
-    );
-    registerVSCodeCommand(
-        "debugScenario.debugAndroidHermesExperimental",
-        ErrorHelper.getInternalError(
-            InternalErrorCode.DebuggingCommandFailed,
-            DEBUG_CONFIGURATION_NAMES.DEBUG_ANDROID_HERMES_EXPERIMENTAL,
-        ),
-        () =>
-            CommandPaletteHandler.startDebuggingScenario(
-                DEBUG_CONFIGURATION_NAMES.DEBUG_ANDROID_HERMES_EXPERIMENTAL,
-            ),
-    );
-    registerVSCodeCommand(
-        "debugScenario.debugDirectIosExperimental",
-        ErrorHelper.getInternalError(
-            InternalErrorCode.DebuggingCommandFailed,
-            DEBUG_CONFIGURATION_NAMES.DEBUG_DIRECT_IOS_EXPERIMENTAL,
-        ),
-        () =>
-            CommandPaletteHandler.startDebuggingScenario(
-                DEBUG_CONFIGURATION_NAMES.DEBUG_DIRECT_IOS_EXPERIMENTAL,
-            ),
-    );
-    registerVSCodeCommand(
-        "debugScenario.debugIosHermesExperimental",
-        ErrorHelper.getInternalError(
-            InternalErrorCode.DebuggingCommandFailed,
-            DEBUG_CONFIGURATION_NAMES.DEBUG_IOS_HERMES_EXPERIMENTAL,
-        ),
-        () =>
-            CommandPaletteHandler.startDebuggingScenario(
-                DEBUG_CONFIGURATION_NAMES.DEBUG_IOS_HERMES_EXPERIMENTAL,
-            ),
-    );
-    registerVSCodeCommand(
-        "debugScenario.debugMacosHermesExperimental",
-        ErrorHelper.getInternalError(
-            InternalErrorCode.DebuggingCommandFailed,
-            DEBUG_CONFIGURATION_NAMES.DEBUG_MACOS_HERMES_EXPERIMENTAL,
-        ),
-        () =>
-            CommandPaletteHandler.startDebuggingScenario(
-                DEBUG_CONFIGURATION_NAMES.DEBUG_MACOS_HERMES_EXPERIMENTAL,
-            ),
-    );
-    registerVSCodeCommand(
-        "debugScenario.debugWindowsHermesExperimental",
-        ErrorHelper.getInternalError(
-            InternalErrorCode.DebuggingCommandFailed,
-            DEBUG_CONFIGURATION_NAMES.DEBUG_WINDOWS_HERMES_EXPERIMENTAL,
-        ),
-        () =>
-            CommandPaletteHandler.startDebuggingScenario(
-                DEBUG_CONFIGURATION_NAMES.DEBUG_WINDOWS_HERMES_EXPERIMENTAL,
-            ),
-    );
-    registerVSCodeCommand(
-        "debugScenario.runAndroid",
-        ErrorHelper.getInternalError(
-            InternalErrorCode.DebuggingCommandFailed,
-            DEBUG_CONFIGURATION_NAMES.RUN_ANDROID,
-        ),
-        () => CommandPaletteHandler.startDebuggingScenario(DEBUG_CONFIGURATION_NAMES.RUN_ANDROID),
-    );
-    registerVSCodeCommand(
-        "debugScenario.runIos",
-        ErrorHelper.getInternalError(
-            InternalErrorCode.DebuggingCommandFailed,
-            DEBUG_CONFIGURATION_NAMES.RUN_IOS,
-        ),
-        () => CommandPaletteHandler.startDebuggingScenario(DEBUG_CONFIGURATION_NAMES.RUN_IOS),
-    );
-    registerVSCodeCommand(
-        "debugScenario.runAndroidHermesExperimental",
-        ErrorHelper.getInternalError(
-            InternalErrorCode.DebuggingCommandFailed,
-            DEBUG_CONFIGURATION_NAMES.RUN_ANDROID_HERMES_EXPERIMENTAL,
-        ),
-        () =>
-            CommandPaletteHandler.startDebuggingScenario(
-                DEBUG_CONFIGURATION_NAMES.RUN_ANDROID_HERMES_EXPERIMENTAL,
-            ),
-    );
-    registerVSCodeCommand(
-        "debugScenario.runIosHermesExperimental",
-        ErrorHelper.getInternalError(
-            InternalErrorCode.DebuggingCommandFailed,
-            DEBUG_CONFIGURATION_NAMES.RUN_IOS_HERMES_EXPERIMENTAL,
-        ),
-        () =>
-            CommandPaletteHandler.startDebuggingScenario(
-                DEBUG_CONFIGURATION_NAMES.RUN_IOS_HERMES_EXPERIMENTAL,
-            ),
-    );
-    registerVSCodeCommand(
-        "debugScenario.runDirectIosExperimental",
-        ErrorHelper.getInternalError(
-            InternalErrorCode.DebuggingCommandFailed,
-            DEBUG_CONFIGURATION_NAMES.RUN_DIRECT_IOS_EXPERIMENTAL,
-        ),
-        () =>
-            CommandPaletteHandler.startDebuggingScenario(
-                DEBUG_CONFIGURATION_NAMES.RUN_DIRECT_IOS_EXPERIMENTAL,
-            ),
-    );
-    registerVSCodeCommand(
-        "selectAndInsertDebugConfiguration",
-        ErrorHelper.getInternalError(InternalErrorCode.CommandFailed),
-        (commandArgs: any[]) => {
-            if (!debugConfigProvider || commandArgs.length < 3) {
-                throw ErrorHelper.getInternalError(InternalErrorCode.CommandFailed);
-            }
-            return CommandPaletteHandler.selectAndInsertDebugConfiguration(
-                debugConfigProvider,
-                commandArgs[0], // document
-                commandArgs[1], // position
-                commandArgs[2], // token
-            );
-        },
-    );
+    // registerVSCodeCommand(
+    //     "debugScenario.attachHermesApplicationExperimental",
+    //     ErrorHelper.getInternalError(
+    //         InternalErrorCode.DebuggingCommandFailed,
+    //         DEBUG_CONFIGURATION_NAMES.ATTACH_TO_HERMES_APPLICATION_EXPERIMENTAL,
+    //     ),
+    //     () =>
+    //         CommandPaletteHandler.startDebuggingScenario(
+    //             DEBUG_CONFIGURATION_NAMES.ATTACH_TO_HERMES_APPLICATION_EXPERIMENTAL,
+    //         ),
+    // );
+    // registerVSCodeCommand(
+    //     "debugScenario.attachDirectIosExperimental",
+    //     ErrorHelper.getInternalError(
+    //         InternalErrorCode.DebuggingCommandFailed,
+    //         DEBUG_CONFIGURATION_NAMES.ATTACH_TO_DIRECT_IOS_EXPERIMENTAL,
+    //     ),
+    //     () =>
+    //         CommandPaletteHandler.startDebuggingScenario(
+    //             DEBUG_CONFIGURATION_NAMES.ATTACH_TO_DIRECT_IOS_EXPERIMENTAL,
+    //         ),
+    // );
+    // registerVSCodeCommand(
+    //     "debugScenario.attachToPackager",
+    //     ErrorHelper.getInternalError(
+    //         InternalErrorCode.DebuggingCommandFailed,
+    //         DEBUG_CONFIGURATION_NAMES.ATTACH_TO_PACKAGER,
+    //     ),
+    //     () =>
+    //         CommandPaletteHandler.startDebuggingScenario(
+    //             DEBUG_CONFIGURATION_NAMES.ATTACH_TO_PACKAGER,
+    //         ),
+    // );
+    // registerVSCodeCommand(
+    //     "debugScenario.debugAndroid",
+    //     ErrorHelper.getInternalError(
+    //         InternalErrorCode.DebuggingCommandFailed,
+    //         DEBUG_CONFIGURATION_NAMES.DEBUG_ANDROID,
+    //     ),
+    //     () => CommandPaletteHandler.startDebuggingScenario(DEBUG_CONFIGURATION_NAMES.DEBUG_ANDROID),
+    // );
+    // registerVSCodeCommand(
+    //     "debugScenario.debugIos",
+    //     ErrorHelper.getInternalError(
+    //         InternalErrorCode.DebuggingCommandFailed,
+    //         DEBUG_CONFIGURATION_NAMES.DEBUG_IOS,
+    //     ),
+    //     () => CommandPaletteHandler.startDebuggingScenario(DEBUG_CONFIGURATION_NAMES.DEBUG_IOS),
+    // );
+    // registerVSCodeCommand(
+    //     "debugScenario.debugWindows",
+    //     ErrorHelper.getInternalError(
+    //         InternalErrorCode.DebuggingCommandFailed,
+    //         DEBUG_CONFIGURATION_NAMES.DEBUG_WINDOWS,
+    //     ),
+    //     () => CommandPaletteHandler.startDebuggingScenario(DEBUG_CONFIGURATION_NAMES.DEBUG_WINDOWS),
+    // );
+    // registerVSCodeCommand(
+    //     "debugScenario.debugMacos",
+    //     ErrorHelper.getInternalError(
+    //         InternalErrorCode.DebuggingCommandFailed,
+    //         DEBUG_CONFIGURATION_NAMES.DEBUG_MACOS,
+    //     ),
+    //     () => CommandPaletteHandler.startDebuggingScenario(DEBUG_CONFIGURATION_NAMES.DEBUG_MACOS),
+    // );
+    // registerVSCodeCommand(
+    //     "debugScenario.debugInExponent",
+    //     ErrorHelper.getInternalError(
+    //         InternalErrorCode.DebuggingCommandFailed,
+    //         DEBUG_CONFIGURATION_NAMES.DEBUG_IN_EXPONENT,
+    //     ),
+    //     () =>
+    //         CommandPaletteHandler.startDebuggingScenario(
+    //             DEBUG_CONFIGURATION_NAMES.DEBUG_IN_EXPONENT,
+    //         ),
+    // );
+    // registerVSCodeCommand(
+    //     "debugScenario.debugAndroidHermesExperimental",
+    //     ErrorHelper.getInternalError(
+    //         InternalErrorCode.DebuggingCommandFailed,
+    //         DEBUG_CONFIGURATION_NAMES.DEBUG_ANDROID_HERMES_EXPERIMENTAL,
+    //     ),
+    //     () =>
+    //         CommandPaletteHandler.startDebuggingScenario(
+    //             DEBUG_CONFIGURATION_NAMES.DEBUG_ANDROID_HERMES_EXPERIMENTAL,
+    //         ),
+    // );
+    // registerVSCodeCommand(
+    //     "debugScenario.debugDirectIosExperimental",
+    //     ErrorHelper.getInternalError(
+    //         InternalErrorCode.DebuggingCommandFailed,
+    //         DEBUG_CONFIGURATION_NAMES.DEBUG_DIRECT_IOS_EXPERIMENTAL,
+    //     ),
+    //     () =>
+    //         CommandPaletteHandler.startDebuggingScenario(
+    //             DEBUG_CONFIGURATION_NAMES.DEBUG_DIRECT_IOS_EXPERIMENTAL,
+    //         ),
+    // );
+    // registerVSCodeCommand(
+    //     "debugScenario.debugIosHermesExperimental",
+    //     ErrorHelper.getInternalError(
+    //         InternalErrorCode.DebuggingCommandFailed,
+    //         DEBUG_CONFIGURATION_NAMES.DEBUG_IOS_HERMES_EXPERIMENTAL,
+    //     ),
+    //     () =>
+    //         CommandPaletteHandler.startDebuggingScenario(
+    //             DEBUG_CONFIGURATION_NAMES.DEBUG_IOS_HERMES_EXPERIMENTAL,
+    //         ),
+    // );
+    // registerVSCodeCommand(
+    //     "debugScenario.debugMacosHermesExperimental",
+    //     ErrorHelper.getInternalError(
+    //         InternalErrorCode.DebuggingCommandFailed,
+    //         DEBUG_CONFIGURATION_NAMES.DEBUG_MACOS_HERMES_EXPERIMENTAL,
+    //     ),
+    //     () =>
+    //         CommandPaletteHandler.startDebuggingScenario(
+    //             DEBUG_CONFIGURATION_NAMES.DEBUG_MACOS_HERMES_EXPERIMENTAL,
+    //         ),
+    // );
+    // registerVSCodeCommand(
+    //     "debugScenario.debugWindowsHermesExperimental",
+    //     ErrorHelper.getInternalError(
+    //         InternalErrorCode.DebuggingCommandFailed,
+    //         DEBUG_CONFIGURATION_NAMES.DEBUG_WINDOWS_HERMES_EXPERIMENTAL,
+    //     ),
+    //     () =>
+    //         CommandPaletteHandler.startDebuggingScenario(
+    //             DEBUG_CONFIGURATION_NAMES.DEBUG_WINDOWS_HERMES_EXPERIMENTAL,
+    //         ),
+    // );
+    // registerVSCodeCommand(
+    //     "debugScenario.runAndroid",
+    //     ErrorHelper.getInternalError(
+    //         InternalErrorCode.DebuggingCommandFailed,
+    //         DEBUG_CONFIGURATION_NAMES.RUN_ANDROID,
+    //     ),
+    //     () => CommandPaletteHandler.startDebuggingScenario(DEBUG_CONFIGURATION_NAMES.RUN_ANDROID),
+    // );
+    // registerVSCodeCommand(
+    //     "debugScenario.runIos",
+    //     ErrorHelper.getInternalError(
+    //         InternalErrorCode.DebuggingCommandFailed,
+    //         DEBUG_CONFIGURATION_NAMES.RUN_IOS,
+    //     ),
+    //     () => CommandPaletteHandler.startDebuggingScenario(DEBUG_CONFIGURATION_NAMES.RUN_IOS),
+    // );
+    // registerVSCodeCommand(
+    //     "debugScenario.runAndroidHermesExperimental",
+    //     ErrorHelper.getInternalError(
+    //         InternalErrorCode.DebuggingCommandFailed,
+    //         DEBUG_CONFIGURATION_NAMES.RUN_ANDROID_HERMES_EXPERIMENTAL,
+    //     ),
+    //     () =>
+    //         CommandPaletteHandler.startDebuggingScenario(
+    //             DEBUG_CONFIGURATION_NAMES.RUN_ANDROID_HERMES_EXPERIMENTAL,
+    //         ),
+    // );
+    // registerVSCodeCommand(
+    //     "debugScenario.runIosHermesExperimental",
+    //     ErrorHelper.getInternalError(
+    //         InternalErrorCode.DebuggingCommandFailed,
+    //         DEBUG_CONFIGURATION_NAMES.RUN_IOS_HERMES_EXPERIMENTAL,
+    //     ),
+    //     () =>
+    //         CommandPaletteHandler.startDebuggingScenario(
+    //             DEBUG_CONFIGURATION_NAMES.RUN_IOS_HERMES_EXPERIMENTAL,
+    //         ),
+    // );
+    // registerVSCodeCommand(
+    //     "debugScenario.runDirectIosExperimental",
+    //     ErrorHelper.getInternalError(
+    //         InternalErrorCode.DebuggingCommandFailed,
+    //         DEBUG_CONFIGURATION_NAMES.RUN_DIRECT_IOS_EXPERIMENTAL,
+    //     ),
+    //     () =>
+    //         CommandPaletteHandler.startDebuggingScenario(
+    //             DEBUG_CONFIGURATION_NAMES.RUN_DIRECT_IOS_EXPERIMENTAL,
+    //         ),
+    // );
+    // registerVSCodeCommand(
+    //     "selectAndInsertDebugConfiguration",
+    //     ErrorHelper.getInternalError(InternalErrorCode.CommandFailed),
+    //     (commandArgs: any[]) => {
+    //         if (!debugConfigProvider || commandArgs.length < 3) {
+    //             throw ErrorHelper.getInternalError(InternalErrorCode.CommandFailed);
+    //         }
+    //         return CommandPaletteHandler.selectAndInsertDebugConfiguration(
+    //             debugConfigProvider,
+    //             commandArgs[0], // document
+    //             commandArgs[1], // position
+    //             commandArgs[2], // token
+    //         );
+    //     },
+    // );
     void registerBetterCommands();
 }
 
@@ -757,34 +760,34 @@ function showChangelogNotificationOnUpdate(currentVersion: string) {
     }
 }
 
-function registerVSCodeCommand(
-    commandName: string,
-    error: InternalError,
-    commandHandler: (commandArgs: any[]) => Promise<void>,
-): void {
-    EXTENSION_CONTEXT.subscriptions.push(
-        vscode.commands.registerCommand(`reactNative.${commandName}`, (...args: any[]) => {
-            const extProps = {
-                platform: {
-                    value: CommandPaletteHandler.getPlatformByCommandName(commandName),
-                    isPii: false,
-                },
-            };
-            outputChannelLogger.debug(`Run command: ${commandName}`);
-            return entryPointHandler.runFunctionWExtProps(
-                `commandPalette.${commandName}`,
-                extProps,
-                error,
-                commandHandler.bind(null, args),
-            );
-        }),
-    );
-}
+// function registerVSCodeCommand(
+//     commandName: string,
+//     error: InternalError,
+//     commandHandler: (commandArgs: any[]) => Promise<void>,
+// ): void {
+//     EXTENSION_CONTEXT.subscriptions.push(
+//         vscode.commands.registerCommand(`reactNative.${commandName}`, (...args: any[]) => {
+//             const extProps = {
+//                 platform: {
+//                     value: CommandPaletteHandler.getPlatformByCommandName(commandName),
+//                     isPii: false,
+//                 },
+//             };
+//             outputChannelLogger.debug(`Run command: ${commandName}`);
+//             return entryPointHandler.runFunctionWExtProps(
+//                 `commandPalette.${commandName}`,
+//                 extProps,
+//                 error,
+//                 commandHandler.bind(null, args),
+//             );
+//         }),
+//     );
+// }
 
 async function registerBetterCommands() {
     const result = await import("./commands");
     Object.values(result).forEach(it => {
-        const command = new it(entryPointHandler);
-        EXTENSION_CONTEXT.subscriptions.push(command.register());
+        const command = new it();
+        EXTENSION_CONTEXT.subscriptions.push(command.register(entryPointHandler));
     });
 }
