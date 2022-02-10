@@ -73,7 +73,7 @@ export class AttachDirectIosExperimental extends Command {
 }
 
 export class AttachToPackager extends Command {
-    codeName = "debugScenario.attachDirectIosExperimental";
+    codeName = "debugScenario.attachToPackager";
     label = "";
     error = ErrorHelper.getInternalError(
         InternalErrorCode.DebuggingCommandFailed,
@@ -304,7 +304,7 @@ export class RunIosHermesExperimental extends Command {
 }
 
 export class RunDirectIosExperimental extends Command {
-    codeName = "debugScenario.runIosHermesExperimental";
+    codeName = "debugScenario.runDirectIosExperimental";
     label = "";
     error = ErrorHelper.getInternalError(
         InternalErrorCode.DebuggingCommandFailed,
