@@ -245,7 +245,7 @@ export class DirectDebugSession extends DebugSessionBase {
         this.iOSWKDebugProxyHelper.cleanUp();
         this.onDidTerminateDebugSessionHandler.dispose();
         this.appLauncher.getPackager().closeWsConnection();
-        void super.disconnectRequest(response, args, request);
+        return super.disconnectRequest(response, args, request);
     }
 
     protected async establishDebugSession(attachArgs: IAttachRequestArgs): Promise<void> {
