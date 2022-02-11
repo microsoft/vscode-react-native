@@ -24,6 +24,7 @@ const localize = nls.loadMessageBundle();
 export class StartLogCatMonitor extends Command {
     codeName = "startLogCatMonitor";
     label = "Run React Native LogCat Monitor";
+    requiresTrust = false;
     error = ErrorHelper.getInternalError(InternalErrorCode.AndroidCouldNotStartLogCatMonitor);
 
     async baseFn() {

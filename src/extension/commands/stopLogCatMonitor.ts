@@ -12,6 +12,8 @@ import { Command } from "./util/command";
 export class StopLogCatMonitor extends Command {
     codeName = "stopLogCatMonitor";
     label = "Stop React Native LogCat Monitor";
+    requiresProject = false;
+    requiresTrust = false;
     error = ErrorHelper.getInternalError(InternalErrorCode.AndroidCouldNotStopLogCatMonitor);
 
     async baseFn() {

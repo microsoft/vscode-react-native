@@ -12,15 +12,15 @@ import { Command } from "./util/command";
 export class SelectAndInsertDebugConfiguration extends Command {
     codeName = "selectAndInsertDebugConfiguration";
     label = "";
+    requiresTrust = false;
     error = ErrorHelper.getInternalError(InternalErrorCode.CommandFailed);
+    requiresProject = false;
 
     async baseFn(
         document: vscode.TextDocument,
         position: vscode.Position,
         token: vscode.CancellationToken,
     ) {
-        assert(this.project);
-
         assert(
             debugConfigProvider && document && position && token,
             ErrorHelper.getInternalError(InternalErrorCode.CommandFailed),

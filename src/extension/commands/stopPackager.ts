@@ -13,7 +13,7 @@ export class StopPackager extends ReactNativeCommand {
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToStopPackager);
 
     // this function requires argument because we need it in extension 'deactivate' hook
-    async baseFn(projectArg?: AppLauncher) {
+    async baseFn() {
         const project = projectArg || this.project;
         assert(project);
         await project.getPackager().stop();

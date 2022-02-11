@@ -11,6 +11,7 @@ import { Command } from "./util/command";
 export class LaunchIOSSimulator extends Command {
     codeName = "launchIOSSimulator";
     label = "Launch iOS Simulator";
+    requiresProject = false;
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToStartIOSSimulator);
 
     async baseFn() {

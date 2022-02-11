@@ -21,6 +21,7 @@ const localize = nls.loadMessageBundle();
 
 export class ReloadApp extends Command {
     codeName = "reloadApp";
+    requiresTrust = false;
     label = "ReloadApp";
     error = ErrorHelper.getInternalError(
         InternalErrorCode.CommandFailed,

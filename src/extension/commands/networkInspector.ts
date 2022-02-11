@@ -33,6 +33,7 @@ let networkInspectorModule: NetworkInspectorModule | undefined;
 export class StartNetworkInspector extends Command {
     codeName = "startNetworkInspector";
     label = "Run Network Inspector";
+    requiresTrust = false;
     error = ErrorHelper.getInternalError(InternalErrorCode.CouldNotStartNetworkInspector);
 
     async baseFn() {
@@ -86,6 +87,7 @@ export class StartNetworkInspector extends Command {
 export class StopNetworkInspector extends Command {
     codeName = "stopNetworkInspector";
     label = "Stop Network Inspector";
+    requiresTrust = false;
     error = ErrorHelper.getInternalError(InternalErrorCode.CouldNotStopNetworkInspector);
 
     async baseFn() {
