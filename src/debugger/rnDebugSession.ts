@@ -28,18 +28,12 @@ nls.config({
 const localize = nls.loadMessageBundle();
 
 export class RNDebugSession extends DebugSessionBase {
-    private readonly terminateCommand: string;
-
     private appWorker: MultipleLifetimesAppWorker | null;
-    private nodeSession: vscode.DebugSession | null;
     private onDidStartDebugSessionHandler: vscode.Disposable;
     private onDidTerminateDebugSessionHandler: vscode.Disposable;
 
     constructor(session: vscode.DebugSession) {
         super(session);
-
-        // constants definition
-        this.terminateCommand = "terminate"; // the "terminate" command is sent from the client to the debug adapter in order to give the debuggee a chance for terminating itself
 
         // variables definition
         this.appWorker = null;

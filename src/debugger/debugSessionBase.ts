@@ -38,6 +38,8 @@ export enum DebugSessionStatus {
     ConnectionDone,
     /** A debuggee failed to connect */
     ConnectionFailed,
+    /** The session is handling disconnect request now */
+    Stopping,
 }
 
 export interface TerminateEventArgs {
@@ -73,6 +75,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         DebugSessionBase.rootSessionTerminatedEventEmitter.event;
 
     protected readonly stopCommand: string;
+    protected readonly terminateCommand: string;
     protected readonly pwaNodeSessionName: string;
 
     protected appLauncher: AppLauncher;
@@ -82,6 +85,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
     protected cdpProxyLogLevel: LogLevel;
     protected debugSessionStatus: DebugSessionStatus;
     protected session: vscode.DebugSession;
+    protected nodeSession: vscode.DebugSession | null;
     protected cancellationTokenSource: vscode.CancellationTokenSource;
 
     constructor(session: vscode.DebugSession) {
@@ -90,12 +94,14 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         // constants definition
         this.pwaNodeSessionName = "pwa-node"; // the name of node debug session created by js-debug extension
         this.stopCommand = "workbench.action.debug.stop"; // the command which simulates a click on the "Stop" button
+        this.terminateCommand = "terminate"; // the "terminate" command is sent from the client to the debug adapter in order to give the debuggee a chance for terminating itself
 
         // variables definition
         this.session = session;
         this.isSettingsInitialized = false;
         this.debugSessionStatus = DebugSessionStatus.FirstConnection;
         this.cancellationTokenSource = new vscode.CancellationTokenSource();
+        this.nodeSession = null;
     }
 
     protected initializeRequest(
