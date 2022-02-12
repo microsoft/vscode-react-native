@@ -6,6 +6,7 @@ import * as vscode from "vscode";
 import { RNDebugSession } from "../debugger/rnDebugSession";
 import { TerminateEventArgs } from "../debugger/debugSessionBase";
 import { DirectDebugSession } from "../debugger/direct/directDebugSession";
+import { RNSession } from "../debugger/debugSessionWrapper";
 import { DEBUG_TYPES } from "./debuggingConfiguration/debugConfigTypesAndConstants";
 
 export class ReactNativeSessionManager
@@ -19,11 +20,12 @@ export class ReactNativeSessionManager
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         executable: vscode.DebugAdapterExecutable | undefined,
     ): vscode.ProviderResult<vscode.DebugAdapterDescriptor> {
+        const rnSession = new RNSession(session);
         const debugServer = Net.createServer(socket => {
             const rnDebugSession =
                 session.type === DEBUG_TYPES.REACT_NATIVE
-                    ? new RNDebugSession(session)
-                    : new DirectDebugSession(session);
+                    ? new RNDebugSession(rnSession)
+                    : new DirectDebugSession(rnSession);
 
             this.connections.set(session.id, socket);
 
