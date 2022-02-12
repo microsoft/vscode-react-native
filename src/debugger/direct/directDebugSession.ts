@@ -22,6 +22,7 @@ import { IOSDirectCDPMessageHandler } from "../../cdp-proxy/CDPMessageHandlers/i
 import { PlatformType } from "../../extension/launchArgs";
 import { BaseCDPMessageHandler } from "../../cdp-proxy/CDPMessageHandlers/baseCDPMessageHandler";
 import { TipNotificationService } from "../../extension/services/tipsNotificationsService/tipsNotificationService";
+import { RNSession } from "../debugSessionWrapper";
 import { IWDPHelper } from "./IWDPHelper";
 
 nls.config({
@@ -38,8 +39,8 @@ export class DirectDebugSession extends DebugSessionBase {
     private attachSession: vscode.DebugSession | null;
     private iOSWKDebugProxyHelper: IWDPHelper;
 
-    constructor(session: vscode.DebugSession) {
-        super(session);
+    constructor(rnSession: RNSession) {
+        super(rnSession);
         this.debuggerEndpointHelper = new DebuggerEndpointHelper();
         this.iOSWKDebugProxyHelper = new IWDPHelper();
         this.attachSession = null;
@@ -107,7 +108,8 @@ export class DirectDebugSession extends DebugSessionBase {
                 );
             }
             // if debugging is enabled start attach request
-            await this.attachRequest(response, launchArgs);
+            await this.vsCodeDebugSession.customRequest("attach", launchArgs);
+            this.sendResponse(response);
         } catch (error) {
             this.showError(error, response);
         }
@@ -234,7 +236,10 @@ export class DirectDebugSession extends DebugSessionBase {
                         if (this.attachSession) {
                             if (this.debugSessionStatus !== DebugSessionStatus.Stopping) {
                                 console.log(this.terminateCommand);
-                                void vscode.commands.executeCommand(this.stopCommand, this.session);
+                                void vscode.commands.executeCommand(
+                                    this.stopCommand,
+                                    this.vsCodeDebugSession,
+                                );
                             }
                             this.appTargetConnectionClosedHandlerDescriptor?.dispose();
                         }
@@ -249,6 +254,7 @@ export class DirectDebugSession extends DebugSessionBase {
                 this.appLauncher.getRnCdpProxy().setBrowserInspectUri(browserInspectUri);
                 await this.establishDebugSession(attachArgs);
             });
+            this.sendResponse(response);
         } catch (error) {
             this.showError(
                 ErrorHelper.getInternalError(
@@ -273,21 +279,21 @@ export class DirectDebugSession extends DebugSessionBase {
         this.onDidStartDebugSessionHandler.dispose();
         this.appLauncher.getPackager().closeWsConnection();
         this.appTargetConnectionClosedHandlerDescriptor?.dispose();
-        void super.disconnectRequest(response, args, request);
+        return super.disconnectRequest(response, args, request);
     }
 
     protected async establishDebugSession(attachArgs: IAttachRequestArgs): Promise<void> {
         const attachConfiguration = JsDebugConfigAdapter.createDebuggingConfigForRNHermes(
             attachArgs,
             this.appLauncher.getCdpProxyPort(),
-            this.session.id,
+            this.rnSession.sessionId,
         );
 
         const childDebugSessionStarted = await vscode.debug.startDebugging(
             this.appLauncher.getWorkspaceFolder(),
             attachConfiguration,
             {
-                parentSession: this.session,
+                parentSession: this.vsCodeDebugSession,
                 consoleMode: vscode.DebugConsoleMode.MergeWithParent,
             },
         );
@@ -300,11 +306,13 @@ export class DirectDebugSession extends DebugSessionBase {
 
     private handleTerminateDebugSession(debugSession: vscode.DebugSession): void {
         if (
-            debugSession.configuration.rnDebugSessionId === this.session.id &&
+            debugSession.configuration.rnDebugSessionId === this.rnSession.sessionId &&
             debugSession.type === this.pwaNodeSessionName
         ) {
             console.log("TerminateDebugSession");
-            void vscode.commands.executeCommand(this.stopCommand, this.session);
+            void vscode.commands.executeCommand(this.stopCommand, undefined, {
+                sessionId: this.vsCodeDebugSession.id,
+            });
         }
     }
 
@@ -318,7 +326,7 @@ export class DirectDebugSession extends DebugSessionBase {
             this.attachSession = debugSession;
         }
         if (
-            debugSession.configuration.rnDebugSessionId === this.session.id &&
+            debugSession.configuration.rnDebugSessionId === this.rnSession.sessionId &&
             debugSession.type === this.pwaNodeSessionName
         ) {
             this.nodeSession = debugSession;

@@ -15,6 +15,7 @@ import { ILaunchArgs, IRunOptions, PlatformType } from "../extension/launchArgs"
 import { AppLauncher } from "../extension/appLauncher";
 import { RNPackageVersions } from "../common/projectVersionHelper";
 import { SettingsHelper } from "../extension/settingsHelper";
+import { RNSession } from "./debugSessionWrapper";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -84,11 +85,12 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
     protected previousAttachArgs: IAttachRequestArgs;
     protected cdpProxyLogLevel: LogLevel;
     protected debugSessionStatus: DebugSessionStatus;
-    protected session: vscode.DebugSession;
     protected nodeSession: vscode.DebugSession | null;
+    protected rnSession: RNSession;
+    protected vsCodeDebugSession: vscode.DebugSession;
     protected cancellationTokenSource: vscode.CancellationTokenSource;
 
-    constructor(session: vscode.DebugSession) {
+    constructor(rnSession: RNSession) {
         super();
 
         // constants definition
@@ -97,7 +99,8 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         this.terminateCommand = "terminate"; // the "terminate" command is sent from the client to the debug adapter in order to give the debuggee a chance for terminating itself
 
         // variables definition
-        this.session = session;
+        this.rnSession = rnSession;
+        this.vsCodeDebugSession = rnSession.vsCodeDebugSession;
         this.isSettingsInitialized = false;
         this.debugSessionStatus = DebugSessionStatus.FirstConnection;
         this.cancellationTokenSource = new vscode.CancellationTokenSource();
@@ -171,9 +174,9 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
             this.projectRootPath = projectRootPath;
             this.isSettingsInitialized = true;
             this.appLauncher.getOrUpdateNodeModulesRoot(true);
-            if (this.session.workspaceFolder) {
+            if (this.vsCodeDebugSession.workspaceFolder) {
                 this.appLauncher.updateDebugConfigurationRoot(
-                    this.session.workspaceFolder.uri.fsPath,
+                    this.vsCodeDebugSession.workspaceFolder.uri.fsPath,
                 );
             }
         }
@@ -210,7 +213,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         await logger.dispose();
 
         DebugSessionBase.rootSessionTerminatedEventEmitter.fire({
-            debugSession: this.session,
+            debugSession: this.vsCodeDebugSession,
             args: {
                 forcedStop: !!(<any>args).forcedStop,
             },
