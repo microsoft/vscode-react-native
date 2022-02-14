@@ -153,7 +153,6 @@ export class DirectDebugSession extends DebugSessionBase {
 
             void packager.forMessage(...args).then(
                 () => {
-                    console.log("herel");
                     this.showError(
                         ErrorHelper.getInternalError(
                             InternalErrorCode.AnotherDebuggerConnectedToPackager,
@@ -233,14 +232,11 @@ export class DirectDebugSession extends DebugSessionBase {
                 this.appTargetConnectionClosedHandlerDescriptor = this.appLauncher
                     .getRnCdpProxy()
                     .onApplicationTargetConnectionClosed(() => {
-                        console.log("onApplicationTargetConnectionClosed");
                         if (this.attachSession) {
-                            console.log("onApplicationTargetConnectionClosed with attachSession");
                             if (
                                 this.debugSessionStatus !== DebugSessionStatus.Stopping &&
                                 this.debugSessionStatus !== DebugSessionStatus.Stopped
                             ) {
-                                console.log(this.terminateCommand);
                                 void this.terminate();
                             }
                             this.appTargetConnectionClosedHandlerDescriptor?.dispose();
@@ -274,7 +270,6 @@ export class DirectDebugSession extends DebugSessionBase {
         request?: DebugProtocol.Request,
     ): Promise<void> {
         this.debugSessionStatus = DebugSessionStatus.Stopping;
-        console.log("RNdisconnectRequest");
 
         this.iOSWKDebugProxyHelper.cleanUp();
         this.onDidTerminateDebugSessionHandler.dispose();
@@ -311,7 +306,6 @@ export class DirectDebugSession extends DebugSessionBase {
             debugSession.configuration.rnDebugSessionId === this.rnSession.sessionId &&
             debugSession.type === this.pwaNodeSessionName
         ) {
-            console.log("TerminateDebugSession");
             void this.terminate();
         }
     }
@@ -322,7 +316,6 @@ export class DirectDebugSession extends DebugSessionBase {
             (debugSession as any).parentSession &&
             this.nodeSession.id === (debugSession as any).parentSession.id
         ) {
-            console.log("Add attachSession");
             this.attachSession = debugSession;
         }
         if (
