@@ -15,6 +15,7 @@ import { ILaunchArgs, IRunOptions, PlatformType } from "../extension/launchArgs"
 import { AppLauncher } from "../extension/appLauncher";
 import { RNPackageVersions } from "../common/projectVersionHelper";
 import { SettingsHelper } from "../extension/settingsHelper";
+import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
 import { RNSession } from "./debugSessionWrapper";
 
 nls.config({
@@ -41,6 +42,8 @@ export enum DebugSessionStatus {
     ConnectionFailed,
     /** The session is handling disconnect request now */
     Stopping,
+    /** The session is stopped */
+    Stopped,
 }
 
 export interface TerminateEventArgs {
@@ -210,6 +213,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
             }
         }
 
+        this.debugSessionStatus = DebugSessionStatus.Stopped;
         await logger.dispose();
 
         DebugSessionBase.rootSessionTerminatedEventEmitter.fire({
@@ -222,7 +226,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         this.sendResponse(response);
     }
 
-    protected showError(error: Error, response: DebugProtocol.Response): void {
+    protected terminateWithError(error: Error, response: DebugProtocol.Response): void {
         // We can't print error messages after the debugging session is stopped. This could break the extension work.
         if (
             (error instanceof InternalError || error instanceof NestedError) &&
@@ -254,5 +258,23 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
             this.appLauncher.getPackager().setRunOptions(runOptions);
             await this.appLauncher.getPackager().start();
         }
+    }
+
+    protected showError(error: Error): void {
+        void vscode.window.showErrorMessage(error.message, {
+            modal: true,
+        });
+        // We can't print error messages after the debugging session is stopped. This could break the extension work.
+        if (this.debugSessionStatus === DebugSessionStatus.Stopped) {
+            OutputChannelLogger.getMainChannel().error(error.message);
+            return;
+        }
+        logger.error(error.message);
+    }
+
+    protected async terminate(): Promise<void> {
+        await vscode.commands.executeCommand(this.stopCommand, undefined, {
+            sessionId: this.vsCodeDebugSession.id,
+        });
     }
 }

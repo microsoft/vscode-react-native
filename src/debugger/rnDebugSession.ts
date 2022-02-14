@@ -77,7 +77,7 @@ export class RNDebugSession extends DebugSessionBase {
             await this.vsCodeDebugSession.customRequest("attach", launchArgs);
             this.sendResponse(response);
         } catch (error) {
-            this.showError(error, response);
+            this.terminateWithError(error, response);
         }
     }
 
@@ -195,7 +195,7 @@ export class RNDebugSession extends DebugSessionBase {
                 this.sendResponse(response);
             })
             .catch(err =>
-                this.showError(
+                this.terminateWithError(
                     ErrorHelper.getInternalError(
                         InternalErrorCode.CouldNotAttachToDebugger,
                         err.message || err,
@@ -278,9 +278,7 @@ export class RNDebugSession extends DebugSessionBase {
             if (this.debugSessionStatus === DebugSessionStatus.ConnectionPending) {
                 this.establishDebugSession(this.previousAttachArgs);
             } else {
-                void vscode.commands.executeCommand(this.stopCommand, undefined, {
-                    sessionId: this.vsCodeDebugSession.id,
-                });
+                void this.terminate();
             }
         }
     }

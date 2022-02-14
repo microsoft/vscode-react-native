@@ -111,7 +111,7 @@ export class DirectDebugSession extends DebugSessionBase {
             await this.vsCodeDebugSession.customRequest("attach", launchArgs);
             this.sendResponse(response);
         } catch (error) {
-            this.showError(error, response);
+            this.terminateWithError(error, response);
         }
     }
 
@@ -153,12 +153,13 @@ export class DirectDebugSession extends DebugSessionBase {
 
             void packager.forMessage(...args).then(
                 () => {
+                    console.log("herel");
                     this.showError(
                         ErrorHelper.getInternalError(
                             InternalErrorCode.AnotherDebuggerConnectedToPackager,
                         ),
-                        response,
                     );
+                    void this.terminate();
                 },
                 () => {},
             );
@@ -234,12 +235,13 @@ export class DirectDebugSession extends DebugSessionBase {
                     .onApplicationTargetConnectionClosed(() => {
                         console.log("onApplicationTargetConnectionClosed");
                         if (this.attachSession) {
-                            if (this.debugSessionStatus !== DebugSessionStatus.Stopping) {
+                            console.log("onApplicationTargetConnectionClosed with attachSession");
+                            if (
+                                this.debugSessionStatus !== DebugSessionStatus.Stopping &&
+                                this.debugSessionStatus !== DebugSessionStatus.Stopped
+                            ) {
                                 console.log(this.terminateCommand);
-                                void vscode.commands.executeCommand(
-                                    this.stopCommand,
-                                    this.vsCodeDebugSession,
-                                );
+                                void this.terminate();
                             }
                             this.appTargetConnectionClosedHandlerDescriptor?.dispose();
                         }
@@ -256,7 +258,7 @@ export class DirectDebugSession extends DebugSessionBase {
             });
             this.sendResponse(response);
         } catch (error) {
-            this.showError(
+            this.terminateWithError(
                 ErrorHelper.getInternalError(
                     InternalErrorCode.CouldNotAttachToDebugger,
                     error.message || error,
@@ -310,9 +312,7 @@ export class DirectDebugSession extends DebugSessionBase {
             debugSession.type === this.pwaNodeSessionName
         ) {
             console.log("TerminateDebugSession");
-            void vscode.commands.executeCommand(this.stopCommand, undefined, {
-                sessionId: this.vsCodeDebugSession.id,
-            });
+            void this.terminate();
         }
     }
 
