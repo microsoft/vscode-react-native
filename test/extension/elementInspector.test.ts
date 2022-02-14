@@ -8,8 +8,8 @@ import {
 
 suite("elementInspector", function () {
     suite("extensionContext", function () {
-        const runElementInspector = new RunElementInspector();
-        const stopElementInspector = new StopElementInspector();
+        const runElementInspector = RunElementInspector.formInstance();
+        const stopElementInspector = StopElementInspector.formInstance();
 
         test("element inspector should run and close without errors", async function () {
             await runElementInspector.baseFn();

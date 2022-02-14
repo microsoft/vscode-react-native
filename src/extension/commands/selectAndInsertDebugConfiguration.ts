@@ -14,7 +14,6 @@ export class SelectAndInsertDebugConfiguration extends Command {
     label = "";
     requiresTrust = false;
     error = ErrorHelper.getInternalError(InternalErrorCode.CommandFailed);
-    requiresProject = false;
 
     async baseFn(
         document: vscode.TextDocument,

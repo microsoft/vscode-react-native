@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as assert from "assert";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ProjectVersionHelper, REACT_NATIVE_PACKAGES } from "../../common/projectVersionHelper";
@@ -10,7 +9,7 @@ import { TargetPlatformHelper } from "../../common/targetPlatformHelper";
 import { PlatformType } from "../launchArgs";
 import { TipNotificationService } from "../services/tipsNotificationsService/tipsNotificationService";
 import { WindowsPlatform } from "../windows/windowsPlatform";
-import { getRunOptions } from "./util";
+import { getRunOptions, selectProject } from "./util";
 import { ReactNativeCommand } from "./util/reactNativeCommand";
 
 export class RunWindows extends ReactNativeCommand {
@@ -19,7 +18,7 @@ export class RunWindows extends ReactNativeCommand {
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnWindows);
 
     async baseFn() {
-        assert(this.project);
+        this.project = await selectProject();
 
         const platform = new WindowsPlatform(getRunOptions(this.project, PlatformType.Windows), {
             packager: this.project.getPackager(),
@@ -30,7 +29,7 @@ export class RunWindows extends ReactNativeCommand {
     }
 
     async onBeforeExecute() {
-        assert(this.project);
+        this.project = await selectProject();
         void TipNotificationService.getInstance().setKnownDateForFeatureById(
             "debuggingRNWAndMacOSApps",
         );

@@ -12,6 +12,7 @@ import {
     DEBUG_CONFIGURATION_NAMES,
 } from "../debuggingConfiguration/debugConfigTypesAndConstants";
 import { Command } from "./util/command";
+import { selectProject } from "./util";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -45,7 +46,7 @@ export class AttachHermesApplicationExperimental extends Command {
     );
 
     async baseFn() {
-        assert(this.project);
+        this.project = await selectProject();
         startDebug(
             debugConfigurations[
                 DEBUG_CONFIGURATION_NAMES.ATTACH_TO_HERMES_APPLICATION_EXPERIMENTAL
@@ -64,7 +65,7 @@ export class AttachDirectIosExperimental extends Command {
     );
 
     async baseFn() {
-        assert(this.project);
+        this.project = await selectProject();
         startDebug(
             debugConfigurations[DEBUG_CONFIGURATION_NAMES.ATTACH_TO_DIRECT_IOS_EXPERIMENTAL],
             this.project,
@@ -81,7 +82,7 @@ export class AttachToPackager extends Command {
     );
 
     async baseFn() {
-        assert(this.project);
+        this.project = await selectProject();
         startDebug(debugConfigurations[DEBUG_CONFIGURATION_NAMES.ATTACH_TO_PACKAGER], this.project);
     }
 }
@@ -95,7 +96,7 @@ export class DebugAndroid extends Command {
     );
 
     async baseFn() {
-        assert(this.project);
+        this.project = await selectProject();
         startDebug(debugConfigurations[DEBUG_CONFIGURATION_NAMES.DEBUG_ANDROID], this.project);
     }
 }
@@ -109,7 +110,7 @@ export class DebugIos extends Command {
     );
 
     async baseFn() {
-        assert(this.project);
+        this.project = await selectProject();
         startDebug(debugConfigurations[DEBUG_CONFIGURATION_NAMES.DEBUG_IOS], this.project);
     }
 }
@@ -123,7 +124,7 @@ export class DebugWindows extends Command {
     );
 
     async baseFn() {
-        assert(this.project);
+        this.project = await selectProject();
         startDebug(debugConfigurations[DEBUG_CONFIGURATION_NAMES.DEBUG_WINDOWS], this.project);
     }
 }
@@ -137,7 +138,7 @@ export class DebugMacos extends Command {
     );
 
     async baseFn() {
-        assert(this.project);
+        this.project = await selectProject();
         startDebug(debugConfigurations[DEBUG_CONFIGURATION_NAMES.DEBUG_MACOS], this.project);
     }
 }
@@ -151,7 +152,7 @@ export class DebugInExponent extends Command {
     );
 
     async baseFn() {
-        assert(this.project);
+        this.project = await selectProject();
         startDebug(debugConfigurations[DEBUG_CONFIGURATION_NAMES.DEBUG_IN_EXPONENT], this.project);
     }
 }
@@ -165,7 +166,7 @@ export class DebugAndroidHermesExperimental extends Command {
     );
 
     async baseFn() {
-        assert(this.project);
+        this.project = await selectProject();
         startDebug(
             debugConfigurations[DEBUG_CONFIGURATION_NAMES.DEBUG_ANDROID_HERMES_EXPERIMENTAL],
             this.project,
@@ -182,7 +183,7 @@ export class DebugDirectIosExperimental extends Command {
     );
 
     async baseFn() {
-        assert(this.project);
+        this.project = await selectProject();
         startDebug(
             debugConfigurations[DEBUG_CONFIGURATION_NAMES.DEBUG_DIRECT_IOS_EXPERIMENTAL],
             this.project,
@@ -199,7 +200,7 @@ export class DebugIosHermesExperimental extends Command {
     );
 
     async baseFn() {
-        assert(this.project);
+        this.project = await selectProject();
         startDebug(
             debugConfigurations[DEBUG_CONFIGURATION_NAMES.DEBUG_IOS_HERMES_EXPERIMENTAL],
             this.project,
@@ -216,7 +217,7 @@ export class DebugMacosHermesExperimental extends Command {
     );
 
     async baseFn() {
-        assert(this.project);
+        this.project = await selectProject();
         startDebug(
             debugConfigurations[DEBUG_CONFIGURATION_NAMES.DEBUG_MACOS_HERMES_EXPERIMENTAL],
             this.project,
@@ -233,7 +234,7 @@ export class DebugWindowsHermesExperimental extends Command {
     );
 
     async baseFn() {
-        assert(this.project);
+        this.project = await selectProject();
         startDebug(
             debugConfigurations[DEBUG_CONFIGURATION_NAMES.DEBUG_WINDOWS_HERMES_EXPERIMENTAL],
             this.project,
@@ -250,7 +251,7 @@ export class RunAndroid extends Command {
     );
 
     async baseFn() {
-        assert(this.project);
+        this.project = await selectProject();
         startDebug(debugConfigurations[DEBUG_CONFIGURATION_NAMES.RUN_ANDROID], this.project);
     }
 }
@@ -264,7 +265,7 @@ export class RunIos extends Command {
     );
 
     async baseFn() {
-        assert(this.project);
+        this.project = await selectProject();
         startDebug(debugConfigurations[DEBUG_CONFIGURATION_NAMES.RUN_IOS], this.project);
     }
 }
@@ -278,7 +279,7 @@ export class RunAndroidHermesExperimental extends Command {
     );
 
     async baseFn() {
-        assert(this.project);
+        this.project = await selectProject();
         startDebug(
             debugConfigurations[DEBUG_CONFIGURATION_NAMES.RUN_ANDROID_HERMES_EXPERIMENTAL],
             this.project,
@@ -295,7 +296,7 @@ export class RunIosHermesExperimental extends Command {
     );
 
     async baseFn() {
-        assert(this.project);
+        this.project = await selectProject();
         startDebug(
             debugConfigurations[DEBUG_CONFIGURATION_NAMES.RUN_IOS_HERMES_EXPERIMENTAL],
             this.project,
@@ -312,7 +313,7 @@ export class RunDirectIosExperimental extends Command {
     );
 
     async baseFn() {
-        assert(this.project);
+        this.project = await selectProject();
         startDebug(
             debugConfigurations[DEBUG_CONFIGURATION_NAMES.RUN_DIRECT_IOS_EXPERIMENTAL],
             this.project,

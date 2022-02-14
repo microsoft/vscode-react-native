@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as assert from "assert";
 import * as nls from "vscode-nls";
 import * as vscode from "vscode";
 import { ErrorHelper } from "../../common/error/errorHelper";
@@ -14,6 +13,7 @@ import { TipNotificationService } from "../services/tipsNotificationsService/tip
 import { SettingsHelper } from "../settingsHelper";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { Command } from "./util/command";
+import { selectProject } from "./util";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -28,7 +28,7 @@ export class StartLogCatMonitor extends Command {
     error = ErrorHelper.getInternalError(InternalErrorCode.AndroidCouldNotStartLogCatMonitor);
 
     async baseFn() {
-        assert(this.project);
+        this.project = await selectProject();
         const logger = OutputChannelLogger.getMainChannel();
 
         void TipNotificationService.getInstance().setKnownDateForFeatureById("logCatMonitor");

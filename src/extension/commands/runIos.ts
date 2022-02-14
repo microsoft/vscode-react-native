@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as assert from "assert";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
@@ -10,13 +9,13 @@ import { AppLauncher } from "../appLauncher";
 import { TargetType } from "../generalPlatform";
 import { IOSPlatform } from "../ios/iOSPlatform";
 import { PlatformType } from "../launchArgs";
-import { getRunOptions } from "./util";
+import { getRunOptions, selectProject } from "./util";
 import { ReactNativeCommand } from "./util/reactNativeCommand";
 
 abstract class RunIos extends ReactNativeCommand {
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnIos);
     async onBeforeExecute() {
-        assert(this.project);
+        this.project = await selectProject();
         const nodeModulesRoot = this.project.getOrUpdateNodeModulesRoot();
         const versions = await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
             nodeModulesRoot,
@@ -31,7 +30,7 @@ export class RunIosDevice extends RunIos {
     label = "Run iOS on Device";
 
     async baseFn() {
-        assert(this.project);
+        this.project = await selectProject();
         await runIos(TargetType.Device, this.project);
     }
 }
@@ -41,7 +40,7 @@ export class RunIosSimulator extends RunIos {
     label = "Run iOS on Simulator";
 
     async baseFn() {
-        assert(this.project);
+        this.project = await selectProject();
         await runIos(TargetType.Simulator, this.project);
     }
 }

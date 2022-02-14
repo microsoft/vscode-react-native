@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import * as assert from "assert";
 import * as vscode from "vscode";
 import * as nls from "vscode-nls";
 import { AppLauncher } from "../../appLauncher";
@@ -15,6 +16,9 @@ import { OutputChannelLogger } from "../../log/OutputChannelLogger";
 import { SettingsHelper } from "../../settingsHelper";
 import { TargetType } from "../../generalPlatform";
 import { CommandExecutor } from "../../../common/commandExecutor";
+import { ProjectsStorage } from "../../projectsStorage";
+import { ErrorHelper } from "../../../common/error/errorHelper";
+import { InternalErrorCode } from "../../../common/error/internalErrorCode";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -76,4 +80,28 @@ export const loginToExponent = (project: AppLauncher): Promise<xdl.IUser> => {
             );
             throw err;
         });
+};
+
+export const selectProject = async () => {
+    const logger = OutputChannelLogger.getMainChannel();
+    const projectKeys = Object.keys(ProjectsStorage.projectsCache);
+
+    if (projectKeys.length === 0) {
+        throw ErrorHelper.getInternalError(
+            InternalErrorCode.WorkspaceNotFound,
+            "Current workspace does not contain React Native projects.",
+        );
+    }
+
+    if (projectKeys.length === 1) {
+        logger.debug(`Command palette: once project ${projectKeys[0]}`);
+        return ProjectsStorage.projectsCache[projectKeys[0]];
+    }
+
+    const selected = await vscode.window.showQuickPick(projectKeys).then(it => it);
+
+    assert(selected, "Selection canceled");
+
+    logger.debug(`Command palette: selected project ${selected}`);
+    return ProjectsStorage.projectsCache[selected];
 };

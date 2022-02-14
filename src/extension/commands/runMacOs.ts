@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as assert from "assert";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ProjectVersionHelper, REACT_NATIVE_PACKAGES } from "../../common/projectVersionHelper";
@@ -10,7 +9,7 @@ import { TargetPlatformHelper } from "../../common/targetPlatformHelper";
 import { PlatformType } from "../launchArgs";
 import { MacOSPlatform } from "../macos/macOSPlatform";
 import { TipNotificationService } from "../services/tipsNotificationsService/tipsNotificationService";
-import { getRunOptions } from "./util";
+import { getRunOptions, selectProject } from "./util";
 import { ReactNativeCommand } from "./util/reactNativeCommand";
 
 export class RunMacOS extends ReactNativeCommand {
@@ -19,7 +18,7 @@ export class RunMacOS extends ReactNativeCommand {
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnMacOS);
 
     async baseFn() {
-        assert(this.project);
+        this.project = await selectProject();
 
         const platform = new MacOSPlatform(getRunOptions(this.project, PlatformType.macOS), {
             packager: this.project.getPackager(),
@@ -35,7 +34,7 @@ export class RunMacOS extends ReactNativeCommand {
     }
 
     async onBeforeExecute() {
-        assert(this.project);
+        this.project = await selectProject();
         void TipNotificationService.getInstance().setKnownDateForFeatureById(
             "debuggingRNWAndMacOSApps",
         );

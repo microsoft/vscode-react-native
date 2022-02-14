@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as assert from "assert";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ProjectVersionHelper, REACT_NATIVE_PACKAGES } from "../../common/projectVersionHelper";
@@ -9,6 +8,7 @@ import { RNProjectObserver } from "../rnProjectObserver";
 import { runChecks } from "../services/validationService/checker";
 import { ValidationCategoryE } from "../services/validationService/checks/types";
 import { SettingsHelper } from "../settingsHelper";
+import { selectProject } from "./util";
 import { Command } from "./util/command";
 
 export class TestDevEnvironment extends Command {
@@ -18,7 +18,7 @@ export class TestDevEnvironment extends Command {
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToTestDevEnvironment);
 
     private async createRNProjectObserver() {
-        assert(this.project);
+        this.project = await selectProject();
 
         const nodeModulesRoot = this.project.getOrUpdateNodeModulesRoot();
         const projectRootPath = SettingsHelper.getReactNativeProjectRoot(
@@ -32,7 +32,7 @@ export class TestDevEnvironment extends Command {
     }
 
     async baseFn() {
-        assert(this.project);
+        this.project = await selectProject();
 
         const projectObserver = await this.createRNProjectObserver().catch(() => {});
         const shouldCheck = {

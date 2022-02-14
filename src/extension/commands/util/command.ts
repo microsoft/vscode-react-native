@@ -10,19 +10,33 @@ import { InternalErrorCode } from "../../../common/error/internalErrorCode";
 import { AppLauncher } from "../../appLauncher";
 import { PlatformType } from "../../launchArgs";
 import { OutputChannelLogger } from "../../log/OutputChannelLogger";
-import { ProjectsStorage } from "../../projectsStorage";
 
 export abstract class Command {
-    private static instances = new Set<typeof Command>();
+    private static instances = new Map<typeof Command, unknown>();
 
-    private entryPointHandler?: EntryPointHandler;
+    static formInstance<T extends typeof Command>(this: T): T["prototype"] {
+        // 'any' because TypeScript is wrong
+        // workaround from https://github.com/microsoft/TypeScript/issues/5863
+        const result = this.instances.get(this) || new (this as any)();
+        this.instances.set(this, result);
+        return result;
+    }
 
     abstract readonly codeName: string;
     abstract readonly label: string;
     abstract readonly error: InternalError;
 
-    /** Initialize project property before executing command */
-    requiresProject = true;
+    private entryPointHandler?: EntryPointHandler;
+
+    // strange typing - see ReactNativeCommand, which extends this class
+    /** Execute base command without telemetry */
+    async executeLocally<T extends typeof Command>(
+        this: T["prototype"],
+        ...args: Parameters<T["prototype"]["baseFn"]>
+    ) {
+        await this.baseFn(...args);
+    }
+
     /** Throw an Error if workspace is not trusted before executing command */
     requiresTrust = true;
 
@@ -36,10 +50,7 @@ export abstract class Command {
 
     protected project?: AppLauncher;
 
-    constructor() {
-        assert(!Command.instances.has(new.target), "Command can only be created once");
-        Command.instances.add(new.target);
-    }
+    protected constructor() {}
 
     abstract baseFn(...args: any[]): Promise<void>; // add vscode command arguments
 
@@ -48,10 +59,6 @@ export abstract class Command {
             assert(this.entryPointHandler, "this.entryPointHandler is not defined");
 
             const outputChannelLogger = OutputChannelLogger.getMainChannel();
-
-            if (this.requiresProject) {
-                this.project = await this.selectProject();
-            }
 
             if (this.requiresTrust && !isWorkspaceTrusted()) {
                 throw ErrorHelper.getInternalError(
@@ -99,28 +106,4 @@ export abstract class Command {
             );
         };
     })();
-
-    private async selectProject() {
-        const logger = OutputChannelLogger.getMainChannel();
-        const projectKeys = Object.keys(ProjectsStorage.projectsCache);
-
-        if (projectKeys.length === 0) {
-            throw ErrorHelper.getInternalError(
-                InternalErrorCode.WorkspaceNotFound,
-                "Current workspace does not contain React Native projects.",
-            );
-        }
-
-        if (projectKeys.length === 1) {
-            logger.debug(`Command palette: once project ${projectKeys[0]}`);
-            return ProjectsStorage.projectsCache[projectKeys[0]];
-        }
-
-        const selected = await vscode.window.showQuickPick(projectKeys).then(it => it);
-
-        assert(selected, "Selection canceled");
-
-        logger.debug(`Command palette: selected project ${selected}`);
-        return ProjectsStorage.projectsCache[selected];
-    }
 }

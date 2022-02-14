@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as assert from "assert";
 import * as child_process from "child_process";
 import * as nls from "vscode-nls";
 import { ErrorHelper } from "../../common/error/errorHelper";
@@ -24,7 +23,7 @@ export class RunElementInspector extends Command {
     codeName = "runInspector";
     label = "Run Element Inspector";
     requiresTrust = false;
-    requiresProject = false;
+
     error = ErrorHelper.getInternalError(
         InternalErrorCode.CommandFailed,
         localize("ReactNativeRunElementInspector", "React Native: Run Element Inspector"),
@@ -75,7 +74,7 @@ export class StopElementInspector extends Command {
     codeName = "stopInspector";
     label = "Stop Element Inspector";
     requiresTrust = false;
-    requiresProject = false;
+
     error = ErrorHelper.getInternalError(
         InternalErrorCode.CommandFailed,
         localize("ReactNativeStopElementInspector", "React Native: Stop Element Inspector"),
