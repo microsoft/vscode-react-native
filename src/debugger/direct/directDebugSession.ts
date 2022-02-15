@@ -111,7 +111,7 @@ export class DirectDebugSession extends DebugSessionBase {
             await this.vsCodeDebugSession.customRequest("attach", launchArgs);
             this.sendResponse(response);
         } catch (error) {
-            this.terminateWithError(error, response);
+            this.terminateWithErrorResponse(error, response);
         }
     }
 
@@ -254,7 +254,7 @@ export class DirectDebugSession extends DebugSessionBase {
             });
             this.sendResponse(response);
         } catch (error) {
-            this.terminateWithError(
+            this.terminateWithErrorResponse(
                 ErrorHelper.getInternalError(
                     InternalErrorCode.CouldNotAttachToDebugger,
                     error.message || error,

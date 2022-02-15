@@ -77,7 +77,7 @@ export class RNDebugSession extends DebugSessionBase {
             await this.vsCodeDebugSession.customRequest("attach", launchArgs);
             this.sendResponse(response);
         } catch (error) {
-            this.terminateWithError(error, response);
+            this.terminateWithErrorResponse(error, response);
         }
     }
 
@@ -195,7 +195,7 @@ export class RNDebugSession extends DebugSessionBase {
                 this.sendResponse(response);
             })
             .catch(err =>
-                this.terminateWithError(
+                this.terminateWithErrorResponse(
                     ErrorHelper.getInternalError(
                         InternalErrorCode.CouldNotAttachToDebugger,
                         err.message || err,

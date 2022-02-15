@@ -226,7 +226,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         this.sendResponse(response);
     }
 
-    protected terminateWithError(error: Error, response: DebugProtocol.Response): void {
+    protected terminateWithErrorResponse(error: Error, response: DebugProtocol.Response): void {
         // We can't print error messages after the debugging session is stopped. This could break the extension work.
         if (
             (error instanceof InternalError || error instanceof NestedError) &&
@@ -264,7 +264,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         void vscode.window.showErrorMessage(error.message, {
             modal: true,
         });
-        // We can't print error messages after the debugging session is stopped. This could break the extension work.
+        // We can't print error messages via debug session logger after the session is stopped. This could break the extension work.
         if (this.debugSessionStatus === DebugSessionStatus.Stopped) {
             OutputChannelLogger.getMainChannel().error(error.message);
             return;
