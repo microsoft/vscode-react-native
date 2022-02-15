@@ -68,7 +68,7 @@ export class Packager {
     private static OPN_PACKAGE_MAIN_FILENAME = "index.js";
     private static fs: FileSystem = new FileSystem();
     private expoHelper: ExponentHelper;
-    private runOptions: IRunOptions;
+    private runOptions?: IRunOptions;
 
     constructor(
         private workspacePath: string,

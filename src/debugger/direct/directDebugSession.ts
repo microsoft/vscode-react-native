@@ -8,7 +8,12 @@ import * as nls from "vscode-nls";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
 import { TelemetryHelper } from "../../common/telemetryHelper";
 import { HermesCDPMessageHandler } from "../../cdp-proxy/CDPMessageHandlers/hermesCDPMessageHandler";
-import { DebugSessionBase, IAttachRequestArgs, ILaunchRequestArgs } from "../debugSessionBase";
+import {
+    DebugSessionBase,
+    DebugSessionStatus,
+    IAttachRequestArgs,
+    ILaunchRequestArgs,
+} from "../debugSessionBase";
 import { JsDebugConfigAdapter } from "../jsDebugConfigAdapter";
 import { DebuggerEndpointHelper } from "../../cdp-proxy/debuggerEndpointHelper";
 import { ErrorHelper } from "../../common/error/errorHelper";
@@ -29,15 +34,23 @@ const localize = nls.loadMessageBundle();
 export class DirectDebugSession extends DebugSessionBase {
     private debuggerEndpointHelper: DebuggerEndpointHelper;
     private onDidTerminateDebugSessionHandler: vscode.Disposable;
+    private onDidStartDebugSessionHandler: vscode.Disposable;
+    private appTargetConnectionClosedHandlerDescriptor?: vscode.Disposable;
+    private attachSession: vscode.DebugSession | null;
     private iOSWKDebugProxyHelper: IWDPHelper;
 
     constructor(rnSession: RNSession) {
         super(rnSession);
         this.debuggerEndpointHelper = new DebuggerEndpointHelper();
         this.iOSWKDebugProxyHelper = new IWDPHelper();
+        this.attachSession = null;
 
         this.onDidTerminateDebugSessionHandler = vscode.debug.onDidTerminateDebugSession(
             this.handleTerminateDebugSession.bind(this),
+        );
+
+        this.onDidStartDebugSessionHandler = vscode.debug.onDidStartDebugSession(
+            this.handleStartDebugSession.bind(this),
         );
     }
 
@@ -98,7 +111,7 @@ export class DirectDebugSession extends DebugSessionBase {
             await this.vsCodeDebugSession.customRequest("attach", launchArgs);
             this.sendResponse(response);
         } catch (error) {
-            this.showError(error, response);
+            this.terminateWithErrorResponse(error, response);
         }
     }
 
@@ -144,8 +157,8 @@ export class DirectDebugSession extends DebugSessionBase {
                         ErrorHelper.getInternalError(
                             InternalErrorCode.AnotherDebuggerConnectedToPackager,
                         ),
-                        response,
                     );
+                    void this.terminate();
                 },
                 () => {},
             );
@@ -216,6 +229,20 @@ export class DirectDebugSession extends DebugSessionBase {
                     await this.preparePackagerBeforeAttach(attachArgs, versions);
                 }
 
+                this.appTargetConnectionClosedHandlerDescriptor = this.appLauncher
+                    .getRnCdpProxy()
+                    .onApplicationTargetConnectionClosed(() => {
+                        if (this.attachSession) {
+                            if (
+                                this.debugSessionStatus !== DebugSessionStatus.Stopping &&
+                                this.debugSessionStatus !== DebugSessionStatus.Stopped
+                            ) {
+                                void this.terminate();
+                            }
+                            this.appTargetConnectionClosedHandlerDescriptor?.dispose();
+                        }
+                    });
+
                 const browserInspectUri = await this.debuggerEndpointHelper.retryGetWSEndpoint(
                     `http://localhost:${attachArgs.port}`,
                     90,
@@ -227,7 +254,7 @@ export class DirectDebugSession extends DebugSessionBase {
             });
             this.sendResponse(response);
         } catch (error) {
-            this.showError(
+            this.terminateWithErrorResponse(
                 ErrorHelper.getInternalError(
                     InternalErrorCode.CouldNotAttachToDebugger,
                     error.message || error,
@@ -242,9 +269,13 @@ export class DirectDebugSession extends DebugSessionBase {
         args: DebugProtocol.DisconnectArguments,
         request?: DebugProtocol.Request,
     ): Promise<void> {
+        this.debugSessionStatus = DebugSessionStatus.Stopping;
+
         this.iOSWKDebugProxyHelper.cleanUp();
         this.onDidTerminateDebugSessionHandler.dispose();
+        this.onDidStartDebugSessionHandler.dispose();
         this.appLauncher.getPackager().closeWsConnection();
+        this.appTargetConnectionClosedHandlerDescriptor?.dispose();
         return super.disconnectRequest(response, args, request);
     }
 
@@ -275,9 +306,23 @@ export class DirectDebugSession extends DebugSessionBase {
             debugSession.configuration.rnDebugSessionId === this.rnSession.sessionId &&
             debugSession.type === this.pwaNodeSessionName
         ) {
-            void vscode.commands.executeCommand(this.stopCommand, undefined, {
-                sessionId: this.vsCodeDebugSession.id,
-            });
+            void this.terminate();
+        }
+    }
+
+    private handleStartDebugSession(debugSession: vscode.DebugSession): void {
+        if (
+            this.nodeSession &&
+            (debugSession as any).parentSession &&
+            this.nodeSession.id === (debugSession as any).parentSession.id
+        ) {
+            this.attachSession = debugSession;
+        }
+        if (
+            debugSession.configuration.rnDebugSessionId === this.rnSession.sessionId &&
+            debugSession.type === this.pwaNodeSessionName
+        ) {
+            this.nodeSession = debugSession;
         }
     }
 

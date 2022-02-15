@@ -29,18 +29,12 @@ nls.config({
 const localize = nls.loadMessageBundle();
 
 export class RNDebugSession extends DebugSessionBase {
-    private readonly terminateCommand: string;
-
     private appWorker: MultipleLifetimesAppWorker | null;
-    private nodeSession: vscode.DebugSession | null;
     private onDidStartDebugSessionHandler: vscode.Disposable;
     private onDidTerminateDebugSessionHandler: vscode.Disposable;
 
     constructor(rnSession: RNSession) {
         super(rnSession);
-
-        // constants definition
-        this.terminateCommand = "terminate"; // the "terminate" command is sent from the client to the debug adapter in order to give the debuggee a chance for terminating itself
 
         // variables definition
         this.appWorker = null;
@@ -83,7 +77,7 @@ export class RNDebugSession extends DebugSessionBase {
             await this.vsCodeDebugSession.customRequest("attach", launchArgs);
             this.sendResponse(response);
         } catch (error) {
-            this.showError(error, response);
+            this.terminateWithErrorResponse(error, response);
         }
     }
 
@@ -201,7 +195,7 @@ export class RNDebugSession extends DebugSessionBase {
                 this.sendResponse(response);
             })
             .catch(err =>
-                this.showError(
+                this.terminateWithErrorResponse(
                     ErrorHelper.getInternalError(
                         InternalErrorCode.CouldNotAttachToDebugger,
                         err.message || err,
@@ -284,9 +278,7 @@ export class RNDebugSession extends DebugSessionBase {
             if (this.debugSessionStatus === DebugSessionStatus.ConnectionPending) {
                 this.establishDebugSession(this.previousAttachArgs);
             } else {
-                void vscode.commands.executeCommand(this.stopCommand, undefined, {
-                    sessionId: this.vsCodeDebugSession.id,
-                });
+                void this.terminate();
             }
         }
     }
