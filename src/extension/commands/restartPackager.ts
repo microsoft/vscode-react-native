@@ -16,7 +16,6 @@ export class RestartPackager extends ReactNativeCommand {
     async baseFn() {
         this.project = await selectProject();
         const nodeModulesRoot = this.project.getOrUpdateNodeModulesRoot();
-        // #todo> why is this required?
         await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(nodeModulesRoot);
 
         return await this.project

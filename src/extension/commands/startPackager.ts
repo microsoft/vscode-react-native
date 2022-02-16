@@ -14,7 +14,6 @@ export class StartPackager extends ReactNativeCommand {
 
     async baseFn() {
         this.project = await selectProject();
-        // #todo> why is this required?
         await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
             this.project.getOrUpdateNodeModulesRoot(),
         );

@@ -4,6 +4,7 @@
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ProjectVersionHelper, REACT_NATIVE_PACKAGES } from "../../common/projectVersionHelper";
+import { AppLauncher } from "../appLauncher";
 import { RNProjectObserver } from "../rnProjectObserver";
 import { runChecks } from "../services/validationService/checker";
 import { ValidationCategoryE } from "../services/validationService/checks/types";
@@ -17,12 +18,10 @@ export class TestDevEnvironment extends Command {
     requiresTrust = false;
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToTestDevEnvironment);
 
-    private async createRNProjectObserver() {
-        this.project = await selectProject();
-
-        const nodeModulesRoot = this.project.getOrUpdateNodeModulesRoot();
+    private async createRNProjectObserver(project: AppLauncher) {
+        const nodeModulesRoot = project.getOrUpdateNodeModulesRoot();
         const projectRootPath = SettingsHelper.getReactNativeProjectRoot(
-            this.project.getWorkspaceFolderUri().fsPath,
+            project.getWorkspaceFolderUri().fsPath,
         );
         const versions = await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
             nodeModulesRoot,
@@ -32,9 +31,9 @@ export class TestDevEnvironment extends Command {
     }
 
     async baseFn() {
-        this.project = await selectProject();
+        const project = await selectProject();
 
-        const projectObserver = await this.createRNProjectObserver().catch(() => {});
+        const projectObserver = await this.createRNProjectObserver(project).catch(() => {});
         const shouldCheck = {
             [ValidationCategoryE.Expo]:
                 (await this.project

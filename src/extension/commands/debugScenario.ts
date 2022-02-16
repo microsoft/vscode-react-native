@@ -32,7 +32,6 @@ const startDebug = (debugConfig: typeof debugConfigurations[string], project: Ap
         ),
     );
 
-    // #todo> why is this here?
     debugConfig.isDynamic = true;
     void vscode.debug.startDebugging(project.getWorkspaceFolder(), debugConfig);
 };
