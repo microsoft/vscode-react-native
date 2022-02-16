@@ -1,11 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+// import { cat } from "shelljs";
 import { CancellationTokenSource, Disposable } from "vscode";
 
 /**
  * Utilities for working with promises.
  */
+
 export class PromiseUtil {
     public static async forEach<T>(
         sources: T[],
@@ -89,12 +91,17 @@ export class PromiseUtil {
             };
 
             const tryToResolve = async (): Promise<boolean> => {
-                const result = await condition();
-                if (result) {
+                try {
+                    const result = await condition();
+                    if (result) {
+                        cleanup();
+                        resolve(result);
+                    }
+                    return !!result;
+                } catch (err) {
                     cleanup();
-                    resolve(result);
+                    throw err;
                 }
-                return !!result;
             };
 
             const resolved = await tryToResolve();
