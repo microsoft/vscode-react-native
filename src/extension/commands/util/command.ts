@@ -3,6 +3,7 @@
 
 import assert = require("assert");
 import * as vscode from "vscode";
+import { selectProject } from ".";
 import { EntryPointHandler } from "../../../common/entryPointHandler";
 import { ErrorHelper } from "../../../common/error/errorHelper";
 import { InternalError } from "../../../common/error/internalError";
@@ -26,20 +27,6 @@ export abstract class Command {
     abstract readonly label: string;
     abstract readonly error: InternalError;
 
-    private entryPointHandler?: EntryPointHandler;
-
-    // strange typing - see ReactNativeCommand, which extends this class
-    /** Execute base command without telemetry */
-    async executeLocally<T extends typeof Command>(
-        this: T["prototype"],
-        ...args: Parameters<T["prototype"]["baseFn"]>
-    ) {
-        await this.baseFn(...args);
-    }
-
-    /** Throw an Error if workspace is not trusted before executing command */
-    requiresTrust = true;
-
     get platform(): string {
         return (
             [PlatformType.Android, PlatformType.iOS, PlatformType.Exponent].find(it =>
@@ -48,26 +35,23 @@ export abstract class Command {
         );
     }
 
+    private entryPointHandler?: EntryPointHandler;
+
+    /** Initialize project property before executing command */
+    protected requiresProject = true;
+
+    /** Throw an Error if workspace is not trusted before executing command */
+    protected requiresTrust = true;
+
     protected project?: AppLauncher;
 
     protected constructor() {}
 
-    abstract baseFn(...args: any[]): Promise<void>; // add vscode command arguments
-
-    protected createHandler(fn = this.baseFn.bind(this)) {
+    protected createHandler(fn: typeof this.baseFn = this.baseFn.bind(this)) {
         return async (...args: any[]) => {
             assert(this.entryPointHandler, "this.entryPointHandler is not defined");
 
             const outputChannelLogger = OutputChannelLogger.getMainChannel();
-
-            if (this.requiresTrust && !isWorkspaceTrusted()) {
-                throw ErrorHelper.getInternalError(
-                    InternalErrorCode.WorkspaceIsNotTrusted,
-                    this.project || undefined,
-                    this.label,
-                );
-            }
-
             outputChannelLogger.debug(`Run command: ${this.codeName}`);
 
             await this.entryPointHandler.runFunctionWExtProps(
@@ -79,7 +63,22 @@ export abstract class Command {
                     },
                 },
                 this.error,
-                fn.bind(this, ...args),
+                async () => {
+                    if (this.requiresProject) {
+                        this.project = await selectProject();
+                        assert(this.project, "Selection canceled");
+                    }
+
+                    if (this.requiresTrust && !isWorkspaceTrusted()) {
+                        throw ErrorHelper.getInternalError(
+                            InternalErrorCode.WorkspaceIsNotTrusted,
+                            this.project?.getPackager().getProjectPath() || undefined,
+                            this.label,
+                        );
+                    }
+
+                    await fn(...args);
+                },
             );
         };
 
@@ -91,6 +90,21 @@ export abstract class Command {
 
             return true;
         }
+    }
+
+    abstract baseFn(...args: unknown[]): Promise<void>;
+
+    // strange typing - see ReactNativeCommand, which extends this class
+    /** Execute base command without telemetry */
+    async executeLocally<T extends typeof Command>(
+        this: T["prototype"],
+        ...args: Parameters<T["prototype"]["baseFn"]>
+    ) {
+        if (this.requiresProject) {
+            this.project = await selectProject();
+        }
+
+        await this.baseFn(...args);
     }
 
     register = (() => {

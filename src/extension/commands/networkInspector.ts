@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import * as assert from "assert";
 import * as nls from "vscode-nls";
 import * as vscode from "vscode";
 import { ErrorHelper } from "../../common/error/errorHelper";
@@ -13,7 +14,6 @@ import { NetworkInspectorServer } from "../networkInspector/networkInspectorServ
 import { CONTEXT_VARIABLES_NAMES } from "../../common/contextVariablesNames";
 import { InspectorViewFactory } from "../networkInspector/views/inspectorViewFactory";
 import { Command } from "./util/command";
-import { selectProject } from "./util";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -37,7 +37,7 @@ export class StartNetworkInspector extends Command {
     error = ErrorHelper.getInternalError(InternalErrorCode.CouldNotStartNetworkInspector);
 
     async baseFn() {
-        this.project = await selectProject();
+        assert(this.project);
 
         const logger = OutputChannelLogger.getMainChannel();
 

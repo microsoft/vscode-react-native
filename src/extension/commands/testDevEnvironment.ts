@@ -16,6 +16,7 @@ export class TestDevEnvironment extends Command {
     codeName = "testDevEnvironment";
     label = "Check development environment configuration";
     requiresTrust = false;
+    requiresProject = false;
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToTestDevEnvironment);
 
     private async createRNProjectObserver(project: AppLauncher) {
@@ -31,9 +32,12 @@ export class TestDevEnvironment extends Command {
     }
 
     async baseFn() {
-        const project = await selectProject();
+        this.project = await selectProject().catch(() => undefined);
 
-        const projectObserver = await this.createRNProjectObserver(project).catch(() => {});
+        const projectObserver =
+            this.project &&
+            (await this.createRNProjectObserver(this.project).catch(() => undefined));
+
         const shouldCheck = {
             [ValidationCategoryE.Expo]:
                 (await this.project
@@ -41,6 +45,7 @@ export class TestDevEnvironment extends Command {
                     .getExponentHelper()
                     .isExpoManagedApp(false)
                     .catch(() => false)) || false,
+
             [ValidationCategoryE.Windows]:
                 (projectObserver && projectObserver.isRNWindowsProject) || false,
         } as const;

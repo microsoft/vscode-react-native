@@ -1,13 +1,14 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import * as assert from "assert";
 import * as nls from "vscode-nls";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { PlatformType } from "../launchArgs";
 import { AndroidPlatform } from "../android/androidPlatform";
 import { IOSPlatform } from "../ios/iOSPlatform";
-import { getRunOptions, selectProject } from "./util";
+import { getRunOptions } from "./util";
 import { Command } from "./util/command";
 
 nls.config({
@@ -27,7 +28,7 @@ export class ShowDevMenu extends Command {
     );
 
     async baseFn() {
-        this.project = await selectProject();
+        assert(this.project);
 
         const androidPlatform = new AndroidPlatform(
             getRunOptions(this.project, PlatformType.Android),
