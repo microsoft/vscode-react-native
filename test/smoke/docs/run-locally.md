@@ -1,13 +1,13 @@
 # Running automated smoke tests locally
 
-Tests support running on **Windows 10**, **MacOS Catalina** and **Ubuntu 18.04** machines. Use instructions respected to your machine type.
+Tests support running on **Windows 10**, **MacOS Monterey** and **Ubuntu 18.04** machines. Use instructions respected to your machine type.
 Please, be aware that automated tests don't cover debugging cases on real devices - only emulators/simulators.
 
 ## Prerequisites
 
 Make sure you are on `Node.JS >= 14.x`.
 
-Tests are running using [VS Code automation package](https://github.com/microsoft/vscode/tree/master/test/automation), so before the tests runs the VS Code build tools are required to be installed. Please make sure that [instructions for building VS Code from sources](https://github.com/microsoft/vscode/wiki/How-to-Contribute#prerequisites) are completed before running the tests.
+Tests are running using [VS Code automation package](https://github.com/microsoft/vscode/tree/main/test/automation), so before the tests runs the VS Code build tools are required to be installed. Please make sure that [instructions for building VS Code from sources](https://github.com/microsoft/vscode/wiki/How-to-Contribute#prerequisites) are completed before running the tests.
 
 ### Windows only
    * [Install Chocolatey](https://chocolatey.org/install)
@@ -49,17 +49,14 @@ Tests are running using [VS Code automation package](https://github.com/microsof
      * **Mac**: `/Users/<username>/Library/Android/sdk`
      * **Linux**: `/home/<username>/Android/sdk`
 1. Add android environment variables to path:
-   * **Windows** (Powershell):
+   * **Windows** (Powershell with Administrator rights):
     ```ps1
-    [Environment]::SetEnvironmentVariable("ANDROID_HOME", "C:\Users\<username>\Android\sdk",
-    [System.EnvironmentVariableTarget]::Machine)
-    [Environment]::SetEnvironmentVariable("ANDROID_SDK_ROOT", "%ANDROID_HOME%",
-    [System.EnvironmentVariableTarget]::Machine)
-    [Environment]::SetEnvironmentVariable("Path", $env:Path+";%ANDROID_HOME%\emulator;%ANDROID_HOME%\tools;%ANDROID_HOME%\platform-tools;%ANDROID_HOME%\tools\bin",
-    [System.EnvironmentVariableTarget]::Machine)
+    [Environment]::SetEnvironmentVariable("ANDROID_HOME", "C:\Users\<username>\Android\sdk", [System.EnvironmentVariableTarget]::Machine)
+    [Environment]::SetEnvironmentVariable("ANDROID_SDK_ROOT", "%ANDROID_HOME%", [System.EnvironmentVariableTarget]::Machine)
+    [Environment]::SetEnvironmentVariable("Path", $env:Path+";%ANDROID_HOME%\emulator;%ANDROID_HOME%\tools;%ANDROID_HOME%\platform-tools;%ANDROID_HOME%\tools\bin", [System.EnvironmentVariableTarget]::Machine)
     ```
    * **Mac**:
-Add these lines to `~/.bash_profile` (create one if it doesn't exist):
+Add these lines to `~/.zshrc` (create one if it doesn't exist):
     ```bash
     export JAVA_HOME="$(/usr/libexec/java_home)"
     export ANDROID_HOME=/Users/<username>/Library/Android/sdk
@@ -83,7 +80,7 @@ Add these lines to `~/.bash_profile` (create one if it doesn't exist):
    where **<user_name>** - name of the user you want to add access to the **KVM**.
 
 1. Open Android studio for any workspace and open **Android Virtual Device Manager(AVD Manager)** at the right top of the window.
-1. Create a new android virtual device using **x86** image with the parameters you need for testing.
+1. Create two Android virtual devices using **x86** image with the parameters you need for testing. Two emulators are required for correct testing.
 1. Run this command and if emulator starts - you are all set with Android!
     ```bash
     emulator -avd <device_name>
@@ -134,6 +131,10 @@ Follow [the official RNW guide](https://microsoft.github.io/react-native-windows
    ```sh
    npm install
    ```
+1. Build the extension VSIX file
+    ```sh
+   gulp release
+    ```
 1. Copy extension VSIX to `test/smoke/package/resources/drop-win` directory
 
 ## Running tests
@@ -152,9 +153,10 @@ Tests require several environment variables to be set up before starting:
 |`PURE_RN_VERSION` (optional)|`0.63.4`, `skip`|Version of React Native while running tests on pure RN app with Expo. If set to "skip" then the latest version will be installed|
 |`PURE_EXPO_VERSION` (optional)|`42`, `skip`|Version of Expo while running tests on pure RN app with Expo. If set to "skip" then the latest version will be installed|
 |`RN_MAC_OS_VERSION` (optional)|`0.62.0`, `skip`|(**Only for macOS tests**) Version of a React Native application for RN macOS tests. If set to "skip" then the latest version will be installed|
-|`RN_WINDOWS_VERSION` (optional)|`0.66.0`, `skip`|(**Only for RNW tests**) Version of a React Native application for RNW tests. If set to "skip" then the latest version will be installed|
+|`RN_WINDOWS_VERSION` (optional)|`0.67.0`, `skip`|(**Only for RNW tests**) Version of a React Native application for RNW tests. If set to "skip" then the latest version will be installed|
+|`RNW_PACKAGE_VERSION` (optional)|`0.67.1`, `skip`|(**Only for RNW tests**) Version of React Native Windows package for RNW tests. If set to "skip" then the latest version will be installed|
 
-To create environment variable you can use these commands:
+To create an environment variable you can use these commands:
    * **Windows** (Powershell):
 
    ```ps1
@@ -167,7 +169,7 @@ To create environment variable you can use these commands:
    export YOUR_VARIABLE=VALUE
    ```
 
-In the directory `test/smoke/package` there is a `config.json` configuration file with predefined settings for environment variables.
+In the directory `test/smoke/package` there is a [`config.json`](https://github.com/microsoft/vscode-react-native/blob/master/test/smoke/package/config.json) configuration file with predefined settings for environment variables.
 This approach would be more suitable for CI.
 
 For local runs, it is more convenient to create file `config.dev.json` inside `test/smoke/package` directory and specify variables there. For example:
@@ -194,9 +196,12 @@ Also, it supports the following parameters:
 |Parameter|Explanation|
 |---|---|
 |`--skip-setup`|Skip pre-tests setup|
+|`--skip-unstable-tests`|Skip tests marked as unstable|
 |`--reset-cache`|Reinstall test projects|
 |`--ios`|Run iOS tests only|
 |`--android`|Run Android tests only|
+|`--macos`|Run RN macOS tests only|
+|`--windows`|Run RNW tests only|
 |`--basic-only`|Run basic tests only (Debug Android, Debug iOS)|
 |`--dont-delete-vsix`|Do not delete extension VSIX at the end of the tests execution|
 
