@@ -89,12 +89,17 @@ export class PromiseUtil {
             };
 
             const tryToResolve = async (): Promise<boolean> => {
-                const result = await condition();
-                if (result) {
+                try {
+                    const result = await condition();
+                    if (result) {
+                        cleanup();
+                        resolve(result);
+                    }
+                    return !!result;
+                } catch (err) {
                     cleanup();
-                    resolve(result);
+                    throw err;
                 }
-                return !!result;
             };
 
             const resolved = await tryToResolve();
