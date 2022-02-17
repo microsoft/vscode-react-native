@@ -10,7 +10,7 @@ import {
     IProtocolError,
     IProtocolSuccess,
 } from "vscode-cdp-proxy";
-import { CancellationToken } from "vscode";
+import { CancellationToken, EventEmitter } from "vscode";
 import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
 import { LogLevel } from "../extension/log/LogHelper";
 import { DebuggerEndpointHelper } from "./debuggerEndpointHelper";
@@ -36,6 +36,9 @@ export class ReactNativeCDPProxy {
     private applicationTargetPort: number;
     private browserInspectUri: string;
     private cancellationToken: CancellationToken | undefined;
+    private applicationTargetEventEmitter: EventEmitter<unknown> = new EventEmitter();
+
+    public readonly onApplicationTargetConnectionClosed = this.applicationTargetEventEmitter.event;
 
     constructor(hostAddress: string, port: number, logLevel: LogLevel = LogLevel.None) {
         this.port = port;
@@ -203,6 +206,7 @@ export class ReactNativeCDPProxy {
 
     private async onApplicationTargetClosed() {
         this.applicationTarget = null;
+        this.applicationTargetEventEmitter.fire({});
     }
 
     private async onDebuggerTargetClosed() {
