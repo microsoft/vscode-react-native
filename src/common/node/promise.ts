@@ -6,7 +6,6 @@ import { CancellationTokenSource, Disposable } from "vscode";
 /**
  * Utilities for working with promises.
  */
-
 export class PromiseUtil {
     public static async forEach<T>(
         sources: T[],
