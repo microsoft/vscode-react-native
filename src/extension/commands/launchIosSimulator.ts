@@ -7,7 +7,6 @@ import { TargetType } from "../generalPlatform";
 import { IOSTargetManager } from "../ios/iOSTargetManager";
 import { Command } from "./util/command";
 
-// #todo> codeName differs from Class Name
 export class LaunchIOSSimulator extends Command {
     codeName = "launchIOSSimulator";
     label = "Launch iOS Simulator";

@@ -17,7 +17,6 @@ nls.config({
 })();
 const localize = nls.loadMessageBundle();
 
-// #todo> wtf
 export class ShowDevMenu extends Command {
     codeName = "showDevMenu";
     requiresTrust = false;
