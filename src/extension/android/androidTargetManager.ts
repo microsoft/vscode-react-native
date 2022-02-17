@@ -171,7 +171,8 @@ export class AndroidTargetManager extends MobileTargetManager {
             emulatorProcess.spawnedProcess.unref();
 
             const condition = async () => {
-                if (emulatorLaunchFailed) throw new Error("Android emulator launch failed unexpectedly");
+                if (emulatorLaunchFailed)
+                    throw new Error("Android emulator launch failed unexpectedly");
                 const connectedDevices = await this.adbHelper.getOnlineTargets();
                 for (const target of connectedDevices) {
                     const onlineAvdName = await this.adbHelper.getAvdNameById(target.id);
