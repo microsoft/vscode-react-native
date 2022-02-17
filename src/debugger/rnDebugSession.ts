@@ -20,6 +20,7 @@ import {
     ILaunchRequestArgs,
 } from "./debugSessionBase";
 import { JsDebugConfigAdapter } from "./jsDebugConfigAdapter";
+import { RNSession } from "./debugSessionWrapper";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -28,18 +29,12 @@ nls.config({
 const localize = nls.loadMessageBundle();
 
 export class RNDebugSession extends DebugSessionBase {
-    private readonly terminateCommand: string;
-
     private appWorker: MultipleLifetimesAppWorker | null;
-    private nodeSession: vscode.DebugSession | null;
     private onDidStartDebugSessionHandler: vscode.Disposable;
     private onDidTerminateDebugSessionHandler: vscode.Disposable;
 
-    constructor(session: vscode.DebugSession) {
-        super(session);
-
-        // constants definition
-        this.terminateCommand = "terminate"; // the "terminate" command is sent from the client to the debug adapter in order to give the debuggee a chance for terminating itself
+    constructor(rnSession: RNSession) {
+        super(rnSession);
 
         // variables definition
         this.appWorker = null;
@@ -79,9 +74,10 @@ export class RNDebugSession extends DebugSessionBase {
                 );
             }
             // if debugging is enabled start attach request
-            await this.attachRequest(response, launchArgs);
+            await this.vsCodeDebugSession.customRequest("attach", launchArgs);
+            this.sendResponse(response);
         } catch (error) {
-            this.showError(error, response);
+            this.terminateWithErrorResponse(error, response);
         }
     }
 
@@ -194,15 +190,19 @@ export class RNDebugSession extends DebugSessionBase {
             } catch (error) {
                 reject(error);
             }
-        }).catch(err =>
-            this.showError(
-                ErrorHelper.getInternalError(
-                    InternalErrorCode.CouldNotAttachToDebugger,
-                    err.message || err,
+        })
+            .then(() => {
+                this.sendResponse(response);
+            })
+            .catch(err =>
+                this.terminateWithErrorResponse(
+                    ErrorHelper.getInternalError(
+                        InternalErrorCode.CouldNotAttachToDebugger,
+                        err.message || err,
+                    ),
+                    response,
                 ),
-                response,
-            ),
-        );
+            );
     }
 
     protected async disconnectRequest(
@@ -228,12 +228,12 @@ export class RNDebugSession extends DebugSessionBase {
         const attachConfiguration = JsDebugConfigAdapter.createDebuggingConfigForPureRN(
             attachArgs,
             this.appLauncher.getCdpProxyPort(),
-            this.session.id,
+            this.rnSession.sessionId,
         );
 
         vscode.debug
             .startDebugging(this.appLauncher.getWorkspaceFolder(), attachConfiguration, {
-                parentSession: this.session,
+                parentSession: this.vsCodeDebugSession,
                 consoleMode: vscode.DebugConsoleMode.MergeWithParent,
             })
             .then(
@@ -263,7 +263,7 @@ export class RNDebugSession extends DebugSessionBase {
 
     private handleStartDebugSession(debugSession: vscode.DebugSession): void {
         if (
-            debugSession.configuration.rnDebugSessionId === this.session.id &&
+            debugSession.configuration.rnDebugSessionId === this.rnSession.sessionId &&
             debugSession.type === this.pwaNodeSessionName
         ) {
             this.nodeSession = debugSession;
@@ -272,13 +272,13 @@ export class RNDebugSession extends DebugSessionBase {
 
     private handleTerminateDebugSession(debugSession: vscode.DebugSession): void {
         if (
-            debugSession.configuration.rnDebugSessionId === this.session.id &&
+            debugSession.configuration.rnDebugSessionId === this.rnSession.sessionId &&
             debugSession.type === this.pwaNodeSessionName
         ) {
             if (this.debugSessionStatus === DebugSessionStatus.ConnectionPending) {
                 this.establishDebugSession(this.previousAttachArgs);
             } else {
-                void vscode.commands.executeCommand(this.stopCommand, this.session);
+                void this.terminate();
             }
         }
     }
