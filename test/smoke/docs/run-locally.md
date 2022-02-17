@@ -44,7 +44,7 @@ Tests are running using [VS Code automation package](https://github.com/microsof
 
 1. Open Android Studio and go through the setup.
    * Select `Custom Installation`
-   * When you will be asked where to install android sdk choose the following directory:
+   * When you will be asked where to install Android sdk choose the following directory:
      * **Windows**: `C:\Users\<username>\Android\sdk`
      * **Mac**: `/Users/<username>/Library/Android/sdk`
      * **Linux**: `/home/<username>/Android/sdk`
