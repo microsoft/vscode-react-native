@@ -9,7 +9,6 @@ import { RNProjectObserver } from "../rnProjectObserver";
 import { runChecks } from "../services/validationService/checker";
 import { ValidationCategoryE } from "../services/validationService/checks/types";
 import { SettingsHelper } from "../settingsHelper";
-import { selectProject } from "./util";
 import { Command } from "./util/command";
 
 export class TestDevEnvironment extends Command {

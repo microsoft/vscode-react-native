@@ -12,7 +12,10 @@ import { Command } from "./command";
 
 export abstract class ReactNativeCommand extends Command {
     /** Execute base command with some telemetry */
-    async executeLocally<T extends ReactNativeCommand>(this: T, ...args: Parameters<T["baseFn"]>) {
+    async executeLocally<T extends ReactNativeCommand>(
+        this: T,
+        ...args: Parameters<T["baseFn"]> | Parameters<T["onBeforeExecute"]>
+    ) {
         if (this.requiresProject) {
             this.project = await selectProject().catch(() => undefined);
         }
@@ -21,12 +24,12 @@ export abstract class ReactNativeCommand extends Command {
     }
 
     /** Execute some task before RN telemetry. Does not have acces to `this.project` */
-    protected async onBeforeExecute(...args: unknown[]): Promise<void> {
+    async onBeforeExecute(...args: unknown[]): Promise<void> {
         args;
     }
 
-    protected createHandler(fn: typeof this.baseFn = this.baseFn.bind(this)) {
-        return super.createHandler(async (...args) => {
+    protected createHandler(fn = this.baseFn) {
+        return super.createHandler(async (...args: unknown[]) => {
             await this.onBeforeExecute(...args);
             await this.executeInContext(fn.bind(this, ...args));
         });

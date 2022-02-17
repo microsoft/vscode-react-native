@@ -47,7 +47,7 @@ export abstract class Command {
 
     protected constructor() {}
 
-    protected createHandler(fn: typeof this.baseFn = this.baseFn.bind(this)) {
+    protected createHandler(fn = this.baseFn) {
         return async (...args: any[]) => {
             assert(this.entryPointHandler, "this.entryPointHandler is not defined");
 
