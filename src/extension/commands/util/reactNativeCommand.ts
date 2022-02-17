@@ -14,7 +14,7 @@ export abstract class ReactNativeCommand extends Command {
     /** Execute base command with some telemetry */
     async executeLocally<T extends ReactNativeCommand>(this: T, ...args: Parameters<T["baseFn"]>) {
         if (this.requiresProject) {
-            this.project = await selectProject();
+            this.project = await selectProject().catch(() => undefined);
         }
 
         await this.executeInContext(this.baseFn.bind(this, ...args));

@@ -23,6 +23,7 @@ export class RunElementInspector extends Command {
     codeName = "runInspector";
     label = "Run Element Inspector";
     requiresTrust = false;
+    requiresProject = false;
 
     error = ErrorHelper.getInternalError(
         InternalErrorCode.CommandFailed,
@@ -74,6 +75,7 @@ export class StopElementInspector extends Command {
     codeName = "stopInspector";
     label = "Stop Element Inspector";
     requiresTrust = false;
+    requiresProject = false;
 
     error = ErrorHelper.getInternalError(
         InternalErrorCode.CommandFailed,

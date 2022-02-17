@@ -65,8 +65,7 @@ export abstract class Command {
                 this.error,
                 async () => {
                     if (this.requiresProject) {
-                        this.project = await selectProject();
-                        assert(this.project, "Selection canceled");
+                        this.project = await selectProject().catch(() => undefined);
                     }
 
                     if (this.requiresTrust && !isWorkspaceTrusted()) {
@@ -101,7 +100,7 @@ export abstract class Command {
         ...args: Parameters<T["prototype"]["baseFn"]>
     ) {
         if (this.requiresProject) {
-            this.project = await selectProject();
+            this.project = await selectProject().catch(() => undefined);
         }
 
         await this.baseFn(...args);

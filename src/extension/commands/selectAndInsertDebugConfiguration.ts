@@ -13,6 +13,7 @@ export class SelectAndInsertDebugConfiguration extends Command {
     codeName = "selectAndInsertDebugConfiguration";
     label = "";
     requiresTrust = false;
+    requiresProject = false;
     error = ErrorHelper.getInternalError(InternalErrorCode.CommandFailed);
 
     async baseFn(
@@ -38,7 +39,6 @@ export class SelectAndInsertDebugConfiguration extends Command {
             token,
         );
 
-        // #review> token is checked here because of await↑ ? Are we sure it is required like that?
         if (token.isCancellationRequested || !config) {
             return;
         }

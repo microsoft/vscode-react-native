@@ -16,7 +16,6 @@ export class TestDevEnvironment extends Command {
     codeName = "testDevEnvironment";
     label = "Check development environment configuration";
     requiresTrust = false;
-    requiresProject = false;
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToTestDevEnvironment);
 
     private async createRNProjectObserver(project: AppLauncher) {
@@ -32,8 +31,6 @@ export class TestDevEnvironment extends Command {
     }
 
     async baseFn() {
-        this.project = await selectProject().catch(() => undefined);
-
         const projectObserver =
             this.project &&
             (await this.createRNProjectObserver(this.project).catch(() => undefined));
