@@ -67,7 +67,7 @@ export class PromiseUtil {
         interval: number = 1000,
         timeout?: number,
     ): Promise<T | null> {
-        return new Promise(async resolve => {
+        return new Promise(async (resolve, reject) => {
             let rejectTimeout: NodeJS.Timeout | undefined;
             // eslint-disable-next-line prefer-const
             let сheckInterval: NodeJS.Timeout | undefined;
@@ -99,7 +99,8 @@ export class PromiseUtil {
                     return !!result;
                 } catch (err) {
                     cleanup();
-                    throw err;
+                    reject(err);
+                    return false;
                 }
             };
 
