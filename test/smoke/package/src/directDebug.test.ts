@@ -116,7 +116,10 @@ export function startDirectDebugTests(
                 SmokeTestLogger.info(`${testname}: Chosen debug configuration: ${debugConfigName}`);
                 SmokeTestLogger.info(`${testname}: Starting debugging`);
                 await automationHelper.runDebugScenarioWithRetry(debugConfigName);
+                await app.workbench.debug.waitForDebuggingToStart();
+                SmokeTestLogger.info(`${testname}: Debugging started`);
 
+                SmokeTestLogger.info(`${testname}: Attaching to app via Appium`);
                 let opts: any;
                 switch (platform) {
                     case Platform.Android: {
@@ -147,13 +150,13 @@ export function startDirectDebugTests(
                         break;
                     }
                 }
-
                 client = await AppiumHelper.webdriverAttach(opts);
-                await app.workbench.debug.waitForDebuggingToStart();
-                SmokeTestLogger.info(`${testname}: Debugging started`);
+                SmokeTestLogger.info(`${testname}: Attached to app via Appium`);
+
                 SmokeTestLogger.info(`${testname}: Checking for Hermes mark`);
                 let isHermesWorking = await AppiumHelper.isHermesWorking(client, platform);
                 assert.strictEqual(isHermesWorking, true);
+
                 SmokeTestLogger.info(`${testname}: Reattaching to Hermes app`);
                 await automationHelper.disconnectFromDebuggerWithRetry();
                 await automationHelper.runDebugScenarioWithRetry(RNHermesAttachConfigName);
