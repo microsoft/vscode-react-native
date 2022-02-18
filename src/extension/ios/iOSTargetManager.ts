@@ -243,7 +243,7 @@ export class IOSTargetManager extends MobileTargetManager {
 
             const condition = async () => {
                 if (emulatorLaunchFailed)
-                    throw new Error("iOS emulator launch failed unexpectedly");
+                    throw new Error("iOS simulator launch failed unexpectedly");
                 await this.collectTargets(TargetType.Simulator);
                 const onlineTarget = (await this.getTargetList()).find(
                     target => target.id === virtualTarget.id && target.isOnline,
