@@ -217,8 +217,8 @@ export class IOSTargetManager extends MobileTargetManager {
     protected async launchSimulator(
         virtualTarget: IDebuggableIOSTarget,
     ): Promise<IOSTarget | undefined> {
-        let emulatorLaunchFailed = false;
         return new Promise<IOSTarget | undefined>((resolve, reject) => {
+            let emulatorLaunchFailed = false;
             const emulatorProcess = this.childProcess.spawn(
                 IOSTargetManager.XCRUN_COMMAND,
                 [IOSTargetManager.SIMCTL_COMMAND, IOSTargetManager.BOOT_COMMAND, virtualTarget.id],
