@@ -217,7 +217,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
             }
 
             await Promise.all(promises);
-            void registerVscodeCommands();
+            await registerVscodeCommands();
         },
         extProps,
     );
