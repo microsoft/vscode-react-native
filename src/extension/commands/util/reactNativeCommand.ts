@@ -3,12 +3,12 @@
 
 import * as assert from "assert";
 import * as vscode from "vscode";
-import { selectProject } from ".";
 import { ReactNativeProjectHelper } from "../../../common/reactNativeProjectHelper";
 import { TelemetryHelper } from "../../../common/telemetryHelper";
 import { OutputChannelLogger } from "../../log/OutputChannelLogger";
 import { SettingsHelper } from "../../settingsHelper";
 import { Command } from "./command";
+import { selectProject } from ".";
 
 export abstract class ReactNativeCommand extends Command {
     /** Execute base command with some telemetry */
@@ -20,6 +20,7 @@ export abstract class ReactNativeCommand extends Command {
             this.project = await selectProject().catch(() => undefined);
         }
 
+        await this.onBeforeExecute(...args);
         await this.executeInContext(this.baseFn.bind(this, ...args));
     }
 

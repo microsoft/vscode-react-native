@@ -39,7 +39,6 @@ module.exports = {
     rules: {
         // before adding new rules - https://github.com/prettier/eslint-plugin-prettier/issues/65
         "@typescript-eslint/await-thenable": "warn",
-        "@typescript-eslint/unbound-method": "warn",
         "@typescript-eslint/dot-notation": "warn",
         "@typescript-eslint/explicit-function-return-type": "off",
         "@typescript-eslint/explicit-module-boundary-types": [

@@ -51,8 +51,23 @@ export abstract class Command {
         return async (...args: any[]) => {
             assert(this.entryPointHandler, "this.entryPointHandler is not defined");
 
-            const outputChannelLogger = OutputChannelLogger.getMainChannel();
-            outputChannelLogger.debug(`Run command: ${this.codeName}`);
+            const resultFn = async () => {
+                if (this.requiresProject) {
+                    this.project = await selectProject().catch(() => undefined);
+                }
+
+                if (this.requiresTrust && !isWorkspaceTrusted()) {
+                    throw ErrorHelper.getInternalError(
+                        InternalErrorCode.WorkspaceIsNotTrusted,
+                        this.project?.getPackager().getProjectPath() || undefined,
+                        this.label,
+                    );
+                }
+
+                await fn.bind(this)(...args);
+            };
+
+            OutputChannelLogger.getMainChannel().debug(`Run command: ${this.codeName}`);
 
             await this.entryPointHandler.runFunctionWExtProps(
                 `commandPalette.${this.codeName}`,
@@ -63,21 +78,7 @@ export abstract class Command {
                     },
                 },
                 this.error,
-                async () => {
-                    if (this.requiresProject) {
-                        this.project = await selectProject().catch(() => undefined);
-                    }
-
-                    if (this.requiresTrust && !isWorkspaceTrusted()) {
-                        throw ErrorHelper.getInternalError(
-                            InternalErrorCode.WorkspaceIsNotTrusted,
-                            this.project?.getPackager().getProjectPath() || undefined,
-                            this.label,
-                        );
-                    }
-
-                    await fn(...args);
-                },
+                resultFn.bind(this),
             );
         };
 
