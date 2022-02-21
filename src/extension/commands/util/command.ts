@@ -3,7 +3,6 @@
 
 import assert = require("assert");
 import * as vscode from "vscode";
-import { selectProject } from ".";
 import { EntryPointHandler } from "../../../common/entryPointHandler";
 import { ErrorHelper } from "../../../common/error/errorHelper";
 import { InternalError } from "../../../common/error/internalError";
@@ -11,6 +10,7 @@ import { InternalErrorCode } from "../../../common/error/internalErrorCode";
 import { AppLauncher } from "../../appLauncher";
 import { PlatformType } from "../../launchArgs";
 import { OutputChannelLogger } from "../../log/OutputChannelLogger";
+import { selectProject } from ".";
 
 export abstract class Command {
     private static instances = new Map<typeof Command, unknown>();
@@ -47,7 +47,7 @@ export abstract class Command {
 
     protected constructor() {}
 
-    protected createHandler(fn = this.baseFn) {
+    protected createHandler(fn = this.baseFn.bind(this)) {
         return async (...args: any[]) => {
             assert(this.entryPointHandler, "this.entryPointHandler is not defined");
 

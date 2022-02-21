@@ -29,7 +29,7 @@ export abstract class ReactNativeCommand extends Command {
         args;
     }
 
-    protected createHandler(fn = this.baseFn) {
+    protected createHandler(fn = this.baseFn.bind(this)) {
         return super.createHandler(async (...args: unknown[]) => {
             await this.onBeforeExecute(...args);
             await this.executeInContext(fn.bind(this, ...args));
