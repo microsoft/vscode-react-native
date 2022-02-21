@@ -29,9 +29,13 @@ export abstract class Command {
 
     get platform(): string {
         return (
-            [PlatformType.Android, PlatformType.iOS, PlatformType.Exponent].find(it =>
-                this.codeName.includes(it),
-            ) || ""
+            [
+                PlatformType.Android,
+                PlatformType.iOS,
+                PlatformType.Exponent,
+                PlatformType.macOS,
+                PlatformType.Windows,
+            ].find(it => this.codeName.includes(it)) || ""
         );
     }
 

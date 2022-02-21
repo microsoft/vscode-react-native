@@ -17,7 +17,7 @@ nls.config({
 const localize = nls.loadMessageBundle();
 
 // #todo!> commands should not maintain state
-let elementInspector: import("child_process").ChildProcess | undefined;
+let elementInspector: child_process.ChildProcess | undefined;
 
 export class RunElementInspector extends Command {
     codeName = "runInspector";
