@@ -35,7 +35,7 @@ export abstract class Command {
                 PlatformType.Exponent,
                 PlatformType.macOS,
                 PlatformType.Windows,
-            ].find(it => this.codeName.includes(it)) || ""
+            ].find(it => this.codeName.toLowerCase().includes(it.toLowerCase())) || ""
         );
     }
 
