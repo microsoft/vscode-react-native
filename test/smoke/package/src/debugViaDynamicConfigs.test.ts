@@ -110,6 +110,7 @@ export function startDebuggingViaDynamicConfigsTests(project: TestProject): void
 
         it("Start 'Attach to packager' dynamic config", async function () {
             this.timeout(debuggingViaDynamicConfigsTestTime);
+            this.retries(3);
             app = await initApp(
                 project.workspaceDirectory,
                 "Start 'Attach to packager' dynamic config test",
