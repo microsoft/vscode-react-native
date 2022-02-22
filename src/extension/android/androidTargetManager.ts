@@ -141,6 +141,7 @@ export class AndroidTargetManager extends MobileTargetManager {
 
     protected async launchSimulator(emulatorTarget: IMobileTarget): Promise<AndroidTarget> {
         return new Promise<AndroidTarget>((resolve, reject) => {
+            let emulatorLaunchFailed = false;
             const emulatorProcess = this.childProcess.spawn(
                 AndroidTargetManager.EMULATOR_COMMAND,
                 [AndroidTargetManager.EMULATOR_AVD_START_COMMAND, emulatorTarget.name as string],
@@ -150,6 +151,7 @@ export class AndroidTargetManager extends MobileTargetManager {
                 true,
             );
             emulatorProcess.outcome.catch(error => {
+                emulatorLaunchFailed = true;
                 if (
                     process.platform == "win32" &&
                     process.env.SESSIONNAME &&
@@ -169,6 +171,8 @@ export class AndroidTargetManager extends MobileTargetManager {
             emulatorProcess.spawnedProcess.unref();
 
             const condition = async () => {
+                if (emulatorLaunchFailed)
+                    throw new Error("Android emulator launch failed unexpectedly");
                 const connectedDevices = await this.adbHelper.getOnlineTargets();
                 for (const target of connectedDevices) {
                     const onlineAvdName = await this.adbHelper.getAvdNameById(target.id);
@@ -183,31 +187,36 @@ export class AndroidTargetManager extends MobileTargetManager {
                 condition,
                 1000,
                 AndroidTargetManager.EMULATOR_START_TIMEOUT * 1000,
-            ).then(emulatorId => {
-                if (emulatorId) {
-                    emulatorTarget.id = emulatorId;
-                    emulatorTarget.isOnline = true;
-                    this.logger.info(
-                        localize(
-                            "EmulatorLaunched",
-                            "Launched Android emulator {0}",
-                            emulatorTarget.name,
-                        ),
-                    );
-                    resolve(AndroidTarget.fromInterface(<IDebuggableMobileTarget>emulatorTarget));
-                } else {
-                    reject(
-                        new Error(
-                            `Virtual device launch finished with an exception: ${localize(
-                                "EmulatorStartWarning",
-                                "Could not start the emulator {0} within {1} seconds.",
+            ).then(
+                emulatorId => {
+                    if (emulatorId) {
+                        emulatorTarget.id = emulatorId;
+                        emulatorTarget.isOnline = true;
+                        this.logger.info(
+                            localize(
+                                "EmulatorLaunched",
+                                "Launched Android emulator {0}",
                                 emulatorTarget.name,
-                                AndroidTargetManager.EMULATOR_START_TIMEOUT,
-                            )}`,
-                        ),
-                    );
-                }
-            });
+                            ),
+                        );
+                        resolve(
+                            AndroidTarget.fromInterface(<IDebuggableMobileTarget>emulatorTarget),
+                        );
+                    } else {
+                        reject(
+                            new Error(
+                                `Virtual device launch finished with an exception: ${localize(
+                                    "EmulatorStartWarning",
+                                    "Could not start the emulator {0} within {1} seconds.",
+                                    emulatorTarget.name,
+                                    AndroidTargetManager.EMULATOR_START_TIMEOUT,
+                                )}`,
+                            ),
+                        );
+                    }
+                },
+                () => {},
+            );
         });
     }
 }

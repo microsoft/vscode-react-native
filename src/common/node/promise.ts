@@ -66,7 +66,7 @@ export class PromiseUtil {
         interval: number = 1000,
         timeout?: number,
     ): Promise<T | null> {
-        return new Promise(async resolve => {
+        return new Promise(async (resolve, reject) => {
             let rejectTimeout: NodeJS.Timeout | undefined;
             // eslint-disable-next-line prefer-const
             let сheckInterval: NodeJS.Timeout | undefined;
@@ -89,12 +89,18 @@ export class PromiseUtil {
             };
 
             const tryToResolve = async (): Promise<boolean> => {
-                const result = await condition();
-                if (result) {
+                try {
+                    const result = await condition();
+                    if (result) {
+                        cleanup();
+                        resolve(result);
+                    }
+                    return !!result;
+                } catch (err) {
                     cleanup();
-                    resolve(result);
+                    reject(err);
+                    return false;
                 }
-                return !!result;
             };
 
             const resolved = await tryToResolve();
