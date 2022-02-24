@@ -12,14 +12,15 @@ import { PlatformType } from "../../launchArgs";
 import { OutputChannelLogger } from "../../log/OutputChannelLogger";
 import { selectProject } from ".";
 
-export abstract class Command {
-    private static instances = new Map<typeof Command, unknown>();
+export abstract class Command<ArgT extends unknown[] = never[]> {
+    private static instances = new Map<Command, unknown>();
 
-    static formInstance<T extends typeof Command>(this: T): T["prototype"] {
+    static formInstance<T extends { prototype: unknown }>(this: T): T["prototype"] {
         // 'any' because TypeScript is wrong
         // workaround from https://github.com/microsoft/TypeScript/issues/5863
-        const result = this.instances.get(this) || new (this as any)();
-        this.instances.set(this, result);
+        const that = this as any;
+        const result = Command.instances.get(that) || new that();
+        Command.instances.set(that, result);
         return result;
     }
 
@@ -52,22 +53,11 @@ export abstract class Command {
     protected constructor() {}
 
     protected createHandler(fn = this.baseFn.bind(this)) {
-        return async (...args: any[]) => {
+        return async (...args: ArgT) => {
             assert(this.entryPointHandler, "this.entryPointHandler is not defined");
 
             const resultFn = async () => {
-                if (this.requiresProject) {
-                    this.project = await selectProject().catch(() => undefined);
-                }
-
-                if (this.requiresTrust && !isWorkspaceTrusted()) {
-                    throw ErrorHelper.getInternalError(
-                        InternalErrorCode.WorkspaceIsNotTrusted,
-                        this.project?.getPackager().getProjectPath() || undefined,
-                        this.label,
-                    );
-                }
-
+                await this.onBeforeExecute(...args);
                 await fn.bind(this)(...args);
             };
 
@@ -85,6 +75,22 @@ export abstract class Command {
                 resultFn.bind(this),
             );
         };
+    }
+
+    protected async onBeforeExecute(...args: ArgT): Promise<void> {
+        args; // why we force usage of variables in tsconfig again?
+
+        if (this.requiresProject) {
+            this.project = await selectProject();
+        }
+
+        if (this.requiresTrust && !isWorkspaceTrusted()) {
+            throw ErrorHelper.getInternalError(
+                InternalErrorCode.WorkspaceIsNotTrusted,
+                this.project?.getPackager().getProjectPath() || undefined,
+                this.label,
+            );
+        }
 
         function isWorkspaceTrusted() {
             // Remove after updating supported VS Code engine version to 1.57.0
@@ -96,18 +102,12 @@ export abstract class Command {
         }
     }
 
-    abstract baseFn(...args: unknown[]): Promise<void>;
+    abstract baseFn(...args: ArgT): Promise<void>;
 
     // strange typing - see ReactNativeCommand, which extends this class
     /** Execute base command without telemetry */
-    async executeLocally<T extends typeof Command>(
-        this: T["prototype"],
-        ...args: Parameters<T["prototype"]["baseFn"]>
-    ) {
-        if (this.requiresProject) {
-            this.project = await selectProject().catch(() => undefined);
-        }
-
+    async executeLocally(...args: ArgT) {
+        await this.onBeforeExecute(...args);
         await this.baseFn(...args);
     }
 

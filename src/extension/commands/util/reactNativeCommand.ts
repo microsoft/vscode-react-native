@@ -7,37 +7,37 @@ import { ReactNativeProjectHelper } from "../../../common/reactNativeProjectHelp
 import { TelemetryHelper } from "../../../common/telemetryHelper";
 import { OutputChannelLogger } from "../../log/OutputChannelLogger";
 import { SettingsHelper } from "../../settingsHelper";
+import { ErrorHelper } from "../../../common/error/errorHelper";
+import { InternalErrorCode } from "../../../common/error/internalErrorCode";
 import { Command } from "./command";
-import { selectProject } from ".";
 
-export abstract class ReactNativeCommand extends Command {
+export abstract class ReactNativeCommand<ArgT extends unknown[] = never[]> extends Command<ArgT> {
     /** Execute base command with some telemetry */
-    async executeLocally<T extends ReactNativeCommand>(
-        this: T,
-        ...args: Parameters<T["baseFn"]> | Parameters<T["onBeforeExecute"]>
-    ) {
-        if (this.requiresProject) {
-            this.project = await selectProject().catch(() => undefined);
-        }
-
+    async executeLocally(...args: ArgT) {
         await this.onBeforeExecute(...args);
         await this.executeInContext(this.baseFn.bind(this, ...args));
     }
 
-    /** Execute some task before RN telemetry. Does not have acces to `this.project` */
-    async onBeforeExecute(...args: unknown[]): Promise<void> {
-        args;
+    /** Execute some task before RN telemetry */
+    protected async onBeforeExecute(...args: ArgT): Promise<void> {
+        await super.onBeforeExecute(...args);
     }
 
     protected createHandler(fn = this.baseFn.bind(this)) {
-        return super.createHandler(async (...args: unknown[]) => {
+        return super.createHandler(async (...args: ArgT) => {
             await this.onBeforeExecute(...args);
             await this.executeInContext(fn.bind(this, ...args));
         });
     }
 
     private async executeInContext(operation: () => Promise<void>) {
-        assert(this.project);
+        assert(
+            this.project,
+            ErrorHelper.getInternalError(
+                InternalErrorCode.WorkspaceNotFound,
+                "Current workspace does not contain React Native projects.",
+            ),
+        );
 
         const logger = OutputChannelLogger.getMainChannel();
         const projectRoot = SettingsHelper.getReactNativeProjectRoot(
