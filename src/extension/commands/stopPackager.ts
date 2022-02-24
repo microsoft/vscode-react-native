@@ -8,7 +8,7 @@ import { AppLauncher } from "../appLauncher";
 import { selectProject } from "./util";
 import { ReactNativeCommand } from "./util/reactNativeCommand";
 
-export class StopPackager extends ReactNativeCommand {
+export class StopPackager extends ReactNativeCommand<[AppLauncher]> {
     codeName = "stopPackager";
     label = "Stop Packager";
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToStopPackager);
