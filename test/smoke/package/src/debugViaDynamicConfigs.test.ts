@@ -165,7 +165,10 @@ export function startDebuggingViaDynamicConfigsTests(project: TestProject): void
                     `Start 'Attach to packager' dynamic config failed: ${e.toString()}`,
                 );
                 attachToPackagerTryes++;
-                if (process.platform === "linux" && attachToPackagerTryes >= attachToPackagerRetryCount + 1) {
+                if (
+                    process.platform === "linux" &&
+                    attachToPackagerTryes >= attachToPackagerRetryCount + 1
+                ) {
                     return this.skip();
                 }
             }
