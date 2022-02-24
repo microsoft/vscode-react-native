@@ -17,6 +17,8 @@ export class StopPackager extends ReactNativeCommand<[AppLauncher]> {
     requiresTrust = false;
 
     async onBeforeExecute(appLauncher: AppLauncher) {
+        await super.onBeforeExecute(appLauncher);
+
         this.project = appLauncher || (await selectProject());
     }
 

@@ -16,6 +16,7 @@ import { ReactNativeCommand } from "./util/reactNativeCommand";
 abstract class RunIos extends ReactNativeCommand {
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnIos);
     async onBeforeExecute() {
+        await super.onBeforeExecute();
         assert(this.project);
         const nodeModulesRoot = this.project.getOrUpdateNodeModulesRoot();
         const versions = await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(

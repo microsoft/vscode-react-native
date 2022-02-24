@@ -34,6 +34,7 @@ export class RunExponent extends ReactNativeCommand {
     }
 
     async onBeforeExecute() {
+        await super.onBeforeExecute();
         assert(this.project);
         await loginToExponent(this.project);
     }

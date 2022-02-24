@@ -35,6 +35,7 @@ export class RunMacOS extends ReactNativeCommand {
     }
 
     async onBeforeExecute() {
+        await super.onBeforeExecute();
         assert(this.project);
         void TipNotificationService.getInstance().setKnownDateForFeatureById(
             "debuggingRNWAndMacOSApps",
