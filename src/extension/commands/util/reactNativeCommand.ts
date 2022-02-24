@@ -25,7 +25,6 @@ export abstract class ReactNativeCommand<ArgT extends unknown[] = never[]> exten
 
     protected createHandler(fn = this.baseFn.bind(this)) {
         return super.createHandler(async (...args: ArgT) => {
-            await this.onBeforeExecute(...args);
             await this.executeInContext(fn.bind(this, ...args));
         });
     }
