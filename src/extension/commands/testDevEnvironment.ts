@@ -9,12 +9,14 @@ import { RNProjectObserver } from "../rnProjectObserver";
 import { runChecks } from "../services/validationService/checker";
 import { ValidationCategoryE } from "../services/validationService/checks/types";
 import { SettingsHelper } from "../settingsHelper";
+import { selectProject } from "./util";
 import { Command } from "./util/command";
 
 export class TestDevEnvironment extends Command {
     codeName = "testDevEnvironment";
     label = "Check development environment configuration";
     requiresTrust = false;
+    requiresProject = false;
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToTestDevEnvironment);
 
     private async createRNProjectObserver(project: AppLauncher) {
@@ -30,13 +32,18 @@ export class TestDevEnvironment extends Command {
     }
 
     async baseFn() {
+        const project = await selectProject().catch(() => null);
+
+        if (project === undefined) {
+            return;
+        }
+
         const projectObserver =
-            this.project &&
-            (await this.createRNProjectObserver(this.project).catch(() => undefined));
+            project && (await this.createRNProjectObserver(project).catch(() => undefined));
 
         const shouldCheck = {
             [ValidationCategoryE.Expo]:
-                (await this.project
+                (await project
                     ?.getPackager()
                     .getExponentHelper()
                     .isExpoManagedApp(false)
