@@ -23,9 +23,6 @@ export function startDebuggingViaDynamicConfigsTests(project: TestProject): void
         let app: Application;
         let automationHelper: AutomationHelper;
 
-        let attachToPackagerRetryCount = 2;
-        let attachToPackagerTryes = 0;
-
         async function initApp(
             workspaceOrFolder: string,
             sessionName?: string,
@@ -114,7 +111,7 @@ export function startDebuggingViaDynamicConfigsTests(project: TestProject): void
         it("Start 'Attach to packager' dynamic config", async function () {
             try {
                 this.timeout(debuggingViaDynamicConfigsTestTime);
-                this.retries(attachToPackagerRetryCount);
+                this.retries(2);
                 app = await initApp(
                     project.workspaceDirectory,
                     "Start 'Attach to packager' dynamic config test",
@@ -164,11 +161,8 @@ export function startDebuggingViaDynamicConfigsTests(project: TestProject): void
                 SmokeTestLogger.error(
                     `Start 'Attach to packager' dynamic config failed: ${e.toString()}`,
                 );
-                attachToPackagerTryes++;
-                if (
-                    process.platform === "linux" &&
-                    attachToPackagerTryes >= attachToPackagerRetryCount + 1
-                ) {
+
+                if (process.platform === "linux") {
                     return this.skip();
                 }
             }
