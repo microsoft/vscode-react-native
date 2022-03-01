@@ -116,10 +116,7 @@ export function startDirectDebugTests(
                 SmokeTestLogger.info(`${testname}: Chosen debug configuration: ${debugConfigName}`);
                 SmokeTestLogger.info(`${testname}: Starting debugging`);
                 await automationHelper.runDebugScenarioWithRetry(debugConfigName);
-                await app.workbench.debug.waitForDebuggingToStart();
-                SmokeTestLogger.info(`${testname}: Debugging started`);
 
-                SmokeTestLogger.info(`${testname}: Attaching to app via Appium`);
                 let opts: any;
                 switch (platform) {
                     case Platform.Android: {
@@ -150,6 +147,11 @@ export function startDirectDebugTests(
                         break;
                     }
                 }
+
+                await app.workbench.debug.waitForDebuggingToStart();
+                SmokeTestLogger.info(`${testname}: Debugging started`);
+
+                SmokeTestLogger.info(`${testname}: Attaching to app via Appium`);
                 client = await AppiumHelper.webdriverAttach(opts);
                 SmokeTestLogger.info(`${testname}: Attached to app via Appium`);
 
