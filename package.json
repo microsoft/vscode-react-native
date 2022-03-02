@@ -1,7 +1,7 @@
 {
   "name": "vscode-react-native",
   "displayName": "React Native Tools",
-  "version": "1.9.1",
+  "version": "1.9.2",
   "private": true,
   "publisher": "msjsdiag",
   "icon": "resources/images/icon.png",
@@ -1169,8 +1169,8 @@
             "type": "string"
           },
           "default": {
-            "xdl": "59.2.24",
-            "@expo/metro-config": "0.3.9",
+            "xdl": "59.2.29",
+            "@expo/metro-config": "0.3.11",
             "@expo/ngrok": "^4.1.0"
           },
           "scope": "resource"

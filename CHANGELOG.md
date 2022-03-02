@@ -1,3 +1,10 @@
+## 1.9.2
+* Fixed debug session restarting [#1745](https://github.com/microsoft/vscode-react-native/pull/1745)
+* Improved debug session termination handling for Direct debugging [#1747](https://github.com/microsoft/vscode-react-native/pull/1747)
+* Improved the pattern for successful iOS build to support the `run-ios` command without verbose logs [#1755](https://github.com/microsoft/vscode-react-native/pull/1755)
+* Updated outdated documentation [#1748](https://github.com/microsoft/vscode-react-native/pull/1748)
+
+
 ## 1.9.1
 * Fixed debugging issues caused by incorrect sourcemap URL detection if some additional packages were installed, such as `react-native-cn-quill` [#1730](https://github.com/microsoft/vscode-react-native/pull/1730)
 * Fixed extension's debugger behavior in case another debugger has connected to React Native iOS Hermes application [#1729](https://github.com/microsoft/vscode-react-native/pull/1729)
