@@ -7,8 +7,6 @@ import { ReactNativeProjectHelper } from "../../../common/reactNativeProjectHelp
 import { TelemetryHelper } from "../../../common/telemetryHelper";
 import { OutputChannelLogger } from "../../log/OutputChannelLogger";
 import { SettingsHelper } from "../../settingsHelper";
-import { ErrorHelper } from "../../../common/error/errorHelper";
-import { InternalErrorCode } from "../../../common/error/internalErrorCode";
 import { Command } from "./command";
 
 export abstract class ReactNativeCommand<ArgT extends unknown[] = never[]> extends Command<ArgT> {
@@ -30,13 +28,7 @@ export abstract class ReactNativeCommand<ArgT extends unknown[] = never[]> exten
     }
 
     private async executeInContext(operation: () => Promise<void>) {
-        assert(
-            this.project,
-            ErrorHelper.getInternalError(
-                InternalErrorCode.WorkspaceNotFound,
-                "Current workspace does not contain React Native projects.",
-            ),
-        );
+        assert(this.project);
 
         const logger = OutputChannelLogger.getMainChannel();
         const projectRoot = SettingsHelper.getReactNativeProjectRoot(

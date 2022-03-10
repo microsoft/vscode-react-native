@@ -62,13 +62,13 @@ export const loginToExponent = (project: AppLauncher): Promise<xdl.IUser> => {
         .getExponentHelper()
         .loginToExponent(
             (message, password) =>
-                new Promise(
-                    vscode.window.showInputBox({ placeHolder: message, password }).then,
-                ).then(it => it || ""),
+                new Promise<string | undefined>((res, rej) => {
+                    vscode.window.showInputBox({ placeHolder: message, password }).then(res, rej);
+                }).then(it => it || ""),
             message =>
-                new Promise(vscode.window.showInformationMessage(message).then).then(
-                    it => it || "",
-                ),
+                new Promise<string | undefined>((res, rej) => {
+                    vscode.window.showInformationMessage(message).then(res, rej);
+                }).then(it => it || ""),
         )
         .catch(err => {
             OutputChannelLogger.getMainChannel().warning(
@@ -100,6 +100,7 @@ export const selectProject = async () => {
     const selected = await vscode.window.showQuickPick(projectKeys).then(it => it);
 
     if (!selected) {
+        // #todo!>selectionHandling>
         await new Promise(() => {}); // legit way to exit from a function in JS
         return;
     }

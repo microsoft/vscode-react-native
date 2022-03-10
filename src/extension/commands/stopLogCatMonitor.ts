@@ -33,7 +33,14 @@ function selectLogCatMonitor() {
     }
 
     if (keys.length > 1) {
-        return new Promise(vscode.window.showQuickPick(keys).then).then(selected => {
+        return new Promise<string | undefined>((res, rej) => {
+            vscode.window.showQuickPick(keys).then(res, rej);
+        }).then(async selected => {
+            // #todo!>selectionHandling>
+            if (!selected) {
+                await new Promise(() => {});
+            }
+
             assert(selected, "Selection canceled");
             logger.debug(`Command palette: selected LogCat monitor ${selected}`);
             return LogCatMonitorManager.logCatMonitorsCache[selected];
