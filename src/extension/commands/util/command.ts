@@ -12,7 +12,7 @@ import { PlatformType } from "../../launchArgs";
 import { OutputChannelLogger } from "../../log/OutputChannelLogger";
 import { selectProject } from ".";
 
-export abstract class Command<ArgT extends unknown[] = never[]> {
+export abstract class Command<ArgT extends unknown[] = []> {
     private static instances = new Map<Command, unknown>();
 
     static formInstance<T extends { prototype: unknown }>(this: T): T["prototype"] {
@@ -77,9 +77,8 @@ export abstract class Command<ArgT extends unknown[] = never[]> {
         };
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     protected async onBeforeExecute(...args: ArgT): Promise<void> {
-        args; // why we force usage of variables in tsconfig again?
-
         if (this.requiresProject) {
             this.project = await selectProject();
         }
@@ -104,7 +103,6 @@ export abstract class Command<ArgT extends unknown[] = never[]> {
 
     abstract baseFn(...args: ArgT): Promise<void>;
 
-    // strange typing - see ReactNativeCommand, which extends this class
     /** Execute base command without telemetry */
     async executeLocally(...args: ArgT) {
         await this.onBeforeExecute(...args);

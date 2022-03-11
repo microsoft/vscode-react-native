@@ -25,11 +25,11 @@ nls.config({
 })();
 const localize = nls.loadMessageBundle();
 
-export const getRunOptions = (
+export function getRunOptions(
     project: AppLauncher,
     platform: PlatformType,
     target: TargetType = TargetType.Simulator,
-) => {
+) {
     const folderUri = project.getWorkspaceFolderUri();
 
     const runOptions: IAndroidRunOptions | IIOSRunOptions | IWindowsRunOptions | ImacOSRunOptions =
@@ -55,9 +55,9 @@ export const getRunOptions = (
     );
 
     return runOptions;
-};
+}
 
-export const loginToExponent = (project: AppLauncher): Promise<xdl.IUser> => {
+export function loginToExponent(project: AppLauncher): Promise<xdl.IUser> {
     return project
         .getExponentHelper()
         .loginToExponent(
@@ -79,9 +79,9 @@ export const loginToExponent = (project: AppLauncher): Promise<xdl.IUser> => {
             );
             throw err;
         });
-};
+}
 
-export const selectProject = async () => {
+export async function selectProject() {
     const logger = OutputChannelLogger.getMainChannel();
     const projectKeys = Object.keys(ProjectsStorage.projectsCache);
 
@@ -100,11 +100,13 @@ export const selectProject = async () => {
     const selected = await vscode.window.showQuickPick(projectKeys).then(it => it);
 
     if (!selected) {
+        // legit way to exit from a function in JS.
+        // Don't worry. At least GC reclaims this. #techdebt
         // #todo!>selectionHandling>
-        await new Promise(() => {}); // legit way to exit from a function in JS
+        await new Promise(() => {});
         return;
     }
 
     logger.debug(`Command palette: selected project ${selected}`);
     return ProjectsStorage.projectsCache[selected];
-};
+}

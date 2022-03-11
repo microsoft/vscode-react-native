@@ -34,10 +34,6 @@ export class TestDevEnvironment extends Command {
     async baseFn() {
         const project = await selectProject().catch(() => null);
 
-        if (project === undefined) {
-            return;
-        }
-
         const projectObserver =
             project && (await this.createRNProjectObserver(project).catch(() => undefined));
 
