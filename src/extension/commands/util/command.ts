@@ -12,7 +12,7 @@ import { PlatformType } from "../../launchArgs";
 import { OutputChannelLogger } from "../../log/OutputChannelLogger";
 import { selectProject } from ".";
 
-export abstract class Command<ArgT extends unknown[] = []> {
+export abstract class Command<ArgT extends unknown[] = never[]> {
     private static instances = new Map<Command, unknown>();
 
     static formInstance<T extends { prototype: unknown }>(this: T): T["prototype"] {
