@@ -152,7 +152,7 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
 
         // iOS tests
         if (process.platform === "darwin" && (!testParameters || testParameters.RunIosTests)) {
-            it("Select and Select and save iOS simulator test", async function () {
+            it("Select and save iOS simulator test", async function () {
                 let simulator = iosSimulatorManager.getSimulator();
                 this.timeout(debugIosTestTime);
                 const launchConfigurationManager = new LaunchConfigurationManager(

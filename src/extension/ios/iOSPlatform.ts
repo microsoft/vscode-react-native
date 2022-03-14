@@ -56,7 +56,9 @@ export class IOSPlatform extends GeneralMobilePlatform {
         },
     ];
 
-    private static readonly RUN_IOS_SUCCESS_PATTERNS = ["BUILD SUCCEEDED"];
+    private static readonly RUN_IOS_SUCCESS_PATTERNS = [
+        "BUILD SUCCEEDED|success Successfully built the app",
+    ];
 
     constructor(protected runOptions: IIOSRunOptions, platformDeps: MobilePlatformDeps = {}) {
         super(runOptions, platformDeps);

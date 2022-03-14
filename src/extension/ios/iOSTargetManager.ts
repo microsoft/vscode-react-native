@@ -218,6 +218,7 @@ export class IOSTargetManager extends MobileTargetManager {
         virtualTarget: IDebuggableIOSTarget,
     ): Promise<IOSTarget | undefined> {
         return new Promise<IOSTarget | undefined>((resolve, reject) => {
+            let emulatorLaunchFailed = false;
             const emulatorProcess = this.childProcess.spawn(
                 IOSTargetManager.XCRUN_COMMAND,
                 [IOSTargetManager.SIMCTL_COMMAND, IOSTargetManager.BOOT_COMMAND, virtualTarget.id],
@@ -228,6 +229,7 @@ export class IOSTargetManager extends MobileTargetManager {
             );
             emulatorProcess.spawnedProcess.unref();
             emulatorProcess.outcome.catch(e => {
+                emulatorLaunchFailed = true;
                 this.logger.error(
                     localize(
                         "ErrorWhileLaunchingSimulator",
@@ -240,6 +242,8 @@ export class IOSTargetManager extends MobileTargetManager {
             });
 
             const condition = async () => {
+                if (emulatorLaunchFailed)
+                    throw new Error("iOS simulator launch failed unexpectedly");
                 await this.collectTargets(TargetType.Simulator);
                 const onlineTarget = (await this.getTargetList()).find(
                     target => target.id === virtualTarget.id && target.isOnline,
@@ -251,26 +255,33 @@ export class IOSTargetManager extends MobileTargetManager {
                 condition,
                 1000,
                 IOSTargetManager.SIMULATOR_START_TIMEOUT * 1000,
-            ).then(isBooted => {
-                if (isBooted) {
-                    virtualTarget.isOnline = true;
-                    this.logger.info(
-                        localize("SimulatorLaunched", "Launched simulator {0}", virtualTarget.name),
-                    );
-                    resolve(IOSTarget.fromInterface(virtualTarget));
-                } else {
-                    reject(
-                        new Error(
-                            `Virtual device launch finished with an exception: ${localize(
-                                "SimulatorStartWarning",
-                                "Could not start the simulator {0} within {1} seconds.",
+            ).then(
+                isBooted => {
+                    if (isBooted) {
+                        virtualTarget.isOnline = true;
+                        this.logger.info(
+                            localize(
+                                "SimulatorLaunched",
+                                "Launched simulator {0}",
                                 virtualTarget.name,
-                                IOSTargetManager.SIMULATOR_START_TIMEOUT,
-                            )}`,
-                        ),
-                    );
-                }
-            });
+                            ),
+                        );
+                        resolve(IOSTarget.fromInterface(virtualTarget));
+                    } else {
+                        reject(
+                            new Error(
+                                `Virtual device launch finished with an exception: ${localize(
+                                    "SimulatorStartWarning",
+                                    "Could not start the simulator {0} within {1} seconds.",
+                                    virtualTarget.name,
+                                    IOSTargetManager.SIMULATOR_START_TIMEOUT,
+                                )}`,
+                            ),
+                        );
+                    }
+                },
+                () => {},
+            );
         });
     }
 }
