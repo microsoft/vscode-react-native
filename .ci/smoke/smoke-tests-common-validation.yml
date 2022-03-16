@@ -53,8 +53,8 @@ steps:
       npm install -g @expo/ngrok@^4.1.0
     displayName: "npm install -g yarn react-native-cli expo-cli @expo/ngrok appium"
 
-  - bash: npm install --global windows-build-tools --vs2017
-    displayName: "npm install --global windows-build-tools --vs2017"
+  - bash: npm install --global windows-build-tools --vs2015
+    displayName: "npm install --global windows-build-tools --vs2015"
     condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'))
 
   - bash: |
