@@ -216,7 +216,8 @@
       {
         "command": "reactNative.stopInspector",
         "title": "%reactNative.command.stopInspector.title%",
-        "category": "React Native"
+        "category": "React Native",
+        "enablement": "false"
       },
       {
         "command": "reactNative.startLogCatMonitor",
