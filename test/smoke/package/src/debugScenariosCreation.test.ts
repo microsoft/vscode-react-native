@@ -35,13 +35,13 @@ export function startDebugScenariosCreationTests(project: TestProject): void {
                 `{
                     "version": "0.2.0",
                     "configurations": []
-                }`
+                }`,
             );
         }
 
         before(async () => {
             app = await initApp(project.workspaceDirectory, "DebuggingScenariosCreationTest");
-            clearDebugConfigs()
+            clearDebugConfigs();
             launchConfigurationManager = new LaunchConfigurationManager(project.workspaceDirectory);
             await automationHelper.prepareForDebugScenarioCreactionTestWithRetry();
             SmokeTestLogger.info("Debugging scenarios creation test: launch.json file is opened");
