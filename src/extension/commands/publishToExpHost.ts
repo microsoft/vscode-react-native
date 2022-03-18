@@ -25,7 +25,7 @@ export class PublishToExpHost extends ReactNativeCommand {
     label = "Publish To Expo Host";
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToPublishToExpHost);
 
-    async baseFn() {
+    async baseFn(): Promise<void> {
         if (!(await this.executePublishToExpHost())) {
             logger.warning(
                 localize(

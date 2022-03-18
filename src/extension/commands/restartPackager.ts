@@ -13,7 +13,7 @@ export class RestartPackager extends ReactNativeCommand {
     label = "Restart Packager";
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToRestartPackager);
 
-    async baseFn() {
+    async baseFn(): Promise<void> {
         assert(this.project);
         const nodeModulesRoot = this.project.getOrUpdateNodeModulesRoot();
         await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(nodeModulesRoot);

@@ -11,7 +11,7 @@ import { Command } from "./command";
 
 export abstract class ReactNativeCommand<ArgT extends unknown[] = never[]> extends Command<ArgT> {
     /** Execute base command with some telemetry */
-    async executeLocally(...args: ArgT) {
+    async executeLocally(...args: ArgT): Promise<void> {
         await this.onBeforeExecute(...args);
         await this.executeInContext(this.baseFn.bind(this, ...args));
     }
@@ -21,7 +21,7 @@ export abstract class ReactNativeCommand<ArgT extends unknown[] = never[]> exten
         await super.onBeforeExecute(...args);
     }
 
-    protected createHandler(fn = this.baseFn.bind(this)) {
+    protected createHandler(fn = this.baseFn.bind(this)): (...args: ArgT) => Promise<void> {
         return super.createHandler(async (...args: ArgT) => {
             await this.executeInContext(fn.bind(this, ...args));
         });

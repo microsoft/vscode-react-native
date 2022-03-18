@@ -36,7 +36,7 @@ export class StartNetworkInspector extends Command {
     requiresTrust = false;
     error = ErrorHelper.getInternalError(InternalErrorCode.CouldNotStartNetworkInspector);
 
-    async baseFn() {
+    async baseFn(): Promise<void> {
         assert(this.project);
 
         const logger = OutputChannelLogger.getMainChannel();
@@ -90,7 +90,7 @@ export class StopNetworkInspector extends Command {
     requiresTrust = false;
     error = ErrorHelper.getInternalError(InternalErrorCode.CouldNotStopNetworkInspector);
 
-    async baseFn() {
+    async baseFn(): Promise<void> {
         await stopNetworkInspector();
     }
 }

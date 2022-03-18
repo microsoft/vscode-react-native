@@ -25,30 +25,35 @@ nls.config({
 })();
 const localize = nls.loadMessageBundle();
 
+type IPlatformRunOptions =
+    | IAndroidRunOptions
+    | IIOSRunOptions
+    | IWindowsRunOptions
+    | ImacOSRunOptions;
+
 export function getRunOptions(
     project: AppLauncher,
     platform: PlatformType,
     target: TargetType = TargetType.Simulator,
-) {
+): IPlatformRunOptions {
     const folderUri = project.getWorkspaceFolderUri();
 
-    const runOptions: IAndroidRunOptions | IIOSRunOptions | IWindowsRunOptions | ImacOSRunOptions =
-        {
-            platform,
-            packagerPort: SettingsHelper.getPackagerPort(folderUri.fsPath),
-            runArguments: SettingsHelper.getRunArgs(platform, target, folderUri),
-            env: SettingsHelper.getEnvArgs(platform, target, folderUri),
-            envFile: SettingsHelper.getEnvFile(platform, target, folderUri),
-            projectRoot: SettingsHelper.getReactNativeProjectRoot(folderUri.fsPath),
-            nodeModulesRoot: project.getOrUpdateNodeModulesRoot(),
-            reactNativeVersions: project.getReactNativeVersions() || {
-                reactNativeVersion: "",
-                reactNativeWindowsVersion: "",
-                reactNativeMacOSVersion: "",
-            },
-            workspaceRoot: project.getWorkspaceFolderUri().fsPath,
-            ...(platform === PlatformType.iOS && target === "device" && { target: "device" }),
-        };
+    const runOptions: IPlatformRunOptions = {
+        platform,
+        packagerPort: SettingsHelper.getPackagerPort(folderUri.fsPath),
+        runArguments: SettingsHelper.getRunArgs(platform, target, folderUri),
+        env: SettingsHelper.getEnvArgs(platform, target, folderUri),
+        envFile: SettingsHelper.getEnvFile(platform, target, folderUri),
+        projectRoot: SettingsHelper.getReactNativeProjectRoot(folderUri.fsPath),
+        nodeModulesRoot: project.getOrUpdateNodeModulesRoot(),
+        reactNativeVersions: project.getReactNativeVersions() || {
+            reactNativeVersion: "",
+            reactNativeWindowsVersion: "",
+            reactNativeMacOSVersion: "",
+        },
+        workspaceRoot: project.getWorkspaceFolderUri().fsPath,
+        ...(platform === PlatformType.iOS && target === "device" && { target: "device" }),
+    };
 
     CommandExecutor.ReactNativeCommand = SettingsHelper.getReactNativeGlobalCommandName(
         project.getWorkspaceFolderUri(),
@@ -57,31 +62,30 @@ export function getRunOptions(
     return runOptions;
 }
 
-export function loginToExponent(project: AppLauncher): Promise<xdl.IUser> {
-    return project
-        .getExponentHelper()
-        .loginToExponent(
+export async function loginToExponent(project: AppLauncher): Promise<xdl.IUser> {
+    try {
+        return await project.getExponentHelper().loginToExponent(
             (message, password) =>
                 new Promise<string | undefined>((res, rej) => {
                     vscode.window.showInputBox({ placeHolder: message, password }).then(res, rej);
                 }).then(it => it || ""),
-            message =>
-                new Promise<string | undefined>((res, rej) => {
-                    vscode.window.showInformationMessage(message).then(res, rej);
-                }).then(it => it || ""),
-        )
-        .catch(err => {
-            OutputChannelLogger.getMainChannel().warning(
-                localize(
-                    "ExpoErrorOccuredMakeSureYouAreLoggedIn",
-                    "An error has occured. Please make sure you are logged in to Expo, your project is setup correctly for publishing and your packager is running as Expo.",
-                ),
-            );
-            throw err;
-        });
+            message_1 =>
+                new Promise<string | undefined>((res_1, rej_1) => {
+                    vscode.window.showInformationMessage(message_1).then(res_1, rej_1);
+                }).then(it_1 => it_1 || ""),
+        );
+    } catch (err) {
+        OutputChannelLogger.getMainChannel().warning(
+            localize(
+                "ExpoErrorOccuredMakeSureYouAreLoggedIn",
+                "An error has occured. Please make sure you are logged in to Expo, your project is setup correctly for publishing and your packager is running as Expo.",
+            ),
+        );
+        throw err;
+    }
 }
 
-export async function selectProject() {
+export async function selectProject(): Promise<AppLauncher> {
     const logger = OutputChannelLogger.getMainChannel();
     const projectKeys = Object.keys(ProjectsStorage.projectsCache);
 
@@ -103,8 +107,8 @@ export async function selectProject() {
         // legit way to exit from a function in JS.
         // Don't worry. At least GC reclaims this. #techdebt
         // #todo!>selectionHandling>
-        await new Promise(() => {});
-        return;
+        await new Promise(() => {}); // TODO fixit
+        throw Error(); // TODO fixit
     }
 
     logger.debug(`Command palette: selected project ${selected}`);

@@ -15,7 +15,7 @@ export class RunExponent extends ReactNativeCommand {
     label = "Run Expo";
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToRunExponent);
 
-    async baseFn() {
+    async baseFn(): Promise<void> {
         assert(this.project);
 
         const nodeModulesRoot = this.project.getOrUpdateNodeModulesRoot();
@@ -33,7 +33,7 @@ export class RunExponent extends ReactNativeCommand {
         await platform.runApp();
     }
 
-    async onBeforeExecute() {
+    async onBeforeExecute(): Promise<void> {
         await super.onBeforeExecute();
         assert(this.project);
         await loginToExponent(this.project);

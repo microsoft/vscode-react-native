@@ -27,7 +27,7 @@ export class StartLogCatMonitor extends Command {
     requiresTrust = false;
     error = ErrorHelper.getInternalError(InternalErrorCode.AndroidCouldNotStartLogCatMonitor);
 
-    async baseFn() {
+    async baseFn(): Promise<void> {
         assert(this.project);
         const logger = OutputChannelLogger.getMainChannel();
 

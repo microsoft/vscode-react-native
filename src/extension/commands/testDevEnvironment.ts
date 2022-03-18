@@ -31,7 +31,7 @@ export class TestDevEnvironment extends Command {
         return new RNProjectObserver(projectRootPath, versions);
     }
 
-    async baseFn() {
+    async baseFn(): Promise<void> {
         const project = await selectProject().catch(() => null);
 
         const projectObserver =

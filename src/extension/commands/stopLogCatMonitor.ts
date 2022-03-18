@@ -17,7 +17,7 @@ export class StopLogCatMonitor extends Command {
     requiresProject = false;
     error = ErrorHelper.getInternalError(InternalErrorCode.AndroidCouldNotStopLogCatMonitor);
 
-    async baseFn() {
+    async baseFn(): Promise<void> {
         const monitor = await selectLogCatMonitor();
         LogCatMonitorManager.delMonitor(monitor.deviceId);
     }

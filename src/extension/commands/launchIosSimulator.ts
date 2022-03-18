@@ -14,7 +14,7 @@ export class LaunchIOSSimulator extends Command {
 
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToStartIOSSimulator);
 
-    async baseFn() {
+    async baseFn(): Promise<void> {
         const targetManager = new IOSTargetManager();
         await targetManager.collectTargets(TargetType.Simulator);
         await targetManager.selectAndPrepareTarget(target => target.isVirtualTarget);

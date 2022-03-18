@@ -15,7 +15,8 @@ import { ReactNativeCommand } from "./util/reactNativeCommand";
 
 abstract class RunIos extends ReactNativeCommand {
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnIos);
-    async onBeforeExecute() {
+
+    async onBeforeExecute(): Promise<void> {
         await super.onBeforeExecute();
         assert(this.project);
         const nodeModulesRoot = this.project.getOrUpdateNodeModulesRoot();
@@ -31,7 +32,7 @@ export class RunIosDevice extends RunIos {
     codeName = "runIosDevice";
     label = "Run iOS on Device";
 
-    async baseFn() {
+    async baseFn(): Promise<void> {
         assert(this.project);
         await runIos(TargetType.Device, this.project);
     }
@@ -41,7 +42,7 @@ export class RunIosSimulator extends RunIos {
     codeName = "runIosSimulator";
     label = "Run iOS on Simulator";
 
-    async baseFn() {
+    async baseFn(): Promise<void> {
         assert(this.project);
         await runIos(TargetType.Simulator, this.project);
     }

@@ -18,7 +18,7 @@ export class RunWindows extends ReactNativeCommand {
     label = "Run Windows";
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnWindows);
 
-    async baseFn() {
+    async baseFn(): Promise<void> {
         assert(this.project);
 
         const platform = new WindowsPlatform(getRunOptions(this.project, PlatformType.Windows), {
@@ -29,7 +29,7 @@ export class RunWindows extends ReactNativeCommand {
         await platform.runApp(false);
     }
 
-    async onBeforeExecute() {
+    async onBeforeExecute(): Promise<void> {
         await super.onBeforeExecute();
         assert(this.project);
         void TipNotificationService.getInstance().setKnownDateForFeatureById(

@@ -20,7 +20,7 @@ export class SelectAndInsertDebugConfiguration extends Command {
         document: vscode.TextDocument,
         position: vscode.Position,
         token: vscode.CancellationToken,
-    ) {
+    ): Promise<void> {
         assert(
             debugConfigProvider && document && position && token,
             ErrorHelper.getInternalError(InternalErrorCode.CommandFailed),

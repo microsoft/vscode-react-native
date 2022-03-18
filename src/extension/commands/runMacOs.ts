@@ -18,7 +18,7 @@ export class RunMacOS extends ReactNativeCommand {
     label = "Run MacOS";
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToRunOnMacOS);
 
-    async baseFn() {
+    async baseFn(): Promise<void> {
         assert(this.project);
 
         const platform = new MacOSPlatform(getRunOptions(this.project, PlatformType.macOS), {
@@ -34,7 +34,7 @@ export class RunMacOS extends ReactNativeCommand {
         await platform.runApp();
     }
 
-    async onBeforeExecute() {
+    async onBeforeExecute(): Promise<void> {
         await super.onBeforeExecute();
         assert(this.project);
         void TipNotificationService.getInstance().setKnownDateForFeatureById(

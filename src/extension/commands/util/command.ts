@@ -52,8 +52,8 @@ export abstract class Command<ArgT extends unknown[] = never[]> {
 
     protected constructor() {}
 
-    protected createHandler(fn = this.baseFn.bind(this)) {
-        return async (...args: ArgT) => {
+    protected createHandler(fn = this.baseFn.bind(this)): (...args: ArgT) => Promise<void> {
+        return async (...args: ArgT): Promise<void> => {
             assert(this.entryPointHandler, "this.entryPointHandler is not defined");
 
             const resultFn = async () => {
@@ -101,15 +101,15 @@ export abstract class Command<ArgT extends unknown[] = never[]> {
         }
     }
 
-    abstract baseFn(...args: ArgT): Promise<void>;
+    abstract baseFn(...args: ArgT): Promise<void> | void;
 
     /** Execute base command without telemetry */
-    async executeLocally(...args: ArgT) {
+    async executeLocally(...args: ArgT): Promise<void> {
         await this.onBeforeExecute(...args);
         await this.baseFn(...args);
     }
 
-    register = (() => {
+    public register = (() => {
         let isCalled = false;
         return (entryPointHandler: EntryPointHandler) => {
             this.entryPointHandler = entryPointHandler;

@@ -28,7 +28,7 @@ export class ReloadApp extends Command {
         localize("ReactNativeReloadApp", "React Native: Reload App"),
     );
 
-    async baseFn() {
+    async baseFn(): Promise<void> {
         assert(this.project);
 
         const androidPlatform = new AndroidPlatform(

@@ -43,7 +43,7 @@ export class AttachHermesApplicationExperimental extends Command {
         DEBUG_CONFIGURATION_NAMES.ATTACH_TO_HERMES_APPLICATION_EXPERIMENTAL,
     );
 
-    async baseFn() {
+    baseFn(): void {
         assert(this.project);
         startDebug(
             debugConfigurations[
@@ -62,7 +62,7 @@ export class AttachDirectIosExperimental extends Command {
         DEBUG_CONFIGURATION_NAMES.ATTACH_TO_DIRECT_IOS_EXPERIMENTAL,
     );
 
-    async baseFn() {
+    baseFn(): void {
         assert(this.project);
         startDebug(
             debugConfigurations[DEBUG_CONFIGURATION_NAMES.ATTACH_TO_DIRECT_IOS_EXPERIMENTAL],
@@ -79,7 +79,7 @@ export class AttachToPackager extends Command {
         DEBUG_CONFIGURATION_NAMES.ATTACH_TO_PACKAGER,
     );
 
-    async baseFn() {
+    baseFn(): void {
         assert(this.project);
         startDebug(debugConfigurations[DEBUG_CONFIGURATION_NAMES.ATTACH_TO_PACKAGER], this.project);
     }
@@ -93,7 +93,7 @@ export class DebugAndroid extends Command {
         DEBUG_CONFIGURATION_NAMES.DEBUG_ANDROID,
     );
 
-    async baseFn() {
+    baseFn(): void {
         assert(this.project);
         startDebug(debugConfigurations[DEBUG_CONFIGURATION_NAMES.DEBUG_ANDROID], this.project);
     }
@@ -107,7 +107,7 @@ export class DebugIos extends Command {
         DEBUG_CONFIGURATION_NAMES.DEBUG_IOS,
     );
 
-    async baseFn() {
+    baseFn(): void {
         assert(this.project);
         startDebug(debugConfigurations[DEBUG_CONFIGURATION_NAMES.DEBUG_IOS], this.project);
     }
@@ -121,7 +121,7 @@ export class DebugWindows extends Command {
         DEBUG_CONFIGURATION_NAMES.DEBUG_WINDOWS,
     );
 
-    async baseFn() {
+    baseFn(): void {
         assert(this.project);
         startDebug(debugConfigurations[DEBUG_CONFIGURATION_NAMES.DEBUG_WINDOWS], this.project);
     }
@@ -135,7 +135,7 @@ export class DebugMacos extends Command {
         DEBUG_CONFIGURATION_NAMES.DEBUG_MACOS,
     );
 
-    async baseFn() {
+    baseFn(): void {
         assert(this.project);
         startDebug(debugConfigurations[DEBUG_CONFIGURATION_NAMES.DEBUG_MACOS], this.project);
     }
@@ -149,7 +149,7 @@ export class DebugInExponent extends Command {
         DEBUG_CONFIGURATION_NAMES.DEBUG_IN_EXPONENT,
     );
 
-    async baseFn() {
+    baseFn(): void {
         assert(this.project);
         startDebug(debugConfigurations[DEBUG_CONFIGURATION_NAMES.DEBUG_IN_EXPONENT], this.project);
     }
@@ -163,7 +163,7 @@ export class DebugAndroidHermesExperimental extends Command {
         DEBUG_CONFIGURATION_NAMES.DEBUG_ANDROID_HERMES_EXPERIMENTAL,
     );
 
-    async baseFn() {
+    baseFn(): void {
         assert(this.project);
         startDebug(
             debugConfigurations[DEBUG_CONFIGURATION_NAMES.DEBUG_ANDROID_HERMES_EXPERIMENTAL],
@@ -180,7 +180,7 @@ export class DebugDirectIosExperimental extends Command {
         DEBUG_CONFIGURATION_NAMES.DEBUG_DIRECT_IOS_EXPERIMENTAL,
     );
 
-    async baseFn() {
+    baseFn(): void {
         assert(this.project);
         startDebug(
             debugConfigurations[DEBUG_CONFIGURATION_NAMES.DEBUG_DIRECT_IOS_EXPERIMENTAL],
@@ -197,7 +197,7 @@ export class DebugIosHermesExperimental extends Command {
         DEBUG_CONFIGURATION_NAMES.DEBUG_IOS_HERMES_EXPERIMENTAL,
     );
 
-    async baseFn() {
+    baseFn(): void {
         assert(this.project);
         startDebug(
             debugConfigurations[DEBUG_CONFIGURATION_NAMES.DEBUG_IOS_HERMES_EXPERIMENTAL],
@@ -214,7 +214,7 @@ export class DebugMacosHermesExperimental extends Command {
         DEBUG_CONFIGURATION_NAMES.DEBUG_MACOS_HERMES_EXPERIMENTAL,
     );
 
-    async baseFn() {
+    baseFn(): void {
         assert(this.project);
         startDebug(
             debugConfigurations[DEBUG_CONFIGURATION_NAMES.DEBUG_MACOS_HERMES_EXPERIMENTAL],
@@ -231,7 +231,7 @@ export class DebugWindowsHermesExperimental extends Command {
         DEBUG_CONFIGURATION_NAMES.DEBUG_WINDOWS_HERMES_EXPERIMENTAL,
     );
 
-    async baseFn() {
+    baseFn(): void {
         assert(this.project);
         startDebug(
             debugConfigurations[DEBUG_CONFIGURATION_NAMES.DEBUG_WINDOWS_HERMES_EXPERIMENTAL],
@@ -248,7 +248,7 @@ export class RunAndroid extends Command {
         DEBUG_CONFIGURATION_NAMES.RUN_ANDROID,
     );
 
-    async baseFn() {
+    baseFn(): void {
         assert(this.project);
         startDebug(debugConfigurations[DEBUG_CONFIGURATION_NAMES.RUN_ANDROID], this.project);
     }
@@ -262,7 +262,7 @@ export class RunIos extends Command {
         DEBUG_CONFIGURATION_NAMES.RUN_IOS,
     );
 
-    async baseFn() {
+    baseFn(): void {
         assert(this.project);
         startDebug(debugConfigurations[DEBUG_CONFIGURATION_NAMES.RUN_IOS], this.project);
     }
@@ -276,7 +276,7 @@ export class RunAndroidHermesExperimental extends Command {
         DEBUG_CONFIGURATION_NAMES.RUN_ANDROID_HERMES_EXPERIMENTAL,
     );
 
-    async baseFn() {
+    baseFn(): void {
         assert(this.project);
         startDebug(
             debugConfigurations[DEBUG_CONFIGURATION_NAMES.RUN_ANDROID_HERMES_EXPERIMENTAL],
@@ -293,7 +293,7 @@ export class RunIosHermesExperimental extends Command {
         DEBUG_CONFIGURATION_NAMES.RUN_IOS_HERMES_EXPERIMENTAL,
     );
 
-    async baseFn() {
+    baseFn(): void {
         assert(this.project);
         startDebug(
             debugConfigurations[DEBUG_CONFIGURATION_NAMES.RUN_IOS_HERMES_EXPERIMENTAL],
@@ -310,7 +310,7 @@ export class RunDirectIosExperimental extends Command {
         DEBUG_CONFIGURATION_NAMES.RUN_DIRECT_IOS_EXPERIMENTAL,
     );
 
-    async baseFn() {
+    baseFn(): void {
         assert(this.project);
         startDebug(
             debugConfigurations[DEBUG_CONFIGURATION_NAMES.RUN_DIRECT_IOS_EXPERIMENTAL],

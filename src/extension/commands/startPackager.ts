@@ -12,7 +12,7 @@ export class StartPackager extends ReactNativeCommand {
     label = "Start Packager";
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToStartPackager);
 
-    async baseFn() {
+    async baseFn(): Promise<void> {
         assert(this.project);
         await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
             this.project.getOrUpdateNodeModulesRoot(),

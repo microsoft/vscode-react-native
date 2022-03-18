@@ -15,7 +15,7 @@ export class LaunchAndroidEmulator extends Command {
     label = "Launch Android Emulator";
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToStartAndroidEmulator);
 
-    async baseFn() {
+    async baseFn(): Promise<void> {
         assert(this.project);
 
         const projectPath = this.project.getPackager().getProjectPath();
