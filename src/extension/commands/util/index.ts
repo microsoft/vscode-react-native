@@ -69,10 +69,10 @@ export async function loginToExponent(project: AppLauncher): Promise<xdl.IUser> 
                 new Promise<string | undefined>((res, rej) => {
                     vscode.window.showInputBox({ placeHolder: message, password }).then(res, rej);
                 }).then(it => it || ""),
-            message_1 =>
-                new Promise<string | undefined>((res_1, rej_1) => {
-                    vscode.window.showInformationMessage(message_1).then(res_1, rej_1);
-                }).then(it_1 => it_1 || ""),
+            message =>
+                new Promise<string | undefined>((res, rej) => {
+                    vscode.window.showInformationMessage(message).then(res, rej);
+                }).then(it => it || ""),
         );
     } catch (err) {
         OutputChannelLogger.getMainChannel().warning(
