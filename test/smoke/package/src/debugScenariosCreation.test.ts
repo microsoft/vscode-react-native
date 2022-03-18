@@ -3,6 +3,8 @@
 
 import { Application } from "../../automation";
 import * as assert from "assert";
+import * as fs from "fs";
+import * as path from "path";
 import { vscodeManager } from "./main";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 import { testApplicationSetupManager } from "./main";
@@ -27,8 +29,19 @@ export function startDebugScenariosCreationTests(project: TestProject): void {
             return app;
         }
 
+        function clearDebugConfigs() {
+            fs.writeFileSync(
+                path.join(project.vsCodeConfigPath, "launch.json"),
+                `{
+                    "version": "0.2.0",
+                    "configurations": []
+                }`
+            );
+        }
+
         before(async () => {
             app = await initApp(project.workspaceDirectory, "DebuggingScenariosCreationTest");
+            clearDebugConfigs()
             launchConfigurationManager = new LaunchConfigurationManager(project.workspaceDirectory);
             await automationHelper.prepareForDebugScenarioCreactionTestWithRetry();
             SmokeTestLogger.info("Debugging scenarios creation test: launch.json file is opened");
