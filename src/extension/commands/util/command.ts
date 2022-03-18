@@ -101,7 +101,7 @@ export abstract class Command<ArgT extends unknown[] = never[]> {
         }
     }
 
-    abstract baseFn(...args: ArgT): Promise<void> | void;
+    abstract baseFn(...args: ArgT): Promise<void>;
 
     /** Execute base command without telemetry */
     async executeLocally(...args: ArgT): Promise<void> {

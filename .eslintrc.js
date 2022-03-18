@@ -76,7 +76,7 @@ module.exports = {
             },
         ],
         "@typescript-eslint/prefer-regexp-exec": "off",
-        "@typescript-eslint/require-await": "warn",
+        "@typescript-eslint/require-await": "off",
         "class-methods-use-this": "off",
         "consistent-return": "off",
         eqeqeq: "warn",

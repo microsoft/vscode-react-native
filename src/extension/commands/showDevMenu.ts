@@ -26,7 +26,7 @@ export class ShowDevMenu extends Command {
         localize("ReactNativeShowDevMenu", "React Native: Show Developer Menu for app"),
     );
 
-    baseFn(): void {
+    async baseFn(): Promise<void> {
         assert(this.project);
 
         const androidPlatform = new AndroidPlatform(

@@ -30,7 +30,7 @@ export class RunElementInspector extends Command {
         localize("ReactNativeRunElementInspector", "React Native: Run Element Inspector"),
     );
 
-    baseFn(): void {
+    async baseFn(): Promise<void> {
         const logger = OutputChannelLogger.getMainChannel();
 
         void TipNotificationService.getInstance().setKnownDateForFeatureById("elementInspector");
@@ -47,7 +47,8 @@ export class RunElementInspector extends Command {
         }
         // Remove the following env variables to prevent running electron app in node mode.
         // https://github.com/microsoft/vscode/issues/3011#issuecomment-184577502
-        const { /* ATOM_SHELL_INTERNAL_RUN_AS_NODE, ELECTRON_RUN_AS_NODE, */ ...env } = process.env;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { ATOM_SHELL_INTERNAL_RUN_AS_NODE, ELECTRON_RUN_AS_NODE, ...env } = process.env;
         const command = HostPlatform.getNpmCliCommand("react-devtools");
 
         elementInspector = child_process.spawn(command, [], {
@@ -82,7 +83,7 @@ export class StopElementInspector extends Command {
         localize("ReactNativeStopElementInspector", "React Native: Stop Element Inspector"),
     );
 
-    baseFn(): void {
+    async baseFn(): Promise<void> {
         elementInspector?.kill();
     }
 }
