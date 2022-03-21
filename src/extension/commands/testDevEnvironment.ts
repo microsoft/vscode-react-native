@@ -32,7 +32,7 @@ export class TestDevEnvironment extends Command {
     }
 
     async baseFn(): Promise<void> {
-        const project = await selectProject().catch(() => null);
+        const project = await selectProject();
 
         const projectObserver =
             project && (await this.createRNProjectObserver(project).catch(() => undefined));

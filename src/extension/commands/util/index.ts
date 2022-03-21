@@ -16,8 +16,6 @@ import { SettingsHelper } from "../../settingsHelper";
 import { TargetType } from "../../generalPlatform";
 import { CommandExecutor } from "../../../common/commandExecutor";
 import { ProjectsStorage } from "../../projectsStorage";
-import { ErrorHelper } from "../../../common/error/errorHelper";
-import { InternalErrorCode } from "../../../common/error/internalErrorCode";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -85,15 +83,14 @@ export async function loginToExponent(project: AppLauncher): Promise<xdl.IUser> 
     }
 }
 
-export async function selectProject(): Promise<AppLauncher> {
+export async function selectProject(
+    CancellationTokenSource?: vscode.CancellationTokenSource,
+): Promise<AppLauncher | undefined> {
     const logger = OutputChannelLogger.getMainChannel();
     const projectKeys = Object.keys(ProjectsStorage.projectsCache);
 
     if (projectKeys.length === 0) {
-        throw ErrorHelper.getInternalError(
-            InternalErrorCode.WorkspaceNotFound,
-            "Current workspace does not contain React Native projects.",
-        );
+        return undefined;
     }
 
     if (projectKeys.length === 1) {
@@ -101,14 +98,13 @@ export async function selectProject(): Promise<AppLauncher> {
         return ProjectsStorage.projectsCache[projectKeys[0]];
     }
 
-    const selected = await vscode.window.showQuickPick(projectKeys).then(it => it);
+    const selected = await vscode.window.showQuickPick(projectKeys);
 
     if (!selected) {
-        // legit way to exit from a function in JS.
-        // Don't worry. At least GC reclaims this. #techdebt
-        // #todo!>selectionHandling>
-        await new Promise(() => {}); // TODO fixit
-        throw Error(); // TODO fixit
+        if (CancellationTokenSource) {
+            CancellationTokenSource.cancel();
+        }
+        return undefined;
     }
 
     logger.debug(`Command palette: selected project ${selected}`);

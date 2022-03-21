@@ -48,6 +48,8 @@ export abstract class Command<ArgT extends unknown[] = never[]> {
     /** Throw an Error if workspace is not trusted before executing command */
     protected requiresTrust = true;
 
+    protected commandCancelationTokenSource: vscode.CancellationTokenSource;
+
     protected project?: AppLauncher;
 
     protected constructor() {}
@@ -56,8 +58,12 @@ export abstract class Command<ArgT extends unknown[] = never[]> {
         return async (...args: ArgT): Promise<void> => {
             assert(this.entryPointHandler, "this.entryPointHandler is not defined");
 
+            this.commandCancelationTokenSource = new vscode.CancellationTokenSource();
             const resultFn = async () => {
                 await this.onBeforeExecute(...args);
+                if (this.commandCancelationTokenSource.token.isCancellationRequested) {
+                    return;
+                }
                 await fn.bind(this)(...args);
             };
 
@@ -80,7 +86,15 @@ export abstract class Command<ArgT extends unknown[] = never[]> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     protected async onBeforeExecute(...args: ArgT): Promise<void> {
         if (this.requiresProject) {
-            this.project = await selectProject();
+            this.project = await selectProject(this.commandCancelationTokenSource);
+            if (this.commandCancelationTokenSource.token.isCancellationRequested) {
+                return;
+            } else if (!this.project) {
+                throw ErrorHelper.getInternalError(
+                    InternalErrorCode.WorkspaceNotFound,
+                    "Current workspace does not contain React Native projects.",
+                );
+            }
         }
 
         if (this.requiresTrust && !isWorkspaceTrusted()) {
