@@ -19,6 +19,7 @@ export enum InternalErrorCode {
     FailedToRunOnWindows = 114,
     FailedToRunOnMacOS = 115,
     DebuggingCommandFailed = 116,
+    FailedToTestDevEnvironment = 117,
 
     // Device Deployer errors
     IOSDeployNotFound = 201,

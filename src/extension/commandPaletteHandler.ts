@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as vscode from "vscode";
@@ -45,6 +45,8 @@ import { TipNotificationService } from "./services/tipsNotificationsService/tips
 import { debugConfigurations } from "./debuggingConfiguration/debugConfigTypesAndConstants";
 import { AndroidTargetManager } from "./android/androidTargetManager";
 import { IOSTargetManager } from "./ios/iOSTargetManager";
+import { runChecks } from "./services/validationService/checker";
+import { ValidationCategoryE } from "./services/validationService/checks/types";
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -534,6 +536,20 @@ export class CommandPaletteHandler {
     public static async stopLogCatMonitor(): Promise<void> {
         const monitor = await this.selectLogCatMonitor();
         LogCatMonitorManager.delMonitor(monitor.deviceId);
+    }
+
+    public static async testDevEnvironment(): Promise<void> {
+        const project = await this.selectProject().catch(() => undefined);
+        const shouldCheck = {
+            [ValidationCategoryE.Expo]:
+                (await project
+                    ?.getPackager()
+                    .getExponentHelper()
+                    .isExpoManagedApp(false)
+                    .catch(() => false)) || false,
+        } as const;
+
+        await runChecks(shouldCheck);
     }
 
     public static async selectAndInsertDebugConfiguration(
