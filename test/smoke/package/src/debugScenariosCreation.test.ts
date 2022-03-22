@@ -34,7 +34,17 @@ export function startDebugScenariosCreationTests(project: TestProject): void {
                 path.join(project.vsCodeConfigPath, "launch.json"),
                 `{
                     "version": "0.2.0",
-                    "configurations": []
+                    "configurations": [
+                        {
+                            "name": "Dont use this config",
+                            "type": "pwa-node",
+                            "request": "launch",
+                            "skipFiles": [
+                                "<node_internals>/**"
+                            ],
+                            "program": "index.js"
+                        }
+                    ]
                 }`,
             );
         }
