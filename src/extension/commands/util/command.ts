@@ -10,6 +10,7 @@ import { InternalErrorCode } from "../../../common/error/internalErrorCode";
 import { AppLauncher } from "../../appLauncher";
 import { PlatformType } from "../../launchArgs";
 import { OutputChannelLogger } from "../../log/OutputChannelLogger";
+import { TelemetryGenerator } from "../../../common/telemetryGenerators";
 import { selectProject } from ".";
 
 export abstract class Command<ArgT extends unknown[] = never[]> {
@@ -48,8 +49,6 @@ export abstract class Command<ArgT extends unknown[] = never[]> {
     /** Throw an Error if workspace is not trusted before executing command */
     protected requiresTrust = true;
 
-    protected commandCancelationTokenSource: vscode.CancellationTokenSource;
-
     protected project?: AppLauncher;
 
     protected constructor() {}
@@ -58,13 +57,19 @@ export abstract class Command<ArgT extends unknown[] = never[]> {
         return async (...args: ArgT): Promise<void> => {
             assert(this.entryPointHandler, "this.entryPointHandler is not defined");
 
-            this.commandCancelationTokenSource = new vscode.CancellationTokenSource();
-            const resultFn = async () => {
-                await this.onBeforeExecute(...args);
-                if (this.commandCancelationTokenSource.token.isCancellationRequested) {
-                    return;
+            const resultFn = async (generator: TelemetryGenerator) => {
+                try {
+                    await this.onBeforeExecute(...args);
+                    await fn.bind(this)(...args);
+                } catch (error) {
+                    switch (error.errorCode) {
+                        case InternalErrorCode.CommandCanceled:
+                            generator.addError(error);
+                            return;
+                        default:
+                            throw error;
+                    }
                 }
-                await fn.bind(this)(...args);
             };
 
             OutputChannelLogger.getMainChannel().debug(`Run command: ${this.codeName}`);
@@ -86,15 +91,7 @@ export abstract class Command<ArgT extends unknown[] = never[]> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     protected async onBeforeExecute(...args: ArgT): Promise<void> {
         if (this.requiresProject) {
-            this.project = await selectProject(this.commandCancelationTokenSource);
-            if (this.commandCancelationTokenSource.token.isCancellationRequested) {
-                return;
-            } else if (!this.project) {
-                throw ErrorHelper.getInternalError(
-                    InternalErrorCode.WorkspaceNotFound,
-                    "Current workspace does not contain React Native projects.",
-                );
-            }
+            this.project = await this.selectProject();
         }
 
         if (this.requiresTrust && !isWorkspaceTrusted()) {
@@ -112,6 +109,22 @@ export abstract class Command<ArgT extends unknown[] = never[]> {
             }
 
             return true;
+        }
+    }
+
+    protected async selectProject(): Promise<AppLauncher> {
+        try {
+            return await selectProject();
+        } catch (error) {
+            switch (error.errorCode) {
+                case InternalErrorCode.UserInputCanceled:
+                    throw ErrorHelper.getInternalError(
+                        InternalErrorCode.CommandCanceled,
+                        this.label,
+                    );
+                default:
+                    throw error;
+            }
         }
     }
 

@@ -16,6 +16,8 @@ import { SettingsHelper } from "../../settingsHelper";
 import { TargetType } from "../../generalPlatform";
 import { CommandExecutor } from "../../../common/commandExecutor";
 import { ProjectsStorage } from "../../projectsStorage";
+import { ErrorHelper } from "../../../common/error/errorHelper";
+import { InternalErrorCode } from "../../../common/error/internalErrorCode";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -83,14 +85,15 @@ export async function loginToExponent(project: AppLauncher): Promise<xdl.IUser> 
     }
 }
 
-export async function selectProject(
-    CancellationTokenSource?: vscode.CancellationTokenSource,
-): Promise<AppLauncher | undefined> {
+export async function selectProject(): Promise<AppLauncher> {
     const logger = OutputChannelLogger.getMainChannel();
     const projectKeys = Object.keys(ProjectsStorage.projectsCache);
 
     if (projectKeys.length === 0) {
-        return undefined;
+        throw ErrorHelper.getInternalError(
+            InternalErrorCode.WorkspaceNotFound,
+            "Current workspace does not contain React Native projects.",
+        );
     }
 
     if (projectKeys.length === 1) {
@@ -101,10 +104,7 @@ export async function selectProject(
     const selected = await vscode.window.showQuickPick(projectKeys);
 
     if (!selected) {
-        if (CancellationTokenSource) {
-            CancellationTokenSource.cancel();
-        }
-        return undefined;
+        throw ErrorHelper.getInternalError(InternalErrorCode.UserInputCanceled);
     }
 
     logger.debug(`Command palette: selected project ${selected}`);

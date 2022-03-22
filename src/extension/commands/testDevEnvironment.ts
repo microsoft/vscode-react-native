@@ -9,7 +9,6 @@ import { RNProjectObserver } from "../rnProjectObserver";
 import { runChecks } from "../services/validationService/checker";
 import { ValidationCategoryE } from "../services/validationService/checks/types";
 import { SettingsHelper } from "../settingsHelper";
-import { selectProject } from "./util";
 import { Command } from "./util/command";
 
 export class TestDevEnvironment extends Command {
@@ -32,7 +31,17 @@ export class TestDevEnvironment extends Command {
     }
 
     async baseFn(): Promise<void> {
-        const project = await selectProject();
+        let project: AppLauncher | undefined;
+        try {
+            project = await this.selectProject();
+        } catch (error) {
+            switch (error.errorCode) {
+                case InternalErrorCode.WorkspaceNotFound:
+                    break;
+                default:
+                    throw error;
+            }
+        }
 
         const projectObserver =
             project && (await this.createRNProjectObserver(project).catch(() => undefined));

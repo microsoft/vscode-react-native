@@ -5,7 +5,6 @@ import * as assert from "assert";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { AppLauncher } from "../appLauncher";
-import { selectProject } from "./util";
 import { ReactNativeCommand } from "./util/reactNativeCommand";
 
 export class StopPackager extends ReactNativeCommand<[AppLauncher]> {
@@ -19,7 +18,7 @@ export class StopPackager extends ReactNativeCommand<[AppLauncher]> {
     async onBeforeExecute(appLauncher: AppLauncher): Promise<void> {
         await super.onBeforeExecute(appLauncher);
 
-        this.project = appLauncher || (await selectProject(this.commandCancelationTokenSource));
+        this.project = appLauncher || (await this.selectProject());
     }
 
     // this function requires argument because we need it in extension 'deactivate' hook
