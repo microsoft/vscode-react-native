@@ -75,7 +75,7 @@ export function startDebugScenariosCreationTests(project: TestProject): void {
 
         afterEach(async () => {
             await app.workbench.code.dispatchKeybinding("escape");
-        })
+        });
 
         describe("Add Run scenarios", () => {
             it("Add Run iOS debugging scenario", async function () {
