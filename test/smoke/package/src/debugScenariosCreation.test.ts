@@ -51,7 +51,6 @@ export function startDebugScenariosCreationTests(project: TestProject): void {
 
         before(async () => {
             app = await initApp(project.workspaceDirectory, "DebuggingScenariosCreationTest");
-            clearDebugConfigs();
             launchConfigurationManager = new LaunchConfigurationManager(project.workspaceDirectory);
             await automationHelper.prepareForDebugScenarioCreactionTestWithRetry();
             SmokeTestLogger.info("Debugging scenarios creation test: launch.json file is opened");
@@ -65,6 +64,7 @@ export function startDebugScenariosCreationTests(project: TestProject): void {
         });
 
         beforeEach(async () => {
+            clearDebugConfigs();
             launchConfigurationManager.readLaunchScenarios();
             previousConfigurationsCount = launchConfigurationManager.getConfigurationsCount();
             SmokeTestLogger.info(
@@ -73,8 +73,13 @@ export function startDebugScenariosCreationTests(project: TestProject): void {
             await automationHelper.addConfigurationWithRetry();
         });
 
+        afterEach(async () => {
+            await app.workbench.code.dispatchKeybinding("escape");
+        })
+
         describe("Add Run scenarios", () => {
             it("Add Run iOS debugging scenario", async function () {
+                this.retries(3);
                 SmokeTestLogger.info(
                     "Debugging scenarios creation test: select Run application scenario",
                 );
@@ -106,6 +111,7 @@ export function startDebugScenariosCreationTests(project: TestProject): void {
 
         describe("Add Debug scenarios", () => {
             it("Add Debug iOS Hermes - Experimental debugging scenario", async function () {
+                this.retries(3);
                 SmokeTestLogger.info(
                     "Debugging scenarios creation test: select Debug application scenario",
                 );
@@ -139,6 +145,7 @@ export function startDebugScenariosCreationTests(project: TestProject): void {
             });
 
             it("Add Debug Direct iOS - Experimental debugging scenario", async function () {
+                this.retries(3);
                 SmokeTestLogger.info(
                     "Debugging scenarios creation test: select Debug application scenario",
                 );
@@ -174,6 +181,7 @@ export function startDebugScenariosCreationTests(project: TestProject): void {
             });
 
             it("Add Debug macOS Hermes - Experimental debugging scenario", async function () {
+                this.retries(3);
                 SmokeTestLogger.info(
                     "Debugging scenarios creation test: select Debug application scenario",
                 );
@@ -206,6 +214,7 @@ export function startDebugScenariosCreationTests(project: TestProject): void {
             });
 
             it("Add Debug Android Hermes - Experimental debugging scenario", async function () {
+                this.retries(3);
                 SmokeTestLogger.info(
                     "Debugging scenarios creation test: select Debug application scenario",
                 );
@@ -237,6 +246,7 @@ export function startDebugScenariosCreationTests(project: TestProject): void {
             });
 
             it("Add Debug in Exponent debugging scenario", async function () {
+                this.retries(3);
                 SmokeTestLogger.info(
                     "Debugging scenarios creation test: select Debug application scenario",
                 );
@@ -271,6 +281,7 @@ export function startDebugScenariosCreationTests(project: TestProject): void {
 
         describe("Add Attach scenarios", () => {
             it("Add Attach to packager debugging scenario", async function () {
+                this.retries(3);
                 SmokeTestLogger.info(
                     "Debugging scenarios creation test: select Attach to application scenario",
                 );
@@ -308,6 +319,7 @@ export function startDebugScenariosCreationTests(project: TestProject): void {
             });
 
             it("Add Attach to Hermes application - Experimental debugging scenario", async function () {
+                this.retries(3);
                 SmokeTestLogger.info(
                     "Debugging scenarios creation test: select Attach to application scenario",
                 );
@@ -345,6 +357,7 @@ export function startDebugScenariosCreationTests(project: TestProject): void {
             });
 
             it("Add Attach to Direct iOS - Experimental debugging scenario", async function () {
+                this.retries(3);
                 SmokeTestLogger.info(
                     "Debugging scenarios creation test: select Attach to application scenario",
                 );
