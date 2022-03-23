@@ -1,17 +1,17 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import * as path from "path";
 import * as vscode from "vscode";
 import { IConfig, retryDownloadConfig } from "../remoteConfigHelper";
 import { TelemetryHelper } from "../../../common/telemetryHelper";
 import { Telemetry } from "../../../common/telemetry";
 import { ExtensionConfigManager } from "../../extensionConfigManager";
-import tipsStorage from "./tipsStorage";
 import { findFileInFolderHierarchy } from "../../../common/extensionHelper";
 import { SettingsHelper } from "../../settingsHelper";
 import { OutputChannelLogger } from "../../log/OutputChannelLogger";
-import * as path from "path";
 import { areSameDates, getRandomIntInclusive } from "../../../common/utils";
+import tipsStorage from "./tipsStorage";
 
 enum TipNotificationAction {
     GET_MORE_INFO = "tipsMoreInfo",
@@ -124,13 +124,11 @@ export class TipNotificationService implements vscode.Disposable {
             this.deleteOutdatedKnownDate();
             if (this.tipsConfig.daysLeftBeforeGeneralTip === 0) {
                 tipResponse = await this.showRandomGeneralTipNotification();
-            } else {
-                if (
-                    this.tipsConfig.lastExtensionUsageDate &&
-                    !areSameDates(curDate, this.tipsConfig.lastExtensionUsageDate)
-                ) {
-                    this.tipsConfig.daysLeftBeforeGeneralTip--;
-                }
+            } else if (
+                this.tipsConfig.lastExtensionUsageDate &&
+                !areSameDates(curDate, this.tipsConfig.lastExtensionUsageDate)
+            ) {
+                this.tipsConfig.daysLeftBeforeGeneralTip--;
             }
         } else {
             tipResponse = await this.showSpecificTipNotification(<string>specificTipKey);
@@ -184,13 +182,15 @@ export class TipNotificationService implements vscode.Disposable {
         storageTips: Record<string, unknown>,
         configTips: Tips,
     ): Tips {
-        for (let key in configTips) {
+        // eslint-disable-next-line no-restricted-syntax
+        for (const key in configTips) {
             if (!(key in storageTips)) {
                 delete configTips[key];
             }
         }
 
-        for (let key in storageTips) {
+        // eslint-disable-next-line no-restricted-syntax
+        for (const key in storageTips) {
             if (!(key in configTips)) {
                 configTips[key] = {};
             }
@@ -232,7 +232,7 @@ export class TipNotificationService implements vscode.Disposable {
                     path.normalize(`file://${readmeFile}${anchorLink}`),
                 );
 
-                vscode.commands.executeCommand("markdown.showPreview", uriFile);
+                void vscode.commands.executeCommand("markdown.showPreview", uriFile);
             }
         }
 
@@ -301,14 +301,13 @@ export class TipNotificationService implements vscode.Disposable {
                 this.tipsConfig.allTipsShownFirstly = true;
             }
         } else {
-            generalTipsForRandom = generalTipsKeys.sort((tipId1, tipId2) => {
-                return (
+            generalTipsForRandom = generalTipsKeys.sort(
+                (tipId1, tipId2) =>
                     // According to ECMAScript standard: The exact moment of midnight at the beginning of
                     // 01 January, 1970 UTC is represented by the value +0.
                     (generalTips[tipId2].shownDate ?? new Date(+0)).getTime() -
-                    (generalTips[tipId1].shownDate ?? new Date(+0)).getTime()
-                );
-            });
+                    (generalTips[tipId1].shownDate ?? new Date(+0)).getTime(),
+            );
         }
 
         let leftIndex: number;
@@ -441,7 +440,7 @@ export class TipNotificationService implements vscode.Disposable {
 
         const parseDatesInTips = (tipsKeys: string[], tipsType: "generalTips" | "specificTips") => {
             tipsKeys.forEach(tipKey => {
-                let tip = rawTipsConfig.tips[tipsType][tipKey];
+                const tip = rawTipsConfig.tips[tipsType][tipKey];
                 if (tip.knownDate) {
                     rawTipsConfig.tips[tipsType][tipKey].knownDate = new Date(tip.knownDate);
                 }

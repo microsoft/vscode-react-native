@@ -109,45 +109,63 @@ export function startDebuggingViaDynamicConfigsTests(project: TestProject): void
         });
 
         it("Start 'Attach to packager' dynamic config", async function () {
-            this.timeout(debuggingViaDynamicConfigsTestTime);
-            app = await initApp(
-                project.workspaceDirectory,
-                "Start 'Attach to packager' dynamic config test",
-            );
-            // We need to wait a bit to let the extension activate
-            await sleep(15 * 1000);
-            SmokeTestLogger.info(
-                "Start 'Attach to packager' dynamic config test: open React Native Tools dynamic debug configurations",
-            );
-            await automationHelper.openDynamicDebugScenariosWithRetry();
-            SmokeTestLogger.info(
-                "Start 'Attach to packager' dynamic config test: select and run 'Attach to packager' debug config",
-            );
-            await app.workbench.quickinput.selectQuickInputElement(1, false);
-            const hostAddress = "127.0.0.1";
-            SmokeTestLogger.info(
-                `Start 'Attach to packager' dynamic config test: enter ${hostAddress} address`,
-            );
-            await app.workbench.quickinput.inputAndSelect(hostAddress);
-            SmokeTestLogger.info(
-                "Start 'Attach to packager' dynamic config test: skip port changing",
-            );
-            await app.workbench.quickinput.selectQuickInputElement(0);
-            SmokeTestLogger.info(
-                "Start 'Attach to packager' dynamic config test: waiting for packager started",
-            );
-            const packagerStarted = await findPackagerStartedStrInLogFile();
-            if (!packagerStarted) {
-                assert.fail("Packager started string is not found");
-                return;
+            try {
+                this.timeout(debuggingViaDynamicConfigsTestTime);
+                this.retries(2);
+                app = await initApp(
+                    project.workspaceDirectory,
+                    "Start 'Attach to packager' dynamic config test",
+                );
+                // We need to wait a bit to let the extension activate
+                await sleep(15 * 1000);
+                SmokeTestLogger.info(
+                    "Start 'Attach to packager' dynamic config test: open React Native Tools dynamic debug configurations",
+                );
+                await automationHelper.openDynamicDebugScenariosWithRetry();
+                SmokeTestLogger.info(
+                    "Start 'Attach to packager' dynamic config test: select and run 'Attach to packager' debug config",
+                );
+                await app.workbench.quickinput.selectQuickInputElement(1, false);
+                const hostAddress = "127.0.0.1";
+                SmokeTestLogger.info(
+                    `Start 'Attach to packager' dynamic config test: enter ${hostAddress} address`,
+                );
+                await app.workbench.quickinput.inputAndSelect(hostAddress);
+                SmokeTestLogger.info(
+                    "Start 'Attach to packager' dynamic config test: skip port changing",
+                );
+                await automationHelper.retryWithSpecifiedPollRetryParameters(
+                    async () => {
+                        return app.workbench.quickinput.selectQuickInputElement(0);
+                    },
+                    1,
+                    10,
+                    1000,
+                );
+                SmokeTestLogger.info(
+                    "Start 'Attach to packager' dynamic config test: waiting for packager started",
+                );
+                const packagerStarted = await findPackagerStartedStrInLogFile();
+                if (!packagerStarted) {
+                    assert.fail("Packager started string is not found");
+                    return;
+                }
+                SmokeTestLogger.success(
+                    "Start 'Attach to packager' dynamic config test: Packager started string is found'",
+                );
+                await automationHelper.disconnectFromDebuggerWithRetry();
+                SmokeTestLogger.info(
+                    "Start 'Attach to packager' dynamic config test: Debugging is stopped",
+                );
+            } catch (e) {
+                SmokeTestLogger.error(
+                    `Start 'Attach to packager' dynamic config failed: ${e.toString()}`,
+                );
+
+                if (process.platform === "linux") {
+                    return this.skip();
+                }
             }
-            SmokeTestLogger.success(
-                "Start 'Attach to packager' dynamic config test: Packager started string is found'",
-            );
-            await automationHelper.disconnectFromDebuggerWithRetry();
-            SmokeTestLogger.info(
-                "Start 'Attach to packager' dynamic config test: Debugging is stopped",
-            );
         });
     });
 }

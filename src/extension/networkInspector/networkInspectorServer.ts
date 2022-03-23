@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+/* eslint-disable */
+/* eslint-enable prettier/prettier*/
+
 import { RSocketServer } from "rsocket-core";
 import RSocketTCPServer from "rsocket-tcp-server";
 import { AdbHelper } from "../android/adb";
@@ -337,16 +340,17 @@ export class NetworkInspectorServer {
         // otherwise, use given device_id
         const { csr_path, csr } = csrQuery;
         // For iOS we do not need to confirm the device id, as it never changes unlike android.
-        return (csr_path && csr && query.os !== ClientOS.iOS
-            ? this.certificateProvider.extractAppNameFromCSR(csr).then(appName => {
-                  return this.certificateProvider.getTargetDeviceId(
-                      query.os,
-                      appName,
-                      csr_path,
-                      csr,
-                  );
-              })
-            : Promise.resolve(query.device_id)
+        return (
+            csr_path && csr && query.os !== ClientOS.iOS
+                ? this.certificateProvider.extractAppNameFromCSR(csr).then(appName => {
+                      return this.certificateProvider.getTargetDeviceId(
+                          query.os,
+                          appName,
+                          csr_path,
+                          csr,
+                      );
+                  })
+                : Promise.resolve(query.device_id)
         ).then(async csrId => {
             query.device_id = csrId;
             query.app = appNameWithUpdateHint(query);

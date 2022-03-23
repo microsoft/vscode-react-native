@@ -109,10 +109,11 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
                     "Select and save Android emulator test: Wait until emulator starting",
                 );
                 await androidEmulatorManager.waitUntilEmulatorStarting();
-                const isScenarioUpdated = await launchConfigurationManager.waitUntilLaunchScenarioUpdate(
-                    { target: androidEmulatorManager.getEmulatorName() },
-                    AndroidRNDebugConfigName,
-                );
+                const isScenarioUpdated =
+                    await launchConfigurationManager.waitUntilLaunchScenarioUpdate(
+                        { target: androidEmulatorManager.getEmulatorName() },
+                        AndroidRNDebugConfigName,
+                    );
                 SmokeTestLogger.info(
                     `Select and save Android emulator test: launch.json is ${
                         isScenarioUpdated ? "" : "not "
@@ -151,7 +152,7 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
 
         // iOS tests
         if (process.platform === "darwin" && (!testParameters || testParameters.RunIosTests)) {
-            it("Select and Select and save iOS simulator test", async function () {
+            it("Select and save iOS simulator test", async function () {
                 let simulator = iosSimulatorManager.getSimulator();
                 this.timeout(debugIosTestTime);
                 const launchConfigurationManager = new LaunchConfigurationManager(
@@ -186,10 +187,11 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
                     true,
                     `Could not boot iOS simulator ${simulator.name} in first time`,
                 );
-                const isScenarioUpdated = await launchConfigurationManager.waitUntilLaunchScenarioUpdate(
-                    { target: simulator.id },
-                    IosRNDebugConfigName,
-                );
+                const isScenarioUpdated =
+                    await launchConfigurationManager.waitUntilLaunchScenarioUpdate(
+                        { target: simulator.id },
+                        IosRNDebugConfigName,
+                    );
                 SmokeTestLogger.info(
                     `iOS simulator select and save test: there is ${
                         isScenarioUpdated ? "" : "no"

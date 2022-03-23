@@ -2,23 +2,25 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as semver from "semver";
+import * as nls from "vscode-nls";
 import { MobilePlatformDeps, TargetType } from "../generalPlatform";
 import { IAndroidRunOptions, PlatformType } from "../launchArgs";
 import { Package } from "../../common/node/package";
-import { PackageNameResolver } from "./packageNameResolver";
 import { OutputVerifier, PatternToFailure } from "../../common/outputVerifier";
 import { TelemetryHelper } from "../../common/telemetryHelper";
 import { CommandExecutor } from "../../common/commandExecutor";
-import { LogCatMonitor } from "./logCatMonitor";
-import * as nls from "vscode-nls";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { notNullOrUndefined } from "../../common/utils";
 import { PromiseUtil } from "../../common/node/promise";
+import { GeneralMobilePlatform } from "../generalMobilePlatform";
+import { ProjectVersionHelper } from "../../common/projectVersionHelper";
 import { LogCatMonitorManager } from "./logCatMonitorManager";
 import { AndroidTarget, AndroidTargetManager } from "./androidTargetManager";
 import { AdbHelper, AndroidAPILevel } from "./adb";
-import { GeneralMobilePlatform } from "../generalMobilePlatform";
+import { LogCatMonitor } from "./logCatMonitor";
+import { PackageNameResolver } from "./packageNameResolver";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -48,7 +50,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
             errorCode: InternalErrorCode.AndroidMoreThanOneDeviceOrEmulator,
         },
         {
-            pattern: /^Error: Activity class \{.*\} does not exist\.$/m,
+            pattern: /^Error: Activity class {.*} does not exist\.$/m,
             errorCode: InternalErrorCode.AndroidFailedToLaunchTheSpecifiedActivity,
         },
     ];
@@ -159,16 +161,19 @@ export class AndroidPlatform extends GeneralMobilePlatform {
             if (
                 !semver.valid(
                     this.runOptions.reactNativeVersions.reactNativeVersion,
-                ) /*Custom RN implementations should support this flag*/ ||
+                ) /* Custom RN implementations should support this flag*/ ||
                 semver.gte(
                     this.runOptions.reactNativeVersions.reactNativeVersion,
                     AndroidPlatform.NO_PACKAGER_VERSION,
+                ) ||
+                ProjectVersionHelper.isCanaryVersion(
+                    this.runOptions.reactNativeVersions.reactNativeVersion,
                 )
             ) {
                 this.runArguments.push("--no-packager");
             }
 
-            let mainActivity = GeneralMobilePlatform.getOptFromRunArgs(
+            const mainActivity = GeneralMobilePlatform.getOptFromRunArgs(
                 this.runArguments,
                 "--main-activity",
             );
@@ -336,7 +341,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         if (apiVersion >= AndroidAPILevel.LOLLIPOP) {
             // If we support adb reverse
             try {
-                this.adbHelper.reverseAdb(deviceId, Number(this.runOptions.packagerPort));
+                void this.adbHelper.reverseAdb(deviceId, Number(this.runOptions.packagerPort));
             } catch (error) {
                 // "adb reverse" command could work incorrectly with remote devices, then skip the error and try to go on
                 if (

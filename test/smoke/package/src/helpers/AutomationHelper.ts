@@ -17,7 +17,7 @@ const STOP = `.debug-toolbar .action-label[title*="Stop"]`;
 export default class AutomationHelper {
     constructor(private app: Application) {}
 
-    private async retryWithSpecifiedPollRetryParameters(
+    public async retryWithSpecifiedPollRetryParameters(
         func: () => Promise<any>,
         retryCount: number,
         pollRetryCount: number = 2000,

@@ -11,11 +11,7 @@ export class PromiseUtil {
         sources: T[],
         promiseGenerator: (source: T) => Promise<void>,
     ): Promise<void> {
-        await Promise.all(
-            sources.map(source => {
-                return promiseGenerator(source);
-            }),
-        );
+        await Promise.all(sources.map(source => promiseGenerator(source)));
     }
     /**
      * Retries an operation a given number of times. For each retry, a condition is checked.
@@ -51,12 +47,7 @@ export class PromiseUtil {
         sources: T[] | Promise<T[]>,
         generateAsyncOperation: (value: T) => Promise<void>,
     ): Promise<void> {
-        let arraySources: T[];
-        if (sources instanceof Promise) {
-            arraySources = await sources;
-        } else {
-            arraySources = sources;
-        }
+        const arraySources: T[] = sources instanceof Promise ? await sources : sources;
 
         return arraySources.reduce(async (previousReduction: Promise<void>, newSource: T) => {
             await previousReduction;
@@ -65,7 +56,9 @@ export class PromiseUtil {
     }
 
     public static async delay(duration: number): Promise<void> {
-        return new Promise<void>(resolve => setTimeout(resolve, duration));
+        return new Promise<void>(resolve => {
+            setTimeout(resolve, duration);
+        });
     }
 
     public static waitUntil<T>(
@@ -73,12 +66,14 @@ export class PromiseUtil {
         interval: number = 1000,
         timeout?: number,
     ): Promise<T | null> {
-        return new Promise(async resolve => {
+        return new Promise(async (resolve, reject) => {
             let rejectTimeout: NodeJS.Timeout | undefined;
+            // eslint-disable-next-line prefer-const
             let сheckInterval: NodeJS.Timeout | undefined;
 
             if (timeout) {
                 rejectTimeout = setTimeout(() => {
+                    // eslint-disable-next-line @typescript-eslint/no-use-before-define
                     cleanup();
                     resolve(null);
                 }, timeout);
@@ -94,12 +89,18 @@ export class PromiseUtil {
             };
 
             const tryToResolve = async (): Promise<boolean> => {
-                const result = await condition();
-                if (result) {
+                try {
+                    const result = await condition();
+                    if (result) {
+                        cleanup();
+                        resolve(result);
+                    }
+                    return !!result;
+                } catch (err) {
                     cleanup();
-                    resolve(result);
+                    reject(err);
+                    return false;
                 }
-                return !!result;
             };
 
             const resolved = await tryToResolve();
@@ -117,10 +118,10 @@ export class PromiseUtil {
         func: (...args: any[]) => Promise<T>,
         context: Record<string, any> | null = null,
     ): (...args: any[]) => Promise<T> {
-        let promise: Promise<T>;
+        let promise: Promise<T> | undefined;
         return (...args: any[]): Promise<T> => {
             if (!promise) {
-                promise = func.apply(context, args);
+                promise = func.apply(context, args) as Promise<T>;
             }
             return promise;
         };

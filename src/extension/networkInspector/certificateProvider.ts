@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+/* eslint-disable */
+/* eslint-enable prettier/prettier*/
+
 import { openssl, isInstalled as opensslInstalled } from "../../common/opensslWrapperWithPromises";
 import * as path from "path";
 import * as os from "os";
@@ -437,10 +440,9 @@ export class CertificateProvider {
             .then(deviceCsr => {
                 // Santitize both of the string before comparation
                 // The csr string extraction on client side return string in both way
-                const [sanitizedDeviceCsr, sanitizedClientCsr] = [
-                    deviceCsr.toString(),
-                    csr,
-                ].map(s => this.santitizeString(s));
+                const [sanitizedDeviceCsr, sanitizedClientCsr] = [deviceCsr.toString(), csr].map(
+                    s => this.santitizeString(s),
+                );
                 const isMatch = sanitizedDeviceCsr === sanitizedClientCsr;
                 return { isMatch: isMatch, foundCsr: sanitizedDeviceCsr };
             });

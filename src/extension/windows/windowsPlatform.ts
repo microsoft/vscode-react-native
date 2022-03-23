@@ -9,6 +9,7 @@ import { TelemetryHelper } from "../../common/telemetryHelper";
 import { CommandExecutor } from "../../common/commandExecutor";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { AppLauncher } from "../appLauncher";
+import { ProjectVersionHelper } from "../../common/projectVersionHelper";
 
 /**
  * Windows specific platform implementation for debugging RN applications.
@@ -16,6 +17,7 @@ import { AppLauncher } from "../appLauncher";
 export class WindowsPlatform extends GeneralPlatform {
     protected static NO_PACKAGER_VERSION = "0.53.0";
 
+    private static readonly RNW_CLI_EXISTS_VERSION = "0.63.0";
     private static SUCCESS_PATTERNS = ["Starting the app"];
     private static FAILURE_PATTERNS: PatternToFailure[] = [
         {
@@ -70,7 +72,13 @@ export class WindowsPlatform extends GeneralPlatform {
             );
 
             if (
-                semver.gte(this.runOptions.reactNativeVersions.reactNativeWindowsVersion, "0.63.0")
+                semver.gte(
+                    this.runOptions.reactNativeVersions.reactNativeWindowsVersion,
+                    WindowsPlatform.RNW_CLI_EXISTS_VERSION,
+                ) ||
+                ProjectVersionHelper.isCanaryVersion(
+                    this.runOptions.reactNativeVersions.reactNativeWindowsVersion,
+                )
             ) {
                 this.runArguments.push("--logging");
                 if (enableDebug) {
@@ -83,10 +91,13 @@ export class WindowsPlatform extends GeneralPlatform {
             if (
                 !semver.valid(
                     this.runOptions.reactNativeVersions.reactNativeVersion,
-                ) /*Custom RN implementations should support this flag*/ ||
+                ) /* Custom RN implementations should support this flag*/ ||
                 semver.gte(
                     this.runOptions.reactNativeVersions.reactNativeVersion,
                     WindowsPlatform.NO_PACKAGER_VERSION,
+                ) ||
+                ProjectVersionHelper.isCanaryVersion(
+                    this.runOptions.reactNativeVersions.reactNativeVersion,
                 )
             ) {
                 this.runArguments.push("--no-packager");
@@ -110,12 +121,12 @@ export class WindowsPlatform extends GeneralPlatform {
     }
 
     public getRunArguments(): string[] {
-        let runArguments: string[] = [];
+        const runArguments: string[] = [];
 
         if (this.runOptions.runArguments && this.runOptions.runArguments.length > 0) {
             runArguments.push(...this.runOptions.runArguments);
         } else {
-            let target =
+            const target =
                 this.runOptions.target === TargetType.Simulator ? "" : this.runOptions.target;
             if (target) {
                 runArguments.push(`--${target}`);

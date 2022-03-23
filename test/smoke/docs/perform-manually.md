@@ -16,6 +16,7 @@ These are the scenarios that should be tested during manual smoke testing:
 |Debug Expo (pure React Native) Android on device (Tunnel, LAN, localhost)||||
 |Debug Expo (pure React Native) iOS on device||||
 |Debug RNW app||||
+|Debug RNW app (Hermes) - Experimental||||
 
 ## Ubuntu
 |Debug  scenario|Does it work?|If no, then why?|Is it an extension bug?|
@@ -49,6 +50,7 @@ These are the scenarios that should be tested during manual smoke testing:
 |Debug Expo (pure React Native) Android on device (Tunnel, LAN, localhost)||||
 |Debug Expo (pure React Native) iOS on device||||
 |Debug RN macOS app||||
+|Debug RN macOS app (Hermes) - Experimental||||
 
 ### Script for generating test apps
 
@@ -57,12 +59,12 @@ These are the scenarios that should be tested during manual smoke testing:
 # usage: script.sh <directory for test apps> #
 mkdir $1
 cd $1
-npm i react-native-cli expo-cli -g
-react-native init rn_app
+npm i expo-cli -g
+npx react-native init rn_app
 # This is required by Expo sdk in order to be able to debug rn_app under Expo
 cd rn_app && npm i expo --save-dev && cd ..
 # `echo -ne '\n'`` is for emulating of pressing ENTER to confirm basic expo configuration creation
-echo -ne '\n' | expo init -t tabs --name expo_app  --workflow managed expo_app
+echo -ne '\n' | expo init -t tabs --name expo_app
 ```
 
 It happens that sometimes the latest expo version hasn't supported the latest React Native version yet (which is unfortunate, because we cannot use rn_app for debugging via Expo scenarios).

@@ -2,14 +2,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as URL from "url";
-import * as ipModule from "ip";
-const dns = require("dns").promises;
 import * as http from "http";
 import * as https from "https";
-import { PromiseUtil } from "../common/node/promise";
-import { ErrorHelper } from "../common/error/errorHelper";
-import { InternalErrorCode } from "../common/error/internalErrorCode";
+import { promises as dns } from "dns";
+import * as ipModule from "ip";
 import { CancellationToken } from "vscode";
+import { InternalErrorCode } from "../common/error/internalErrorCode";
+import { ErrorHelper } from "../common/error/errorHelper";
+import { PromiseUtil } from "../common/node/promise";
 
 interface DebuggableEndpointData {
     webSocketDebuggerUrl: string;
@@ -128,7 +128,9 @@ export class DebuggerEndpointHelper {
             const request = driver.get(url, requestOptions, response => {
                 let data = "";
                 response.setEncoding("utf8");
-                response.on("data", (chunk: string) => (data += chunk));
+                response.on("data", (chunk: string) => {
+                    data += chunk;
+                });
                 response.on("end", () => fulfill(data));
                 response.on("error", reject);
             });
@@ -146,7 +148,7 @@ export class DebuggerEndpointHelper {
         try {
             const url = new URL.URL(address);
             // replace brackets in ipv6 addresses:
-            ipOrHostname = url.hostname.replace(/^\[|\]$/g, "");
+            ipOrHostname = url.hostname.replace(/^\[|]$/g, "");
         } catch {
             ipOrHostname = address;
         }

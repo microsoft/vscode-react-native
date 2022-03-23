@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import { DebugScenarioType } from "../debugConfigTypesAndConstants";
 import { RunConfigProvider } from "./runConfigProvider";
 import { DebugConfigProvider } from "./debugConfigProvider";
 import { AttachConfigProvider } from "./attachConfigProvider";
-import { DebugScenarioType } from "../debugConfigTypesAndConstants";
 import { BaseConfigProvider } from "./baseConfigProvider";
 
 export class ConfigProviderFactory {

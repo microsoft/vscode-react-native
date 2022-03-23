@@ -1,10 +1,10 @@
 {
   "name": "vscode-react-native",
   "displayName": "React Native Tools",
-  "version": "1.8.1",
+  "version": "1.9.2",
   "private": true,
   "publisher": "msjsdiag",
-  "icon": "images/icon.png",
+  "icon": "resources/images/icon.png",
   "galleryBanner": {
     "color": "#3B3738",
     "theme": "dark"
@@ -49,6 +49,76 @@
   ],
   "main": "./src/extension/rn-extension",
   "contributes": {
+    "walkthroughs": [
+      {
+        "id": "RNTGetStarted",
+        "title": "Get started with React Native development",
+        "description": "Your first steps to set up the environment for React Native development and explore the extension functionality",
+        "steps": [
+          {
+            "id": "settingUpCommonEnvironment",
+            "title": "Set up RN development environment",
+            "description": "To develop React Native applications in the React Native Tools extension, you need to set up your development environment in accordance with the requirements of React Native.\n[Learn more](https://reactnative.dev/docs/environment-setup)",
+            "media": {
+              "markdown": "resources/walkthougths/setup-env-common.md"
+            }
+          },
+          {
+            "id": "settingUpExpoEnvironment",
+            "title": "Prepare for Expo development",
+            "description": "The extension provides functionality for developing Expo applications. To get started, you need to set up the development environment in accordance with the extension requirements.\n[Learn more](https://github.com/microsoft/vscode-react-native#expo-applications)",
+            "media": {
+              "markdown": "resources/walkthougths/setup-env-expo.md"
+            }
+          },
+          {
+            "id": "settingUpWindowsEnvironment",
+            "title": "Prepare for React Native for Windows",
+            "description": "To develop React Native for Windows applications, you need to set up your dev environment in accordance with the [official requirements](https://microsoft.github.io/react-native-windows/docs/rnw-dependencies).",
+            "when": "isWindows",
+            "media": {
+              "image": "resources/images/rnw-set-up.png",
+              "altText": "React Native for Windows app view"
+            }
+          },
+          {
+            "id": "settingUpMacOsEnvironment",
+            "title": "Prepare for React Native for macOS",
+            "description": "To develop React Native for macOS applications, you need to set up your dev environment in accordance with the [official requirements](https://microsoft.github.io/react-native-windows/docs/rnm-dependencies).",
+            "when": "isMac",
+            "media": {
+              "image": "resources/images/rnm-set-up.png",
+              "altText": "React Native for macOS app view"
+            }
+          },
+          {
+            "id": "hermesEngine",
+            "title": "Hermes Engine",
+            "description": "The Hermes engine is an open source JavaScript engine created by Facebook to optimize building and running React Native applications. It improves app performance and decreases app size.\n[Learn more](https://github.com/microsoft/vscode-react-native#hermes-engine)",
+            "media": {
+              "image": "resources/images/hermeslogo.svg",
+              "altText": "Hermes logo"
+            }
+          },
+          {
+            "id": "runAndDebugReactNativeApp",
+            "title": "Run and Debug your React Native application",
+            "description": "Create a debug configuration and start debugging your React Native application.\n[Learn more](https://github.com/microsoft/vscode-react-native#debugging-react-native-applications)",
+            "media": {
+              "markdown": "resources/walkthougths/debug-tutor.md"
+            }
+          },
+          {
+            "id": "exploreExtensionFeatures",
+            "title": "Explore extension features",
+            "description": "The extension provides useful features to facilitate the development of React Native applications.\n[Learn more](https://github.com/microsoft/vscode-react-native#customization)",
+            "media": {
+              "markdown": "resources/walkthougths/features-tutor.md"
+            }
+          }
+        ]
+      }
+    ],
     "commands": [
       {
         "command": "reactNative.launchAndroidSimulator",
@@ -484,6 +554,19 @@
                 "type": "string",
                 "description": "%reactNative.attach.program.description%"
               },
+              "env": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "description": "%reactNative.attach.env.description%",
+                "default": {}
+              },
+              "envFile": {
+                "type": "string",
+                "description": "%reactNative.attach.envFile.description%",
+                "default": "${workspaceFolder}/.env"
+              },
               "cwd": {
                 "type": "string",
                 "description": "%reactNative.attach.cwd.description%",
@@ -713,6 +796,19 @@
                 "type": "string",
                 "description": "%reactNative.attach.cwd.description%",
                 "default": "${workspaceFolder}"
+              },
+              "env": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "description": "%reactNative.attach.env.description%",
+                "default": {}
+              },
+              "envFile": {
+                "type": "string",
+                "description": "%reactNative.attach.envFile.description%",
+                "default": "${workspaceFolder}/.env"
               },
               "useHermesEngine": {
                 "type": "boolean",
@@ -1073,8 +1169,8 @@
             "type": "string"
           },
           "default": {
-            "xdl": "59.2.16",
-            "@expo/metro-config": "0.3.3",
+            "xdl": "59.2.29",
+            "@expo/metro-config": "0.3.11",
             "@expo/ngrok": "^4.1.0"
           },
           "scope": "resource"
@@ -1109,6 +1205,7 @@
     "vscode:prepublish": "gulp",
     "test": "node ./test/runTest.js",
     "test-localization": "node ./test/localization/runTest.js",
+    "prepare": "husky install",
     "prepare-smoke-tests": "cd test/smoke && gulp prepare-smoke-tests && yarn --cwd ./vscode install",
     "smoke-tests": "cd test/smoke && gulp prepare-smoke-tests && yarn --cwd ./vscode install && yarn --cwd ./vscode/test/smoke mocha",
     "quick-smoke-tests": "cd test/smoke/vscode/test/smoke && yarn mocha --skip-setup"
@@ -1189,7 +1286,14 @@
     "del": "2.2.0",
     "devtools-protocol": "0.0.762508",
     "eslint": "7.19.0",
+    "eslint-config-prettier": "^7.2.0",
+    "eslint-import-resolver-node": "^0.3.4",
+    "eslint-import-resolver-typescript": "^2.4.0",
     "eslint-plugin-header": "3.1.1",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-prettier": "^3.3.1",
+    "eslint-plugin-promise": "^4.3.1",
+    "eslint-plugin-unicorn": "^28.0.2",
     "event-stream": "3.3.4",
     "fancy-log": "1.3.3",
     "gulp": "4.0.2",
@@ -1198,14 +1302,15 @@
     "gulp-preprocess": "3.0.3",
     "gulp-sourcemaps": "2.6.5",
     "gulp-typescript": "5.0.1",
+    "husky": "^7.0.4",
     "minimist": "1.2.5",
-    "mocha": "^9.1.2",
+    "mocha": "^9.2.0",
     "mocha-junit-reporter": "^2.0.2",
     "mocha-multi-reporters": "^1.5.1",
     "ncp": "2.0.0",
     "nyc": "^15.1.0",
     "plugin-error": "1.0.1",
-    "prettier": "2.2.0",
+    "prettier": "2.4.0",
     "proxyquire": "^2.1.3",
     "rimraf": "3.0.2",
     "should": "8.3.0",
@@ -1214,9 +1319,9 @@
     "through2": "2.0.1",
     "ts-loader": "9.0.2",
     "typescript": "3.9.7",
-    "vsce": "^2.2.0",
+    "vsce": "^2.6.6",
     "vscode-debugprotocol": "1.40.0",
-    "vscode-nls-dev": "3.3.2",
+    "vscode-nls-dev": "^4.0.0",
     "vscode-test": "^1.6.1",
     "webpack": "5.28.0",
     "webpack-bundle-analyzer": "4.4.0"

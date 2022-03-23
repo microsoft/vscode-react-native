@@ -5,13 +5,13 @@ import * as path from "path";
 import * as url from "url";
 import * as cp from "child_process";
 import * as fs from "fs";
-import { ScriptImporter } from "./scriptImporter";
 import { logger } from "vscode-debugadapter";
 import { ErrorHelper } from "../common/error/errorHelper";
-import { IDebuggeeWorker, RNAppMessage } from "./appWorker";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { getLoggingDirectory } from "../extension/log/LogHelper";
 import { generateRandomPortNumber } from "../common/extensionHelper";
+import { IDebuggeeWorker, RNAppMessage } from "./appWorker";
+import { ScriptImporter } from "./scriptImporter";
 
 function printDebuggingError(error: Error, reason: any) {
     const nestedError = ErrorHelper.getNestedError(
@@ -66,7 +66,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
     }
 
     public async start(): Promise<number> {
-        let scriptToRunPath = path.resolve(
+        const scriptToRunPath = path.resolve(
             this.sourcesStoragePath,
             ScriptImporter.DEBUGGER_WORKER_FILENAME,
         );
@@ -115,9 +115,9 @@ export class ForkedAppWorker implements IDebuggeeWorker {
             );
             this.logWriteStream.on("error", err => {
                 logger.error(
-                    `Error creating log file at path: ${
-                        this.logDirectory
-                    }. Error: ${err.toString()}\n`,
+                    `Error creating log file at path: ${String(this.logDirectory)}. Error: ${String(
+                        err.toString(),
+                    )}\n`,
                 );
             });
             this.debuggeeProcess.stdout.pipe(this.logWriteStream);
@@ -138,7 +138,7 @@ export class ForkedAppWorker implements IDebuggeeWorker {
 
     public async postMessage(rnMessage: RNAppMessage): Promise<RNAppMessage> {
         // Before sending messages, make sure that the worker is loaded
-        await new Promise(resolve => {
+        await new Promise<void>(resolve => {
             if (this.workerLoaded) {
                 resolve();
             } else {
@@ -158,34 +158,32 @@ export class ForkedAppWorker implements IDebuggeeWorker {
                 // Before sending messages, make sure that the app script executed
                 await this.bundleLoaded;
                 return rnMessage;
-            } else {
-                // When packager asks worker to load bundle we download that bundle and
-                // then set url field to point to that downloaded bundle, so the worker
-                // will take our modified bundle
-                if (rnMessage.url) {
-                    const packagerUrl = url.parse(rnMessage.url);
-                    packagerUrl.host = `${this.packagerAddress}:${this.packagerPort}`;
-                    rnMessage = {
-                        ...rnMessage,
-                        url: url.format(packagerUrl),
-                    };
-                    logger.verbose(
-                        `Packager requested runtime to load script from ${rnMessage.url}`,
-                    );
-                    const downloadedScript = await this.scriptImporter.downloadAppScript(
-                        <string>rnMessage.url,
-                        this.projectRootPath,
-                    );
-                    this.bundleLoaded = Promise.resolve();
-                    return Object.assign({}, rnMessage, {
-                        url: `${this.pathToFileUrl(downloadedScript.filepath)}`,
-                    });
-                } else {
-                    throw ErrorHelper.getInternalError(
-                        InternalErrorCode.RNMessageWithMethodExecuteApplicationScriptDoesntHaveURLProperty,
-                    );
-                }
             }
+            // When packager asks worker to load bundle we download that bundle and
+            // then set url field to point to that downloaded bundle, so the worker
+            // will take our modified bundle
+            if (rnMessage.url) {
+                const packagerUrl = url.parse(rnMessage.url);
+                packagerUrl.host = `${this.packagerAddress}:${this.packagerPort}`;
+                rnMessage = {
+                    ...rnMessage,
+                    url: url.format(packagerUrl),
+                };
+                logger.verbose(
+                    `Packager requested runtime to load script from ${String(rnMessage.url)}`,
+                );
+                const downloadedScript = await this.scriptImporter.downloadAppScript(
+                    <string>rnMessage.url,
+                    this.projectRootPath,
+                );
+                this.bundleLoaded = Promise.resolve();
+                return Object.assign({}, rnMessage, {
+                    url: `${this.pathToFileUrl(downloadedScript.filepath)}`,
+                });
+            }
+            throw ErrorHelper.getInternalError(
+                InternalErrorCode.RNMessageWithMethodExecuteApplicationScriptDoesntHaveURLProperty,
+            );
         })();
         promise.then(
             (message: RNAppMessage) => {

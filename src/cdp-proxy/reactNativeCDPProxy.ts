@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import { IncomingMessage } from "http";
 import {
     Connection,
     Server,
@@ -9,8 +10,7 @@ import {
     IProtocolError,
     IProtocolSuccess,
 } from "vscode-cdp-proxy";
-import { IncomingMessage } from "http";
-import { CancellationToken } from "vscode";
+import { CancellationToken, EventEmitter } from "vscode";
 import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
 import { LogLevel } from "../extension/log/LogHelper";
 import { DebuggerEndpointHelper } from "./debuggerEndpointHelper";
@@ -36,13 +36,16 @@ export class ReactNativeCDPProxy {
     private applicationTargetPort: number;
     private browserInspectUri: string;
     private cancellationToken: CancellationToken | undefined;
+    private applicationTargetEventEmitter: EventEmitter<unknown> = new EventEmitter();
+
+    public readonly onApplicationTargetConnectionClosed = this.applicationTargetEventEmitter.event;
 
     constructor(hostAddress: string, port: number, logLevel: LogLevel = LogLevel.None) {
         this.port = port;
         this.hostAddress = hostAddress;
         this.logger = OutputChannelLogger.getChannel(
             "React Native Chrome Proxy",
-            process.env.REACT_NATIVE_TOOLS_LAZY_LOGS === "false" ? false : true,
+            process.env.REACT_NATIVE_TOOLS_LAZY_LOGS !== "false",
             false,
             true,
         );
@@ -203,6 +206,7 @@ export class ReactNativeCDPProxy {
 
     private async onApplicationTargetClosed() {
         this.applicationTarget = null;
+        this.applicationTargetEventEmitter.fire({});
     }
 
     private async onDebuggerTargetClosed() {

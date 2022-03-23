@@ -39,7 +39,7 @@ export class HermesCDPMessageHandler extends BaseCDPMessageHandler {
     }
 
     public processApplicationCDPMessage(event: any): ProcessedCDPMessage {
-        let sendBack = false;
+        const sendBack = false;
         if (event.method === CDP_API_NAMES.DEBUGGER_PAUSED) {
             event = this.handlePausedEvent(event);
         } else if (event.result && event.result.result) {
@@ -65,7 +65,7 @@ export class HermesCDPMessageHandler extends BaseCDPMessageHandler {
 
     private handleFunctionTypeResult(event: any): any {
         if (Array.isArray(event.result.result)) {
-            let results: Cdp.Runtime.PropertyDescriptor[] = event.result.result;
+            const results: Cdp.Runtime.PropertyDescriptor[] = event.result.result;
             results.forEach(resultObj => {
                 if (
                     resultObj.value &&

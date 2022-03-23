@@ -11,7 +11,7 @@ export class ErrorHelper {
         errorCode: InternalErrorCode,
         ...optionalArgs: any[]
     ): InternalError {
-        let message = ErrorHelper.getErrorMessage(errorCode, ...optionalArgs);
+        const message = ErrorHelper.getErrorMessage(errorCode, ...optionalArgs);
         return new InternalError(<number>errorCode, message);
     }
 
@@ -20,7 +20,7 @@ export class ErrorHelper {
         errorCode: InternalErrorCode,
         ...optionalArgs: any[]
     ): NestedError {
-        let message = ErrorHelper.getErrorMessage(errorCode, ...optionalArgs);
+        const message = ErrorHelper.getErrorMessage(errorCode, ...optionalArgs);
         return new NestedError(<number>errorCode, message, innerError);
     }
 
@@ -55,8 +55,8 @@ export class ErrorHelper {
         }
 
         let result: string = <string>errorMessage;
-        for (let i: number = 0; i < optionalArgs.length; i++) {
-            result = result.replace(new RegExp("\\{" + i + "\\}", "g"), optionalArgs[i]);
+        for (const [i, optionalArg] of optionalArgs.entries()) {
+            result = result.replace(new RegExp(`\\{${i}\\}`, "g"), optionalArg);
         }
 
         return result;

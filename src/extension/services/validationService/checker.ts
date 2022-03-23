@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import * as nls from "vscode-nls";
 import { OutputChannelLogger } from "../../log/OutputChannelLogger";
 import { getChecks } from "./checks";
 import { ValidationCategoryE, IValidation, ValidationResultT } from "./checks/types";
 import { fromEntries } from "./util";
-import * as nls from "vscode-nls";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -13,13 +13,28 @@ nls.config({
 })();
 
 const toLocale = nls.loadMessageBundle();
+const outputChannel = OutputChannelLogger.getMainChannel();
 
 const evaluteChecks = async (checks: IValidation[]) => {
     const execToEntries = (categ: ValidationCategoryE, toCheck: IValidation[]) =>
         Promise.all(
             toCheck
                 .filter(it => it.category === categ)
-                .map(async it => [it, await it.exec()] as const),
+                .map(
+                    async it =>
+                        [
+                            it,
+                            await it.exec().catch(err => {
+                                outputChannel.warning(`Check ${it.label} failed with error`);
+                                outputChannel.warning(err);
+
+                                return {
+                                    status: "failure",
+                                    comment: "Check execution failed",
+                                } as ValidationResultT;
+                            }),
+                        ] as const,
+                ),
         );
 
     return fromEntries(
@@ -48,7 +63,6 @@ export const runChecks = async (
         },
         options_,
     );
-    const outputChannel = OutputChannelLogger.getMainChannel();
 
     outputChannel.setFocusOnLogChannel();
     outputChannel.info(toLocale("DevEnvVerificationStart", "Starting Environment check..."));
@@ -72,7 +86,7 @@ export const runChecks = async (
 
             if (execResult.status !== "success") {
                 outStr += ` - ${validation.description}\n`;
-                outStr += `  ${execResult.comment}`;
+                outStr += `  ${execResult.comment || ""}`;
             }
 
             outStr += "\n";

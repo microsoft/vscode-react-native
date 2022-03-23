@@ -20,9 +20,12 @@ const filter = require("gulp-filter");
 const del = require("del");
 const vscodeTest = require("vscode-test");
 const cp = require("child_process");
+const { promisify } = require("util");
+const assert = require("assert");
+const through2 = require("through2");
+const { Transform } = require("readable-stream");
 
 const copyright = GulpExtras.checkCopyright;
-const imports = GulpExtras.checkImports;
 const executeCommand = GulpExtras.executeCommand;
 const tsProject = ts.createProject("tsconfig.json");
 
@@ -31,7 +34,7 @@ const tsProject = ts.createProject("tsconfig.json");
  */
 const isNightly = process.argv.includes("--nightly");
 
-const vscodeVersionForTests = "1.62.3";
+const vscodeVersionForTests = "stable";
 
 const fullExtensionName = isNightly
     ? "msjsdiag.vscode-react-native-preview"
@@ -60,7 +63,6 @@ const defaultLanguages = [
 
 const srcPath = "src";
 const testPath = "test";
-const buildDir = "src";
 const distDir = "dist";
 const distSrcDir = `${distDir}/src`;
 
@@ -276,37 +278,11 @@ async function test(inspectCodeCoverage = false) {
     }
 }
 
-gulp.task("check-imports", () => {
-    const tsProject = ts.createProject("tsconfig.json");
-    return tsProject.src().pipe(imports());
-});
-
-gulp.task("check-copyright", () => {
-    return gulp
-        .src([
-            "**/*.ts",
-            "**/*.js",
-            "!**/*.d.ts",
-            "!coverage/**",
-            "!node_modules/**",
-            "!test/**/*.js",
-            "!SampleApplication/**",
-            "!test/resources/sampleReactNativeProject/**/*.js",
-            "!test/smoke/package/node_modules/**",
-            "!test/smoke/automation/node_modules/**",
-            "!test/smoke/resources/**",
-            "!test/smoke/vscode/**",
-            "!dist/**",
-        ])
-        .pipe(copyright());
-});
-
-const runPrettier = (onlyStaged, fix, callback) => {
+const runPrettier = async fix => {
     const child = cp.fork(
         "./node_modules/@mixer/parallel-prettier/dist/index.js",
         [
             fix ? "--write" : "--list-different",
-            "src/**/*.ts",
             "test/**/*.ts",
             "gulpfile.js",
             "*.md",
@@ -319,35 +295,57 @@ const runPrettier = (onlyStaged, fix, callback) => {
         },
     );
 
-    child.on("exit", code => (code ? callback(`Prettier exited with code ${code}`) : callback()));
+    await new Promise((resolve, reject) => {
+        child.on("exit", code => {
+            code ? reject(`Prettier exited with code ${code}`) : resolve();
+        });
+    });
 };
 
-const runEslint = (fix, callback) => {
-    let args = ["--color", "src/**/*.ts"];
-    if (fix) {
-        args.push("--fix");
-    }
+/**
+ * @typedef {{color: boolean, fix: boolean}} OptionsT
+ */
+
+/**
+ * @param {OptionsT} options_
+ */
+const runEslint = async options_ => {
+    /** @type {OptionsT} */
+    const options = Object.assign({ color: true, fix: false }, options_);
+
+    const files = ["src/**/*.ts"];
+
+    const args = [
+        ...(options.color ? ["--color"] : ["--no-color"]),
+        ...(options.fix ? ["--fix"] : []),
+        ...files,
+    ];
+
     const child = cp.fork("./node_modules/eslint/bin/eslint.js", args, {
         stdio: "inherit",
         cwd: __dirname,
     });
 
-    child.on("exit", code => (code ? callback(`Eslint exited with code ${code}`) : callback()));
+    await new Promise((resolve, reject) => {
+        child.on("exit", code => {
+            code ? reject(`Eslint exited with code ${code}`) : resolve();
+        });
+    });
 };
 
-gulp.task("format:prettier", callback => runPrettier(false, true, callback));
-gulp.task("format:eslint", callback => runEslint(true, callback));
+gulp.task("format:prettier", () => runPrettier(true));
+gulp.task("format:eslint", () => runEslint({ fix: true }));
 gulp.task("format", gulp.series("format:prettier", "format:eslint"));
 
-gulp.task("lint:prettier", callback => runPrettier(false, false, callback));
-gulp.task("lint:eslint", callback => runEslint(false, callback));
-gulp.task("lint", gulp.parallel("lint:prettier", "lint:eslint"));
+gulp.task("lint:prettier", () => runPrettier(false));
+gulp.task("lint:eslint", () => runEslint({ fix: false }));
+gulp.task("lint", gulp.series("lint:prettier", "lint:eslint"));
 
 /** Run webpack to bundle the extension output files */
 gulp.task("webpack-bundle", async () => {
     const packages = [
         {
-            entry: `${buildDir}/extension/rn-extension.ts`,
+            entry: `${srcPath}/extension/rn-extension.ts`,
             filename: "rn-extension.js",
             library: true,
         },
@@ -376,21 +374,18 @@ gulp.task("clean", () => {
 // be an issue on Windows platforms)
 gulp.task(
     "build",
-    gulp.series("check-imports", "lint", function runBuild(done) {
+    gulp.series("lint", function runBuild(done) {
         build(true, true).once("finish", () => {
             done();
         });
     }),
 );
 
-gulp.task(
-    "build-dev",
-    gulp.series("check-imports", "lint", function runBuild(done) {
-        build(false, false).once("finish", () => {
-            done();
-        });
-    }),
-);
+gulp.task("build-dev", function runDevBuild(done) {
+    build(true, false).once("finish", () => {
+        done();
+    });
+});
 
 gulp.task("quick-build", gulp.series("build-dev"));
 
