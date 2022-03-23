@@ -118,7 +118,8 @@ export abstract class Command<ArgT extends unknown[] = never[]> {
         } catch (error) {
             switch (error.errorCode) {
                 case InternalErrorCode.UserInputCanceled:
-                    throw ErrorHelper.getInternalError(
+                    throw ErrorHelper.getNestedError(
+                        error,
                         InternalErrorCode.CommandCanceled,
                         this.label,
                     );
