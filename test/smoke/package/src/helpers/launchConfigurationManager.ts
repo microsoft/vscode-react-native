@@ -57,7 +57,9 @@ export class LaunchConfigurationManager {
     public readLaunchScenarios(): ILaunchScenarios {
         if (fs.existsSync(this.pathToLaunchFile)) {
             const content = fs.readFileSync(this.pathToLaunchFile, "utf8");
+            console.log("lounch.json:\n", content);
             this.launchScenarios = JSON.parse(stripJsonComments(content));
+            console.log("launchScenarios:\n", JSON.stringify(this.launchScenarios));
         }
         return this.launchScenarios;
     }

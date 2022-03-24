@@ -11,6 +11,7 @@ import { testApplicationSetupManager } from "./main";
 import { LaunchConfigurationManager } from "./helpers/launchConfigurationManager";
 import TestProject from "./helpers/testProject";
 import AutomationHelper from "./helpers/AutomationHelper";
+import { sleep } from "./helpers/utilities";
 
 export function startDebugScenariosCreationTests(project: TestProject): void {
     describe("Debugging scenarios creation test", () => {
@@ -29,26 +30,6 @@ export function startDebugScenariosCreationTests(project: TestProject): void {
             return app;
         }
 
-        function clearDebugConfigs() {
-            fs.writeFileSync(
-                path.join(project.vsCodeConfigPath, "launch.json"),
-                `{
-                    "version": "0.2.0",
-                    "configurations": [
-                        {
-                            "name": "Dont use this config",
-                            "type": "pwa-node",
-                            "request": "launch",
-                            "skipFiles": [
-                                "<node_internals>/**"
-                            ],
-                            "program": "index.js"
-                        }
-                    ]
-                }`,
-            );
-        }
-
         before(async () => {
             app = await initApp(project.workspaceDirectory, "DebuggingScenariosCreationTest");
             launchConfigurationManager = new LaunchConfigurationManager(project.workspaceDirectory);
@@ -64,7 +45,6 @@ export function startDebugScenariosCreationTests(project: TestProject): void {
         });
 
         beforeEach(async () => {
-            clearDebugConfigs();
             launchConfigurationManager.readLaunchScenarios();
             previousConfigurationsCount = launchConfigurationManager.getConfigurationsCount();
             SmokeTestLogger.info(
@@ -92,6 +72,7 @@ export function startDebugScenariosCreationTests(project: TestProject): void {
                 await app.workbench.quickinput.selectQuickInputElement(1);
                 SmokeTestLogger.info("Debugging scenarios creation test: save launch.json file");
                 await app.workbench.editors.saveOpenedFile();
+                await sleep(1000);
                 launchConfigurationManager.readLaunchScenarios();
 
                 assert.strictEqual(
@@ -126,6 +107,7 @@ export function startDebugScenariosCreationTests(project: TestProject): void {
                 await app.workbench.quickinput.selectQuickInputElement(0);
                 SmokeTestLogger.info("Debugging scenarios creation test: save launch.json file");
                 await app.workbench.editors.saveOpenedFile();
+                await sleep(1000);
                 launchConfigurationManager.readLaunchScenarios();
 
                 assert.strictEqual(
@@ -160,6 +142,7 @@ export function startDebugScenariosCreationTests(project: TestProject): void {
                 await app.workbench.quickinput.selectQuickInputElement(1);
                 SmokeTestLogger.info("Debugging scenarios creation test: save launch.json file");
                 await app.workbench.editors.saveOpenedFile();
+                await sleep(1000);
                 launchConfigurationManager.readLaunchScenarios();
 
                 assert.strictEqual(
@@ -194,6 +177,7 @@ export function startDebugScenariosCreationTests(project: TestProject): void {
                 await app.workbench.quickinput.selectQuickInputElement(0);
                 SmokeTestLogger.info("Debugging scenarios creation test: save launch.json file");
                 await app.workbench.editors.saveOpenedFile();
+                await sleep(1000);
                 launchConfigurationManager.readLaunchScenarios();
 
                 assert.strictEqual(
@@ -227,6 +211,7 @@ export function startDebugScenariosCreationTests(project: TestProject): void {
                 await app.workbench.quickinput.selectQuickInputElement(0);
                 SmokeTestLogger.info("Debugging scenarios creation test: save launch.json file");
                 await app.workbench.editors.saveOpenedFile();
+                await sleep(1000);
                 launchConfigurationManager.readLaunchScenarios();
 
                 assert.strictEqual(
@@ -259,6 +244,7 @@ export function startDebugScenariosCreationTests(project: TestProject): void {
                 await app.workbench.quickinput.selectQuickInputElement(1);
                 SmokeTestLogger.info("Debugging scenarios creation test: save launch.json file");
                 await app.workbench.editors.saveOpenedFile();
+                await sleep(1000);
                 launchConfigurationManager.readLaunchScenarios();
 
                 assert.strictEqual(
@@ -299,6 +285,7 @@ export function startDebugScenariosCreationTests(project: TestProject): void {
                 await app.workbench.quickinput.selectQuickInputElement(0);
                 SmokeTestLogger.info("Debugging scenarios creation test: save launch.json file");
                 await app.workbench.editors.saveOpenedFile();
+                await sleep(1000);
                 launchConfigurationManager.readLaunchScenarios();
 
                 assert.strictEqual(
@@ -338,6 +325,7 @@ export function startDebugScenariosCreationTests(project: TestProject): void {
                 await app.workbench.quickinput.selectQuickInputElement(0);
                 SmokeTestLogger.info("Debugging scenarios creation test: save launch.json file");
                 await app.workbench.editors.saveOpenedFile();
+                await sleep(1000);
                 launchConfigurationManager.readLaunchScenarios();
 
                 assert.strictEqual(
@@ -374,6 +362,7 @@ export function startDebugScenariosCreationTests(project: TestProject): void {
                 await app.workbench.quickinput.selectQuickInputElement(0);
                 SmokeTestLogger.info("Debugging scenarios creation test: save launch.json file");
                 await app.workbench.editors.saveOpenedFile();
+                await sleep(1000);
                 launchConfigurationManager.readLaunchScenarios();
 
                 assert.strictEqual(
