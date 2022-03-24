@@ -20,6 +20,7 @@ export enum InternalErrorCode {
     FailedToRunOnMacOS = 115,
     DebuggingCommandFailed = 116,
     FailedToTestDevEnvironment = 117,
+    CommandCanceled = 118,
 
     // Device Deployer errors
     IOSDeployNotFound = 201,
@@ -77,6 +78,7 @@ export enum InternalErrorCode {
     CancellationTokenTriggered = 716,
     UnknownError = 717,
     WorkspaceIsNotTrusted = 718,
+    UserInputCanceled = 719,
 
     // Activation errors
     CouldNotFindLocationOfNodeDebugger = 801,
