@@ -3,8 +3,6 @@
 
 import { Application } from "../../automation";
 import * as assert from "assert";
-import * as fs from "fs";
-import * as path from "path";
 import { vscodeManager } from "./main";
 import { SmokeTestLogger } from "./helpers/smokeTestLogger";
 import { testApplicationSetupManager } from "./main";
