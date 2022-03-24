@@ -50,7 +50,7 @@ export class EntryPointHandler {
         return this.handleErrors(
             error,
             TelemetryHelper.generate(taskName, extProps, codeToRun),
-            /* errorsAreFatal*/ errorsAreFatal,
+            errorsAreFatal,
         );
     }
 
