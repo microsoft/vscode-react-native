@@ -6,10 +6,8 @@
             "type": "extensionHost",
             "request": "launch",
             "runtimeExecutable": "${execPath}",
-            "args": ["--extensionDevelopmentPath=${workspaceRoot}"],
-            "sourceMaps": true,
-            "outFiles": ["${workspaceRoot}/src/**/*.js"],
-            "preLaunchTask": "gulp: build"
+            "args": ["--extensionDevelopmentPath=${workspaceRoot}/dist"],
+            "outFiles": ["${workspaceRoot}/dist/**/*"]
         },
         {
             "name": "Quick Launch Extension",

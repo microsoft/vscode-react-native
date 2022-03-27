@@ -45,14 +45,7 @@ function printDebuggingError(error: Error, reason: any) {
     logger.error(nestedError.message);
 }
 
-/** This class will create a SandboxedAppWorker that will run the RN App logic, and then create a socket
- * and send the RN App messages to the SandboxedAppWorker. The only RN App message that this class handles
- * is the prepareJSRuntime, which we reply to the RN App that the sandbox was created successfully.
- * When the socket closes, we'll create a new SandboxedAppWorker and a new socket pair and discard the old ones.
- */
-
-export class MultipleLifetimesAppWorker extends EventEmitter {
-    public static WORKER_BOOTSTRAP = `
+const WORKER_BOOTSTRAP = `
 // Initialize some variables before react-native code would access them
 var onmessage=null, self=global;
 // Cache Node's original require as __debug__.require
@@ -147,7 +140,7 @@ var importScripts = (function(){
 })();
 `;
 
-    public static CONSOLE_TRACE_PATCH = `// Worker is ran as nodejs process, so console.trace() writes to stderr and it leads to error in native app
+const CONSOLE_TRACE_PATCH = `// Worker is ran as nodejs process, so console.trace() writes to stderr and it leads to error in native app
 // To avoid this console.trace() is overridden to print stacktrace via console.log()
 // Please, see Node JS implementation: https://github.com/nodejs/node/blob/master/lib/internal/console/constructor.js
 console.trace = (function() {
@@ -168,7 +161,7 @@ console.trace = (function() {
 })();
 `;
 
-    public static PROCESS_TO_STRING_PATCH = `// As worker is ran in node, it breaks broadcast-channels package approach of identifying if it’s ran in node:
+const PROCESS_TO_STRING_PATCH = `// As worker is ran in node, it breaks broadcast-channels package approach of identifying if it’s ran in node:
 // https://github.com/pubkey/broadcast-channel/blob/master/src/util.js#L64
 // To avoid it if process.toString() is called if will return empty string instead of [object process].
 var nativeObjectToString = Object.prototype.toString;
@@ -181,11 +174,11 @@ Object.prototype.toString = function() {
 };
 `;
 
-    public static WORKER_DONE = `// Notify debugger that we're done with loading
+const WORKER_DONE = `// Notify debugger that we're done with loading
 // and started listening for IPC messages
 postMessage({workerLoaded:true});`;
 
-    public static FETCH_STUB = `(function(self) {
+const FETCH_STUB = `(function(self) {
 'use strict';
 
 if (self.fetch) {
@@ -208,6 +201,21 @@ function fetch(url) {
 })(global);
 `;
 
+/** This class will create a SandboxedAppWorker that will run the RN App logic, and then create a socket
+ * and send the RN App messages to the SandboxedAppWorker. The only RN App message that this class handles
+ * is the prepareJSRuntime, which we reply to the RN App that the sandbox was created successfully.
+ * When the socket closes, we'll create a new SandboxedAppWorker and a new socket pair and discard the old ones.
+ */
+export class MultipleLifetimesAppWorker extends EventEmitter {
+    public static WORKER_BOOTSTRAP = WORKER_BOOTSTRAP;
+
+    public static CONSOLE_TRACE_PATCH = CONSOLE_TRACE_PATCH;
+
+    public static PROCESS_TO_STRING_PATCH = PROCESS_TO_STRING_PATCH;
+
+    public static WORKER_DONE = WORKER_DONE;
+
+    public static FETCH_STUB = FETCH_STUB;
     private packagerAddress: string;
     private packagerPort: number;
     private sourcesStoragePath: string;

@@ -7,12 +7,12 @@
     "editor.tabSize": 4,
     "files.exclude": {
         // "**/node_modules": true,
-        "nls.*.json": true,
-        "**/*.js": {
-            "when": "$(basename).ts"
-        },
+        // "nls.*.json": true,
+        // "**/*.js": {
+        //     "when": "$(basename).ts"
+        // },
         // "**/out": true,
-        "**/*.js.map": true
+        // "**/*.js.map": true
     },
     "[typescript]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"

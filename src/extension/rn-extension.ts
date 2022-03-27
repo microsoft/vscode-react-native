@@ -1,15 +1,5 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
-// @ifdef DEBUG
-try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    require("fs").statSync(`${__filename}.map`); // We check if source maps are available
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    require("source-map-support").install(); // If they are, we enable stack traces translation to typescript
-} catch (exceptions) {
-    // If something goes wrong, we just ignore the errors
-}
-// @endif
 import * as path from "path";
 import * as fs from "fs";
 import * as vscode from "vscode";
