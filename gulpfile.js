@@ -15,8 +15,6 @@ I've done nothing to correct unit-tests and did not change smoke-test configs. E
 I think we need to add separate build process for tests
 (we do not have to add webpack for that. plain typescript compilation with `outDir` should be good enough)
 
-I did not test our npm releases and I have no idea what will happen to them
-
 I did not test resulting vsix package
 
 During discussion we failed to come to agreement about what things should be left in root `package.json` file and which should be moved away
@@ -36,6 +34,18 @@ Moving smoke-test folder to a different location and naming it in a more convent
 
 Notes:
 There is a problem with `src/debugger/appWorker.ts`. I think it is a webpack bug.
+*/
+
+/*
+your comments
+
+tasks:
+add previous version of build (without watch)
+
+try to add correct way of launching webpack watch mode
+
+---
+package.json version generation?
 */
 
 const gulp = require("gulp");
@@ -114,7 +124,7 @@ gulp.task("develop", async () => {
     await buildRequiredFiles();
     await new Promise((resolve, reject) => {
         const webpackProcess = cp.exec(
-            `npx webpack --config webpack.config.js --mode development  --devtool source-map --watch --output-path ${config.dest} --info-verbosity verbose`,
+            `npx webpack --config webpack.config.js --mode development --devtool source-map --watch --output-path ${config.dest}`,
         );
         webpackProcess.stdout.pipe(process.stdout);
         webpackProcess.stdout.once("data", arg => {
@@ -155,6 +165,7 @@ async function buildRequiredFiles() {
         "README.md",
         "CHANGELOG.md",
         "resources",
+        "static",
         ...glob.sync("./package.nls*"),
     ];
 
