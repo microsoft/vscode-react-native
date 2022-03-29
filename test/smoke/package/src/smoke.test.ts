@@ -54,29 +54,29 @@ export function startSmokeTests(
             await AppiumHelper.terminateAppium();
         });
 
-        startLocalizationTests(testApplicationSetupManager.getRnProject());
-        startDebugScenariosCreationTests(testApplicationSetupManager.getRnProject());
-        startDebuggingViaDynamicConfigsTests(testApplicationSetupManager.getRnProject());
+        // startLocalizationTests(testApplicationSetupManager.getRnProject());
+        // startDebugScenariosCreationTests(testApplicationSetupManager.getRnProject());
+        // startDebuggingViaDynamicConfigsTests(testApplicationSetupManager.getRnProject());
 
         SmokeTestLogger.info("*** Smoke tests will be run");
-        startReactNativeTests(testApplicationSetupManager.getRnProject(), args);
-        startDirectDebugTests(testApplicationSetupManager.getHermesProject(), args);
+        // startReactNativeTests(testApplicationSetupManager.getRnProject(), args);
+        // startDirectDebugTests(testApplicationSetupManager.getHermesProject(), args);
         startExpoTests(
             testApplicationSetupManager.getExpoProject(),
             testApplicationSetupManager.getPureRnProject(),
             args,
         );
-        startDebugMacOSTests(
-            testApplicationSetupManager.getMacOSRnProject(),
-            testApplicationSetupManager.getMacOSRnHermesProject(),
-            args,
-        );
-        startDebugRNWTests(
-            testApplicationSetupManager.getWindowsRnProject(),
-            testApplicationSetupManager.getWindowsRnHermesProject(),
-            args,
-        );
-        startNetworkInspectorTests(testApplicationSetupManager.getHermesProject(), args);
-        startOtherTests(testApplicationSetupManager.getRnProject(), args);
+        // startDebugMacOSTests(
+        //     testApplicationSetupManager.getMacOSRnProject(),
+        //     testApplicationSetupManager.getMacOSRnHermesProject(),
+        //     args,
+        // );
+        // startDebugRNWTests(
+        //     testApplicationSetupManager.getWindowsRnProject(),
+        //     testApplicationSetupManager.getWindowsRnHermesProject(),
+        //     args,
+        // );
+        // startNetworkInspectorTests(testApplicationSetupManager.getHermesProject(), args);
+        // startOtherTests(testApplicationSetupManager.getRnProject(), args);
     });
 }
