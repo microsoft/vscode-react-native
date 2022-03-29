@@ -85,7 +85,7 @@ export function startReactNativeTests(
                 SmokeTestLogger.info("Android Debug test: Starting debugging");
                 await automationHelper.runDebugScenarioWithRetry(AndroidRNDebugConfigName);
                 await androidEmulatorManager.waitUntilAppIsInstalled(RN_APP_PACKAGE_NAME);
-                await app.workbench.debug.waitForDebuggingToStart();
+                await automationHelper.waitForDebuggingToStartWithRetry();
                 SmokeTestLogger.info("Android Debug test: Debugging started");
                 await automationHelper.waitForStackFrameWithRetry(
                     sf =>
@@ -152,7 +152,7 @@ export function startReactNativeTests(
                 SmokeTestLogger.info("iOS Debug test: Starting debugging");
                 await automationHelper.runDebugScenarioWithRetry(IosRNDebugConfigName);
                 await iosSimulatorManager.waitUntilIosAppIsInstalled(RnAppBundleId);
-                await app.workbench.debug.waitForDebuggingToStart();
+                await automationHelper.waitForDebuggingToStartWithRetry();
                 SmokeTestLogger.info("iOS Debug test: Debugging started");
                 await automationHelper.waitForStackFrameWithRetry(
                     sf =>

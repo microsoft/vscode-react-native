@@ -148,7 +148,7 @@ export function startDirectDebugTests(
                     }
                 }
 
-                await app.workbench.debug.waitForDebuggingToStart();
+                await automationHelper.waitForDebuggingToStartWithRetry();
                 SmokeTestLogger.info(`${testname}: Debugging started`);
 
                 SmokeTestLogger.info(`${testname}: Attaching to app via Appium`);

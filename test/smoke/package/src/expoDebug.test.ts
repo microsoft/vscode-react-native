@@ -206,7 +206,6 @@ export function startExpoTests(
             let expoURL = findExpoURLInLogFile();
             if (expoURL === null) {
                 assert.fail("Expo URL pattern is not found");
-                return;
             }
 
             if (platform === Platform.iOSExpo) {
@@ -260,9 +259,9 @@ export function startExpoTests(
                 await AppiumHelper.disableDevMenuInformationalMsg(client, Platform.AndroidExpo);
                 await sleep(2 * 1000);
                 await AppiumHelper.enableRemoteDebugJS(client, Platform.AndroidExpo);
-                await app.workbench.debug.waitForDebuggingToStart();
             }
 
+            await automationHelper.waitForDebuggingToStartWithRetry();
             SmokeTestLogger.info(`${testName}: Debugging started`);
             // Workaround for Windows platform to avoid incorrect work of dispatching keybindings
             // after opening "Expo QR Code" tab

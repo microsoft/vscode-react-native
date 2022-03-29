@@ -164,6 +164,26 @@ export default class AutomationHelper {
         );
     }
 
+    public async waitForDebuggingToStartWithRetry(
+        retryCount: number = 3,
+        pollRetryCount: number = 30,
+        pollRetryInterval: number = 1000,
+    ): Promise<void> {
+        const func = async () => {
+            await this.app.workbench.debug.waitForDebuggingToStart();
+        };
+        const catchFunc = async () => {
+            await this.runCommandWithRetry(SmokeTestsConstants.reloadAppCommand);
+        };
+        await this.retryWithSpecifiedPollRetryParameters(
+            func,
+            retryCount,
+            pollRetryCount,
+            pollRetryInterval,
+            catchFunc,
+        );
+    }
+
     public async disconnectFromDebuggerWithRetry(
         retryCount: number = 3,
         pollRetryCount: number = 10,

@@ -115,7 +115,7 @@ export function startDebugMacOSTests(
             SmokeTestLogger.info(`${testname}: Chosen debug configuration: ${debugConfigName}`);
             SmokeTestLogger.info(`${testname}: Starting debugging`);
             await automationHelper.runDebugScenarioWithRetry(debugConfigName);
-            await app.workbench.debug.waitForDebuggingToStart();
+            await automationHelper.waitForDebuggingToStartWithRetry();
             SmokeTestLogger.info(`${testname}: Debugging started`);
             await automationHelper.waitForStackFrameWithRetry(
                 sf =>

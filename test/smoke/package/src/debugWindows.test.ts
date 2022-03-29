@@ -123,7 +123,7 @@ export function startDebugRNWTests(
                     currentWindowsAppName,
                     SmokeTestsConstants.windowsAppBuildAndInstallTimeout,
                 );
-                await app.workbench.debug.waitForDebuggingToStart();
+                await automationHelper.waitForDebuggingToStartWithRetry();
                 SmokeTestLogger.info(`${testname}: Debugging started`);
                 await automationHelper.waitForStackFrameWithRetry(
                     sf =>
