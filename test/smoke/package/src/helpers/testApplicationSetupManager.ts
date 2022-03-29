@@ -465,7 +465,7 @@ export class TestApplicationSetupManager {
 
     private prepareExpoApplication(project: TestProject, expoSdkMajorVersion?: string) {
         const useSpecificSdk = expoSdkMajorVersion ? `@sdk-${expoSdkMajorVersion}` : "";
-        const initCommand = `echo -ne '\\n' | expo init -t tabs${useSpecificSdk} --name ${project.appName} ${project.appName}`;
+        const initCommand = `echo -ne '\\n' | expo init ${project.appName} -t tabs${useSpecificSdk}`;
 
         SmokeTestLogger.projectInstallLog(
             `*** Creating Expo app via '${initCommand}' in ${project.workspaceDirectory}...`,

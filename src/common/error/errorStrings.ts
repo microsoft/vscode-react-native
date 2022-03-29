@@ -10,6 +10,10 @@ nls.config({
 const localize = nls.loadMessageBundle();
 
 export const ERROR_STRINGS = {
+    [InternalErrorCode.CommandCanceled]: localize(
+        "CommandCanceled",
+        "Command '{0}' was canceled by the user",
+    ),
     [InternalErrorCode.CommandFailed]: localize(
         "CommandFailed",
         "Error while executing command '{0}'",
@@ -374,5 +378,9 @@ export const ERROR_STRINGS = {
     [InternalErrorCode.FailedToTestDevEnvironment]: localize(
         "ErrorWhileCheckingDevEnvironment",
         "Error while checking development environment configuration",
+    ),
+    [InternalErrorCode.UserInputCanceled]: localize(
+        "UserInputCanceled",
+        "User canceled data entry",
     ),
 };

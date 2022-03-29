@@ -214,6 +214,12 @@
         "category": "React Native"
       },
       {
+        "command": "reactNative.stopInspector",
+        "title": "%reactNative.command.stopInspector.title%",
+        "category": "React Native",
+        "enablement": "false"
+      },
+      {
         "command": "reactNative.startLogCatMonitor",
         "title": "%reactNative.command.startLogCatMonitor.title%",
         "category": "React Native"
@@ -1303,7 +1309,7 @@
     "gulp-sourcemaps": "2.6.5",
     "gulp-typescript": "5.0.1",
     "husky": "^7.0.4",
-    "minimist": "1.2.5",
+    "minimist": "1.2.6",
     "mocha": "^9.2.0",
     "mocha-junit-reporter": "^2.0.2",
     "mocha-multi-reporters": "^1.5.1",
