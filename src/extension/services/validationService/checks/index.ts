@@ -22,6 +22,9 @@ import visualStudio from "./visualStudio";
 import longPath from "./longPath";
 import windows from "./windows";
 import dotnet from "./dotnet";
+import xcodecli from "./xcodeCLI";
+import macos from "./macos";
+import xcode from "./xcode";
 
 import { IValidation } from "./types";
 
@@ -47,6 +50,9 @@ export const getChecks = (): IValidation[] => {
         longPath,
         windows,
         dotnet,
+        xcodecli,
+        macos,
+        xcode,
     ] as const;
 
     return checks.filter(it => (it.platform ? it.platform.includes(process.platform) : true));
