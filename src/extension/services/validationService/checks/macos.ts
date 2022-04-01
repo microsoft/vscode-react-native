@@ -17,10 +17,9 @@ const label = "macOSVersion";
 async function test(): Promise<ValidationResultT> {
     const command = "sw_vers";
     const data = await executeCommand(command);
-    if (data.stdout){
-        const version = clean(data.stdout.split('\n')[1]) || '';
-        if (gte(version, '10.13'))
-        {
+    if (data.stdout) {
+        const version = clean(data.stdout.split("\n")[1]) || "";
+        if (gte(version, "10.13")) {
             return {
                 status: "success",
             };

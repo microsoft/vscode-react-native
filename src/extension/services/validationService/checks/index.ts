@@ -22,7 +22,7 @@ import visualStudio from "./visualStudio";
 import longPath from "./longPath";
 import windows from "./windows";
 import dotnet from "./dotnet";
-import xcodecli from "./xcodeCLI";
+import xcodecli from "./xcodecli";
 import macos from "./macos";
 import xcode from "./xcode";
 

@@ -16,7 +16,7 @@ const label = "xcodeCLI";
 async function test(): Promise<ValidationResultT> {
     const command = "xcode-select -p 1>/dev/null;echo $?";
     const data = await executeCommand(command);
-    if (data.stdout){
+    if (data.stdout) {
         if (data.stdout == "0")
             return {
                 status: "success",
@@ -25,7 +25,7 @@ async function test(): Promise<ValidationResultT> {
     return {
         status: "failure",
         comment: "Xcode cli is not installed",
-    }
+    };
 }
 
 const main: IValidation = {
