@@ -5,6 +5,7 @@
 // https://www.npmjs.com/package/envinfo // does not list all required info
 // https://www.npmjs.com/package/command-exists // might find its use later on
 
+import { PromiseUtil } from "../../../../common/node/promise";
 import { adbAndroid, adbExpo } from "./adb";
 import cocoaPods from "./cocoaPods";
 import emulator from "./emulator";
@@ -54,6 +55,10 @@ export const getChecks = (): IValidation[] => {
         macos,
         xcode,
     ] as const;
+
+    checks.forEach(it => {
+        it.exec = PromiseUtil.promiseCacheDecorator(it.exec);
+    });
 
     return checks.filter(it => (it.platform ? it.platform.includes(process.platform) : true));
 };
