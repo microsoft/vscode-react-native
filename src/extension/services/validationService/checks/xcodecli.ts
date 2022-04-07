@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as nls from "vscode-nls";
-import { executeCommand } from "../util";
+import { basicCheck } from "../util";
 import { IValidation, ValidationCategoryE, ValidationResultT } from "./types";
 
 nls.config({
@@ -14,13 +14,13 @@ const toLocale = nls.loadMessageBundle();
 const label = "xcodeCLI";
 
 async function test(): Promise<ValidationResultT> {
-    const command = "xcode-select -p 1>/dev/null;echo $?";
-    const data = await executeCommand(command);
-    if (data.stdout) {
-        if (data.stdout == "0")
-            return {
-                status: "success",
-            };
+    const result = await basicCheck({
+        command: "xcode-select",
+    });
+    if (result.exists) {
+        return {
+            status: "success",
+        };
     }
     return {
         status: "failure",

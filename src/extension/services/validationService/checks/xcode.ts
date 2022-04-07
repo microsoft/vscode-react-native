@@ -2,8 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as nls from "vscode-nls";
-import { clean, gte } from "semver";
-import { executeCommand } from "../util";
+import { basicCheck, createVersionErrorMessage, parseVersion } from "../util";
 import { IValidation, ValidationCategoryE, ValidationResultT } from "./types";
 
 nls.config({
@@ -16,18 +15,29 @@ const label = "xcodeVersion";
 
 async function test(): Promise<ValidationResultT> {
     const command = "xcodebuild -version";
-    const data = await executeCommand(command);
-    if (data.stdout) {
-        const version = clean(data.stdout.split("\n")[1]) || "";
-        if (gte(version, "11.3.1")) {
+    const result = await basicCheck({
+        command: command,
+        getVersion: parseVersion.bind(null, command, /\d+\.\d+\.\d+/gi),
+        versionRange: "11.3.1",
+    });
+    if (result.exists) {
+        if (result.versionCompare === -1) {
             return {
-                status: "success",
+                status: "partial-success",
+                comment:
+                    "Detected version is older than 11.3.1 " +
+                    "Please update xcode in case of errors",
+            };
+        }
+        if (result.versionCompare === undefined) {
+            return {
+                status: "failure",
+                comment: createVersionErrorMessage(label),
             };
         }
     }
     return {
-        status: "failure",
-        comment: "Xcode version is lower then 11.3.1",
+        status: "success",
     };
 }
 

@@ -66,11 +66,8 @@ export const parseVersion = async (
     if (!data) {
         return null;
     }
-
     const text = normizeStr(data[prop]);
-    // console.log(command, reg ? reg.exec(text)?.[1] : text, "!!!!", text);
-    console.log(reg?.exec(text));
-    return semver.coerce(reg ? reg.exec(text)?.[1] : text);
+    return semver.coerce(reg ? reg.exec(text)?.[0] : text);
 };
 
 // change typescript lib to es2019 ?
