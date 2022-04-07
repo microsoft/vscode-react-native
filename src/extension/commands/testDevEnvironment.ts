@@ -56,7 +56,8 @@ export class TestDevEnvironment extends Command {
 
             [ValidationCategoryE.Windows]:
                 (projectObserver && projectObserver.isRNWindowsProject) || false,
-            [ValidationCategoryE.macOS]: true,
+            [ValidationCategoryE.macOS]:
+                (projectObserver && projectObserver.isRNMacosProject) || false,
         } as const;
 
         await runChecks(shouldCheck);
