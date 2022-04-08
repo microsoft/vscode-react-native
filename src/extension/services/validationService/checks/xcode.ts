@@ -26,7 +26,7 @@ async function test(): Promise<ValidationResultT> {
                 status: "partial-success",
                 comment:
                     "Detected version is older than 11.3.1 " +
-                    "Please update xcode in case of errors",
+                    "Please update Xcode in case of errors",
             };
         }
         if (result.versionCompare === undefined) {
@@ -44,7 +44,7 @@ async function test(): Promise<ValidationResultT> {
 const main: IValidation = {
     label,
     platform: ["darwin"],
-    description: toLocale("xcodeVersionTestDescription", "Required for building RN apps"),
+    description: toLocale("xcodeVersionTestDescription", "Required for building RN macOS apps"),
     category: ValidationCategoryE.macOS,
     exec: test,
 };

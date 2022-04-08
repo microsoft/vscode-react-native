@@ -16,7 +16,7 @@ nls.config({
 })();
 const toLocale = nls.loadMessageBundle();
 
-const label = "macOSVersion";
+const label = "macOS version";
 
 async function test(): Promise<ValidationResultT> {
     const result = await basicCheck({
@@ -30,7 +30,7 @@ async function test(): Promise<ValidationResultT> {
                 status: "partial-success",
                 comment:
                     "Detected version is older than 10.13 " +
-                    "Please update SDK tools in case of errors",
+                    "Please update macOS in case of errors",
             };
         }
         if (result.versionCompare === undefined) {
@@ -53,7 +53,7 @@ async function test(): Promise<ValidationResultT> {
 const main: IValidation = {
     label,
     platform: ["darwin"],
-    description: toLocale("macOSversionTestDescription", "Required for building RN apps"),
+    description: toLocale("macOSversionTestDescription", "Required for testing and building RN macOS apps"),
     category: ValidationCategoryE.macOS,
     exec: test,
 };
