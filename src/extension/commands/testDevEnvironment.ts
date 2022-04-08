@@ -25,7 +25,7 @@ export class TestDevEnvironment extends Command {
         );
         const versions = await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
             nodeModulesRoot,
-            [REACT_NATIVE_PACKAGES.REACT_NATIVE_WINDOWS],
+            [REACT_NATIVE_PACKAGES.REACT_NATIVE_WINDOWS, REACT_NATIVE_PACKAGES.REACT_NATIVE_MACOS],
         );
         return new RNProjectObserver(projectRootPath, versions);
     }
