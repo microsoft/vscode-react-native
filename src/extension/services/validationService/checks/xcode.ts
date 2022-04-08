@@ -2,7 +2,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as nls from "vscode-nls";
-import { basicCheck, createNotFoundMessage, createVersionErrorMessage, parseVersion } from "../util";
+import {
+    basicCheck,
+    createNotFoundMessage,
+    createVersionErrorMessage,
+    parseVersion,
+} from "../util";
 import { IValidation, ValidationCategoryE, ValidationResultT } from "./types";
 
 nls.config({
@@ -35,12 +40,11 @@ async function test(): Promise<ValidationResultT> {
                 comment: createVersionErrorMessage(label),
             };
         }
-    }
-    else {
+    } else {
         return {
             status: "failure",
             comment: createNotFoundMessage(label),
-        }
+        };
     }
     return {
         status: "success",
