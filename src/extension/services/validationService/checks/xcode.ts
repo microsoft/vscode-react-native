@@ -16,7 +16,7 @@ const label = "xcodeVersion";
 async function test(): Promise<ValidationResultT> {
     const command = "xcodebuild -version";
     const result = await basicCheck({
-        command: command,
+        command,
         getVersion: parseVersion.bind(null, command, /\d+\.\d+\.\d+/gi),
         versionRange: "11.3.1",
     });
