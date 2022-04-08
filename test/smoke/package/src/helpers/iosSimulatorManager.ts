@@ -32,7 +32,7 @@ export default class IosSimulatorManager {
     private static readonly SIMULATOR_START_TIMEOUT = 300_000;
     private static readonly SIMULATOR_TERMINATE_TIMEOUT = 30_000;
 
-    private static readonly APP_INSTALL_AND_BUILD_TIMEOUT = 600_000;
+    private static readonly APP_INSTALL_AND_BUILD_TIMEOUT = 800_000;
     private static readonly APP_INIT_TIMEOUT = 40_000;
     private simulator: IiOSSimulator;
 
