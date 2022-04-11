@@ -7,7 +7,7 @@ import {
     createNotFoundMessage,
     createVersionErrorMessage,
     parseVersion,
-} from "../util"; // executeCommand
+} from "../util";
 import { IValidation, ValidationCategoryE, ValidationResultT } from "./types";
 
 nls.config({
