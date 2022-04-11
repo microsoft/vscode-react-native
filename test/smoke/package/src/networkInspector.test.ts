@@ -30,7 +30,7 @@ const HERMES_APP_PACKAGE_NAME = `com.${SmokeTestsConstants.HermesAppName.toLocal
 const HERMES_APP_BUNDLE_ID = `org.reactjs.native.example.${SmokeTestsConstants.HermesAppName}`;
 const HERMES_APP_ACTIVITY_NAME = `com.${SmokeTestsConstants.HermesAppName.toLocaleLowerCase()}.MainActivity`;
 
-const NI_FIND_PATTERN_TIMEOUT = 30000;
+const NI_FIND_PATTERN_TIMEOUT = 60000;
 const NIDeviceConnectedPattern = "Device connected";
 const ExpressServerPort = 7321;
 const TestNetworkButtonName = "Test Network Button";
