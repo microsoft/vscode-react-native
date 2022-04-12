@@ -38,7 +38,6 @@ export const basicCheck = async (arg: {
     }
 
     const version = await arg.getVersion?.();
-
     if (!version) {
         return result;
     }
@@ -64,13 +63,11 @@ export const parseVersion = async (
     prop: "stdout" | "stderr" = "stdout",
 ): Promise<semver.SemVer | null> => {
     const data = await executeCommand(command).catch(() => {});
-
     if (!data) {
         return null;
     }
-
     const text = normizeStr(data[prop]);
-    return semver.coerce(reg ? reg.exec(text)?.[1] : text);
+    return semver.coerce(reg ? reg.exec(text)?.[0] : text);
 };
 
 // change typescript lib to es2019 ?
