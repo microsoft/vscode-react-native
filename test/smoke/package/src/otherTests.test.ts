@@ -164,7 +164,7 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
                     `Select and save iOS simulator test (first launch)`,
                 );
                 SmokeTestLogger.info(
-                    `iOS simulator select and save test: Set target field value to 'simulator' for debug config with name ${AndroidRNDebugConfigName}`,
+                    `iOS simulator select and save test: Set target field value to 'simulator' for debug config with name ${IosRNDebugConfigName}`,
                 );
                 launchConfigurationManager.updateLaunchScenario(IosRNDebugConfigName, {
                     target: "simulator",
@@ -200,7 +200,7 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
                 assert.notStrictEqual(
                     isScenarioUpdated,
                     false,
-                    "The launch.json has not been updated",
+                    `The launch.json has not been updated \nCurrent config: \n${launchConfigurationManager.getScenarioByName(IosRNDebugConfigName)}`,
                 );
                 await disposeAll();
                 await IosSimulatorManager.shutdownAllSimulators();
