@@ -11,7 +11,7 @@ nls.config({
 })();
 const toLocale = nls.loadMessageBundle();
 
-const label = "xcodeCLI";
+const label = "Xcode CLI";
 
 async function test(): Promise<ValidationResultT> {
     const result = await basicCheck({

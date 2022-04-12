@@ -16,7 +16,7 @@ import nodeJs from "./nodeJS";
 import npm from "./npm";
 import watchman from "./watchman";
 import iosDeploy from "./iosDeploy";
-import xcodebuild from "./xcodebuild";
+import { xcodeBuild, xcodeBuildVersionRNmacOS } from "./xcodebuild";
 import expoCli from "./expoCli";
 import devmode from "./devmode";
 import visualStudio from "./visualStudio";
@@ -25,7 +25,6 @@ import windows from "./windows";
 import dotnet from "./dotnet";
 import xcodecli from "./xcodecli";
 import macos from "./macos";
-import xcode from "./xcode";
 
 import { IValidation } from "./types";
 
@@ -44,7 +43,6 @@ export const getChecks = (): IValidation[] => {
         cocoaPods,
         npm,
         watchman,
-        xcodebuild,
         expoCli,
         devmode,
         visualStudio,
@@ -53,7 +51,8 @@ export const getChecks = (): IValidation[] => {
         dotnet,
         xcodecli,
         macos,
-        xcode,
+        xcodeBuild,
+        xcodeBuildVersionRNmacOS,
     ] as const;
 
     checks.forEach(it => {
