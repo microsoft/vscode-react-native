@@ -393,7 +393,7 @@ export default class IosSimulatorManager {
 
     public static async shutdownAllSimulators(): Promise<boolean> {
         const promises: Promise<void>[] = [];
-        const devices = IosSimulatorManager.getBootedDevices()
+        const devices = IosSimulatorManager.getBootedDevices();
         if (devices.length !== 0) {
             devices.forEach(device => {
                 promises.push(IosSimulatorManager.shutdownSimulator(device.name));

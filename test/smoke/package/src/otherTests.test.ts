@@ -200,7 +200,9 @@ export function startOtherTests(project: TestProject, testParameters?: TestRunAr
                 assert.notStrictEqual(
                     isScenarioUpdated,
                     false,
-                    `The launch.json has not been updated \nCurrent config: \n${launchConfigurationManager.getScenarioByName(IosRNDebugConfigName)}`,
+                    `The launch.json has not been updated \nCurrent config: \n${launchConfigurationManager.getScenarioByName(
+                        IosRNDebugConfigName,
+                    )}`,
                 );
                 await disposeAll();
                 await IosSimulatorManager.shutdownAllSimulators();
