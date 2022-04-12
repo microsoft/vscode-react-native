@@ -31,7 +31,10 @@ async function test(): Promise<ValidationResultT> {
 const main: IValidation = {
     label,
     platform: ["darwin"],
-    description: toLocale("xcodeCLICheckDescription", "Required for building and testing RN macOS apps"),
+    description: toLocale(
+        "xcodeCLICheckDescription",
+        "Required for building and testing RN macOS apps",
+    ),
     category: ValidationCategoryE.macOS,
     exec: test,
 };
