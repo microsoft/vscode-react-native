@@ -5,6 +5,7 @@
 // https://www.npmjs.com/package/envinfo // does not list all required info
 // https://www.npmjs.com/package/command-exists // might find its use later on
 
+import { PromiseUtil } from "../../../../common/node/promise";
 import { adbAndroid, adbExpo } from "./adb";
 import cocoaPods from "./cocoaPods";
 import emulator from "./emulator";
@@ -15,13 +16,15 @@ import nodeJs from "./nodeJS";
 import npm from "./npm";
 import watchman from "./watchman";
 import iosDeploy from "./iosDeploy";
-import xcodebuild from "./xcodebuild";
+import { xcodeBuild, xcodeBuildVersionRNmacOS } from "./xcodebuild";
 import expoCli from "./expoCli";
 import devmode from "./devmode";
 import visualStudio from "./visualStudio";
 import longPath from "./longPath";
 import windows from "./windows";
 import dotnet from "./dotnet";
+import xcodecli from "./xcodecli";
+import macos from "./macos";
 
 import { IValidation } from "./types";
 
@@ -40,14 +43,21 @@ export const getChecks = (): IValidation[] => {
         cocoaPods,
         npm,
         watchman,
-        xcodebuild,
         expoCli,
         devmode,
         visualStudio,
         longPath,
         windows,
         dotnet,
+        xcodecli,
+        macos,
+        xcodeBuild,
+        xcodeBuildVersionRNmacOS,
     ] as const;
+
+    checks.forEach(it => {
+        it.exec = PromiseUtil.promiseCacheDecorator(it.exec);
+    });
 
     return checks.filter(it => (it.platform ? it.platform.includes(process.platform) : true));
 };

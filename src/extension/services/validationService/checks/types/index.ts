@@ -7,6 +7,7 @@ export enum ValidationCategoryE {
     iOS = "iOS",
     Expo = "Expo",
     Windows = "Windows",
+    macOS = "macOS",
 }
 
 export type ValidationResultT = {

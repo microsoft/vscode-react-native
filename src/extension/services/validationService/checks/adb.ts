@@ -23,7 +23,7 @@ async function test(): Promise<ValidationResultT> {
     const result = await basicCheck({
         command: "adb",
         versionRange: "30.0.0",
-        getVersion: parseVersion.bind(null, "adb --version", /^.*\n.*version (.*?)( |$|\n)/gi),
+        getVersion: parseVersion.bind(null, "adb --version", /Version \d+\.\d+\.\d+/),
     });
 
     if (!result.exists) {
