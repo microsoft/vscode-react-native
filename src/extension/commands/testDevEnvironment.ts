@@ -25,7 +25,7 @@ export class TestDevEnvironment extends Command {
         );
         const versions = await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
             nodeModulesRoot,
-            [REACT_NATIVE_PACKAGES.REACT_NATIVE_WINDOWS],
+            [REACT_NATIVE_PACKAGES.REACT_NATIVE_WINDOWS, REACT_NATIVE_PACKAGES.REACT_NATIVE_MACOS],
         );
         return new RNProjectObserver(projectRootPath, versions);
     }
@@ -56,6 +56,8 @@ export class TestDevEnvironment extends Command {
 
             [ValidationCategoryE.Windows]:
                 (projectObserver && projectObserver.isRNWindowsProject) || false,
+            [ValidationCategoryE.macOS]:
+                (projectObserver && projectObserver.isRNMacosProject) || false,
         } as const;
 
         await runChecks(shouldCheck);
