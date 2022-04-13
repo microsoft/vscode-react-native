@@ -1,3 +1,7 @@
+## 1.9.3
+* Refactored RN commands. Implemented command cancelation. [#1744](https://github.com/microsoft/vscode-react-native/commit/36a2164531c4813b93ae053b80dbaf3413b5e047)
+* Implemented checks for environment of Rect Native macOS projects. [#1763](https://github.com/microsoft/vscode-react-native/commit/60d514743b175cebe4ff6891f964b5944da92e39)
+
 ## 1.9.2
 * Fixed debug session restarting [#1745](https://github.com/microsoft/vscode-react-native/pull/1745)
 * Improved debug session termination handling for Direct debugging [#1747](https://github.com/microsoft/vscode-react-native/pull/1747)
