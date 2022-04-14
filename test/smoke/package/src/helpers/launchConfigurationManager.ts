@@ -36,7 +36,7 @@ export class LaunchConfigurationManager {
         return this.launchScenarios.configurations ? this.launchScenarios.configurations.length : 0;
     }
 
-    private getScenarioByName(scenarioName: string): number | null {
+    public getScenarioByName(scenarioName: string): number | null {
         if (this.launchScenarios.configurations) {
             for (let i = 0; i < this.launchScenarios.configurations.length; i++) {
                 const config = this.launchScenarios.configurations[i];

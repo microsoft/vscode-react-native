@@ -185,7 +185,7 @@ export default class AndroidEmulatorManager {
         SmokeTestLogger.info("*** Checking for running android emulators...");
         if (devices.length !== 0) {
             devices.forEach(device => {
-                SmokeTestLogger.info(`*** Terminating Android '${device.id}'...`);
+                SmokeTestLogger.info(`*** Terminating Android emulator with id '${device.id}'...`);
                 cp.execSync(`adb -s ${device.id} emu kill`, { stdio: "inherit" });
             });
         } else {
