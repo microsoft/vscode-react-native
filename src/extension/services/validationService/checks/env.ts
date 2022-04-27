@@ -19,7 +19,7 @@ const convertPathWithVars = (str: string) =>
 
 async function test(): Promise<ValidationResultT> {
     const envVars = {
-        ANDROID_HOME: process.env.ANDROID_HOME,
+        ANDROID_HOME: process.env.ANDROID_HOME || process.env.ANDROID_SDK_ROOT,
     };
 
     const resolvedEnv = fromEntries(
@@ -68,7 +68,7 @@ async function test(): Promise<ValidationResultT> {
 }
 
 const androidHome: IValidation = {
-    label: "ANDROID_HOME Env",
+    label: "Android Env",
     description: toLocale(
         "AndroidHomeEnvCheckDescription",
         "Required for launching React Native apps",
