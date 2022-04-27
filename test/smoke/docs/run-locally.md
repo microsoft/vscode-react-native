@@ -58,20 +58,18 @@ Tests are running using [VS Code automation package](https://github.com/microsof
    * **Mac**:
 Add these lines to `~/.zshrc` (create one if it doesn't exist):
     ```bash
-    export JAVA_HOME="$(/usr/libexec/java_home)"
-    export ANDROID_HOME=/Users/<username>/Library/Android/sdk
-    export ANDROID_SDK_ROOT=$ANDROID_HOME
-    PATH="$PATH:$ANDROID_HOME/emulator:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$ANDROID_HOME/tools/bin"
+    export ANDROID_SDK_ROOT=$HOME/Library/Android/sdk
+    export PATH=$PATH:$ANDROID_SDK_ROOT/emulator
+    export PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools
     ```
    * **Linux**:
 Add these lines to `~/.bash_profile` (create one if it doesn't exist):
     ```bash
-    export JAVA_HOME=$(readlink -f /usr/bin/javac | sed "s:/bin/javac::")
-    export ANDROID_HOME=/home/<username>/Android/sdk
-    export ANDROID_SDK_ROOT=$ANDROID_HOME
-    PATH="$PATH:$ANDROID_HOME/emulator:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$ANDROID_HOME/tools/bin"
+    export PATH=$PATH:$ANDROID_SDK_ROOT/emulator
+    export ANDROID_SDK_ROOT=$HOME/Library/Android/sdk
+    export PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools
     ```
-    > Notice: it's important to add $ANDROID_HOME/emulator before other paths because otherwise emulator will refuse to start from any directory but sdk ones.
+    > Notice: it's important to add $ANDROID_SDK_ROOT/emulator before other paths because otherwise emulator will refuse to start from any directory but sdk ones.
 1. (**Linux** only) Install **KVM** on your system and **reboot** your system.
    ```bash
    sudo apt install qemu-kvm
