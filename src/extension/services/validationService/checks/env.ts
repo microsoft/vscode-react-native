@@ -18,18 +18,15 @@ const convertPathWithVars = (str: string) =>
     str.replace(/%([^%]+)%/g, (_, n) => process.env[n] || _);
 
 async function test(alternativeName: boolean = false): Promise<ValidationResultT> {
-    console.log(alternativeName);
     const envVars = {
         ANDROID_HOME: alternativeName ? process.env.ANDROID_SDK_ROOT : process.env.ANDROID_HOME,
     };
-    console.log(envVars);
     const resolvedEnv = fromEntries(
         Object.entries(envVars).map(([key, val]) => [
             key,
             { original: val, resolved: val && convertPathWithVars(val) },
         ]),
     );
-    console.log(resolvedEnv);
     const notFoundVariable = Object.entries(resolvedEnv).find(([, val]) => !val.original)?.[0];
 
     if (notFoundVariable) {
