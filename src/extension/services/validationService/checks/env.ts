@@ -17,18 +17,19 @@ const toLocale = nls.loadMessageBundle();
 const convertPathWithVars = (str: string) =>
     str.replace(/%([^%]+)%/g, (_, n) => process.env[n] || _);
 
-async function test(): Promise<ValidationResultT> {
+async function test(alternativeName: boolean = false): Promise<ValidationResultT> {
+    console.log(alternativeName);
     const envVars = {
-        ANDROID_HOME: process.env.ANDROID_HOME || process.env.ANDROID_SDK_ROOT,
+        ANDROID_HOME: alternativeName ? process.env.ANDROID_SDK_ROOT : process.env.ANDROID_HOME,
     };
-
+    console.log(envVars);
     const resolvedEnv = fromEntries(
         Object.entries(envVars).map(([key, val]) => [
             key,
             { original: val, resolved: val && convertPathWithVars(val) },
         ]),
     );
-
+    console.log(resolvedEnv);
     const notFoundVariable = Object.entries(resolvedEnv).find(([, val]) => !val.original)?.[0];
 
     if (notFoundVariable) {
@@ -67,14 +68,27 @@ async function test(): Promise<ValidationResultT> {
     };
 }
 
-const androidHome: IValidation = {
+const androidHomeWindows: IValidation = {
     label: "Android Env",
     description: toLocale(
         "AndroidHomeEnvCheckDescription",
         "Required for launching React Native apps",
     ),
     category: ValidationCategoryE.Android,
+    platform: ["win32"],
     exec: test,
 };
 
-export { androidHome };
+const androidHomeUnix: IValidation = {
+    label: "Android Env",
+    description: toLocale(
+        "AndroidHomeEnvCheckDescription",
+        "Required for launching React Native apps",
+    ),
+    category: ValidationCategoryE.Android,
+    platform: ["darwin", "linux"],
+    dependencies: [{ reactNativeVersion: "0.68" }],
+    exec: test.bind(null, true),
+};
+
+export { androidHomeUnix, androidHomeWindows };

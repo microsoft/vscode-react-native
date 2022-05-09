@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as nls from "vscode-nls";
+import { PackageVersion } from "../../../common/projectVersionHelper";
 import { OutputChannelLogger } from "../../log/OutputChannelLogger";
 import { getChecks } from "./checks";
 import { ValidationCategoryE, IValidation, ValidationResultT } from "./checks/types";
@@ -54,6 +55,7 @@ const statusToSymbol = {
 
 export const runChecks = async (
     options_?: Partial<Record<ValidationCategoryE, boolean>>,
+    versions?: PackageVersion[],
 ): Promise<void> => {
     const options = Object.assign(
         {
@@ -66,8 +68,9 @@ export const runChecks = async (
 
     outputChannel.setFocusOnLogChannel();
     outputChannel.info(toLocale("DevEnvVerificationStart", "Starting Environment check..."));
-
-    const checks = await evaluteChecks(getChecks().filter(it => options?.[it.category] === true));
+    const checks = await evaluteChecks(
+        getChecks(versions).filter(it => options?.[it.category] === true),
+    );
 
     let outStr = `<<< ${toLocale(
         "DevEnvVerificationHeader",

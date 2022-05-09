@@ -6,10 +6,14 @@
 // https://www.npmjs.com/package/command-exists // might find its use later on
 
 import { PromiseUtil } from "../../../../common/node/promise";
+import {
+    PackageVersion,
+    satisfiesRNVersionsRequirements,
+} from "../../../../common/projectVersionHelper";
 import { adbAndroid, adbExpo } from "./adb";
 import cocoaPods from "./cocoaPods";
 import emulator from "./emulator";
-import { androidHome } from "./env";
+import { androidHomeUnix, androidHomeWindows } from "./env";
 import gradle from "./gradle";
 import java from "./java";
 import nodeJs from "./nodeJS";
@@ -28,7 +32,7 @@ import macos from "./macos";
 
 import { IValidation } from "./types";
 
-export const getChecks = (): IValidation[] => {
+export const getChecks = (versions: PackageVersion[] = []): IValidation[] => {
     // if some checks become obsolete (e.g. no need to check both npm and yarn) - write logic here
 
     const checks = [
@@ -36,7 +40,8 @@ export const getChecks = (): IValidation[] => {
         adbAndroid,
         adbExpo,
         emulator,
-        androidHome,
+        androidHomeUnix,
+        androidHomeWindows,
         java,
         nodeJs,
         gradle,
@@ -59,5 +64,13 @@ export const getChecks = (): IValidation[] => {
         it.exec = PromiseUtil.promiseCacheDecorator(it.exec);
     });
 
-    return checks.filter(it => (it.platform ? it.platform.includes(process.platform) : true));
+    return checks.filter(it =>
+        it.platform
+            ? it.platform.includes(process.platform)
+            : true && it.dependencies
+            ? satisfiesRNVersionsRequirements(it.dependencies, versions)
+            : true,
+    );
 };
+
+// (new SemVer(versions?[0]["reactNativeVersion"]).compare(it.dependencies[0]["reactNativeVersion"]) != -1)

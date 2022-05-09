@@ -36,6 +36,38 @@ export const REACT_NATIVE_PACKAGES: Record<string, ParsedPackage> = {
     },
 };
 
+export function satisfiesRNVersionsRequirements(
+    required: PackageVersion[],
+    actual: PackageVersion[],
+): boolean {
+    for (let i = 0; i < required.length; i++) {
+        for (let j = 0; j < actual.length; j++) {
+            const requiredPackageName = Object.keys(required[i])[0];
+            if (actual[j][requiredPackageName]) {
+                if (
+                    Object.values(RN_VERSION_ERRORS).includes(actual[j][requiredPackageName]) ||
+                    semver.gt(it[requiredPackageName], actual[j][requiredPackageName])
+                ) {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
+export function RNPackageVersionsToPackageVersion(
+    packageVersions: RNPackageVersions,
+): PackageVersion[] {
+    const res: PackageVersion[] = [];
+    Object.keys(packageVersions).forEach(key => {
+        const item: PackageVersion = {};
+        item[key] = packageVersions[key];
+        res.push(item);
+    });
+    return res;
+}
+
 export class ProjectVersionHelper {
     private static SEMVER_INVALID = "SemverInvalid";
 
