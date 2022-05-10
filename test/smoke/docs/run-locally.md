@@ -58,16 +58,20 @@ Tests are running using [VS Code automation package](https://github.com/microsof
    * **Mac**:
 Add these lines to `~/.zshrc` (create one if it doesn't exist):
     ```bash
+    export JAVA_HOME="$(/usr/libexec/java_home)"
     export ANDROID_SDK_ROOT=$HOME/Library/Android/sdk
     export PATH=$PATH:$ANDROID_SDK_ROOT/emulator
     export PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools
+    PATH="$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin"
     ```
    * **Linux**:
 Add these lines to `~/.bash_profile` (create one if it doesn't exist):
     ```bash
+    export JAVA_HOME=$(readlink -f /usr/bin/javac | sed "s:/bin/javac::")
     export PATH=$PATH:$ANDROID_SDK_ROOT/emulator
     export ANDROID_SDK_ROOT=$HOME/Library/Android/sdk
     export PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools
+    PATH="$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin"
     ```
     > Notice: it's important to add $ANDROID_SDK_ROOT/emulator before other paths because otherwise emulator will refuse to start from any directory but sdk ones.
 1. (**Linux** only) Install **KVM** on your system and **reboot** your system.

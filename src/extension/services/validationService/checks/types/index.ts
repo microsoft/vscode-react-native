@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { PackageVersion } from "../../../../../common/projectVersionHelper";
-
 export enum ValidationCategoryE {
     Common = "Common",
     Android = "Android",
@@ -22,6 +20,5 @@ export interface IValidation {
     description: string;
     platform?: typeof process.platform[];
     category: ValidationCategoryE;
-    dependencies?: PackageVersion[];
     exec: () => Promise<ValidationResultT>;
 }

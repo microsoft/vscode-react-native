@@ -17,16 +17,17 @@ const toLocale = nls.loadMessageBundle();
 const convertPathWithVars = (str: string) =>
     str.replace(/%([^%]+)%/g, (_, n) => process.env[n] || _);
 
-async function test(alternativeName: boolean = false): Promise<ValidationResultT> {
-    const envVars = {
-        ANDROID_HOME: alternativeName ? process.env.ANDROID_SDK_ROOT : process.env.ANDROID_HOME,
-    };
+async function test(androidHomeVariableName: string = "ANDROID_HOME"): Promise<ValidationResultT> {
+    const envVars: Record<string, string | undefined> = {};
+    envVars[androidHomeVariableName] = process.env[androidHomeVariableName];
+
     const resolvedEnv = fromEntries(
         Object.entries(envVars).map(([key, val]) => [
             key,
             { original: val, resolved: val && convertPathWithVars(val) },
         ]),
     );
+
     const notFoundVariable = Object.entries(resolvedEnv).find(([, val]) => !val.original)?.[0];
 
     if (notFoundVariable) {
@@ -41,7 +42,6 @@ async function test(alternativeName: boolean = false): Promise<ValidationResultT
     const notFoundPath = Object.entries(resolvedEnv).find(
         ([, val]) => val.resolved && !fs.existsSync(val.resolved),
     )?.[0];
-
     if (notFoundPath) {
         return {
             status: "failure",
@@ -65,27 +65,14 @@ async function test(alternativeName: boolean = false): Promise<ValidationResultT
     };
 }
 
-const androidHomeWindows: IValidation = {
+const androidHome: IValidation = {
     label: "Android Env",
     description: toLocale(
         "AndroidHomeEnvCheckDescription",
         "Required for launching React Native apps",
     ),
     category: ValidationCategoryE.Android,
-    platform: ["win32"],
     exec: test,
 };
 
-const androidHomeUnix: IValidation = {
-    label: "Android Env",
-    description: toLocale(
-        "AndroidHomeEnvCheckDescription",
-        "Required for launching React Native apps",
-    ),
-    category: ValidationCategoryE.Android,
-    platform: ["darwin", "linux"],
-    dependencies: [{ reactNativeVersion: "0.68" }],
-    exec: test.bind(null, true),
-};
-
-export { androidHomeUnix, androidHomeWindows };
+export { androidHome };

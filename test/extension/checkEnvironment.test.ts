@@ -99,7 +99,7 @@ suite("checkEnvironment", function () {
     suite("envTest", async function () {
         const envTest = await import(
             "../../src/extension/services/validationService/checks/env"
-        ).then(it => it.androidHomeWindows.exec);
+        ).then(it => it.androidHome.exec);
 
         const envVars = {
             ANDROID_HOME: process.env.ANDROID_HOME || process.env.ANDROID_SDK_ROOT,

@@ -63,16 +63,11 @@ export class TestDevEnvironment extends Command {
             [ValidationCategoryE.macOS]:
                 (projectObserver && projectObserver.isRNMacosProject) || false,
         } as const;
-        if (project) {
-            const versions =
-                await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
-                    project.getOrUpdateNodeModulesRoot(),
-                    [
-                        REACT_NATIVE_PACKAGES.REACT_NATIVE_WINDOWS,
-                        REACT_NATIVE_PACKAGES.REACT_NATIVE_MACOS,
-                    ],
-                );
-            await runChecks(shouldCheck, RNPackageVersionsToPackageVersion(versions));
+        if (project && projectObserver) {
+            await runChecks(
+                shouldCheck,
+                RNPackageVersionsToPackageVersion(projectObserver.rnPackageVersions),
+            );
         } else {
             await runChecks(shouldCheck);
         }
