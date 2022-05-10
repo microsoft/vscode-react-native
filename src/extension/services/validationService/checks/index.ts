@@ -60,7 +60,7 @@ export const getChecks = (versions: PackageVersion[] = []): IValidation[] => {
     const rnVersionContainer = versions.find(it => Object.keys(it).includes("reactNativeVersion"));
     if (
         rnVersionContainer &&
-        semver.gte(rnVersionContainer["reactNativeVersion"], "0.68.0") &&
+        semver.gte(rnVersionContainer.reactNativeVersion, "0.68.0") &&
         ["linux", "darwin"].includes(process.platform)
     ) {
         const androidEnvCheck = checks.find(it => it.label === "Android Env");
