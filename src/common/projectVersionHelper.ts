@@ -36,6 +36,18 @@ export const REACT_NATIVE_PACKAGES: Record<string, ParsedPackage> = {
     },
 };
 
+export function RNPackageVersionsToPackageVersion(
+    packageVersions: RNPackageVersions,
+): PackageVersion[] {
+    const res: PackageVersion[] = [];
+    Object.keys(packageVersions).forEach(key => {
+        const item: PackageVersion = {};
+        item[key] = packageVersions[key];
+        res.push(item);
+    });
+    return res;
+}
+
 export class ProjectVersionHelper {
     private static SEMVER_INVALID = "SemverInvalid";
 

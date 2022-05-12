@@ -63,6 +63,7 @@ Add these lines to `~/.zshrc` (create one if it doesn't exist):
     export ANDROID_SDK_ROOT=$ANDROID_HOME
     PATH="$PATH:$ANDROID_HOME/emulator:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$ANDROID_HOME/tools/bin"
     ```
+   > Notice: since 0.68 version of React Native ```ANDROID_HOME``` has to be changed to ```ANDROID_SDK_ROOT``` for linux and macOS
    * **Linux**:
 Add these lines to `~/.bash_profile` (create one if it doesn't exist):
     ```bash
@@ -71,7 +72,7 @@ Add these lines to `~/.bash_profile` (create one if it doesn't exist):
     export ANDROID_SDK_ROOT=$ANDROID_HOME
     PATH="$PATH:$ANDROID_HOME/emulator:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$ANDROID_HOME/tools/bin"
     ```
-    > Notice: it's important to add $ANDROID_HOME/emulator before other paths because otherwise emulator will refuse to start from any directory but sdk ones.
+    > Notice: it's important to add $ANDROID_HOME/emulator before other paths because otherwise emulator will refuse to start from any directory but sdk ones
 1. (**Linux** only) Install **KVM** on your system and **reboot** your system.
    ```bash
    sudo apt install qemu-kvm

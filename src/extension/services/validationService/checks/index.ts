@@ -5,7 +5,9 @@
 // https://www.npmjs.com/package/envinfo // does not list all required info
 // https://www.npmjs.com/package/command-exists // might find its use later on
 
+import * as semver from "semver";
 import { PromiseUtil } from "../../../../common/node/promise";
+import { PackageVersion } from "../../../../common/projectVersionHelper";
 import { adbAndroid, adbExpo } from "./adb";
 import cocoaPods from "./cocoaPods";
 import emulator from "./emulator";
@@ -28,10 +30,10 @@ import macos from "./macos";
 
 import { IValidation } from "./types";
 
-export const getChecks = (): IValidation[] => {
+export const getChecks = (versions: PackageVersion[] = []): IValidation[] => {
     // if some checks become obsolete (e.g. no need to check both npm and yarn) - write logic here
 
-    const checks = [
+    const checks: IValidation[] = [
         iosDeploy,
         adbAndroid,
         adbExpo,
@@ -53,7 +55,19 @@ export const getChecks = (): IValidation[] => {
         macos,
         xcodeBuild,
         xcodeBuildVersionRNmacOS,
-    ] as const;
+    ];
+
+    const rnVersionContainer = versions.find(it => Object.keys(it).includes("reactNativeVersion"));
+    if (
+        rnVersionContainer &&
+        semver.gte(rnVersionContainer.reactNativeVersion, "0.68.0") &&
+        ["linux", "darwin"].includes(process.platform)
+    ) {
+        const androidEnvCheck = checks.find(it => it.label === "Android Env");
+        if (androidEnvCheck) {
+            androidEnvCheck.exec = androidEnvCheck.exec.bind(null, "ANDROID_SDK_ROOT");
+        }
+    }
 
     checks.forEach(it => {
         it.exec = PromiseUtil.promiseCacheDecorator(it.exec);

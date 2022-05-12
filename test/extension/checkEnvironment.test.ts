@@ -103,6 +103,7 @@ suite("checkEnvironment", function () {
 
         const envVars = {
             ANDROID_HOME: process.env.ANDROID_HOME,
+            ANDROID_SDK_ROOT: process.env.ANDROID_SDK_ROOT,
         };
 
         const setEnv = (arg: string) => {

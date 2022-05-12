@@ -3,7 +3,11 @@
 
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
-import { ProjectVersionHelper, REACT_NATIVE_PACKAGES } from "../../common/projectVersionHelper";
+import {
+    ProjectVersionHelper,
+    REACT_NATIVE_PACKAGES,
+    RNPackageVersionsToPackageVersion,
+} from "../../common/projectVersionHelper";
 import { AppLauncher } from "../appLauncher";
 import { RNProjectObserver } from "../rnProjectObserver";
 import { runChecks } from "../services/validationService/checker";
@@ -59,7 +63,13 @@ export class TestDevEnvironment extends Command {
             [ValidationCategoryE.macOS]:
                 (projectObserver && projectObserver.isRNMacosProject) || false,
         } as const;
-
-        await runChecks(shouldCheck);
+        if (project && projectObserver) {
+            await runChecks(
+                shouldCheck,
+                RNPackageVersionsToPackageVersion(projectObserver.rnPackageVersions),
+            );
+        } else {
+            await runChecks(shouldCheck);
+        }
     }
 }

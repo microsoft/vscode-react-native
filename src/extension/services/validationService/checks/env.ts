@@ -17,10 +17,9 @@ const toLocale = nls.loadMessageBundle();
 const convertPathWithVars = (str: string) =>
     str.replace(/%([^%]+)%/g, (_, n) => process.env[n] || _);
 
-async function test(): Promise<ValidationResultT> {
-    const envVars = {
-        ANDROID_HOME: process.env.ANDROID_HOME,
-    };
+async function test(androidHomeVariableName: string = "ANDROID_HOME"): Promise<ValidationResultT> {
+    const envVars: Record<string, string | undefined> = {};
+    envVars[androidHomeVariableName] = process.env[androidHomeVariableName];
 
     const resolvedEnv = fromEntries(
         Object.entries(envVars).map(([key, val]) => [
@@ -43,7 +42,6 @@ async function test(): Promise<ValidationResultT> {
     const notFoundPath = Object.entries(resolvedEnv).find(
         ([, val]) => val.resolved && !fs.existsSync(val.resolved),
     )?.[0];
-
     if (notFoundPath) {
         return {
             status: "failure",
@@ -68,7 +66,7 @@ async function test(): Promise<ValidationResultT> {
 }
 
 const androidHome: IValidation = {
-    label: "ANDROID_HOME Env",
+    label: "Android Env",
     description: toLocale(
         "AndroidHomeEnvCheckDescription",
         "Required for launching React Native apps",
