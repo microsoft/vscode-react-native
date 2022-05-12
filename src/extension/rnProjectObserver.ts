@@ -14,6 +14,7 @@ export class RNProjectObserver {
     private _isRNAndroidHermesProject: boolean;
     private _isRNIosHermesProject: boolean;
     private _isRNHermesProject: boolean;
+    private _rnPackageVersions: RNPackageVersions;
 
     constructor(projectRoot: string, rnPackageVersions: RNPackageVersions) {
         this._isRNMacosProject = false;
@@ -23,6 +24,7 @@ export class RNProjectObserver {
         this._isRNAndroidHermesProject = false;
         this._isRNIosHermesProject = false;
         this._isRNHermesProject = false;
+        this._rnPackageVersions = rnPackageVersions;
 
         this.initialize(projectRoot, rnPackageVersions);
     }
@@ -70,6 +72,10 @@ export class RNProjectObserver {
 
     public get isRNAndroidHermesProject(): boolean {
         return this._isRNAndroidHermesProject;
+    }
+
+    public get rnPackageVersions(): RNPackageVersions {
+        return this._rnPackageVersions;
     }
 
     public get isRNIosHermesProject(): boolean {
