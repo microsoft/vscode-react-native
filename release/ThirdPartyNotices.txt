@@ -1430,7 +1430,7 @@ Apache License
 source-map 0.1.43 - BSD-3-Clause
 https://github.com/mozilla/source-map
 
-Copyright 2011 The Closure Compiler
+Copyright 2011 The Closure Compiler Authors
 Copyright 2011 Mozilla Foundation and contributors
 Copyright 2012 Mozilla Foundation and contributors
 Copyright 2014 Mozilla Foundation and contributors
@@ -1588,7 +1588,7 @@ fs.realpath 1.0.0 - ISC
 https://github.com/isaacs/fs.realpath#readme
 
 Copyright (c) Isaac Z. Schlueter and Contributors
-Copyright Joyent, Inc. and other Node contributors.
+Copyright Joyent, Inc. and other Node contributors
 
 The ISC License
 
@@ -1859,7 +1859,7 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 signal-exit 3.0.3 - ISC
 https://github.com/tapjs/signal-exit
 
-Copyright (c) 2015
+Copyright (c) 2015, Contributors
 
 The ISC License
 
@@ -1912,6 +1912,7 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 write-file-atomic 3.0.3 - ISC
 https://github.com/npm/write-file-atomic
 
+Copyright (c) 2015, Rebecca Turner
 
 Copyright (c) 2015, Rebecca Turner
 
@@ -1948,6 +1949,7 @@ asap 2.0.6 - MIT
 https://github.com/kriskowal/asap#readme
 
 Copyright 2009-2014
+Copyright 2009-2014 Contributors
 
 
 Copyright 2009–2014 Contributors. All rights reserved.
@@ -2419,7 +2421,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 ip 1.1.5 - MIT
 https://github.com/indutny/node-ip
 
-Copyright Fedor Indutny, 2012.
+Copyright Fedor Indutny, 2012
 
 MIT License
 
@@ -2489,7 +2491,7 @@ https://github.com/microsoft/node-jsonc-parser#readme
 
 Copyright (c) Microsoft
 Copyright 2018, Microsoft
-Copyright (c) Microsoft Corporation.
+Copyright (c) Microsoft Corporation
 
 The MIT License (MIT)
 
@@ -2603,7 +2605,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ---------------------------------------------------------
 
-minimist 1.2.5 - MIT
+minimist 1.2.6 - MIT
 https://github.com/substack/minimist
 
 
@@ -2892,7 +2894,7 @@ querystring 0.2.1 - MIT
 https://github.com/Gozala/querystring#readme
 
 Copyright 2012 Irakli Gozalishvili
-Copyright Joyent, Inc. and other Node contributors.
+Copyright Joyent, Inc. and other Node contributors
 
 Copyright 2012 Irakli Gozalishvili
 
@@ -3173,7 +3175,7 @@ typedarray-to-buffer 3.1.5 - MIT
 http://feross.org/
 
 Copyright (c) Feross Aboukhadijeh
-Copyright (c) Feross Aboukhadijeh (http://feross.org).
+Copyright (c) Feross Aboukhadijeh (http://feross.org)
 
 The MIT License (MIT)
 
@@ -3291,6 +3293,7 @@ uuid 8.3.2 - MIT
 https://github.com/uuidjs/uuid#readme
 
 Copyright 2011, Sebastian Tschan https://blueimp.net
+Copyright (c) 2010-2020 Robert Kieffer and other contributors
 Copyright (c) Paul Johnston 1999 - 2009 Other contributors Greg Holt, Andrew Kepert, Ydnar, Lostinet
 
 The MIT License (MIT)

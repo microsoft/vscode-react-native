@@ -68,6 +68,7 @@ Before going any further make sure that you:
 - have the [`emulator`](https://developer.android.com/studio/run/emulator-commandline) utility available in your `PATH` if you're developing Android applications
 - are using [VS Code](https://code.visualstudio.com) and have [installed this extension from the Marketplace](https://marketplace.visualstudio.com/items?itemName=msjsdiag.vscode-react-native).
 - have your React Native project root folder open in VS Code.
+- have launched "React Native: Check development environment configuration" command in order to make sure that all necessary software is installed and recognized correctly.
 
 Please notice that the extension uses `.vscode/.react` directory at the project root to store intermediate files required for debugging. Although these files usually get removed after debug session ends, you may want to add this directory to your project's `.gitignore` file.
 
