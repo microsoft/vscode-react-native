@@ -543,7 +543,8 @@ The extension logging is divided by several output channels:
 
 There are also some global extension technical logs that might be exposed to the output. To see them set the following properties:
 
-```json
+```jsonc
+// in folder, workspace, or global settings.json
 {
   "react-native-tools": {
     "logLevel": "Trace"
@@ -715,7 +716,8 @@ It is possible to transfer environment variables (via `env` and `envFile` argume
 
 To specify a subfolder in which the react-native project is located, set `react-native-tools.projectRoot`. You can use either an absolute or relative path here:
 
-```json
+```jsonc
+// in folder or workspace settings.json
 {
   "react-native-tools": {
     "projectRoot": "./your/react-native/project"
@@ -830,7 +832,8 @@ For now the Network inspector doesn't support Expo applications.
 
 The extension provides “Dark” and “Light” color themes for Network Inspector logs. You can configure the theme in the extension configuration in the Settings tab or in `settings.json` file.
 
-```json
+```jsonc
+// in folder, workspace, or global settings.json
 {
   "react-native-tools.networkInspector.consoleLogsColorTheme": "Dark"
 }
