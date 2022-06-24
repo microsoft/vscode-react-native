@@ -12,7 +12,7 @@ variables:
 jobs:
   - job: Windows
     pool:
-      name: "React Native smoke tests - Windows"
+      name: "React Native smoke tests - Windows - Test"
     timeoutInMinutes: 85
     steps:
       - checkout: self
