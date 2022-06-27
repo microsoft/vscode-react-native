@@ -541,7 +541,7 @@ The extension logging is divided by several output channels:
   - Debug Console becomes more informative and contains some debugging information from the debug adapter
   - Global extension errors are controlled by VS Code and printed in VS Code Developer Tools
 
-There are also some global extension technical logs that might be exposed to the output. To see them set the following properties:
+There are also some global extension technical logs that might be exposed to the output. To see them set the following properties in your VS Code Settings:
 
 ```json
 {
@@ -713,7 +713,7 @@ It is possible to transfer environment variables (via `env` and `envFile` argume
 
 ## Change project root
 
-To specify a subfolder in which the react-native project is located, set `react-native-tools.projectRoot`. You can use either an absolute or relative path here:
+To specify a subfolder in which the react-native project is located, set `react-native-tools.projectRoot`. You can use either an absolute or relative path in your VS Code Settings:
 
 ```json
 {
@@ -828,7 +828,7 @@ For now the Network inspector doesn't support Expo applications.
 
 ### Network inspector logs theme
 
-The extension provides “Dark” and “Light” color themes for Network Inspector logs. You can configure the theme in the extension configuration in the Settings tab or in `settings.json` file.
+The extension provides “Dark” and “Light” color themes for Network Inspector logs. You can configure the theme in the extension configuration in your VS Code Settings.
 
 ```json
 {
