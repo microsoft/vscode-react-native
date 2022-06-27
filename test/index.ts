@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+
 // This file is used by VS Code's default test runner to configure Mocha before the test run.
 
 import * as path from "path";
