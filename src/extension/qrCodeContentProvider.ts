@@ -26,6 +26,10 @@ export class QRCodeContentProvider implements TextDocumentContentProvider {
             'Expo is running. Open your Expo app at<br/><span style="text-decoration: underline">{0}</span><br/>or scan QR code below:',
             stringUri,
         );
+        const outputMessage = localize(
+            "QRCodeOutputMessage",
+            "Tips: You can get current QR code in output<br/>window as well if you close this tab.",
+        );
         return `<!DOCTYPE html>
         <html>
         <body>
@@ -34,6 +38,9 @@ export class QRCodeContentProvider implements TextDocumentContentProvider {
                     ${message}
                 <h3>
                 <img src="${this.cache[stringUri]}" />
+                <h3>
+                    ${outputMessage}
+                <h3>
             </div>
         </body>
         </html>`;
