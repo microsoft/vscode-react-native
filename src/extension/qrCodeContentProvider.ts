@@ -28,7 +28,7 @@ export class QRCodeContentProvider implements TextDocumentContentProvider {
         );
         const outputMessage = localize(
             "QRCodeOutputMessage",
-            "Tips: You can get current QR code in output<br/>window as well if you close this tab.",
+            "Tips: You can get current QR code in<br/>Output Window as well if you close this tab.",
         );
         return `<!DOCTYPE html>
         <html>
