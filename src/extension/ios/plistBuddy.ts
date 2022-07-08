@@ -27,6 +27,7 @@ export class PlistBuddy {
     private static readonly plistBuddyExecutable = "/usr/libexec/PlistBuddy";
     private static readonly SCHEME_IN_PRODUCTS_FOLDER_PATH_VERSION = "0.59.0";
     private static readonly NEW_RN_IOS_CLI_LOCATION_VERSION = "0.60.0";
+    private static readonly RN68_FUND_XCODE_PROJECT_LOCATION_VERSION = "0.68.0";
     private static readonly RN69_FUND_XCODE_PROJECT_LOCATION_VERSION = "0.69.0";
     private readonly TARGET_BUILD_DIR_SEARCH_KEY = "TARGET_BUILD_DIR";
     private readonly FULL_PRODUCT_NAME_SEARCH_KEY = "FULL_PRODUCT_NAME";
@@ -250,8 +251,9 @@ export class PlistBuddy {
             ProjectVersionHelper.isCanaryVersion(rnVersion)
                 ? "cli-platform-ios"
                 : "cli";
+
         const findXcodeProjectLocation = `node_modules/@react-native-community/${iOSCliFolderName}/build/${
-            semver.gte(rnVersion, PlistBuddy.RN69_FUND_XCODE_PROJECT_LOCATION_VERSION)
+            semver.gte(rnVersion, PlistBuddy.RN69_FUND_XCODE_PROJECT_LOCATION_VERSION) || semver.gte(rnVersion, PlistBuddy.RN68_FUND_XCODE_PROJECT_LOCATION_VERSION)
                 ? "config/findXcodeProject"
                 : "commands/runIOS/findXcodeProject"
         }`;
