@@ -248,17 +248,16 @@ export class PlistBuddy {
          */
         const iOSCliFolderName =
             semver.gte(rnVersion, PlistBuddy.NEW_RN_IOS_CLI_LOCATION_VERSION) ||
-                ProjectVersionHelper.isCanaryVersion(rnVersion)
+            ProjectVersionHelper.isCanaryVersion(rnVersion)
                 ? "cli-platform-ios"
                 : "cli";
 
-        const findXcodeProjectLocation =
-            `node_modules/@react-native-community/${iOSCliFolderName}/build/${
-                semver.gte(rnVersion, PlistBuddy.RN69_FUND_XCODE_PROJECT_LOCATION_VERSION) ||
-                semver.gte(rnVersion, PlistBuddy.RN68_FUND_XCODE_PROJECT_LOCATION_VERSION)
+        const findXcodeProjectLocation = `node_modules/@react-native-community/${iOSCliFolderName}/build/${
+            semver.gte(rnVersion, PlistBuddy.RN69_FUND_XCODE_PROJECT_LOCATION_VERSION) ||
+            semver.gte(rnVersion, PlistBuddy.RN68_FUND_XCODE_PROJECT_LOCATION_VERSION)
                 ? "config/findXcodeProject"
                 : "commands/runIOS/findXcodeProject"
-            }`;
+        }`;
         const findXcodeProject = customRequire(
             path.join(
                 AppLauncher.getNodeModulesRootByProjectPath(projectRoot),
