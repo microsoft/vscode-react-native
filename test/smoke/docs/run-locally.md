@@ -17,7 +17,7 @@ Tests are running using [VS Code automation package](https://github.com/microsof
 
 ## Set up Android SDK environment
 
-1. Install `Java Developement Kit 11`, `Android Studio` and `Git`
+1. Install `Java Development Kit 11`, `Android Studio` and `Git`
 
    * **Windows**:
     ```ps1
