@@ -34,9 +34,11 @@ export async function run(): Promise<void> {
     const mocha = new Mocha({
         ui: "tdd",
         grep: new RegExp("(debuggerContext|localizationContext)"), // Do not run tests intended for the debuggerContext and localizationContext
-        reporter: "mocha-multi-reporters",
+        reporter: "mochawesome",
         reporterOptions: {
-            reporterEnabled: "spec, mocha-junit-reporter",
+            reportDir: `${path.resolve(__dirname, "..")}/mochawesome-report`,
+            reportFilename: "Rn-Test-Report",
+            quiet: true,
             mochaJunitReporterReporterOptions: {
                 mochaFile: path.join(__dirname, "ExtensionTests.xml"),
             },

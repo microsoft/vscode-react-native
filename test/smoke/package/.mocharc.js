@@ -7,5 +7,6 @@ module.exports = {
     file: ["out/main.js"],
     extension: ["js"],
     slow: 200000,
+    reporter: "mochawesome",
     timeout: 120000
 };
