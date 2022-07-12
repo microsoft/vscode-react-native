@@ -146,7 +146,7 @@ The extension also allows to start debugging without creating the `launch.json` 
 
 - Using dynamic debugging configurations
 
-  To use dynamic debugging configurations you can click on the `Show all automatic degub configurations` string in the `Run and Debug` panel, then select `React Native` in the list of extensions and choose the appropriate configuration in the Configuration list to start debugging.
+  To use dynamic debugging configurations you can click on the `Show all automatic debug configurations` string in the `Run and Debug` panel, then select `React Native` in the list of extensions and choose the appropriate configuration in the Configuration list to start debugging.
 
   ![Run dynamic debugging configuration](resources/images/dynamic-debugging-configuration.gif)
 
@@ -381,7 +381,7 @@ You can debug UWP React Native for Windows applications by changing the `platfor
    ```
 
 1. (**Optional**) Start Metro packager by means of the `React Native: Start Packager` Command Palette command or run `npx react-native start` command in the terminal in the project root folder
-1. Select the `Attach to packager` configuration and click the `play` button. If Metro packager isn't running yet, the extensnion will start it automatically.
+1. Select the `Attach to packager` configuration and click the `play` button. If Metro packager isn't running yet, the extension will start it automatically.
 1. Launch your React Native Windows application. Please make sure that the application is on remote debugging mode.
 
 Then the extension should attach to the running application.
