@@ -4,11 +4,15 @@
         {
             "label": "prepare-smoke-tests",
             "type": "process",
-            "command": ["yarn"],
+            "command": [
+                "yarn"
+            ],
             "windows": {
                 "command": "yarn.cmd"
             },
-            "args": ["prepare-smoke-tests"],
+            "args": [
+                "prepare-smoke-tests"
+            ],
             "presentation": {
                 "echo": true,
                 "reveal": "silent",
@@ -21,7 +25,9 @@
         {
             "label": "compile-smoke-tests",
             "type": "process",
-            "command": ["./node_modules/.bin/tsc"],
+            "command": [
+                "./node_modules/.bin/tsc"
+            ],
             "windows": {
                 "command": ".\\node_modules\\.bin\\tsc.cmd"
             },
@@ -39,11 +45,23 @@
         },
         {
             "label": "Prepare Smoke Tests",
-            "dependsOn": ["prepare-smoke-tests"]
+            "dependsOn": [
+                "prepare-smoke-tests"
+            ]
         },
         {
             "label": "Build Smoke Tests",
-            "dependsOn": ["compile-smoke-tests"]
+            "dependsOn": [
+                "compile-smoke-tests"
+            ]
+        },
+        {
+            "type": "npm",
+            "script": "build",
+            "group": "build",
+            "problemMatcher": [],
+            "label": "gulp: build",
+            "detail": "gulp build"
         }
     ]
 }
