@@ -17,26 +17,26 @@ Tests are running using [VS Code automation package](https://github.com/microsof
 
 ## Set up Android SDK environment
 
-1. Install `Java Developement Kit 8`, `Android Studio` and `Git`
+1. Install `Java Development Kit 11`, `Android Studio` and `Git`
 
    * **Windows**:
     ```ps1
-    choco install jdk8 -y
+    choco install jdk11 -y
     choco install androidstudio -y
     choco install git -y
     ```
    * **Mac**:
     ```bash
-    brew tap caskroom/versions
-    brew cask install adoptopenjdk/openjdk/adoptopenjdk8
-    brew cask install android-studio
+    brew tap homebrew/cask-versions
+    brew install --cask  adoptopenjdk/openjdk/adoptopenjdk11
+    brew install --cask  android-studio
     brew install git
     brew install watchman
     ```
    * **Ubuntu**:
     ```bash
     apt update
-    sudo apt install openjdk-8-jdk
+    sudo apt install openjdk-11-jdk
     sudo snap install android-studio --classic
     sudo apt install git
     sudo apt install xvfb
