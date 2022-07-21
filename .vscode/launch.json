@@ -2,6 +2,21 @@
     "version": "0.2.0",
     "configurations": [
         {
+            // for debugging GulpFile.js
+            "name": "GulpTester",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/node_modules/gulp/bin/gulp.js",
+            "stopOnEntry": false,
+            "args": [],
+            "cwd": "${workspaceRoot}",
+            "runtimeArgs": [
+                "--nolazy"
+            ],
+            "console": "internalConsole",
+        },
+
+        {
             "name": "Launch Extension",
             "type": "extensionHost",
             "request": "launch",
