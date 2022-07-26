@@ -11,6 +11,7 @@ import { GeneralPlatform, MobilePlatformDeps } from "../generalPlatform";
 import { TelemetryHelper } from "../../common/telemetryHelper";
 import { QRCodeContentProvider } from "../qrCodeContentProvider";
 import { ExponentHelper } from "./exponentHelper";
+import { generate } from "qrcode-terminal";
 
 import * as XDL from "./xdlInterface";
 
@@ -107,6 +108,14 @@ export class ExponentPlatform extends GeneralPlatform {
                 throw ErrorHelper.getInternalError(InternalErrorCode.ExpectedExponentTunnelPath);
             }
 
+            this.exponentTunnelPath = exponentUrl;
+            const outputMessage = localize(
+                "ExponentServerIsRunningOpenToSeeIt",
+                "Expo server is running. Open your Expo app at {0} to see it.",
+                this.exponentTunnelPath,
+            );
+            this.logger.info(outputMessage);
+
             if (this.runOptions.openExpoQR) {
                 const exponentPage = vscode.window.createWebviewPanel(
                     "Expo QR Code",
@@ -117,15 +126,13 @@ export class ExponentPlatform extends GeneralPlatform {
                 exponentPage.webview.html = this.qrCodeContentProvider.provideTextDocumentContent(
                     vscode.Uri.parse(exponentUrl),
                 );
+                const outputMessage = localize(
+                    "QRCodeOutputInstructions",
+                    "Scan below QR code to open your app:",
+                );
+                this.logger.info(outputMessage);
+                generate(exponentUrl, { small: true }, qrcode => this.logger.info(`\n${qrcode}`));
             }
-
-            this.exponentTunnelPath = exponentUrl;
-            const outputMessage = localize(
-                "ExponentServerIsRunningOpenToSeeIt",
-                "Expo server is running. Open your Expo app at {0} to see it.",
-                this.exponentTunnelPath,
-            );
-            this.logger.info(outputMessage);
 
             const copyButton = localize("CopyToClipboard", "Copy to clipboard");
 
