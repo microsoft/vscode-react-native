@@ -33,8 +33,14 @@ export class OutputVerifier {
 
     public async process(spawnResult: ISpawnResult): Promise<void> {
         // Store all output
-        this.store(spawnResult.stdout, newContent => (this.output += newContent));
-        this.store(spawnResult.stderr, newContent => (this.errors += newContent));
+        this.store(spawnResult.stdout, newContent => {
+            this.output += newContent;
+            return this.output;
+        });
+        this.store(spawnResult.stderr, newContent => {
+            this.errors += newContent;
+            return this.errors;
+        });
 
         let processError: InternalError | undefined;
 
@@ -48,7 +54,7 @@ export class OutputVerifier {
         const patternsError = this.findAnyFailurePattern(failurePatterns);
         if (patternsError) {
             if (processError) {
-                processError.message += "\n" + patternsError.message;
+                processError.message += `\n${patternsError.message}`;
                 throw processError;
             }
             throw patternsError;
@@ -81,9 +87,8 @@ export class OutputVerifier {
             if (pattern.pattern instanceof RegExp) {
                 matches = errorsAndOutput.match(pattern.pattern);
                 return matches && matches.length;
-            } else {
-                return errorsAndOutput.indexOf(pattern.pattern as string) !== -1;
             }
+            return errorsAndOutput.includes(pattern.pattern as string);
         });
 
         const errorCode = patternThatAppeared ? patternThatAppeared.errorCode : null;
@@ -92,9 +97,8 @@ export class OutputVerifier {
             if (matches && matches.length) {
                 matches = matches.map(value => value.trim());
                 return ErrorHelper.getInternalError(errorCode, matches.join("\n"));
-            } else {
-                return ErrorHelper.getInternalError(errorCode);
             }
+            return ErrorHelper.getInternalError(errorCode);
         }
         return null;
     }
@@ -102,7 +106,7 @@ export class OutputVerifier {
     // We check that all the patterns appeared on the output
     private areAllSuccessPatternsPresent(successPatterns: string[]): boolean {
         return successPatterns.every(pattern => {
-            let patternRe = new RegExp(pattern, "i");
+            const patternRe = new RegExp(pattern, "i");
             return patternRe.test(this.output);
         });
     }

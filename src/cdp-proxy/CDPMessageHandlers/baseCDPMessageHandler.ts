@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { ICDPMessageHandler, ProcessedCDPMessage } from "./ICDPMessageHandler";
 import { Connection } from "vscode-cdp-proxy";
+import { ICDPMessageHandler, ProcessedCDPMessage } from "./ICDPMessageHandler";
 
 export abstract class BaseCDPMessageHandler implements ICDPMessageHandler {
     protected debuggerTarget: Connection | null;

@@ -1,18 +1,20 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import * as url from "url";
+import * as vscode from "vscode";
+import * as nls from "vscode-nls";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ExpoHostType, IExponentRunOptions, PlatformType } from "../launchArgs";
 import { GeneralPlatform, MobilePlatformDeps } from "../generalPlatform";
-import { ExponentHelper } from "./exponentHelper";
 import { TelemetryHelper } from "../../common/telemetryHelper";
 import { QRCodeContentProvider } from "../qrCodeContentProvider";
+import { ExponentHelper } from "./exponentHelper";
+import { generate } from "qrcode-terminal";
 
-import * as vscode from "vscode";
 import * as XDL from "./xdlInterface";
-import * as url from "url";
-import * as nls from "vscode-nls";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -100,22 +102,10 @@ export class ExponentPlatform extends GeneralPlatform {
                 default:
                     exponentUrl = await XDL.getUrl(this.projectPath, { dev: true, minify: false });
             }
-            exponentUrl = "exp://" + url.parse(exponentUrl).host;
+            exponentUrl = `exp://${String(url.parse(exponentUrl).host)}`;
 
             if (!exponentUrl) {
                 throw ErrorHelper.getInternalError(InternalErrorCode.ExpectedExponentTunnelPath);
-            }
-
-            if (this.runOptions.openExpoQR) {
-                let exponentPage = vscode.window.createWebviewPanel(
-                    "Expo QR Code",
-                    "Expo QR Code",
-                    vscode.ViewColumn.Two,
-                    {},
-                );
-                exponentPage.webview.html = this.qrCodeContentProvider.provideTextDocumentContent(
-                    vscode.Uri.parse(exponentUrl),
-                );
             }
 
             this.exponentTunnelPath = exponentUrl;
@@ -126,11 +116,29 @@ export class ExponentPlatform extends GeneralPlatform {
             );
             this.logger.info(outputMessage);
 
+            if (this.runOptions.openExpoQR) {
+                const exponentPage = vscode.window.createWebviewPanel(
+                    "Expo QR Code",
+                    "Expo QR Code",
+                    vscode.ViewColumn.Two,
+                    {},
+                );
+                exponentPage.webview.html = this.qrCodeContentProvider.provideTextDocumentContent(
+                    vscode.Uri.parse(exponentUrl),
+                );
+                const outputMessage = localize(
+                    "QRCodeOutputInstructions",
+                    "Scan below QR code to open your app:",
+                );
+                this.logger.info(outputMessage);
+                generate(exponentUrl, { small: true }, qrcode => this.logger.info(`\n${qrcode}`));
+            }
+
             const copyButton = localize("CopyToClipboard", "Copy to clipboard");
 
-            vscode.window.showInformationMessage(outputMessage, copyButton).then(selection => {
+            void vscode.window.showInformationMessage(outputMessage, copyButton).then(selection => {
                 if (selection === copyButton) {
-                    vscode.env.clipboard.writeText(exponentUrl);
+                    void vscode.env.clipboard.writeText(exponentUrl);
                 }
             });
         });
@@ -142,14 +150,11 @@ export class ExponentPlatform extends GeneralPlatform {
         }
 
         return await this.exponentHelper.loginToExponent(
-            async (message, password) => {
-                return (
-                    (await vscode.window.showInputBox({
-                        placeHolder: message,
-                        password: password,
-                    })) || ""
-                );
-            },
+            async (message, password) =>
+                (await vscode.window.showInputBox({
+                    placeHolder: message,
+                    password,
+                })) || "",
             async message => {
                 const okButton = { title: "Ok" };
                 const cancelButton = { title: "Cancel", isCloseAffordance: true };

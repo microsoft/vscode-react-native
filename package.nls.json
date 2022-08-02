@@ -20,10 +20,12 @@
   "reactNative.command.showDevMenu.title": "Show Dev Menu",
   "reactNative.command.reloadApp.title": "Reload App",
   "reactNative.command.runInspector.title": "Run Element Inspector",
+  "reactNative.command.stopInspector.title": "Stop Element Inspector",
   "reactNative.command.startLogCatMonitor.title": "Run React Native LogCat Monitor",
   "reactNative.command.stopLogCatMonitor.title": "Stop React Native LogCat Monitor",
   "reactNative.command.startNetworkInspector.title": "Run Network Inspector",
   "reactNative.command.stopNetworkInspector.title": "Stop Network Inspector",
+  "reactNative.command.testDevEnvironment.title": "Check development environment configuration",
   "reactNative.snippets.debugAndroid.description": "A new configuration for launching React Native app on Android with debugging enabled",
   "reactNative.snippets.runAndroid.description": "A new configuration for launching React Native app on Android without debugging",
   "reactNative.snippets.debugAndroidHermes.description": "A new configuration for launching React Native Hermes app on Android with debugging enabled",
@@ -45,6 +47,8 @@
   "reactNative.attach.trace.description": "Logging level in debugger process. May be useful for diagnostics. If set to \"Trace\" all debugger process logs will be available in 'Debug Console' output window.",
   "reactNative.attach.address.description": "TCP/IP address of packager to attach to for debugging. Default is 'localhost'.",
   "reactNative.attach.port.description": "Port of packager to attach to for debugging. Default is 8081.",
+  "reactNative.attach.env.description": "Environment variables passed to the debugger and 'react-native start' command.",
+  "reactNative.attach.envFile.description": "Absolute path to a file containing environment variable definitions.",
   "reactNative.direct.attach.webkitRangeMin.description": "Start of port range to use for iOS device selection.",
   "reactNative.direct.attach.webkitRangeMax.description": "End of port range to use for iOS device selection.",
   "reactNative.direct.attach.port.description": "Port to attach to for debugging. Default for React Native Packager - 8081, for iOS Webkit Debug Proxy - 9221.",
@@ -95,5 +99,6 @@
   "reactNative.configuration.properties.react-native-tools.logLevel.description": "Logging level in extension",
   "reactNative.configuration.properties.react-native-tools.reactNativeGlobalCommandName.description": "The command name to be used to execute React Native CLI commands.",
   "reactNative.configuration.properties.react-native-tools.consoleLogsColorTheme.description": "The color theme for Network inspector logs in VS Code DevTools console",
+  "reactNative.configuration.properties.react-native-tools.displayDebuggingCommandsButton.description": "Whether to show the Debug button in the Editor Title area menu",
   "reactNative.configuration.properties.react-native-tools.showUserTips.description": "Whether to show tips about extension features"
 }

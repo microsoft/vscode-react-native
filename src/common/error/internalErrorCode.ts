@@ -18,6 +18,9 @@ export enum InternalErrorCode {
     CommandFailedWithDetails = 113,
     FailedToRunOnWindows = 114,
     FailedToRunOnMacOS = 115,
+    DebuggingCommandFailed = 116,
+    FailedToTestDevEnvironment = 117,
+    CommandCanceled = 118,
 
     // Device Deployer errors
     IOSDeployNotFound = 201,
@@ -30,6 +33,7 @@ export enum InternalErrorCode {
     FailedToStartAndroidEmulator = 305,
     TargetSelectionError = 306,
     FailedToStartIOSSimulator = 307,
+    CouldNotRecognizeTargetType = 308,
 
     // iOS Platform errors
     IOSSimulatorNotLaunchable = 401,
@@ -74,6 +78,7 @@ export enum InternalErrorCode {
     CancellationTokenTriggered = 716,
     UnknownError = 717,
     WorkspaceIsNotTrusted = 718,
+    UserInputCanceled = 719,
 
     // Activation errors
     CouldNotFindLocationOfNodeDebugger = 801,

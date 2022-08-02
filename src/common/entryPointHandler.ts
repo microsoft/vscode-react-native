@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import { ConsoleLogger } from "../extension/log/ConsoleLogger";
+import { ILogger } from "../extension/log/LogHelper";
 import { ErrorHelper } from "./error/errorHelper";
 import { InternalError } from "./error/internalError";
 import { TelemetryHelper, ICommandTelemetryProperties } from "./telemetryHelper";
 import { TelemetryGenerator } from "./telemetryGenerators";
 import { Telemetry } from "./telemetry";
-import { ConsoleLogger } from "../extension/log/ConsoleLogger";
-import { ILogger } from "../extension/log/LogHelper";
 
 export enum ProcessType {
     Extension,
@@ -50,7 +50,7 @@ export class EntryPointHandler {
         return this.handleErrors(
             error,
             TelemetryHelper.generate(taskName, extProps, codeToRun),
-            /*errorsAreFatal*/ errorsAreFatal,
+            errorsAreFatal,
         );
     }
 

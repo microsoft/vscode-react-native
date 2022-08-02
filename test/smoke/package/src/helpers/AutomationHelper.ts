@@ -17,7 +17,7 @@ const STOP = `.debug-toolbar .action-label[title*="Stop"]`;
 export default class AutomationHelper {
     constructor(private app: Application) {}
 
-    private async retryWithSpecifiedPollRetryParameters(
+    public async retryWithSpecifiedPollRetryParameters(
         func: () => Promise<any>,
         retryCount: number,
         pollRetryCount: number = 2000,
@@ -214,6 +214,25 @@ export default class AutomationHelper {
             await this.app.workbench.debug.openDebugViewlet();
             await this.app.workbench.debug.configure();
             await this.app.workbench.terminal.showTerminalWithoutNecessaryFocus();
+        };
+        const catchFunc = async () => await this.app.workbench.code.dispatchKeybinding("escape");
+        await this.retryWithSpecifiedPollRetryParameters(
+            func,
+            retryCount,
+            pollRetryCount,
+            pollRetryInterval,
+            catchFunc,
+        );
+    }
+
+    public async openDynamicDebugScenariosWithRetry(
+        retryCount: number = 3,
+        pollRetryCount: number = 10,
+        pollRetryInterval: number = 1000,
+    ): Promise<void> {
+        const func = async () => {
+            await this.app.workbench.quickaccess.openDynamicDebugScenarios("React Native...", 1);
+            await this.app.workbench.quickinput.waitForQuickInputOpened();
         };
         const catchFunc = async () => await this.app.workbench.code.dispatchKeybinding("escape");
         await this.retryWithSpecifiedPollRetryParameters(

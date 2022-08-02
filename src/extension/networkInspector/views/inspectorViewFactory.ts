@@ -19,6 +19,7 @@ export class InspectorViewFactory {
                     ),
                 );
             } else {
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 throw new Error(`Unsupported inspector view type: ${inspectorViewType}`);
             }
         }

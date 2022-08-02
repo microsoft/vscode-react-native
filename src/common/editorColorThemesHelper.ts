@@ -21,10 +21,9 @@ export class EditorColorThemesHelper {
             return currentTheme === preferredDarkColorTheme
                 ? SystemColorTheme.Dark
                 : SystemColorTheme.Light;
-        } else {
-            throw new Error(
-                "Couldn't detect the current system color theme: 'window.autoDetectColorScheme' parameter is disabled",
-            );
         }
+        throw new Error(
+            "Couldn't detect the current system color theme: 'window.autoDetectColorScheme' parameter is disabled",
+        );
     }
 }

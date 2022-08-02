@@ -716,6 +716,29 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ---------------------------------------------------------
 
+webidl-conversions 3.0.1 - BSD-2-Clause
+https://github.com/jsdom/webidl-conversions#readme
+
+Copyright (c) 2014, Domenic Denicola
+
+# The BSD 2-Clause License
+
+Copyright (c) 2014, Domenic Denicola
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+---------------------------------------------------------
+
+---------------------------------------------------------
+
 winreg 0.0.13 - BSD-2-Clause
 https://github.com/fresc81/node-winreg#readme
 
@@ -1407,7 +1430,7 @@ Apache License
 source-map 0.1.43 - BSD-3-Clause
 https://github.com/mozilla/source-map
 
-Copyright 2011 The Closure Compiler
+Copyright 2011 The Closure Compiler Authors
 Copyright 2011 Mozilla Foundation and contributors
 Copyright 2012 Mozilla Foundation and contributors
 Copyright 2014 Mozilla Foundation and contributors
@@ -1565,7 +1588,7 @@ fs.realpath 1.0.0 - ISC
 https://github.com/isaacs/fs.realpath#readme
 
 Copyright (c) Isaac Z. Schlueter and Contributors
-Copyright Joyent, Inc. and other Node contributors.
+Copyright Joyent, Inc. and other Node contributors
 
 The ISC License
 
@@ -1836,7 +1859,7 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 signal-exit 3.0.3 - ISC
 https://github.com/tapjs/signal-exit
 
-Copyright (c) 2015
+Copyright (c) 2015, Contributors
 
 The ISC License
 
@@ -1889,6 +1912,7 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 write-file-atomic 3.0.3 - ISC
 https://github.com/npm/write-file-atomic
 
+Copyright (c) 2015, Rebecca Turner
 
 Copyright (c) 2015, Rebecca Turner
 
@@ -1925,6 +1949,7 @@ asap 2.0.6 - MIT
 https://github.com/kriskowal/asap#readme
 
 Copyright 2009-2014
+Copyright 2009-2014 Contributors
 
 
 Copyright 2009–2014 Contributors. All rights reserved.
@@ -2049,6 +2074,39 @@ SOFTWARE.
 
 ---------------------------------------------------------
 
+command-exists 1.2.9 - MIT
+https://github.com/mathisonian/command-exists
+
+Copyright (c) 2014 Matthew Conlen
+
+The MIT License (MIT)
+
+Copyright (c) 2014 Matthew Conlen
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+
+---------------------------------------------------------
+
+---------------------------------------------------------
+
 concat-map 0.0.1 - MIT
 https://github.com/substack/node-concat-map
 
@@ -2106,7 +2164,7 @@ THE SOFTWARE.
 
 ---------------------------------------------------------
 
-cross-fetch 3.1.4 - MIT
+cross-fetch 3.1.5 - MIT
 https://github.com/lquixada/cross-fetch
 
 Copyright (c) 2017 Leonardo Quixada
@@ -2363,7 +2421,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 ip 1.1.5 - MIT
 https://github.com/indutny/node-ip
 
-Copyright Fedor Indutny, 2012.
+Copyright Fedor Indutny, 2012
 
 MIT License
 
@@ -2433,7 +2491,7 @@ https://github.com/microsoft/node-jsonc-parser#readme
 
 Copyright (c) Microsoft
 Copyright 2018, Microsoft
-Copyright (c) Microsoft Corporation.
+Copyright (c) Microsoft Corporation
 
 The MIT License (MIT)
 
@@ -2547,7 +2605,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ---------------------------------------------------------
 
-minimist 1.2.5 - MIT
+minimist 1.2.6 - MIT
 https://github.com/substack/minimist
 
 
@@ -2569,38 +2627,6 @@ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-mkdirp 1.0.3 - MIT
-https://github.com/isaacs/node-mkdirp#readme
-
-Copyright James Halliday (mail@substack.net) and Isaac Z. Schlueter (i@izs.me)
-
-Copyright James Halliday (mail@substack.net) and Isaac Z. Schlueter (i@izs.me)
-
-This project is free software released under the MIT license:
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
 
 
 ---------------------------------------------------------
@@ -2639,7 +2665,39 @@ THE SOFTWARE.
 
 ---------------------------------------------------------
 
-node-fetch 2.6.1 - MIT
+mkdirp 1.0.3 - MIT
+https://github.com/isaacs/node-mkdirp#readme
+
+Copyright James Halliday (mail@substack.net) and Isaac Z. Schlueter (i@izs.me)
+
+Copyright James Halliday (mail@substack.net) and Isaac Z. Schlueter (i@izs.me)
+
+This project is free software released under the MIT license:
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+
+---------------------------------------------------------
+
+---------------------------------------------------------
+
+node-fetch 2.6.7 - MIT
 https://github.com/bitinn/node-fetch
 
 Copyright (c) 2016 David Frank
@@ -2836,7 +2894,7 @@ querystring 0.2.1 - MIT
 https://github.com/Gozala/querystring#readme
 
 Copyright 2012 Irakli Gozalishvili
-Copyright Joyent, Inc. and other Node contributors.
+Copyright Joyent, Inc. and other Node contributors
 
 Copyright 2012 Irakli Gozalishvili
 
@@ -3066,6 +3124,24 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ---------------------------------------------------------
 
+tr46 0.0.3 - MIT
+https://github.com/Sebmaster/tr46.js#readme
+
+
+MIT License
+
+Copyright (c) <year> <copyright holders>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+---------------------------------------------------------
+
+---------------------------------------------------------
+
 typechecker 2.0.8 - MIT
 https://github.com/bevry/typechecker
 
@@ -3099,7 +3175,7 @@ typedarray-to-buffer 3.1.5 - MIT
 http://feross.org/
 
 Copyright (c) Feross Aboukhadijeh
-Copyright (c) Feross Aboukhadijeh (http://feross.org).
+Copyright (c) Feross Aboukhadijeh (http://feross.org)
 
 The MIT License (MIT)
 
@@ -3217,6 +3293,7 @@ uuid 8.3.2 - MIT
 https://github.com/uuidjs/uuid#readme
 
 Copyright 2011, Sebastian Tschan https://blueimp.net
+Copyright (c) 2010-2020 Robert Kieffer and other contributors
 Copyright (c) Paul Johnston 1999 - 2009 Other contributors Greg Holt, Andrew Kepert, Ydnar, Lostinet
 
 The MIT License (MIT)
@@ -3387,6 +3464,39 @@ THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
 BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
 OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+---------------------------------------------------------
+
+---------------------------------------------------------
+
+whatwg-url 5.0.0 - MIT
+https://github.com/jsdom/whatwg-url#readme
+
+(c) extraPathPercentEncodeSet.has
+Copyright (c) 2015-2016 Sebastian Mayr
+
+The MIT License (MIT)
+
+Copyright (c) 2015–2016 Sebastian Mayr
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 
 
 ---------------------------------------------------------

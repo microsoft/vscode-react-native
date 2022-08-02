@@ -5,7 +5,7 @@ pr:
 
 variables:
   vswdbotLogin: vswdbot
-  appiumVersion: 1.20.2
+  appiumVersion: 1.22.2
   expoCLIVersion: latest
   smokeTestDirectory: test/smoke
 
@@ -13,7 +13,7 @@ jobs:
   - job: macOS
     pool:
       name: "React Native smoke tests - macOS"
-    timeoutInMinutes: 90
+    timeoutInMinutes: 110
     steps:
       - checkout: self
         clean: true

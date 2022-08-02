@@ -29,19 +29,19 @@ export class SmokeTestsConstants {
     public static reloadAppCommand = "Reload App";
 
     // Timeout for macOS smoke test
-    public static macOSTestTimeout = 500 * 1000;
+    public static macOSTestTimeout = 600 * 1000;
     // Timeout for Windows smoke test
     public static windowsTestTimeout = 800 * 1000;
     // Timeout for Expo testing
-    public static expoTestTimeout = 700 * 1000;
+    public static expoTestTimeout = 750 * 1000;
     // Timeout for iOS testing
-    public static iosTestTimeout = 700 * 1000;
+    public static iosTestTimeout = 900 * 1000;
     // Timeout for Android testing
     public static androidTestTimeout = 400 * 1000;
     // Timeout for Android testing
     public static hermesTestTimeout = 15 * 60 * 1000;
     // Timeout for Network inspector testing
-    public static networkInspectorTestTimeout = 10 * 60 * 1000;
+    public static networkInspectorTestTimeout = 10 * 80 * 1000;
     // Timeout for smoke tests setup
     public static smokeTestSetupAwaitTimeout = 30 * 60 * 1000;
 

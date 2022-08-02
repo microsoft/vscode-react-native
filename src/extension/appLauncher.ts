@@ -2,33 +2,37 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as vscode from "vscode";
+import * as nls from "vscode-nls";
 import { Packager } from "../common/packager";
-import { RNPackageVersions } from "../common/projectVersionHelper";
-import { ExponentHelper } from "./exponent/exponentHelper";
-import { ReactDirManager } from "./reactDirManager";
-import { SettingsHelper } from "./settingsHelper";
-import { PackagerStatusIndicator } from "./packagerStatusIndicator";
+import { RNPackageVersions, ProjectVersionHelper } from "../common/projectVersionHelper";
 import { CommandExecutor } from "../common/commandExecutor";
 import { isNullOrUndefined } from "../common/utils";
-import { OutputChannelLogger } from "./log/OutputChannelLogger";
-import { GeneralPlatform, MobilePlatformDeps, TargetType } from "./generalPlatform";
-import { PlatformResolver } from "./platformResolver";
-import { ProjectVersionHelper } from "../common/projectVersionHelper";
+
 import { TelemetryHelper } from "../common/telemetryHelper";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { TargetPlatformHelper } from "../common/targetPlatformHelper";
-import { getNodeModulesInFolderHierarchy } from "../common/extensionHelper";
-import { ProjectsStorage } from "./projectsStorage";
+import {
+    getNodeModulesInFolderHierarchy,
+    generateRandomPortNumber,
+} from "../common/extensionHelper";
 import { ReactNativeCDPProxy } from "../cdp-proxy/reactNativeCDPProxy";
-import { generateRandomPortNumber } from "../common/extensionHelper";
-import { DEBUG_TYPES } from "./debuggingConfiguration/debugConfigTypesAndConstants";
-import * as nls from "vscode-nls";
 import { MultipleLifetimesAppWorker } from "../debugger/appWorker";
-import { PlatformType } from "./launchArgs";
+import { ProjectsStorage } from "./projectsStorage";
+import { PlatformResolver } from "./platformResolver";
+import { GeneralPlatform, MobilePlatformDeps, TargetType } from "./generalPlatform";
+import { OutputChannelLogger } from "./log/OutputChannelLogger";
+import { PackagerStatusIndicator } from "./packagerStatusIndicator";
+import { SettingsHelper } from "./settingsHelper";
+import { ReactDirManager } from "./reactDirManager";
+import { ExponentHelper } from "./exponent/exponentHelper";
+import { DEBUG_TYPES } from "./debuggingConfiguration/debugConfigTypesAndConstants";
+import { IBaseArgs, PlatformType } from "./launchArgs";
 import { LaunchScenariosManager } from "./launchScenariosManager";
 import { createAdditionalWorkspaceFolder, onFolderAdded } from "./rn-extension";
+import { RNProjectObserver } from "./rnProjectObserver";
 import { GeneralMobilePlatform } from "./generalMobilePlatform";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -36,14 +40,13 @@ nls.config({
 const localize = nls.loadMessageBundle();
 
 export class AppLauncher {
-    private readonly cdpProxyPort: number;
-    private readonly cdpProxyHostAddress: string;
+    private readonly cdpProxyPort = generateRandomPortNumber();
+    /** localhost */
+    private readonly cdpProxyHostAddress = "127.0.0.1";
 
     private appWorker: MultipleLifetimesAppWorker | null;
     private packager: Packager;
     private exponentHelper: ExponentHelper;
-    private reactDirManager: ReactDirManager;
-    private workspaceFolder: vscode.WorkspaceFolder;
     private reactNativeVersions?: RNPackageVersions;
     private rnCdpProxy: ReactNativeCDPProxy;
     private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
@@ -85,35 +88,32 @@ export class AppLauncher {
     }
 
     public static getNodeModulesRootByProjectPath(projectRootPath: string): string {
-        const appLauncher: AppLauncher = AppLauncher.getAppLauncherByProjectRootPath(
-            projectRootPath,
-        );
+        const appLauncher: AppLauncher =
+            AppLauncher.getAppLauncherByProjectRootPath(projectRootPath);
 
         return appLauncher.getOrUpdateNodeModulesRoot();
     }
 
-    constructor(reactDirManager: ReactDirManager, workspaceFolder: vscode.WorkspaceFolder) {
-        // constants definition
-        this.cdpProxyPort = generateRandomPortNumber();
-        this.cdpProxyHostAddress = "127.0.0.1"; // localhost
+    constructor(
+        private reactDirManager: ReactDirManager,
+        private projectObserver: RNProjectObserver,
+        private workspaceFolder: vscode.WorkspaceFolder,
+    ) {
+        this.debugConfigurationRoot = workspaceFolder.uri.fsPath;
 
-        const rootPath = workspaceFolder.uri.fsPath;
-        this.debugConfigurationRoot = rootPath;
-        this.launchScenariosManager = new LaunchScenariosManager(this.debugConfigurationRoot);
-        const projectRootPath = SettingsHelper.getReactNativeProjectRoot(rootPath);
-        this.exponentHelper = new ExponentHelper(rootPath, projectRootPath);
-        const packagerStatusIndicator: PackagerStatusIndicator = new PackagerStatusIndicator(
-            rootPath,
+        const projectRootPath = SettingsHelper.getReactNativeProjectRoot(
+            this.debugConfigurationRoot,
         );
+
+        this.launchScenariosManager = new LaunchScenariosManager(this.debugConfigurationRoot);
+        this.exponentHelper = new ExponentHelper(this.debugConfigurationRoot, projectRootPath);
         this.packager = new Packager(
-            rootPath,
+            this.debugConfigurationRoot,
             projectRootPath,
             SettingsHelper.getPackagerPort(workspaceFolder.uri.fsPath),
-            packagerStatusIndicator,
+            new PackagerStatusIndicator(this.debugConfigurationRoot),
         );
         this.packager.setExponentHelper(this.exponentHelper);
-        this.reactDirManager = reactDirManager;
-        this.workspaceFolder = workspaceFolder;
         this.rnCdpProxy = new ReactNativeCDPProxy(this.cdpProxyHostAddress, this.cdpProxyPort);
     }
 
@@ -172,7 +172,7 @@ export class AppLauncher {
         return this.mobilePlatform;
     }
 
-    public getOrUpdateNodeModulesRoot(forceUpdate: boolean = false): string {
+    public getOrUpdateNodeModulesRoot(forceUpdate = false): string {
         if (!this.nodeModulesRoot || forceUpdate) {
             const nodeModulesRootPath: string | null = getNodeModulesInFolderHierarchy(
                 this.packager.getProjectPath(),
@@ -186,19 +186,20 @@ export class AppLauncher {
 
             this.nodeModulesRoot = nodeModulesRootPath;
         }
-        return <string>this.nodeModulesRoot;
+
+        return this.nodeModulesRoot as string;
     }
 
     public dispose(): void {
         this.packager.getStatusIndicator().dispose();
-        this.packager.stop(true);
+        void this.packager.stop(true);
         this.mobilePlatform.dispose();
     }
 
     public async openFileAtLocation(filename: string, lineNumber: number): Promise<void> {
         const document = await vscode.workspace.openTextDocument(vscode.Uri.file(filename));
         const editor = await vscode.window.showTextDocument(document);
-        let range = editor.document.lineAt(lineNumber - 1).range;
+        const range = editor.document.lineAt(lineNumber - 1).range;
         editor.selection = new vscode.Selection(range.start, range.end);
         editor.revealRange(range, vscode.TextEditorRevealType.InCenter);
     }
@@ -207,8 +208,25 @@ export class AppLauncher {
         return SettingsHelper.getPackagerPort(projectFolder);
     }
 
+    public prepareBaseRunOptions(args: any): IBaseArgs {
+        const workspaceFolder: vscode.WorkspaceFolder = <vscode.WorkspaceFolder>(
+            vscode.workspace.getWorkspaceFolder(vscode.Uri.file(args.cwd || args.program))
+        );
+        const baseRunOptions: IBaseArgs = {
+            platform: args.platform,
+            workspaceRoot: workspaceFolder.uri.fsPath,
+            projectRoot: this.getProjectRoot(args),
+            env: args.env,
+            envFile: args.envFile,
+            nodeModulesRoot: this.getOrUpdateNodeModulesRoot(),
+            isDirect: args.type === DEBUG_TYPES.REACT_NATIVE_DIRECT,
+            packagerPort: SettingsHelper.getPackagerPort(args.cwd || args.program),
+        };
+        return baseRunOptions;
+    }
+
     public async launch(launchArgs: any): Promise<any> {
-        let mobilePlatformOptions = this.requestSetup(launchArgs);
+        const mobilePlatformOptions = this.requestSetup(launchArgs);
 
         // We add the parameter if it's defined (adapter crashes otherwise)
         if (!isNullOrUndefined(launchArgs.logCatArguments)) {
@@ -233,16 +251,9 @@ export class AppLauncher {
             mobilePlatformOptions.debugLaunchActivity = launchArgs.launchActivity;
         }
 
-        if (launchArgs.type === DEBUG_TYPES.REACT_NATIVE_DIRECT) {
-            mobilePlatformOptions.isDirect = true;
-        }
-
-        mobilePlatformOptions.packagerPort = SettingsHelper.getPackagerPort(
-            launchArgs.cwd || launchArgs.program,
-        );
-
         const platformDeps: MobilePlatformDeps = {
             packager: this.packager,
+            projectObserver: this.projectObserver,
         };
         this.mobilePlatform = new PlatformResolver().resolveMobilePlatform(
             launchArgs.platform,
@@ -265,10 +276,11 @@ export class AppLauncher {
         }
 
         try {
-            const versions = await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
-                mobilePlatformOptions.nodeModulesRoot,
-                ProjectVersionHelper.generateAdditionalPackagesToCheckByPlatform(launchArgs),
-            );
+            const versions =
+                await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
+                    mobilePlatformOptions.nodeModulesRoot,
+                    ProjectVersionHelper.generateAdditionalPackagesToCheckByPlatform(launchArgs),
+                );
             mobilePlatformOptions.reactNativeVersions = versions;
             extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(
                 launchArgs,
@@ -426,17 +438,10 @@ export class AppLauncher {
         const workspaceFolder: vscode.WorkspaceFolder = <vscode.WorkspaceFolder>(
             vscode.workspace.getWorkspaceFolder(vscode.Uri.file(args.cwd || args.program))
         );
-        const projectRootPath = this.getProjectRoot(args);
-        let mobilePlatformOptions: any = {
-            workspaceRoot: workspaceFolder.uri.fsPath,
-            projectRoot: projectRootPath,
-            platform: args.platform,
-            env: args.env,
-            envFile: args.envFile,
-            target: args.target || "simulator",
-            enableDebug: args.enableDebug,
-            nodeModulesRoot: this.getOrUpdateNodeModulesRoot(),
-        };
+        const mobilePlatformOptions: any = Object.assign(
+            { target: args.target, enableDebug: args.enableDebug },
+            this.prepareBaseRunOptions(args),
+        );
 
         if (args.platform === PlatformType.Exponent) {
             mobilePlatformOptions.expoHostType = args.expoHostType || "lan";
@@ -449,7 +454,7 @@ export class AppLauncher {
         );
 
         if (!args.runArguments) {
-            let runArgs = SettingsHelper.getRunArgs(
+            const runArgs = SettingsHelper.getRunArgs(
                 args.platform,
                 args.target || "simulator",
                 workspaceFolder.uri,
@@ -458,7 +463,6 @@ export class AppLauncher {
         } else {
             mobilePlatformOptions.runArguments = args.runArguments;
         }
-
         return mobilePlatformOptions;
     }
 

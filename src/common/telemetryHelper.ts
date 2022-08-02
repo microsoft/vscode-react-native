@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import { IRunOptions, PlatformType } from "../extension/launchArgs";
 import { Telemetry } from "./telemetry";
 import { TelemetryGenerator, IHasErrorCode } from "./telemetryGenerators";
-import { IRunOptions, PlatformType } from "../extension/launchArgs";
 import { ProjectVersionHelper, RNPackageVersions } from "./projectVersionHelper";
 import { ErrorHelper } from "./error/errorHelper";
 import { InternalErrorCode } from "./error/internalErrorCode";
@@ -112,7 +112,7 @@ export class TelemetryHelper {
             return;
         }
 
-        Object.keys(properties).forEach(function (propertyName: string): void {
+        Object.keys(properties).forEach((propertyName: string): void => {
             TelemetryHelper.addTelemetryEventProperty(
                 event,
                 propertyName,
@@ -141,7 +141,7 @@ export class TelemetryHelper {
         commandProperties: ICommandTelemetryProperties,
         args: string[] = [],
     ): void {
-        let successEvent: Telemetry.TelemetryEvent = TelemetryHelper.createBasicCommandTelemetry(
+        const successEvent: Telemetry.TelemetryEvent = TelemetryHelper.createBasicCommandTelemetry(
             commandName,
             args,
         );
@@ -175,7 +175,7 @@ export class TelemetryHelper {
         errorDescription?: string,
         errorPropPrefix: string = "",
     ): void {
-        let errorWithErrorCode: IHasErrorCode = <IHasErrorCode>(<Record<string, any>>error);
+        const errorWithErrorCode: IHasErrorCode = <IHasErrorCode>(<Record<string, any>>error);
         if (errorWithErrorCode.errorCode) {
             this.addTelemetryEventProperty(
                 event,
@@ -208,26 +208,25 @@ export class TelemetryHelper {
         nonPiiOptions: string[] = [],
     ): ICommandTelemetryProperties {
         // We parse only the known options, to avoid potential private information that may appear on the command line
-        let unknownOptionIndex: number = 1;
+        let unknownOptionIndex = 1;
         Object.keys(commandOptions).forEach((key: string) => {
-            let value: any = commandOptions[key];
-            if (Object.keys(knownOptions).indexOf(key) >= 0) {
+            const value: any = commandOptions[key];
+            if (Object.keys(knownOptions).includes(key)) {
                 // This is a known option. We"ll check the list to decide if it"s pii or not
                 if (typeof value !== "undefined") {
                     // We encrypt all options values unless they are specifically marked as nonPii
-                    telemetryProperties["options." + key] = this.telemetryProperty(
+                    telemetryProperties[`options.${key}`] = this.telemetryProperty(
                         value,
-                        nonPiiOptions.indexOf(key) < 0,
+                        !nonPiiOptions.includes(key),
                     );
                 }
             } else {
                 // This is a not known option. We"ll assume that both the option and the value are pii
-                telemetryProperties[
-                    "unknownOption" + unknownOptionIndex + ".name"
-                ] = this.telemetryProperty(key, /*isPii*/ true);
-                telemetryProperties[
-                    "unknownOption" + unknownOptionIndex++ + ".value"
-                ] = this.telemetryProperty(value, /*isPii*/ true);
+                telemetryProperties[`unknownOption${unknownOptionIndex}.name`] =
+                    this.telemetryProperty(key, /* isPii*/ true);
+                telemetryProperties[`unknownOption${unknownOptionIndex}.value`] =
+                    this.telemetryProperty(value, /* isPii*/ true);
+                unknownOptionIndex++;
             }
         });
         return telemetryProperties;
@@ -238,7 +237,7 @@ export class TelemetryHelper {
         extendedParamsToSend: ICommandTelemetryProperties = {},
         codeGeneratingTelemetry: { (telemetry: TelemetryGenerator): Promise<T> | T },
     ): Promise<T> {
-        let generator: TelemetryGenerator = new TelemetryGenerator(name, extendedParamsToSend);
+        const generator: TelemetryGenerator = new TelemetryGenerator(name, extendedParamsToSend);
         return generator
             .time("", () => codeGeneratingTelemetry(generator))
             .finally(() => generator.send());
@@ -248,7 +247,7 @@ export class TelemetryHelper {
         commandName: string,
         args: string[] = [],
     ): Telemetry.TelemetryEvent {
-        let commandEvent: Telemetry.TelemetryEvent = new Telemetry.TelemetryEvent(
+        const commandEvent: Telemetry.TelemetryEvent = new Telemetry.TelemetryEvent(
             commandName || "command",
         );
 
@@ -282,10 +281,10 @@ export class TelemetryHelper {
         propertyValue: any,
         isPii: boolean,
     ): void {
-        for (let i: number = 0; i < propertyValue.length; i++) {
+        for (let i = 0; i < propertyValue.length; i++) {
             TelemetryHelper.setTelemetryEventProperty(
                 event,
-                propertyName + i,
+                propertyName + String(i),
                 propertyValue[i],
                 isPii,
             );

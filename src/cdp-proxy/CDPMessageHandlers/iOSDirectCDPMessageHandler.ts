@@ -27,7 +27,7 @@ export class IOSDirectCDPMessageHandler extends BaseCDPMessageHandler {
     }
 
     public processDebuggerCDPMessage(event: any): ProcessedCDPMessage {
-        let sendBack = false;
+        const sendBack = false;
         if (!this.isBackcompatConfigured && event.method === CDP_API_NAMES.RUNTIME_ENABLE) {
             this.configureTargetForIWDPCommunication();
             this.configureDebuggerForIWDPCommunication();
@@ -103,7 +103,7 @@ export class IOSDirectCDPMessageHandler extends BaseCDPMessageHandler {
         params: any = {},
         addMessageId: boolean = true,
     ): void {
-        let request: any = {
+        const request: any = {
             method,
             params,
         };

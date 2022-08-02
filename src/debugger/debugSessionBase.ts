@@ -1,20 +1,23 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as vscode from "vscode";
 import * as path from "path";
+import * as vscode from "vscode";
 import { LoggingDebugSession, Logger, logger, ErrorDestination } from "vscode-debugadapter";
 import { DebugProtocol } from "vscode-debugprotocol";
-import { getLoggingDirectory, LogHelper } from "../extension/log/LogHelper";
+import * as nls from "vscode-nls";
+import { getLoggingDirectory, LogHelper, LogLevel } from "../extension/log/LogHelper";
 import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { InternalError, NestedError } from "../common/error/internalError";
-import { IRunOptions, PlatformType } from "../extension/launchArgs";
+import { ILaunchArgs, IRunOptions, PlatformType } from "../extension/launchArgs";
 import { AppLauncher } from "../extension/appLauncher";
-import { LogLevel } from "../extension/log/LogHelper";
-import * as nls from "vscode-nls";
+import { RNPackageVersions } from "../common/projectVersionHelper";
 import { SettingsHelper } from "../extension/settingsHelper";
+import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
+import { RNSession } from "./debugSessionWrapper";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -37,6 +40,10 @@ export enum DebugSessionStatus {
     ConnectionDone,
     /** A debuggee failed to connect */
     ConnectionFailed,
+    /** The session is handling disconnect request now */
+    Stopping,
+    /** The session is stopped */
+    Stopped,
 }
 
 export interface TerminateEventArgs {
@@ -66,11 +73,13 @@ export interface ILaunchRequestArgs
         IAttachRequestArgs {}
 
 export abstract class DebugSessionBase extends LoggingDebugSession {
-    protected static rootSessionTerminatedEventEmitter: vscode.EventEmitter<TerminateEventArgs> = new vscode.EventEmitter<TerminateEventArgs>();
+    protected static rootSessionTerminatedEventEmitter: vscode.EventEmitter<TerminateEventArgs> =
+        new vscode.EventEmitter<TerminateEventArgs>();
     public static readonly onDidTerminateRootDebugSession =
         DebugSessionBase.rootSessionTerminatedEventEmitter.event;
 
     protected readonly stopCommand: string;
+    protected readonly terminateCommand: string;
     protected readonly pwaNodeSessionName: string;
 
     protected appLauncher: AppLauncher;
@@ -79,21 +88,26 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
     protected previousAttachArgs: IAttachRequestArgs;
     protected cdpProxyLogLevel: LogLevel;
     protected debugSessionStatus: DebugSessionStatus;
-    protected session: vscode.DebugSession;
+    protected nodeSession: vscode.DebugSession | null;
+    protected rnSession: RNSession;
+    protected vsCodeDebugSession: vscode.DebugSession;
     protected cancellationTokenSource: vscode.CancellationTokenSource;
 
-    constructor(session: vscode.DebugSession) {
+    constructor(rnSession: RNSession) {
         super();
 
         // constants definition
         this.pwaNodeSessionName = "pwa-node"; // the name of node debug session created by js-debug extension
         this.stopCommand = "workbench.action.debug.stop"; // the command which simulates a click on the "Stop" button
+        this.terminateCommand = "terminate"; // the "terminate" command is sent from the client to the debug adapter in order to give the debuggee a chance for terminating itself
 
         // variables definition
-        this.session = session;
+        this.rnSession = rnSession;
+        this.vsCodeDebugSession = rnSession.vsCodeDebugSession;
         this.isSettingsInitialized = false;
         this.debugSessionStatus = DebugSessionStatus.FirstConnection;
         this.cancellationTokenSource = new vscode.CancellationTokenSource();
+        this.nodeSession = null;
     }
 
     protected initializeRequest(
@@ -163,9 +177,9 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
             this.projectRootPath = projectRootPath;
             this.isSettingsInitialized = true;
             this.appLauncher.getOrUpdateNodeModulesRoot(true);
-            if (this.session.workspaceFolder) {
+            if (this.vsCodeDebugSession.workspaceFolder) {
                 this.appLauncher.updateDebugConfigurationRoot(
-                    this.session.workspaceFolder.uri.fsPath,
+                    this.vsCodeDebugSession.workspaceFolder.uri.fsPath,
                 );
             }
         }
@@ -199,10 +213,11 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
             }
         }
 
+        this.debugSessionStatus = DebugSessionStatus.Stopped;
         await logger.dispose();
 
         DebugSessionBase.rootSessionTerminatedEventEmitter.fire({
-            debugSession: this.session,
+            debugSession: this.vsCodeDebugSession,
             args: {
                 forcedStop: !!(<any>args).forcedStop,
             },
@@ -211,7 +226,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         this.sendResponse(response);
     }
 
-    protected showError(error: Error, response: DebugProtocol.Response): void {
+    protected terminateWithErrorResponse(error: Error, response: DebugProtocol.Response): void {
         // We can't print error messages after the debugging session is stopped. This could break the extension work.
         if (
             (error instanceof InternalError || error instanceof NestedError) &&
@@ -229,5 +244,37 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
             undefined,
             ErrorDestination.User,
         );
+    }
+
+    protected async preparePackagerBeforeAttach(
+        args: IAttachRequestArgs,
+        reactNativeVersions: RNPackageVersions,
+    ): Promise<void> {
+        if (!(await this.appLauncher.getPackager().isRunning())) {
+            const runOptions: ILaunchArgs = Object.assign(
+                { reactNativeVersions },
+                this.appLauncher.prepareBaseRunOptions(args),
+            );
+            this.appLauncher.getPackager().setRunOptions(runOptions);
+            await this.appLauncher.getPackager().start();
+        }
+    }
+
+    protected showError(error: Error): void {
+        void vscode.window.showErrorMessage(error.message, {
+            modal: true,
+        });
+        // We can't print error messages via debug session logger after the session is stopped. This could break the extension work.
+        if (this.debugSessionStatus === DebugSessionStatus.Stopped) {
+            OutputChannelLogger.getMainChannel().error(error.message);
+            return;
+        }
+        logger.error(error.message);
+    }
+
+    protected async terminate(): Promise<void> {
+        await vscode.commands.executeCommand(this.stopCommand, undefined, {
+            sessionId: this.vsCodeDebugSession.id,
+        });
     }
 }

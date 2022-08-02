@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { AdbHelper } from "./adb";
 import * as path from "path";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
+import { AdbHelper } from "./adb";
 
 const allowedAppNameRegex = /^[\w.-]+$/;
 const appNotApplicationRegex = /not an application/;
@@ -135,14 +135,14 @@ function validateAppName(app: string): Promise<string> {
 }
 
 function validateFilePath(filePath: string): Promise<string> {
-    if (!filePath.match(/[']/)) {
+    if (!filePath.match(/'/)) {
         return Promise.resolve(filePath);
     }
     return Promise.reject(new Error(`Disallowed escaping filepath: ${filePath}`));
 }
 
 function validateFileContent(content: string): Promise<string> {
-    if (!content.match(/["]/)) {
+    if (!content.match(/"/)) {
         return Promise.resolve(content);
     }
     return Promise.reject(new Error(`Disallowed escaping file content: ${content}`));

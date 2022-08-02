@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 import * as nls from "vscode-nls";
 import { InternalErrorCode } from "./internalErrorCode";
+
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
@@ -9,6 +10,10 @@ nls.config({
 const localize = nls.loadMessageBundle();
 
 export const ERROR_STRINGS = {
+    [InternalErrorCode.CommandCanceled]: localize(
+        "CommandCanceled",
+        "Command '{0}' was canceled by the user",
+    ),
     [InternalErrorCode.CommandFailed]: localize(
         "CommandFailed",
         "Error while executing command '{0}'",
@@ -16,6 +21,10 @@ export const ERROR_STRINGS = {
     [InternalErrorCode.CommandFailedWithDetails]: localize(
         "CommandFailed",
         "Error while executing command '{0}'.\nDetails: {1}",
+    ),
+    [InternalErrorCode.DebuggingCommandFailed]: localize(
+        "DebuggingCommandFailed",
+        "Error while executing debugging command '{0}'",
     ),
     [InternalErrorCode.CommandFailedWithErrorCode]: localize(
         "CommandFailedWithErrorCode",
@@ -316,11 +325,11 @@ export const ERROR_STRINGS = {
     ),
     [InternalErrorCode.FailedToStartAndroidEmulator]: localize(
         "FailedToStartAndroidEmulator",
-        'The command "emulator -avd {0}" threw an exception: {1}',
+        "An error occurred while starting the Android emulator",
     ),
     [InternalErrorCode.FailedToStartIOSSimulator]: localize(
         "FailedToStartIOSSimulator",
-        'The command "xrun simctl boot {0}" threw an exception: {1}',
+        "An error occurred while starting the iOS simulator",
     ),
     [InternalErrorCode.AndroidThereIsNoAnyOnlineDebuggableTarget]: localize(
         "AndroidThereIsNoAnyOnlineDebuggableTarget",
@@ -333,6 +342,10 @@ export const ERROR_STRINGS = {
     [InternalErrorCode.TargetSelectionError]: localize(
         "TargetSelectionError",
         "The target launch finished with an exception: {0}",
+    ),
+    [InternalErrorCode.CouldNotRecognizeTargetType]: localize(
+        "CouldNotRecognizeTargetType",
+        "Could not recognize type of the target {0}",
     ),
     [InternalErrorCode.ReactNativemacOSIsNotInstalled]: localize(
         "ReactNativemacOSIsNotInstalled",
@@ -361,5 +374,13 @@ export const ERROR_STRINGS = {
     [InternalErrorCode.CouldNotStopNetworkInspector]: localize(
         "ErrorWhileStopNetworkInspector",
         "Error while stopping Network inspector",
+    ),
+    [InternalErrorCode.FailedToTestDevEnvironment]: localize(
+        "ErrorWhileCheckingDevEnvironment",
+        "Error while checking development environment configuration",
+    ),
+    [InternalErrorCode.UserInputCanceled]: localize(
+        "UserInputCanceled",
+        "User canceled data entry",
     ),
 };

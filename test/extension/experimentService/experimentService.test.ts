@@ -6,7 +6,7 @@ import {
     ExperimentConfig,
     ExperimentStatuses,
     ExperimentResult,
-} from "../../../src/extension/experimentService/experimentService";
+} from "../../../src/extension/services/experimentService/experimentService";
 import * as Configstore from "configstore";
 import * as assert from "assert";
 
@@ -53,7 +53,8 @@ suite("experimentService", function () {
             expConfig: ExperimentConfig,
         ) {
             experimentService.downloadedExperimentsConfig = [expConfig];
-            experimentService.experimentsInstances = await experimentService.initializeExperimentsInstances();
+            experimentService.experimentsInstances =
+                await experimentService.initializeExperimentsInstances();
         }
 
         teardown(() => {

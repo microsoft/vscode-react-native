@@ -1,17 +1,17 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { logger } from "vscode-debugadapter";
-import { ensurePackagerRunning } from "../common/packagerStatus";
 import path = require("path");
-import { Request } from "../common/node/request";
-import { SourceMapUtil } from "./sourceMap";
 import url = require("url");
+import { logger } from "vscode-debugadapter";
 import * as semver from "semver";
+import { Request } from "../common/node/request";
+import { ensurePackagerRunning } from "../common/packagerStatus";
 import { ProjectVersionHelper } from "../common/projectVersionHelper";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { FileSystem } from "../common/node/fileSystem";
+import { SourceMapUtil } from "./sourceMap";
 
 export interface DownloadedScript {
     contents: string;
@@ -25,7 +25,11 @@ interface IStrictUrl extends url.Url {
 
 export class ScriptImporter {
     public static DEBUGGER_WORKER_FILE_BASENAME = "debuggerWorker";
-    public static DEBUGGER_WORKER_FILENAME = ScriptImporter.DEBUGGER_WORKER_FILE_BASENAME + ".js";
+    public static DEBUGGER_WORKER_FILENAME = `${ScriptImporter.DEBUGGER_WORKER_FILE_BASENAME}.js`;
+
+    private static readonly REMOVE_SOURCE_URL_VERSION = "0.61.0";
+    private static readonly DEBUGGER_UI_SUPPORTED_VERSION = "0.50.0";
+
     private packagerAddress: string;
     private packagerPort: number;
     private sourcesStoragePath: string;
@@ -66,20 +70,20 @@ export class ScriptImporter {
         // https://github.com/facebook/metro/issues/147
         // https://github.com/microsoft/vscode-react-native/issues/660
         if (
-            ProjectVersionHelper.getRNVersionsWithBrokenMetroBundler().indexOf(
+            ProjectVersionHelper.getRNVersionsWithBrokenMetroBundler().includes(
                 rnVersions.reactNativeVersion,
-            ) >= 0
+            )
         ) {
-            let noSourceMappingUrlGenerated = scriptBody.match(/sourceMappingURL=/g) === null;
+            const noSourceMappingUrlGenerated = scriptBody.match(/sourceMappingURL=/g) === null;
             if (noSourceMappingUrlGenerated) {
-                let sourceMapPathUrl = overriddenScriptUrlString.replace("bundle", "map");
+                const sourceMapPathUrl = overriddenScriptUrlString.replace("bundle", "map");
                 scriptBody = this.sourceMapUtil.appendSourceMapPaths(scriptBody, sourceMapPathUrl);
             }
         }
 
         // Extract sourceMappingURL from body
-        let scriptUrl = <IStrictUrl>url.parse(overriddenScriptUrlString); // scriptUrl = "http://localhost:8081/index.ios.bundle?platform=ios&dev=true"
-        let sourceMappingUrl = this.sourceMapUtil.getSourceMapURL(scriptUrl, scriptBody); // sourceMappingUrl = "http://localhost:8081/index.ios.map?platform=ios&dev=true"
+        const scriptUrl = <IStrictUrl>url.parse(overriddenScriptUrlString); // scriptUrl = "http://localhost:8081/index.ios.bundle?platform=ios&dev=true"
+        const sourceMappingUrl = this.sourceMapUtil.getSourceMapURL(scriptUrl, scriptBody); // sourceMappingUrl = "http://localhost:8081/index.ios.map?platform=ios&dev=true"
 
         let waitForSourceMapping: Promise<void> = Promise.resolve();
         if (sourceMappingUrl) {
@@ -89,7 +93,13 @@ export class ScriptImporter {
                     scriptBody,
                     <IStrictUrl>sourceMappingUrl,
                 );
-                if (semver.gte(rnVersions.reactNativeVersion, "0.61.0")) {
+                if (
+                    semver.gte(
+                        rnVersions.reactNativeVersion,
+                        ScriptImporter.REMOVE_SOURCE_URL_VERSION,
+                    ) ||
+                    ProjectVersionHelper.isCanaryVersion(rnVersions.reactNativeVersion)
+                ) {
                     scriptBody = this.sourceMapUtil.removeSourceURL(scriptBody);
                 }
             });
@@ -113,17 +123,15 @@ export class ScriptImporter {
         await ensurePackagerRunning(this.packagerAddress, this.packagerPort, errPackagerNotRunning);
 
         const rnVersions = await ProjectVersionHelper.getReactNativeVersions(projectRootPath);
-        let debuggerWorkerURL = this.prepareDebuggerWorkerURL(
+        const debuggerWorkerURL = this.prepareDebuggerWorkerURL(
             rnVersions.reactNativeVersion,
             debuggerWorkerUrlPath,
         );
-        let debuggerWorkerLocalPath = path.join(
+        const debuggerWorkerLocalPath = path.join(
             sourcesStoragePath,
             ScriptImporter.DEBUGGER_WORKER_FILENAME,
         );
-        logger.verbose(
-            "About to download: " + debuggerWorkerURL + " to: " + debuggerWorkerLocalPath,
-        );
+        logger.verbose(`About to download: ${debuggerWorkerURL} to: ${debuggerWorkerLocalPath}`);
 
         const body = await Request.request(debuggerWorkerURL, true);
 
@@ -140,8 +148,9 @@ export class ScriptImporter {
             if (
                 !semver.valid(
                     rnVersion,
-                ) /*Custom RN implementations should support new packager*/ ||
-                semver.gte(rnVersion, "0.50.0")
+                ) /* Custom RN implementations should support new packager*/ ||
+                semver.gte(rnVersion, ScriptImporter.DEBUGGER_UI_SUPPORTED_VERSION) ||
+                ProjectVersionHelper.isCanaryVersion(rnVersion)
             ) {
                 newPackager = "debugger-ui/";
             }
@@ -154,7 +163,10 @@ export class ScriptImporter {
      * Writes the script file to the project temporary location.
      */
     private async writeAppScript(scriptBody: string, scriptUrl: IStrictUrl): Promise<string> {
-        let scriptFilePath = path.join(this.sourcesStoragePath, path.basename(scriptUrl.pathname)); // scriptFilePath = "$TMPDIR/index.ios.bundle"
+        const scriptFilePath = path.join(
+            this.sourcesStoragePath,
+            path.basename(scriptUrl.pathname),
+        ); // scriptFilePath = "$TMPDIR/index.ios.bundle"
         await new FileSystem().writeFile(scriptFilePath, scriptBody);
         return scriptFilePath;
     }
@@ -167,12 +179,12 @@ export class ScriptImporter {
         scriptUrl: IStrictUrl,
     ): Promise<void> {
         const sourceMapBody = await Request.request(sourceMapUrl.href, true);
-        let sourceMappingLocalPath = path.join(
+        const sourceMappingLocalPath = path.join(
             this.sourcesStoragePath,
             path.basename(sourceMapUrl.pathname),
         ); // sourceMappingLocalPath = "$TMPDIR/index.ios.map"
-        let scriptFileRelativePath = path.basename(scriptUrl.pathname); // scriptFileRelativePath = "index.ios.bundle"
-        let updatedContent = this.sourceMapUtil.updateSourceMapFile(
+        const scriptFileRelativePath = path.basename(scriptUrl.pathname); // scriptFileRelativePath = "index.ios.bundle"
+        const updatedContent = this.sourceMapUtil.updateSourceMapFile(
             sourceMapBody,
             scriptFileRelativePath,
             this.sourcesStoragePath,
@@ -186,7 +198,7 @@ export class ScriptImporter {
      * Changes the port of the url to be the one configured as this.packagerPort
      */
     private overridePackagerPort(urlToOverride: string): string {
-        let components = url.parse(urlToOverride);
+        const components = url.parse(urlToOverride);
         components.port = this.packagerPort.toString();
         delete components.host; // We delete the host, if not the port change will be ignored
         return url.format(components);
