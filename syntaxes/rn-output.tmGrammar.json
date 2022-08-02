@@ -5,7 +5,7 @@
             "include": "#executing"
         },
         {
-            "include": "#build-succes"
+            "include": "#build-success"
         },
         {
             "include": "#build-failed"
@@ -269,7 +269,7 @@
             "match": "^\\s*((>+)|([Ee]xec(ute)?)|([Ee]xport)|([Tt]ask))\\s.*$",
             "name": "markup.inserted rnt.output.process"
         },
-        "build-succes": {
+        "build-success": {
             "match": "^.*BUILD SUCCE(EDED|SSFULL?).*$",
             "name": "markup.bold rnt.output.success"
         },
