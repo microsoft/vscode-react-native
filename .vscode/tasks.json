@@ -4,9 +4,11 @@
         {
             "label": "prepare-smoke-tests",
             "type": "process",
-            "command": ["yarn"],
+            "command": [
+                "yarn"
+            ],
             "windows": {
-                "command": "yarn.cmd",
+                "command": "yarn.cmd"
             },
             "args": [
                 "prepare-smoke-tests"
@@ -18,41 +20,17 @@
                 "panel": "shared",
                 "showReuseMessage": false,
                 "clear": false
-            },
+            }
         },
         {
             "label": "compile-smoke-tests",
             "type": "process",
-            "command": ["./node_modules/.bin/tsc"],
-            "windows": {
-                "command": ".\\node_modules\\.bin\\tsc.cmd",
-            },
-            "options": {
-                "cwd": "${workspaceRoot}/test/smoke/vscode/test/smoke"
-            },
-            "presentation": {
-                "echo": true,
-                "reveal": "silent",
-                "focus": false,
-                "panel": "shared",
-                "showReuseMessage": false,
-                "clear": false
-            },
-        },
-        {
-            "label": "tslint-smoke-tests",
-            "type": "process",
-            "command": ["./node_modules/.bin/tslint"],
-            "windows": {
-                "command": ".\\node_modules\\.bin\\tslint.cmd",
-            },
-            "args": [
-                "-c",
-                "tslint.json",
-                "--project",
-                "tsconfig.json",
-                "'src/**'",
+            "command": [
+                "./node_modules/.bin/tsc"
             ],
+            "windows": {
+                "command": ".\\node_modules\\.bin\\tsc.cmd"
+            },
             "options": {
                 "cwd": "${workspaceRoot}/test/smoke/vscode/test/smoke"
             },
@@ -67,11 +45,23 @@
         },
         {
             "label": "Prepare Smoke Tests",
-            "dependsOn": ["prepare-smoke-tests"]
+            "dependsOn": [
+                "prepare-smoke-tests"
+            ]
         },
         {
             "label": "Build Smoke Tests",
-            "dependsOn": ["tslint-smoke-tests", "compile-smoke-tests"]
+            "dependsOn": [
+                "compile-smoke-tests"
+            ]
+        },
+        {
+            "type": "npm",
+            "script": "build",
+            "group": "build",
+            "problemMatcher": [],
+            "label": "gulp: build",
+            "detail": "gulp build"
         }
-    ],
+    ]
 }

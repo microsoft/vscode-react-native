@@ -8,10 +8,11 @@ console.log('Test output from debuggee');
  */
 
 import React from 'react';
-import { SafeAreaView, StyleSheet, ScrollView, View, Text, StatusBar } from 'react-native';
+import { SafeAreaView, StyleSheet, ScrollView, View, Text, StatusBar, NativeModules } from 'react-native';
 import { Header, LearnMoreLinks, Colors, DebugInstructions, ReloadInstructions } from 'react-native/Libraries/NewAppScreen';
 
 const App: () => React$Node = () => {
+  NativeModules.DevSettings.setIsDebuggingRemotely(true);
   return (
     <>
       <StatusBar barStyle="dark-content" />

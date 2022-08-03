@@ -7,40 +7,85 @@
       "type": "reactnative",
       "request": "launch",
       "platform": "android",
-      "target": "simulator"
+      "trace": "verbose"
     },
     {
-      "name": "Debug Android (Hermes) - Experimental",
+      "name": "Debug RN Wind",
+      "cwd": "${workspaceFolder}",
+      "type": "reactnative",
+      "request": "launch",
+      "platform": "windows",
+      "trace": "verbose"
+    },
+    {
+      "name": "Debug RN Wind Hermes - Experimental",
       "cwd": "${workspaceFolder}",
       "type": "reactnativedirect",
       "request": "launch",
-      "platform": "android"
+      "platform": "windows"
     },
+    {
+      "name": "Debug iOS Hermes - Experimental",
+      "cwd": "${workspaceFolder}",
+      "type": "reactnativedirect",
+      "request": "launch",
+      "platform": "ios",
+      "trace": "verbose"
+    },
+    {
+      "name": "Debug Android Hermes - Experimental",
+      "cwd": "${workspaceFolder}",
+      "type": "reactnativedirect",
+      "request": "launch",
+      "platform": "android",
+      "trace": "verbose"
+    },
+    {
+      "name": "Run iOS Hermes - Experimental",
+      "request": "launch",
+      "type": "reactnativedirect",
+      "cwd": "${workspaceFolder}",
+      "enableDebug": false,
+      "platform": "ios"
+  },
+  {
+      "name": "Run Android Hermes - Experimental",
+      "request": "launch",
+      "type": "reactnativedirect",
+      "cwd": "${workspaceFolder}",
+      "enableDebug": false,
+      "platform": "android"
+  },
     {
       "name": "Attach to Hermes application - Experimental",
       "cwd": "${workspaceFolder}",
       "type": "reactnativedirect",
-      "request": "attach"
+      "request": "attach",
+      "trace": "verbose"
     },
     {
-      "name": "Debug iOS",
+      "name": "Debug classic iOS",
       "cwd": "${workspaceFolder}",
       "type": "reactnative",
       "request": "launch",
-      "platform": "ios"
+      "platform": "ios",
+      "trace": "verbose"
     },
     {
       "name": "Attach to packager",
       "cwd": "${workspaceFolder}",
       "type": "reactnative",
-      "request": "attach"
+      "request": "attach",
+      "trace": "verbose"
     },
     {
-      "name": "Debug in Exponent",
+      "name": "Debug in Exponent (Tunnel)",
       "cwd": "${workspaceFolder}",
       "type": "reactnative",
       "request": "launch",
-      "platform": "exponent"
+      "platform": "exponent",
+      "expoHostType": "tunnel",
+      "trace": "verbose"
     },
     {
       "name": "Debug in Exponent (LAN)",
@@ -48,7 +93,7 @@
       "type": "reactnative",
       "request": "launch",
       "platform": "exponent",
-      "expoHostType": "lan"
+      "trace": "verbose"
     },
     {
       "name": "Debug in Exponent (Local)",
@@ -56,7 +101,24 @@
       "type": "reactnative",
       "request": "launch",
       "platform": "exponent",
-      "expoHostType": "local"
+      "expoHostType": "local",
+      "trace": "verbose"
+    },
+    {
+      "name": "Debug macOS",
+      "cwd": "${workspaceFolder}",
+      "type": "reactnative",
+      "request": "launch",
+      "platform": "macos",
+      "trace": "verbose"
+    },
+    {
+      "name": "Debug macOS Hermes - Experimental",
+      "request": "launch",
+      "type": "reactnativedirect",
+      "cwd": "${workspaceFolder}",
+      "platform": "macos",
+      "trace": "verbose"
     }
   ]
 }

@@ -18,7 +18,7 @@ suite("LaunchScenarioManager", function () {
                 type: "reactnative",
                 request: "launch",
                 platform: "android",
-                target: "simulator"
+                target: "simulator",
             },
             {
                 name: "Debug Android (Hermes) - Experimental",
@@ -28,34 +28,34 @@ suite("LaunchScenarioManager", function () {
                 platform: "android",
                 env: {
                     env1: "value1",
-                    env2: "value2"
-                }
+                    env2: "value2",
+                },
             },
             {
                 name: "Attach to Hermes application - Experimental",
                 cwd: "${workspaceFolder}",
                 type: "reactnativedirect",
-                request: "attach"
+                request: "attach",
             },
             {
                 name: "Debug iOS",
                 cwd: "${workspaceFolder}",
                 type: "reactnative",
                 request: "launch",
-                platform: "ios"
+                platform: "ios",
             },
             {
                 name: "Attach to packager",
                 cwd: "${workspaceFolder}",
                 type: "reactnative",
-                request: "attach"
+                request: "attach",
             },
             {
                 name: "Debug in Exponent",
                 cwd: "${workspaceFolder}",
                 type: "reactnative",
                 request: "launch",
-                platform: "exponent"
+                platform: "exponent",
             },
             {
                 name: "Debug in Exponent (LAN)",
@@ -63,7 +63,7 @@ suite("LaunchScenarioManager", function () {
                 type: "reactnative",
                 request: "launch",
                 platform: "exponent",
-                expoHostType: "lan"
+                expoHostType: "lan",
             },
             {
                 name: "Debug in Exponent (Local)",
@@ -71,9 +71,9 @@ suite("LaunchScenarioManager", function () {
                 type: "reactnative",
                 request: "launch",
                 platform: "exponent",
-                expoHostType: "local"
-            }
-        ]
+                expoHostType: "local",
+            },
+        ],
     };
 
     suiteSetup(() => {
@@ -92,14 +92,13 @@ suite("LaunchScenarioManager", function () {
     });
 
     suite("updateLaunchScenario", function () {
-
         function autogenerateUpdateAndCheck(configIndex: number, updates: any) {
             const config = Object.assign({}, launchContent.configurations[configIndex]);
             Object.assign(config, {
                 otherParam: "value1",
                 otherObject: {
-                    innerParam: "value2"
-                }
+                    innerParam: "value2",
+                },
             });
             const result = Object.assign({}, launchContent);
             Object.assign(result.configurations[configIndex], updates);
@@ -131,13 +130,29 @@ suite("LaunchScenarioManager", function () {
             };
 
             let configCopy = Object.assign({}, config);
-            tryUpdateAndCheck(Object.assign(configCopy, { name: "Other name" }), { param: "value1" }, launchContent);
+            tryUpdateAndCheck(
+                Object.assign(configCopy, { name: "Other name" }),
+                { param: "value1" },
+                launchContent,
+            );
             configCopy = Object.assign({}, config);
-            tryUpdateAndCheck(Object.assign(configCopy, { type: "Other type" }), { param: "value2" }, launchContent);
+            tryUpdateAndCheck(
+                Object.assign(configCopy, { type: "Other type" }),
+                { param: "value2" },
+                launchContent,
+            );
             configCopy = Object.assign({}, config);
-            tryUpdateAndCheck(Object.assign(configCopy, { request: "Other request" }), { param: "value3" }, launchContent);
+            tryUpdateAndCheck(
+                Object.assign(configCopy, { request: "Other request" }),
+                { param: "value3" },
+                launchContent,
+            );
             configCopy = Object.assign({}, config);
-            tryUpdateAndCheck(Object.assign(configCopy, { platform: "Other platform" }), { param: "value4" }, launchContent);
+            tryUpdateAndCheck(
+                Object.assign(configCopy, { platform: "Other platform" }),
+                { param: "value4" },
+                launchContent,
+            );
         });
     });
 });

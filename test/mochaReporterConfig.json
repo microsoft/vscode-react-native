@@ -1,3 +1,11 @@
 {
-    "reporterEnabled": "spec, mocha-junit-reporter"
+    "reporterEnabled": "spec, mocha-junit-reporter, mochawesome",
+    "mochaJunitReporterReporterOptions": {
+        "mochaFile": "./ExtensionTests.xml"
+    },
+    "mochawesomeReporterOptions": {
+        "reportDir": "../mochawesome-report",
+        "reportFilename": "Rn-Test-Report",
+        "quiet": true,
+    }
 }

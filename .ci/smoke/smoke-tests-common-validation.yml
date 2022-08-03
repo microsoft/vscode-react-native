@@ -10,9 +10,9 @@ steps:
     condition: and(succeeded(), or(eq(variables['Agent.OS'], 'Linux'), eq(variables['Agent.OS'], 'Darwin')))
 
   - task: NodeTool@0
-    displayName: Use Node
+    displayName: Use Node 14.x
     inputs:
-      versionSpec: 10.x
+      versionSpec: 14.x
       checkLatest: true
 
   - task: Npm@1
@@ -50,26 +50,35 @@ steps:
       npm install -g yarn react-native-cli
       npm install -g appium@$(appiumVersion) --force
       npm install -g expo-cli@$(expoCLIVersion)
-    displayName: "npm install -g yarn react-native-cli expo-cli appium"
+      npm install -g @expo/ngrok@^4.1.0
+    displayName: "npm install -g yarn react-native-cli expo-cli @expo/ngrok appium"
 
-  - bash: npm install --global windows-build-tools --vs2015
-    displayName: "npm install --global windows-build-tools --vs2015"
+  - bash: npm install --global windows-build-tools --vs2017
+    displayName: "npm install --global windows-build-tools --vs2017"
     condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'))
 
   - bash: |
       export MOCHA_FILE=./ReactNativeSmokeTests.xml
       export BASIC_ONLY=""
-      export NIGHTLY=""
-      if [ $(nightlyBuild) = true ]; then
-        NIGHTLY="true"
+      export RESET_CACHE=""
+      export SKIP_UNSTABLE_TESTS=""
+      if [ -z "$(runAllTest)" ]; then
+        SKIP_UNSTABLE_TESTS="--skip-unstable-tests"
       fi
-      if [ $(basicOnly) = true ]; then
+      if [ -n "$(basicOnly)" ]; then
         BASIC_ONLY="--basic-only"
       fi
-      yarn smoke-tests $BASIC_ONLY
+      if [ -n "$(resetApplicationCache)" ]; then
+        RESET_CACHE="--reset-cache"
+      fi
+      yarn smoke-tests $BASIC_ONLY $RESET_CACHE $SKIP_UNSTABLE_TESTS
     displayName: "Run smoke tests"
     env:
       DISPLAY: ":99.0"
+
+  - powershell: Get-AppxPackage | where-object {$_.InstallLocation –Match "RNWApp"} | Remove-AppxPackage
+    displayName: "Clean up RNW app"
+    condition: and(always(), eq(variables['Agent.OS'], 'Windows_NT'))
 
   - task: PublishTestResults@2
     displayName: "Publish Test Results"

@@ -29,16 +29,35 @@ export class LaunchScenariosManager {
         return this.launchScenarios;
     }
 
+    public readLaunchScenarios(): void {
+        if (fs.existsSync(this.pathToLaunchFile)) {
+            const content = fs.readFileSync(this.pathToLaunchFile, "utf8");
+            this.launchScenarios = JSON.parse(stripJsonComments(content));
+        }
+    }
+
+    public updateLaunchScenario(launchArgs: any, updates: any): void {
+        this.readLaunchScenarios();
+        const launchConfigIndex = this.getFirstScenarioIndexByParams(launchArgs);
+        const launchScenarios = this.getLaunchScenarios();
+        if (launchConfigIndex !== null && launchScenarios.configurations) {
+            Object.assign(launchScenarios.configurations[launchConfigIndex], updates);
+            this.writeLaunchScenarios(launchScenarios);
+        }
+    }
+
     private getFirstScenarioIndexByParams(scenario: IConfiguration): number | null {
         if (this.launchScenarios.configurations) {
             for (let i = 0; i < this.launchScenarios.configurations.length; i++) {
                 const config = this.launchScenarios.configurations[i];
-                if (scenario.name === config.name &&
+                if (
+                    scenario.name === config.name &&
                     scenario.platform === config.platform &&
                     scenario.type === config.type &&
-                    scenario.request === config.request) {
-                        return i;
-                    }
+                    scenario.request === config.request
+                ) {
+                    return i;
+                }
             }
         }
         return null;
@@ -49,7 +68,7 @@ export class LaunchScenariosManager {
             fs.writeFileSync(this.pathToLaunchFile, JSON.stringify(launch, null, 4));
         }
     }
-
+    
     public readLaunchScenarios(): void {
         if (fs.existsSync(this.pathToLaunchFile)) {
             const content = fs.readFileSync(this.pathToLaunchFile, "utf8");
@@ -66,4 +85,3 @@ export class LaunchScenariosManager {
             this.writeLaunchScenarios(launchScenarios);
         }
     }
-}

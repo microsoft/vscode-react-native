@@ -16,6 +16,11 @@ export enum InternalErrorCode {
     FailedToPublishToExpHost = 111,
     UnsupportedCommandStatus = 112,
     CommandFailedWithDetails = 113,
+    FailedToRunOnWindows = 114,
+    FailedToRunOnMacOS = 115,
+    DebuggingCommandFailed = 116,
+    FailedToTestDevEnvironment = 117,
+    CommandCanceled = 118,
 
     // Device Deployer errors
     IOSDeployNotFound = 201,
@@ -26,13 +31,16 @@ export enum InternalErrorCode {
     ApplicationLaunchFailed = 303,
     ApplicationLaunchTimedOut = 304,
     FailedToStartAndroidEmulator = 305,
-    VirtualDeviceSelectionError = 306,
+    TargetSelectionError = 306,
+    FailedToStartIOSSimulator = 307,
+    CouldNotRecognizeTargetType = 308,
 
     // iOS Platform errors
     IOSSimulatorNotLaunchable = 401,
     IOSFoundMoreThanOneExecutablesCleanupBuildFolder = 402,
     IOSCouldNotFoundExecutableInFolder = 403,
     IOSCouldNotFoundDeviceForDirectDebugging = 404,
+    IOSThereIsNoAnyDebuggableTarget = 405,
 
     // Packager errors
     OpnPackagerLocationNotFound = 501,
@@ -68,6 +76,9 @@ export enum InternalErrorCode {
     PackageNotFound = 714,
     ReactDevtoolsIsNotInstalled = 715,
     CancellationTokenTriggered = 716,
+    UnknownError = 717,
+    WorkspaceIsNotTrusted = 718,
+    UserInputCanceled = 719,
 
     // Activation errors
     CouldNotFindLocationOfNodeDebugger = 801,
@@ -87,6 +98,7 @@ export enum InternalErrorCode {
     // Exponent errors
     RNVersionNotSupportedByExponent = 1101,
     UserCancelledExpoLogin = 1102,
+    NgrokIsNotInstalledGlobally = 1103,
 
     // Android errors
     AndroidCouldNotInstallTheAppOnAnyAvailibleDevice = 1201,
@@ -94,9 +106,14 @@ export enum InternalErrorCode {
     AndroidProjectNotFound = 1203,
     AndroidMoreThanOneDeviceOrEmulator = 1204,
     AndroidFailedToLaunchTheSpecifiedActivity = 1205,
+    AndroidCouldNotStartLogCatMonitor = 1206,
+    AndroidCouldNotStopLogCatMonitor = 1207,
+    AndroidCouldNotFindActiveLogCatMonitor = 1208,
+    AndroidThereIsNoAnyOnlineDebuggableTarget = 1209,
 
     // Windows Phone errors
     WinRNMPPluginIsNotInstalled = 1301,
+    WinRunCommandFailed = 1302,
 
     // Debugger errors
     SourcesStoragePathIsNullOrEmpty = 1401,
@@ -109,7 +126,12 @@ export enum InternalErrorCode {
     CouldntImportScriptAt = 1408,
     RNMessageWithMethodExecuteApplicationScriptDoesntHaveURLProperty = 1409,
     CouldNotAttachToDebugger = 1410,
+    CouldNotDirectDebugWithoutHermesEngine = 1411,
 
     // CDP Proxy errors
     CouldNotConnectToDebugTarget = 1501,
+
+    // Network Inspector errors
+    CouldNotStartNetworkInspector = 1601,
+    CouldNotStopNetworkInspector = 1602,
 }

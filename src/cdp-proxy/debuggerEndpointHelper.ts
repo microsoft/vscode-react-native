@@ -2,14 +2,19 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as URL from "url";
-import * as ipModule from "ip";
-const dns = require("dns").promises;
 import * as http from "http";
 import * as https from "https";
-import { PromiseUtil } from "../common/node/promise";
-import { ErrorHelper } from "../common/error/errorHelper";
-import { InternalErrorCode } from "../common/error/internalErrorCode";
+import { promises as dns } from "dns";
+import * as ipModule from "ip";
 import { CancellationToken } from "vscode";
+import { InternalErrorCode } from "../common/error/internalErrorCode";
+import { ErrorHelper } from "../common/error/errorHelper";
+import { PromiseUtil } from "../common/node/promise";
+
+interface DebuggableEndpointData {
+    webSocketDebuggerUrl: string;
+    title: string;
+}
 
 export class DebuggerEndpointHelper {
     private localv4: Buffer;
@@ -29,23 +34,32 @@ export class DebuggerEndpointHelper {
     public async retryGetWSEndpoint(
         browserURL: string,
         attemptNumber: number,
-        cancellationToken: CancellationToken
+        cancellationToken: CancellationToken,
+        isHermes: boolean = false,
     ): Promise<string> {
-        try {
-            return await this.getWSEndpoint(browserURL);
-        } catch (err) {
-            if (attemptNumber < 1 || cancellationToken.isCancellationRequested) {
-                const internalError = ErrorHelper.getInternalError(InternalErrorCode.CouldNotConnectToDebugTarget, browserURL, err.message);
+        while (true) {
+            try {
+                return await this.getWSEndpoint(browserURL, isHermes);
+            } catch (err) {
+                if (attemptNumber < 1 || cancellationToken.isCancellationRequested) {
+                    const internalError = ErrorHelper.getInternalError(
+                        InternalErrorCode.CouldNotConnectToDebugTarget,
+                        browserURL,
+                        err.message,
+                    );
 
-                if (cancellationToken.isCancellationRequested) {
-                    throw ErrorHelper.getNestedError(internalError, InternalErrorCode.CancellationTokenTriggered);
+                    if (cancellationToken.isCancellationRequested) {
+                        throw ErrorHelper.getNestedError(
+                            internalError,
+                            InternalErrorCode.CancellationTokenTriggered,
+                        );
+                    }
+
+                    throw internalError;
                 }
 
-                throw internalError;
+                await PromiseUtil.delay(700);
             }
-
-            await PromiseUtil.delay(1000);
-            return await this.retryGetWSEndpoint(browserURL, --attemptNumber, cancellationToken);
         }
     }
 
@@ -53,9 +67,9 @@ export class DebuggerEndpointHelper {
      * Returns the debugger websocket URL a process listening at the given address.
      * @param browserURL -- Address like `http://localhost:1234`
      */
-    public async getWSEndpoint(browserURL: string): Promise<string> {
+    public async getWSEndpoint(browserURL: string, isHermes: boolean = false): Promise<string> {
         const jsonVersion = await this.fetchJson<{ webSocketDebuggerUrl?: string }>(
-            URL.resolve(browserURL, "/json/version")
+            URL.resolve(browserURL, "/json/version"),
         );
         if (jsonVersion.webSocketDebuggerUrl) {
             return jsonVersion.webSocketDebuggerUrl;
@@ -63,14 +77,25 @@ export class DebuggerEndpointHelper {
 
         // Chrome its top-level debugg on /json/version, while Node does not.
         // Request both and return whichever one got us a string.
-        const jsonList = await this.fetchJson<{ webSocketDebuggerUrl: string }[]>(
-            URL.resolve(browserURL, "/json/list")
+        const jsonList = await this.fetchJson<DebuggableEndpointData[]>(
+            URL.resolve(browserURL, "/json/list"),
         );
         if (jsonList.length) {
-            return jsonList[0].webSocketDebuggerUrl;
+            return isHermes
+                ? this.tryToGetHermesImprovedChromeReloadsWebSocketDebuggerUrl(jsonList)
+                : jsonList[0].webSocketDebuggerUrl;
         }
 
         throw new Error("Could not find any debuggable target");
+    }
+
+    private tryToGetHermesImprovedChromeReloadsWebSocketDebuggerUrl(
+        jsonList: DebuggableEndpointData[],
+    ): string {
+        const target = jsonList.find(
+            target => target.title === "React Native Experimental (Improved Chrome Reloads)",
+        );
+        return target ? target.webSocketDebuggerUrl : jsonList[0].webSocketDebuggerUrl;
     }
 
     /**
@@ -80,10 +105,9 @@ export class DebuggerEndpointHelper {
         const data = await this.fetch(url);
         try {
             return JSON.parse(data);
-        } catch(err) {
+        } catch (err) {
             return {} as T;
         }
-
     }
 
     /**
@@ -102,10 +126,11 @@ export class DebuggerEndpointHelper {
             }
 
             const request = driver.get(url, requestOptions, response => {
-
                 let data = "";
                 response.setEncoding("utf8");
-                response.on("data", (chunk: string) => (data += chunk));
+                response.on("data", (chunk: string) => {
+                    data += chunk;
+                });
                 response.on("end", () => fulfill(data));
                 response.on("error", reject);
             });
@@ -123,7 +148,7 @@ export class DebuggerEndpointHelper {
         try {
             const url = new URL.URL(address);
             // replace brackets in ipv6 addresses:
-            ipOrHostname = url.hostname.replace(/^\[|\]$/g, "");
+            ipOrHostname = url.hostname.replace(/^\[|]$/g, "");
         } catch {
             ipOrHostname = address;
         }

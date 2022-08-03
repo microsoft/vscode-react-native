@@ -1,20 +1,21 @@
 // Place your settings in this file to overwrite default and user settings.
 {
-  "javascript.validate.enable": false,
-  "editor.formatOnSave": true,
-  "editor.formatOnSaveMode": "modifications",
-  "files.trimTrailingWhitespace": true,
-  "eslint.enable": true,
-  "editor.insertSpaces": true,
-  "editor.tabSize": 4,
-  "files.exclude": {
-    // "**/node_modules": true,
-    "nls.*.json": true,
-    "**/*.js": {
-      "when": "$(basename).ts"
+    "javascript.validate.enable": false,
+    "editor.formatOnSaveMode": "modifications",
+    "files.trimTrailingWhitespace": true,
+    "editor.insertSpaces": true,
+    "editor.tabSize": 4,
+    "files.exclude": {
+        // "**/node_modules": true,
+        "nls.*.json": true,
+        "**/*.js": {
+            "when": "$(basename).ts"
+        },
+        // "**/out": true,
+        "**/*.js.map": true
     },
-    // "**/out": true,
-    "**/*.js.map": true
-  },
-  "typescript.tsdk": "./node_modules/typescript/lib"
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "typescript.tsdk": "./node_modules/typescript/lib"
 }

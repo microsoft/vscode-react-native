@@ -21,7 +21,7 @@ export class QuickAccess {
             }
 
             try {
-                await this.quickInput.waitForQuickInputOpened(10);
+                await this.quickInput.waitForQuickInputOpened(/*10*/);
                 break;
             } catch (err) {
                 if (++retries > 5) {
@@ -77,13 +77,25 @@ export class QuickAccess {
         }
     }
 
-    public async runDebugScenario(scenario: string): Promise<void> {
+    public async runDebugScenario(scenario: string, index?: number): Promise<void> {
         await this.openQuickAccess(`debug ${scenario}`);
+
+        if (index) {
+            for (let from = 0; from < index; from++) {
+                await this.code.dispatchKeybinding("down");
+            }
+        }
 
         // wait for the best choice to be focused
         await this.code.waitForTextContent(QuickInput.QUICK_INPUT_FOCUSED_ELEMENT, scenario);
 
         // wait and click on the best choice
         await this.code.waitAndClick(QuickInput.QUICK_INPUT_FOCUSED_ELEMENT);
+    }
+
+    public async openDynamicDebugScenarios(scenario: string, index: number): Promise<void> {
+        await this.openQuickAccess(`debug ${scenario}`);
+        // wait and click on needed item
+        await this.quickInput.selectQuickInputElement(index, false);
     }
 }

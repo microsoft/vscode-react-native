@@ -3,15 +3,17 @@
 
 import { Viewlet } from "./viewlet";
 import { Commands } from "./workbench";
-import { Code, findElement } from "./code";
+import { Code, findElement} from "./code";
 import { Editors } from "./editors";
 import { Editor } from "./editor";
 import { IElement } from "../src/driver";
 
 const VIEWLET = "div[id=\"workbench.view.debug\"]";
 const DEBUG_VIEW = `${VIEWLET}`;
-const CONFIGURE = `div[id="workbench.parts.sidebar"] .actions-container .codicon-gear`;
+const CONFIGURE = `div[id="workbench.parts.sidebar"] .actions-container .codicon-debug-configure`;
+const ADD_CONFIGURATION = `.overlayWidgets .floating-click-widget`;
 const STOP = `.debug-toolbar .action-label[title*="Stop"]`;
+const RESTART = `.debug-toolbar .action-label[title*="Restart"]`;
 const STEP_OVER = `.debug-toolbar .action-label[title*="Step Over"]`;
 const STEP_IN = `.debug-toolbar .action-label[title*="Step Into"]`;
 const STEP_OUT = `.debug-toolbar .action-label[title*="Step Out"]`;
@@ -69,6 +71,12 @@ export class Debug extends Viewlet {
         await this.editors.waitForEditorFocus("launch.json");
     }
 
+    public async addConfiguration(): Promise<any> {
+        await this.code.waitAndClick(ADD_CONFIGURATION);
+        await new Promise(c => setTimeout(c, 2000));
+        await this.code.dispatchKeybinding("enter");
+    }
+
     public async setBreakpointOnLine(lineNumber: number): Promise<any> {
         await this.code.waitForElement(`${GLYPH_AREA}(${lineNumber})`);
         await this.code.waitAndClick(`${GLYPH_AREA}(${lineNumber})`, 5, 5);
@@ -89,6 +97,10 @@ export class Debug extends Viewlet {
 
     public async waitForDebuggingToStart(): Promise<void> {
         await this.code.waitForElement(DEBUG_STATUS_BAR);
+    }
+
+    public async waitForDebugToolbarExist(): Promise<void> {
+        await this.code.waitForElement(RESTART);
     }
 
     public async areStackFramesExist(): Promise<any> {
@@ -163,5 +175,4 @@ export class Debug extends Viewlet {
         const elements = await this.code.waitForElements(CONSOLE_OUTPUT, false, elements => fn(elements.map(e => e.textContent)));
         return elements.map(e => e.textContent);
     }
-
 }

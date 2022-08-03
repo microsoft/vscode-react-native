@@ -3,9 +3,9 @@
 
 /* This class can be used to limit how often can some code be executed e.g. Max once every 10 seconds */
 export class ExecutionsLimiter {
-    private executionToLastTimestamp: {[id: string]: number} = {};
+    private executionToLastTimestamp: { [id: string]: number } = {};
 
-    public execute(id: string, limitInSeconds: number, lambda: () => void) {
+    public execute(id: string, limitInSeconds: number, lambda: () => void): void {
         const now = new Date().getTime();
 
         const lastExecution = this.executionToLastTimestamp[id] || 0;
@@ -22,10 +22,12 @@ export class ExecutionsFilterBeforeTimestamp {
     private sinceWhenToStopFiltering: number;
 
     constructor(delayInSeconds: number) {
-        this.sinceWhenToStopFiltering = this.now() + delayInSeconds * ExecutionsFilterBeforeTimestamp.MILLISECONDS_IN_ONE_SECOND;
+        this.sinceWhenToStopFiltering =
+            this.now() +
+            delayInSeconds * ExecutionsFilterBeforeTimestamp.MILLISECONDS_IN_ONE_SECOND;
     }
 
-    public execute(lambda: () => void) {
+    public execute(lambda: () => void): void {
         if (this.now() >= this.sinceWhenToStopFiltering) {
             lambda();
         }

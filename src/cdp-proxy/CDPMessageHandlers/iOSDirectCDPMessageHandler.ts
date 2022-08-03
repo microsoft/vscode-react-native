@@ -5,18 +5,33 @@ import { BaseCDPMessageHandler } from "./baseCDPMessageHandler";
 import { ProcessedCDPMessage } from "./ICDPMessageHandler";
 import { CDP_API_NAMES } from "./CDPAPINames";
 
+interface ExecutionContext {
+    id: number;
+    origin: string;
+    name: string;
+    auxData?: {
+        isDefault: boolean;
+        type?: "default" | "page";
+        frameId?: string;
+    };
+}
+
 export class IOSDirectCDPMessageHandler extends BaseCDPMessageHandler {
     private isBackcompatConfigured: boolean;
+    private customMessageLastId: number;
 
     constructor() {
         super();
         this.isBackcompatConfigured = false;
+        this.customMessageLastId = 0;
     }
 
     public processDebuggerCDPMessage(event: any): ProcessedCDPMessage {
-        let sendBack = false;
+        const sendBack = false;
         if (!this.isBackcompatConfigured && event.method === CDP_API_NAMES.RUNTIME_ENABLE) {
             this.configureTargetForIWDPCommunication();
+            this.configureDebuggerForIWDPCommunication();
+            this.isBackcompatConfigured = true;
         }
         return {
             event,
@@ -43,20 +58,60 @@ export class IOSDirectCDPMessageHandler extends BaseCDPMessageHandler {
             params: {
                 type: event.params.message.type,
                 timestamp: event.params.message.timestamp,
-                args: event.params.message.parameters || [{ type: "string", value: event.params.message.text }],
-                stackTrace: { callFrames: event.params.message.stack || event.params.message.stackTrace },
+                args: event.params.message.parameters || [
+                    { type: "string", value: event.params.message.text },
+                ],
+                stackTrace: {
+                    callFrames: event.params.message.stack || event.params.message.stackTrace,
+                },
                 executionContextId: 1,
             },
         };
     }
 
     private configureTargetForIWDPCommunication(): void {
-        this.isBackcompatConfigured = true;
         try {
             this.applicationTarget?.api.Console.enable({});
             this.applicationTarget?.api.Debugger.setBreakpointsActive({ active: true });
         } catch (err) {
             // Specifically ignore a fail here since it's only for backcompat
         }
+    }
+
+    private configureDebuggerForIWDPCommunication(): void {
+        const context: ExecutionContext = {
+            id: this.customMessageLastId++,
+            origin: "",
+            name: "IOS Execution Context",
+            auxData: {
+                isDefault: true,
+            },
+        };
+        try {
+            this.sendCustomRequestToDebuggerTarget(
+                CDP_API_NAMES.EXECUTION_CONTEXT_CREATED,
+                { context },
+                false,
+            );
+        } catch (err) {
+            throw Error("Could not create Execution context");
+        }
+    }
+
+    private sendCustomRequestToDebuggerTarget(
+        method: string,
+        params: any = {},
+        addMessageId: boolean = true,
+    ): void {
+        const request: any = {
+            method,
+            params,
+        };
+
+        if (addMessageId) {
+            request.id = this.customMessageLastId++;
+        }
+
+        this.debuggerTarget?.send(request);
     }
 }

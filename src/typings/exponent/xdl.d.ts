@@ -53,6 +53,31 @@ declare module xdl {
         url: string
     }
 
+    interface SDKVersion {
+        androidExpoViewUrl?: string;
+        expoReactNativeTag: string;
+        /* deprecated */ exponentReactNativeTag?: string;
+        expokitNpmPackage?: string;
+        facebookReactNativeVersion: string;
+        facebookReactVersion?: string;
+        iosExpoViewUrl?: string;
+        /* deprecated */ iosExponentViewUrl?: string;
+        iosVersion?: string;
+        isDeprecated?: boolean;
+        packagesToInstallWhenEjecting?: { [name: string]: string };
+        releaseNoteUrl?: string;
+        iosClientUrl?: string;
+        iosClientVersion?: string;
+        androidClientUrl?: string;
+        androidClientVersion?: string;
+        relatedPackages?: { [name: string]: string };
+        beta?: boolean;
+    }
+
+    interface SDKVersions {
+        [version: string]: SDKVersion;
+    }
+
     var Project: {
         startAsync(projectRoot: string, options?: IStartOptions): Promise<void>;
         stopAsync(projectRoot: string): Promise<void>;
@@ -64,7 +89,10 @@ declare module xdl {
         stopReactNativeServerAsync(projectRoot: string): Promise<void>;
         startTunnelsAsync(projectRoot: string): Promise<void>;
         stopTunnelsAsync(projectRoot: string): Promise<void>;
-        setOptionsAsync(projectRoot: string, options?: IOptions): Promise<void>;
+    }
+
+    var ProjectSettings: {
+        setPackagerInfoAsync(projectRoot: string, json: Partial<IOptions>): Promise<IOptions>;
     }
 
     var UrlUtils: {
@@ -72,8 +100,8 @@ declare module xdl {
     }
 
     var Versions: {
-        facebookReactNativeVersionsAsync(): Promise<string[]>;
-        facebookReactNativeVersionToExpoVersionAsync(facebookReactNativeVersion: string): Promise<string>;
+        sdkVersionsAsync(): Promise<SDKVersions>;
+        releasedSdkVersionsAsync(): Promise<SDKVersions>;
     }
 
     var Android: {
@@ -119,6 +147,17 @@ declare module xdl {
     var ProjectUtils: {
         attachLoggerStream(rootPath: string, options?: IBunyanStream): void;
     }
+
+    interface ResolveNgrok
+    {
+        resolveNgrokAsync(
+            projectRoot: string,
+            {
+                shouldPrompt = true,
+                autoInstall = false,
+            }: { shouldPrompt?: boolean; autoInstall?: boolean } = {},
+        ): Promise<any>;
+    };
 }
 
 declare module "xdl" {

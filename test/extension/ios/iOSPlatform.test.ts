@@ -11,26 +11,35 @@ import { SettingsHelper } from "../../../src/extension/settingsHelper";
 import { PlatformType } from "../../../src/extension/launchArgs";
 
 suite("iOSPlatform", function () {
+    const workspaceRoot: string = "/User/test/react-native/AwesomeProject";
     const projectRoot = "/User/test/react-native/AwesomeProject";
+    const nodeModulesRoot: string = projectRoot;
+
     let runOptions: any = {
         platform: PlatformType.iOS,
-        workspaceRoot: "/User/test/react-native/AwesomeProject",
-        projectRoot: projectRoot,
+        workspaceRoot,
+        projectRoot,
+        nodeModulesRoot,
     };
 
-    const sandbox = sinon.sandbox.create();
+    let getReactNativeProjectRootStub: Sinon.SinonStub;
 
     setup(() => {
-        sandbox.stub(SettingsHelper, "getReactNativeProjectRoot", () => projectRoot);
+        getReactNativeProjectRootStub = sinon.stub(
+            SettingsHelper,
+            "getReactNativeProjectRoot",
+            () => projectRoot,
+        );
     });
 
     teardown(() => {
         runOptions = {
             platform: PlatformType.iOS,
-            workspaceRoot: "/User/test/react-native/AwesomeProject",
-            projectRoot: "/User/test/react-native/AwesomeProject",
+            workspaceRoot,
+            projectRoot,
+            nodeModulesRoot,
         };
-        sandbox.restore();
+        getReactNativeProjectRootStub.restore();
     });
 
     suite("extensionContext", function () {
@@ -50,21 +59,9 @@ suite("iOSPlatform", function () {
             let platform = new IOSPlatform(runOptions);
             assert.deepEqual(platform.runArguments, expected);
         });
-        test("getRunArgument simulator iPhone 6", function () {
-            runOptions.target = "iPhone 6";
-            const expected = ["--simulator", runOptions.target];
-            let platform = new IOSPlatform(runOptions);
-            assert.deepEqual(platform.runArguments, expected);
-        });
-        test("getRunArgument device Contoso iPhone", function () {
-            runOptions.target = "device=Contoso iPhone";
-            const expected = ["--device", "Contoso iPhone"];
-            let platform = new IOSPlatform(runOptions);
-            assert.deepEqual(platform.runArguments, expected);
-        });
-        test("getRunArgument device with incorrect 'device' field", function () {
-            runOptions.target = "device Contoso iPhone";
-            const expected = ["--device"];
+        test("getRunArgument target device id", function () {
+            runOptions.target = "925E6E38-0D7B-45E9-ADE0-89C20779D467";
+            const expected = ["--udid", runOptions.target];
             let platform = new IOSPlatform(runOptions);
             assert.deepEqual(platform.runArguments, expected);
         });

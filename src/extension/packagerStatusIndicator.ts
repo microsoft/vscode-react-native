@@ -1,10 +1,21 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { window, Disposable, StatusBarItem, StatusBarAlignment } from "vscode";
+import {
+    window,
+    Disposable,
+    StatusBarItem,
+    StatusBarAlignment,
+    version as vscodeVersion,
+} from "vscode";
+import * as semver from "semver";
 import * as nls from "vscode-nls";
 import { SettingsHelper } from "./settingsHelper";
-nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
+
+nls.config({
+    messageFormat: nls.MessageFormat.bundle,
+    bundleFormat: nls.BundleFormat.standalone,
+})();
 const localize = nls.loadMessageBundle();
 
 /**
@@ -47,23 +58,45 @@ export class PackagerStatusIndicator implements Disposable {
     public constructor(projectRoot?: string) {
         this.projectRoot = projectRoot;
 
-        this.restartPackagerItem = window.createStatusBarItem(StatusBarAlignment.Left, 10);
+        // Remove after updating supported VS Code engine version to 1.57.0
+        if (semver.gte(vscodeVersion, "1.57.0")) {
+            this.restartPackagerItem = (window as any).createStatusBarItem(
+                "restartPackagerItem",
+                StatusBarAlignment.Left,
+                10,
+            );
+            (this.restartPackagerItem as any).name = PackagerStatusIndicator.RESTART_TOOLTIP;
+
+            this.togglePackagerItem = (window as any).createStatusBarItem(
+                "togglePackagerItem",
+                StatusBarAlignment.Left,
+                10,
+            );
+            (this.togglePackagerItem as any).name = PackagerStatusIndicator.PACKAGER_NAME;
+        } else {
+            this.restartPackagerItem = window.createStatusBarItem(StatusBarAlignment.Left, 10);
+            this.togglePackagerItem = window.createStatusBarItem(StatusBarAlignment.Left, 10);
+        }
         this.restartPackagerItem.text = PackagerStatusIndicator.RESTART_ICON;
         this.restartPackagerItem.command = PackagerStatusIndicator.RESTART_COMMAND;
         this.restartPackagerItem.tooltip = PackagerStatusIndicator.RESTART_TOOLTIP;
 
-        this.togglePackagerItem = window.createStatusBarItem(StatusBarAlignment.Left, 10);
-        this.setupPackagerStatusIndicatorItems(PackagerStatusIndicator.START_ICON, PackagerStatusIndicator.START_COMMAND, PackagerStatusIndicator.START_TOOLTIP);
+        this.setupPackagerStatusIndicatorItems(
+            PackagerStatusIndicator.START_ICON,
+            PackagerStatusIndicator.START_COMMAND,
+            PackagerStatusIndicator.START_TOOLTIP,
+        );
     }
 
     public updateDisplayVersion(): void {
         this.displayVersion = PackagerStatusIndicator.FULL_VERSION;
         try {
             if (this.projectRoot) {
-                this.displayVersion = SettingsHelper.getPackagerStatusIndicatorPattern(this.projectRoot);
+                this.displayVersion = SettingsHelper.getPackagerStatusIndicatorPattern(
+                    this.projectRoot,
+                );
             }
-        }
-        catch (e) {
+        } catch (e) {
             // We are trying to read the configuration from settings.json.
             // If this cannot be done, ignore the error and set the default value.
         }
@@ -74,7 +107,11 @@ export class PackagerStatusIndicator implements Disposable {
         this.restartPackagerItem.dispose();
     }
 
-    private setupPackagerStatusIndicatorItems(icon: string, command?: string, tooltip: string = ""): void {
+    private setupPackagerStatusIndicatorItems(
+        icon: string,
+        command?: string,
+        tooltip: string = "",
+    ): void {
         this.updateDisplayVersion();
         this.togglePackagerItem.command = command;
         this.togglePackagerItem.tooltip = tooltip;
@@ -82,7 +119,7 @@ export class PackagerStatusIndicator implements Disposable {
             case PackagerStatusIndicator.FULL_VERSION:
                 this.togglePackagerItem.text = `${icon} ${PackagerStatusIndicator.PACKAGER_NAME}`;
                 this.togglePackagerItem.show();
-                this.restartPackagerItem.hide();
+                this.restartPackagerItem.show();
                 break;
             case PackagerStatusIndicator.SHORT_VERSION:
                 this.togglePackagerItem.text = `${icon}`;
@@ -95,16 +132,32 @@ export class PackagerStatusIndicator implements Disposable {
     public updatePackagerStatus(status: PackagerStatus): void {
         switch (status) {
             case PackagerStatus.PACKAGER_STOPPED:
-                this.setupPackagerStatusIndicatorItems(PackagerStatusIndicator.START_ICON, PackagerStatusIndicator.START_COMMAND, PackagerStatusIndicator.START_TOOLTIP);
+                this.setupPackagerStatusIndicatorItems(
+                    PackagerStatusIndicator.START_ICON,
+                    PackagerStatusIndicator.START_COMMAND,
+                    PackagerStatusIndicator.START_TOOLTIP,
+                );
                 break;
             case PackagerStatus.PACKAGER_STOPPING:
-                this.setupPackagerStatusIndicatorItems(PackagerStatusIndicator.ACTIVITY_ICON, undefined, PackagerStatusIndicator.STOPPING_TOOLTIP);
+                this.setupPackagerStatusIndicatorItems(
+                    PackagerStatusIndicator.ACTIVITY_ICON,
+                    undefined,
+                    PackagerStatusIndicator.STOPPING_TOOLTIP,
+                );
                 break;
             case PackagerStatus.PACKAGER_STARTED:
-                this.setupPackagerStatusIndicatorItems(PackagerStatusIndicator.STOP_ICON, PackagerStatusIndicator.STOP_COMMAND, PackagerStatusIndicator.STOP_TOOLTIP);
+                this.setupPackagerStatusIndicatorItems(
+                    PackagerStatusIndicator.STOP_ICON,
+                    PackagerStatusIndicator.STOP_COMMAND,
+                    PackagerStatusIndicator.STOP_TOOLTIP,
+                );
                 break;
             case PackagerStatus.PACKAGER_STARTING:
-                this.setupPackagerStatusIndicatorItems(PackagerStatusIndicator.ACTIVITY_ICON, undefined, PackagerStatusIndicator.STARTING_TOOLTIP);
+                this.setupPackagerStatusIndicatorItems(
+                    PackagerStatusIndicator.ACTIVITY_ICON,
+                    undefined,
+                    PackagerStatusIndicator.STARTING_TOOLTIP,
+                );
                 break;
             default:
                 break;

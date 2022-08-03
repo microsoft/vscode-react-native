@@ -7,7 +7,6 @@ import { CDP_API_NAMES } from "./CDPAPINames";
 import { BaseCDPMessageHandler } from "./baseCDPMessageHandler";
 
 export class HermesCDPMessageHandler extends BaseCDPMessageHandler {
-
     /**
      * @description The Hermes native functions calls mark in call stack
      * @type {string}
@@ -40,7 +39,7 @@ export class HermesCDPMessageHandler extends BaseCDPMessageHandler {
     }
 
     public processApplicationCDPMessage(event: any): ProcessedCDPMessage {
-        let sendBack = false;
+        const sendBack = false;
         if (event.method === CDP_API_NAMES.DEBUGGER_PAUSED) {
             event = this.handlePausedEvent(event);
         } else if (event.result && event.result.result) {
@@ -66,9 +65,13 @@ export class HermesCDPMessageHandler extends BaseCDPMessageHandler {
 
     private handleFunctionTypeResult(event: any): any {
         if (Array.isArray(event.result.result)) {
-            let results: Cdp.Runtime.PropertyDescriptor[] = event.result.result;
-            results.forEach((resultObj) => {
-                if (resultObj.value && resultObj.value.type === "function" && !resultObj.value.description) {
+            const results: Cdp.Runtime.PropertyDescriptor[] = event.result.result;
+            results.forEach(resultObj => {
+                if (
+                    resultObj.value &&
+                    resultObj.value.type === "function" &&
+                    !resultObj.value.description
+                ) {
                     resultObj.value.description = "function() { … }";
                 }
             });
@@ -81,9 +84,10 @@ export class HermesCDPMessageHandler extends BaseCDPMessageHandler {
     private handlePausedEvent(event: any): any {
         let callFrames: Cdp.Debugger.CallFrame[] = event.params.callFrames;
 
-        callFrames = callFrames.filter(callFrame =>
-            callFrame.functionName !== this.HERMES_NATIVE_FUNCTION_NAME &&
-            callFrame.location.scriptId !== this.HERMES_NATIVE_FUNCTION_SCRIPT_ID
+        callFrames = callFrames.filter(
+            callFrame =>
+                callFrame.functionName !== this.HERMES_NATIVE_FUNCTION_NAME &&
+                callFrame.location.scriptId !== this.HERMES_NATIVE_FUNCTION_SCRIPT_ID,
         );
         event.params.callFrames = callFrames;
 

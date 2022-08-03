@@ -3,10 +3,9 @@
 
 import * as pathModule from "path";
 
-import { FileSystem } from "./fileSystem";
 import { ErrorHelper } from "../error/errorHelper";
 import { InternalErrorCode } from "../error/internalErrorCode";
-
+import { FileSystem } from "./fileSystem";
 
 interface IPackageDependencyDict {
     [packageName: string]: string;
@@ -37,10 +36,9 @@ export class Package {
         return this.dependencyPackage(packageName).version();
     }
 
-    public parsePackageInformation(): Promise<IPackageInformation> {
-        return this.fileSystem.readFile(this.informationJsonFilePath(), "utf8")
-            .then(data =>
-                <IPackageInformation>JSON.parse(data.toString()));
+    public async parsePackageInformation(): Promise<IPackageInformation> {
+        const data = await this.fileSystem.readFile(this.informationJsonFilePath(), "utf8");
+        return <IPackageInformation>JSON.parse(data.toString());
     }
 
     public name(): Promise<string> {
@@ -55,36 +53,41 @@ export class Package {
         return this.parseProperty("devDependencies");
     }
 
-    public version(): Promise<string> {
-        return this.parseProperty("version").then(version =>
-            typeof version === "string"
-                ? version
-                : Promise.reject<string>(ErrorHelper.getInternalError(InternalErrorCode.CouldNotParsePackageVersion, this.informationJsonFilePath(), version)));
+    public async version(): Promise<string> {
+        const version = await this.parseProperty("version");
+        if (typeof version === "string") {
+            return version;
+        }
+        throw ErrorHelper.getInternalError(
+            InternalErrorCode.CouldNotParsePackageVersion,
+            this.informationJsonFilePath(),
+            version,
+        );
     }
 
-    public setMainFile(value: string): Promise<void> {
-        return this.parsePackageInformation()
-            .then(packageInformation => {
-                packageInformation.main = value;
-                return this.fileSystem.writeFile(this.informationJsonFilePath(), JSON.stringify(<Record<string, any>>packageInformation));
-            });
+    public async setMainFile(value: string): Promise<void> {
+        const packageInformation = await this.parsePackageInformation();
+        packageInformation.main = value;
+        return this.fileSystem.writeFile(
+            this.informationJsonFilePath(),
+            JSON.stringify(<Record<string, any>>packageInformation),
+        );
     }
 
-    public dependencyPath(dependencyName: string) {
+    public dependencyPath(dependencyName: string): string {
         return pathModule.resolve(this._path, this.DEPENDENCIES_SUBFOLDER, dependencyName);
     }
 
     public dependencyPackage(dependencyName: string): Package {
-        return new Package(this.dependencyPath(dependencyName), { fileSystem: this.fileSystem});
+        return new Package(this.dependencyPath(dependencyName), { fileSystem: this.fileSystem });
     }
 
     public informationJsonFilePath(): string {
         return pathModule.resolve(this._path, this.INFORMATION_PACKAGE_FILENAME);
     }
 
-    private parseProperty(name: string): Promise<any> {
-        return this.parsePackageInformation()
-            .then(packageInformation =>
-                packageInformation[name]);
+    private async parseProperty(name: string): Promise<any> {
+        const packageInformation = await this.parsePackageInformation();
+        return packageInformation[name];
     }
 }

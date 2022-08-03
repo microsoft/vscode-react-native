@@ -7,25 +7,26 @@
 
 1. Open agent pool page, click **New agent**, and follow **Download the agent** instructions.
 1. On **Configure the agent** stage choose the following setup for `config.sh` or `config.cmd`:
-   * **Windows**:
+   * [**Windows**](https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/v2-windows?view=azure-devops):
 
      * **Enter server URL**: `< Your Azure DevOps server url >`
      * **Enter authentication type (press enter for PAT)**: `< Press Enter >`
      * **Enter personal access token**: `< Insert PAT >`
      * **Enter agent pool (press enter for default)**: `< Specify agent pool name >`
      * **Enter agent name (press enter for vside-mbp)**: `< Specify agent name >`
-     * **Enter run agent as service? (Y/N) (press enter for N)**: `< Press Y >`
+     * **Enter run agent as service? (Y/N) (press enter for N)**: `< Press N >`
      * **Enter User account to use for the service**: `< Specify your account >`
      * **Enter Password for the account YOUR_ACCOUNT**: `< Enter password >`
      * **Enter work folder (press enter for _work)**: `< Press Enter >`
 
-   * **Mac/Linux**:
+   * **[Mac](https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/v2-osx?view=azure-devops)/[Linux](https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/v2-linux?view=azure-devops)**:
 
      * **Enter server URL**: `< Your Azure DevOps server url >`
      * **Enter authentication type (press enter for PAT)**: `< Press Enter >`
      * **Enter personal access token**: `< Insert PAT >`
      * **Enter agent pool (press enter for default)**: `< Specify agent pool name >`
      * **Enter agent name (press enter for vside-mbp)**: `< Specify agent name >`
+     * **Enter run agent as service? (Y/N) (press enter for N)**: `< Press N >`
      * **Enter work folder (press enter for _work)**: `< Press Enter >`
 
      Then run `./svc.sh install` and `./svc.sh start` subsequently on an agent machine.

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {ILogger, LogLevel, LogHelper} from "./LogHelper";
+import { ILogger, LogLevel, LogHelper } from "./LogHelper";
 
 export class ConsoleLogger implements ILogger {
     public log(message: string, level: LogLevel): void {
@@ -19,16 +19,16 @@ export class ConsoleLogger implements ILogger {
         this.log(message, LogLevel.Info);
     }
 
-    public warning(message: string, logStack = false): void {
+    public warning(message: string): void {
         this.log(message, LogLevel.Warning);
     }
 
-    public error(errorMessage: string, error?: Error, logStack: boolean = true) {
+    public error(errorMessage: string, error?: Error, logStack: boolean = true): void {
         console.error(ConsoleLogger.getFormattedMessage(errorMessage, LogLevel.Error));
 
         // Print the error stack if necessary
-        if (logStack && error && (<Error>error).stack) {
-            console.error(`Stack: ${(<Error>error).stack}`);
+        if (logStack && error && error.stack) {
+            console.error(`Stack: ${error.stack}`);
         }
     }
 
@@ -36,7 +36,7 @@ export class ConsoleLogger implements ILogger {
         this.log(message, LogLevel.Debug);
     }
 
-    public logStream(data: Buffer, stream: NodeJS.WritableStream) {
+    public logStream(data: Buffer, stream: NodeJS.WritableStream): void {
         stream.write(data.toString());
     }
 

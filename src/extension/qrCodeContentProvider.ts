@@ -4,22 +4,32 @@
 import * as qr from "qr-image";
 import { TextDocumentContentProvider, Uri } from "vscode";
 import * as nls from "vscode-nls";
-nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFormat.standalone })();
+
+nls.config({
+    messageFormat: nls.MessageFormat.bundle,
+    bundleFormat: nls.BundleFormat.standalone,
+})();
 const localize = nls.loadMessageBundle();
 
 export class QRCodeContentProvider implements TextDocumentContentProvider {
-
     private cache: { [uri: string]: string } = {};
 
     public provideTextDocumentContent(uri: Uri): string {
-
-        let stringUri = uri.toString();
+        const stringUri = uri.toString();
 
         if (!this.cache[stringUri]) {
             const imageBuffer: Buffer = qr.imageSync(stringUri);
-            this.cache[stringUri] = "data:image/png;base64," + imageBuffer.toString("base64");
+            this.cache[stringUri] = `data:image/png;base64,${imageBuffer.toString("base64")}`;
         }
-        let message = localize("QRCodeInstructions", "Expo is running. Open your Expo app at<br/><span style=\"text-decoration: underline\">{0}</span><br/>or scan QR code below:", stringUri);
+        const message = localize(
+            "QRCodeInstructions",
+            'Expo is running. Open your Expo app at<br/><span style="text-decoration: underline">{0}</span><br/>or scan QR code below:',
+            stringUri,
+        );
+        const outputMessage = localize(
+            "QRCodeOutputMessage",
+            "Tips: You can get current QR code in<br/>Output Window as well if you close this tab.",
+        );
         return `<!DOCTYPE html>
         <html>
         <body>
@@ -28,6 +38,9 @@ export class QRCodeContentProvider implements TextDocumentContentProvider {
                     ${message}
                 <h3>
                 <img src="${this.cache[stringUri]}" />
+                <h3>
+                    ${outputMessage}
+                <h3>
             </div>
         </body>
         </html>`;

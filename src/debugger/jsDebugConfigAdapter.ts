@@ -4,7 +4,11 @@
 import { IAttachRequestArgs } from "./debugSessionBase";
 
 export class JsDebugConfigAdapter {
-    public static createDebuggingConfigForPureRN(attachArgs: IAttachRequestArgs, cdpProxyPort: number, sessionId: string): any {
+    public static createDebuggingConfigForPureRN(
+        attachArgs: IAttachRequestArgs,
+        cdpProxyPort: number,
+        sessionId: string,
+    ): any {
         return Object.assign({}, JsDebugConfigAdapter.getExistingExtraArgs(attachArgs), {
             type: "pwa-node",
             request: "attach",
@@ -16,13 +20,15 @@ export class JsDebugConfigAdapter {
             // in vscode.debug API methods "onDidStartDebugSession" and "onDidTerminateDebugSession".
             rnDebugSessionId: sessionId,
             // Fixes https://github.com/microsoft/vscode/issues/102042
-            resolveSourceMapLocations: [
-                "!**/debuggerWorker.js"
-            ],
+            resolveSourceMapLocations: ["!**/debuggerWorker.js"],
         });
     }
 
-    public static createDebuggingConfigForRNHermes(attachArgs: IAttachRequestArgs, cdpProxyPort: number, sessionId: string): any {
+    public static createDebuggingConfigForRNHermes(
+        attachArgs: IAttachRequestArgs,
+        cdpProxyPort: number,
+        sessionId: string,
+    ): any {
         return Object.assign({}, JsDebugConfigAdapter.getExistingExtraArgs(attachArgs), {
             type: "pwa-node",
             request: "attach",
@@ -33,16 +39,14 @@ export class JsDebugConfigAdapter {
             // debug sessions from other ones. So we can save and process only the extension's debug sessions
             // in vscode.debug API methods "onDidStartDebugSession" and "onDidTerminateDebugSession".
             rnDebugSessionId: sessionId,
-            // We need to provide js-debug with the "**" pattern, so that it can get source maps over a http URL
-            resolveSourceMapLocations: [
-                "**",
-                "!**/node_modules/**"
-            ],
+            // We need to provide js-debug with the "**" pattern, so that it can get source maps over a http URL.
+            // We need to allow "**/node_modules/expo/**" path, since Expo source maps URL contains it.
+            resolveSourceMapLocations: ["**", "!**/node_modules/!(expo)/**"],
         });
     }
 
     private static getExistingExtraArgs(attachArgs: IAttachRequestArgs): any {
-        let existingExtraArgs: any = {};
+        const existingExtraArgs: any = {};
         if (attachArgs.env) {
             existingExtraArgs.env = attachArgs.env;
         }
@@ -50,6 +54,7 @@ export class JsDebugConfigAdapter {
             existingExtraArgs.envFile = attachArgs.envFile;
         }
         existingExtraArgs.sourceMaps = attachArgs.sourceMaps;
+        existingExtraArgs.sourceMapRenames = attachArgs.sourceMapRenames;
         if (attachArgs.sourceMapPathOverrides) {
             existingExtraArgs.sourceMapPathOverrides = attachArgs.sourceMapPathOverrides;
         }

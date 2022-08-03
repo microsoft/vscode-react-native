@@ -1,24 +1,29 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {RNPackageVersions} from "../common/projectVersionHelper";
+import { RNPackageVersions } from "../common/projectVersionHelper";
 
 /**
  * Defines the supported launch arguments.
  * Add more arguments here as needed.
  */
-export interface ILaunchArgs {
+
+export interface IBaseArgs {
     platform: string;
     workspaceRoot: string;
     projectRoot: string;
-    reactNativeVersions: RNPackageVersions;
-    target?: "simulator" | "device";
-    debugAdapterPort?: number;
-    packagerPort?: any;
-    runArguments?: string[];
+    nodeModulesRoot: string;
     env?: any;
     envFile?: string;
     isDirect?: boolean;
+    packagerPort?: number;
+}
+
+export interface ILaunchArgs extends IBaseArgs {
+    reactNativeVersions: RNPackageVersions;
+    target?: string;
+    debugAdapterPort?: number;
+    runArguments?: string[];
     enableDebug?: boolean;
 }
 
@@ -26,10 +31,11 @@ export enum PlatformType {
     Android = "android",
     iOS = "ios",
     Windows = "windows",
-    WPF = "wpf",
     Exponent = "exponent",
-    macOS = "macos"
+    macOS = "macos",
 }
+
+export type ExpoHostType = "tunnel" | "lan" | "local";
 
 /**
  * Defines the options needed to start debugging a project.
@@ -41,21 +47,25 @@ export interface IAndroidRunOptions extends ILaunchArgs {
     debugLaunchActivity?: string;
 }
 
-export interface IIOSRunOptions extends ILaunchArgs {
+export interface ImacOSRunOptions extends ILaunchArgs {
     scheme?: string;
-    iosRelativeProjectPath?: string; // TODO Remove deprecated
-    productName?: string;
     configuration?: string;
+    productName?: string;
+}
+
+export interface IIOSRunOptions extends ImacOSRunOptions {
+    iosRelativeProjectPath?: string; // TODO Remove deprecated
 }
 
 export interface IExponentRunOptions extends IAndroidRunOptions, IIOSRunOptions {
-    expoHostType?: "tunnel" | "lan" | "local";
+    expoHostType?: ExpoHostType;
     openExpoQR?: boolean;
 }
 
 export type IWindowsRunOptions = ILaunchArgs;
-export type ImacOSRunOptions = ILaunchArgs;
 
-export interface IRunOptions extends IAndroidRunOptions, IIOSRunOptions, IExponentRunOptions, IWindowsRunOptions  {
-
-}
+export interface IRunOptions
+    extends IAndroidRunOptions,
+        IIOSRunOptions,
+        IExponentRunOptions,
+        IWindowsRunOptions {}
