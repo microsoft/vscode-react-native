@@ -68,9 +68,6 @@ function padZeroes(minDesiredLength: number, numberToPad: string): string {
 
 export function stripJsonTrailingComma(str: string): any {
     const endOfStringTrailingCommaRegex = /,\s*$/g;
-    const matchResult = str.match(endOfStringTrailingCommaRegex);
-    if (matchResult) {
-    }
     const result = str.replace(endOfStringTrailingCommaRegex, "");
     const objResult = json5.parse(result);
     return objResult;
