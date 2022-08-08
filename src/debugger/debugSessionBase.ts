@@ -3,12 +3,11 @@
 
 import * as path from "path";
 import * as fs from "fs";
-import stripJsonComments = require("strip-json-comments");
-import { stripJsonTrailingComma } from "../common/utils";
 import * as vscode from "vscode";
 import { LoggingDebugSession, Logger, logger, ErrorDestination } from "vscode-debugadapter";
 import { DebugProtocol } from "vscode-debugprotocol";
 import * as nls from "vscode-nls";
+import { stripJsonTrailingComma } from "../common/utils";
 import { getLoggingDirectory, LogHelper, LogLevel } from "../extension/log/LogHelper";
 import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
 import { ErrorHelper } from "../common/error/errorHelper";
@@ -249,23 +248,6 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         );
     }
 
-/**
- * Parses settings.json file for workspace root property
- */
-export function getProjectRoot(args: any): string {
-    const vsCodeRoot = args.cwd ? path.resolve(args.cwd) : path.resolve(args.program, "../..");
-    const settingsPath = path.resolve(vsCodeRoot, ".vscode/settings.json");
-    try {
-        let settingsContent = fs.readFileSync(settingsPath, "utf8");
-        settingsContent = stripJsonTrailingComma(stripJsonComments(settingsContent));
-        let parsedSettings = JSON.parse(settingsContent);
-        let projectRootPath = parsedSettings["react-native-tools.projectRoot"] || parsedSettings["react-native-tools"].projectRoot;
-        return path.resolve(vsCodeRoot, projectRootPath);
-    } catch (e) {
-        logger.verbose(`${settingsPath} file doesn't exist or its content is incorrect. This file will be ignored.`);
-        return args.cwd ? path.resolve(args.cwd) : path.resolve(args.program, "../..");
-    }
-}
     protected async preparePackagerBeforeAttach(
         args: IAttachRequestArgs,
         reactNativeVersions: RNPackageVersions,
@@ -296,5 +278,26 @@ export function getProjectRoot(args: any): string {
         await vscode.commands.executeCommand(this.stopCommand, undefined, {
             sessionId: this.vsCodeDebugSession.id,
         });
+    }
+}
+
+/**
+ * Parses settings.json file for workspace root property
+ */
+export function getProjectRoot(args: any): string {
+    const vsCodeRoot = args.cwd ? path.resolve(args.cwd) : path.resolve(args.program, "../..");
+    const settingsPath = path.resolve(vsCodeRoot, ".vscode/settings.json");
+    try {
+        const settingsContent = fs.readFileSync(settingsPath, "utf8");
+        const parsedSettings = stripJsonTrailingComma(settingsContent);
+        const projectRootPath =
+            parsedSettings["react-native-tools.projectRoot"] ||
+            parsedSettings["react-native-tools"].projectRoot;
+        return path.resolve(vsCodeRoot, projectRootPath);
+    } catch (e) {
+        logger.verbose(
+            `${settingsPath} file doesn't exist or its content is incorrect. This file will be ignored.`,
+        );
+        return args.cwd ? path.resolve(args.cwd) : path.resolve(args.program, "../..");
     }
 }

@@ -3,7 +3,6 @@
 
 import * as path from "path";
 import * as fs from "fs";
-import stripJsonComments = require("strip-json-comments");
 import { stripJsonTrailingComma } from "../common/utils";
 
 export interface IConfiguration {
@@ -32,7 +31,7 @@ export class LaunchScenariosManager {
     public readLaunchScenarios(): void {
         if (fs.existsSync(this.pathToLaunchFile)) {
             const content = fs.readFileSync(this.pathToLaunchFile, "utf8");
-            this.launchScenarios = JSON.parse(stripJsonComments(content));
+            this.launchScenarios = stripJsonTrailingComma(content);
         }
     }
 
@@ -68,20 +67,4 @@ export class LaunchScenariosManager {
             fs.writeFileSync(this.pathToLaunchFile, JSON.stringify(launch, null, 4));
         }
     }
-    
-    public readLaunchScenarios(): void {
-        if (fs.existsSync(this.pathToLaunchFile)) {
-            const content = fs.readFileSync(this.pathToLaunchFile, "utf8");
-            this.launchScenarios = JSON.parse(stripJsonTrailingComma(stripJsonComments(content)));
-        }
-    }
-
-    public updateLaunchScenario(launchArgs: any, updates: any): void {
-        this.readLaunchScenarios();
-        let launchConfigIndex = this.getFirstScenarioIndexByParams(launchArgs);
-        const launchScenarios = this.getLaunchScenarios();
-        if (launchConfigIndex !== null && launchScenarios.configurations) {
-            Object.assign(launchScenarios.configurations[launchConfigIndex], updates);
-            this.writeLaunchScenarios(launchScenarios);
-        }
-    }
+}
