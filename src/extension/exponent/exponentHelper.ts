@@ -8,13 +8,12 @@ import * as path from "path";
 import * as semver from "semver";
 import * as vscode from "vscode";
 import { sync as globSync } from "glob";
-import stripJSONComments = require("strip-json-comments");
 import * as nls from "vscode-nls";
+import { stripJsonTrailingComma, getNodeModulesGlobalPath } from "../../common/utils";
 import { Package, IPackageInformation } from "../../common/node/package";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { ErrorHelper } from "../../common/error/errorHelper";
-import { getNodeModulesGlobalPath } from "../../common/utils";
 import { PackageLoader, PackageConfig } from "../../common/packageLoader";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { FileSystem } from "../../common/node/fileSystem";
@@ -58,7 +57,7 @@ export class ExponentHelper {
         this.hasInitialized = false;
         // Constructor is slim by design. This is to add as less computation as possible
         // to the initialization of the extension. If a public method is added, make sure
-        // to call this.lazilyInitialize() at the begining of the code to be sure all variables
+        // to call this.lazilyInitialize() at the beginning of the code to be sure all variables
         // are correctly initialized.
         this.nodeModulesGlobalPathAddedToEnv = false;
     }
@@ -436,14 +435,16 @@ require('${entryPoint}');`;
      */
     private async readExpJson(): Promise<ExpConfig> {
         const expJsonPath = this.pathToFileInWorkspace(EXP_JSON);
-        const content = await this.fs.readFile(expJsonPath);
-        return JSON.parse(stripJSONComments(content.toString()));
+        return this.fs.readFile(expJsonPath).then(content => {
+            return stripJsonTrailingComma(content.toString());
+        });
     }
 
     private async readAppJson(): Promise<AppJson> {
         const appJsonPath = this.pathToFileInWorkspace(APP_JSON);
-        const content = await this.fs.readFile(appJsonPath);
-        return JSON.parse(stripJSONComments(content.toString()));
+        return this.fs.readFile(appJsonPath).then(content => {
+            return stripJsonTrailingComma(content.toString());
+        });
     }
 
     private async writeAppJson(config: AppJson): Promise<AppJson> {
@@ -464,7 +465,7 @@ require('${entryPoint}');`;
     }
 
     /**
-     * Works as a constructor but only initiliazes when it's actually needed.
+     * Works as a constructor but only initializes when it's actually needed.
      */
     private async lazilyInitialize(): Promise<void> {
         if (!this.hasInitialized) {
