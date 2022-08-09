@@ -801,6 +801,7 @@ The extension provides custom TextMate tokens, with the help of which it is now 
 |`rnt.output.success`|Logs indicating successful completion of the process, such as `BUILD SUCCESSFUL` and others|
 
 Now you can customize React Native Tools output logs with `editor.tokenColorCustomizations` parameter in `settings.json` this way:
+
 ```json
 "editor.tokenColorCustomizations": {
   "textMateRules": [
