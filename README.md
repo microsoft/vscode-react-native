@@ -54,6 +54,7 @@ Using this extension, you can **debug your code and quickly run `react-native` c
   - [Configure an Android LogCat Monitor](#configure-an-android-logcat-monitor)
   - [Configure dependencies versions for debugging Expo projects](#configure-dependencies-versions-for-debugging-expo-projects)
   - [Configure custom key bindings for extension commands](#configure-custom-key-bindings-for-extension-commands)
+  - [Configure custom colors for extension output logs](#configure-custom-colors-for-extension-output-logs)
 - [Element inspector](#element-inspector)
 - [Network Inspector](#network-inspector)
 - [Developing inside a Docker Container](#developing-inside-a-docker-container)
@@ -780,6 +781,40 @@ The extension provides context variables for the following features:
 
 Using these context variables you can assign the same keyboard combination for some pair commands for more convenient use. For example, you can configure the same key bindings for `Start Packager` and `Stop Packager` commands using `when` clauses, as shown below:
 ![image](resources/images/custom-keybindings.png)
+
+## Configure custom colors for extension output logs
+
+The extension provides custom TextMate tokens, with the help of which it is now possible to customize the colors of the logs in output channels:
+|Scope|Description|
+|---|---|
+|`rnt.output.string`|Single and double quoted strings|
+|`rnt.output.url`|Links, email and ip address, filepaths|
+|`rnt.output.timestamp`|Date and time|
+|`rnt.output.numeric`|Constant decimal numbers|
+|`rnt.output.process`|Logs of processes such as npm, bundle, and other build tasks|
+|`rnt.output.error`|Errors, exceptions, fails and stack for them|
+|`rnt.output.warn`|Warning logs|
+|`rnt.output.info`|Info logs|
+|`rnt.output.debug`|Debug logs|
+|`rnt.output.verbose`|Verbose logs|
+|`rnt.output.constant`|Such values as `true`, `false`, `null`, `undefined`, `NaN`|
+|`rnt.output.success`|Logs indicating successful completion of the process, such as `BUILD SUCCESSFUL` and others|
+
+Now you can customize React Native Tools output logs with `editor.tokenColorCustomizations` parameter in `settings.json` this way:
+
+```json
+"editor.tokenColorCustomizations": {
+  "textMateRules": [
+    {
+      "settings": {
+        "foreground": "#c57ca0",
+        "fontStyle": "bold",
+      },
+      "scope": "rnt.output.string"
+    }
+  ]
+}
+```
 
 # Element inspector
 
