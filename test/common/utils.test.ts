@@ -36,7 +36,7 @@ suite("utilHelper", function () {
             done();
         });
 
-        test.only("should manage string contains end of string trailing comma", (done: Mocha.Done) => {
+        test("should manage string contains end of string trailing comma", (done: Mocha.Done) => {
             const strWithTrailingComma = `
             {
               "version": "0.2.0",
