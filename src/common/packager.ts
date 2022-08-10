@@ -169,6 +169,18 @@ export class Packager {
         let rnVersion: string;
 
         if (!(await this.isRunning())) {
+            if (this.packagerProcess) {
+                this.logger.warning(
+                    ErrorHelper.getWarning(
+                        localize(
+                            "PackagerIsAlreadyRunning",
+                            "If you want to debug please use the 'Attach to packager' option.",
+                        ),
+                    ),
+                );
+                return;
+            }
+
             executedStartPackagerCmd = true;
 
             const versions = await ProjectVersionHelper.getReactNativeVersions(this.projectPath);
@@ -239,7 +251,7 @@ export class Packager {
                     ErrorHelper.getWarning(
                         localize(
                             "PackagerRunningOutsideVSCode",
-                            "React Native Packager running outside of VS Code. If you want to debug please use the 'Attach to packager' option",
+                            "React Native Packager running outside of VS Code. If you want to debug please use the 'Attach to packager' option.",
                         ),
                     ),
                 );
@@ -247,6 +259,7 @@ export class Packager {
                 return;
             }
         }
+
         this.packagerStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED);
     }
 
