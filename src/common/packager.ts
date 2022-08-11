@@ -174,7 +174,7 @@ export class Packager {
                     ErrorHelper.getWarning(
                         localize(
                             "PackagerIsAlreadyRunning",
-                            "If you want to debug please use the 'Attach to packager' option.",
+                            "Packager is already running. If you want to debug please use the 'Attach to packager' option.",
                         ),
                     ),
                 );
