@@ -173,7 +173,7 @@ export class Packager {
                 this.logger.warning(
                     ErrorHelper.getWarning(
                         localize(
-                            "PackagerIsAlreadyRunning",
+                            "PackagerIsRunningBeforeStarting",
                             "Packager is already running. If you want to debug please use the 'Attach to packager' option.",
                         ),
                     ),
