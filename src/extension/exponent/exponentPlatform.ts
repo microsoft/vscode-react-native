@@ -131,7 +131,9 @@ export class ExponentPlatform extends GeneralPlatform {
                     "Scan below QR code to open your app:",
                 );
                 this.logger.info(outputMessage);
-                generate(exponentUrl, { small: true }, qrcode => this.logger.info(`\n${qrcode}`));
+                generate(exponentUrl, { small: true }, (qrcode: string) =>
+                    this.logger.info(`\n${qrcode}`),
+                );
             }
 
             const copyButton = localize("CopyToClipboard", "Copy to clipboard");
