@@ -5,7 +5,7 @@ Please, be aware that automated tests don't cover debugging cases on real device
 
 ## Prerequisites
 
-Make sure you are on `Node.JS >= 14.x`.
+Make sure you are on [Node.js >= 14.x](https://nodejs.org/en/download/). Install Node.js on **Windows** and **MacOS** from Node.js org, and suggest to install on **Linux** by [NVM](https://github.com/nvm-sh/nvm) that is more compatible.
 
 Tests are running using [VS Code automation package](https://github.com/microsoft/vscode/tree/main/test/automation), so before the tests runs the VS Code build tools are required to be installed. Please make sure that [instructions for building VS Code from sources](https://github.com/microsoft/vscode/wiki/How-to-Contribute#prerequisites) are completed before running the tests.
 
@@ -65,7 +65,7 @@ Add these lines to `~/.zshrc` (create one if it doesn't exist):
     ```
    > Notice: since 0.68 version of React Native ```ANDROID_HOME``` has to be changed to ```ANDROID_SDK_ROOT``` for linux and macOS
    * **Linux**:
-Add these lines to `~/.bash_profile` (create one if it doesn't exist):
+Add these lines to `~/.bash_profile`(create one if it doesn't exist) or `~/.bashrc` :
     ```bash
     export JAVA_HOME=$(readlink -f /usr/bin/javac | sed "s:/bin/javac::")
     export ANDROID_HOME=/home/<username>/Android/sdk
@@ -86,7 +86,7 @@ Add these lines to `~/.bash_profile` (create one if it doesn't exist):
     ```bash
     emulator -avd <device_name>
     ```
-1. (**Linux** only) Add this line to your `/etc/sysctl.conf` file to manage with [file watching limitation on Linux](https://code.visualstudio.com/docs/setup/linux#_visual-studio-code-is-unable-to-watch-for-file-changes-in-this-large-workspace-error-enospc):
+1. (**Linux** only) Add this line to your `/etc/sysctl.conf` file by **Vim Command** to manage with [file watching limitation on Linux](https://code.visualstudio.com/docs/setup/linux#_visual-studio-code-is-unable-to-watch-for-file-changes-in-this-large-workspace-error-enospc):
    ```bash
    fs.inotify.max_user_watches=524288
    ```
