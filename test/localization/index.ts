@@ -1,5 +1,5 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for details.
+// Licensed under the MIT license. See LICENSE file in the project root for detail.
 
 import * as path from "path";
 import * as Mocha from "mocha";
