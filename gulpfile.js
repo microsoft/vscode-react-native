@@ -585,11 +585,11 @@ function testCoverage(cb) {
 }
 
 module.exports = {
-    format:prettier: format_prettier,
-    format:eslint: format_eslint,
+    "format:prettier": format_prettier,
+    "format:eslint": format_eslint,
     format: format,
-    lint:prettier: lint_prettier,
-    lint:eslint: lint_eslint,
+    "lint:prettier": lint_prettier,
+    "lint:eslint": lint_eslint,
     lint: lint,
     build: runBuild,
     "webpack-bundle": webpack_bundle,
