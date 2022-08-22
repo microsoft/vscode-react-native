@@ -24,6 +24,7 @@ const { promisify } = require("util");
 const assert = require("assert");
 const through2 = require("through2");
 const { Transform } = require("readable-stream");
+const { series } = require("gulp");
 
 const copyright = GulpExtras.checkCopyright;
 const executeCommand = GulpExtras.executeCommand;
@@ -333,9 +334,7 @@ const runEslint = async options_ => {
     });
 };
 
-// gulp.task("format:prettier", () => runPrettier(true));
-// gulp.task("format:eslint", () => runEslint({ fix: true }));
-// gulp.task("format", gulp.series("format:prettier", "format:eslint"));
+const format = series(format_prettier, format_eslint);
 
 function format_prettier(cb) {
     runPrettier(true);
@@ -347,14 +346,7 @@ function format_eslint(cb) {
     cb();
 }
 
-function lint(cb) {
-    gulp.series(lint_prettier, lint_eslint);
-    cb();
-}
-
-// gulp.task("lint:prettier", () => runPrettier(false));
-// gulp.task("lint:eslint", () => runEslint({ fix: false }));
-// gulp.task("lint", gulp.series("lint:prettier", "lint:eslint"));
+const lint = series(lint_prettier, lint_eslint);
 
 function lint_prettier(cb) {
     runPrettier(false);
@@ -367,18 +359,6 @@ function lint_eslint(cb) {
 }
 
 /** Run webpack to bundle the extension output files */
-
-// gulp.task("webpack-bundle", async () => {
-//     const packages = [
-//         {
-//             entry: `${srcPath}/extension/rn-extension.ts`,
-//             filename: "rn-extension.js",
-//             library: true,
-//         },
-//     ];
-//     return runWebpack({ packages });
-// });
-
 async function webpack_bundle() {
     const packages = [
         {
@@ -389,22 +369,6 @@ async function webpack_bundle() {
     ];
     return runWebpack({ packages });
 }
-
-// gulp.task("clean", () => {
-//     const pathsToDelete = [
-//         "src/**/*.js",
-//         "src/**/*.js.map",
-//         "test/**/*.js",
-//         "test/**/*.js.map",
-//         "out/",
-//         "dist",
-//         "!test/resources/sampleReactNativeProject/**/*.js",
-//         ".vscode-test/",
-//         "nls.*.json",
-//         "!test/smoke/**/*",
-//     ];
-//     return del(pathsToDelete, { force: true });
-// });
 
 function clean() {
     const pathsToDelete = [
@@ -431,79 +395,19 @@ function runBuild(done) {
     });
 }
 
-// gulp.task(
-//     "build",
-//     gulp.series(lint, function runBuild(done) {
-//         build(true, true).once("finish", () => {
-//             done();
-//         });
-//     }),
-// );
-
-// gulp.task("build-dev", function runDevBuild(done) {
-//     build(true, false).once("finish", () => {
-//         done();
-//     });
-// });
-
 function build_dev(done) {
     build(true, false).once("finish", () => {
         done();
     });
 }
 
-// gulp.task("quick-build", gulp.series("build-dev"));
-
-// gulp.task(
-//     "watch",
-//     gulp.series("build", function runWatch() {
-//         log("Watching build sources...");
-//         return gulp.watch(sources, gulp.series("build"));
-//     }),
-// );
-
-// function build() {
-//     gulp.series(lint, runBuild);
-// }
-
-function watch(cb) {
-    gulp.series("build", function runWatch() {
-        log("Watching build sources...");
-        return gulp.watch(sources, gulp.series("build"));
-    });
+const watch = series(lint, runBuild, function runWatch(cb) {
+    log("Watching build sources...");
+    gulp.watch(sources, gulp.series(runBuild));
     cb();
-}
+});
 
-function prod_build(cb) {
-    gulp.series("clean", "webpack-bundle", generateSrcLocBundle);
-    cb();
-}
-
-// function quick_build(done) {
-//     build_dev(done);
-// }
-
-// gulp.task("prod-build", gulp.series("clean", "webpack-bundle", generateSrcLocBundle));
-
-// gulp.task("default", gulp.series("prod-build"));
-
-// // gulp.task("test", gulp.series("build", "lint", test));
-
-// gulp.task("test-no-build", test);
-
-// gulp.task(
-//     "test:coverage",
-//     gulp.series("quick-build", async function () {
-//         await test(true);
-//     }),
-// );
-
-// // gulp.task(
-// //     "watch-build-test",
-// //     gulp.series("build", "test", function runWatch() {
-// //         return gulp.watch(sources, gulp.series("build", "test"));
-// //     }),
-// // );
+const prodBuild = series(clean, webpack_bundle, generateSrcLocBundle);
 
 function watchBuildTest(cb) {
     gulp.series("build", "test", function runWatch() {
@@ -511,12 +415,6 @@ function watchBuildTest(cb) {
     });
     cb();
 }
-
-// gulp.task("package", callback => {
-//     const command = path.join(__dirname, "node_modules", ".bin", "vsce");
-//     const args = ["package"];
-//     executeCommand(command, args, callback);
-// });
 
 function package(cb) {
     const command = path.join(__dirname, "node_modules", ".bin", "vsce");
@@ -622,100 +520,12 @@ function prepareLicenses() {
         });
 }
 
-
-
-// gulp.task("release", function prepareLicenses() {
-//     const backupFiles = [
-//         "LICENSE.txt",
-//         "ThirdPartyNotices.txt",
-//         "package.json",
-//         "package-lock.json",
-//     ];
-//     const backupFolder = path.resolve(path.join(os.tmpdir(), "vscode-react-native"));
-//     if (!fs.existsSync(backupFolder)) {
-//         fs.mkdirSync(backupFolder);
-//     }
-
-//     return Promise.resolve()
-//         .then(() => {
-//             /* back up LICENSE.txt, ThirdPartyNotices.txt, README.md */
-//             log("Backing up license files to " + backupFolder + "...");
-//             backupFiles.forEach(fileName => {
-//                 fs.writeFileSync(path.join(backupFolder, fileName), fs.readFileSync(fileName));
-//             });
-
-//             /* copy over the release package license files */
-//             log("Preparing license files for release...");
-//             fs.writeFileSync("LICENSE.txt", fs.readFileSync("release/LICENSE.txt"));
-//             fs.writeFileSync(
-//                 "ThirdPartyNotices.txt",
-//                 fs.readFileSync("release/ThirdPartyNotices.txt"),
-//             );
-//         })
-//         .then(() => {
-//             let packageJson = readJson("package.json");
-//             packageJson.main = "./dist/rn-extension";
-//             if (isNightly) {
-//                 log("Performing nightly release...");
-//                 packageJson.version = getVersionNumber();
-//                 packageJson.name = extensionName;
-//                 packageJson.preview = true;
-//                 packageJson.displayName += " (Preview)";
-//             }
-//             writeJson("package.json", packageJson);
-//             log("Creating release package...");
-//             return new Promise((resolve, reject) => {
-//                 // NOTE: vsce must see npm 3.X otherwise it will not correctly strip out dev dependencies.
-//                 executeCommand(
-//                     "vsce",
-//                     ["package"],
-//                     arg => {
-//                         if (arg) {
-//                             reject(arg);
-//                         }
-//                         resolve();
-//                     },
-//                     { cwd: path.resolve(__dirname) },
-//                 );
-//             });
-//         })
-//         .finally(() => {
-//             /* restore backed up files */
-//             log("Restoring modified files...");
-//             backupFiles.forEach(fileName => {
-//                 fs.writeFileSync(
-//                     path.join(__dirname, fileName),
-//                     fs.readFileSync(path.join(backupFolder, fileName)),
-//                 );
-//             });
-//         });
-// });
-
-// // Creates package.i18n.json files for all languages from {workspaceRoot}/i18n folder into project root
-// gulp.task("add-i18n", () => {
-//     return gulp
-//         .src(["package.nls.json"])
-//         .pipe(nls.createAdditionalLanguageFiles(defaultLanguages, "i18n"))
-//         .pipe(gulp.dest("."));
-// });
-
 function addi18n() {
     return gulp
         .src(["package.nls.json"])
         .pipe(nls.createAdditionalLanguageFiles(defaultLanguages, "i18n"))
         .pipe(gulp.dest("."));
 }
-
-// // Creates MLCP readable .xliff file and saves it locally
-// gulp.task(
-//     "translations-export",
-//     gulp.series("build", function runTranslationExport() {
-//         return gulp
-//             .src(["package.nls.json", "nls.metadata.header.json", "nls.metadata.json"])
-//             .pipe(nls.createXlfFiles(translationProjectName, fullExtensionName))
-//             .pipe(gulp.dest(path.join("..", `${translationProjectName}-localization-export`)));
-//     }),
-// );
 
 function translationsExport(cb) {
     gulp.series("build", function runTranslationExport() {
@@ -727,46 +537,6 @@ function translationsExport(cb) {
     cb();
 }
 
-// // Imports localization from raw localized MLCP strings to VS Code .i18n.json files
-// gulp.task(
-//     "translations-import",
-//     gulp.series(done => {
-//         var options = minimist(process.argv.slice(2), {
-//             string: "location",
-//             default: {
-//                 location: "../vscode-translations-import",
-//             },
-//         });
-//         es.merge(
-//             defaultLanguages.map(language => {
-//                 let id = language.transifexId || language.id;
-//                 log(
-//                     path.join(
-//                         options.location,
-//                         id,
-//                         "vscode-extensions",
-//                         `${fullExtensionName}.xlf`,
-//                     ),
-//                 );
-//                 return gulp
-//                     .src(
-//                         path.join(
-//                             options.location,
-//                             id,
-//                             "vscode-extensions",
-//                             `${fullExtensionName}.xlf`,
-//                         ),
-//                     )
-//                     .pipe(nls.prepareJsonFiles())
-//                     .pipe(gulp.dest(path.join("./i18n", language.folderName)));
-//             }),
-//         ).pipe(
-//             es.wait(() => {
-//                 done();
-//             }),
-//         );
-//     }, "add-i18n"),
-// );
 function translationImport(cb) {
     gulp.series(done => {
         var options = minimist(process.argv.slice(2), {
@@ -815,26 +585,26 @@ function testCoverage(cb) {
 }
 
 module.exports = {
-    "format:prettier": format_prettier,
-    "format:eslint": format_eslint,
-    format: gulp.series(format_prettier, format_eslint),
-    "lint:prettier": lint_prettier,
-    "lint:eslint": lint_eslint,
-    "lint": lint,
-    "build": build,
+    format:prettier: format_prettier,
+    format:eslint: format_eslint,
+    format: format,
+    lint:prettier: lint_prettier,
+    lint:eslint: lint_eslint,
+    lint: lint,
+    build: runBuild,
     "webpack-bundle": webpack_bundle,
-    "clean": clean,
+    clean: clean,
     "build-dev": build_dev,
     "quick-build": gulp.series(build_dev),
-    "watch": watch,
-    "prod-build": prod_build,
-    "default": gulp.series(prod_build),
-    "test": gulp.series(build, lint, test),
+    watch: gulp.series(lint, watch),
+    "prod-build": prodBuild,
+    default: gulp.series(clean, webpack_bundle, generateSrcLocBundle),
+    test: gulp.series(build, lint, test),
     "test-no-build": test,
     "test:coverage": testCoverage,
     "watch-build-test": watchBuildTest,
-    "package": package,
-    "release": release,
+    package: package,
+    release: release,
     "add-i18n": addi18n,
     "translations-export": translationsExport,
     "translations-import": translationImport,
