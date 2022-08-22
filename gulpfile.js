@@ -386,6 +386,12 @@ function clean() {
     return del(pathsToDelete, { force: true });
 }
 
+const buildTask = gulp.series(lint, function runBuild(done) {
+    build(true, true).once("finish", () => {
+        done();
+    });
+});
+
 // TODO: The file property should point to the generated source (this implementation adds an extra folder to the path)
 // We should also make sure that we always generate urls in all the path properties (We shouldn"t have \\s. This seems to
 // be an issue on Windows platforms)
@@ -401,20 +407,18 @@ function build_dev(done) {
     });
 }
 
-const watch = series(lint, runBuild, function runWatch(cb) {
+const testTask = gulp.series(buildTask, lint, test);
+
+const watch = series(buildTask, function runWatch() {
     log("Watching build sources...");
-    gulp.watch(sources, gulp.series(runBuild));
-    cb();
+    return gulp.watch(sources, gulp.series(buildTask));
 });
 
 const prodBuild = series(clean, webpack_bundle, generateSrcLocBundle);
 
-function watchBuildTest(cb) {
-    gulp.series("build", "test", function runWatch() {
-        return gulp.watch(sources, gulp.series("build", "test"));
-    });
-    cb();
-}
+const watchBuildTest = gulp.series(buildTask, testTask, function runWatch() {
+    return gulp.watch(sources, gulp.series(buildTask, testTask));
+});
 
 function package(cb) {
     const command = path.join(__dirname, "node_modules", ".bin", "vsce");
@@ -527,62 +531,46 @@ function addi18n() {
         .pipe(gulp.dest("."));
 }
 
-function translationsExport(cb) {
-    gulp.series("build", function runTranslationExport() {
-        return gulp
-            .src(["package.nls.json", "nls.metadata.header.json", "nls.metadata.json"])
-            .pipe(nls.createXlfFiles(translationProjectName, fullExtensionName))
-            .pipe(gulp.dest(path.join("..", `${translationProjectName}-localization-export`)));
-    });
-    cb();
-}
+const translationsExport = gulp.series(buildTask, function runTranslationExport() {
+    return gulp
+        .src(["package.nls.json", "nls.metadata.header.json", "nls.metadata.json"])
+        .pipe(nls.createXlfFiles(translationProjectName, fullExtensionName))
+        .pipe(gulp.dest(path.join("..", `${translationProjectName}-localization-export`)));
+});
 
-function translationImport(cb) {
-    gulp.series(done => {
-        var options = minimist(process.argv.slice(2), {
-            string: "location",
-            default: {
-                location: "../vscode-translations-import",
-            },
-        });
-        es.merge(
-            defaultLanguages.map(language => {
-                let id = language.transifexId || language.id;
-                log(
+const translationImport = gulp.series(done => {
+    var options = minimist(process.argv.slice(2), {
+        string: "location",
+        default: {
+            location: "../vscode-translations-import",
+        },
+    });
+    es.merge(
+        defaultLanguages.map(language => {
+            let id = language.transifexId || language.id;
+            log(path.join(options.location, id, "vscode-extensions", `${fullExtensionName}.xlf`));
+            return gulp
+                .src(
                     path.join(
                         options.location,
                         id,
                         "vscode-extensions",
                         `${fullExtensionName}.xlf`,
                     ),
-                );
-                return gulp
-                    .src(
-                        path.join(
-                            options.location,
-                            id,
-                            "vscode-extensions",
-                            `${fullExtensionName}.xlf`,
-                        ),
-                    )
-                    .pipe(nls.prepareJsonFiles())
-                    .pipe(gulp.dest(path.join("./i18n", language.folderName)));
-            }),
-        ).pipe(
-            es.wait(() => {
-                done();
-            }),
-        );
-    }, "addi18n");
-    cb();
-}
+                )
+                .pipe(nls.prepareJsonFiles())
+                .pipe(gulp.dest(path.join("./i18n", language.folderName)));
+        }),
+    ).pipe(
+        es.wait(() => {
+            done();
+        }),
+    );
+}, addi18n);
 
-function testCoverage(cb) {
-    gulp.series(build_dev, async function () {
-        await test(true);
-    });
-    cb();
-}
+const testCoverage = gulp.series(gulp.series(build_dev), async function () {
+    await test(true);
+});
 
 module.exports = {
     "format:prettier": format_prettier,
@@ -591,15 +579,15 @@ module.exports = {
     "lint:prettier": lint_prettier,
     "lint:eslint": lint_eslint,
     lint: lint,
-    build: runBuild,
     "webpack-bundle": webpack_bundle,
     clean: clean,
+    build: buildTask,
     "build-dev": build_dev,
     "quick-build": gulp.series(build_dev),
-    watch: gulp.series(lint, watch),
+    watch: watch,
     "prod-build": prodBuild,
-    default: gulp.series(clean, webpack_bundle, generateSrcLocBundle),
-    test: gulp.series(build, lint, test),
+    default: gulp.series(prodBuild),
+    test: testTask,
     "test-no-build": test,
     "test:coverage": testCoverage,
     "watch-build-test": watchBuildTest,
