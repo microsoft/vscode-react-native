@@ -19,7 +19,7 @@ async function launchTests() {
         await runTests({
             extensionDevelopmentPath,
             extensionTestsPath,
-            launchArgs: ["--locale", "ru"],
+            launchArgs: ["--locale", "zh-cn"],
             version: "stable",
         });
     } catch (err) {

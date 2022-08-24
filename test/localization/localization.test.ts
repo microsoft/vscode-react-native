@@ -7,23 +7,23 @@ import { InternalErrorCode } from "../../src/common/error/internalErrorCode";
 
 suite("localizationTest", function () {
     suite("localizationContext", function () {
-        const commandFailedErrorRu = ErrorHelper.getInternalError(
+        const commandFailedErrorChs = ErrorHelper.getInternalError(
             InternalErrorCode.CommandFailed,
-            "Команда",
+            "IncorrectCommand",
         );
-        const iosDeployErrorRu = ErrorHelper.getInternalError(InternalErrorCode.IOSDeployNotFound);
+        const iosDeployErrorChs = ErrorHelper.getInternalError(InternalErrorCode.IOSDeployNotFound);
         test("localize should show correct message on Russian for CommandFailed error", (done: Mocha.Done) => {
             assert.strictEqual(
-                commandFailedErrorRu.message,
-                'Ошибка при выполнении команды "Команда" (error code 101)',
+                commandFailedErrorChs.message,
+                "执行命令 IncorrectCommand 时出错 (error code 101)",
             );
             done();
         });
 
         test("localize should show correct message on Russian for iOSDeployNotFound error", (done: Mocha.Done) => {
             assert.strictEqual(
-                iosDeployErrorRu.message,
-                'Не удается найти ios-deploy. Установите его на глобальном уровне ("npm install -g ios-deploy") (error code 201)',
+                iosDeployErrorChs.message,
+                "找不到 iOS 部署。请确保全局安装该部署(npm install -g ios-deploy) (error code 201)",
             );
             done();
         });
