@@ -24,6 +24,7 @@ const { promisify } = require("util");
 const assert = require("assert");
 const through2 = require("through2");
 const { Transform } = require("readable-stream");
+const { series } = require("gulp");
 
 const copyright = GulpExtras.checkCopyright;
 const executeCommand = GulpExtras.executeCommand;
@@ -333,16 +334,32 @@ const runEslint = async options_ => {
     });
 };
 
-gulp.task("format:prettier", () => runPrettier(true));
-gulp.task("format:eslint", () => runEslint({ fix: true }));
-gulp.task("format", gulp.series("format:prettier", "format:eslint"));
+const format = series(format_prettier, format_eslint);
 
-gulp.task("lint:prettier", () => runPrettier(false));
-gulp.task("lint:eslint", () => runEslint({ fix: false }));
-gulp.task("lint", gulp.series("lint:prettier", "lint:eslint"));
+function format_prettier(cb) {
+    runPrettier(true);
+    cb();
+}
+
+function format_eslint(cb) {
+    runEslint({ fix: true });
+    cb();
+}
+
+const lint = series(lint_prettier, lint_eslint);
+
+function lint_prettier(cb) {
+    runPrettier(false);
+    cb();
+}
+
+function lint_eslint(cb) {
+    runEslint({ fix: false });
+    cb();
+}
 
 /** Run webpack to bundle the extension output files */
-gulp.task("webpack-bundle", async () => {
+async function webpack_bundle() {
     const packages = [
         {
             entry: `${srcPath}/extension/rn-extension.ts`,
@@ -351,9 +368,9 @@ gulp.task("webpack-bundle", async () => {
         },
     ];
     return runWebpack({ packages });
-});
+}
 
-gulp.task("clean", () => {
+function clean() {
     const pathsToDelete = [
         "src/**/*.js",
         "src/**/*.js.map",
@@ -367,63 +384,47 @@ gulp.task("clean", () => {
         "!test/smoke/**/*",
     ];
     return del(pathsToDelete, { force: true });
+}
+
+const buildTask = gulp.series(lint, function runBuild(done) {
+    build(true, true).once("finish", () => {
+        done();
+    });
 });
 
 // TODO: The file property should point to the generated source (this implementation adds an extra folder to the path)
 // We should also make sure that we always generate urls in all the path properties (We shouldn"t have \\s. This seems to
 // be an issue on Windows platforms)
-gulp.task(
-    "build",
-    gulp.series("lint", function runBuild(done) {
-        build(true, true).once("finish", () => {
-            done();
-        });
-    }),
-);
+function runBuild(done) {
+    build(true, true).once("finish", () => {
+        done();
+    });
+}
 
-gulp.task("build-dev", function runDevBuild(done) {
+function build_dev(done) {
     build(true, false).once("finish", () => {
         done();
     });
+}
+
+const testTask = gulp.series(buildTask, lint, test);
+
+const watch = series(buildTask, function runWatch() {
+    log("Watching build sources...");
+    return gulp.watch(sources, gulp.series(buildTask));
 });
 
-gulp.task("quick-build", gulp.series("build-dev"));
+const prodBuild = series(clean, webpack_bundle, generateSrcLocBundle);
 
-gulp.task(
-    "watch",
-    gulp.series("build", function runWatch() {
-        log("Watching build sources...");
-        return gulp.watch(sources, gulp.series("build"));
-    }),
-);
+const watchBuildTest = gulp.series(buildTask, testTask, function runWatch() {
+    return gulp.watch(sources, gulp.series(buildTask, testTask));
+});
 
-gulp.task("prod-build", gulp.series("clean", "webpack-bundle", generateSrcLocBundle));
-
-gulp.task("default", gulp.series("prod-build"));
-
-gulp.task("test", gulp.series("build", "lint", test));
-
-gulp.task("test-no-build", test);
-
-gulp.task(
-    "test:coverage",
-    gulp.series("quick-build", async function () {
-        await test(true);
-    }),
-);
-
-gulp.task(
-    "watch-build-test",
-    gulp.series("build", "test", function runWatch() {
-        return gulp.watch(sources, gulp.series("build", "test"));
-    }),
-);
-
-gulp.task("package", callback => {
+function package(cb) {
     const command = path.join(__dirname, "node_modules", ".bin", "vsce");
     const args = ["package"];
-    executeCommand(command, args, callback);
-});
+    executeCommand(command, args, cb);
+}
 
 function readJson(file) {
     const contents = fs.readFileSync(path.join(__dirname, file), "utf-8").toString();
@@ -435,9 +436,9 @@ function writeJson(file, jsonObj) {
     fs.writeFileSync(path.join(__dirname, file), content);
 }
 
-/**
- * Generate version number for a nightly build.
- */
+// /**
+//  * Generate version number for a nightly build.
+//  */
 const getVersionNumber = () => {
     const date = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" }));
 
@@ -451,7 +452,12 @@ const getVersionNumber = () => {
     ].join(".");
 };
 
-gulp.task("release", function prepareLicenses() {
+function release(cb) {
+    prepareLicenses();
+    cb();
+}
+
+function prepareLicenses() {
     const backupFiles = [
         "LICENSE.txt",
         "ThirdPartyNotices.txt",
@@ -516,64 +522,78 @@ gulp.task("release", function prepareLicenses() {
                 );
             });
         });
-});
+}
 
-// Creates package.i18n.json files for all languages from {workspaceRoot}/i18n folder into project root
-gulp.task("add-i18n", () => {
+function addi18n() {
     return gulp
         .src(["package.nls.json"])
         .pipe(nls.createAdditionalLanguageFiles(defaultLanguages, "i18n"))
         .pipe(gulp.dest("."));
+}
+
+const translationsExport = gulp.series(buildTask, function runTranslationExport() {
+    return gulp
+        .src(["package.nls.json", "nls.metadata.header.json", "nls.metadata.json"])
+        .pipe(nls.createXlfFiles(translationProjectName, fullExtensionName))
+        .pipe(gulp.dest(path.join("..", `${translationProjectName}-localization-export`)));
 });
 
-// Creates MLCP readable .xliff file and saves it locally
-gulp.task(
-    "translations-export",
-    gulp.series("build", function runTranslationExport() {
-        return gulp
-            .src(["package.nls.json", "nls.metadata.header.json", "nls.metadata.json"])
-            .pipe(nls.createXlfFiles(translationProjectName, fullExtensionName))
-            .pipe(gulp.dest(path.join("..", `${translationProjectName}-localization-export`)));
-    }),
-);
-
-// Imports localization from raw localized MLCP strings to VS Code .i18n.json files
-gulp.task(
-    "translations-import",
-    gulp.series(done => {
-        var options = minimist(process.argv.slice(2), {
-            string: "location",
-            default: {
-                location: "../vscode-translations-import",
-            },
-        });
-        es.merge(
-            defaultLanguages.map(language => {
-                let id = language.transifexId || language.id;
-                log(
+const translationImport = gulp.series(done => {
+    var options = minimist(process.argv.slice(2), {
+        string: "location",
+        default: {
+            location: "../vscode-translations-import",
+        },
+    });
+    es.merge(
+        defaultLanguages.map(language => {
+            let id = language.transifexId || language.id;
+            log(path.join(options.location, id, "vscode-extensions", `${fullExtensionName}.xlf`));
+            return gulp
+                .src(
                     path.join(
                         options.location,
                         id,
                         "vscode-extensions",
                         `${fullExtensionName}.xlf`,
                     ),
-                );
-                return gulp
-                    .src(
-                        path.join(
-                            options.location,
-                            id,
-                            "vscode-extensions",
-                            `${fullExtensionName}.xlf`,
-                        ),
-                    )
-                    .pipe(nls.prepareJsonFiles())
-                    .pipe(gulp.dest(path.join("./i18n", language.folderName)));
-            }),
-        ).pipe(
-            es.wait(() => {
-                done();
-            }),
-        );
-    }, "add-i18n"),
-);
+                )
+                .pipe(nls.prepareJsonFiles())
+                .pipe(gulp.dest(path.join("./i18n", language.folderName)));
+        }),
+    ).pipe(
+        es.wait(() => {
+            done();
+        }),
+    );
+}, addi18n);
+
+const testCoverage = gulp.series(gulp.series(build_dev), async function () {
+    await test(true);
+});
+
+module.exports = {
+    "format:prettier": format_prettier,
+    "format:eslint": format_eslint,
+    format: format,
+    "lint:prettier": lint_prettier,
+    "lint:eslint": lint_eslint,
+    lint: lint,
+    "webpack-bundle": webpack_bundle,
+    clean: clean,
+    build: buildTask,
+    "build-dev": build_dev,
+    "quick-build": gulp.series(build_dev),
+    watch: watch,
+    "prod-build": prodBuild,
+    default: gulp.series(prodBuild),
+    test: testTask,
+    "test-no-build": test,
+    "test:coverage": testCoverage,
+    "watch-build-test": watchBuildTest,
+    package: package,
+    release: release,
+    "add-i18n": addi18n,
+    "translations-export": translationsExport,
+    "translations-import": translationImport,
+};
