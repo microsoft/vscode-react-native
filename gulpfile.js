@@ -30,6 +30,8 @@ const copyright = GulpExtras.checkCopyright;
 const executeCommand = GulpExtras.executeCommand;
 const tsProject = ts.createProject("tsconfig.json");
 
+const getFormatter = require("./gulp_scripts/formatter");
+
 /**
  * Whether we're running a nightly build.
  */
@@ -279,85 +281,6 @@ async function test(inspectCodeCoverage = false) {
     }
 }
 
-const runPrettier = async fix => {
-    const child = cp.fork(
-        "./node_modules/@mixer/parallel-prettier/dist/index.js",
-        [
-            fix ? "--write" : "--list-different",
-            "test/**/*.ts",
-            "gulpfile.js",
-            "*.md",
-            "!CHANGELOG.md",
-            "!test/smoke/**",
-            "!src/**/*.d.ts",
-        ],
-        {
-            stdio: "inherit",
-        },
-    );
-
-    await new Promise((resolve, reject) => {
-        child.on("exit", code => {
-            code ? reject(`Prettier exited with code ${code}`) : resolve();
-        });
-    });
-};
-
-/**
- * @typedef {{color: boolean, fix: boolean}} OptionsT
- */
-
-/**
- * @param {OptionsT} options_
- */
-const runEslint = async options_ => {
-    /** @type {OptionsT} */
-    const options = Object.assign({ color: true, fix: false }, options_);
-
-    const files = ["src/**/*.ts"];
-
-    const args = [
-        ...(options.color ? ["--color"] : ["--no-color"]),
-        ...(options.fix ? ["--fix"] : []),
-        ...files,
-    ];
-
-    const child = cp.fork("./node_modules/eslint/bin/eslint.js", args, {
-        stdio: "inherit",
-        cwd: __dirname,
-    });
-
-    await new Promise((resolve, reject) => {
-        child.on("exit", code => {
-            code ? reject(`Eslint exited with code ${code}`) : resolve();
-        });
-    });
-};
-
-const format = series(format_prettier, format_eslint);
-
-function format_prettier(cb) {
-    runPrettier(true);
-    cb();
-}
-
-function format_eslint(cb) {
-    runEslint({ fix: true });
-    cb();
-}
-
-const lint = series(lint_prettier, lint_eslint);
-
-function lint_prettier(cb) {
-    runPrettier(false);
-    cb();
-}
-
-function lint_eslint(cb) {
-    runEslint({ fix: false });
-    cb();
-}
-
 /** Run webpack to bundle the extension output files */
 async function webpack_bundle() {
     const packages = [
@@ -386,7 +309,7 @@ function clean() {
     return del(pathsToDelete, { force: true });
 }
 
-const buildTask = gulp.series(lint, function runBuild(done) {
+const buildTask = gulp.series(getFormatter.lint, function runBuild(done) {
     build(true, true).once("finish", () => {
         done();
     });
@@ -407,7 +330,7 @@ function build_dev(done) {
     });
 }
 
-const testTask = gulp.series(buildTask, lint, test);
+const testTask = gulp.series(buildTask, getFormatter.lint, test);
 
 const watch = series(buildTask, function runWatch() {
     log("Watching build sources...");
@@ -573,12 +496,12 @@ const testCoverage = gulp.series(gulp.series(build_dev), async function () {
 });
 
 module.exports = {
-    "format:prettier": format_prettier,
-    "format:eslint": format_eslint,
-    format: format,
-    "lint:prettier": lint_prettier,
-    "lint:eslint": lint_eslint,
-    lint: lint,
+    "format:prettier": getFormatter.formatPrettier,
+    "format:eslint": getFormatter.formatEslint,
+    format: getFormatter.format,
+    "lint:prettier": getFormatter.lintPrettier,
+    "lint:eslint": getFormatter.lintEslint,
+    lint: getFormatter.lint,
     "webpack-bundle": webpack_bundle,
     clean: clean,
     build: buildTask,
