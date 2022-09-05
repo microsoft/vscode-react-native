@@ -17,7 +17,7 @@ const nls = require("vscode-nls-dev");
 const webpack = require("webpack");
 const TerserPlugin = require("terser-webpack-plugin");
 const filter = require("gulp-filter");
-const del = require("del");
+// const del = require("del");
 const vscodeTest = require("vscode-test");
 const cp = require("child_process");
 const { promisify } = require("util");
@@ -28,9 +28,12 @@ const { series } = require("gulp");
 
 const copyright = GulpExtras.checkCopyright;
 const executeCommand = GulpExtras.executeCommand;
-const tsProject = ts.createProject("tsconfig.json");
+// const tsProject = ts.createProject("tsconfig.json");
 
 const getFormatter = require("./gulp_scripts/formatter");
+const getWebpackBundle = require("./gulp_scripts/webpackBundle");
+const getCleaner = require("./gulp_scripts/cleaner");
+const getBuilder = require("./gulp_scripts/builder");
 
 /**
  * Whether we're running a nightly build.
@@ -39,44 +42,14 @@ const isNightly = process.argv.includes("--nightly");
 
 const vscodeVersionForTests = "stable";
 
-const fullExtensionName = isNightly
-    ? "msjsdiag.vscode-react-native-preview"
-    : "msjsdiag.vscode-react-native";
-
 const extensionName = isNightly ? "vscode-react-native-preview" : "vscode-react-native";
 
 const translationProjectName = "vscode-extensions";
-const defaultLanguages = [
-    { id: "zh-tw", folderName: "cht", transifexId: "zh-hant" },
-    { id: "zh-cn", folderName: "chs", transifexId: "zh-hans" },
-    { id: "ja", folderName: "jpn" },
-    { id: "ko", folderName: "kor" },
-    { id: "de", folderName: "deu" },
-    { id: "fr", folderName: "fra" },
-    { id: "es", folderName: "esn" },
-    { id: "ru", folderName: "rus" },
-    { id: "it", folderName: "ita" },
-
-    // These language-pack languages are included for VS but excluded from the vscode package
-    { id: "cs", folderName: "csy" },
-    { id: "tr", folderName: "trk" },
-    { id: "pt-br", folderName: "ptb", transifexId: "pt-BR" },
-    { id: "pl", folderName: "plk" },
-];
 
 const srcPath = "src";
 const testPath = "test";
-const distDir = "dist";
-const distSrcDir = `${distDir}/src`;
 
 const sources = [srcPath, testPath].map(tsFolder => tsFolder + "/**/*.ts");
-
-const knownOptions = {
-    string: "env",
-    default: { env: "production" },
-};
-
-const options = minimist(process.argv.slice(2), knownOptions);
 
 let lintSources = [srcPath, testPath].map(tsFolder => tsFolder + "/**/*.ts");
 lintSources = lintSources.concat([
@@ -85,161 +58,6 @@ lintSources = lintSources.concat([
     "!test/smoke/**",
     "!/SmokeTestLogs/**",
 ]);
-
-async function runWebpack({
-    packages = [],
-    devtool = false,
-    compileInPlace = false,
-    mode = process.argv.includes("watch") ? "development" : "production",
-} = options) {
-    let configs = [];
-    for (const { entry, library, filename } of packages) {
-        const config = {
-            mode,
-            target: "node",
-            entry: path.resolve(entry),
-            output: {
-                path: compileInPlace ? path.resolve(path.dirname(entry)) : path.resolve(distDir),
-                filename: filename || path.basename(entry).replace(".js", ".bundle.js"),
-                devtoolModuleFilenameTemplate: "../[resource-path]",
-            },
-            devtool: devtool,
-            resolve: {
-                extensions: [".js", ".ts", ".json"],
-            },
-            module: {
-                rules: [
-                    {
-                        test: /\.ts$/,
-                        exclude: /node_modules/,
-                        use: [
-                            {
-                                // vscode-nls-dev loader:
-                                // * rewrite nls-calls
-                                loader: "vscode-nls-dev/lib/webpack-loader",
-                                options: {
-                                    base: path.join(__dirname),
-                                },
-                            },
-                            {
-                                // configure TypeScript loader:
-                                // * enable sources maps for end-to-end source maps
-                                loader: "ts-loader",
-                                options: {
-                                    compilerOptions: {
-                                        sourceMap: true,
-                                    },
-                                },
-                            },
-                        ],
-                    },
-                ],
-            },
-            optimization: {
-                minimize: true,
-                minimizer: [
-                    new TerserPlugin({
-                        terserOptions: {
-                            format: {
-                                comments: /^\**!|@preserve/i,
-                            },
-                        },
-                        extractComments: false,
-                    }),
-                ],
-            },
-            node: {
-                __dirname: false,
-                __filename: false,
-            },
-            externals: {
-                vscode: "commonjs vscode",
-            },
-        };
-
-        if (library) {
-            config.output.libraryTarget = "commonjs2";
-        }
-
-        if (process.argv.includes("--analyze-size")) {
-            config.plugins = [
-                new (require("webpack-bundle-analyzer").BundleAnalyzerPlugin)({
-                    analyzerMode: "static",
-                    reportFilename: path.resolve(distSrcDir, path.basename(entry) + ".html"),
-                }),
-            ];
-        }
-
-        configs.push(config);
-    }
-
-    await new Promise((resolve, reject) =>
-        webpack(configs, (err, stats) => {
-            if (err) {
-                reject(err);
-            } else if (stats.hasErrors()) {
-                reject(stats);
-            } else {
-                resolve();
-            }
-        }),
-    );
-}
-
-// Generates ./dist/nls.bundle.<language_id>.json from files in ./i18n/** *//<src_path>/<filename>.i18n.json
-// Localized strings are read from these files at runtime.
-const generateSrcLocBundle = () => {
-    // Transpile the TS to JS, and let vscode-nls-dev scan the files for calls to localize.
-    return tsProject
-        .src()
-        .pipe(sourcemaps.init())
-        .pipe(tsProject())
-        .js.pipe(nls.createMetaDataFiles())
-        .pipe(nls.createAdditionalLanguageFiles(defaultLanguages, "i18n"))
-        .pipe(nls.bundleMetaDataFiles(fullExtensionName, "dist"))
-        .pipe(nls.bundleLanguageFiles())
-        .pipe(
-            filter([
-                "**/nls.bundle.*.json",
-                "**/nls.metadata.header.json",
-                "**/nls.metadata.json",
-                "!src/**",
-            ]),
-        )
-        .pipe(gulp.dest("dist"));
-};
-
-function build(failOnError, buildNls) {
-    const isProd = options.env === "production";
-    const preprocessorContext = isProd ? { PROD: true } : { DEBUG: true };
-    let gotError = false;
-    log(`Building with preprocessor context: ${JSON.stringify(preprocessorContext)}`);
-    const tsResult = tsProject
-        .src()
-        .pipe(preprocess({ context: preprocessorContext })) //To set environment variables in-line
-        .pipe(sourcemaps.init())
-        .pipe(tsProject());
-
-    return tsResult.js
-        .pipe(buildNls ? nls.rewriteLocalizeCalls() : es.through())
-        .pipe(
-            buildNls
-                ? nls.createAdditionalLanguageFiles(defaultLanguages, "i18n", ".")
-                : es.through(),
-        )
-        .pipe(buildNls ? nls.bundleMetaDataFiles(fullExtensionName, ".") : es.through())
-        .pipe(buildNls ? nls.bundleLanguageFiles() : es.through())
-        .pipe(sourcemaps.write(".", { includeContent: false, sourceRoot: "." }))
-        .pipe(gulp.dest(file => file.cwd))
-        .once("error", () => {
-            gotError = true;
-        })
-        .once("finish", () => {
-            if (failOnError && gotError) {
-                process.exit(1);
-            }
-        });
-}
 
 async function test(inspectCodeCoverage = false) {
     // Check if arguments were passed
@@ -281,65 +99,16 @@ async function test(inspectCodeCoverage = false) {
     }
 }
 
-/** Run webpack to bundle the extension output files */
-async function webpack_bundle() {
-    const packages = [
-        {
-            entry: `${srcPath}/extension/rn-extension.ts`,
-            filename: "rn-extension.js",
-            library: true,
-        },
-    ];
-    return runWebpack({ packages });
-}
+const testTask = gulp.series(getBuilder.buildTask, getFormatter.lint, test);
 
-function clean() {
-    const pathsToDelete = [
-        "src/**/*.js",
-        "src/**/*.js.map",
-        "test/**/*.js",
-        "test/**/*.js.map",
-        "out/",
-        "dist",
-        "!test/resources/sampleReactNativeProject/**/*.js",
-        ".vscode-test/",
-        "nls.*.json",
-        "!test/smoke/**/*",
-    ];
-    return del(pathsToDelete, { force: true });
-}
-
-const buildTask = gulp.series(getFormatter.lint, function runBuild(done) {
-    build(true, true).once("finish", () => {
-        done();
-    });
-});
-
-// TODO: The file property should point to the generated source (this implementation adds an extra folder to the path)
-// We should also make sure that we always generate urls in all the path properties (We shouldn"t have \\s. This seems to
-// be an issue on Windows platforms)
-function runBuild(done) {
-    build(true, true).once("finish", () => {
-        done();
-    });
-}
-
-function build_dev(done) {
-    build(true, false).once("finish", () => {
-        done();
-    });
-}
-
-const testTask = gulp.series(buildTask, getFormatter.lint, test);
-
-const watch = series(buildTask, function runWatch() {
+const watch = series(getBuilder.buildTask, function runWatch() {
     log("Watching build sources...");
-    return gulp.watch(sources, gulp.series(buildTask));
+    return gulp.watch(sources, gulp.series(getBuilder.buildTask));
 });
 
-const prodBuild = series(clean, webpack_bundle, generateSrcLocBundle);
+// const prodBuild = series(getCleaner.clean, getWebpackBundle.webpackBundle, generateSrcLocBundle);
 
-const watchBuildTest = gulp.series(buildTask, testTask, function runWatch() {
+const watchBuildTest = gulp.series(getBuilder.buildTask, testTask, function runWatch() {
     return gulp.watch(sources, gulp.series(buildTask, testTask));
 });
 
@@ -454,7 +223,7 @@ function addi18n() {
         .pipe(gulp.dest("."));
 }
 
-const translationsExport = gulp.series(buildTask, function runTranslationExport() {
+const translationsExport = gulp.series(getBuilder.buildTask, function runTranslationExport() {
     return gulp
         .src(["package.nls.json", "nls.metadata.header.json", "nls.metadata.json"])
         .pipe(nls.createXlfFiles(translationProjectName, fullExtensionName))
@@ -491,7 +260,7 @@ const translationImport = gulp.series(done => {
     );
 }, addi18n);
 
-const testCoverage = gulp.series(gulp.series(build_dev), async function () {
+const testCoverage = gulp.series(gulp.series(getBuilder.buildDev), async function () {
     await test(true);
 });
 
@@ -502,14 +271,14 @@ module.exports = {
     "lint:prettier": getFormatter.lintPrettier,
     "lint:eslint": getFormatter.lintEslint,
     lint: getFormatter.lint,
-    "webpack-bundle": webpack_bundle,
-    clean: clean,
-    build: buildTask,
-    "build-dev": build_dev,
-    "quick-build": gulp.series(build_dev),
+    "webpack-bundle": getWebpackBundle.webpackBundle,
+    clean: getCleaner.clean,
+    build: getBuilder.buildTask,
+    "build-dev": getBuilder.buildDev,
+    "quick-build": gulp.series(getBuilder.buildDev),
     watch: watch,
-    "prod-build": prodBuild,
-    default: gulp.series(prodBuild),
+    "prod-build": getBuilder.buildProd,
+    default: gulp.series(getBuilder.buildProd),
     test: testTask,
     "test-no-build": test,
     "test:coverage": testCoverage,
