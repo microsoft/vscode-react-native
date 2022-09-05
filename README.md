@@ -39,6 +39,7 @@ Using this extension, you can **debug your code and quickly run `react-native` c
     - [iOS Hermes debugging](#ios-hermes-debugging)
   - [Expo applications](#expo-applications)
     - [Configuring Expo](#configuring-expo)
+    - [Expo Hermes](#expo-hermes)
   - [Windows applications](#react-native-for-windows)
     - [Windows Hermes debugging](#windows-hermes-debugging)
   - [macOS applications](#react-native-for-macos)
@@ -165,11 +166,14 @@ The extension allows you to debug multiple devices and configurations, please re
 
 ## Hermes engine
 
+**Note**: React-native will set Hermes as default engine from `0.70` to instead of JSCore. Please see [official documentation](https://reactnative.dev/blog/2022/07/08/hermes-as-the-default) to get some details.
+
 The Hermes engine is an open source JavaScript engine created by Facebook to optimize building and running React Native applications. It improves app performance and decreases app size.
 
 Click [here](https://reactnative.dev/docs/hermes) to learn more about Hermes and how to enable it for your application.
+To turn off Hermes, you can do the same changes in documentation but set `Hermes Flag` to `False`.
 
-Debugging apps with Hermes enabled is currently experimental. Please, see [this issue](https://github.com/microsoft/vscode-react-native/issues/1073) for current known issues on Hermes support.
+Debugging apps with Hermes enabled is currently experimental. Please see [this issue](https://github.com/microsoft/vscode-react-native/issues/1266) for current known issues on Hermes support.
 
 ### Android Hermes
 
@@ -349,6 +353,22 @@ For running **pure React Native app**, the extension, creates and uses `.vscode/
 If you want to change your app entrypoint (for example, from `index.js` to `index.android.js`), delete `.vscode/exponentIndex.js` and then restart your debugging session.
 
 **NOTE**: The extension caches the version of the exponent SDK used by your project. This is helpful since we don't want to install the SDK each time you run exponent. If you want the extension to update the SDK version based on your React Native version, just restart VS Code and if it is supported it should work. If it does not please open an issue.
+
+### Expo Hermes
+
+Expo app is supporting Hermes Engine.
+
+You can add or remove `"jsEngine": "hermes"` in `app.json` to enable or disable Hermes Engine. And any changes for app engine you need to run `eas build` to rebuild your application.
+
+```json
+{
+  "expo": {
+    "jsEngine": "hermes"
+  }
+}
+```
+
+**Note**: You maybe need to create developer account to run `eas build`. Any other issue or limitiation, please see [expo hermes ducomentation](https://docs.expo.dev/guides/using-hermes/).
 
 ## React Native for Windows
 
