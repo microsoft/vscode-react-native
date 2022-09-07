@@ -38,6 +38,8 @@ Using this extension, you can **debug your code and quickly run `react-native` c
     - [iOS direct debugging](#iOS-direct-debugging)
     - [iOS Hermes debugging](#ios-hermes-debugging)
   - [Expo applications](#expo-applications)
+    - [Debug on Expo Go](#debug-on-expo-go)
+    - [Debug on expo-dev-client](#debug-on-expo-dev-client)
     - [Configuring Expo](#configuring-expo)
     - [Expo Hermes](#expo-hermes)
   - [Windows applications](#react-native-for-windows)
@@ -166,7 +168,7 @@ The extension allows you to debug multiple devices and configurations, please re
 
 ## Hermes engine
 
-**Note**: React-native will set Hermes as default engine from `0.70` to instead of JSCore. Please see [official documentation](https://reactnative.dev/blog/2022/07/08/hermes-as-the-default) to get some details.
+**Note**: Now react-native [0.70.0](https://github.com/facebook/react-native/releases/tag/v0.70.0) set Hermes as default engine to instead of JSCore. Please see [official documentation](https://reactnative.dev/blog/2022/07/08/hermes-as-the-default) to get details.
 
 The Hermes engine is an open source JavaScript engine created by Facebook to optimize building and running React Native applications. It improves app performance and decreases app size.
 
@@ -311,7 +313,9 @@ So also pay attention to the `React Native CLI Quickstart` tab, where you can fi
 
 You can verify that everything is working correctly and that the environment is ready for use with the `npx react-native doctor` command.
 
-To start debugging in Expo follow these steps:
+### Debug on Expo Go
+
+If you're using [Expo Go](https://expo.dev/expo-go), follow below steps tp start debugging Expo application:
 
 1. Open your project in VS Code with this extension installed.
 1. Create a debug configuration (as described in [Debugging React Native applications](#debugging-react-native-applications)), select `Debug in Exponent` in the debug drop-down menu, and start debugging
@@ -321,12 +325,23 @@ To start debugging in Expo follow these steps:
    If you have not created an Exponent account, then specifying a new username and password will create one.
    Note that there is no e-mail associated with the account, and no way to recover a forgotten password.
    If you don't want to create an Exponent account, you can specify `expoHostType` parameter in your debug configuration to make Expo work locally (via LAN or on localhost).
-1. Once the packager starts, the extension will open a separate tab with QR code to scan from the Exponent app. Once you do so, the Exponent app will connect to the packager and begin running your app.
+1. Once the packager starts, the extension will open a separate tab with QR code to scan from the Expo Go. Once you do so, the Expo Go will connect to the packager and begin running your app.
 1. Once the app is loaded and running, [open the developer menu](https://reactnative.dev/docs/debugging#accessing-the-in-app-developer-menu) and enable remote debugging by clicking on `Debug JS Remotely` button.
 
    ![React Native developer menu](./resources/images/enable-remote-debug.png)
 
-   From here you can run and debug the app as normal.
+### Debug on expo-dev-client
+
+If you want to debug Expo app using [expo-dev-client](https://docs.expo.dev/development/getting-started/), follow below steps tp start debugging Expo application:
+
+1. Open your project in VS Code with this extension installed.
+1. In project folder, install expo-dev-client for your app using `npx expo install expo-dev-client`
+1. Create your app in development mode `eas build --profile development --platform all`, replace `--platform all` to      `android` or `ios` to build specific platform application.
+1. After build success, download your build and install application to your device or simulator
+1. In project, using `npx expo start --dev-client` to start Metro and load application in device or simulator
+1. Using `CMD + D` or `Ctrl + M` to open local devtools
+1. Add `Attach to application` command `./vscode/launch.json`
+1. Run `Attach` command in debug tab(maybe need to reload app in Metro after running debugger) and debugger will start to work.
 
 ### Configuring Expo
 
