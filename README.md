@@ -339,7 +339,7 @@ If you want to debug Expo app using [expo-dev-client](https://docs.expo.dev/deve
 1. Create your app in development mode `eas build --profile development --platform all`, replace `--platform all` to `android` or `ios` to build specific platform application.
 1. After build success, download your build and install application to your device or simulator
 1. In project, using `npx expo start --dev-client` to start Metro and load application in device or simulator
-1. Using `CMD + D` or `Ctrl + M` to open local devtools
+1. Using `CMD + D` or `Ctrl + M` to open dev menu, then enable local devtools
 1. Add `Attach to application` command `./vscode/launch.json`
 1. Run `Attach` command in debug tab(maybe need to reload app in Metro after running debugger) and debugger will start to work.
 
