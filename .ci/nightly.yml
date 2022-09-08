@@ -6,7 +6,7 @@ jobs:
   - job: nightly_release
     displayName: Nightly Release
     pool:
-      vmImage: "ubuntu-18.04"
+      vmImage: ubuntu-latest
     steps:
       - template: common-validation.yml
 
