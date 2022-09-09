@@ -2,7 +2,7 @@ const webpack = require("webpack");
 const TerserPlugin = require("terser-webpack-plugin");
 const path = require("path");
 const srcPath = "src";
-const distDir = "dist";
+const distDir = appRoot + "/dist";
 const distSrcDir = `${distDir}/src`;
 
 /** Run webpack to bundle the extension output files */
@@ -49,7 +49,7 @@ async function runWebpack({
                                 // * rewrite nls-calls
                                 loader: "vscode-nls-dev/lib/webpack-loader",
                                 options: {
-                                    base: path.join(__dirname),
+                                    base: path.join(appRoot),
                                 },
                             },
                             {
