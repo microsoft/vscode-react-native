@@ -14,7 +14,7 @@ const getCleaner = require("./gulp_scripts/cleaner");
 const getBuilder = require("./gulp_scripts/builder");
 const getTester = require("./gulp_scripts/tester");
 const getWatcher = require("./gulp_scripts/watcher");
-const getPacker = require("./gulp_scripts/packer");
+const getPacker = require("./gulp_scripts/packager");
 const getRelease = require("./gulp_scripts/release");
 const getTranslator = require("./gulp_scripts/translator");
 
