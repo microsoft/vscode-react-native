@@ -19,4 +19,4 @@ const watchBuildTest = gulp.series(getBuilder.buildTask, getTester.testTask, fun
 module.exports = {
     watch,
     watchBuildTest,
-}
+};

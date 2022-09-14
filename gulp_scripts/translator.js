@@ -84,4 +84,4 @@ module.exports = {
     addi18n,
     translationImport,
     translationsExport,
-}
+};
