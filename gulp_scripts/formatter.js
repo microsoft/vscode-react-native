@@ -80,8 +80,6 @@ const lint = series(lintPrettier, lintEslint);
 
 const format = series(formatPrettier, formatEslint);
 
-
-
 module.exports = {
     formatPrettier,
     formatEslint,
