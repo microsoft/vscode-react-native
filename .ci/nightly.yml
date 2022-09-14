@@ -6,7 +6,7 @@ jobs:
   - job: nightly_release
     displayName: Nightly Release
     pool:
-      vmImage: "ubuntu-18.04"
+      vmImage: ubuntu-latest
     steps:
       - template: common-validation.yml
 
@@ -30,6 +30,6 @@ jobs:
 
       - bash: |
           VSIX=`ls *.vsix`
-          vsce publish --pat $(publishPAT) --packagePath $VSIX
+          vsce publish --pat $(extension-publish-vswdbot-PAT) --packagePath $VSIX
         displayName: "VSCE publish"
         condition: and(succeeded(), eq(variables['dryrun'], 'false'))
