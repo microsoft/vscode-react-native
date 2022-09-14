@@ -4,6 +4,7 @@
 import * as url from "url";
 import * as vscode from "vscode";
 import * as nls from "vscode-nls";
+import { generate } from "qrcode-terminal";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ExpoHostType, IExponentRunOptions, PlatformType } from "../launchArgs";
@@ -11,7 +12,6 @@ import { GeneralPlatform, MobilePlatformDeps } from "../generalPlatform";
 import { TelemetryHelper } from "../../common/telemetryHelper";
 import { QRCodeContentProvider } from "../qrCodeContentProvider";
 import { ExponentHelper } from "./exponentHelper";
-import { generate } from "qrcode-terminal";
 
 import * as XDL from "./xdlInterface";
 
