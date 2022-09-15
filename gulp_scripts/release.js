@@ -6,6 +6,7 @@ const fs = require("fs");
 const GulpExtras = require("../tools/gulp-extras");
 
 const isNightly = process.argv.includes("--nightly");
+const extensionName = isNightly ? "vscode-react-native-preview" : "vscode-react-native";
 const executeCommand = GulpExtras.executeCommand;
 
 function release(cb) {
@@ -45,7 +46,7 @@ function prepareLicenses() {
             let packageJson = readJson("/package.json");
             packageJson.main = "/dist/rn-extension";
             if (isNightly) {
-                log("Performing nightly release...");
+                log("Performing gul release...");
                 packageJson.version = getVersionNumber();
                 packageJson.name = extensionName;
                 packageJson.preview = true;
