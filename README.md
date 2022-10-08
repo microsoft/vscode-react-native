@@ -332,16 +332,27 @@ If you're using [Expo Go](https://expo.dev/expo-go), follow below steps tp start
 
 ### Debug on expo-dev-client
 
-If you want to debug Expo app using [expo-dev-client](https://docs.expo.dev/development/getting-started/), follow below steps tp start debugging Expo application:
+If you want to debug Expo app using [expo-dev-client](https://docs.expo.dev/development/getting-started/), follow below steps to start debugging Expo application:
 
 1. Open your project in VS Code with this extension installed.
-1. In project folder, install expo-dev-client for your app using `npx expo install expo-dev-client`
-1. Create your app in development mode `eas build --profile development --platform all`, replace `--platform all` to `android` or `ios` to build specific platform application.
-1. After build success, download your build and install application to your device or simulator
-1. In project, using `npx expo start --dev-client` to start Metro and load application in device or simulator
-1. Using `CMD + D` or `Ctrl + M` to open dev menu, then enable local devtools
-1. Add `Attach to application` command `./vscode/launch.json`
-1. Run `Attach` command in debug tab(maybe need to reload app in Metro after running debugger) and debugger will start to work.
+2. In project folder, install expo-dev-client for your app using `npx expo install expo-dev-client`
+3. Create your app in development mode `eas build --profile development --platform all`, replace `--platform all` to `android` or `iOS` to build specific platform application(need development account for `iOS` platform).
+4. After build success, download your build and install application to your device or simulator
+5. In project, using `npx expo start --dev-client` to start Metro and load application in device or simulator
+6. Using `CMD + D` or `Ctrl + M` to open dev menu, then enable local devtools
+7. If your Chrome or MS Edge open devtools after enabling local devtools, waiting the status is changed to `Status: Debugger session active`, then close browser devtools.
+8. Add `Attach to application` command `./.vscode/launch.json`
+```json
+    "configurations": [
+        {
+            "name": "Attach to packager",
+            "request": "attach",
+            "type": "reactnative",
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+```
+9. Run `Attach` command in debug tab and debugger will start to work(If debugger not go into breakpoint, you need to reload app from Metro to refresh app since maybe it had some conflicts between Browser devtools debug session and RNT debug session).
 
 ### Configuring Expo
 
