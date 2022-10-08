@@ -342,6 +342,7 @@ If you want to debug Expo app using [expo-dev-client](https://docs.expo.dev/deve
 6. Using `CMD + D` or `Ctrl + M` to open dev menu, then enable local devtools
 7. If your Chrome or MS Edge open devtools after enabling local devtools, waiting the status is changed to `Status: Debugger session active`, then close browser devtools.
 8. Add `Attach to application` command `./.vscode/launch.json`
+
 ```json
     "configurations": [
         {
@@ -352,6 +353,7 @@ If you want to debug Expo app using [expo-dev-client](https://docs.expo.dev/deve
         }
     ]
 ```
+
 9. Run `Attach` command in debug tab and debugger will start to work(If debugger not go into breakpoint, you need to reload app from Metro to refresh app since maybe it had some conflicts between Browser devtools debug session and RNT debug session).
 
 ### Configuring Expo
