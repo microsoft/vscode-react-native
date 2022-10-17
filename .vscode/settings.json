@@ -17,5 +17,6 @@
     "[typescript]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
+    // "gulp.autoDetect": "on",
     "typescript.tsdk": "./node_modules/typescript/lib"
 }

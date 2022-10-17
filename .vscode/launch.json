@@ -41,7 +41,7 @@
             "request": "launch",
             "runtimeExecutable": "${execPath}",
             "args": [
-                "--locale=ru",
+                "--locale=zh-cn",
                 "--extensionDevelopmentPath=${workspaceRoot}",
                 "--extensionTestsPath=${workspaceRoot}/test/localization"
             ],

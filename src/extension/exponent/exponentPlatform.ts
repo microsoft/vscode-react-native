@@ -4,6 +4,7 @@
 import * as url from "url";
 import * as vscode from "vscode";
 import * as nls from "vscode-nls";
+import { generate } from "qrcode-terminal";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ExpoHostType, IExponentRunOptions, PlatformType } from "../launchArgs";
@@ -11,7 +12,6 @@ import { GeneralPlatform, MobilePlatformDeps } from "../generalPlatform";
 import { TelemetryHelper } from "../../common/telemetryHelper";
 import { QRCodeContentProvider } from "../qrCodeContentProvider";
 import { ExponentHelper } from "./exponentHelper";
-import { generate } from "qrcode-terminal";
 
 import * as XDL from "./xdlInterface";
 
@@ -131,7 +131,9 @@ export class ExponentPlatform extends GeneralPlatform {
                     "Scan below QR code to open your app:",
                 );
                 this.logger.info(outputMessage);
-                generate(exponentUrl, { small: true }, qrcode => this.logger.info(`\n${qrcode}`));
+                generate(exponentUrl, { small: true }, (qrcode: string) =>
+                    this.logger.info(`\n${qrcode}`),
+                );
             }
 
             const copyButton = localize("CopyToClipboard", "Copy to clipboard");

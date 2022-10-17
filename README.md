@@ -38,7 +38,10 @@ Using this extension, you can **debug your code and quickly run `react-native` c
     - [iOS direct debugging](#iOS-direct-debugging)
     - [iOS Hermes debugging](#ios-hermes-debugging)
   - [Expo applications](#expo-applications)
+    - [Debug on Expo Go](#debug-on-expo-go)
+    - [Debug on expo-dev-client](#debug-on-expo-dev-client)
     - [Configuring Expo](#configuring-expo)
+    - [Expo Hermes](#expo-hermes)
   - [Windows applications](#react-native-for-windows)
     - [Windows Hermes debugging](#windows-hermes-debugging)
   - [macOS applications](#react-native-for-macos)
@@ -54,6 +57,7 @@ Using this extension, you can **debug your code and quickly run `react-native` c
   - [Configure an Android LogCat Monitor](#configure-an-android-logcat-monitor)
   - [Configure dependencies versions for debugging Expo projects](#configure-dependencies-versions-for-debugging-expo-projects)
   - [Configure custom key bindings for extension commands](#configure-custom-key-bindings-for-extension-commands)
+  - [Configure custom colors for extension output logs](#configure-custom-colors-for-extension-output-logs)
 - [Element inspector](#element-inspector)
 - [Network Inspector](#network-inspector)
 - [Developing inside a Docker Container](#developing-inside-a-docker-container)
@@ -164,11 +168,14 @@ The extension allows you to debug multiple devices and configurations, please re
 
 ## Hermes engine
 
+**Note**: Now react-native [0.70.0](https://github.com/facebook/react-native/releases/tag/v0.70.0) set Hermes as default engine to instead of JSCore. Please see [official documentation](https://reactnative.dev/blog/2022/07/08/hermes-as-the-default) to get details.
+
 The Hermes engine is an open source JavaScript engine created by Facebook to optimize building and running React Native applications. It improves app performance and decreases app size.
 
 Click [here](https://reactnative.dev/docs/hermes) to learn more about Hermes and how to enable it for your application.
+To turn off Hermes, you can do the same changes in documentation but set `Hermes Flag` to `False`.
 
-Debugging apps with Hermes enabled is currently experimental. Please, see [this issue](https://github.com/microsoft/vscode-react-native/issues/1073) for current known issues on Hermes support.
+Debugging apps with Hermes enabled is currently experimental. Please see [this issue](https://github.com/microsoft/vscode-react-native/issues/1266) for current known issues on Hermes support.
 
 ### Android Hermes
 
@@ -306,7 +313,9 @@ So also pay attention to the `React Native CLI Quickstart` tab, where you can fi
 
 You can verify that everything is working correctly and that the environment is ready for use with the `npx react-native doctor` command.
 
-To start debugging in Expo follow these steps:
+### Debug on Expo Go
+
+If you're using [Expo Go](https://expo.dev/expo-go), follow below steps tp start debugging Expo application:
 
 1. Open your project in VS Code with this extension installed.
 1. Create a debug configuration (as described in [Debugging React Native applications](#debugging-react-native-applications)), select `Debug in Exponent` in the debug drop-down menu, and start debugging
@@ -316,12 +325,36 @@ To start debugging in Expo follow these steps:
    If you have not created an Exponent account, then specifying a new username and password will create one.
    Note that there is no e-mail associated with the account, and no way to recover a forgotten password.
    If you don't want to create an Exponent account, you can specify `expoHostType` parameter in your debug configuration to make Expo work locally (via LAN or on localhost).
-1. Once the packager starts, the extension will open a separate tab with QR code to scan from the Exponent app. Once you do so, the Exponent app will connect to the packager and begin running your app.
+1. Once the packager starts, the extension will open a separate tab with QR code to scan from the Expo Go. Once you do so, the Expo Go will connect to the packager and begin running your app.
 1. Once the app is loaded and running, [open the developer menu](https://reactnative.dev/docs/debugging#accessing-the-in-app-developer-menu) and enable remote debugging by clicking on `Debug JS Remotely` button.
 
    ![React Native developer menu](./resources/images/enable-remote-debug.png)
 
-   From here you can run and debug the app as normal.
+### Debug on expo-dev-client
+
+If you want to debug Expo app using [expo-dev-client](https://docs.expo.dev/development/getting-started/), follow below steps to start debugging Expo application:
+
+1. Open your project in VS Code with this extension installed.
+2. In project folder, install expo-dev-client for your app using `npx expo install expo-dev-client`
+3. Create your app in development mode `eas build --profile development --platform all`, replace `--platform all` to `android` or `iOS` to build specific platform application(need development account for `iOS` platform).
+4. After build success, download your build and install application to your device or simulator
+5. In project, using `npx expo start --dev-client` to start Metro and load application in device or simulator
+6. Using `CMD + D` or `Ctrl + M` to open dev menu, then enable local devtools
+7. If your Chrome or MS Edge open devtools after enabling local devtools, waiting the status is changed to `Status: Debugger session active`, then close browser devtools.
+8. Add `Attach to application` command `./.vscode/launch.json`
+
+```json
+    "configurations": [
+        {
+            "name": "Attach to packager",
+            "request": "attach",
+            "type": "reactnative",
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+```
+
+9. Run `Attach` command in debug tab and debugger will start to work(If debugger not go into breakpoint, you need to reload app from Metro to refresh app since maybe it had some conflicts between Browser devtools debug session and RNT debug session).
 
 ### Configuring Expo
 
@@ -348,6 +381,22 @@ For running **pure React Native app**, the extension, creates and uses `.vscode/
 If you want to change your app entrypoint (for example, from `index.js` to `index.android.js`), delete `.vscode/exponentIndex.js` and then restart your debugging session.
 
 **NOTE**: The extension caches the version of the exponent SDK used by your project. This is helpful since we don't want to install the SDK each time you run exponent. If you want the extension to update the SDK version based on your React Native version, just restart VS Code and if it is supported it should work. If it does not please open an issue.
+
+### Expo Hermes
+
+Expo app is supporting Hermes Engine.
+
+You can add or remove `"jsEngine": "hermes"` in `app.json` to enable or disable Hermes Engine. And any changes for app engine you need to run `eas build` to rebuild your application.
+
+```json
+{
+  "expo": {
+    "jsEngine": "hermes"
+  }
+}
+```
+
+**Note**: You maybe need to create developer account to run `eas build`. Any other issue or limitiation, please see [expo hermes ducomentation](https://docs.expo.dev/guides/using-hermes/).
 
 ## React Native for Windows
 
@@ -780,6 +829,40 @@ The extension provides context variables for the following features:
 
 Using these context variables you can assign the same keyboard combination for some pair commands for more convenient use. For example, you can configure the same key bindings for `Start Packager` and `Stop Packager` commands using `when` clauses, as shown below:
 ![image](resources/images/custom-keybindings.png)
+
+## Configure custom colors for extension output logs
+
+The extension provides custom TextMate tokens, with the help of which it is now possible to customize the colors of the logs in output channels:
+|Scope|Description|
+|---|---|
+|`rnt.output.string`|Single and double quoted strings|
+|`rnt.output.url`|Links, email and ip address, filepaths|
+|`rnt.output.timestamp`|Date and time|
+|`rnt.output.numeric`|Constant decimal numbers|
+|`rnt.output.process`|Logs of processes such as npm, bundle, and other build tasks|
+|`rnt.output.error`|Errors, exceptions, fails and stack for them|
+|`rnt.output.warn`|Warning logs|
+|`rnt.output.info`|Info logs|
+|`rnt.output.debug`|Debug logs|
+|`rnt.output.verbose`|Verbose logs|
+|`rnt.output.constant`|Such values as `true`, `false`, `null`, `undefined`, `NaN`|
+|`rnt.output.success`|Logs indicating successful completion of the process, such as `BUILD SUCCESSFUL` and others|
+
+Now you can customize React Native Tools output logs with `editor.tokenColorCustomizations` parameter in `settings.json` this way:
+
+```json
+"editor.tokenColorCustomizations": {
+  "textMateRules": [
+    {
+      "settings": {
+        "foreground": "#c57ca0",
+        "fontStyle": "bold",
+      },
+      "scope": "rnt.output.string"
+    }
+  ]
+}
+```
 
 # Element inspector
 
