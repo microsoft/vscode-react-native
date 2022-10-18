@@ -1,3 +1,11 @@
+## 1.10.0
+* Update documentation for Hermes and Expo Hermes [#1827](https://github.com/microsoft/vscode-react-native/commit/9498893a1eb44e5d4af51251d25afe3d7be1295a)
+* Improve react-native packager output log and error message [#1811](https://github.com/microsoft/vscode-react-native/commit/4b9b406bce36747a151614c6537573a8e66e50aa)
+* Fix iOS debugger findXcodeProject function location [#1784](https://github.com/microsoft/vscode-react-native/commit/8f9463c248692a78f1bb8e19007977776064d6c1)
+* Add Expo QR code to output window  [#1786](https://github.com/microsoft/vscode-react-native/commit/b29085d1bbdd5ebf7d54348f54d94c4af4a42a9d)
+* Improve json file reading logic [#1422](https://github.com/microsoft/vscode-react-native/pull/1422)
+* Improve logging experience and log color customize [#1385](https://github.com/microsoft/vscode-react-native/pull/1385)
+
 ## 1.9.3
 * Refactored RN commands. Implemented command cancelation. [#1744](https://github.com/microsoft/vscode-react-native/commit/36a2164531c4813b93ae053b80dbaf3413b5e047)
 * Updated android environment check. [#1772](https://github.com/microsoft/vscode-react-native/commit/8609d70137598f25e88fb8b6413a7aae76645c65)
