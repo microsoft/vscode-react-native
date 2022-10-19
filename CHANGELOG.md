@@ -5,6 +5,12 @@
 * Add Expo QR code to output window  [#1786](https://github.com/microsoft/vscode-react-native/commit/b29085d1bbdd5ebf7d54348f54d94c4af4a42a9d)
 * Improve json file reading logic [#1422](https://github.com/microsoft/vscode-react-native/pull/1422)
 * Improve logging experience and log color customize [#1385](https://github.com/microsoft/vscode-react-native/pull/1385)
+* Internal changes:
+    * Switch husky hook from pre-push to pre-commit [#1841](https://github.com/microsoft/vscode-react-native/pull/1841)
+    * Simplify and group existing task in gulpfile.js [#1828](https://github.com/microsoft/vscode-react-native/pull/1828)
+    * Replace tasks in gulpfile.js with exports [#1815](https://github.com/microsoft/vscode-react-native/pull/1815)
+    * Unit test and localization test improvement [#1821](https://github.com/microsoft/vscode-react-native/pull/1821)
+    * Improve mocha test report [#1790](https://github.com/microsoft/vscode-react-native/pull/1790)
 
 ## 1.9.3
 * Refactored RN commands. Implemented command cancelation. [#1744](https://github.com/microsoft/vscode-react-native/commit/36a2164531c4813b93ae053b80dbaf3413b5e047)
