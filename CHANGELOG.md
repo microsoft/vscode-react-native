@@ -4,7 +4,7 @@
 * Fix iOS debugger findXcodeProject function location [#1784](https://github.com/microsoft/vscode-react-native/commit/8f9463c248692a78f1bb8e19007977776064d6c1)
 * Add Expo QR code to output window  [#1786](https://github.com/microsoft/vscode-react-native/commit/b29085d1bbdd5ebf7d54348f54d94c4af4a42a9d)
 * Improve json file reading logic [#1422](https://github.com/microsoft/vscode-react-native/pull/1422)
-* Improve logging experience and log color customize [#1385](https://github.com/microsoft/vscode-react-native/pull/1385)
+* Improve logging experience and add log color customize config [#1385](https://github.com/microsoft/vscode-react-native/pull/1385)
 * Internal changes:
     * Switch husky hook from pre-push to pre-commit [#1841](https://github.com/microsoft/vscode-react-native/pull/1841)
     * Simplify and group existing task in gulpfile.js [#1828](https://github.com/microsoft/vscode-react-native/pull/1828)
