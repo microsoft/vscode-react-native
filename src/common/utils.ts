@@ -1,10 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 import * as path from "path";
-import json5 = require("json5");
 import { ChildProcess } from "./node/childProcess";
 import { HostPlatform } from "./hostPlatform";
 import customRequire from "./customRequire";
+import stripJsonComments = require("strip-json-comments");
+import { parse } from "json5";
 
 export function removeModuleFromRequireCacheByName(moduleName: string): void {
     const moduleKey = Object.keys(customRequire.cache).find(key => key.includes(moduleName));
@@ -69,6 +70,11 @@ function padZeroes(minDesiredLength: number, numberToPad: string): string {
 export function stripJsonTrailingComma(str: string): any {
     const endOfStringTrailingCommaRegex = /,\s*$/g;
     const result = str.replace(endOfStringTrailingCommaRegex, "");
-    const objResult = json5.parse(result);
+    let objResult;
+    try {
+        objResult = parse(result);
+    } catch {
+        objResult = JSON.parse(stripJsonComments(str));
+    }
     return objResult;
 }

@@ -9,6 +9,7 @@ import * as semver from "semver";
 import * as vscode from "vscode";
 import { sync as globSync } from "glob";
 import * as nls from "vscode-nls";
+import { logger } from "vscode-debugadapter";
 import { stripJsonTrailingComma, getNodeModulesGlobalPath } from "../../common/utils";
 import { Package, IPackageInformation } from "../../common/node/package";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
@@ -309,9 +310,11 @@ require('${entryPoint}');`;
     private async patchAppJson(isExpo: boolean = true): Promise<void> {
         let appJson: AppJson;
         try {
+            logger.log("Reading app.json file.");
             appJson = await this.readAppJson();
         } catch {
-            // if app.json doesn't exist but it's ok, we will create it
+            // If app.json doesn't exist, we will create it
+            logger.log("Cannot get existing app.json file. Create new one.");
             appJson = <AppJson>{};
         }
         const packageName = await this.getPackageName();
@@ -442,6 +445,7 @@ require('${entryPoint}');`;
 
     private async readAppJson(): Promise<AppJson> {
         const appJsonPath = this.pathToFileInWorkspace(APP_JSON);
+        logger.log(`Getting app.json path: ${appJsonPath}`);
         return this.fs.readFile(appJsonPath).then(content => {
             return stripJsonTrailingComma(content.toString());
         });
