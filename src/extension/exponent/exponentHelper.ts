@@ -19,6 +19,7 @@ import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { FileSystem } from "../../common/node/fileSystem";
 import { SettingsHelper } from "../settingsHelper";
 import * as XDL from "./xdlInterface";
+import { logger } from "vscode-debugadapter";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -309,9 +310,11 @@ require('${entryPoint}');`;
     private async patchAppJson(isExpo: boolean = true): Promise<void> {
         let appJson: AppJson;
         try {
+            logger.log("Reading app.json file.");
             appJson = await this.readAppJson();
         } catch {
             // if app.json doesn't exist but it's ok, we will create it
+            logger.log("Not get existing app.json file. Create new one.");
             appJson = <AppJson>{};
         }
         const packageName = await this.getPackageName();
@@ -442,7 +445,9 @@ require('${entryPoint}');`;
 
     private async readAppJson(): Promise<AppJson> {
         const appJsonPath = this.pathToFileInWorkspace(APP_JSON);
+        logger.log(`Getting app.json path: ${appJsonPath}`);
         return this.fs.readFile(appJsonPath).then(content => {
+            logger.log(`Reading app.json file successfully. Content:${content.toString()}`);
             return stripJsonTrailingComma(content.toString());
         });
     }
