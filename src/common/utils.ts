@@ -5,7 +5,10 @@ import { ChildProcess } from "./node/childProcess";
 import { HostPlatform } from "./hostPlatform";
 import customRequire from "./customRequire";
 import stripJsonComments = require("strip-json-comments");
-import { parse } from "json5";
+import { logger } from "vscode-debugadapter";
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const JSON5 = require("json5");
 
 export function removeModuleFromRequireCacheByName(moduleName: string): void {
     const moduleKey = Object.keys(customRequire.cache).find(key => key.includes(moduleName));
@@ -72,8 +75,9 @@ export function stripJsonTrailingComma(str: string): any {
     const result = str.replace(endOfStringTrailingCommaRegex, "");
     let objResult;
     try {
-        objResult = parse(result);
+        objResult = JSON5.parse(result);
     } catch {
+        logger.log("Failed to parse .json file. Try it again...");
         objResult = JSON.parse(stripJsonComments(str));
     }
     return objResult;
