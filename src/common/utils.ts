@@ -75,6 +75,7 @@ export function stripJsonTrailingComma(str: string): any {
     const result = str.replace(endOfStringTrailingCommaRegex, "");
     let objResult;
     try {
+        logger.log("Start parsing .json file...");
         objResult = JSON5.parse(result);
     } catch {
         logger.log("Failed to parse .json file. Try it again...");

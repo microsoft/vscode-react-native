@@ -310,7 +310,6 @@ require('${entryPoint}');`;
     private async patchAppJson(isExpo: boolean = true): Promise<void> {
         let appJson: AppJson;
         try {
-            logger.log("Reading app.json file.");
             appJson = await this.readAppJson();
         } catch {
             // If app.json doesn't exist, we will create it
