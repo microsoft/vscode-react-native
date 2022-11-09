@@ -6,6 +6,6 @@
     "mochawesomeReporterOptions": {
         "reportDir": "../mochawesome-report",
         "reportFilename": "Rn-Test-Report",
-        "quiet": true,
+        "quiet": true
     }
 }

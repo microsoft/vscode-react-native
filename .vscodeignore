@@ -9,6 +9,7 @@ src/**
 .ci/**
 dist/src
 node_modules/**
+mochawesome-report/**
 **/*.js.map
 i18n/**
 SampleApplication/**
