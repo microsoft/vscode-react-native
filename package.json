@@ -59,7 +59,6 @@
           "log",
           "text/log",
           "text/x-log",
-          "text/x-code-output",
           "x-code-output"
         ]
       }
