@@ -5,9 +5,6 @@ pr:
 trigger:
   - none
 
-variables:
-  Codeql.Enabled: true
-
 jobs:
   - job: Linux
     pool:
