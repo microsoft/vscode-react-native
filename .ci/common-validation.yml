@@ -1,6 +1,3 @@
-variables:
-  Codeql.Enabled: true
-
 steps:
   - task: CodeQL3000Init@0
     displayName: CodeQL Initialize

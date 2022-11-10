@@ -2,6 +2,9 @@ pr:
   branches:
     include: ["*"]
 
+variables:
+  Codeql.Enabled: true
+
 trigger:
   - none
 
