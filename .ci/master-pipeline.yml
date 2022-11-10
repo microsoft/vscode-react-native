@@ -2,6 +2,9 @@ trigger:
   - master
   - preview
 
+variables:
+  Codeql.Enabled: true
+
 pr:
   - none
 
