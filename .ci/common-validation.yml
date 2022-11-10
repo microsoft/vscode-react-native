@@ -1,7 +1,4 @@
 steps:
-  - task: CodeQL3000Init@0
-    displayName: CodeQL Initialize
-
   - task: NodeTool@0
     displayName: "Use Node 14.x"
     inputs:
@@ -47,6 +44,3 @@ steps:
       failTaskOnFailedTests: true
       testRunTitle: "[Localization Context] $(Agent.OS) React Native unit tests - Attempt №$(System.JobAttempt)"
     condition: always()
-
-  - task: CodeQL3000Finalize@0
-    displayName: CodeQL Finalize

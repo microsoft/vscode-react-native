@@ -16,7 +16,11 @@ jobs:
     steps:
       - checkout: self
         clean: true
+      - task: CodeQL3000Init@0
+        displayName: CodeQL Initialize
       - template: common-validation.yml
+      - task: CodeQL3000Finalize@0
+        displayName: CodeQL Finalize
 
   - job: Windows
     pool:
@@ -25,7 +29,11 @@ jobs:
     steps:
       - checkout: self
         clean: true
+      - task: CodeQL3000Init@0
+        displayName: CodeQL Initialize
       - template: common-validation.yml
+      - task: CodeQL3000Finalize@0
+        displayName: CodeQL Finalize
 
   - job: macOS
     pool:
@@ -34,4 +42,8 @@ jobs:
     steps:
       - checkout: self
         clean: true
+      - task: CodeQL3000Init@0
+        displayName: CodeQL Initialize
       - template: common-validation.yml
+      - task: CodeQL3000Finalize@0
+        displayName: CodeQL Finalize
