@@ -1,0 +1,9 @@
+#########################################################################################
+# Use the `queries` block to change the default display of query results.               #
+#########################################################################################
+
+queries:
+  # Ignore error: Disabling certificate validation is strongly discouraged
+  - exclude: js/disabling-certificate-validation
+  # Ignore warning: This replaces only the first occurrence of ''
+  - exclude: js/incomplete-sanitization
