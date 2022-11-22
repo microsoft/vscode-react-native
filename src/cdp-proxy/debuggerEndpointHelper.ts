@@ -122,7 +122,7 @@ export class DebuggerEndpointHelper {
             const requestOptions: https.RequestOptions = {};
 
             if (isSecure && targetAddressIsLoopback) {
-                requestOptions.rejectUnauthorized = false;
+                requestOptions.rejectUnauthorized = false; // lgtm [js/disabling-certificate-validation]
             }
 
             const request = driver.get(url, requestOptions, response => {
