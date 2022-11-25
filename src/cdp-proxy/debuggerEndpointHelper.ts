@@ -122,7 +122,7 @@ export class DebuggerEndpointHelper {
             const requestOptions: https.RequestOptions = {};
 
             if (isSecure && targetAddressIsLoopback) {
-                requestOptions.rejectUnauthorized = false; // lgtm [js/disabling-certificate-validation]
+                requestOptions.rejectUnauthorized = false; // CodeQL [js/disabling-certificate-validation] Debug extension does not need to verify authorization
             }
 
             const request = driver.get(url, requestOptions, response => {

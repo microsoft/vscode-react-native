@@ -17,7 +17,7 @@ const through = require("through2");
  * @param {string} message The error message to display
  */
 function logError(pluginName, file, message) {
-    const sourcePath = path.relative(__dirname, file.path).replace("../", ""); // lgtm [js/incomplete-sanitization]
+    const sourcePath = path.relative(__dirname, file.path).replace("../", ""); // CodeQL [js/incomplete-sanitization] debugging extension does not need to verify replacement
     log(`[${colors.cyan(pluginName)}] ${colors.red("error")} ${sourcePath}: ${message}`);
 }
 
