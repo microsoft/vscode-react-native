@@ -233,7 +233,7 @@ export class AdbHelper {
             const localPropertiesSdkPath = path.join(
                 sdkLocation as string,
                 "platform-tools",
-                "adb.exe",
+                os.platform() === "win32" ? "adb.exe" : "adb",
             );
             const isExist = fs.existsSync(localPropertiesSdkPath);
             if (isExist) {
