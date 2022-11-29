@@ -240,9 +240,9 @@ export class AdbHelper {
                 return localPropertiesSdkPath;
             }
             if (logger) {
-                logger.info(
+                logger.warning(
                     localize(
-                        "LocalPropertiesFileAndroidSDKLocationNotExisting",
+                        "LocalPropertiesAndroidSDKPathNotExistingInLocal",
                         "Local.properties file has Andriod SDK path but cannot find it in your local, will switch to SDK PATH in environment variable. Please check Android SDK path in android/local.properties file.",
                     ),
                 );
