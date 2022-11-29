@@ -228,10 +228,28 @@ export class AdbHelper {
     }
 
     public getAdbPath(projectRoot: string, logger?: ILogger): string {
-        // Trying to read sdk location from local.properties file and if we succueded then
-        // we would run adb from inside it, otherwise we would rely to PATH
         const sdkLocation = this.getSdkLocationFromLocalPropertiesFile(projectRoot, logger);
-        return sdkLocation ? `"${path.join(sdkLocation, "platform-tools", "adb")}"` : "adb";
+        if (sdkLocation) {
+            const localPropertiesSdkPath = path.join(
+                sdkLocation as string,
+                "platform-tools",
+                "adb.exe",
+            );
+            const isExist = fs.existsSync(localPropertiesSdkPath);
+            if (isExist) {
+                return localPropertiesSdkPath;
+            }
+            if (logger) {
+                logger.info(
+                    localize(
+                        "LocalPropertiesFileAndroidSDKLocationNotExisting",
+                        "Local.properties file has Andriod SDK path but cannot find it in your local, will switch to SDK PATH in environment variable. Please check Android SDK path in android/local.properties file.",
+                    ),
+                );
+            }
+            return "adb";
+        }
+        return "adb";
     }
 
     public executeShellCommand(deviceId: string, command: string): Promise<string> {
