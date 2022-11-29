@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 import * as path from "path";
+import stripJsonComments = require("strip-json-comments");
+import { logger } from "vscode-debugadapter";
 import { ChildProcess } from "./node/childProcess";
 import { HostPlatform } from "./hostPlatform";
 import customRequire from "./customRequire";
-import stripJsonComments = require("strip-json-comments");
-import { logger } from "vscode-debugadapter";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const JSON5 = require("json5");

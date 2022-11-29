@@ -78,6 +78,18 @@ export class ExponentHelper {
         this.logger.logStream(
             localize("CheckingIfThisIsExpoApp", "Checking if this is an Expo app."),
         );
+        this.logger.logStream("\n");
+
+        const packageJson = await this.getAppPackageInformation();
+        if (!packageJson.name || !packageJson.version) {
+            this.logger.warning(
+                localize(
+                    "MissingFieldsInExpoApp",
+                    "Missing 'name' or 'version' field in package.json. These fields might be required for your application.",
+                ),
+            );
+        }
+
         const isExpo = await this.isExpoManagedApp(true);
         if (!isExpo) {
             if (!(await this.appHasExpoInstalled())) {
@@ -480,6 +492,7 @@ require('${entryPoint}');`;
                     write: (chunk: any) => {
                         if (chunk.level <= 30) {
                             this.logger.logStream(chunk.msg);
+                            this.logger.logStream("\n");
                         } else if (chunk.level === 40) {
                             this.logger.warning(chunk.msg);
                         } else {
