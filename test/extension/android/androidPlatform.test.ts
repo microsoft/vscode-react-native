@@ -506,7 +506,7 @@ suite("androidPlatform", function () {
             });
         });
 
-        test("AdbHelper getAdbPath function should correctly parse Android Sdk Location from local.properties and wrap with quotes", () => {
+        test.only("AdbHelper getAdbPath function should correctly parse Android Sdk Location from local.properties and wrap with quotes", () => {
             function testPaths(expectedPath: string, projectRoot: string) {
                 const adbHelper = new adb.AdbHelper(projectRoot, nodeModulesRoot);
                 const localPropertiesFilePath = path.join(
@@ -545,7 +545,7 @@ suite("androidPlatform", function () {
                     "others",
                 );
                 testPaths(
-                    String.raw`/Volumes/Macintosh HD/Users/foo/Library/Android/sdk`,
+                    String.raw`/Volumes/Macintosh HD/Users/foo/Library/Android/sdk/`,
                     mockProjectRoot,
                 );
             }
