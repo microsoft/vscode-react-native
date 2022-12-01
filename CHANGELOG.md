@@ -1,3 +1,16 @@
+## 1.10.1
+* Improve expo package.json file checking logic for some previous expo versions [#1870](https://github.com/microsoft/vscode-react-native/issues/1870)
+* Improve expo debugging output log user experience [#1874](https://github.com/microsoft/vscode-react-native/issues/1874)
+* Fix bug: i.Parse() is not a function when add target:"simulator" in launch.json [#1856](https://github.com/microsoft/vscode-react-native/issues/1856)
+* Avoid extension overwrite app.json in expo application [#1849](https://github.com/microsoft/vscode-react-native/pull/1849)
+* Temporarily disable some parts of log hightlight for tm-grammar refactor [#1872](https://github.com/microsoft/vscode-react-native/pull/1872)
+* Internal changes:
+    * Fix Json5 version issue in package dependencies [#1851](https://github.com/microsoft/vscode-react-native/pull/1851)
+    * Remove unused file from webpack [#1860](https://github.com/microsoft/vscode-react-native/pull/1860)
+    * Enable CodeQL for ADO pipeline [#1863](https://github.com/microsoft/vscode-react-native/pull/1863)
+    * Fix CodeQL issue: Disabling certificate validation is strongly discouraged [#1864](https://github.com/microsoft/vscode-react-native/issues/1864)
+    * Fix CodeQL issue: This replaces only the first occurrence of "../" [#1865](https://github.com/microsoft/vscode-react-native/issues/1865)
+
 ## 1.10.0
 * Update documentation for Hermes and Expo Hermes [#1827](https://github.com/microsoft/vscode-react-native/commit/9498893a1eb44e5d4af51251d25afe3d7be1295a)
 * Improve react-native packager output log and error message [#1811](https://github.com/microsoft/vscode-react-native/commit/4b9b406bce36747a151614c6537573a8e66e50aa)
