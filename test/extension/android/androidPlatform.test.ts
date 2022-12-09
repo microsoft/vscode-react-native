@@ -550,6 +550,39 @@ suite("androidPlatform", function () {
                 );
             }
         });
+
+        test("AdbHelper getAdbPath function should get sdk and adb path flexible from local.properties file and environment variable", () => {
+            let mockProjectRoot;
+            if (process.platform == "win32") {
+                mockProjectRoot = path.join(
+                    __dirname,
+                    "..",
+                    "..",
+                    "..",
+                    "test",
+                    "resources",
+                    "auxiliaryFiles",
+                    "templateProject",
+                    "win",
+                );
+            } else {
+                mockProjectRoot = path.join(
+                    __dirname,
+                    "..",
+                    "..",
+                    "..",
+                    "test",
+                    "resources",
+                    "auxiliaryFiles",
+                    "templateProject",
+                    "others",
+                );
+            }
+
+            const adbHelper = new adb.AdbHelper(mockProjectRoot, nodeModulesRoot);
+            const adbValue = adbHelper.getAdbPath(mockProjectRoot);
+            assert.strictEqual(adbValue, "adb");
+        });
     });
 });
 
