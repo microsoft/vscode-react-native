@@ -506,10 +506,16 @@ suite("androidPlatform", function () {
             });
         });
 
-        test("AdbHelper getAdbPath function should correctly parse Android Sdk Location from local.properties and wrap with quotes", () => {
+        test("AdbHelper parseSdkLocation function should correctly parse Android Sdk Location from local.properties and wrap with quotes", () => {
             function testPaths(expectedPath: string, projectRoot: string) {
                 const adbHelper = new adb.AdbHelper(projectRoot, nodeModulesRoot);
-                const resultPath = adbHelper.getAdbPath(projectRoot);
+                const localPropertiesFilePath = path.join(
+                    projectRoot,
+                    "android",
+                    "local.properties",
+                );
+                const fileContent = fs.readFileSync(localPropertiesFilePath).toString();
+                const resultPath = adbHelper.parseSdkLocation(fileContent);
                 assert.strictEqual(resultPath, expectedPath);
             }
 
@@ -525,7 +531,7 @@ suite("androidPlatform", function () {
                     "templateProject",
                     "win",
                 );
-                testPaths(String.raw`"C:\Android\android sdk\platform-tools\adb"`, mockProjectRoot);
+                testPaths(String.raw`C:\Android\android sdk`, mockProjectRoot);
             } else {
                 const mockProjectRoot = path.join(
                     __dirname,
@@ -539,10 +545,43 @@ suite("androidPlatform", function () {
                     "others",
                 );
                 testPaths(
-                    String.raw`"/Volumes/Macintosh HD/Users/foo/Library/Android/sdk/platform-tools/adb"`,
+                    String.raw`/Volumes/Macintosh HD/Users/foo/Library/Android/sdk/`,
                     mockProjectRoot,
                 );
             }
+        });
+
+        test("AdbHelper getAdbPath function should get sdk and adb path flexible from local.properties file and environment variable", () => {
+            let mockProjectRoot;
+            if (process.platform == "win32") {
+                mockProjectRoot = path.join(
+                    __dirname,
+                    "..",
+                    "..",
+                    "..",
+                    "test",
+                    "resources",
+                    "auxiliaryFiles",
+                    "templateProject",
+                    "win",
+                );
+            } else {
+                mockProjectRoot = path.join(
+                    __dirname,
+                    "..",
+                    "..",
+                    "..",
+                    "test",
+                    "resources",
+                    "auxiliaryFiles",
+                    "templateProject",
+                    "others",
+                );
+            }
+
+            const adbHelper = new adb.AdbHelper(mockProjectRoot, nodeModulesRoot);
+            const adbValue = adbHelper.getAdbPath(mockProjectRoot);
+            assert.strictEqual(adbValue, "adb");
         });
     });
 });

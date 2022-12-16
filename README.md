@@ -3,12 +3,12 @@
 [![Build Status](https://dev.azure.com/vscode-webdiag-extensions/VS%20Code%20WebDiag%20extensions/_apis/build/status/%5BUnit%20tests%5D%20vscode-react-native%20%5Bmaster%5D?branchName=master)](https://dev.azure.com/vscode-webdiag-extensions/VS%20Code%20WebDiag%20extensions/_build/latest?definitionId=60&branchName=master)
 
 Stable:
-![Stable version](https://vsmarketplacebadge.apphb.com/version-short/msjsdiag.vscode-react-native.svg)
-![VS Marketplace rating](https://vsmarketplacebadge.apphb.com/rating-star/msjsdiag.vscode-react-native.svg)
+![Stable version](https://vsmarketplacebadges.dev/version-short/msjsdiag.vscode-react-native.svg)
+![VS Marketplace rating](https://vsmarketplacebadges.dev/rating-star/msjsdiag.vscode-react-native.svg)
 
 Preview:
-![VS Marketplace version](https://vsmarketplacebadge.apphb.com/version-short/msjsdiag.vscode-react-native-preview.svg)
-![VS Marketplace rating](https://vsmarketplacebadge.apphb.com/rating-star/msjsdiag.vscode-react-native-preview.svg)
+![VS Marketplace version](https://vsmarketplacebadges.dev/version-short/msjsdiag.vscode-react-native-preview.svg)
+![VS Marketplace rating](https://vsmarketplacebadges.dev/rating-star/msjsdiag.vscode-react-native-preview.svg)
 
 ## React Native Tools Preview
 
