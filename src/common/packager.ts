@@ -491,13 +491,35 @@ export class Packager {
             JS_INJECTOR_FILENAME,
         );
         if (packageJson.main !== JS_INJECTOR_FILENAME) {
+            this.logger.info(
+                localize(
+                    "NoOpenMainFile",
+                    "Cannot find main file in open module, executing setup...",
+                ),
+            );
+
             // Copy over the patched 'opn' main file
+            this.logger.info(localize("CopyOpenMainFile", "Copy open-main.js to open module..."));
             await new FileSystem().copyFile(
                 JS_INJECTOR_FILEPATH,
                 path.resolve(path.dirname(destnFilePath), JS_INJECTOR_FILENAME),
             );
+
             // Write/over-write the "main" attribute with the new file
+            this.logger.info(
+                localize(
+                    "AddOpenMainEntry",
+                    "Add open-main.js entry to package.json 'main' field...",
+                ),
+            );
             return opnPackage.setMainFile(JS_INJECTOR_FILENAME);
+        } else {
+            this.logger.info(
+                localize(
+                    "OpenMainEntryIsExisting",
+                    "Find open-main.js and entry in open module, skip setup...",
+                ),
+            );
         }
     }
 
