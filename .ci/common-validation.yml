@@ -4,8 +4,8 @@ steps:
     inputs:
       versionSpec: 14.x
 
-  - bash: npm install gulp react-devtools vsce -g --force
-    displayName: "npm install gulp react-devtools vsce -g"
+  - bash: npm install gulp react-devtools @vscode/vsce -g --force
+    displayName: "npm install gulp react-devtools @vscode/vsce -g"
 
   - bash: npm ci
     displayName: "npm ci"
