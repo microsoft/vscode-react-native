@@ -16,11 +16,11 @@ steps:
       checkLatest: true
 
   - task: Npm@1
-    displayName: "npm i gulp vsce -g"
+    displayName: "npm i gulp @vscode/vsce -g"
     inputs:
       command: custom
       verbose: false
-      customCommand: "i gulp vsce -g"
+      customCommand: "i gulp @vscode/vsce -g --force"
 
   - task: Npm@1
     displayName: "npm ci"
