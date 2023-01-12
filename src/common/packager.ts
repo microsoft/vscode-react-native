@@ -439,6 +439,19 @@ export class Packager {
                 this.projectPath,
             );
 
+            const openModulePath = path.resolve(
+                nodeModulesRoot,
+                Packager.NODE_MODULES_FODLER_NAME,
+                OPN_PACKAGE_NAME,
+            );
+            this.logger.info(
+                localize(
+                    "VerifyOpenModuleMainFileAndEntry",
+                    "Need to check main file and entry point of open module, will setup and write new content if they're not existing. Path: {0}",
+                    openModulePath,
+                ),
+            );
+
             const flatDependencyPackagePath = path.resolve(
                 nodeModulesRoot,
                 Packager.NODE_MODULES_FODLER_NAME,
@@ -513,14 +526,13 @@ export class Packager {
                 ),
             );
             return opnPackage.setMainFile(JS_INJECTOR_FILENAME);
-        } else {
-            this.logger.info(
-                localize(
-                    "OpenMainEntryIsExisting",
-                    "Find open-main.js and entry in open module, skip setup...",
-                ),
-            );
         }
+        this.logger.info(
+            localize(
+                "OpenMainEntryIsExisting",
+                "Find open-main.js and entry in open module, skip setup...",
+            ),
+        );
     }
 
     private setPackagerStopStateUI() {
