@@ -1290,6 +1290,7 @@
     "@types/ws": "0.0.39",
     "@typescript-eslint/eslint-plugin": "4.15.0",
     "@typescript-eslint/parser": "4.15.0",
+    "@vscode/test-electron": "^2.2.2",
     "@vscode/vsce": "^2.16.0",
     "ansi-colors": "3.2.4",
     "copy-webpack-plugin": "6.0.2",
@@ -1332,7 +1333,6 @@
     "typescript": "3.9.7",
     "vscode-debugprotocol": "1.40.0",
     "vscode-nls-dev": "^4.0.0",
-    "vscode-test": "^1.6.1",
     "webpack": "5.28.0",
     "webpack-bundle-analyzer": "4.4.0"
   },

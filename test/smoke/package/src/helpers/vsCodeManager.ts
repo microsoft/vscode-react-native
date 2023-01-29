@@ -13,7 +13,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as cp from "child_process";
 import * as utilities from "./utilities";
-import * as vscodeTest from "vscode-test";
+import * as vscodeTest from "@vscode/test-electron";
 import * as rimraf from "rimraf";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
 import { SmokeTestLogger } from "./smokeTestLogger";

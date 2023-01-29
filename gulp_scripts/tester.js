@@ -2,7 +2,7 @@ const gulp = require("gulp");
 const log = require("fancy-log");
 const minimist = require("minimist");
 const path = require("path");
-const vscodeTest = require("vscode-test");
+const vscodeTest = require("@vscode/test-electron");
 const getBuilder = require("./builder");
 const getFormatter = require("./formatter");
 
