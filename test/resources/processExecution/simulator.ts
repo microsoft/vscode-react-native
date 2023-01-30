@@ -160,14 +160,14 @@ export class Simulator {
                     const previousOutputLength = this.allStdout.length;
                     this.allStdout += data;
                     this.simulateOutputSideEffects(data, previousOutputLength).then(() => {
-                        this.process.stdout.emit("data", new Buffer(data));
+                        this.process.stdout.emit("data", Buffer.from(data));
                     });
                     break;
                 }
                 case "stderr": {
                     const data = (<IStdErrEvent>event).stderr.data;
                     this.allStderr += data;
-                    this.process.stderr.emit("data", new Buffer(data));
+                    this.process.stderr.emit("data", Buffer.from(data));
                     break;
                 }
                 case "error":
