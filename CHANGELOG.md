@@ -1,3 +1,13 @@
+## 1.10.2
+* Improve android sdk and adb.exe path reading logic [#1877](https://github.com/microsoft/vscode-react-native/pull/1877)
+* Update vscode marketplace badge [#1893](https://github.com/microsoft/vscode-react-native/pull/1893)
+* Add notification for local file changes [#1896](https://github.com/microsoft/vscode-react-native/pull/1896)
+* Fix deprecated new Buffer() to Buffer.from [#1905](https://github.com/microsoft/vscode-react-native/pull/1905)
+* Internal changes:
+    * Add unit test for getting adb path logic [#1889](https://github.com/microsoft/vscode-react-native/pull/1889)
+    * Update VSCE module from vsce to @vscode/vsce [#1897](https://github.com/microsoft/vscode-react-native/pull/1897)
+    * Update module vscode-test to @vscode/test-electron, fix node ECONNRESET error in MacOS [#1908](https://github.com/microsoft/vscode-react-native/pull/1908)
+
 ## 1.10.1
 * Improve expo package.json file checking logic for some previous expo versions [#1870](https://github.com/microsoft/vscode-react-native/issues/1870)
 * Improve expo debugging output log user experience [#1874](https://github.com/microsoft/vscode-react-native/issues/1874)
