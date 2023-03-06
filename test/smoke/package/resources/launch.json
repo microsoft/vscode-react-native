@@ -105,6 +105,32 @@
       "trace": "verbose"
     },
     {
+      "name": "Debug direct in Exponent (Tunnel)",
+      "cwd": "${workspaceFolder}",
+      "type": "reactnativedirect",
+      "request": "launch",
+      "platform": "exponent",
+      "expoHostType": "tunnel",
+      "trace": "verbose"
+    },
+    {
+      "name": "Debug direct in Exponent (LAN)",
+      "cwd": "${workspaceFolder}",
+      "type": "reactnativedirect",
+      "request": "launch",
+      "platform": "exponent",
+      "trace": "verbose"
+    },
+    {
+      "name": "Debug direct in Exponent (Local)",
+      "cwd": "${workspaceFolder}",
+      "type": "reactnativedirect",
+      "request": "launch",
+      "platform": "exponent",
+      "expoHostType": "local",
+      "trace": "verbose"
+    },
+    {
       "name": "Debug macOS",
       "cwd": "${workspaceFolder}",
       "type": "reactnative",
