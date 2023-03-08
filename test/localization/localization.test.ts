@@ -5,8 +5,8 @@ import * as assert from "assert";
 import { ErrorHelper } from "../../src/common/error/errorHelper";
 import { InternalErrorCode } from "../../src/common/error/internalErrorCode";
 
-suite.skip("localizationTest", function () {
-    suite("localizationContext", function () {
+suite("localizationTest", function () {
+    suite.skip("localizationContext", function () {
         const commandFailedErrorChs = ErrorHelper.getInternalError(
             InternalErrorCode.CommandFailed,
             "IncorrectCommand",
