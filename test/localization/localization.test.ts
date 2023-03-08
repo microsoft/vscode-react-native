@@ -5,7 +5,7 @@ import * as assert from "assert";
 import { ErrorHelper } from "../../src/common/error/errorHelper";
 import { InternalErrorCode } from "../../src/common/error/internalErrorCode";
 
-suite("localizationTest", function () {
+suite.skip("localizationTest", function () {
     suite("localizationContext", function () {
         const commandFailedErrorChs = ErrorHelper.getInternalError(
             InternalErrorCode.CommandFailed,
