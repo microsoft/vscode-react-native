@@ -59,7 +59,10 @@ export class DebugConfigProvider extends BaseConfigProvider {
                 }
             };
         } else if (state.config.platform === PlatformType.Exponent) {
-            return () => this.configureExpoHostType(input, state.config);
+            return async () => {
+                await this.configureApplicationType(input, state.config);
+                await this.configureExpoHostType(input, state.config);
+            };
         }
         return;
     }

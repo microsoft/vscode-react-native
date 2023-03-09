@@ -73,7 +73,7 @@ export const platformTypeDirectPickConfig: DebugConfigurationQuickPickItem[] = [
 
 export const appTypePickConfig: DebugConfigurationQuickPickItem[] = [
     {
-        label: "Application in direct mode",
+        label: "Application in direct mode(Hermes)",
         type: DEBUG_TYPES.REACT_NATIVE_DIRECT,
     },
     {
@@ -139,6 +139,7 @@ export const DEBUG_CONFIGURATION_NAMES = {
     RUN_ANDROID_HERMES_EXPERIMENTAL: "Run Android Hermes - Experimental",
     RUN_IOS_HERMES_EXPERIMENTAL: "Run iOS Hermes - Experimental",
     RUN_DIRECT_IOS_EXPERIMENTAL: "Run Direct iOS - Experimental",
+    DEBUG_IN_EXPONENT_HERMES_EXPERIMENTAL: "Debug in Hermes Exponent - Experimental",
 };
 
 export const debugConfigurations: Record<string, vscode.DebugConfiguration> = {
@@ -277,5 +278,12 @@ export const debugConfigurations: Record<string, vscode.DebugConfiguration> = {
         enableDebug: false,
         useHermesEngine: false,
         target: "device",
+    },
+    [DEBUG_CONFIGURATION_NAMES.DEBUG_IN_EXPONENT_HERMES_EXPERIMENTAL]: {
+        name: DEBUG_CONFIGURATION_NAMES.DEBUG_IN_EXPONENT_HERMES_EXPERIMENTAL,
+        cwd: "${workspaceFolder}",
+        type: DEBUG_TYPES.REACT_NATIVE_DIRECT,
+        request: "launch",
+        platform: PlatformType.Exponent,
     },
 };
