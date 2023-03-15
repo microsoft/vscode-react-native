@@ -316,7 +316,7 @@ You can verify that everything is working correctly and that the environment is 
 ### Debug on Expo Go
 
 If you're using [Expo Go](https://expo.dev/expo-go), follow below steps tp start debugging Expo application:
-Please note that Hermes engine is the default Javascript engine used by Expo since SDK 48. SDK 47 and lower version will no longer be supported in the next release. We suggest everyone to upgrade your Expo projects to use Expo 48 or newer SDKs. The following steps are updated to use Hermes engine.
+Please note that Hermes engine is the default Javascript engine used by Expo since SDK 48. SDK 47 and lower version will no longer be supported in the next release. (Please refer to https://docs.expo.dev/guides/using-hermes/) We suggest everyone to upgrade your Expo projects to use Expo 48 or newer SDKs. The following steps are updated to use Hermes engine.
 
 1. Open your project in VS Code with this extension installed.
 1. Create a debug configuration (as described in [Debugging React Native applications](#debugging-react-native-applications)), select `Debug in Exponent` in the debug drop-down menu, and start debugging
