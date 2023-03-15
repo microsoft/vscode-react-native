@@ -899,9 +899,20 @@
                   "android",
                   "ios",
                   "macos",
-                  "windows"
+                  "windows",
+                  "exponent"
                 ],
                 "description": "%reactNative.launch.direct.platform.description%"
+              },
+              "expoHostType": {
+                "type": "string",
+                "enum": [
+                  "tunnel",
+                  "lan",
+                  "local"
+                ],
+                "default": "lan",
+                "description": "%reactNative.launch.expoHostType.description%"
               },
               "useHermesEngine": {
                 "type": "boolean",

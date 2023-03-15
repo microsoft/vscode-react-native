@@ -20,7 +20,7 @@ async function launchTests() {
             extensionDevelopmentPath,
             extensionTestsPath,
             launchArgs: ["--locale", "zh-cn"],
-            version: "stable",
+            version: "1.75.0",
         });
     } catch (err) {
         console.error(err);
