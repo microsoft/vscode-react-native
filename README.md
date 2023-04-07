@@ -134,7 +134,7 @@ To run React Native Tools commands via VS Code tasks, you can create a `.vscode/
 
 # Debugging React Native applications
 
-To start debugging create a new debug configuration for your ReactNative app in your `.vscode/launch.json`. Adding a new configuration can be done by opening your `launch.json` file and clicking on `Add Configuration...` button and then selecting `React Native` option. After that the extension will prompt you to create a debugging configuration by selecting debugging parameters in dropdown lists at the top of the editor. A new debugging configuration will be generated and added to the `launch.json` file automatically as shown in the image below.
+To start debugging create a new debug configuration for your ReactNative app in your `.vscode/launch.json`. Adding a new configuration can be done by opening your `launch.json` file and clicking on `Add Configuration...` button and then selecting `React Native` option. After that the extension will prompt you to create a debugging configuration by selecting debugging parameters in dropdown lists at the top of the editor. A new debugging configuration will be generated and added to the `launch.json` file automatically as shown in the image below. For Expo projects, please make sure choose `Application in direct mode(Hermes)` if you are using SDK 48 or a newer SDK.
 
 ![Add React Native debug configuration](resources/images/add-debug-configuration.gif)
 
@@ -316,6 +316,7 @@ You can verify that everything is working correctly and that the environment is 
 ### Debug on Expo Go
 
 If you're using [Expo Go](https://expo.dev/expo-go), follow below steps tp start debugging Expo application:
+Please note that Hermes engine is the default Javascript engine used by Expo since SDK 48. SDK 47 and lower version will no longer be supported in the next release. (Please refer to https://docs.expo.dev/guides/using-hermes/) We suggest everyone to upgrade your Expo projects to use Expo 48 or newer SDKs. The following steps are updated to use Hermes engine.
 
 1. Open your project in VS Code with this extension installed.
 1. Create a debug configuration (as described in [Debugging React Native applications](#debugging-react-native-applications)), select `Debug in Exponent` in the debug drop-down menu, and start debugging

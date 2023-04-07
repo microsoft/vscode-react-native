@@ -66,25 +66,25 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             ),
         },
         {
-            label: DEBUG_CONFIGURATION_NAMES.DEBUG_ANDROID_HERMES_EXPERIMENTAL,
+            label: DEBUG_CONFIGURATION_NAMES.DEBUG_ANDROID_HERMES,
             description: localize(
                 "DebugAndroidHermesConfigDesc",
                 "Run and debug Android Hermes application",
             ),
         },
         {
-            label: DEBUG_CONFIGURATION_NAMES.RUN_ANDROID_HERMES_EXPERIMENTAL,
+            label: DEBUG_CONFIGURATION_NAMES.RUN_ANDROID_HERMES,
             description: localize("RunAndroidHermesConfigDesc", "Run Android Hermes application"),
         },
         {
-            label: DEBUG_CONFIGURATION_NAMES.DEBUG_IOS_HERMES_EXPERIMENTAL,
+            label: DEBUG_CONFIGURATION_NAMES.DEBUG_IOS_HERMES,
             description: localize(
                 "DebugIosHermesConfigDesc",
                 "Run and debug iOS Hermes application",
             ),
         },
         {
-            label: DEBUG_CONFIGURATION_NAMES.RUN_IOS_HERMES_EXPERIMENTAL,
+            label: DEBUG_CONFIGURATION_NAMES.RUN_IOS_HERMES,
             description: localize("RunIosHermesConfigDesc", "Run iOS Hermes application"),
         },
         {
@@ -102,7 +102,7 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             ),
         },
         {
-            label: DEBUG_CONFIGURATION_NAMES.ATTACH_TO_HERMES_APPLICATION_EXPERIMENTAL,
+            label: DEBUG_CONFIGURATION_NAMES.ATTACH_TO_HERMES_APPLICATION,
             description: localize(
                 "AttachToPackagerHermesConfigDesc",
                 "Attach to already working React Native Hermes application on Android directly",
@@ -198,13 +198,27 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             return;
         }
         if (state.config.type === DEBUG_TYPES.REACT_NATIVE_DIRECT) {
-            state.config.name = DebugScenarioNameGenerator.createScenarioName(
-                state.scenarioType,
-                state.config.type,
-                state.config.platform,
-                state.config.useHermesEngine !== false,
-                true,
-            );
+            if (
+                state.config.platform === "android" ||
+                (state.config.platform === "ios" &&
+                    state.config.target !== "device" &&
+                    state.config.request !== "attach")
+            ) {
+                state.config.name = DebugScenarioNameGenerator.createScenarioName(
+                    state.scenarioType,
+                    state.config.type,
+                    state.config.platform,
+                    state.config.useHermesEngine !== false,
+                );
+            } else {
+                state.config.name = DebugScenarioNameGenerator.createScenarioName(
+                    state.scenarioType,
+                    state.config.type,
+                    state.config.platform,
+                    state.config.useHermesEngine !== false,
+                    true,
+                );
+            }
         } else {
             state.config.name = DebugScenarioNameGenerator.createScenarioName(
                 state.scenarioType,

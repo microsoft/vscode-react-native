@@ -69,21 +69,13 @@ export class ReactNativeDebugDynamicConfigProvider implements vscode.DebugConfig
             }
 
             if (!androidHermesEnabled) {
-                delete debugConfigurationsToShow[
-                    DEBUG_CONFIGURATION_NAMES.DEBUG_ANDROID_HERMES_EXPERIMENTAL
-                ];
-                delete debugConfigurationsToShow[
-                    DEBUG_CONFIGURATION_NAMES.RUN_ANDROID_HERMES_EXPERIMENTAL
-                ];
+                delete debugConfigurationsToShow[DEBUG_CONFIGURATION_NAMES.DEBUG_ANDROID_HERMES];
+                delete debugConfigurationsToShow[DEBUG_CONFIGURATION_NAMES.RUN_ANDROID_HERMES];
             }
 
             if (!iOSHermesEnabled) {
-                delete debugConfigurationsToShow[
-                    DEBUG_CONFIGURATION_NAMES.DEBUG_IOS_HERMES_EXPERIMENTAL
-                ];
-                delete debugConfigurationsToShow[
-                    DEBUG_CONFIGURATION_NAMES.RUN_IOS_HERMES_EXPERIMENTAL
-                ];
+                delete debugConfigurationsToShow[DEBUG_CONFIGURATION_NAMES.DEBUG_IOS_HERMES];
+                delete debugConfigurationsToShow[DEBUG_CONFIGURATION_NAMES.RUN_IOS_HERMES];
             }
 
             if (
@@ -93,7 +85,7 @@ export class ReactNativeDebugDynamicConfigProvider implements vscode.DebugConfig
                 !windowsHermesEnabled
             ) {
                 delete debugConfigurationsToShow[
-                    DEBUG_CONFIGURATION_NAMES.ATTACH_TO_HERMES_APPLICATION_EXPERIMENTAL
+                    DEBUG_CONFIGURATION_NAMES.ATTACH_TO_HERMES_APPLICATION
                 ];
             }
         }
