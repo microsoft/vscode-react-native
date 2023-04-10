@@ -306,6 +306,13 @@
         "icon": "$(debug-alt)"
       },
       {
+        "command": "reactNative.debugScenario.debugInHermesExponentExperimental",
+        "title": "Debug in Hermes Exponent - Experimental",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled && !inDebugMode || isWorkspaceTrusted && !inDebugMode",
+        "icon": "$(debug-alt)"
+      },
+      {
         "command": "reactNative.debugScenario.debugAndroidHermesExperimental",
         "title": "Debug Android Hermes - Experimental",
         "category": "React Native",
@@ -411,6 +418,10 @@
           "when": "isRNProject && config.react-native-tools.displayDebuggingCommandsButton"
         },
         {
+          "command": "reactNative.debugScenario.debugInHermesExponentExperimental",
+          "when": "isRNProject && config.react-native-tools.displayDebuggingCommandsButton"
+        },
+        {
           "command": "reactNative.debugScenario.debugAndroidHermesExperimental",
           "when": "isRNProject && isRNAndroidHermesProject && config.react-native-tools.displayDebuggingCommandsButton"
         },
@@ -486,6 +497,10 @@
         },
         {
           "command": "reactNative.debugScenario.debugInExponent",
+          "when": "false"
+        },
+        {
+          "command": "reactNative.debugScenario.debugInHermesExponentExperimental",
           "when": "false"
         },
         {
