@@ -199,6 +199,12 @@
         "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       },
       {
+        "command": "reactNative.configExpoEASBuild",
+        "title": "%reactNative.command.configExpoEASBuild.title%",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
+      },
+      {
         "command": "reactNative.showDevMenu",
         "title": "%reactNative.command.showDevMenu.title%",
         "category": "React Native"
