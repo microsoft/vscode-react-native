@@ -17,7 +17,7 @@ const localize = nls.loadMessageBundle();
 
 const logger = OutputChannelLogger.getMainChannel();
 
-export class PublishToExpHost extends ReactNativeCommand {
+export class ConfigEASBuild extends ReactNativeCommand {
     nodeModulesRoot: string;
     codeName = "configExpoEASBuild";
     label = "Config Expo app with EAS build";
