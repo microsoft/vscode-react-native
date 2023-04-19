@@ -18,15 +18,23 @@ const localize = nls.loadMessageBundle();
 const logger = OutputChannelLogger.getMainChannel();
 
 export class ConfigEASBuild extends ReactNativeCommand {
+    projectRoot: string;
     nodeModulesRoot: string;
-    codeName = "configExpoEASBuild";
+    codeName = "createExpoEASBuildConfigFile";
     label = "Config Expo app with EAS build";
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToConfigEASBuild);
 
     async baseFn(): Promise<void> {
         assert(this.project);
+        const projectRootPath = this.project.getWorkspaceFolder().uri.fsPath;
         logger.info(localize("ConfigEASBuildInProgress", "Creating EAS build config file."));
 
-        return new CommandExecutor(this.nodeModulesRoot).execute("eas build:configure");
+        const command = new CommandExecutor(this.nodeModulesRoot, projectRootPath).execute(
+            "eas build:configure --platform all",
+        );
+        logger.info(
+            localize("ConfigEASBuildSuccessfully", "Create EAS build config file successfully."),
+        );
+        return command;
     }
 }
