@@ -138,6 +138,10 @@ export const ERROR_STRINGS = {
         "FailedToRunExponent",
         "Failed to publish the application to Exponent",
     ),
+    [InternalErrorCode.FailedToConfigEASBuild]: localize(
+        "FailedToConfigEASBuild",
+        "Failed to config Expo app with EAS build",
+    ),
     [InternalErrorCode.FailedToStartPackager]: localize(
         "FailedToStartPackager",
         "Failed to start the React Native packager",
