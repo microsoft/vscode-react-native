@@ -1,3 +1,14 @@
+## 1.11.0
+* Support Hermes debugging for Expo SDK 48 [#1921](https://github.com/microsoft/vscode-react-native/pull/1921)
+* Update documentation for Expo SDK 48 [#1929](https://github.com/microsoft/vscode-react-native/pull/1929)
+* Remove 'Experimental' tag for iOS& Android Hermes debugger [#1935](https://github.com/microsoft/vscode-react-native/pull/1935)
+* Add Hermes Expo debugger in debug-alt menu [#1942](https://github.com/microsoft/vscode-react-native/pull/1942)
+* Add support for EAS build setup command [#1947](https://github.com/microsoft/vscode-react-native/pull/1947)
+* Internal changes:
+    * Update pipeline tasks - Component Detection& NOTICE File Generator [#1925](https://github.com/microsoft/vscode-react-native/pull/1925)
+    * Run locale testing on vscode latest stable version [#1938](https://github.com/microsoft/vscode-react-native/pull/1938)
+    * Cleanup and update 3rd party notices file [#1939](https://github.com/microsoft/vscode-react-native/pull/1939)
+
 ## 1.10.2
 * Improve android sdk and adb.exe path reading logic [#1877](https://github.com/microsoft/vscode-react-native/pull/1877)
 * Update vscode marketplace badge [#1893](https://github.com/microsoft/vscode-react-native/pull/1893)
