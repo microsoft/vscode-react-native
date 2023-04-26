@@ -1,7 +1,7 @@
 {
   "name": "vscode-react-native",
   "displayName": "React Native Tools",
-  "version": "1.10.2",
+  "version": "1.11.0",
   "private": true,
   "publisher": "msjsdiag",
   "icon": "resources/images/icon.png",
@@ -199,6 +199,12 @@
         "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       },
       {
+        "command": "reactNative.createExpoEASBuildConfigFile",
+        "title": "%reactNative.command.createExpoEASBuildConfigFile.title%",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
+      },
+      {
         "command": "reactNative.showDevMenu",
         "title": "%reactNative.command.showDevMenu.title%",
         "category": "React Native"
@@ -301,6 +307,13 @@
       {
         "command": "reactNative.debugScenario.debugInExponent",
         "title": "Debug in Exponent",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled && !inDebugMode || isWorkspaceTrusted && !inDebugMode",
+        "icon": "$(debug-alt)"
+      },
+      {
+        "command": "reactNative.debugScenario.debugInHermesExponentExperimental",
+        "title": "Debug in Hermes Exponent - Experimental",
         "category": "React Native",
         "enablement": "!config.security.workspace.trust.enabled && !inDebugMode || isWorkspaceTrusted && !inDebugMode",
         "icon": "$(debug-alt)"
@@ -411,6 +424,10 @@
           "when": "isRNProject && config.react-native-tools.displayDebuggingCommandsButton"
         },
         {
+          "command": "reactNative.debugScenario.debugInHermesExponentExperimental",
+          "when": "isRNProject && config.react-native-tools.displayDebuggingCommandsButton"
+        },
+        {
           "command": "reactNative.debugScenario.debugAndroidHermesExperimental",
           "when": "isRNProject && isRNAndroidHermesProject && config.react-native-tools.displayDebuggingCommandsButton"
         },
@@ -486,6 +503,10 @@
         },
         {
           "command": "reactNative.debugScenario.debugInExponent",
+          "when": "false"
+        },
+        {
+          "command": "reactNative.debugScenario.debugInHermesExponentExperimental",
           "when": "false"
         },
         {

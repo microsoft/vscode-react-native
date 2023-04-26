@@ -21,3 +21,4 @@ export * from "./startPackager";
 export * from "./stopLogCatMonitor";
 export * from "./stopPackager";
 export * from "./testDevEnvironment";
+export * from "./configEASBuild";
