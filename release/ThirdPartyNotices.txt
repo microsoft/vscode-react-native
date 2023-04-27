@@ -3366,7 +3366,7 @@ Copyright (c) Microsoft Corporation.
 
 ---------------------------------------------------------
 
-vscode-debugadapter 1.39.1 - MIT
+vscode-debugadapter 1.51.0 - MIT
 https://github.com/Microsoft/vscode-debugadapter-node#readme
 
 Copyright (c) Microsoft Corporation.
