@@ -236,8 +236,6 @@ If you want to use a custom scheme for your application you can either pass it a
 "runArguments": ["--scheme", "customScheme", ...]
 // or
 "runArguments": ["--scheme=customScheme", ...]
-// or
-"scheme" : "customScheme"
 ```
 
 Please be aware, specifying the scheme value as a part of the `runArguments` parameter arguments will override the `scheme` configuration parameter value, if it set.
@@ -316,7 +314,6 @@ You can verify that everything is working correctly and that the environment is 
 ### Debug on Expo Go
 
 If you're using [Expo Go](https://expo.dev/expo-go), follow below steps tp start debugging Expo application:
-Please note that Hermes engine is the default Javascript engine used by Expo since SDK 48. SDK 47 and lower version will no longer be supported in the next release. (Please refer to https://docs.expo.dev/guides/using-hermes/) We suggest everyone to upgrade your Expo projects to use Expo 48 or newer SDKs. The following steps are updated to use Hermes engine.
 
 1. Open your project in VS Code with this extension installed.
 1. Create a debug configuration (as described in [Debugging React Native applications](#debugging-react-native-applications)), select `Debug in Exponent` in the debug drop-down menu, and start debugging
@@ -385,7 +382,7 @@ If you want to change your app entrypoint (for example, from `index.js` to `inde
 
 ### Expo Hermes
 
-Expo app is supporting Hermes Engine.
+Expo app is supporting Hermes Engine, and please note that Hermes engine is the default Javascript engine used by Expo since SDK 48. SDK 47 and lower version will no longer be supported in the next release. (Please refer to https://docs.expo.dev/guides/using-hermes/) We suggest everyone to upgrade your Expo projects to use Expo 48 or newer SDKs.
 
 You can add or remove `"jsEngine": "hermes"` in `app.json` to enable or disable Hermes Engine. And any changes for app engine you need to run `eas build` to rebuild your application.
 
