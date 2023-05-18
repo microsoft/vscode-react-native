@@ -82,7 +82,7 @@ export class OutputVerifier {
     // We check the failure patterns one by one, to see if any of those appeared on the errors. If they did, we return the associated error
     private findAnyFailurePattern(patterns: PatternToFailure[]): InternalError | null {
         const errorsAndOutput = this.errors + this.output;
-        let matches: RegExpMatchArray | null | undefined;
+        let matches: RegExpMatchArray | string[] | null | undefined;
         const patternThatAppeared = patterns.find(pattern => {
             if (pattern.pattern instanceof RegExp) {
                 matches = errorsAndOutput.match(pattern.pattern);
