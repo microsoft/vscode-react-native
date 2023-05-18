@@ -15,7 +15,9 @@
         "**/*.js.map": true
     },
     "[typescript]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
+        // Need to install extension 'esbenp.prettier-vscode'
+        //"editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.defaultFormatter": "vscode.typescript-language-features"
     },
     // "gulp.autoDetect": "on",
     "typescript.tsdk": "./node_modules/typescript/lib"
