@@ -36,10 +36,10 @@ export class OpenEASProject extends ReactNativeCommand {
             const exists = await fs.exists(`${projectRootPath}/app.json`);
             if (exists) {
                 try {
-                    await vscode.env.openExternal(vscode.Uri.parse("https://www.google.com"));
-                    await new CommandExecutor(this.nodeModulesRoot, projectRootPath)
-                        .executeToString("eas build:configure --platform all")
-                        .then(res);
+                    await vscode.env.openExternal(vscode.Uri.parse(""));
+                    // await new CommandExecutor(this.nodeModulesRoot, projectRootPath)
+                    //     .executeToString("eas build:configure --platform all")
+                    //     .then(res);
 
                     logger.info(
                         localize(
