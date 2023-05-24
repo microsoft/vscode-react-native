@@ -1368,7 +1368,7 @@
     "source-map-support": "0.4.0",
     "through2": "2.0.1",
     "ts-loader": "9.0.2",
-    "typescript": "3.9.7",
+    "typescript": "5.0.4",
     "vscode-debugprotocol": "1.51.0",
     "vscode-nls-dev": "^4.0.0",
     "webpack": "5.76.0",
