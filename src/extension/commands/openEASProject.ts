@@ -31,27 +31,28 @@ export class OpenEASProject extends ReactNativeCommand {
 
         if (isExpo) {
             try {
-                var id = null;
-                await expoHelper.getExpoEasProjectId().then((result) => {
+                let id = null;
+                await expoHelper.getExpoEasProjectId().then(result => {
                     id = result;
                 });
-                var owner = null;
-                await expoHelper.getExpoEasProjectOwner().then((result) => {
+                let owner = null;
+                await expoHelper.getExpoEasProjectOwner().then(result => {
                     owner = result;
                 });
-                var name = null;
-                await expoHelper.getExpoEasProjectName().then((result) => {
+                let name = null;
+                await expoHelper.getExpoEasProjectName().then(result => {
                     name = result;
                 });
                 if (id == null || owner == null) {
-                    var error = localize(
+                    const error = localize(
                         "ExpoProjectNotLinkToEAS",
                         "Your app not link to EAS project. Please run 'eas init' firstly to bind your app to EAS project.",
                     );
                     void vscode.window.showErrorMessage(error);
                     logger.error(error);
-                } else {
-                    var url = `https://expo.dev/accounts/${owner}/projects/${name}`;
+                } else if (name != null) {
+                    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                    const url = `https://expo.dev/accounts/${owner}/projects/${name}`;
                     await vscode.env.openExternal(vscode.Uri.parse(url));
                 }
             } catch {
