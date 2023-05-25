@@ -7,8 +7,6 @@ import * as vscode from "vscode";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
-import { CommandExecutor } from "../../common/commandExecutor";
-import { FileSystem } from "../../common/node/fileSystem";
 import { ExponentHelper } from "../exponent/exponentHelper";
 import { ReactNativeCommand } from "./util/reactNativeCommand";
 
@@ -32,29 +30,38 @@ export class OpenEASProject extends ReactNativeCommand {
         const isExpo = await expoHelper.isExpoManagedApp(true);
 
         if (isExpo) {
-            const fs = new FileSystem();
-            const exists = await fs.exists(`${projectRootPath}/app.json`);
-            if (exists) {
-                try {
-                    await vscode.env.openExternal(vscode.Uri.parse(""));
-                    // await new CommandExecutor(this.nodeModulesRoot, projectRootPath)
-                    //     .executeToString("eas build:configure --platform all")
-                    //     .then(res);
-
-                    logger.info(
-                        localize(
-                            "ConfigEASBuildSuccessfully",
-                            "Create EAS build config file successfully.",
-                        ),
+            try {
+                let id = null;
+                await expoHelper.getExpoEasProjectId().then(result => {
+                    id = result;
+                });
+                let owner = null;
+                await expoHelper.getExpoEasProjectOwner().then(result => {
+                    owner = result;
+                });
+                let name = null;
+                await expoHelper.getExpoEasProjectName().then(result => {
+                    name = result;
+                });
+                if (id == null || owner == null) {
+                    const error = localize(
+                        "ExpoProjectNotLinkToEAS",
+                        "Your app not link to EAS project. Please run 'eas init' firstly to bind your app to EAS project.",
                     );
-                } catch {
-                    logger.error(
-                        localize(
-                            "NoExistingEASProject",
-                            "Unable to find existing EAS project. Please run 'eas init' firstly to bind your app to EAS project.",
-                        ),
-                    );
+                    void vscode.window.showErrorMessage(error);
+                    logger.error(error);
+                } else if (name != null) {
+                    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                    const url = `https://expo.dev/accounts/${owner}/projects/${name}`;
+                    await vscode.env.openExternal(vscode.Uri.parse(url));
                 }
+            } catch {
+                logger.error(
+                    localize(
+                        "NoExistingEASProject",
+                        "Unable to find existing EAS project. Please run 'eas init' firstly to bind your app to EAS project.",
+                    ),
+                );
             }
         }
     }
