@@ -144,7 +144,7 @@ export const ERROR_STRINGS = {
     ),
     [InternalErrorCode.FailedToOpenProjectPage]: localize(
         "FailedToOpenProjectPage",
-        "Failed to EAS project in web page",
+        "Failed to open EAS project in web page",
     ),
     [InternalErrorCode.FailedToStartPackager]: localize(
         "FailedToStartPackager",
