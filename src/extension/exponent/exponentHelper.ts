@@ -7,6 +7,7 @@
 import * as path from "path";
 import * as semver from "semver";
 import * as vscode from "vscode";
+import * as fs from "fs";
 import { sync as globSync } from "glob";
 import * as nls from "vscode-nls";
 import { logger } from "vscode-debugadapter";
@@ -502,6 +503,33 @@ require('${entryPoint}');`;
                 },
                 type: "raw",
             });
+        }
+    }
+
+    public async getExpoEasProjectOwner(): Promise<string | null> {
+        const appJsonPath = this.pathToFileInWorkspace(APP_JSON);
+        try {
+            return JSON.parse(fs.readFileSync(appJsonPath, "utf-8")).expo.owner == undefined ? null : JSON.parse(fs.readFileSync(appJsonPath, "utf-8")).expo.owner;
+        } catch {
+            return null;
+        }
+    }
+
+    public async getExpoEasProjectId(): Promise<string| null> {
+        const appJsonPath = this.pathToFileInWorkspace(APP_JSON);
+        try {
+            return JSON.parse(fs.readFileSync(appJsonPath, "utf-8")).expo.extra.eas.projectId == undefined ? null : JSON.parse(fs.readFileSync(appJsonPath, "utf-8")).expo.extra.eas.projectId;
+        } catch {
+            return null;
+        }
+    }
+
+    public async getExpoEasProjectName(): Promise<string | null> {
+        const appJsonPath = this.pathToFileInWorkspace(APP_JSON);
+        try {
+            return JSON.parse(fs.readFileSync(appJsonPath, "utf-8")).expo.name == undefined ? null : JSON.parse(fs.readFileSync(appJsonPath, "utf-8")).expo.name;
+        } catch {
+            return null;
         }
     }
 }
