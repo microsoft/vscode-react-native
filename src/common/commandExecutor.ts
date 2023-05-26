@@ -64,6 +64,18 @@ export class CommandExecutor {
         }
     }
 
+    public async executeToString(command: string, options: Options = {}): Promise<string> {
+        try {
+            const stdout = await this.childProcess.execToString(command, {
+                cwd: this.currentWorkingDirectory,
+                env: options.env,
+            });
+            return stdout;
+        } catch (reason) {
+            return reason;
+        }
+    }
+
     /**
      * Spawns a child process with the params passed
      * This method waits until the spawned process finishes execution

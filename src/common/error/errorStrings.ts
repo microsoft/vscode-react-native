@@ -142,6 +142,10 @@ export const ERROR_STRINGS = {
         "FailedToConfigEASBuild",
         "Failed to config Expo app with EAS build",
     ),
+    [InternalErrorCode.FailedToOpenProjectPage]: localize(
+        "FailedToOpenProjectPage",
+        "Failed to open EAS project in web page",
+    ),
     [InternalErrorCode.FailedToStartPackager]: localize(
         "FailedToStartPackager",
         "Failed to start the React Native packager",

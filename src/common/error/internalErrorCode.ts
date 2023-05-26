@@ -22,6 +22,7 @@ export enum InternalErrorCode {
     FailedToTestDevEnvironment = 117,
     CommandCanceled = 118,
     FailedToConfigEASBuild = 119,
+    FailedToOpenProjectPage = 120,
 
     // Device Deployer errors
     IOSDeployNotFound = 201,
