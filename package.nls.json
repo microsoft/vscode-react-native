@@ -19,6 +19,7 @@
   "reactNative.command.publishToExpHost.title": "Publish to Expo",
   "reactNative.command.createExpoEASBuildConfigFile.title": "Create EAS config file for Expo",
   "reactNative.command.openEASProjectInWebPage.title": "Open the EAS project in a web page",
+  "reactNative.command.revertOpenModule.title": "Revert extension input in open package module",
   "reactNative.command.showDevMenu.title": "Show Dev Menu",
   "reactNative.command.reloadApp.title": "Reload App",
   "reactNative.command.runInspector.title": "Run Element Inspector",
