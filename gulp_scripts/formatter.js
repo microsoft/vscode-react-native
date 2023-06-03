@@ -12,6 +12,7 @@ const runPrettier = async fix => {
             "!CHANGELOG.md",
             "!test/smoke/**",
             "!src/**/*.d.ts",
+            "!SECURITY.md",
         ],
         {
             stdio: "inherit",
