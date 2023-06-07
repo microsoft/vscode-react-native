@@ -49,6 +49,45 @@ export class RevertOpenModule extends ReactNativeCommand {
         );
 
         if (fs.existsSync(openModulePath)) {
+            const mainFilePath = path.resolve(openModulePath, "open-main.js");
+            if (fs.existsSync(mainFilePath)) {
+                try {
+                    await fs.unlinkSync(mainFilePath);
+                } catch {
+                    logger.error(
+                        localize("FailedToDeleteMainFile", "Failed to delete open-main.js file."),
+                    );
+                }
+            } else {
+                logger.info(
+                    localize(
+                        "NotFindMainFile",
+                        "Not find open-main.js file in open module, skip main file deleting.",
+                    ),
+                );
+            }
+
+            const packageFilePath = path.resolve(openModulePath, "package.json");
+            const packageJson = JSON.parse(fs.readFileSync(packageFilePath, "utf-8"));
+            if (packageJson.main == "open-main.js") {
+                try {
+                    delete packageJson.main;
+                    await fs.writeFileSync(
+                        packageFilePath,
+                        JSON.stringify(<Record<string, any>>packageJson),
+                    );
+                } catch {
+                    logger.error(localize("FailedToDeleteEntry", "Failed to delete main enrty."));
+                }
+            } else {
+                logger.info(
+                    localize(
+                        "NotFindMainEntry",
+                        "Not find main entry in package.json file, skip entry deleting.",
+                    ),
+                );
+            }
+            logger.info(localize("CompleteOpenModuleCleaUp", "Open module clean up is complete."));
         } else {
             logger.error(
                 localize(
