@@ -211,6 +211,12 @@
         "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       },
       {
+        "command": "reactNative.revertOpenModule",
+        "title": "%reactNative.command.revertOpenModule.title%",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
+      },
+      {
         "command": "reactNative.showDevMenu",
         "title": "%reactNative.command.showDevMenu.title%",
         "category": "React Native"
