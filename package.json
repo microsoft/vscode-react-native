@@ -857,6 +857,10 @@
                 "type": "object",
                 "description": "%reactNative.attach.sourceMapsPathOverrides.description%"
               },
+              "jsDebugTrace": {
+                "type": "boolean",
+                "description": "%reactNative.direct.attach.jsDebugTrace.description%"
+              },
               "sourceMapRenames": {
                 "type": "boolean",
                 "description": "%reactNative.attach.sourceMapRenames.description%",
@@ -945,6 +949,10 @@
                 "type": "boolean",
                 "description": "%reactNative.direct.attach.useHermesEngine.description%",
                 "default": true
+              },
+              "jsDebugTrace": {
+                "type": "boolean",
+                "description": "%reactNative.direct.attach.jsDebugTrace.description%"
               },
               "cwd": {
                 "type": "string",

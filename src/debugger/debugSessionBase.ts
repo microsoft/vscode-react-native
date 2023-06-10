@@ -68,6 +68,7 @@ export interface IAttachRequestArgs
     skipFiles?: [];
     sourceMaps?: boolean;
     sourceMapPathOverrides?: { [key: string]: string };
+    jsDebugTrace?: boolean;
 }
 
 export interface ILaunchRequestArgs
