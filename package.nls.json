@@ -56,6 +56,7 @@
   "reactNative.direct.attach.webkitRangeMax.description": "End of port range to use for iOS device selection.",
   "reactNative.direct.attach.port.description": "Port to attach to for debugging. Default for React Native Packager - 8081, for iOS Webkit Debug Proxy - 9221.",
   "reactNative.direct.attach.useHermesEngine.description": "Whether to use Hermes engine for direct debugging. Default value is ‘true’",
+  "reactNative.direct.attach.jsDebugTrace.description": "Collect vscode-js-debug verbose trace",
   "reactNative.attach.remoteRoot.description": "The source root of the remote host.",
   "reactNative.attach.localRoot.description": "The local source root that corresponds to the 'remoteRoot'.",
   "reactNative.attach.skipFiles.description": "An array of file or folder names, or glob patterns, to skip when debugging.",
