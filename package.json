@@ -217,6 +217,11 @@
         "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       },
       {
+        "command": "reactNative.openRNUpgradeHelper",
+        "title": "%reactNative.command.openRNUpgradeHelper.title%",
+        "category": "React Native"
+      },
+      {
         "command": "reactNative.showDevMenu",
         "title": "%reactNative.command.showDevMenu.title%",
         "category": "React Native"

@@ -24,6 +24,7 @@ export enum InternalErrorCode {
     FailedToConfigEASBuild = 119,
     FailedToOpenProjectPage = 120,
     FailedToRevertOpenModule = 121,
+    FailedToOpenRNUpgradeHelper = 122,
 
     // Device Deployer errors
     IOSDeployNotFound = 201,
