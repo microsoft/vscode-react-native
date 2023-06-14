@@ -83,3 +83,13 @@ export function stripJsonTrailingComma(str: string): any {
     }
     return objResult;
 }
+
+export async function wait(time?: number): Promise<void> {
+    const times = time ? time : 2000;
+    await new Promise<void>(resolve => {
+        const timer = setTimeout(() => {
+            clearTimeout(timer);
+            resolve();
+        }, times);
+    });
+}

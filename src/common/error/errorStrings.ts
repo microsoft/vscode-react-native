@@ -150,6 +150,10 @@ export const ERROR_STRINGS = {
         "FailedToRevertOpenModule",
         "Failed to revert Open module",
     ),
+    [InternalErrorCode.FailedToOpenRNUpgradeHelper]: localize(
+        "FailedToOpenRNUpgradeHelper",
+        "Failed to open react native upgrade helper",
+    ),
     [InternalErrorCode.FailedToStartPackager]: localize(
         "FailedToStartPackager",
         "Failed to start the React Native packager",
