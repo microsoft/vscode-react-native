@@ -508,6 +508,7 @@ To debug a macOS Hermes application you can use `Debug macOS Hermes - Experiment
 ## Debug out of React Native project directory
 
 If your project structure like this:
+
 ```
 common
 - utils.ts
@@ -517,45 +518,52 @@ app
 ```
 
 When you import `utils.ts` in your project. Using
+
 ```js
-import { commonFunction } from '../../common/utils';
+import { commonFunction } from "../../common/utils";
 ```
+
 Will get error when start Metro:
+
 ```
 error: bundling failed: Error: Unable to resolve module `../../common/utils` from `src/App.js`
 ```
+
 To import files in `metro.config.js`, user can debug code out of react native project.
 
 1. Add extra module and watch folder for the file parent folder.
+
 ```js
 const extraNodeModules = {
-  'common': path.resolve(__dirname + '/../common'),
+  common: path.resolve(__dirname + "/../common"),
 };
-const watchFolders = [
-  path.resolve(__dirname + '/../common')
-];
+const watchFolders = [path.resolve(__dirname + "/../common")];
 ```
+
 2. Add module and watch folder in metro config.
+
 ```js
 // React native <= 0.72.0
 module.exports = {
   resolver: {
-    extraNodeModules
+    extraNodeModules,
   },
   watchFolders,
-}
+};
 
 // React native >= 0.72.0
 const config = {
-    resolver: {
-        extraNodeModules
-      },
-      watchFolders,
+  resolver: {
+    extraNodeModules,
+  },
+  watchFolders,
 };
 ```
+
 3. After mapping common key to common/ path, we can include any files inside common/ relative to this path. Metro is started, launching or debugging is working well.
+
 ```js
-import {commonFunction} from 'common/utils';
+import { commonFunction } from "common/utils";
 ```
 
 ## TypeScript and Haul
@@ -794,7 +802,9 @@ module.exports = {
   },
 };
 ```
+
 OR
+
 ```js
 // Example of metro.config.js (0.72.0)
 const config = {
