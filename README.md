@@ -30,6 +30,7 @@ Using this extension, you can **debug your code and quickly run `react-native` c
 - [About the extension](#about-the-extension)
 - [Getting started](#getting-started)
 - [React Native commands in the Command Palette](#react-native-commands-in-the-command-palette)
+- [Customize metro configuration](#customize-metro-configuration)
 - [Debugging React Native applications](#debugging-react-native-applications)
   - [Hermes engine](#hermes-engine)
   - [iOS applications](#ios-applications)
@@ -46,6 +47,7 @@ Using this extension, you can **debug your code and quickly run `react-native` c
     - [Windows Hermes debugging](#windows-hermes-debugging)
   - [macOS applications](#react-native-for-macos)
     - [macOS Hermes debugging](#macos-hermes-debugging)
+  - [Debug out of React Native project directory](#debug-out-of-react-native-project-directory)
   - [TypeScript and Haul based applications](#typescript-and-haul)
   - [Debugger configuration properties](#debugger-configuration-properties)
 - [Customization](#customization)
@@ -134,6 +136,12 @@ To run React Native Tools commands via VS Code tasks, you can create a `.vscode/
   ]
 }
 ```
+
+# Customize metro configuration
+
+Metro is a JavaScript bundler for React Native and include in React Native package. Metro configuration can be customized in `metro.config.js`.
+
+Note: From React Native 0.72.0, the config loading setup for Metro in React Native CLI(`@react-native/metro-config`).
 
 # Debugging React Native applications
 
@@ -497,6 +505,67 @@ To debug a macOS Hermes application you can use `Debug macOS Hermes - Experiment
 }
 ```
 
+## Debug out of React Native project directory
+
+If your project structure like this:
+
+```
+common
+- utils.ts
+app
+- src/
+- metro.config.js
+```
+
+When you import `utils.ts` in your project. Using
+
+```js
+import { commonFunction } from "../../common/utils";
+```
+
+Will get error when start Metro:
+
+```
+error: bundling failed: Error: Unable to resolve module `../../common/utils` from `src/App.js`
+```
+
+To import files in `metro.config.js`, user can debug code out of react native project.
+
+1. Add extra module and watch folder for the file parent folder.
+
+```js
+const extraNodeModules = {
+  common: path.resolve(__dirname + "/../common"),
+};
+const watchFolders = [path.resolve(__dirname + "/../common")];
+```
+
+2. Add module and watch folder in metro config.
+
+```js
+// React native <= 0.72.0
+module.exports = {
+  resolver: {
+    extraNodeModules,
+  },
+  watchFolders,
+};
+
+// React native >= 0.72.0
+const config = {
+  resolver: {
+    extraNodeModules,
+  },
+  watchFolders,
+};
+```
+
+3. After mapping common key to common/ path, we can include any files inside common/ relative to this path. Metro is started, launching or debugging is working well.
+
+```js
+import { commonFunction } from "common/utils";
+```
+
 ## TypeScript and Haul
 
 ### Sourcemaps
@@ -726,8 +795,19 @@ If you use Android, you need to change the debug server by:
 5. (Hermes only) Hermes engine listens port 8081 for debugging by default, to change it you might need to modify your [`metro.config.js` file adding `"port": portNumber` argument in there to the server settings](https://facebook.github.io/metro/docs/configuration/#port).
 
 ```js
-// Example of metro.config.js
+// Example of metro.config.js (<= 0.72.0)
 module.exports = {
+  server: {
+    port: 9091,
+  },
+};
+```
+
+OR
+
+```js
+// Example of metro.config.js (0.72.0)
+const config = {
   server: {
     port: 9091,
   },
