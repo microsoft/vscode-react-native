@@ -4,7 +4,7 @@
 import * as url from "url";
 import * as vscode from "vscode";
 import * as nls from "vscode-nls";
-import { generate } from "qrcode-terminal";
+import * as qrcode from "qrcode-terminal";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ExpoHostType, IExponentRunOptions, PlatformType } from "../launchArgs";
@@ -131,7 +131,7 @@ export class ExponentPlatform extends GeneralPlatform {
                     "Scan below QR code to open your app:",
                 );
                 this.logger.info(outputMessage);
-                generate(exponentUrl, { small: true }, (qrcode: string) =>
+                qrcode.generate(exponentUrl, { small: true }, (qrcode: string) =>
                     this.logger.info(`\n${qrcode}`),
                 );
             }
