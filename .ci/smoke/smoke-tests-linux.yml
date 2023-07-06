@@ -1,7 +1,7 @@
 trigger:
-  - master
+  - none
 pr:
-  - master
+  - none
 
 variables:
   vswdbotLogin: vswdbot
