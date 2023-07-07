@@ -12,6 +12,7 @@
   "description": "%reactNative.description%",
   "keywords": [
     "react-native",
+    "expo",
     "multi-root ready"
   ],
   "bugs": "https://github.com/microsoft/vscode-react-native/issues",
