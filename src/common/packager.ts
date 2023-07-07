@@ -225,11 +225,21 @@ export class Packager {
                 this.projectPath,
             );
 
-            const packagerSpawnResult = new CommandExecutor(
-                nodeModulesRoot,
-                this.projectPath,
-                this.logger,
-            ).spawnReactPackager(args, spawnOptions);
+            let packagerSpawnResult;
+            if (this.runOptions?.platform != "exponent") {
+                packagerSpawnResult = new CommandExecutor(
+                    nodeModulesRoot,
+                    this.projectPath,
+                    this.logger,
+                ).spawnReactPackager(args, spawnOptions);
+            } else {
+                packagerSpawnResult = new CommandExecutor(
+                    nodeModulesRoot,
+                    this.projectPath,
+                    this.logger,
+                ).spawnExpoPackager(args, spawnOptions);
+            }
+
             this.packagerProcess = packagerSpawnResult.spawnedProcess;
 
             packagerSpawnResult.outcome.catch(() => {}); // We ignore all outcome errors

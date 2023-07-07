@@ -94,6 +94,13 @@ export class CommandExecutor {
         return this.spawnReactCommand("start", args, options);
     }
 
+    /**
+     * Spawns the React Native packager in a child process.
+     */
+    public spawnExpoPackager(args: string[], options: Options = {}): ISpawnResult {
+        return this.spawnExpoCommand("start", args, options);
+    }
+
     public async getReactNativeVersion(): Promise<string> {
         const versions = await ProjectVersionHelper.getReactNativeVersions(
             this.currentWorkingDirectory,
@@ -130,6 +137,18 @@ export class CommandExecutor {
     ): ISpawnResult {
         const reactCommand = HostPlatform.getNpmCliCommand(this.selectReactNativeCLI());
         return this.spawnChildProcess(reactCommand, [command, ...args], options);
+    }
+
+    /**
+     * Executes a react native command and waits for its completion.
+     */
+    public spawnExpoCommand(
+        command: string,
+        args: string[] = [],
+        options: Options = {},
+    ): ISpawnResult {
+        const expoCommand = HostPlatform.getNpmCliCommand(this.selectExpoCLI());
+        return this.spawnChildProcess(expoCommand, [command, ...args], options);
     }
 
     /**
@@ -198,6 +217,13 @@ export class CommandExecutor {
         return (
             CommandExecutor.ReactNativeCommand ||
             path.resolve(this.nodeModulesRoot, "node_modules", ".bin", "react-native")
+        );
+    }
+
+    public selectExpoCLI(): string {
+        return (
+            CommandExecutor.ReactNativeCommand ||
+            path.resolve(this.nodeModulesRoot, "node_modules", ".bin", "expo")
         );
     }
 
