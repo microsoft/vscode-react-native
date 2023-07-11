@@ -214,7 +214,6 @@ export class AdbHelper {
             // For Windows we need to unescape files separators and drive letter separators
             sdkLocation = sdkLocation.replace(/\\\\/g, "\\").replace("\\:", ":");
         }
-        sdkLocation = `"` + sdkLocation + `"` // Encase SDK location in quotes in case it contains a space
         if (logger) {
             logger.info(
                 localize(
@@ -238,7 +237,7 @@ export class AdbHelper {
             );
             const isExist = fs.existsSync(localPropertiesSdkPath);
             if (isExist) {
-                return localPropertiesSdkPath;
+                return `"` + localPropertiesSdkPath + `"`;
             }
             if (logger) {
                 logger.warning(
