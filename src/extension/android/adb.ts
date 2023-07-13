@@ -237,7 +237,7 @@ export class AdbHelper {
             );
             const isExist = fs.existsSync(localPropertiesSdkPath);
             if (isExist) {
-                return localPropertiesSdkPath;
+                return `"${localPropertiesSdkPath}"`;
             }
             if (logger) {
                 logger.warning(
