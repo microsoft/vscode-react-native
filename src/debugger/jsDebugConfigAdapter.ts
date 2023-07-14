@@ -61,6 +61,9 @@ export class JsDebugConfigAdapter {
         if (attachArgs.skipFiles) {
             existingExtraArgs.skipFiles = attachArgs.skipFiles;
         }
+        if (attachArgs.jsDebugTrace) {
+            existingExtraArgs.trace = attachArgs.jsDebugTrace;
+        }
 
         return existingExtraArgs;
     }

@@ -23,3 +23,5 @@ export * from "./stopPackager";
 export * from "./testDevEnvironment";
 export * from "./configEASBuild";
 export * from "./openEASProject";
+export * from "./revertOpenModule";
+export * from "./openRNUpgradeHelper";

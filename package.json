@@ -1,7 +1,7 @@
 {
   "name": "vscode-react-native",
   "displayName": "React Native Tools",
-  "version": "1.11.0",
+  "version": "1.11.1",
   "private": true,
   "publisher": "msjsdiag",
   "icon": "resources/images/icon.png",
@@ -12,6 +12,7 @@
   "description": "%reactNative.description%",
   "keywords": [
     "react-native",
+    "expo",
     "multi-root ready"
   ],
   "bugs": "https://github.com/microsoft/vscode-react-native/issues",
@@ -209,6 +210,17 @@
         "title": "%reactNative.command.openEASProjectInWebPage.title%",
         "category": "React Native",
         "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
+      },
+      {
+        "command": "reactNative.revertOpenModule",
+        "title": "%reactNative.command.revertOpenModule.title%",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
+      },
+      {
+        "command": "reactNative.openRNUpgradeHelper",
+        "title": "%reactNative.command.openRNUpgradeHelper.title%",
+        "category": "React Native"
       },
       {
         "command": "reactNative.showDevMenu",
@@ -857,6 +869,10 @@
                 "type": "object",
                 "description": "%reactNative.attach.sourceMapsPathOverrides.description%"
               },
+              "jsDebugTrace": {
+                "type": "boolean",
+                "description": "%reactNative.direct.attach.jsDebugTrace.description%"
+              },
               "sourceMapRenames": {
                 "type": "boolean",
                 "description": "%reactNative.attach.sourceMapRenames.description%",
@@ -945,6 +961,10 @@
                 "type": "boolean",
                 "description": "%reactNative.direct.attach.useHermesEngine.description%",
                 "default": true
+              },
+              "jsDebugTrace": {
+                "type": "boolean",
+                "description": "%reactNative.direct.attach.jsDebugTrace.description%"
               },
               "cwd": {
                 "type": "string",

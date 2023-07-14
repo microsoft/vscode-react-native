@@ -146,6 +146,14 @@ export const ERROR_STRINGS = {
         "FailedToOpenProjectPage",
         "Failed to open EAS project in web page",
     ),
+    [InternalErrorCode.FailedToRevertOpenModule]: localize(
+        "FailedToRevertOpenModule",
+        "Failed to revert Open module",
+    ),
+    [InternalErrorCode.FailedToOpenRNUpgradeHelper]: localize(
+        "FailedToOpenRNUpgradeHelper",
+        "Failed to open react native upgrade helper",
+    ),
     [InternalErrorCode.FailedToStartPackager]: localize(
         "FailedToStartPackager",
         "Failed to start the React Native packager",

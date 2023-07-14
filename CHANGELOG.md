@@ -1,3 +1,16 @@
+## 1.11.1
+* Support Expo EAS command: open the project page in a web browser [#1959](https://github.com/microsoft/vscode-react-native/pull/1959)
+* Update vscode marketpace badge service [#1967](https://github.com/microsoft/vscode-react-native/pull/1967)
+* Add command to quickly revert open module update [#1961](https://github.com/microsoft/vscode-react-native/pull/1961)
+* Add argument to collect js-debug native verbose log [#1971](https://github.com/microsoft/vscode-react-native/pull/1971)
+* Integrate react-native upgrade-helper [#1973](https://github.com/microsoft/vscode-react-native/pull/1973)
+* Update documentation: debug out of project directory [#1980](https://github.com/microsoft/vscode-react-native/pull/1980)
+* Internal changes:
+    * Fix security vulnerabilities
+    * Adding Microsoft SECURITY.MD [#1963](https://github.com/microsoft/vscode-react-native/pull/1963)
+    * Check updates for all package modules in extension [#1951](https://github.com/microsoft/vscode-react-native/pull/1951)
+    * Update typescript version to 5.0.4 and update related settings [#1956](https://github.com/microsoft/vscode-react-native/pull/1956)
+
 ## 1.11.0
 * Support Hermes debugging for Expo SDK 48 [#1921](https://github.com/microsoft/vscode-react-native/pull/1921)
 * Update documentation for Expo SDK 48 [#1929](https://github.com/microsoft/vscode-react-native/pull/1929)
