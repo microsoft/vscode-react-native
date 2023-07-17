@@ -170,6 +170,23 @@ export class DebugInHermesExponent extends Command {
     }
 }
 
+export class DebugInExponentWeb extends Command {
+    codeName = "debugScenario.debugInExponentWebExperimental";
+    label = "";
+    error = ErrorHelper.getInternalError(
+        InternalErrorCode.DebuggingCommandFailed,
+        DEBUG_CONFIGURATION_NAMES.DEBUG_IN_EXPONENT_WEB_EXPERIMENTAL,
+    );
+
+    async baseFn(): Promise<void> {
+        assert(this.project);
+        startDebug(
+            debugConfigurations[DEBUG_CONFIGURATION_NAMES.DEBUG_IN_EXPONENT_WEB_EXPERIMENTAL],
+            this.project,
+        );
+    }
+}
+
 export class DebugAndroidHermesExperimental extends Command {
     codeName = "debugScenario.debugAndroidHermesExperimental";
     label = "";

@@ -26,6 +26,11 @@ export enum TargetType {
     Simulator = "simulator",
 }
 
+export enum BrowserTargetType {
+    Chrome = "chrome",
+    Edge = "edge",
+}
+
 export class GeneralPlatform {
     protected projectPath: string;
     protected platformName: string;

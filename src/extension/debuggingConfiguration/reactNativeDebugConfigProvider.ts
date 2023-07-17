@@ -73,6 +73,13 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             ),
         },
         {
+            label: DEBUG_CONFIGURATION_NAMES.DEBUG_IN_EXPONENT_WEB_EXPERIMENTAL,
+            description: localize(
+                "DebugExpoWebConfigDesc",
+                "Debug Hermes Expo application on web browser",
+            ),
+        },
+        {
             label: DEBUG_CONFIGURATION_NAMES.DEBUG_ANDROID_HERMES,
             description: localize(
                 "DebugAndroidHermesConfigDesc",

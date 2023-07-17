@@ -33,6 +33,7 @@ export enum PlatformType {
     Windows = "windows",
     Exponent = "exponent",
     macOS = "macos",
+    ExpoWeb = "expoweb",
 }
 
 export type ExpoHostType = "tunnel" | "lan" | "local";
@@ -51,6 +52,13 @@ export interface ImacOSRunOptions extends ILaunchArgs {
     scheme?: string;
     configuration?: string;
     productName?: string;
+}
+
+export interface IBrowserOptions extends ILaunchArgs {
+    port?: string;
+    browserTarget: string;
+    userDataDir: string;
+    url?: string;
 }
 
 export interface IIOSRunOptions extends ImacOSRunOptions {

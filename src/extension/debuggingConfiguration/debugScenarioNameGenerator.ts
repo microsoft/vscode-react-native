@@ -112,6 +112,8 @@ export class DebugScenarioNameGenerator {
                 return "Windows";
             case PlatformType.macOS:
                 return "macOS";
+            case PlatformType.ExpoWeb:
+                return "Expo Web";
             default:
                 return "";
         }

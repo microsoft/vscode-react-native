@@ -69,6 +69,7 @@ export interface IAttachRequestArgs
     sourceMaps?: boolean;
     sourceMapPathOverrides?: { [key: string]: string };
     jsDebugTrace?: boolean;
+    browserTarget?: string;
 }
 
 export interface ILaunchRequestArgs

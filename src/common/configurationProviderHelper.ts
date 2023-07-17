@@ -15,8 +15,10 @@ import {
     expoHostTypePickConfig,
     shouldUseHermesEngine,
     DEBUG_TYPES,
+    browserTypePickConfig,
 } from "../extension/debuggingConfiguration/debugConfigTypesAndConstants";
 import { IWDPHelper } from "../debugger/direct/IWDPHelper";
+import { BrowserTargetType } from "../extension/generalPlatform";
 import { Packager } from "./packager";
 
 nls.config({
@@ -85,6 +87,32 @@ export class ConfigurationProviderHelper {
         return config;
     }
 
+    public async selectBrowserTargetType(
+        input: MultiStepInput<DebugConfigurationState>,
+        config: Partial<ILaunchRequestArgs>,
+        step: number,
+        totalSteps: number,
+    ): Promise<Partial<ILaunchRequestArgs>> {
+        const pick = await input.showQuickPick<
+            DebugConfigurationQuickPickItem,
+            IQuickPickParameters<DebugConfigurationQuickPickItem>
+        >({
+            title: localize("BrowserTargetTypeSelectionTitle", "Select type of browser"),
+            placeholder: localize("BrowserTargetTypeSelectionPrompt", "Type of browser"),
+            step,
+            totalSteps,
+            items: browserTypePickConfig,
+            activeItem: browserTypePickConfig[0],
+        });
+
+        if (!pick) {
+            throw new Error("Browser type is not selected");
+        }
+
+        config.type = pick.type;
+        return config;
+    }
+
     public async shouldUseHermesEngine(
         input: MultiStepInput<DebugConfigurationState>,
         config: Partial<ILaunchRequestArgs>,
@@ -140,6 +168,32 @@ export class ConfigurationProviderHelper {
         }
 
         config.expoHostType = pick.type as ExpoHostType;
+        return config;
+    }
+
+    public async selectBrowserTarget(
+        input: MultiStepInput<DebugConfigurationState>,
+        config: Partial<ILaunchRequestArgs>,
+        step: number,
+        totalSteps: number,
+    ): Promise<Partial<ILaunchRequestArgs>> {
+        const pick = await input.showQuickPick<
+            DebugConfigurationQuickPickItem,
+            IQuickPickParameters<DebugConfigurationQuickPickItem>
+        >({
+            title: localize("BrowserTargetTypeSelectionTitle", "Select type of browser"),
+            placeholder: localize("BrowserTargetTypeSelectionPrompt", "Type of browser"),
+            step,
+            totalSteps,
+            items: browserTypePickConfig,
+            activeItem: browserTypePickConfig[0],
+        });
+
+        if (!pick) {
+            throw new Error("Browser target type is not selected");
+        }
+
+        config.browserTarget = pick.type as BrowserTargetType;
         return config;
     }
 

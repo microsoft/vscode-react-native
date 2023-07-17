@@ -33,6 +33,11 @@ export const DEBUG_TYPES = {
     REACT_NATIVE_DIRECT: "reactnativedirect",
 };
 
+export const BROWSER_TYPES = {
+    CHROME: "chrome",
+    EDGE: "edge",
+};
+
 export const platformTypeRunPickConfig: DebugConfigurationQuickPickItem[] = [
     {
         label: "Android",
@@ -58,6 +63,10 @@ export const platformTypeDebugPickConfig: DebugConfigurationQuickPickItem[] = [
         label: "Exponent",
         type: PlatformType.Exponent,
     },
+    {
+        label: "ExpoWeb",
+        type: PlatformType.ExpoWeb,
+    },
 ];
 
 export const platformTypeDirectPickConfig: DebugConfigurationQuickPickItem[] = [
@@ -79,6 +88,17 @@ export const appTypePickConfig: DebugConfigurationQuickPickItem[] = [
     {
         label: "Classic application",
         type: DEBUG_TYPES.REACT_NATIVE,
+    },
+];
+
+export const browserTypePickConfig: DebugConfigurationQuickPickItem[] = [
+    {
+        label: "Chrome",
+        type: BROWSER_TYPES.CHROME,
+    },
+    {
+        label: "Edge",
+        type: BROWSER_TYPES.EDGE,
     },
 ];
 
@@ -140,6 +160,7 @@ export const DEBUG_CONFIGURATION_NAMES = {
     RUN_IOS_HERMES: "Run iOS Hermes",
     RUN_DIRECT_IOS_EXPERIMENTAL: "Run Direct iOS - Experimental",
     DEBUG_IN_EXPONENT_HERMES_EXPERIMENTAL: "Debug in Hermes Exponent - Experimental",
+    DEBUG_IN_EXPONENT_WEB_EXPERIMENTAL: "Debug in Exponent Web - Experimental",
 };
 
 export const debugConfigurations: Record<string, vscode.DebugConfiguration> = {
@@ -285,5 +306,12 @@ export const debugConfigurations: Record<string, vscode.DebugConfiguration> = {
         type: DEBUG_TYPES.REACT_NATIVE_DIRECT,
         request: "launch",
         platform: PlatformType.Exponent,
+    },
+    [DEBUG_CONFIGURATION_NAMES.DEBUG_IN_EXPONENT_WEB_EXPERIMENTAL]: {
+        name: DEBUG_CONFIGURATION_NAMES.DEBUG_IN_EXPONENT_WEB_EXPERIMENTAL,
+        cwd: "${workspaceFolder}",
+        type: DEBUG_TYPES.REACT_NATIVE_DIRECT,
+        request: "launch",
+        platform: PlatformType.ExpoWeb,
     },
 };
