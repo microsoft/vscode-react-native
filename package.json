@@ -836,6 +836,10 @@
                 "type": "string",
                 "description": "%reactNative.direct.attach.browserTarget.description%"
               },
+              "url": {
+                "type": "string",
+                "description": "%reactNative.direct.attach.url.description%"
+              },
               "enableDebug": {
                 "type": "boolean",
                 "description": "%reactNative.launch.enableDebug.description%",
@@ -1108,6 +1112,10 @@
                 "type": "boolean",
                 "description": "%reactNative.launch.enableDebug.description%",
                 "default": true
+              },
+              "url": {
+                "type": "string",
+                "description": "%reactNative.direct.attach.url.description%"
               }
             }
           }

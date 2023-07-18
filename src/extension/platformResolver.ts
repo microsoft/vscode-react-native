@@ -31,6 +31,8 @@ export class PlatformResolver {
                 return new WindowsPlatform(runOptions, platformDeps);
             case PlatformType.macOS:
                 return new MacOSPlatform(runOptions, platformDeps);
+            case PlatformType.ExpoWeb:
+                return new ExponentPlatform(runOptions, platformDeps);
             default:
                 return new GeneralPlatform(runOptions, platformDeps);
         }

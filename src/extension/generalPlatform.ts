@@ -28,7 +28,7 @@ export enum TargetType {
 
 export enum BrowserTargetType {
     Chrome = "chrome",
-    Edge = "edge",
+    Edge = "msedge",
 }
 
 export class GeneralPlatform {

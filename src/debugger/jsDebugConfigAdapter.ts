@@ -64,6 +64,9 @@ export class JsDebugConfigAdapter {
         if (attachArgs.jsDebugTrace) {
             existingExtraArgs.trace = attachArgs.jsDebugTrace;
         }
+        // if (attachArgs.browserTarget) {
+        //     existingExtraArgs.target = attachArgs;
+        // }
 
         return existingExtraArgs;
     }

@@ -1,13 +1,16 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import * as fs from "fs";
+import * as child_process from "child_process";
 import * as vscode from "vscode";
 import * as nls from "vscode-nls";
+import * as execa from "execa";
+import * as BrowserHelper from "vscode-js-debug-browsers";
 import { Packager } from "../common/packager";
 import { RNPackageVersions, ProjectVersionHelper } from "../common/projectVersionHelper";
 import { CommandExecutor } from "../common/commandExecutor";
 import { isNullOrUndefined } from "../common/utils";
-
 import { TelemetryHelper } from "../common/telemetryHelper";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
@@ -20,7 +23,12 @@ import { ReactNativeCDPProxy } from "../cdp-proxy/reactNativeCDPProxy";
 import { MultipleLifetimesAppWorker } from "../debugger/appWorker";
 import { ProjectsStorage } from "./projectsStorage";
 import { PlatformResolver } from "./platformResolver";
-import { GeneralPlatform, MobilePlatformDeps, TargetType } from "./generalPlatform";
+import {
+    BrowserTargetType,
+    GeneralPlatform,
+    MobilePlatformDeps,
+    TargetType,
+} from "./generalPlatform";
 import { OutputChannelLogger } from "./log/OutputChannelLogger";
 import { PackagerStatusIndicator } from "./packagerStatusIndicator";
 import { SettingsHelper } from "./settingsHelper";
@@ -54,6 +62,9 @@ export class AppLauncher {
     private launchScenariosManager: LaunchScenariosManager;
     private debugConfigurationRoot: string;
     private nodeModulesRoot?: string;
+    private browserProc: child_process.ChildProcess | null;
+    private browserStopEventEmitter: vscode.EventEmitter<Error | undefined> =
+        new vscode.EventEmitter();
 
     public static getAppLauncherByProjectRootPath(projectRootPath: string): AppLauncher {
         const appLauncher = ProjectsStorage.projectsCache[projectRootPath.toLowerCase()];
@@ -405,6 +416,188 @@ export class AppLauncher {
             this.logger.error(error);
             throw error;
         }
+    }
+
+    public async launchExpoWeb(launchArgs: any): Promise<any> {
+        const platformOptions = this.requestSetup(launchArgs);
+
+        const platformDeps: MobilePlatformDeps = {
+            packager: this.packager,
+            projectObserver: this.projectObserver,
+        };
+        this.mobilePlatform = new PlatformResolver().resolveMobilePlatform(
+            launchArgs.platform,
+            platformOptions,
+            platformDeps,
+        );
+
+        let extProps: any = {
+            platform: {
+                value: launchArgs.platform,
+                isPii: false,
+            },
+        };
+
+        if (platformOptions.isDirect) {
+            extProps.isDirect = {
+                value: true,
+                isPii: false,
+            };
+        }
+
+        try {
+            const versions =
+                await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
+                    platformOptions.nodeModulesRoot,
+                    ProjectVersionHelper.generateAdditionalPackagesToCheckByPlatform(launchArgs),
+                );
+            platformOptions.reactNativeVersions = versions;
+            extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(
+                launchArgs,
+                versions,
+                extProps,
+            );
+
+            await TelemetryHelper.generate("launch", extProps, async generator => {
+                try {
+                    if (this.mobilePlatform instanceof GeneralMobilePlatform) {
+                        generator.step("resolveMobileTarget");
+                        await this.resolveAndSaveMobileTarget(launchArgs, this.mobilePlatform);
+                    }
+
+                    await this.mobilePlatform.beforeStartPackager();
+
+                    generator.step("checkPlatformCompatibility");
+                    TargetPlatformHelper.checkTargetPlatformSupport(platformOptions.platform);
+
+                    generator.step("startPackager");
+                    await this.mobilePlatform.startPackager();
+                } catch (error) {
+                    generator.addError(error);
+                    this.logger.error(error);
+                    throw error;
+                }
+            });
+        } catch (error) {
+            if (error && error.errorCode) {
+                if (error.errorCode === InternalErrorCode.ReactNativePackageIsNotInstalled) {
+                    TelemetryHelper.sendErrorEvent(
+                        "ReactNativePackageIsNotInstalled",
+                        ErrorHelper.getInternalError(
+                            InternalErrorCode.ReactNativePackageIsNotInstalled,
+                        ),
+                    );
+                } else if (error.errorCode === InternalErrorCode.ReactNativeWindowsIsNotInstalled) {
+                    TelemetryHelper.sendErrorEvent(
+                        "ReactNativeWindowsPackageIsNotInstalled",
+                        ErrorHelper.getInternalError(
+                            InternalErrorCode.ReactNativeWindowsIsNotInstalled,
+                        ),
+                    );
+                }
+            }
+            this.logger.error(error);
+            throw error;
+        }
+    }
+
+    public async launchBrowser(launchArgs: any): Promise<void> {
+        const runArguments = this.getRunArguments(launchArgs);
+
+        // Launch browser
+        let browserFinder: BrowserHelper.IBrowserFinder;
+        if (launchArgs.platform == PlatformType.ExpoWeb) {
+            switch (launchArgs.browserTarget) {
+                case BrowserTargetType.Edge:
+                    browserFinder = new BrowserHelper.EdgeBrowserFinder(
+                        process.env,
+                        fs.promises,
+                        execa,
+                    );
+                    break;
+                case BrowserTargetType.Chrome:
+                default:
+                    browserFinder = new BrowserHelper.ChromeBrowserFinder(
+                        process.env,
+                        fs.promises,
+                        execa,
+                    );
+            }
+            const browserPath = (await browserFinder.findAll())[0];
+            if (browserPath) {
+                this.browserProc = child_process.spawn(browserPath.path, runArguments, {
+                    detached: true,
+                    stdio: ["ignore"],
+                });
+                this.browserProc.unref();
+                this.browserProc.on("error", err => {
+                    const errMsg = localize("BrowserError", "Browser error: {0}", err.message);
+                    this.logger.error(errMsg);
+                    this.browserStopEventEmitter.fire(err);
+                });
+                this.browserProc.once("exit", (code: number) => {
+                    const exitMessage = localize(
+                        "BrowserExit",
+                        "Browser has been closed with exit code: {0}",
+                        code,
+                    );
+                    this.logger.info(exitMessage);
+                    this.browserStopEventEmitter.fire(undefined);
+                });
+            }
+        }
+    }
+
+    public getRunArguments(launchArgs: any): string[] {
+        const args: string[] = [
+            `--remote-debugging-port=${launchArgs.port || 9222}`,
+            "--no-first-run",
+            "--no-default-browser-check",
+            `--user-data-dir=${launchArgs.userDataDir}`,
+        ];
+        if (launchArgs.runArguments) {
+            const runArguments = [...launchArgs.runArguments];
+            const remoteDebuggingPort = GeneralPlatform.getOptFromRunArgs(
+                runArguments,
+                "--remote-debugging-port",
+            );
+            const noFirstRun = GeneralPlatform.getOptFromRunArgs(
+                runArguments,
+                "--no-first-run",
+                true,
+            );
+            const noDefaultBrowserCheck = GeneralPlatform.getOptFromRunArgs(
+                runArguments,
+                "--no-default-browser-check",
+                true,
+            );
+            const userDataDir = GeneralPlatform.getOptFromRunArgs(runArguments, "--user-data-dir");
+
+            if (noFirstRun) {
+                GeneralPlatform.removeRunArgument(runArguments, "--no-first-run", true);
+            }
+            if (noDefaultBrowserCheck) {
+                GeneralPlatform.removeRunArgument(runArguments, "--no-default-browser-check", true);
+            }
+            if (remoteDebuggingPort) {
+                GeneralPlatform.setRunArgument(
+                    args,
+                    "--remote-debugging-port",
+                    remoteDebuggingPort,
+                );
+                GeneralPlatform.removeRunArgument(runArguments, "--remote-debugging-port", false);
+            }
+            if (userDataDir) {
+                GeneralPlatform.setRunArgument(args, "--user-data-dir", userDataDir);
+                GeneralPlatform.removeRunArgument(runArguments, "--user-data-dir", false);
+            }
+
+            args.push(...runArguments);
+        }
+        if (launchArgs.url) {
+            args.push(launchArgs.url);
+        }
+        return args;
     }
 
     private async resolveAndSaveMobileTarget(

@@ -7,8 +7,8 @@ import { RNDebugSession } from "../debugger/rnDebugSession";
 import { TerminateEventArgs } from "../debugger/debugSessionBase";
 import { DirectDebugSession } from "../debugger/direct/directDebugSession";
 import { RNSession } from "../debugger/debugSessionWrapper";
-import { DEBUG_TYPES } from "./debuggingConfiguration/debugConfigTypesAndConstants";
 import { WebDebugSession } from "../debugger/webDebugSession";
+import { DEBUG_TYPES } from "./debuggingConfiguration/debugConfigTypesAndConstants";
 
 export class ReactNativeSessionManager
     implements vscode.DebugAdapterDescriptorFactory, vscode.Disposable

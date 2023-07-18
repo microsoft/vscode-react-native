@@ -226,18 +226,24 @@ export class Packager {
             );
 
             let packagerSpawnResult;
-            if (this.runOptions?.platform != "exponent") {
+            if (this.runOptions?.platform != "exponent" && this.runOptions?.platform != "expoweb") {
                 packagerSpawnResult = new CommandExecutor(
                     nodeModulesRoot,
                     this.projectPath,
                     this.logger,
                 ).spawnReactPackager(args, spawnOptions);
-            } else {
+            } else if (this.runOptions?.platform == "exponent") {
                 packagerSpawnResult = new CommandExecutor(
                     nodeModulesRoot,
                     this.projectPath,
                     this.logger,
                 ).spawnExpoPackager(args, spawnOptions);
+            } else {
+                packagerSpawnResult = new CommandExecutor(
+                    nodeModulesRoot,
+                    this.projectPath,
+                    this.logger,
+                ).spawnExpoPackager(["--web"]);
             }
 
             this.packagerProcess = packagerSpawnResult.spawnedProcess;

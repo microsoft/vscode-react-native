@@ -35,7 +35,7 @@ export const DEBUG_TYPES = {
 
 export const BROWSER_TYPES = {
     CHROME: "chrome",
-    EDGE: "edge",
+    EDGE: "msedge",
 };
 
 export const platformTypeRunPickConfig: DebugConfigurationQuickPickItem[] = [

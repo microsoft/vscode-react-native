@@ -87,32 +87,6 @@ export class ConfigurationProviderHelper {
         return config;
     }
 
-    public async selectBrowserTargetType(
-        input: MultiStepInput<DebugConfigurationState>,
-        config: Partial<ILaunchRequestArgs>,
-        step: number,
-        totalSteps: number,
-    ): Promise<Partial<ILaunchRequestArgs>> {
-        const pick = await input.showQuickPick<
-            DebugConfigurationQuickPickItem,
-            IQuickPickParameters<DebugConfigurationQuickPickItem>
-        >({
-            title: localize("BrowserTargetTypeSelectionTitle", "Select type of browser"),
-            placeholder: localize("BrowserTargetTypeSelectionPrompt", "Type of browser"),
-            step,
-            totalSteps,
-            items: browserTypePickConfig,
-            activeItem: browserTypePickConfig[0],
-        });
-
-        if (!pick) {
-            throw new Error("Browser type is not selected");
-        }
-
-        config.type = pick.type;
-        return config;
-    }
-
     public async shouldUseHermesEngine(
         input: MultiStepInput<DebugConfigurationState>,
         config: Partial<ILaunchRequestArgs>,
@@ -194,6 +168,7 @@ export class ConfigurationProviderHelper {
         }
 
         config.browserTarget = pick.type as BrowserTargetType;
+        config.url = "http://localhost:19006";
         return config;
     }
 
