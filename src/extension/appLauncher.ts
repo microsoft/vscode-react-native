@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as fs from "fs";
+import * as path from "path";
 import * as child_process from "child_process";
 import * as vscode from "vscode";
 import * as nls from "vscode-nls";
@@ -21,6 +22,7 @@ import {
 } from "../common/extensionHelper";
 import { ReactNativeCDPProxy } from "../cdp-proxy/reactNativeCDPProxy";
 import { MultipleLifetimesAppWorker } from "../debugger/appWorker";
+import { HostPlatform } from "../common/hostPlatform";
 import { ProjectsStorage } from "./projectsStorage";
 import { PlatformResolver } from "./platformResolver";
 import {
@@ -51,7 +53,7 @@ export class AppLauncher {
     private readonly cdpProxyPort = generateRandomPortNumber();
     /** localhost */
     private readonly cdpProxyHostAddress = "127.0.0.1";
-
+    public static readonly CHROME_DATA_DIR = "chrome_sandbox_dir";
     private appWorker: MultipleLifetimesAppWorker | null;
     private packager: Packager;
     private exponentHelper: ExponentHelper;
@@ -550,10 +552,13 @@ export class AppLauncher {
 
     public getRunArguments(launchArgs: any): string[] {
         const args: string[] = [
-            `--remote-debugging-port=${launchArgs.port || 9222}`,
+            `--remote-debugging-port=9222`,
             "--no-first-run",
             "--no-default-browser-check",
-            `--user-data-dir=${launchArgs.userDataDir}`,
+            `--user-data-dir=${path.join(
+                HostPlatform.getSettingsHome(),
+                AppLauncher.CHROME_DATA_DIR,
+            )}`,
         ];
         if (launchArgs.runArguments) {
             const runArguments = [...launchArgs.runArguments];

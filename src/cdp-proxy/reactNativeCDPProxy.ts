@@ -37,7 +37,9 @@ export class ReactNativeCDPProxy {
     private browserInspectUri: string;
     private cancellationToken: CancellationToken | undefined;
     private applicationTargetEventEmitter: EventEmitter<unknown> = new EventEmitter();
+    private errorEventEmitter: EventEmitter<Error> = new EventEmitter();
 
+    public readonly onError = this.errorEventEmitter.event;
     public readonly onApplicationTargetConnectionClosed = this.applicationTargetEventEmitter.event;
 
     constructor(hostAddress: string, port: number, logLevel: LogLevel = LogLevel.None) {

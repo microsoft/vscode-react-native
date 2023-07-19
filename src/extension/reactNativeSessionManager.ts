@@ -38,10 +38,10 @@ export class ReactNativeSessionManager
             });
         } else {
             debugServer = Net.createServer(socket => {
-                const cordovaDebugSession = new WebDebugSession(rnSession);
-                cordovaDebugSession.setRunAsServer(true);
+                const webDebugSession = new WebDebugSession(rnSession);
+                webDebugSession.setRunAsServer(true);
                 this.connections.set(session.id, socket);
-                cordovaDebugSession.start(<NodeJS.ReadableStream>socket, socket);
+                webDebugSession.start(<NodeJS.ReadableStream>socket, socket);
             });
         }
 
