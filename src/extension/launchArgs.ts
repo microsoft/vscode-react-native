@@ -54,13 +54,6 @@ export interface ImacOSRunOptions extends ILaunchArgs {
     productName?: string;
 }
 
-export interface IBrowserOptions extends ILaunchArgs {
-    port?: string;
-    browserTarget: string;
-    userDataDir: string;
-    url?: string;
-}
-
 export interface IIOSRunOptions extends ImacOSRunOptions {
     iosRelativeProjectPath?: string; // TODO Remove deprecated
 }
