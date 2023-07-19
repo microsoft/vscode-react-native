@@ -1,13 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-// import * as path from "path";
+import * as path from "path";
+import * as fs from "fs";
 import * as vscode from "vscode";
-// import * as mkdirp from "mkdirp";
 import { logger } from "vscode-debugadapter";
 import { DebugProtocol } from "vscode-debugprotocol";
 import * as nls from "vscode-nls";
-// import { ProjectVersionHelper } from "../common/projectVersionHelper";
 import { TelemetryHelper } from "../common/telemetryHelper";
 import { RnCDPMessageHandler } from "../cdp-proxy/CDPMessageHandlers/rnCDPMessageHandler";
 import { ErrorHelper } from "../common/error/errorHelper";
@@ -64,6 +63,8 @@ export class WebDebugSession extends DebugSessionBase {
                 await this.initializeSettings(launchArgs);
                 logger.log("Launching the application");
                 logger.verbose(`Launching the application: ${JSON.stringify(launchArgs, null, 2)}`);
+
+                await this.verifyExpoWebRequiredDependencies(launchArgs);
                 await this.appLauncher.launchExpoWeb(launchArgs);
                 await this.appLauncher.launchBrowser(launchArgs);
             } catch (error) {
@@ -205,6 +206,28 @@ export class WebDebugSession extends DebugSessionBase {
             } else {
                 void this.terminate();
             }
+        }
+    }
+
+    private verifyExpoWebRequiredDependencies(launchArgs: any): void {
+        logger.log("Checking expo web required dependencies");
+        const nodeModulePath = path.join(launchArgs.cwd, "node_modules");
+        const expoMetroConfigPath = path.join(nodeModulePath, "@expo", "metro-config");
+        const reactDomPath = path.join(nodeModulePath, "react-dom");
+        const reactNativeWebPath = path.join(nodeModulePath, "react-native-web");
+        if (
+            fs.existsSync(expoMetroConfigPath) &&
+            fs.existsSync(reactDomPath) &&
+            fs.existsSync(reactNativeWebPath)
+        ) {
+            logger.log("All required dependencies installed");
+        } else {
+            logger.log(
+                "Please install react-native-web@~0.19.6, react-dom@18.2.0, @expo/webpack-config by running: npx expo install react-native-web@~0.19.6 react-dom@18.2.0 @expo/webpack-config",
+            );
+            throw new Error(
+                "Required dependencies not found: Please check and install react-native-web, react-dom, @expo/webpack-config by running: npx expo install react-native-web react-dom @expo/webpack-config",
+            );
         }
     }
 }
