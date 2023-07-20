@@ -16,9 +16,9 @@ import {
     shouldUseHermesEngine,
     DEBUG_TYPES,
     browserTypePickConfig,
+    BROWSER_TYPES,
 } from "../extension/debuggingConfiguration/debugConfigTypesAndConstants";
 import { IWDPHelper } from "../debugger/direct/IWDPHelper";
-import { BrowserTargetType } from "../extension/generalPlatform";
 import { Packager } from "./packager";
 
 nls.config({
@@ -155,8 +155,8 @@ export class ConfigurationProviderHelper {
             DebugConfigurationQuickPickItem,
             IQuickPickParameters<DebugConfigurationQuickPickItem>
         >({
-            title: localize("BrowserTargetTypeSelectionTitle", "Select type of browser"),
-            placeholder: localize("BrowserTargetTypeSelectionPrompt", "Type of browser"),
+            title: localize("BrowserTypeSelectionTitle", "Select type of browser"),
+            placeholder: localize("BrowserTypeSelectionPrompt", "Type of browser"),
             step,
             totalSteps,
             items: browserTypePickConfig,
@@ -167,7 +167,7 @@ export class ConfigurationProviderHelper {
             throw new Error("Browser target type is not selected");
         }
 
-        config.browserTarget = pick.type as BrowserTargetType;
+        config.browserTarget = pick.type as BROWSER_TYPES;
         config.url = "http://localhost:19006";
         return config;
     }

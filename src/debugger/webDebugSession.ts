@@ -93,6 +93,7 @@ export class WebDebugSession extends DebugSessionBase {
 
                 await TelemetryHelper.generate("attach", attachArgs, async generator => {
                     generator.add("platform", attachArgs.platform, false);
+                    generator.add("browser", attachArgs.browserTarget, false);
 
                     this.cdpProxy = this.appLauncher.getRnCdpProxy();
                     this.cdpProxy.setApplicationTargetPort(attachArgs.port);
@@ -177,10 +178,15 @@ export class WebDebugSession extends DebugSessionBase {
                 },
             );
             if (!childDebugSessionStarted) {
-                throw new Error("Cannot start child debug session");
+                const error = localize(
+                    "FailedToStartDebugSession",
+                    "Cannot start child debug session",
+                );
+                throw new Error(error);
             }
         } else {
-            throw new Error("Cannot getreact native cdp proxy");
+            const error = localize("NoReactNativeCdpProxy", "Cannot get react native cdp proxy");
+            throw new Error(error);
         }
     }
 

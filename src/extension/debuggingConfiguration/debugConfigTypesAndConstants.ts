@@ -33,10 +33,10 @@ export const DEBUG_TYPES = {
     REACT_NATIVE_DIRECT: "reactnativedirect",
 };
 
-export const BROWSER_TYPES = {
-    CHROME: "chrome",
-    EDGE: "edge",
-};
+export enum BROWSER_TYPES {
+    Chrome = "chrome",
+    Edge = "edge",
+}
 
 export const platformTypeRunPickConfig: DebugConfigurationQuickPickItem[] = [
     {
@@ -94,11 +94,11 @@ export const appTypePickConfig: DebugConfigurationQuickPickItem[] = [
 export const browserTypePickConfig: DebugConfigurationQuickPickItem[] = [
     {
         label: "Chrome",
-        type: BROWSER_TYPES.CHROME,
+        type: BROWSER_TYPES.Chrome,
     },
     {
         label: "Edge",
-        type: BROWSER_TYPES.EDGE,
+        type: BROWSER_TYPES.Edge,
     },
 ];
 

@@ -25,18 +25,13 @@ import { MultipleLifetimesAppWorker } from "../debugger/appWorker";
 import { HostPlatform } from "../common/hostPlatform";
 import { ProjectsStorage } from "./projectsStorage";
 import { PlatformResolver } from "./platformResolver";
-import {
-    BrowserTargetType,
-    GeneralPlatform,
-    MobilePlatformDeps,
-    TargetType,
-} from "./generalPlatform";
+import { GeneralPlatform, MobilePlatformDeps, TargetType } from "./generalPlatform";
 import { OutputChannelLogger } from "./log/OutputChannelLogger";
 import { PackagerStatusIndicator } from "./packagerStatusIndicator";
 import { SettingsHelper } from "./settingsHelper";
 import { ReactDirManager } from "./reactDirManager";
 import { ExponentHelper } from "./exponent/exponentHelper";
-import { DEBUG_TYPES } from "./debuggingConfiguration/debugConfigTypesAndConstants";
+import { BROWSER_TYPES, DEBUG_TYPES } from "./debuggingConfiguration/debugConfigTypesAndConstants";
 import { IBaseArgs, PlatformType } from "./launchArgs";
 import { LaunchScenariosManager } from "./launchScenariosManager";
 import { createAdditionalWorkspaceFolder, onFolderAdded } from "./rn-extension";
@@ -511,14 +506,14 @@ export class AppLauncher {
         let browserFinder: BrowserHelper.IBrowserFinder;
         if (launchArgs.platform == PlatformType.ExpoWeb) {
             switch (launchArgs.browserTarget) {
-                case BrowserTargetType.Edge:
+                case BROWSER_TYPES.Edge:
                     browserFinder = new BrowserHelper.EdgeBrowserFinder(
                         process.env,
                         fs.promises,
                         execa,
                     );
                     break;
-                case BrowserTargetType.Chrome:
+                case BROWSER_TYPES.Chrome:
                 default:
                     browserFinder = new BrowserHelper.ChromeBrowserFinder(
                         process.env,
@@ -553,9 +548,9 @@ export class AppLauncher {
 
     public getRunArguments(launchArgs: any): string[] {
         let userDataDir;
-        if (launchArgs.browserTarget == BrowserTargetType.Chrome) {
+        if (launchArgs.browserTarget == BROWSER_TYPES.Chrome) {
             userDataDir = path.join(HostPlatform.getSettingsHome(), AppLauncher.CHROME_DATA_DIR);
-        } else if (launchArgs.browserTarget == BrowserTargetType.Edge) {
+        } else if (launchArgs.browserTarget == BROWSER_TYPES.Edge) {
             userDataDir = path.join(HostPlatform.getSettingsHome(), AppLauncher.EDGE_DATA_DIR);
         } else {
             userDataDir = "";
