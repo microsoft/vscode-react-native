@@ -109,9 +109,6 @@ export class WebDebugSession extends DebugSessionBase {
                             processedAttachArgs.webSocketDebuggerUrl,
                         );
                     }
-                    // cdpProxy.configureCDPMessageHandlerAccordingToProcessedAttachArgs(
-                    //     processedAttachArgs,
-                    // );
                     this.cdpProxyErrorHandlerDescriptor = this.cdpProxy.onError(
                         async (err: Error) => {
                             if (this.attachRetryCount > 0) {
@@ -120,7 +117,7 @@ export class WebDebugSession extends DebugSessionBase {
                                 void doAttach(attachArgs);
                             } else {
                                 this.showError(err);
-                                // this.terminate();
+                                void this.terminate();
                                 this.cdpProxyErrorHandlerDescriptor?.dispose();
                             }
                         },

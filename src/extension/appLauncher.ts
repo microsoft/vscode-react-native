@@ -54,6 +54,7 @@ export class AppLauncher {
     /** localhost */
     private readonly cdpProxyHostAddress = "127.0.0.1";
     public static readonly CHROME_DATA_DIR = "chrome_sandbox_dir";
+    public static readonly EDGE_DATA_DIR = "edge_sandbox_dir";
     private appWorker: MultipleLifetimesAppWorker | null;
     private packager: Packager;
     private exponentHelper: ExponentHelper;
@@ -551,54 +552,21 @@ export class AppLauncher {
     }
 
     public getRunArguments(launchArgs: any): string[] {
+        let userDataDir;
+        if (launchArgs.browserTarget == BrowserTargetType.Chrome) {
+            userDataDir = path.join(HostPlatform.getSettingsHome(), AppLauncher.CHROME_DATA_DIR);
+        } else if (launchArgs.browserTarget == BrowserTargetType.Edge) {
+            userDataDir = path.join(HostPlatform.getSettingsHome(), AppLauncher.EDGE_DATA_DIR);
+        } else {
+            userDataDir = "";
+        }
+
         const args: string[] = [
-            `--remote-debugging-port=9222`,
+            `--remote-debugging-port=${(launchArgs.port as number) || 9222}`,
             "--no-first-run",
             "--no-default-browser-check",
-            `--user-data-dir=${path.join(
-                HostPlatform.getSettingsHome(),
-                AppLauncher.CHROME_DATA_DIR,
-            )}`,
+            `--user-data-dir=${userDataDir}`,
         ];
-        if (launchArgs.runArguments) {
-            const runArguments = [...launchArgs.runArguments];
-            const remoteDebuggingPort = GeneralPlatform.getOptFromRunArgs(
-                runArguments,
-                "--remote-debugging-port",
-            );
-            const noFirstRun = GeneralPlatform.getOptFromRunArgs(
-                runArguments,
-                "--no-first-run",
-                true,
-            );
-            const noDefaultBrowserCheck = GeneralPlatform.getOptFromRunArgs(
-                runArguments,
-                "--no-default-browser-check",
-                true,
-            );
-            const userDataDir = GeneralPlatform.getOptFromRunArgs(runArguments, "--user-data-dir");
-
-            if (noFirstRun) {
-                GeneralPlatform.removeRunArgument(runArguments, "--no-first-run", true);
-            }
-            if (noDefaultBrowserCheck) {
-                GeneralPlatform.removeRunArgument(runArguments, "--no-default-browser-check", true);
-            }
-            if (remoteDebuggingPort) {
-                GeneralPlatform.setRunArgument(
-                    args,
-                    "--remote-debugging-port",
-                    remoteDebuggingPort,
-                );
-                GeneralPlatform.removeRunArgument(runArguments, "--remote-debugging-port", false);
-            }
-            if (userDataDir) {
-                GeneralPlatform.setRunArgument(args, "--user-data-dir", userDataDir);
-                GeneralPlatform.removeRunArgument(runArguments, "--user-data-dir", false);
-            }
-
-            args.push(...runArguments);
-        }
         if (launchArgs.url) {
             args.push(launchArgs.url);
         }
