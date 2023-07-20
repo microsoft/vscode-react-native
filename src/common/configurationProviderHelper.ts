@@ -164,11 +164,10 @@ export class ConfigurationProviderHelper {
         });
 
         if (!pick) {
-            throw new Error("Browser target type is not selected");
+            throw new Error(localize("NoBrowserTargetSelected", "Browser target is not selected"));
         }
 
         config.browserTarget = pick.type as BROWSER_TYPES;
-        config.url = "http://localhost:19006";
         return config;
     }
 

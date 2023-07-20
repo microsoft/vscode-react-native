@@ -40,6 +40,10 @@ export class DebugScenarioNameGenerator {
             );
         }
 
+        if (platformType === PlatformType.ExpoWeb) {
+            isExperimental = true;
+        }
+
         if (isExperimental) {
             debugScenarioName.experimentalDescription = "- Experimental";
         }
