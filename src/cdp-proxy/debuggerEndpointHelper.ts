@@ -85,6 +85,15 @@ export class DebuggerEndpointHelper {
                 ? this.tryToGetHermesImprovedChromeReloadsWebSocketDebuggerUrl(jsonList)
                 : jsonList[0].webSocketDebuggerUrl;
         }
+        // Try to get websocket endpoint from default metro bundler
+        const defaultJsonList = await this.fetchJson<DebuggableEndpointData[]>(
+            "http://localhost:8081/json/list",
+        );
+        if (defaultJsonList.length) {
+            return isHermes
+                ? this.tryToGetHermesImprovedChromeReloadsWebSocketDebuggerUrl(defaultJsonList)
+                : defaultJsonList[0].webSocketDebuggerUrl;
+        }
 
         throw new Error("Could not find any debuggable target");
     }
