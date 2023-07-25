@@ -51,7 +51,10 @@ export const getNgrokResolver: () => Promise<XDLPackage.ResolveNgrok> =
 export type IUser = XDLPackage.IUser;
 
 export async function configReactNativeVersionWarnings(): Promise<void> {
-    (await getXDLPackage()).Config.validation.reactNativeVersionWarnings = false;
+    const xdlPackage = await getXDLPackage();
+    if (xdlPackage.Config.validation !== undefined) {
+        xdlPackage.Config.validation.reactNativeVersionWarnings = false;
+    }
 }
 
 export async function attachLoggerStream(
