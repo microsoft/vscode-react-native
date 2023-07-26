@@ -24,6 +24,7 @@ import { BaseCDPMessageHandler } from "../../cdp-proxy/CDPMessageHandlers/baseCD
 import { TipNotificationService } from "../../extension/services/tipsNotificationsService/tipsNotificationService";
 import { RNSession } from "../debugSessionWrapper";
 import { IWDPHelper } from "./IWDPHelper";
+import { SettingsHelper } from "../../extension/settingsHelper";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -243,12 +244,13 @@ export class DirectDebugSession extends DebugSessionBase {
                         }
                     });
 
+                const settingsPorts = SettingsHelper.getPackagerPort(attachArgs.cwd);
                 const browserInspectUri = await this.debuggerEndpointHelper.retryGetWSEndpoint(
                     `http://localhost:${attachArgs.port}`,
                     90,
                     this.cancellationTokenSource.token,
                     attachArgs.useHermesEngine,
-                    attachArgs.cwd,
+                    settingsPorts,
                 );
                 this.appLauncher.getRnCdpProxy().setBrowserInspectUri(browserInspectUri);
                 await this.establishDebugSession(attachArgs);

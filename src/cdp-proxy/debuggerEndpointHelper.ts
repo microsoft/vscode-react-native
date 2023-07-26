@@ -10,7 +10,7 @@ import { CancellationToken } from "vscode";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { PromiseUtil } from "../common/node/promise";
-import { SettingsHelper } from "../extension/settingsHelper";
+// import { SettingsHelper } from "../extension/settingsHelper";
 
 interface DebuggableEndpointData {
     webSocketDebuggerUrl: string;
@@ -37,13 +37,13 @@ export class DebuggerEndpointHelper {
         attemptNumber: number,
         cancellationToken: CancellationToken,
         isHermes: boolean = false,
-        projectRoot?: string,
+        settingsPort?: number,
     ): Promise<string> {
         while (true) {
             try {
                 let url = "";
-                if (projectRoot) {
-                    url = `http://localhost:${SettingsHelper.getPackagerPort(projectRoot)}`;
+                if (settingsPort) {
+                    url = `http://localhost:${settingsPort}`;
                     try {
                         return await this.getWSEndpoint(browserURL, isHermes);
                     } catch {
