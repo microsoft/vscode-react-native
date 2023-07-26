@@ -10,7 +10,6 @@ import { CancellationToken } from "vscode";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { PromiseUtil } from "../common/node/promise";
-// import { SettingsHelper } from "../extension/settingsHelper";
 
 interface DebuggableEndpointData {
     webSocketDebuggerUrl: string;
