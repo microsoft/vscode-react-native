@@ -12,6 +12,8 @@ import { RnCDPMessageHandler } from "../cdp-proxy/CDPMessageHandlers/rnCDPMessag
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { ReactNativeCDPProxy } from "../cdp-proxy/reactNativeCDPProxy";
+import { Request } from "../common/node/request";
+import { PromiseUtil } from "../common/node/promise";
 import { MultipleLifetimesAppWorker } from "./appWorker";
 import {
     DebugSessionBase,
@@ -66,6 +68,7 @@ export class WebDebugSession extends DebugSessionBase {
 
                 await this.verifyExpoWebRequiredDependencies(launchArgs);
                 await this.appLauncher.launchExpoWeb(launchArgs);
+                await this.waitExpoWebIsRunning(launchArgs);
                 await this.appLauncher.launchBrowser(launchArgs);
             } catch (error) {
                 throw ErrorHelper.getInternalError(
@@ -231,6 +234,33 @@ export class WebDebugSession extends DebugSessionBase {
             throw new Error(
                 "Required dependencies not found: Please check and install react-native-web, react-dom, @expo/webpack-config by running: npx expo install react-native-web react-dom @expo/webpack-config",
             );
+        }
+    }
+
+    private async isRunning(launchArgs: any): Promise<boolean> {
+        try {
+            await Request.request(launchArgs.url);
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
+    private async waitExpoWebIsRunning(
+        launchArgs: any,
+        retryCount = 60,
+        delay = 3000,
+    ): Promise<void> {
+        try {
+            await PromiseUtil.retryAsync(
+                () => this.isRunning(launchArgs),
+                running => running,
+                retryCount,
+                delay,
+                localize("ExpoWebIsNotRunning", "Expo web is not running"),
+            );
+        } catch (error) {
+            throw error;
         }
     }
 }
