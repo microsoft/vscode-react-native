@@ -248,6 +248,7 @@ export class DirectDebugSession extends DebugSessionBase {
                     90,
                     this.cancellationTokenSource.token,
                     attachArgs.useHermesEngine,
+                    attachArgs.cwd,
                 );
                 this.appLauncher.getRnCdpProxy().setBrowserInspectUri(browserInspectUri);
                 await this.establishDebugSession(attachArgs);
