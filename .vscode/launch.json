@@ -18,8 +18,7 @@
             "runtimeExecutable": "${execPath}",
             "args": ["--extensionDevelopmentPath=${workspaceRoot}"],
             "sourceMaps": true,
-            "outFiles": ["${workspaceRoot}/src/**/*.js"],
-            "preLaunchTask": "gulp: quick-build"
+            "outFiles": ["${workspaceRoot}/src/**/*.js"]
         },
         {
             "name": "Launch Extension tests",
