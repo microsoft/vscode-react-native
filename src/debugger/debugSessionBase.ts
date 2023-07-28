@@ -185,6 +185,10 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
                     this.vsCodeDebugSession.workspaceFolder.uri.fsPath,
                 );
             }
+            const settingsPort = this.appLauncher.getPackagerPort(projectRootPath);
+            if (this.appLauncher.getPackager().getPort() != settingsPort) {
+                this.appLauncher.getPackager().resetToSettingsPort();
+            }
         }
     }
 
