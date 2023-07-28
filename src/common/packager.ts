@@ -100,6 +100,10 @@ export class Packager {
         return this.packagerPort || SettingsHelper.getPackagerPort(this.workspacePath);
     }
 
+    public resetToSettingsPort(): void {
+        this.packagerPort = SettingsHelper.getPackagerPort(this.workspacePath);
+    }
+
     public setRunOptions(runOptions: IRunOptions): void {
         this.runOptions = runOptions;
     }
@@ -111,6 +115,7 @@ export class Packager {
     public getStatusIndicator(): PackagerStatusIndicator {
         return this.packagerStatusIndicator;
     }
+
     public getHost(): string {
         return Packager.getHostForPort(this.getPort());
     }

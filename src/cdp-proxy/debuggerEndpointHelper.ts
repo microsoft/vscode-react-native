@@ -36,10 +36,21 @@ export class DebuggerEndpointHelper {
         attemptNumber: number,
         cancellationToken: CancellationToken,
         isHermes: boolean = false,
+        settingsPort?: number,
     ): Promise<string> {
         while (true) {
             try {
-                return await this.getWSEndpoint(browserURL, isHermes);
+                let url = "";
+                if (settingsPort) {
+                    url = `http://localhost:${settingsPort}`;
+                    try {
+                        return await this.getWSEndpoint(browserURL, isHermes);
+                    } catch {
+                        return await this.getWSEndpoint(url, isHermes);
+                    }
+                } else {
+                    return await this.getWSEndpoint(browserURL, isHermes);
+                }
             } catch (err) {
                 if (attemptNumber < 1 || cancellationToken.isCancellationRequested) {
                     const internalError = ErrorHelper.getInternalError(
@@ -84,6 +95,15 @@ export class DebuggerEndpointHelper {
             return isHermes
                 ? this.tryToGetHermesImprovedChromeReloadsWebSocketDebuggerUrl(jsonList)
                 : jsonList[0].webSocketDebuggerUrl;
+        }
+        // Try to get websocket endpoint from default metro bundler
+        const defaultJsonList = await this.fetchJson<DebuggableEndpointData[]>(
+            "http://localhost:8081/json/list",
+        );
+        if (defaultJsonList.length) {
+            return isHermes
+                ? this.tryToGetHermesImprovedChromeReloadsWebSocketDebuggerUrl(defaultJsonList)
+                : defaultJsonList[0].webSocketDebuggerUrl;
         }
 
         throw new Error("Could not find any debuggable target");
