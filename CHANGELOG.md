@@ -1,3 +1,12 @@
+## 1.11.2
+* Fix attach request for different metro ports [#2007](https://github.com/microsoft/vscode-react-native/pull/2007)
+* Fix unexpected internal error [#2005](https://github.com/microsoft/vscode-react-native/pull/2005)
+* Fix getting android sdk path logic in local.properties file [#1991](https://github.com/microsoft/vscode-react-native/pull/1991)
+* Replace RN CLI by Expo CLI to start Metro in Expo debugging [#1987](https://github.com/microsoft/vscode-react-native/pull/1987)
+* Fix show qrcode in output window function [#1985](https://github.com/microsoft/vscode-react-native/pull/1985)
+* Internal changes:
+    * Fix security vulnerabilities [#1994](https://github.com/microsoft/vscode-react-native/pull/1994)
+
 ## 1.11.1
 * Support Expo EAS command: open the project page in a web browser [#1959](https://github.com/microsoft/vscode-react-native/pull/1959)
 * Update vscode marketpace badge service [#1967](https://github.com/microsoft/vscode-react-native/pull/1967)
