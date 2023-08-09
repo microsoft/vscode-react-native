@@ -1,7 +1,8 @@
 {
-    "reporterEnabled": "spec, mocha-junit-reporter, mochawesome",
+    "reporterEnabled": "mocha-junit-reporter, mochawesome",
     "mochawesomeReporterOptions": {
         "reportDir": "../mochawesome-report",
         "reportFilename": "Smoke-Test-Report",
         "quiet": true
     }
+}
