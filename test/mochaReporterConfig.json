@@ -1,5 +1,5 @@
 {
-    "reporterEnabled": "spec, mocha-junit-reporter, mochawesome",
+    "reporterEnabled": "mocha-junit-reporter, mochawesome",
     "mochaJunitReporterReporterOptions": {
         "mochaFile": "./ExtensionTests.xml"
     },
