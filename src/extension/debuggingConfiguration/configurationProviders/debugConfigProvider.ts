@@ -42,7 +42,10 @@ export class DebugConfigProvider extends BaseConfigProvider {
 
         Object.assign(state.config, config);
 
-        if (state.config.platform !== PlatformType.Exponent) {
+        if (
+            state.config.platform !== PlatformType.Exponent &&
+            state.config.platform !== PlatformType.ExpoWeb
+        ) {
             return async () => {
                 await this.configureApplicationType(input, state.config);
                 if (
@@ -62,6 +65,12 @@ export class DebugConfigProvider extends BaseConfigProvider {
             return async () => {
                 await this.configureApplicationType(input, state.config);
                 await this.configureExpoHostType(input, state.config);
+            };
+        } else if (state.config.platform === PlatformType.ExpoWeb) {
+            return async () => {
+                await this.configureBrowserTarget(input, state.config);
+                await this.configureApplicationType(input, state.config);
+                state.config.url = "http://localhost:19006";
             };
         }
         return;
@@ -105,5 +114,17 @@ export class DebugConfigProvider extends BaseConfigProvider {
         if (config.useHermesEngine) {
             delete config.useHermesEngine;
         }
+    }
+
+    private async configureBrowserTarget(
+        input: MultiStepInput<DebugConfigurationState>,
+        config: Partial<ILaunchRequestArgs>,
+    ): Promise<InputStep<DebugConfigurationState> | void> {
+        await this.configurationProviderHelper.selectBrowserTarget(
+            input,
+            config,
+            4,
+            this.maxStepCount,
+        );
     }
 }

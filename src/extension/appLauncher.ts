@@ -1,13 +1,17 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import * as fs from "fs";
+import * as path from "path";
+import * as child_process from "child_process";
 import * as vscode from "vscode";
 import * as nls from "vscode-nls";
+import * as execa from "execa";
+import * as BrowserHelper from "vscode-js-debug-browsers";
 import { Packager } from "../common/packager";
 import { RNPackageVersions, ProjectVersionHelper } from "../common/projectVersionHelper";
 import { CommandExecutor } from "../common/commandExecutor";
 import { isNullOrUndefined } from "../common/utils";
-
 import { TelemetryHelper } from "../common/telemetryHelper";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
@@ -18,6 +22,7 @@ import {
 } from "../common/extensionHelper";
 import { ReactNativeCDPProxy } from "../cdp-proxy/reactNativeCDPProxy";
 import { MultipleLifetimesAppWorker } from "../debugger/appWorker";
+import { HostPlatform } from "../common/hostPlatform";
 import { ProjectsStorage } from "./projectsStorage";
 import { PlatformResolver } from "./platformResolver";
 import { GeneralPlatform, MobilePlatformDeps, TargetType } from "./generalPlatform";
@@ -26,7 +31,7 @@ import { PackagerStatusIndicator } from "./packagerStatusIndicator";
 import { SettingsHelper } from "./settingsHelper";
 import { ReactDirManager } from "./reactDirManager";
 import { ExponentHelper } from "./exponent/exponentHelper";
-import { DEBUG_TYPES } from "./debuggingConfiguration/debugConfigTypesAndConstants";
+import { BROWSER_TYPES, DEBUG_TYPES } from "./debuggingConfiguration/debugConfigTypesAndConstants";
 import { IBaseArgs, PlatformType } from "./launchArgs";
 import { LaunchScenariosManager } from "./launchScenariosManager";
 import { createAdditionalWorkspaceFolder, onFolderAdded } from "./rn-extension";
@@ -43,7 +48,8 @@ export class AppLauncher {
     private readonly cdpProxyPort = generateRandomPortNumber();
     /** localhost */
     private readonly cdpProxyHostAddress = "127.0.0.1";
-
+    public static readonly CHROME_DATA_DIR = "chrome_sandbox_dir";
+    public static readonly EDGE_DATA_DIR = "edge_sandbox_dir";
     private appWorker: MultipleLifetimesAppWorker | null;
     private packager: Packager;
     private exponentHelper: ExponentHelper;
@@ -54,6 +60,9 @@ export class AppLauncher {
     private launchScenariosManager: LaunchScenariosManager;
     private debugConfigurationRoot: string;
     private nodeModulesRoot?: string;
+    private browserProc: child_process.ChildProcess | null;
+    private browserStopEventEmitter: vscode.EventEmitter<Error | undefined> =
+        new vscode.EventEmitter();
 
     public static getAppLauncherByProjectRootPath(projectRootPath: string): AppLauncher {
         const appLauncher = ProjectsStorage.projectsCache[projectRootPath.toLowerCase()];
@@ -405,6 +414,153 @@ export class AppLauncher {
             this.logger.error(error);
             throw error;
         }
+    }
+
+    public async launchExpoWeb(launchArgs: any): Promise<any> {
+        const platformOptions = this.requestSetup(launchArgs);
+
+        const platformDeps: MobilePlatformDeps = {
+            packager: this.packager,
+            projectObserver: this.projectObserver,
+        };
+        this.mobilePlatform = new PlatformResolver().resolveMobilePlatform(
+            launchArgs.platform,
+            platformOptions,
+            platformDeps,
+        );
+
+        let extProps: any = {
+            platform: {
+                value: launchArgs.platform,
+                isPii: false,
+            },
+        };
+
+        if (platformOptions.isDirect) {
+            extProps.isDirect = {
+                value: true,
+                isPii: false,
+            };
+        }
+
+        try {
+            const versions =
+                await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
+                    platformOptions.nodeModulesRoot,
+                    ProjectVersionHelper.generateAdditionalPackagesToCheckByPlatform(launchArgs),
+                );
+            platformOptions.reactNativeVersions = versions;
+            extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(
+                launchArgs,
+                versions,
+                extProps,
+            );
+
+            await TelemetryHelper.generate("launch", extProps, async generator => {
+                try {
+                    await this.mobilePlatform.beforeStartPackager();
+
+                    generator.step("checkPlatformCompatibility");
+                    TargetPlatformHelper.checkTargetPlatformSupport(platformOptions.platform);
+
+                    generator.step("startPackager");
+                    await this.mobilePlatform.startPackager();
+                } catch (error) {
+                    generator.addError(error);
+                    this.logger.error(error);
+                    throw error;
+                }
+            });
+        } catch (error) {
+            if (error && error.errorCode) {
+                if (error.errorCode === InternalErrorCode.ReactNativePackageIsNotInstalled) {
+                    TelemetryHelper.sendErrorEvent(
+                        "ReactNativePackageIsNotInstalled",
+                        ErrorHelper.getInternalError(
+                            InternalErrorCode.ReactNativePackageIsNotInstalled,
+                        ),
+                    );
+                } else if (error.errorCode === InternalErrorCode.ReactNativeWindowsIsNotInstalled) {
+                    TelemetryHelper.sendErrorEvent(
+                        "ReactNativeWindowsPackageIsNotInstalled",
+                        ErrorHelper.getInternalError(
+                            InternalErrorCode.ReactNativeWindowsIsNotInstalled,
+                        ),
+                    );
+                }
+            }
+            this.logger.error(error);
+            throw error;
+        }
+    }
+
+    public async launchBrowser(launchArgs: any): Promise<void> {
+        const runArguments = this.getRunArguments(launchArgs);
+
+        // Launch browser
+        let browserFinder: BrowserHelper.IBrowserFinder;
+        if (launchArgs.platform == PlatformType.ExpoWeb) {
+            switch (launchArgs.browserTarget) {
+                case BROWSER_TYPES.Edge:
+                    browserFinder = new BrowserHelper.EdgeBrowserFinder(
+                        process.env,
+                        fs.promises,
+                        execa,
+                    );
+                    break;
+                case BROWSER_TYPES.Chrome:
+                default:
+                    browserFinder = new BrowserHelper.ChromeBrowserFinder(
+                        process.env,
+                        fs.promises,
+                        execa,
+                    );
+            }
+            const browserPath = (await browserFinder.findAll())[0];
+            if (browserPath) {
+                this.browserProc = child_process.spawn(browserPath.path, runArguments, {
+                    detached: true,
+                    stdio: ["ignore"],
+                });
+                this.browserProc.unref();
+                this.browserProc.on("error", err => {
+                    const errMsg = localize("BrowserError", "Browser error: {0}", err.message);
+                    this.logger.error(errMsg);
+                    this.browserStopEventEmitter.fire(err);
+                });
+                this.browserProc.once("exit", (code: number) => {
+                    const exitMessage = localize(
+                        "BrowserExit",
+                        "Browser has been closed with exit code: {0}",
+                        code,
+                    );
+                    this.logger.info(exitMessage);
+                    this.browserStopEventEmitter.fire(undefined);
+                });
+            }
+        }
+    }
+
+    public getRunArguments(launchArgs: any): string[] {
+        let userDataDir;
+        if (launchArgs.browserTarget == BROWSER_TYPES.Chrome) {
+            userDataDir = path.join(HostPlatform.getSettingsHome(), AppLauncher.CHROME_DATA_DIR);
+        } else if (launchArgs.browserTarget == BROWSER_TYPES.Edge) {
+            userDataDir = path.join(HostPlatform.getSettingsHome(), AppLauncher.EDGE_DATA_DIR);
+        } else {
+            userDataDir = "";
+        }
+
+        const args: string[] = [
+            `--remote-debugging-port=${(launchArgs.port as number) || 9222}`,
+            "--no-first-run",
+            "--no-default-browser-check",
+            `--user-data-dir=${userDataDir}`,
+        ];
+        if (launchArgs.url) {
+            args.push(launchArgs.url);
+        }
+        return args;
     }
 
     private async resolveAndSaveMobileTarget(

@@ -7,6 +7,7 @@ import { RNDebugSession } from "../debugger/rnDebugSession";
 import { TerminateEventArgs } from "../debugger/debugSessionBase";
 import { DirectDebugSession } from "../debugger/direct/directDebugSession";
 import { RNSession } from "../debugger/debugSessionWrapper";
+import { WebDebugSession } from "../debugger/webDebugSession";
 import { DEBUG_TYPES } from "./debuggingConfiguration/debugConfigTypesAndConstants";
 
 export class ReactNativeSessionManager
@@ -21,17 +22,29 @@ export class ReactNativeSessionManager
         executable: vscode.DebugAdapterExecutable | undefined,
     ): vscode.ProviderResult<vscode.DebugAdapterDescriptor> {
         const rnSession = new RNSession(session);
-        const debugServer = Net.createServer(socket => {
-            const rnDebugSession =
-                session.type === DEBUG_TYPES.REACT_NATIVE
-                    ? new RNDebugSession(rnSession)
-                    : new DirectDebugSession(rnSession);
 
-            this.connections.set(session.id, socket);
+        let debugServer;
+        if (session.configuration.platform != "expoweb") {
+            debugServer = Net.createServer(socket => {
+                const rnDebugSession =
+                    session.type === DEBUG_TYPES.REACT_NATIVE
+                        ? new RNDebugSession(rnSession)
+                        : new DirectDebugSession(rnSession);
 
-            rnDebugSession.setRunAsServer(true);
-            rnDebugSession.start(<NodeJS.ReadableStream>socket, socket);
-        });
+                this.connections.set(session.id, socket);
+
+                rnDebugSession.setRunAsServer(true);
+                rnDebugSession.start(<NodeJS.ReadableStream>socket, socket);
+            });
+        } else {
+            debugServer = Net.createServer(socket => {
+                const webDebugSession = new WebDebugSession(rnSession);
+                webDebugSession.setRunAsServer(true);
+                this.connections.set(session.id, socket);
+                webDebugSession.start(<NodeJS.ReadableStream>socket, socket);
+            });
+        }
+
         debugServer.listen(0);
         this.servers.set(session.id, debugServer);
 

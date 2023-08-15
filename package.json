@@ -337,6 +337,13 @@
         "icon": "$(debug-alt)"
       },
       {
+        "command": "reactNative.debugScenario.debugInExponentWebExperimental",
+        "title": "Debug in Exponent Web - Experimental",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled && !inDebugMode || isWorkspaceTrusted && !inDebugMode",
+        "icon": "$(debug-alt)"
+      },
+      {
         "command": "reactNative.debugScenario.debugAndroidHermesExperimental",
         "title": "Debug Android Hermes - Experimental",
         "category": "React Native",
@@ -446,6 +453,10 @@
           "when": "isRNProject && config.react-native-tools.displayDebuggingCommandsButton"
         },
         {
+          "command": "reactNative.debugScenario.debugInExponentWebExperimental",
+          "when": "isRNProject && config.react-native-tools.displayDebuggingCommandsButton"
+        },
+        {
           "command": "reactNative.debugScenario.debugAndroidHermesExperimental",
           "when": "isRNProject && isRNAndroidHermesProject && config.react-native-tools.displayDebuggingCommandsButton"
         },
@@ -525,6 +536,10 @@
         },
         {
           "command": "reactNative.debugScenario.debugInHermesExponentExperimental",
+          "when": "false"
+        },
+        {
+          "command": "reactNative.debugScenario.debugInExponentWebExperimental",
           "when": "false"
         },
         {
@@ -691,7 +706,8 @@
                   "android",
                   "exponent",
                   "windows",
-                  "macos"
+                  "macos",
+                  "expoweb"
                 ],
                 "description": "%reactNative.launch.platform.description%"
               },
@@ -812,6 +828,18 @@
                 "default": "lan",
                 "description": "%reactNative.launch.expoHostType.description%"
               },
+              "jsDebugTrace": {
+                "type": "boolean",
+                "description": "%reactNative.direct.attach.jsDebugTrace.description%"
+              },
+              "browserTarget": {
+                "type": "string",
+                "description": "%reactNative.direct.attach.browserTarget.description%"
+              },
+              "url": {
+                "type": "string",
+                "description": "%reactNative.direct.attach.url.description%"
+              },
               "enableDebug": {
                 "type": "boolean",
                 "description": "%reactNative.launch.enableDebug.description%",
@@ -872,6 +900,10 @@
               "jsDebugTrace": {
                 "type": "boolean",
                 "description": "%reactNative.direct.attach.jsDebugTrace.description%"
+              },
+              "browserTarget": {
+                "type": "string",
+                "description": "%reactNative.direct.attach.browserTarget.description%"
               },
               "sourceMapRenames": {
                 "type": "boolean",
@@ -943,7 +975,8 @@
                   "ios",
                   "macos",
                   "windows",
-                  "exponent"
+                  "exponent",
+                  "expoweb"
                 ],
                 "description": "%reactNative.launch.direct.platform.description%"
               },
@@ -965,6 +998,10 @@
               "jsDebugTrace": {
                 "type": "boolean",
                 "description": "%reactNative.direct.attach.jsDebugTrace.description%"
+              },
+              "browserTarget": {
+                "type": "string",
+                "description": "%reactNative.direct.attach.browserTarget.description%"
               },
               "cwd": {
                 "type": "string",
@@ -1075,6 +1112,10 @@
                 "type": "boolean",
                 "description": "%reactNative.launch.enableDebug.description%",
                 "default": true
+              },
+              "url": {
+                "type": "string",
+                "description": "%reactNative.direct.attach.url.description%"
               }
             }
           }
@@ -1319,6 +1360,7 @@
     "vscode-cdp-proxy": "0.2.0",
     "vscode-debugadapter": "1.51.0",
     "vscode-extension-telemetry": "0.4.5",
+    "vscode-js-debug-browsers": "^1.0.5",
     "vscode-nls": "4.1.2",
     "ws": "7.4.6"
   },

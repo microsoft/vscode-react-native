@@ -15,6 +15,7 @@ export enum TargetPlatformId {
     EXPONENT,
     WINDOWS,
     MACOS,
+    EXPOWEB,
 }
 
 export class TargetPlatformHelper {
@@ -33,6 +34,8 @@ export class TargetPlatformHelper {
                 return TargetPlatformId.WINDOWS;
             case PlatformType.macOS:
                 return TargetPlatformId.MACOS;
+            case PlatformType.ExpoWeb:
+                return TargetPlatformId.EXPOWEB;
             default:
                 throw ErrorHelper.getInternalError(
                     InternalErrorCode.PlatformNotSupported,

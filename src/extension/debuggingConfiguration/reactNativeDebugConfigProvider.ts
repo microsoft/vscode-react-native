@@ -6,6 +6,7 @@ import * as nls from "vscode-nls";
 import { TelemetryHelper } from "../../common/telemetryHelper";
 import { Telemetry } from "../../common/telemetry";
 import { ILaunchRequestArgs } from "../../debugger/debugSessionBase";
+import { PlatformType } from "../launchArgs";
 import {
     debugConfigurations,
     DEBUG_CONFIGURATION_NAMES,
@@ -70,6 +71,13 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             description: localize(
                 "DebugHermesExpoConfigDesc",
                 "Debug Hermes Expo application or React Native application in Expo",
+            ),
+        },
+        {
+            label: DEBUG_CONFIGURATION_NAMES.DEBUG_IN_EXPONENT_WEB_EXPERIMENTAL,
+            description: localize(
+                "DebugExpoWebConfigDesc",
+                "Debug Hermes Expo application on web browser",
             ),
         },
         {
@@ -204,26 +212,34 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
         if (Object.keys(state.config).length === 0) {
             return;
         }
-        if (state.config.type === DEBUG_TYPES.REACT_NATIVE_DIRECT) {
-            if (
-                state.config.platform === "android" ||
-                (state.config.platform === "ios" &&
-                    state.config.target !== "device" &&
-                    state.config.request !== "attach")
-            ) {
-                state.config.name = DebugScenarioNameGenerator.createScenarioName(
-                    state.scenarioType,
-                    state.config.type,
-                    state.config.platform,
-                    state.config.useHermesEngine !== false,
-                );
+        if (state.config.platform !== PlatformType.ExpoWeb) {
+            if (state.config.type === DEBUG_TYPES.REACT_NATIVE_DIRECT) {
+                if (
+                    state.config.platform === "android" ||
+                    (state.config.platform === "ios" &&
+                        state.config.target !== "device" &&
+                        state.config.request !== "attach")
+                ) {
+                    state.config.name = DebugScenarioNameGenerator.createScenarioName(
+                        state.scenarioType,
+                        state.config.type,
+                        state.config.platform,
+                        state.config.useHermesEngine !== false,
+                    );
+                } else {
+                    state.config.name = DebugScenarioNameGenerator.createScenarioName(
+                        state.scenarioType,
+                        state.config.type,
+                        state.config.platform,
+                        state.config.useHermesEngine !== false,
+                        true,
+                    );
+                }
             } else {
                 state.config.name = DebugScenarioNameGenerator.createScenarioName(
                     state.scenarioType,
-                    state.config.type,
+                    state.config.type || DEBUG_TYPES.REACT_NATIVE,
                     state.config.platform,
-                    state.config.useHermesEngine !== false,
-                    true,
                 );
             }
         } else {
@@ -233,6 +249,7 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
                 state.config.platform,
             );
         }
+
         return state.config as vscode.DebugConfiguration;
     }
 

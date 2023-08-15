@@ -15,6 +15,8 @@ import {
     expoHostTypePickConfig,
     shouldUseHermesEngine,
     DEBUG_TYPES,
+    browserTypePickConfig,
+    BROWSER_TYPES,
 } from "../extension/debuggingConfiguration/debugConfigTypesAndConstants";
 import { IWDPHelper } from "../debugger/direct/IWDPHelper";
 import { Packager } from "./packager";
@@ -140,6 +142,32 @@ export class ConfigurationProviderHelper {
         }
 
         config.expoHostType = pick.type as ExpoHostType;
+        return config;
+    }
+
+    public async selectBrowserTarget(
+        input: MultiStepInput<DebugConfigurationState>,
+        config: Partial<ILaunchRequestArgs>,
+        step: number,
+        totalSteps: number,
+    ): Promise<Partial<ILaunchRequestArgs>> {
+        const pick = await input.showQuickPick<
+            DebugConfigurationQuickPickItem,
+            IQuickPickParameters<DebugConfigurationQuickPickItem>
+        >({
+            title: localize("BrowserTypeSelectionTitle", "Select type of browser"),
+            placeholder: localize("BrowserTypeSelectionPrompt", "Type of browser"),
+            step,
+            totalSteps,
+            items: browserTypePickConfig,
+            activeItem: browserTypePickConfig[0],
+        });
+
+        if (!pick) {
+            throw new Error(localize("NoBrowserTargetSelected", "Browser target is not selected"));
+        }
+
+        config.browserTarget = pick.type as BROWSER_TYPES;
         return config;
     }
 

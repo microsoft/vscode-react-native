@@ -40,6 +40,10 @@ export class DebugScenarioNameGenerator {
             );
         }
 
+        if (platformType === PlatformType.ExpoWeb) {
+            isExperimental = true;
+        }
+
         if (isExperimental) {
             debugScenarioName.experimentalDescription = "- Experimental";
         }
@@ -112,6 +116,8 @@ export class DebugScenarioNameGenerator {
                 return "Windows";
             case PlatformType.macOS:
                 return "macOS";
+            case PlatformType.ExpoWeb:
+                return "Expo Web";
             default:
                 return "";
         }

@@ -33,6 +33,7 @@ export enum PlatformType {
     Windows = "windows",
     Exponent = "exponent",
     macOS = "macos",
+    ExpoWeb = "expoweb",
 }
 
 export type ExpoHostType = "tunnel" | "lan" | "local";
