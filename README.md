@@ -383,7 +383,7 @@ Expo support open application in browser, the expo web application is generated 
             "cwd": "${workspaceFolder}",
             "platform": "expoweb",
             "browserTarget": "chrome",
-            "url": "http://localhost:19006"
+            "url": "http://localhost:8081"
         }
     ]
 ```
