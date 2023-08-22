@@ -70,7 +70,7 @@ export class DebugConfigProvider extends BaseConfigProvider {
             return async () => {
                 await this.configureBrowserTarget(input, state.config);
                 await this.configureApplicationType(input, state.config);
-                state.config.url = "http://localhost:19006";
+                state.config.url = "http://localhost:8081";
             };
         }
         return;
