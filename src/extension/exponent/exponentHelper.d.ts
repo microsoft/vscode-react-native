@@ -14,6 +14,9 @@ declare interface ExpConfig {
     public version?: string;
     public entryPoint?: string;
     public packagerOpts?: ExpConfigPackager;
+    public android?: [];
+    public ios?: [];
+    public web?:[];
 }
 
 declare interface ExpMetroConfig {

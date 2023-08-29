@@ -23,9 +23,9 @@ import { PlatformType } from "../../extension/launchArgs";
 import { BaseCDPMessageHandler } from "../../cdp-proxy/CDPMessageHandlers/baseCDPMessageHandler";
 import { TipNotificationService } from "../../extension/services/tipsNotificationsService/tipsNotificationService";
 import { RNSession } from "../debugSessionWrapper";
-import { IWDPHelper } from "./IWDPHelper";
 import { SettingsHelper } from "../../extension/settingsHelper";
 import { ReactNativeProjectHelper } from "../../common/reactNativeProjectHelper";
+import { IWDPHelper } from "./IWDPHelper";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,

@@ -14,6 +14,8 @@ import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { ReactNativeCDPProxy } from "../cdp-proxy/reactNativeCDPProxy";
 import { Request } from "../common/node/request";
 import { PromiseUtil } from "../common/node/promise";
+import { FileSystem } from "../common/node/fileSystem";
+import { stripJsonTrailingComma } from "../common/utils";
 import { MultipleLifetimesAppWorker } from "./appWorker";
 import {
     DebugSessionBase,
@@ -66,6 +68,7 @@ export class WebDebugSession extends DebugSessionBase {
                 logger.log("Launching the application");
                 logger.verbose(`Launching the application: ${JSON.stringify(launchArgs, null, 2)}`);
 
+                await this.updateWebpackMetroConfig(launchArgs);
                 await this.verifyExpoWebRequiredDependencies(launchArgs);
                 await this.appLauncher.launchExpoWeb(launchArgs);
                 await this.waitExpoWebIsRunning(launchArgs);
@@ -215,24 +218,48 @@ export class WebDebugSession extends DebugSessionBase {
         }
     }
 
+    private async updateWebpackMetroConfig(launchArgs: any): Promise<void> {
+        logger.log("Checking expo webpack-config for project.");
+
+        const exponentHelper = this.appLauncher.getPackager().getExponentHelper();
+        const sdkVersion = await exponentHelper.exponentSdk(true);
+        if (parseInt(sdkVersion.substring(0, 2)) >= 49) {
+            // If Expo SDK >= 49, add web metro bundler in app.json for expo web debugging
+            const appJsonPath = path.join(launchArgs.cwd, "app.json");
+            const fs = new FileSystem();
+            const appJson = await fs.readFile(appJsonPath).then(content => {
+                return stripJsonTrailingComma(content.toString());
+            });
+
+            if (!appJson.expo.web.bundler) {
+                logger.log("Add metro bundler field to app.json.");
+                appJson.expo.web.bundler = "metro";
+                await fs.writeFile(appJsonPath, JSON.stringify(appJson, null, 2));
+            }
+        } else {
+            // If Expo SDK < 49, using @expo/webpack-config for expo web debugging
+            const nodeModulePath = path.join(launchArgs.cwd, "node_modules");
+            const expoWebpackConfigPath = path.join(nodeModulePath, "@expo", "webpack-config");
+            if (!fs.existsSync(expoWebpackConfigPath)) {
+                logger.log("@expo/webpack-config is not found in current project.");
+                throw new Error(
+                    "Required dependencies not found: Please check and install @expo/webpack-config by running: npx expo install @expo/webpack-config.",
+                );
+            }
+        }
+    }
+
     private verifyExpoWebRequiredDependencies(launchArgs: any): void {
         logger.log("Checking expo web required dependencies");
         const nodeModulePath = path.join(launchArgs.cwd, "node_modules");
-        const expoMetroConfigPath = path.join(nodeModulePath, "@expo", "metro-config");
         const reactDomPath = path.join(nodeModulePath, "react-dom");
         const reactNativeWebPath = path.join(nodeModulePath, "react-native-web");
-        if (
-            fs.existsSync(expoMetroConfigPath) &&
-            fs.existsSync(reactDomPath) &&
-            fs.existsSync(reactNativeWebPath)
-        ) {
+        if (fs.existsSync(reactDomPath) && fs.existsSync(reactNativeWebPath)) {
             logger.log("All required dependencies installed");
         } else {
-            logger.log(
-                "Please install react-native-web@~0.19.6, react-dom@18.2.0, @expo/webpack-config by running: npx expo install react-native-web@~0.19.6 react-dom@18.2.0 @expo/webpack-config",
-            );
+            logger.log("react-native-web, react-dom is not found in current project.");
             throw new Error(
-                "Required dependencies not found: Please check and install react-native-web, react-dom, @expo/webpack-config by running: npx expo install react-native-web react-dom @expo/webpack-config",
+                "Required dependencies not found: Please check and install react-native-web, react-dom by running: npx expo install react-native-web react-dom",
             );
         }
     }
@@ -257,7 +284,10 @@ export class WebDebugSession extends DebugSessionBase {
                 running => running,
                 retryCount,
                 delay,
-                localize("ExpoWebIsNotRunning", "Expo web is not running"),
+                localize(
+                    "ExpoWebIsNotRunning",
+                    "Expo web is not running, please check metro status and browser launching url.",
+                ),
             );
         } catch (error) {
             throw error;

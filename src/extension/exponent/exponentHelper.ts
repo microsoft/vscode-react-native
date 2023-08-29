@@ -364,7 +364,7 @@ require('${entryPoint}');`;
      * Exponent sdk version that maps to the current react-native version
      * If react native version is not supported it returns null.
      */
-    private async exponentSdk(showProgress: boolean = false): Promise<string> {
+    public async exponentSdk(showProgress: boolean = false): Promise<string> {
         if (showProgress) {
             this.logger.logStream("...");
         }
