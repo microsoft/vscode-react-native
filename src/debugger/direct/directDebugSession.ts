@@ -24,6 +24,7 @@ import { BaseCDPMessageHandler } from "../../cdp-proxy/CDPMessageHandlers/baseCD
 import { TipNotificationService } from "../../extension/services/tipsNotificationsService/tipsNotificationService";
 import { RNSession } from "../debugSessionWrapper";
 import { SettingsHelper } from "../../extension/settingsHelper";
+import { ReactNativeProjectHelper } from "../../common/reactNativeProjectHelper";
 import { IWDPHelper } from "./IWDPHelper";
 
 nls.config({
@@ -78,6 +79,7 @@ export class DirectDebugSession extends DebugSessionBase {
 
         try {
             try {
+                await ReactNativeProjectHelper.verifyMetroConfigFile(launchArgs.cwd);
                 await this.initializeSettings(launchArgs);
                 logger.log("Launching the application");
                 logger.verbose(`Launching the application: ${JSON.stringify(launchArgs, null, 2)}`);
@@ -139,6 +141,9 @@ export class DirectDebugSession extends DebugSessionBase {
         this.previousAttachArgs = attachArgs;
 
         try {
+            if (attachArgs.request === "attach") {
+                await ReactNativeProjectHelper.verifyMetroConfigFile(attachArgs.cwd);
+            }
             await this.initializeSettings(attachArgs);
 
             const packager = this.appLauncher.getPackager();

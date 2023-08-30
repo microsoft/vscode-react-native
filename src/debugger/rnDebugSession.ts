@@ -21,6 +21,7 @@ import {
 } from "./debugSessionBase";
 import { JsDebugConfigAdapter } from "./jsDebugConfigAdapter";
 import { RNSession } from "./debugSessionWrapper";
+import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -56,6 +57,7 @@ export class RNDebugSession extends DebugSessionBase {
     ): Promise<void> {
         try {
             try {
+                await ReactNativeProjectHelper.verifyMetroConfigFile(launchArgs.cwd);
                 await this.initializeSettings(launchArgs);
                 logger.log("Launching the application");
                 logger.verbose(`Launching the application: ${JSON.stringify(launchArgs, null, 2)}`);
@@ -98,6 +100,9 @@ export class RNDebugSession extends DebugSessionBase {
 
         return new Promise<void>(async (resolve, reject) => {
             try {
+                if (attachArgs.request === "attach") {
+                    await ReactNativeProjectHelper.verifyMetroConfigFile(attachArgs.cwd);
+                }
                 await this.initializeSettings(attachArgs);
                 logger.log("Attaching to the application");
                 logger.verbose(
