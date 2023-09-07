@@ -3,8 +3,10 @@
 
 import * as fs from "fs";
 import * as path from "path";
-import { ProjectVersionHelper } from "./projectVersionHelper";
 import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
+import { ProjectVersionHelper } from "./projectVersionHelper";
+import { FileSystem } from "./node/fileSystem";
+import { stripJsonTrailingComma } from "./utils";
 
 export interface ParsedPackage {
     packageName: string;
@@ -96,6 +98,19 @@ export class ReactNativeProjectHelper {
             experimentalFeaturesContent,
         );
         return hermesEnabled;
+    }
+
+    public static async UpdateMertoBundlerForExpoWeb(launchArgs: any) {
+        const appJsonPath = path.join(launchArgs.cwd, "app.json");
+        const fs = new FileSystem();
+        const appJson = await fs.readFile(appJsonPath).then(content => {
+            return stripJsonTrailingComma(content.toString());
+        });
+
+        if (!appJson.expo.web.bundler) {
+            appJson.expo.web.bundler = "metro";
+            await fs.writeFile(appJsonPath, JSON.stringify(appJson, null, 2));
+        }
     }
 
     public static async verifyMetroConfigFile(projectRoot: string) {

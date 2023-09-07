@@ -14,8 +14,7 @@ import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { ReactNativeCDPProxy } from "../cdp-proxy/reactNativeCDPProxy";
 import { Request } from "../common/node/request";
 import { PromiseUtil } from "../common/node/promise";
-import { FileSystem } from "../common/node/fileSystem";
-import { stripJsonTrailingComma } from "../common/utils";
+import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
 import { MultipleLifetimesAppWorker } from "./appWorker";
 import {
     DebugSessionBase,
@@ -225,17 +224,8 @@ export class WebDebugSession extends DebugSessionBase {
         const sdkVersion = await exponentHelper.exponentSdk(true);
         if (parseInt(sdkVersion.substring(0, 2)) >= 49) {
             // If Expo SDK >= 49, add web metro bundler in app.json for expo web debugging
-            const appJsonPath = path.join(launchArgs.cwd, "app.json");
-            const fs = new FileSystem();
-            const appJson = await fs.readFile(appJsonPath).then(content => {
-                return stripJsonTrailingComma(content.toString());
-            });
-
-            if (!appJson.expo.web.bundler) {
-                logger.log("Add metro bundler field to app.json.");
-                appJson.expo.web.bundler = "metro";
-                await fs.writeFile(appJsonPath, JSON.stringify(appJson, null, 2));
-            }
+            logger.log("Check and add metro bundler field to app.json.");
+            await ReactNativeProjectHelper.UpdateMertoBundlerForExpoWeb(launchArgs);
         } else {
             // If Expo SDK < 49, using @expo/webpack-config for expo web debugging
             const nodeModulePath = path.join(launchArgs.cwd, "node_modules");
