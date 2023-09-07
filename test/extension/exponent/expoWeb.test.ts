@@ -12,6 +12,7 @@ suite("expoWeb", function () {
         const launchArgs = {
             cwd: projectPath,
         };
+
         const appJsonPath = path.join(launchArgs.cwd, "app.json");
         const fs = new FileSystem();
         const appJson = await fs.readFile(appJsonPath);
