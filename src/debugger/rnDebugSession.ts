@@ -12,6 +12,7 @@ import { TelemetryHelper } from "../common/telemetryHelper";
 import { RnCDPMessageHandler } from "../cdp-proxy/CDPMessageHandlers/rnCDPMessageHandler";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
+import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
 import { MultipleLifetimesAppWorker } from "./appWorker";
 import {
     DebugSessionBase,
@@ -21,7 +22,6 @@ import {
 } from "./debugSessionBase";
 import { JsDebugConfigAdapter } from "./jsDebugConfigAdapter";
 import { RNSession } from "./debugSessionWrapper";
-import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
