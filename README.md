@@ -1028,18 +1028,19 @@ The extension provides “Dark” and “Light” color themes for Network Inspe
 
 # Developing inside a Docker Container
 
-The extension supports [VS Code Remote Development](https://code.visualstudio.com/docs/remote/remote-overview) features on Linux. Please follow the [VS Code official documentation](https://code.visualstudio.com/docs/remote/containers) to setup your environment to use a remote development approach.
+The extension supports [VS Code Remote Development](https://code.visualstudio.com/docs/remote/remote-overview) features on Linux. Please follow the [VS Code official documentation](https://code.visualstudio.com/docs/devcontainers/containers) to setup your environment and install related extensions([Remote Development](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack) is recommended) to use a remote development approach.
 
 You can use [official React Native Docker image](https://hub.docker.com/r/reactnativecommunity/react-native-android) provided by the [react-native-community](https://github.com/react-native-community/docker-android).
 
 Here are the steps to run React Native debugging inside a Docker Container on a real Android device:
 
-1. Open Command Palette and run the following command
+1. In the local react-native project, add `Dev Container` configure folder and files:
    ```
-   Remote-Containers: Add Development Container Configuration Files...
+   .devcontainer
+     -devcontainer.json
+     -Dockerfile
    ```
-   Then select `Existing Dockerfile` to create `.devcontainer/devcontainer.json` configuration file.
-1. Сreate Dockerfile extending [reactnativecommunity/react-native-android image](https://hub.docker.com/r/reactnativecommunity/react-native-android). For example you can use the following Dockerfile:
+2. Сreate Dockerfile extending [reactnativecommunity/react-native-android image](https://hub.docker.com/r/reactnativecommunity/react-native-android). For example you can use the following Dockerfile:
 
    ```
    FROM reactnativecommunity/react-native-android:latest
@@ -1047,7 +1048,7 @@ Here are the steps to run React Native debugging inside a Docker Container on a 
    RUN npm install -g expo-cli react-native-cli
    ```
 
-1. Configure your `devcontainer.json` file as needed. Below is a sample configuration:
+3. Configure your `devcontainer.json` file as needed. Below is a sample configuration:
 
    ```json
    {
@@ -1067,21 +1068,23 @@ Here are the steps to run React Native debugging inside a Docker Container on a 
        "-v",
        "/dev/bus/usb:/dev/bus/usb" // mount connected USB devices to a container
      ],
-
-     "settings": {
-       // This will ignore your local shell user setting for Linux since shells like zsh are typically
-       // not in base container images. You can also update this to an specific shell to ensure VS Code
-       // uses the right one for terminals and tasks. For example, /bin/bash (or /bin/ash for Alpine).
-       "terminal.integrated.shell.linux": null
-     },
-
-     // Add the IDs of extensions you want installed when the container is created in the array below.
-     "extensions": ["msjsdiag.vscode-react-native"]
+     "customizations": {
+       "vscode": {
+         "settings": {
+           // This will ignore your local shell user setting for Linux since shells like zsh are typically
+           // not in base container images. You can also update this to an specific shell to ensure VS Code
+           // uses the right one for terminals and tasks. For example, /bin/bash (or /bin/ash for Alpine).
+           "terminal.integrated.shell.linux": null
+         },
+         // Add the IDs of extensions you want installed when the container is created in the array below.
+         "extensions": ["msjsdiag.vscode-react-native"]
+       }
+     }
    }
    ```
 
-1. Open Command Palette and run the following command `Remote-Containers: Open Folder in Container` to reopen your project in a container
-1. Connect your device via USB and start debugging the same way as on local machine.
+4. Open Command Palette and run the following command `Dev Containers: Open Folder in Container` to reopen your project in a container
+5. Connect your device via USB and start debugging the same way as on local machine.
 
 Currently the above scenario doesn't work on macOS and Windows. Docker Container implementation on these OS uses Virtual Machine tools which may have problems with USB forwarding for mobile devices.
 
