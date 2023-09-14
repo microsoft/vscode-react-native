@@ -473,10 +473,10 @@
   dependencies:
     cross-spawn "^7.0.3"
 
-"@expo/webpack-config@18.1.0":
-  version "18.1.0"
-  resolved "https://registry.yarnpkg.com/@expo/webpack-config/-/webpack-config-18.1.0.tgz#61f767531053afe14fd301bb6d88b3ca259665ff"
-  integrity sha512-P2P5MjbcIqSlepr8216eIy+rI8UK+K10r/3Y+eoV/pNABKXc/bjk/QSJICLayouxQSOp2YU6GipdfnwJRUsEUA==
+"@expo/webpack-config@19.0.0":
+  version "19.0.0"
+  resolved "https://registry.yarnpkg.com/@expo/webpack-config/-/webpack-config-19.0.0.tgz#d8ce69bdb9a99089bb0672a7dc01dc96bebad390"
+  integrity sha512-mX28BNyf4Cs0+4L44QQyhy5QMVfsYhOdB9Fpf3rp982KTKUsy01UFJ0irGI1jQ68jXrQn5/WU4u1pvN6DDao5Q==
   dependencies:
     "@babel/core" "^7.20.2"
     babel-loader "^8.3.0"
@@ -485,7 +485,7 @@
     copy-webpack-plugin "^10.2.0"
     css-loader "^6.5.1"
     css-minimizer-webpack-plugin "^3.4.1"
-    expo-pwa "0.0.125"
+    expo-pwa "0.0.127"
     find-up "^5.0.0"
     find-yarn-workspace-root "~2.0.0"
     getenv "^1.0.0"
@@ -2903,10 +2903,10 @@ execa@^5.0.0, execa@^5.1.1:
     signal-exit "^3.0.3"
     strip-final-newline "^2.0.0"
 
-expo-pwa@0.0.125:
-  version "0.0.125"
-  resolved "https://registry.yarnpkg.com/expo-pwa/-/expo-pwa-0.0.125.tgz#fb5a66f21e7c9a51cdfa76d692b48bd116e6e002"
-  integrity sha512-A40Man5vMO1WWHwVDJr/7Y2N6vwHCQDX4gQ1LM9GngEFHRMK2lxx/tMVV2v+UF2g1lr84RVRGzMvO/tV9LYiaA==
+expo-pwa@0.0.127:
+  version "0.0.127"
+  resolved "https://registry.yarnpkg.com/expo-pwa/-/expo-pwa-0.0.127.tgz#b8d2fd28efff408a24e0f2539bfb47e09f8e4ebe"
+  integrity sha512-8D9wEDkEXG9r6TPvAFpWt27IiP1cLm/4RWVRUHzFZflbWYLi8GkYArj5LHbbfokybRm1GVAanSrrYFEqHoIUiA==
   dependencies:
     "@expo/image-utils" "0.3.23"
     chalk "^4.0.0"
@@ -7545,10 +7545,10 @@ xcode@^3.0.1:
     simple-plist "^1.1.0"
     uuid "^7.0.3"
 
-xdl@60.0.10:
-  version "60.0.10"
-  resolved "https://registry.yarnpkg.com/xdl/-/xdl-60.0.10.tgz#6b27333dfa2c85869931843ebc3384c8e5c6bc4f"
-  integrity sha512-KghrOEEEz6TOd2oTG28aP/rqsjCzVBttbY+le02KZr8xySxlxX0ssUCMyTzxcKaAIXOPFxyP6zFAs2V70E2xYg==
+xdl@60.0.12:
+  version "60.0.12"
+  resolved "https://registry.yarnpkg.com/xdl/-/xdl-60.0.12.tgz#b7cf86f4975a4560eb595a01e9d7414adeaf6549"
+  integrity sha512-mvv2ZKqzCcoTb7Yqs1Rs11ysj45o+pp6JUE2LYSDRvF2z6eJ+uf99mlR4JbXgxtNwjaF4qHt5I9fbeGsZiHFxA==
   dependencies:
     "@expo/bunyan" "4.0.0"
     "@expo/config" "6.0.24"
@@ -7563,7 +7563,7 @@ xdl@60.0.10:
     "@expo/schemer" "1.4.5"
     "@expo/sdk-runtime-versions" "^1.0.0"
     "@expo/spawn-async" "1.5.0"
-    "@expo/webpack-config" "18.1.0"
+    "@expo/webpack-config" "19.0.0"
     axios "0.21.1"
     better-opn "^3.0.1"
     boxen "^5.0.1"
