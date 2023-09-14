@@ -1,3 +1,13 @@
+## 1.12.0
+* Support Expo web debugging [#1997](https://github.com/microsoft/vscode-react-native/pull/1997)
+* Add Expo web debugging documentation [#2019](https://github.com/microsoft/vscode-react-native/pull/2019)
+* Add metro bundler field in app.json for expo web debugging [#2021](https://github.com/microsoft/vscode-react-native/pull/2021)
+* Verify metro.config.js when start debugging [#2023](https://github.com/microsoft/vscode-react-native/pull/2023)
+* Internal changes:
+    * Fix security vulnerabilities [#2015](https://github.com/microsoft/vscode-react-native/pull/2015)
+    * Disable mocha spec reporter for unit test [#2017](https://github.com/microsoft/vscode-react-native/pull/2017)
+    * Add unit test for expo web metro bundler setup [#2025](https://github.com/microsoft/vscode-react-native/pull/2025)
+
 ## 1.11.2
 * Fix attach request for different metro ports [#2007](https://github.com/microsoft/vscode-react-native/pull/2007)
 * Fix unexpected internal error [#2005](https://github.com/microsoft/vscode-react-native/pull/2005)
