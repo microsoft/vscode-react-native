@@ -121,6 +121,17 @@ suite("commandExecutor", function () {
             }
         });
 
+        test("spawnReactPackager should return spawened process with correct command", async () => {
+            let ce = new CommandExecutor(nodeModulesRoot);
+            sinon.stub(Log, "log", function (message: string, formatMessage: boolean = true) {
+                console.log(message);
+            });
+
+            var args = ["--port", "8081"];
+
+            return ce.spawnReactCommand("start", args);
+        });
+
         test("should not fail on react-native command without arguments", async () => {
             (sinon.stub(childProcessStubInstance, "spawn") as Sinon.SinonStub).returns({
                 stdout: new EventEmitter(),
