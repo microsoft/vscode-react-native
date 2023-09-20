@@ -26,6 +26,7 @@ import { RNSession } from "../debugSessionWrapper";
 import { SettingsHelper } from "../../extension/settingsHelper";
 import { ReactNativeProjectHelper } from "../../common/reactNativeProjectHelper";
 import { IWDPHelper } from "./IWDPHelper";
+import { ExponentHelper } from "../../extension/exponent/exponentHelper";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -79,7 +80,9 @@ export class DirectDebugSession extends DebugSessionBase {
 
         try {
             try {
-                await ReactNativeProjectHelper.verifyMetroConfigFile(launchArgs.cwd);
+                if (launchArgs.platform != "exponent") {
+                    await ReactNativeProjectHelper.verifyMetroConfigFile(launchArgs.cwd);
+                }
                 await this.initializeSettings(launchArgs);
                 logger.log("Launching the application");
                 logger.verbose(`Launching the application: ${JSON.stringify(launchArgs, null, 2)}`);
@@ -142,7 +145,11 @@ export class DirectDebugSession extends DebugSessionBase {
 
         try {
             if (attachArgs.request === "attach") {
-                await ReactNativeProjectHelper.verifyMetroConfigFile(attachArgs.cwd);
+                const expoHelper = new ExponentHelper(attachArgs.cwd, attachArgs.cwd);
+                const isExpo = await expoHelper.isExpoManagedApp(true);
+                if (!isExpo) {
+                    await ReactNativeProjectHelper.verifyMetroConfigFile(attachArgs.cwd);
+                }
             }
             await this.initializeSettings(attachArgs);
 
