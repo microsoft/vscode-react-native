@@ -21,6 +21,7 @@
   "reactNative.command.openEASProjectInWebPage.title": "Open the EAS project in a web page",
   "reactNative.command.revertOpenModule.title": "Revert extension input in open package module",
   "reactNative.command.openRNUpgradeHelper.title": "Open react native upgrade helper in web page",
+  "reactNative.command.installExpoGoApplication.title": "Download and install Expo Go on simulator or device",
   "reactNative.command.showDevMenu.title": "Show Dev Menu",
   "reactNative.command.reloadApp.title": "Reload App",
   "reactNative.command.runInspector.title": "Run Element Inspector",

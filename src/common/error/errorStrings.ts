@@ -154,6 +154,10 @@ export const ERROR_STRINGS = {
         "FailedToOpenRNUpgradeHelper",
         "Failed to open react native upgrade helper",
     ),
+    [InternalErrorCode.FailedToInstallExpoGo]: localize(
+        "FailedToInstallExpoGo",
+        "Failed to download and install Expo Go application",
+    ),
     [InternalErrorCode.FailedToStartPackager]: localize(
         "FailedToStartPackager",
         "Failed to start the React Native packager",

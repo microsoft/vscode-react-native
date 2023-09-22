@@ -93,3 +93,14 @@ export async function wait(time?: number): Promise<void> {
         }, times);
     });
 }
+
+export function getTimestamp(): string {
+    const date = new Date(Date.now());
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const time = `${date.getDate()}${String(date.getHours()).padStart(2, "0")}${String(
+        date.getMinutes(),
+    ).padStart(2, "0")}${String(date.getSeconds()).padStart(2, "0")}`;
+
+    return `${year}${month}${time}`;
+}

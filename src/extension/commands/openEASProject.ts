@@ -7,7 +7,6 @@ import * as vscode from "vscode";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
-import { ExponentHelper } from "../exponent/exponentHelper";
 import { ReactNativeCommand } from "./util/reactNativeCommand";
 
 nls.config({
@@ -25,8 +24,8 @@ export class OpenEASProject extends ReactNativeCommand {
 
     async baseFn(): Promise<void> {
         assert(this.project);
-        const projectRootPath = this.project.getWorkspaceFolder().uri.fsPath;
-        const expoHelper = new ExponentHelper(projectRootPath, projectRootPath);
+        const expoHelper = this.project.getExponentHelper();
+        logger.info(localize("CheckExpoEnvironment", "Checking Expo project environment."));
         const isExpo = await expoHelper.isExpoManagedApp(true);
 
         if (isExpo) {

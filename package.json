@@ -223,6 +223,11 @@
         "category": "React Native"
       },
       {
+        "command": "reactNative.installExpoGoApplication",
+        "title": "%reactNative.command.installExpoGoApplication.title%",
+        "category": "React Native"
+      },
+      {
         "command": "reactNative.showDevMenu",
         "title": "%reactNative.command.showDevMenu.title%",
         "category": "React Native"
