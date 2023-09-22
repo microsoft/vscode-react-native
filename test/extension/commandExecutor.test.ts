@@ -129,7 +129,6 @@ suite("commandExecutor", function () {
                 "test\\resources\\sampleReactNativeProject\\node_modules\\.bin\react-native.cmd";
             const command = HostPlatform.getNpmCliCommand(ce.selectReactNativeCLI());
             assert.ok(command.includes(expected));
-            // assert.strictEqual(expected, command);
         });
 
         test("should return correct CLI Expo command", async () => {
