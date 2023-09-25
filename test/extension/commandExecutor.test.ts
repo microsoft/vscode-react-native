@@ -1,26 +1,28 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import { EventEmitter } from "events";
+import * as assert from "assert";
+import * as path from "path";
+import * as fs from "fs";
+import * as semver from "semver";
+import * as sinon from "sinon";
 import { CommandExecutor } from "../../src/common/commandExecutor";
 import { ConsoleLogger } from "../../src/extension/log/ConsoleLogger";
 import { Node } from "../../src/common/node/node";
 import { ChildProcess } from "../../src/common/node/childProcess";
-import { EventEmitter } from "events";
 import { Crypto } from "../../src/common/node/crypto";
-import * as assert from "assert";
-import * as semver from "semver";
-import * as sinon from "sinon";
-import * as path from "path";
-import * as fs from "fs";
 import { AppLauncher } from "../../src/extension/appLauncher";
+import { HostPlatform } from "../../src/common/hostPlatform";
+// import { HostPlatform } from "../../src/common/hostPlatform";
 
 suite("commandExecutor", function () {
     suite("extensionContext", function () {
-        let childProcessStubInstance = new ChildProcess();
+        const childProcessStubInstance = new ChildProcess();
         let childProcessStub: Sinon.SinonStub & ChildProcess;
 
         let appLauncherStub: Sinon.SinonStub;
-        let Log = new ConsoleLogger();
+        const Log = new ConsoleLogger();
         const sampleReactNativeProjectDir = path.join(
             __dirname,
             "..",
@@ -31,7 +33,7 @@ suite("commandExecutor", function () {
         let nodeModulesRoot: string;
 
         teardown(function () {
-            let mockedMethods = [Log.log, ...Object.keys(childProcessStubInstance)];
+            const mockedMethods = [Log.log, ...Object.keys(childProcessStubInstance)];
 
             mockedMethods.forEach(method => {
                 if (method.hasOwnProperty("restore")) {
@@ -58,8 +60,8 @@ suite("commandExecutor", function () {
         });
 
         test("should execute a command", async function () {
-            let ce = new CommandExecutor(nodeModulesRoot, process.cwd(), Log);
-            let loggedOutput: string = "";
+            const ce = new CommandExecutor(nodeModulesRoot, process.cwd(), Log);
+            let loggedOutput = "";
 
             sinon.stub(Log, "log", function (message: string, formatMessage: boolean = true) {
                 loggedOutput += semver.clean(message) || "";
@@ -71,7 +73,7 @@ suite("commandExecutor", function () {
         });
 
         test("should reject on bad command", async () => {
-            let ce = new CommandExecutor(nodeModulesRoot);
+            const ce = new CommandExecutor(nodeModulesRoot);
 
             try {
                 await ce.execute("bar");
@@ -84,7 +86,7 @@ suite("commandExecutor", function () {
         });
 
         test("should reject on good command that fails", async () => {
-            let ce = new CommandExecutor(nodeModulesRoot);
+            const ce = new CommandExecutor(nodeModulesRoot);
 
             try {
                 await ce.execute("node install bad-package");
@@ -97,7 +99,7 @@ suite("commandExecutor", function () {
         });
 
         test("should spawn a command", async () => {
-            let ce = new CommandExecutor(nodeModulesRoot);
+            const ce = new CommandExecutor(nodeModulesRoot);
 
             sinon.stub(Log, "log", function (message: string, formatMessage: boolean = true) {
                 console.log(message);
@@ -107,7 +109,7 @@ suite("commandExecutor", function () {
         });
 
         test("spawn should reject a bad command", async () => {
-            let ce = new CommandExecutor(nodeModulesRoot);
+            const ce = new CommandExecutor(nodeModulesRoot);
             sinon.stub(Log, "log", function (message: string, formatMessage: boolean = true) {
                 console.log(message);
             });
@@ -119,6 +121,22 @@ suite("commandExecutor", function () {
                 assert.strictEqual(reason.errorCode, 101);
                 assert.strictEqual(reason.errorLevel, 0);
             }
+        });
+
+        test("should return correct CLI react command", async () => {
+            const ce = new CommandExecutor(nodeModulesRoot);
+            // const expected =
+            //     "test\\resources\\sampleReactNativeProject\\node_modules\\.bin\react-native.cmd";
+            const command = HostPlatform.getNpmCliCommand(ce.selectReactNativeCLI());
+            assert.ok(command.includes("react-native"));
+        });
+
+        test("should return correct CLI Expo command", async () => {
+            const ce = new CommandExecutor(nodeModulesRoot);
+            // const expected =
+            // "test\\resources\\sampleReactNativeProject\\node_modules\\.bin\\expo.cmd";
+            const command = HostPlatform.getNpmCliCommand(ce.selectExpoCLI());
+            assert.ok(command.includes("expo"));
         });
 
         test("should not fail on react-native command without arguments", async () => {
@@ -192,7 +210,7 @@ suite("commandExecutor", function () {
 
         suite("ReactNativeClIApproaches", function () {
             const RNGlobalCLINameContent: any = {
-                ["react-native-tools.reactNativeGlobalCommandName"]: "",
+                "react-native-tools.reactNativeGlobalCommandName": "",
             };
 
             test("selectReactNativeCLI should return local CLI", (done: Mocha.Done) => {
@@ -202,7 +220,7 @@ suite("commandExecutor", function () {
                     ".bin",
                     "react-native",
                 );
-                let commandExecutor: CommandExecutor = new CommandExecutor(
+                const commandExecutor: CommandExecutor = new CommandExecutor(
                     nodeModulesRoot,
                     sampleReactNativeProjectDir,
                 );
@@ -216,7 +234,7 @@ suite("commandExecutor", function () {
                 const randomHash = new Crypto().hash(Math.random().toString(36).substring(2, 15));
                 RNGlobalCLINameContent["react-native-tools.reactNativeGlobalCommandName"] =
                     randomHash;
-                let commandExecutor: CommandExecutor = new CommandExecutor(
+                const commandExecutor: CommandExecutor = new CommandExecutor(
                     nodeModulesRoot,
                     sampleReactNativeProjectDir,
                 );
