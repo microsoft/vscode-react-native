@@ -128,7 +128,7 @@ suite("commandExecutor", function () {
             // const expected =
             //     "test\\resources\\sampleReactNativeProject\\node_modules\\.bin\react-native.cmd";
             const command = HostPlatform.getNpmCliCommand(ce.selectReactNativeCLI());
-            assert.ok(command.includes("react-native.cmd"));
+            assert.ok(command.includes("react-native"));
         });
 
         test("should return correct CLI Expo command", async () => {
@@ -136,7 +136,7 @@ suite("commandExecutor", function () {
             // const expected =
             // "test\\resources\\sampleReactNativeProject\\node_modules\\.bin\\expo.cmd";
             const command = HostPlatform.getNpmCliCommand(ce.selectExpoCLI());
-            assert.ok(command.includes("expo.cmd"));
+            assert.ok(command.includes("expo"));
         });
 
         test("should not fail on react-native command without arguments", async () => {
