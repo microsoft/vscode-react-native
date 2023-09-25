@@ -3,6 +3,7 @@
 
 import * as assert from "assert";
 import * as https from "https";
+import * as os from "os";
 import * as vscode from "vscode";
 import * as nls from "vscode-nls";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
@@ -32,7 +33,6 @@ export class InstallExpoGoApplication extends Command {
         const expoHelper = this.project.getExponentHelper();
         logger.info(localize("CheckExpoEnvironment", "Checking Expo project environment."));
         const isExpo = await expoHelper.isExpoManagedApp(true);
-        logger.logStream("\n");
 
         const expoGoListAPI = "https://api.expo.dev/v2/versions";
         const apiJson = await fetchJson(expoGoListAPI);
@@ -42,8 +42,12 @@ export class InstallExpoGoApplication extends Command {
             const currentSdkVersion = await expoHelper.exponentSdk(true);
             const expoUrlInfo = jsonContent.sdkVersions[currentSdkVersion];
 
-            logger.info(localize("DownloadExpoGo", "Downloading Expo Go."));
             if (item == "Android") {
+                void vscode.window.showInformationMessage("Downloading Expo Go for Android.");
+                logger.logStream(
+                    localize("DownloadAndroidExpoGo", "\nDownloading Expo Go for Android. \n"),
+                );
+
                 const targetUrl = expoUrlInfo.androidClientUrl;
                 const androidClientVersion = expoUrlInfo.androidClientVersion as string;
                 try {
@@ -59,6 +63,19 @@ export class InstallExpoGoApplication extends Command {
                     );
                 }
             } else if (item == "iOS") {
+                if (os.platform() != "darwin") {
+                    logger.warning(
+                        localize(
+                            "NotDarwinPlatform",
+                            "Current OS may not support iOS installer. The Expo Go may not be installed.\n",
+                        ),
+                    );
+                }
+                void vscode.window.showInformationMessage("Downloading Expo Go for iOS.");
+                logger.logStream(
+                    localize("DownloadiOSExpoGo", "\nDownloading Expo Go for iOS. \n"),
+                );
+
                 const targetUrl = expoUrlInfo.iosClientUrl;
                 const iOSClientVersion = expoUrlInfo.iosClientVersion as string;
                 try {
@@ -77,16 +94,7 @@ export class InstallExpoGoApplication extends Command {
                 return;
             }
         } else {
-            logger.info(
-                localize(
-                    "NotExpoProject",
-                    "The current project is not Expo managed, downloading latest version of Expo Go.",
-                ),
-            );
-            const androidClientUrl = jsonContent.androidClientUrl;
-            const iOSClientUrl = jsonContent.iosClientUrl;
-            console.log(androidClientUrl);
-            console.log(iOSClientUrl);
+            throw new Error(localize("NotExpoProject", "Current project is not Expo managed."));
         }
     }
 }

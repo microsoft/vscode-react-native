@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 import * as fs from "fs";
 import * as https from "https";
+import * as vscode from "vscode";
 import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
 
 export async function downloadFile(url: any, targetFile: any) {
@@ -27,13 +28,16 @@ export async function downloadFile(url: any, targetFile: any) {
                         parseFloat(getDownloadProgress(newProgress, totalLength)) * 100;
                     if (currentProgress - progress >= 5) {
                         progress = currentProgress;
-                        logger.logStream(`${currentProgress}%...`);
+                        logger.logStream(
+                            `Current progress: ${currentProgress}%, please wait... \n`,
+                        );
                     }
                 });
 
-                file.on("finish", () => {
+                file.on("finish", async () => {
                     file.close();
-                    logger.info("Download ExpoGo Completed.");
+                    logger.logStream(`Download Expo Go Completed: ${targetFile as string}`);
+                    void vscode.window.showInformationMessage("Download Expo Go Completed.");
                 });
 
                 response.on("end", function () {
@@ -53,6 +57,5 @@ export async function downloadExpoGo(url: string, targetFile: string) {
 }
 
 function getDownloadProgress(currentLength: number, totalLength: number): string {
-    console.log(currentLength / totalLength);
     return (currentLength / totalLength).toFixed(2);
 }
