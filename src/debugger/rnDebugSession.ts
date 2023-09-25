@@ -22,6 +22,7 @@ import {
 } from "./debugSessionBase";
 import { JsDebugConfigAdapter } from "./jsDebugConfigAdapter";
 import { RNSession } from "./debugSessionWrapper";
+import { ExponentHelper } from "../extension/exponent/exponentHelper";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -57,7 +58,9 @@ export class RNDebugSession extends DebugSessionBase {
     ): Promise<void> {
         try {
             try {
-                await ReactNativeProjectHelper.verifyMetroConfigFile(launchArgs.cwd);
+                if (launchArgs.platform != "exponent") {
+                    await ReactNativeProjectHelper.verifyMetroConfigFile(launchArgs.cwd);
+                }
                 await this.initializeSettings(launchArgs);
                 logger.log("Launching the application");
                 logger.verbose(`Launching the application: ${JSON.stringify(launchArgs, null, 2)}`);
@@ -101,7 +104,11 @@ export class RNDebugSession extends DebugSessionBase {
         return new Promise<void>(async (resolve, reject) => {
             try {
                 if (attachArgs.request === "attach") {
-                    await ReactNativeProjectHelper.verifyMetroConfigFile(attachArgs.cwd);
+                    const expoHelper = new ExponentHelper(attachArgs.cwd, attachArgs.cwd);
+                    const isExpo = await expoHelper.isExpoManagedApp(true);
+                    if (!isExpo) {
+                        await ReactNativeProjectHelper.verifyMetroConfigFile(attachArgs.cwd);
+                    }
                 }
                 await this.initializeSettings(attachArgs);
                 logger.log("Attaching to the application");
