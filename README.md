@@ -13,7 +13,7 @@ Preview:
 ## React Native Tools Preview
 
 The extension has a [nightly version](https://marketplace.visualstudio.com/items?itemName=msjsdiag.vscode-react-native-preview) which is released on a daily basis at 9 PM PST on each day that changes occur.
-To avoid conflicts, if both extensions are installed - the only stable version will be activated. So to use the preview version it is needed to disable or remove the stable version and reload VS Code.
+To avoid conflicts, if both extensions are installed - only stable version will be activated. So to use the preview version it is needed to disable or remove the stable version and reload VS Code.
 
 ## About the extension
 
@@ -228,6 +228,18 @@ To attach to a running Hermes application use `Attach to Hermes application - Ex
 }
 ```
 
+## Android applications
+
+### Custom build for Android apps
+
+If you want to use a custom `applicationIdSuffix` for your application to launch specific build, you can either pass it as part of the `runArguments` parameter arguments as shown below:
+
+```js
+"runArguments": ["--appIdSuffix", "customAppIdSuffix", ...]
+// or
+"runArguments": ["--appIdSuffix=customAppIdSuffix", ...]
+```
+
 ## iOS applications
 
 ### iOS devices
@@ -242,7 +254,7 @@ Debugging on an iOS device requires following manual steps:
 
 ### Custom scheme for iOS apps
 
-If you want to use a custom scheme for your application you can either pass it as part of the `runArguments` parameter arguments, or set the `scheme` configuration parameter as shown below:
+If you want to use a custom scheme for your application you can either pass it as part of the `runArguments` parameter arguments as shown below:
 
 ```js
 "runArguments": ["--scheme", "customScheme", ...]
