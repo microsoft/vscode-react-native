@@ -33,6 +33,8 @@ Using this extension, you can **debug your code and quickly run `react-native` c
 - [Customize metro configuration](#customize-metro-configuration)
 - [Debugging React Native applications](#debugging-react-native-applications)
   - [Hermes engine](#hermes-engine)
+  - [Android applications](#android-applications)
+    - [Custom build for android apps](#custom-build-for-android-apps)
   - [iOS applications](#ios-applications)
     - [iOS devices](#ios-devices)
     - [Custom scheme for iOS apps](#custom-scheme-for-ios-apps)
