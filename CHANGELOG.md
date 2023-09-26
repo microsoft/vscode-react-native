@@ -1,3 +1,10 @@
+## 1.12.1
+* Ignore merto config verification for expo application [#2040](https://github.com/microsoft/vscode-react-native/pull/2040)
+* Add documentation for Android applicationIdSuffix customization and fix format [#2044](https://github.com/microsoft/vscode-react-native/pull/2044)
+* Internal changes:
+    * Resolve CodeQL analysis alert: Do not use eval or the Function constructor [#2034](https://github.com/microsoft/vscode-react-native/pull/2034)
+    * Add unit test for CLI generation [#2036](https://github.com/microsoft/vscode-react-native/pull/2036)
+
 ## 1.12.0
 * Support Expo web debugging [#1997](https://github.com/microsoft/vscode-react-native/pull/1997)
 * Add Expo web debugging documentation [#2019](https://github.com/microsoft/vscode-react-native/pull/2019)
