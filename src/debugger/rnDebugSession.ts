@@ -13,6 +13,7 @@ import { RnCDPMessageHandler } from "../cdp-proxy/CDPMessageHandlers/rnCDPMessag
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
+import { ExponentHelper } from "../extension/exponent/exponentHelper";
 import { MultipleLifetimesAppWorker } from "./appWorker";
 import {
     DebugSessionBase,
@@ -22,7 +23,6 @@ import {
 } from "./debugSessionBase";
 import { JsDebugConfigAdapter } from "./jsDebugConfigAdapter";
 import { RNSession } from "./debugSessionWrapper";
-import { ExponentHelper } from "../extension/exponent/exponentHelper";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,

@@ -115,7 +115,18 @@ export class ReactNativeProjectHelper {
 
     public static async verifyMetroConfigFile(projectRoot: string) {
         const logger = OutputChannelLogger.getChannel(OutputChannelLogger.MAIN_CHANNEL_NAME, true);
-        const version = await ProjectVersionHelper.getReactNativeVersions(projectRoot);
+
+        let version;
+        try {
+            version = await ProjectVersionHelper.getReactNativeVersions(projectRoot);
+        } catch {
+            version = await ProjectVersionHelper.getReactNativeVersions(
+                projectRoot,
+                undefined,
+                projectRoot,
+            );
+        }
+
         const metroConfigPath = path.join(projectRoot, "metro.config.js");
         const content = fs.readFileSync(metroConfigPath, "utf-8");
         const isNewMetroConfig = content.includes("getDefaultConfig");

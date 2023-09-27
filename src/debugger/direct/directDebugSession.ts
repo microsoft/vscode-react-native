@@ -25,8 +25,8 @@ import { TipNotificationService } from "../../extension/services/tipsNotificatio
 import { RNSession } from "../debugSessionWrapper";
 import { SettingsHelper } from "../../extension/settingsHelper";
 import { ReactNativeProjectHelper } from "../../common/reactNativeProjectHelper";
-import { IWDPHelper } from "./IWDPHelper";
 import { ExponentHelper } from "../../extension/exponent/exponentHelper";
+import { IWDPHelper } from "./IWDPHelper";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
