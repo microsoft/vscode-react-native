@@ -1334,6 +1334,7 @@
     ]
   },
   "dependencies": {
+    "@vscode/debugadapter": "^1.63.0",
     "command-exists": "1.2.9",
     "configstore": "5.0.1",
     "extract-opts": "2.2.0",
@@ -1358,7 +1359,6 @@
     "tmp-promise": "3.0.2",
     "uuid": "9.0.0",
     "vscode-cdp-proxy": "0.2.0",
-    "vscode-debugadapter": "1.51.0",
     "vscode-extension-telemetry": "0.4.5",
     "vscode-js-debug-browsers": "^1.0.5",
     "vscode-nls": "4.1.2",
