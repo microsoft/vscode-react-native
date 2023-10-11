@@ -19,17 +19,13 @@ export class HermesCDPMessageHandler extends BaseCDPMessageHandler {
      */
     private readonly HERMES_NATIVE_FUNCTION_SCRIPT_ID: string = "4294967295";
 
-    private readonly ARRAY_REQUEST_PHRASE_MARKER: string = "Object.getOwnPropertyDescriptor";
-
     public processDebuggerCDPMessage(event: any): ProcessedCDPMessage {
         let sendBack = false;
         if (event.method === CDP_API_NAMES.DEBUGGER_SET_BREAKPOINT) {
             event = this.handleBreakpointSetting(event);
         } else if (event.method === CDP_API_NAMES.RUNTIME_CALL_FUNCTION_ON) {
-            if (event.params.functionDeclaration.includes(this.ARRAY_REQUEST_PHRASE_MARKER)) {
-                event = this.handleCallFunctionOnEvent(event);
-                sendBack = true;
-            }
+            event = this.handleCallFunctionOnEvent(event);
+            sendBack = true;
         }
 
         return {
