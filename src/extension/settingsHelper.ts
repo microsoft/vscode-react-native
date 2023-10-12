@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 import * as path from "path";
+import * as fs from "fs";
 import * as vscode from "vscode";
 import { ConfigurationReader } from "../common/configurationReader";
 import { Packager } from "../common/packager";
@@ -202,6 +203,19 @@ export class SettingsHelper {
         );
         if (workspaceConfiguration.has("showUserTips")) {
             await workspaceConfiguration.update("showUserTips", showTips, true);
+        }
+    }
+
+    public static async getWorkspaceFileExcludeFolder(): Promise<any> {
+        const workspacePath = vscode.workspace.workspaceFile?.path;
+        const workspaceSettingsContent = workspacePath
+            ? JSON.parse(fs.readFileSync(workspacePath, "utf-8"))
+            : null;
+        if (workspaceSettingsContent) {
+            const exclude = workspaceSettingsContent.settings["react-native.workspace.exclude"];
+            return exclude ? exclude : [];
+        } else {
+            return [];
         }
     }
 }

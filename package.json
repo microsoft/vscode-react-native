@@ -1232,6 +1232,12 @@
           "default": "Full",
           "scope": "resource"
         },
+        "react-native.workspace.exclude": {
+          "type": "array",
+          "description": "%reactNative.workspace.exclude.description%",
+          "scope": "resource",
+          "default": []
+        },
         "react-native-tools.reactNativeGlobalCommandName": {
           "description": "%reactNative.configuration.properties.react-native-tools.reactNativeGlobalCommandName.description%",
           "type": "string",
