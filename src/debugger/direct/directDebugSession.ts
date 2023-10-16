@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as vscode from "vscode";
-import { logger } from "vscode-debugadapter";
+import { logger } from "@vscode/debugadapter";
 import { DebugProtocol } from "vscode-debugprotocol";
 import * as nls from "vscode-nls";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
