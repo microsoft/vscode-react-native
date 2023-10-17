@@ -207,7 +207,7 @@ export class SettingsHelper {
     }
 
     public static async getWorkspaceFileExcludeFolder(): Promise<any> {
-        const workspacePath = vscode.workspace.workspaceFile?.path;
+        const workspacePath = vscode.workspace.workspaceFile?.fsPath;
         const workspaceSettingsContent = workspacePath
             ? JSON.parse(fs.readFileSync(workspacePath, "utf-8"))
             : null;
