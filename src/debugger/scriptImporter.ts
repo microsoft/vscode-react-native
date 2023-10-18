@@ -3,7 +3,7 @@
 
 import path = require("path");
 import url = require("url");
-import { logger } from "vscode-debugadapter";
+import { logger } from "@vscode/debugadapter";
 import * as semver from "semver";
 import { Request } from "../common/node/request";
 import { ensurePackagerRunning } from "../common/packagerStatus";

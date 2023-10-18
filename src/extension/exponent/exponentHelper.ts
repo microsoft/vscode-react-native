@@ -10,7 +10,7 @@ import * as semver from "semver";
 import * as vscode from "vscode";
 import { sync as globSync } from "glob";
 import * as nls from "vscode-nls";
-import { logger } from "vscode-debugadapter";
+import { logger } from "@vscode/debugadapter";
 import { stripJsonTrailingComma, getNodeModulesGlobalPath } from "../../common/utils";
 import { Package, IPackageInformation } from "../../common/node/package";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";

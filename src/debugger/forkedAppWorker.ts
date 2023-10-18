@@ -5,7 +5,7 @@ import * as path from "path";
 import * as url from "url";
 import * as cp from "child_process";
 import * as fs from "fs";
-import { logger } from "vscode-debugadapter";
+import { logger } from "@vscode/debugadapter";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { getLoggingDirectory } from "../extension/log/LogHelper";

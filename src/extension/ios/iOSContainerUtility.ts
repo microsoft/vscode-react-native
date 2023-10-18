@@ -6,7 +6,7 @@
 
 import * as fs from "fs";
 import * as path from "path";
-import { logger } from "vscode-debugadapter/lib/logger";
+import { logger } from "@vscode/debugadapter/lib/logger";
 import { ChildProcess } from "../../common/node/childProcess";
 import { PromiseUtil } from "../../common/node/promise";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
