@@ -284,6 +284,19 @@ export function getCountOfWorkspaceFolders(): number {
 }
 
 export async function onFolderAdded(folder: vscode.WorkspaceFolder): Promise<void> {
+    const excludeFolders = await SettingsHelper.getWorkspaceFileExcludeFolder();
+    let isExclude = false;
+    if (excludeFolders.length != 0) {
+        for (let i = 0; i < excludeFolders.length; i++) {
+            if (folder.name == excludeFolders[i]) {
+                isExclude = true;
+                break;
+            }
+        }
+    }
+    if (isExclude) {
+        return;
+    }
     const rootPath = folder.uri.fsPath;
     const projectRootPath = SettingsHelper.getReactNativeProjectRoot(rootPath);
     outputChannelLogger.debug(`Add project: ${projectRootPath}`);
