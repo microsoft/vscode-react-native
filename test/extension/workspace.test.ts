@@ -17,20 +17,23 @@ suite("workspace", function () {
                 "..",
                 "resources",
                 "workspaceSettingsSample",
-                "noExcludeSetting.json"
-            );;
-            const exclude2 = await SettingsHelper.getWorkspaceFileExcludeFolder(noExcludeWorkspacePath);
+                "noExcludeSetting.json",
+            );
+            const exclude2 = await SettingsHelper.getWorkspaceFileExcludeFolder(
+                noExcludeWorkspacePath,
+            );
             assert.strictEqual(exclude2.length, 0);
-
 
             const excludeWorkspacePath = path.resolve(
                 __dirname,
                 "..",
                 "resources",
                 "workspaceSettingsSample",
-                "excludeSetting.json"
-            );;
-            const exclude3 = await SettingsHelper.getWorkspaceFileExcludeFolder(excludeWorkspacePath);
+                "excludeSetting.json",
+            );
+            const exclude3 = await SettingsHelper.getWorkspaceFileExcludeFolder(
+                excludeWorkspacePath,
+            );
             assert.strictEqual(exclude3.length, 1);
             assert.strictEqual(exclude3[0], "testProject2");
         });
