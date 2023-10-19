@@ -7,7 +7,7 @@ import { SettingsHelper } from "../../src/extension/settingsHelper";
 
 suite("workspace", function () {
     suite("extensionContext", function () {
-        test.only("Should get react-native.workspace.exclude correctly from workspace settings file", async function () {
+        test("Should get react-native.workspace.exclude correctly from workspace settings file", async function () {
             const noWorkspacePath = undefined;
             const exclude1 = await SettingsHelper.getWorkspaceFileExcludeFolder(noWorkspacePath);
             assert.strictEqual(exclude1.length, 0);
