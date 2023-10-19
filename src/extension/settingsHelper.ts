@@ -206,16 +206,16 @@ export class SettingsHelper {
         }
     }
 
-    public static async getWorkspaceFileExcludeFolder(): Promise<any> {
-        const workspacePath = vscode.workspace.workspaceFile?.fsPath;
-        const workspaceSettingsContent = workspacePath
-            ? JSON.parse(fs.readFileSync(workspacePath, "utf-8"))
+    public static async getWorkspaceFileExcludeFolder(
+        settingsPath: string | undefined,
+    ): Promise<any> {
+        const workspaceSettingsContent = settingsPath
+            ? JSON.parse(fs.readFileSync(settingsPath, "utf-8"))
             : null;
         if (workspaceSettingsContent) {
             const exclude = workspaceSettingsContent.settings["react-native.workspace.exclude"];
             return exclude ? exclude : [];
-        } else {
-            return [];
         }
+        return [];
     }
 }
