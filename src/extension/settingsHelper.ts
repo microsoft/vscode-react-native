@@ -213,8 +213,12 @@ export class SettingsHelper {
             ? JSON.parse(fs.readFileSync(settingsPath, "utf-8"))
             : null;
         if (workspaceSettingsContent) {
-            const exclude = workspaceSettingsContent.settings["react-native.workspace.exclude"];
-            return exclude ? exclude : [];
+            if (workspaceSettingsContent.settings) {
+                const exclude = workspaceSettingsContent.settings["react-native.workspace.exclude"];
+                return exclude ? exclude : [];
+            } else {
+                return [];
+            }
         }
         return [];
     }
