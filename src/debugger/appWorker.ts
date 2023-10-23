@@ -5,7 +5,7 @@ import * as path from "path";
 import { EventEmitter } from "events";
 import * as vscode from "vscode";
 import * as WebSocket from "ws";
-import { logger } from "vscode-debugadapter";
+import { logger } from "@vscode/debugadapter";
 import * as nls from "vscode-nls";
 import { ensurePackagerRunning } from "../common/packagerStatus";
 import { ErrorHelper } from "../common/error/errorHelper";

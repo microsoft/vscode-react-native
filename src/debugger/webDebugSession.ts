@@ -4,7 +4,7 @@
 import * as path from "path";
 import * as fs from "fs";
 import * as vscode from "vscode";
-import { logger } from "vscode-debugadapter";
+import { logger } from "@vscode/debugadapter";
 import { DebugProtocol } from "vscode-debugprotocol";
 import * as nls from "vscode-nls";
 import { TelemetryHelper } from "../common/telemetryHelper";

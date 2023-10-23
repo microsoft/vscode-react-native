@@ -1,7 +1,7 @@
 {
   "name": "vscode-react-native",
   "displayName": "React Native Tools",
-  "version": "1.12.0",
+  "version": "1.12.1",
   "private": true,
   "publisher": "msjsdiag",
   "icon": "resources/images/icon.png",
@@ -1237,6 +1237,12 @@
           "default": "Full",
           "scope": "resource"
         },
+        "react-native.workspace.exclude": {
+          "type": "array",
+          "description": "%reactNative.workspace.exclude.description%",
+          "scope": "resource",
+          "default": []
+        },
         "react-native-tools.reactNativeGlobalCommandName": {
           "description": "%reactNative.configuration.properties.react-native-tools.reactNativeGlobalCommandName.description%",
           "type": "string",
@@ -1339,6 +1345,7 @@
     ]
   },
   "dependencies": {
+    "@vscode/debugadapter": "^1.63.0",
     "command-exists": "1.2.9",
     "configstore": "5.0.1",
     "extract-opts": "2.2.0",
@@ -1363,7 +1370,6 @@
     "tmp-promise": "3.0.2",
     "uuid": "9.0.0",
     "vscode-cdp-proxy": "0.2.0",
-    "vscode-debugadapter": "1.51.0",
     "vscode-extension-telemetry": "0.4.5",
     "vscode-js-debug-browsers": "^1.0.5",
     "vscode-nls": "4.1.2",

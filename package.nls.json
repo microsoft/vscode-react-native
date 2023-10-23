@@ -88,6 +88,7 @@
   "reactNative.launch.enableDebug.description": "Whether to enable debug mode. If set to \"false\", an application will be launched without debugging.",
   "reactNative.launch.openExpoQR.description": "Determines whether to open a tab with a QR code after launching the Expo server. If set to \"false\", a new tab with a QR code won't be opened after the Expo server starts.",
   "reactNative.configuration.title": "React Native configuration",
+  "reactNative.workspace.exclude.description": "Exclude project folder in multi-root workspace",
   "reactNative.configuration.properties.react-native.ios.runArguments.simulator.description": "Run arguments to be passed to 'react-native run-ios' command",
   "reactNative.configuration.properties.react-native.ios.runArguments.device.description": "Run arguments to be passed to 'react-native run-ios' command",
   "reactNative.configuration.properties.react-native.ios.env.simulator.description": "Environment variables passed to the program.",
