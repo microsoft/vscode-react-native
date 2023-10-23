@@ -284,7 +284,8 @@ export function getCountOfWorkspaceFolders(): number {
 }
 
 export async function onFolderAdded(folder: vscode.WorkspaceFolder): Promise<void> {
-    const excludeFolders = await SettingsHelper.getWorkspaceFileExcludeFolder();
+    const workspacePath = vscode.workspace.workspaceFile?.fsPath;
+    const excludeFolders = await SettingsHelper.getWorkspaceFileExcludeFolder(workspacePath);
     let isExclude = false;
     if (excludeFolders.length != 0) {
         for (let i = 0; i < excludeFolders.length; i++) {

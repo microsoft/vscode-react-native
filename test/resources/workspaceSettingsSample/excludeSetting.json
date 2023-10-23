@@ -1,0 +1,15 @@
+{
+	"folders": [
+		{
+			"path": "testProject1"
+		},
+        {
+			"path": "testProject2"
+		}
+	],
+	"settings": {
+		"react-native.workspace.exclude": [
+			"testProject2"
+		]
+	}
+}
