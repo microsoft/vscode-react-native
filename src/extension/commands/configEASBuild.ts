@@ -8,7 +8,6 @@ import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { CommandExecutor } from "../../common/commandExecutor";
 import { FileSystem } from "../../common/node/fileSystem";
-import { ExponentHelper } from "../exponent/exponentHelper";
 import { ReactNativeCommand } from "./util/reactNativeCommand";
 
 nls.config({
@@ -26,8 +25,9 @@ export class ConfigEASBuild extends ReactNativeCommand {
 
     async baseFn(): Promise<void> {
         assert(this.project);
-        const projectRootPath = this.project.getWorkspaceFolder().uri.fsPath;
-        const expoHelper = new ExponentHelper(projectRootPath, projectRootPath);
+        const projectRootPath = this.project.getPackager().getProjectPath();
+        const expoHelper = this.project.getExponentHelper();
+        logger.info(localize("CheckExpoEnvironment", "Checking Expo project environment."));
         const isExpo = await expoHelper.isExpoManagedApp(true);
 
         if (isExpo) {
