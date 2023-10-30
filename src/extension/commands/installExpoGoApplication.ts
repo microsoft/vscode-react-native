@@ -11,6 +11,7 @@ import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { downloadExpoGo } from "../../common/downloadHelper";
 import { getTimestamp } from "../../common/utils";
+import { installiOSApplication } from "../../common/installHelper";
 import { Command } from "./util/command";
 
 nls.config({
@@ -48,20 +49,26 @@ export class InstallExpoGoApplication extends Command {
                     localize("DownloadAndroidExpoGo", "\nDownloading Expo Go for Android. \n"),
                 );
 
-                const targetUrl = expoUrlInfo.androidClientUrl;
-                const androidClientVersion = expoUrlInfo.androidClientVersion as string;
-                try {
-                    await downloadExpoGo(
-                        targetUrl,
-                        `${this.project
-                            .getPackager()
-                            .getProjectPath()}/expogo_${androidClientVersion}_${getTimestamp()}.apk`,
-                    );
-                } catch {
-                    throw new Error(
-                        localize("FailedToDownloadExpoGo", "Failed to download Expo Go."),
-                    );
-                }
+                // const targetUrl = expoUrlInfo.androidClientUrl;
+                // const androidClientVersion = expoUrlInfo.androidClientVersion as string;
+                // try {
+                //     await downloadExpoGo(
+                //         targetUrl,
+                //         `${this.project
+                //             .getPackager()
+                //             .getProjectPath()}/expogo_${androidClientVersion}_${getTimestamp()}.apk`,
+                //     );
+                // } catch {
+                //     throw new Error(
+                //         localize("FailedToDownloadExpoGo", "Failed to download Expo Go."),
+                //     );
+                // }
+
+                // await installAndroidApplication(this.project, "/Users/ezio/Desktop/expo_49/expogo_2.29.8_20231030102618.apk");
+                await installiOSApplication(
+                    this.project,
+                    "/Users/ezio/Desktop/expo_49/expogo_2.29.6_20231030103215.tar.gz",
+                );
             } else if (item == "iOS") {
                 if (os.platform() != "darwin") {
                     logger.warning(
