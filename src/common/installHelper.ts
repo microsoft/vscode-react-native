@@ -42,8 +42,21 @@ export async function installiOSApplication(project: AppLauncher, appPath: strin
 
     const targetResult = await childProcess.execToString(getBootedSimulatorCommand);
     const targets = targetResult.split("\n");
-    console.log(targets);
 
+    try {
+        await childProcess.execToString(
+            `mkdir ${project.getPackager().getProjectPath()}/expoApp.app`,
+        );
+        await childProcess.execToString(
+            `tar -xf ${appPath} -C ${project.getPackager().getProjectPath()}/expoApp.app`,
+        );
+    } catch (e) {
+        throw e;
+    }
+
+    const installCommand = `xcrun simctl install ${targets[0]} ${project
+        .getPackager()
+        .getProjectPath()}/expoApp.app`;
     if (targets.length == 1) {
         throw new Error("No booted iOS simulator found, please check your simulator status.");
     } else if (targets.length > 2) {
@@ -52,12 +65,18 @@ export async function installiOSApplication(project: AppLauncher, appPath: strin
                 targets[0]
             }. \n`,
         );
-    } else {
-        logger.logStream(`Installing application on ${targets[0]}. \n`);
         try {
+            await childProcess.execToString(installCommand);
         } catch {
             throw new Error(`Failed to install application: ${appPath}.`);
         }
-        logger.logStream(`Install Android application is completed. \n`);
+    } else {
+        logger.logStream(`Installing application on ${targets[0]}. \n`);
+        try {
+            await childProcess.execToString(installCommand);
+        } catch {
+            throw new Error(`Failed to install application: ${appPath}.`);
+        }
+        logger.logStream(`Install iOS application is completed. \n`);
     }
 }

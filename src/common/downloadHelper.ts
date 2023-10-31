@@ -37,7 +37,7 @@ export async function downloadFile(url: any, targetFile: any) {
 
                 file.on("finish", async () => {
                     file.close();
-                    logger.logStream(`Download Expo Go Completed: ${targetFile as string}`);
+                    logger.logStream(`Download Expo Go Completed: ${targetFile as string} \n`);
                     void vscode.window.showInformationMessage("Download Expo Go Completed.");
                 });
 
