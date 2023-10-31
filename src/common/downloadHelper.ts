@@ -42,7 +42,9 @@ export async function downloadFile(url: any, targetFile: any) {
                 });
 
                 response.on("end", function () {
-                    console.log("Progress end.");
+                    resolve(() => {
+                        console.log("Progress end.");
+                    });
                 });
             })
             .on("error", error => {
