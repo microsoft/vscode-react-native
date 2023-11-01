@@ -120,7 +120,7 @@ export class InstallExpoGoApplication extends Command {
                     }
                 }
 
-                if (installItem == "Auto") {
+                if (installItem == "Auto" && os.platform() == "darwin") {
                     try {
                         await installiOSApplication(this.project, tarFile);
                     } catch {
@@ -131,8 +131,8 @@ export class InstallExpoGoApplication extends Command {
                 } else {
                     logger.logStream(
                         localize(
-                            "ManualInstall",
-                            "Please manually install Expo Go from project root path. \n",
+                            "CannotAutoInstall",
+                            "Cannot auto install Expo Go, selected manual install or target machine is not MacOS. \n",
                         ),
                     );
                 }
