@@ -1,3 +1,12 @@
+## 1.12.2
+* Fix react-native application crashing issue related to cdp event  [#2055](https://github.com/microsoft/vscode-react-native/pull/2055)
+* Add workspace setting to ignore specific project folder in multi-root workspace [#2061](https://github.com/microsoft/vscode-react-native/pull/2061)
+* Internal changes:
+    * Bump postcss from 8.4.26 to 8.4.31 in /test/smoke/package [#2053](https://github.com/microsoft/vscode-react-native/pull/2053)
+    * Update vscode-debugadapter to @vscode/debugadapter [#2057](https://github.com/microsoft/vscode-react-native/pull/2057)
+    * Bump @babel/traverse from 7.22.8 to 7.23.2 in /test/smoke/package [#2060](https://github.com/microsoft/vscode-react-native/pull/2060)
+    * Add unit test for getting workspace settings [#2062](https://github.com/microsoft/vscode-react-native/pull/2062)
+
 ## 1.12.1
 * Ignore merto config verification for expo application [#2040](https://github.com/microsoft/vscode-react-native/pull/2040)
 * Add documentation for Android applicationIdSuffix customization and fix format [#2044](https://github.com/microsoft/vscode-react-native/pull/2044)
