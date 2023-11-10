@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as assert from "assert";
+import * as fs from "fs";
 import * as https from "https";
 import * as os from "os";
 import * as vscode from "vscode";
@@ -10,7 +11,7 @@ import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { downloadExpoGo } from "../../common/downloadHelper";
-import { getTimestamp } from "../../common/utils";
+import { installAndroidApplication, installiOSApplication } from "../../common/installHelper";
 import { Command } from "./util/command";
 
 nls.config({
@@ -29,6 +30,9 @@ export class InstallExpoGoApplication extends Command {
         assert(this.project);
         const item = await vscode.window.showQuickPick(["Android", "iOS"], {
             placeHolder: "Select type for mobile OS",
+        });
+        const installItem = await vscode.window.showQuickPick(["Manual", "Auto"], {
+            placeHolder: "How to install application",
         });
         const expoHelper = this.project.getExponentHelper();
         logger.info(localize("CheckExpoEnvironment", "Checking Expo project environment."));
@@ -50,16 +54,34 @@ export class InstallExpoGoApplication extends Command {
 
                 const targetUrl = expoUrlInfo.androidClientUrl;
                 const androidClientVersion = expoUrlInfo.androidClientVersion as string;
-                try {
-                    await downloadExpoGo(
-                        targetUrl,
-                        `${this.project
-                            .getPackager()
-                            .getProjectPath()}/expogo_${androidClientVersion}_${getTimestamp()}.apk`,
-                    );
-                } catch {
-                    throw new Error(
-                        localize("FailedToDownloadExpoGo", "Failed to download Expo Go."),
+                const fileName = `${this.project
+                    .getPackager()
+                    .getProjectPath()}/expogo_${androidClientVersion}.apk`;
+
+                if (!fs.existsSync(fileName)) {
+                    try {
+                        await downloadExpoGo(targetUrl, fileName);
+                    } catch {
+                        throw new Error(
+                            localize("FailedToDownloadExpoGo", "Failed to download Expo Go."),
+                        );
+                    }
+                }
+
+                if (installItem == "Auto") {
+                    try {
+                        await installAndroidApplication(this.project, fileName);
+                    } catch {
+                        throw new Error(
+                            localize("FailedToInstallExpoGo", "Failed to install Expo Go."),
+                        );
+                    }
+                } else {
+                    logger.logStream(
+                        localize(
+                            "ManualInstall",
+                            "Please manually install Expo Go from project root path. \n",
+                        ),
                     );
                 }
             } else if (item == "iOS") {
@@ -78,16 +100,40 @@ export class InstallExpoGoApplication extends Command {
 
                 const targetUrl = expoUrlInfo.iosClientUrl;
                 const iOSClientVersion = expoUrlInfo.iosClientVersion as string;
-                try {
-                    await downloadExpoGo(
-                        targetUrl,
-                        `${this.project
-                            .getPackager()
-                            .getProjectPath()}/expogo_${iOSClientVersion}_${getTimestamp()}.tar.gz`,
-                    );
-                } catch {
-                    throw new Error(
-                        localize("FailedToDownloadExpoGo", "Failed to download Expo Go."),
+
+                const tarFile = `${this.project
+                    .getPackager()
+                    .getProjectPath()}/expogo_${iOSClientVersion}.tar.gz`;
+
+                if (!fs.existsSync(tarFile)) {
+                    try {
+                        await downloadExpoGo(
+                            targetUrl,
+                            `${this.project
+                                .getPackager()
+                                .getProjectPath()}/expogo_${iOSClientVersion}.tar.gz`,
+                        );
+                    } catch {
+                        throw new Error(
+                            localize("FailedToDownloadExpoGo", "Failed to download Expo Go."),
+                        );
+                    }
+                }
+
+                if (installItem == "Auto" && os.platform() == "darwin") {
+                    try {
+                        await installiOSApplication(this.project, tarFile);
+                    } catch {
+                        throw new Error(
+                            localize("FailedToInstallExpoGo", "Failed to install Expo Go."),
+                        );
+                    }
+                } else {
+                    logger.logStream(
+                        localize(
+                            "CannotAutoInstall",
+                            "Cannot auto install Expo Go, selected manual install or target machine is not MacOS. \n",
+                        ),
                     );
                 }
             } else {

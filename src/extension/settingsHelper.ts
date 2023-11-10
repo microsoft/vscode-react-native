@@ -216,9 +216,8 @@ export class SettingsHelper {
             if (workspaceSettingsContent.settings) {
                 const exclude = workspaceSettingsContent.settings["react-native.workspace.exclude"];
                 return exclude ? exclude : [];
-            } else {
-                return [];
             }
+            return [];
         }
         return [];
     }
