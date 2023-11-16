@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
+
 import * as fs from "fs";
 import * as https from "https";
 import * as vscode from "vscode";
@@ -36,12 +37,14 @@ export async function downloadFile(url: any, targetFile: any) {
 
                 file.on("finish", async () => {
                     file.close();
-                    logger.logStream(`Download Expo Go Completed: ${targetFile as string}`);
+                    logger.logStream(`Download Expo Go Completed: ${targetFile as string} \n`);
                     void vscode.window.showInformationMessage("Download Expo Go Completed.");
                 });
 
                 response.on("end", function () {
-                    console.log("Progress end.");
+                    resolve(() => {
+                        console.log("Progress end.");
+                    });
                 });
             })
             .on("error", error => {
