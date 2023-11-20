@@ -1,0 +1,13 @@
+{
+	"messages": [
+		"Could not find any debuggable target by specified target: {0}",
+		"Continue using standard RN CLI workflow.",
+		"Continue using standard RN CLI workflow."
+	],
+	"keys": [
+		"CouldNotFindAnyDebuggableTarget",
+		"ContinueWithRnCliWorkflow",
+		"ContinueWithRnCliWorkflow"
+	],
+	"filePath": "src/extension/generalMobilePlatform"
+}

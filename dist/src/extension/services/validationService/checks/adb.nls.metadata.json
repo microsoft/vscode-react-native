@@ -1,0 +1,11 @@
+{
+	"messages": [
+		"Required for app installation. Minimal version is 12",
+		"Required for correct extension integration with Expo"
+	],
+	"keys": [
+		"AdbCheckAndroidDescription",
+		"AdbCheckExpoDescription"
+	],
+	"filePath": "src/extension/services/validationService/checks/adb"
+}

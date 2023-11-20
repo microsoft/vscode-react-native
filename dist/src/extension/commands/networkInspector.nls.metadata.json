@@ -1,0 +1,9 @@
+{
+	"messages": [
+		"Another Network inspector is already running"
+	],
+	"keys": [
+		"AnotherNetworkInspectorAlreadyRun"
+	],
+	"filePath": "src/extension/commands/networkInspector"
+}

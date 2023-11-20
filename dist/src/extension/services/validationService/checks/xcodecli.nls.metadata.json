@@ -1,0 +1,9 @@
+{
+	"messages": [
+		"Required for building and testing RN macOS apps"
+	],
+	"keys": [
+		"xcodeCLICheckDescription"
+	],
+	"filePath": "src/extension/services/validationService/checks/xcodecli"
+}

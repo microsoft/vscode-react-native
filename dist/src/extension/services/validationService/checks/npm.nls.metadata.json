@@ -1,0 +1,9 @@
+{
+	"messages": [
+		"Required for installing node packages"
+	],
+	"keys": [
+		"NpmCheckDescription"
+	],
+	"filePath": "src/extension/services/validationService/checks/npm"
+}

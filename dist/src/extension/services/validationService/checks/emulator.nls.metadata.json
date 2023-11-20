@@ -1,0 +1,9 @@
+{
+	"messages": [
+		"Required for working with Android emulators"
+	],
+	"keys": [
+		"EmulatorCheckDescription"
+	],
+	"filePath": "src/extension/services/validationService/checks/emulator"
+}

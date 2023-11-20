@@ -1,0 +1,11 @@
+{
+	"messages": [
+		"LogCat monitoring stopped because the process exited.",
+		"LogCat monitoring stopped because the debugging session finished"
+	],
+	"keys": [
+		"LogCatMonitoringStoppedBecauseTheProcessExited",
+		"LogCatMonitoringStoppedBecauseTheDebuggingSessionFinished"
+	],
+	"filePath": "src/extension/android/logCatMonitor"
+}

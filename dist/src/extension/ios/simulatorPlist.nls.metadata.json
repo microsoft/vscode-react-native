@@ -1,0 +1,9 @@
+{
+	"messages": [
+		"Multiple plist candidates found. Application may not be in debug mode."
+	],
+	"keys": [
+		"MultiplePlistCandidatesFoundAppMayNotBeDebuggedInDebugMode"
+	],
+	"filePath": "src/extension/ios/simulatorPlist"
+}

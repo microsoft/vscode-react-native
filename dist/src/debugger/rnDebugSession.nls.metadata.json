@@ -1,0 +1,11 @@
+{
+	"messages": [
+		"Starting debugger app worker.",
+		"Debugger worker loaded runtime on port {0}"
+	],
+	"keys": [
+		"StartingDebuggerAppWorker",
+		"DebuggerWorkerLoadedRuntimeOnPort"
+	],
+	"filePath": "src/debugger/rnDebugSession"
+}

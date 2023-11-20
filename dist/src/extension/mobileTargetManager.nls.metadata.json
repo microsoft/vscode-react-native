@@ -1,0 +1,11 @@
+{
+	"messages": [
+		"Could not recognize type of the target {0}",
+		"Select target device for launch application"
+	],
+	"keys": [
+		"CouldNotRecognizeTargetType",
+		"SelectTargetDevice"
+	],
+	"filePath": "src/extension/mobileTargetManager"
+}

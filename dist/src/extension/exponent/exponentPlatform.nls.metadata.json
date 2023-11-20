@@ -1,0 +1,19 @@
+{
+	"messages": [
+		"A device or an emulator was found, 'adb reverse' command successfully executed.",
+		"Adb reverse command failed. Couldn't find connected over usb device or running emulator. Also please make sure that there is only one currently connected device or running emulator.",
+		"Expo server is running. Open your Expo app at {0} to see it.",
+		"Scan below QR code to open your app:",
+		"Copy to clipboard",
+		"Application is running on Expo. Please shake device and select 'Debug JS Remotely' to enable debugging."
+	],
+	"keys": [
+		"ExpoStartAdbReverseSuccess",
+		"ExpoStartAdbReverseFailure",
+		"ExponentServerIsRunningOpenToSeeIt",
+		"QRCodeOutputInstructions",
+		"CopyToClipboard",
+		"ApplicationIsRunningOnExponentShakeDeviceForRemoteDebugging"
+	],
+	"filePath": "src/extension/exponent/exponentPlatform"
+}

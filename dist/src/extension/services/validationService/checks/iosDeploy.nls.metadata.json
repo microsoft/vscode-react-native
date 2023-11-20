@@ -1,0 +1,9 @@
+{
+	"messages": [
+		"Required for installing your app on a physical device with the CLI"
+	],
+	"keys": [
+		"IosDeployTestDescription"
+	],
+	"filePath": "src/extension/services/validationService/checks/iosDeploy"
+}

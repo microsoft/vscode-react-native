@@ -1,0 +1,9 @@
+{
+	"messages": [
+		"Open react native upgrade helper in web browser."
+	],
+	"keys": [
+		"OpenInWebBrowser"
+	],
+	"filePath": "src/extension/commands/openRNUpgradeHelper"
+}

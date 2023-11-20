@@ -1,0 +1,9 @@
+{
+	"messages": [
+		"Required for building RNW apps"
+	],
+	"keys": [
+		"LongPathSupportTestDescription"
+	],
+	"filePath": "src/extension/services/validationService/checks/longPath"
+}

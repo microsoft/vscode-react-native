@@ -1,0 +1,19 @@
+{
+	"messages": [
+		"Device disconnected {0} from the Network inspector",
+		"Starting Network inspector",
+		"Network inspector is working",
+		"Network inspector has been stopped",
+		"Error while opening Network inspector server on port {0}",
+		"Device connected: {0}"
+	],
+	"keys": [
+		"NIDeviceDisconnected",
+		"StartNetworkinspector",
+		"NetworkInspectorWorking",
+		"NetworkInspectorStopped",
+		"ErrorOpeningNetworkInspectorServerOnPort",
+		"NIDeviceConnected"
+	],
+	"filePath": "src/extension/networkInspector/networkInspectorServer"
+}

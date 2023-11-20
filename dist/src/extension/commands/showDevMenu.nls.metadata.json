@@ -1,0 +1,9 @@
+{
+	"messages": [
+		"React Native: Show Developer Menu for app"
+	],
+	"keys": [
+		"ReactNativeShowDevMenu"
+	],
+	"filePath": "src/extension/commands/showDevMenu"
+}

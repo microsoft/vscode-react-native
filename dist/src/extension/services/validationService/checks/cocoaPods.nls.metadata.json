@@ -1,0 +1,9 @@
+{
+	"messages": [
+		"Required for managing library dependencies of XCode projects"
+	],
+	"keys": [
+		"CocoaPodsTestDescription"
+	],
+	"filePath": "src/extension/services/validationService/checks/cocoaPods"
+}

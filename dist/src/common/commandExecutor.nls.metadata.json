@@ -1,0 +1,11 @@
+{
+	"messages": [
+		"Packager stopped",
+		"Packager not found"
+	],
+	"keys": [
+		"PackagerStopped",
+		"PackagerNotFound"
+	],
+	"filePath": "src/common/commandExecutor"
+}

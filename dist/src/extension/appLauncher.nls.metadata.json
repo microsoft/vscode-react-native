@@ -1,0 +1,27 @@
+{
+	"messages": [
+		"Prewarming bundle cache. This may take a while ...",
+		"Building and running application.",
+		"Prepare Hermes debugging (experimental)",
+		"Prepare Hermes launch (experimental)",
+		"Prepare direct iOS debugging (experimental)",
+		"Prepare direct iOS launch (experimental)",
+		"Disable JS Debugging",
+		"Enable JS Debugging",
+		"Browser error: {0}",
+		"Browser has been closed with exit code: {0}"
+	],
+	"keys": [
+		"PrewarmingBundleCache",
+		"BuildingAndRunningApplication",
+		"PrepareHermesDebugging",
+		"PrepareHermesLaunch",
+		"PrepareDirectIosDebugging",
+		"PrepareDirectIosLaunch",
+		"DisableJSDebugging",
+		"EnableJSDebugging",
+		"BrowserError",
+		"BrowserExit"
+	],
+	"filePath": "src/extension/appLauncher"
+}

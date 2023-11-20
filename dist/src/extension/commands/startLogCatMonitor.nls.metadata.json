@@ -1,0 +1,11 @@
+{
+	"messages": [
+		"Could not find a proper online Android device to start a LogCat monitor",
+		"Error while monitoring LogCat"
+	],
+	"keys": [
+		"OnlineAndroidDeviceNotFound",
+		"ErrorWhileMonitoringLogCat"
+	],
+	"filePath": "src/extension/commands/startLogCatMonitor"
+}

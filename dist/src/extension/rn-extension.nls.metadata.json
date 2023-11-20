@@ -1,0 +1,17 @@
+{
+	"messages": [
+		"Extension version is not found",
+		"React Native Tools need React Native version 0.19.0 or later to be installed in <PROJECT_ROOT>/node_modules/",
+		"React Native Tools: Both Stable and Preview extensions are installed. Stable will be used. Disable or remove it to work with Preview version.",
+		"React Native Tools have been updated to {0}",
+		"More details"
+	],
+	"keys": [
+		"ExtensionVersionNotFound",
+		"ReactNativeToolsRequiresMoreRecentVersionThan019",
+		"RNTTwoVersionsFound",
+		"RNTHaveBeenUpdatedToVersion",
+		"MoreDetails"
+	],
+	"filePath": "src/extension/rn-extension"
+}

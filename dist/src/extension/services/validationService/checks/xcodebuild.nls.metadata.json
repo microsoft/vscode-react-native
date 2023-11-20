@@ -1,0 +1,11 @@
+{
+	"messages": [
+		"Required for building iOS apps",
+		"Required for building and testing RN macOS apps"
+	],
+	"keys": [
+		"XCodeBuildTestDescription",
+		"XCodeBuildVersionTestDescription"
+	],
+	"filePath": "src/extension/services/validationService/checks/xcodebuild"
+}

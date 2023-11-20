@@ -1,0 +1,19 @@
+{
+	"messages": [
+		"'iosRelativeProjectPath' option is deprecated. Please use 'runArguments' instead.",
+		"There is no any target with specified target type '{0}'. Continue with any target.",
+		"'--scheme' is set as 'runArguments' configuration parameter value, 'scheme' configuration parameter value will be omitted",
+		"There is no iOS target with such UDID: {0}",
+		"There is no iOS device with such name: {0}",
+		"There is no iOS simulator with such name: {0}"
+	],
+	"keys": [
+		"iosRelativeProjectPathOptionIsDeprecatedUseRunArgumentsInstead",
+		"ThereIsNoTargetWithSpecifiedTargetType",
+		"iosSchemeParameterAlreadySetInRunArguments",
+		"ThereIsNoIosTargetWithSuchUdid",
+		"ThereIsNoIosDeviceWithSuchName",
+		"ThereIsNoIosSimulatorWithSuchName"
+	],
+	"filePath": "src/extension/ios/iOSPlatform"
+}

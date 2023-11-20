@@ -1,0 +1,9 @@
+{
+	"messages": [
+		"Required for launching and debugging RNW apps"
+	],
+	"keys": [
+		"DeveloperModeTestDescription"
+	],
+	"filePath": "src/extension/services/validationService/checks/devmode"
+}

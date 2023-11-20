@@ -1,0 +1,29 @@
+{
+	"messages": [
+		"Checking Expo project environment.",
+		"\nDownloading Expo Go for Android. \n",
+		"Failed to download Expo Go.",
+		"Failed to install Expo Go.",
+		"Please manually install Expo Go from project root path. \n",
+		"Current OS may not support iOS installer. The Expo Go may not be installed.\n",
+		"\nDownloading Expo Go for iOS. \n",
+		"Failed to download Expo Go.",
+		"Failed to install Expo Go.",
+		"Cannot auto install Expo Go, selected manual install or target machine is not MacOS. \n",
+		"Current project is not Expo managed."
+	],
+	"keys": [
+		"CheckExpoEnvironment",
+		"DownloadAndroidExpoGo",
+		"FailedToDownloadExpoGo",
+		"FailedToInstallExpoGo",
+		"ManualInstall",
+		"NotDarwinPlatform",
+		"DownloadiOSExpoGo",
+		"FailedToDownloadExpoGo",
+		"FailedToInstallExpoGo",
+		"CannotAutoInstall",
+		"NotExpoProject"
+	],
+	"filePath": "src/extension/commands/installExpoGoApplication"
+}

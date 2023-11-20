@@ -1,0 +1,9 @@
+{
+	"messages": [
+		"Required for testing and building RN macOS apps"
+	],
+	"keys": [
+		"macOSversionTestDescription"
+	],
+	"filePath": "src/extension/services/validationService/checks/macos"
+}

@@ -1,0 +1,11 @@
+{
+	"messages": [
+		"Expo is running. Open your Expo app at<br/><span style=\"text-decoration: underline\">{0}</span><br/>or scan QR code below:",
+		"Tips: You can get current QR code in<br/>Output Window as well if you close this tab."
+	],
+	"keys": [
+		"QRCodeInstructions",
+		"QRCodeOutputMessage"
+	],
+	"filePath": "src/extension/qrCodeContentProvider"
+}

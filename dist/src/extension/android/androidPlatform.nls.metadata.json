@@ -1,0 +1,13 @@
+{
+	"messages": [
+		"There is no any online target with specified target type '{0}'. Continue with any online target.",
+		"Device {0} supports only API Level {1}. \n Level {2} is needed to support port forwarding via adb reverse. \n For debugging to work you'll need <Shake or press menu button> for the dev menu, \n go into <Dev Settings> and configure <Debug Server host & port for Device> to be \n an IP address of your computer that the Device can reach. More info at: \n https://facebook.github.io/react-native/docs/debugging.html#debugging-react-native-apps",
+		"Error while monitoring LogCat"
+	],
+	"keys": [
+		"ThereIsNoOnlineTargetWithSpecifiedTargetType",
+		"DeviceSupportsOnlyAPILevel",
+		"ErrorWhileMonitoringLogCat"
+	],
+	"filePath": "src/extension/android/androidPlatform"
+}

@@ -1,0 +1,9 @@
+{
+	"messages": [
+		"Required for code execution. Minimal version is 12"
+	],
+	"keys": [
+		"NodejsCheckDescription"
+	],
+	"filePath": "src/extension/services/validationService/checks/nodeJS"
+}

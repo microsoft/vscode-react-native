@@ -1,0 +1,43 @@
+{
+	"messages": [
+		"Couldn't read packager's options from exp.json, continue...",
+		"Packager is already running. If you want to debug please use the 'Attach to packager' option.",
+		"Starting Packager",
+		"Packager started.",
+		"Packager is already running.",
+		"React Native Packager running outside of VS Code. If you want to debug please use the 'Attach to packager' option.",
+		"Packager is still running. If the packager was started outside VS Code, please quit the packager process using the task manager.",
+		"Packager is not running",
+		"Entry point doesn't exist neither at index.js nor index.{0}.js. Skip prewarming...",
+		"About to get: {0}",
+		"The Bundle Cache was prewarmed.",
+		"Could not start the packager.",
+		"Need to check main file and entry point of open module, will setup and write new content if they're not existing. Path: {0}",
+		"Cannot find main file in open module, executing setup...",
+		"Copy open-main.js to open module...",
+		"Add open-main.js entry to package.json 'main' field...",
+		"Find open-main.js and entry in open module, skip setup...",
+		"Stopping Packager"
+	],
+	"keys": [
+		"CouldNotReadPackagerOptions",
+		"PackagerIsRunningBeforeStarting",
+		"StartingPackager",
+		"PackagerStarted",
+		"PackagerIsAlreadyRunning",
+		"PackagerRunningOutsideVSCode",
+		"PackagerIsStillRunning",
+		"PackagerIsNotRunning",
+		"EntryPointDoesntExist",
+		"AboutToGetURL",
+		"BundleCacheWasPrewarmed",
+		"CouldNotStartPackager",
+		"VerifyOpenModuleMainFileAndEntry",
+		"NoOpenMainFile",
+		"CopyOpenMainFile",
+		"AddOpenMainEntry",
+		"OpenMainEntryIsExisting",
+		"StoppingPackager"
+	],
+	"filePath": "src/common/packager"
+}

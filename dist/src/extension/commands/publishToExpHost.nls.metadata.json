@@ -1,0 +1,13 @@
+{
+	"messages": [
+		"Publishing was unsuccessful. Please make sure you are logged in Expo and your project is a valid Expo project",
+		"Publishing app to Expo server. This might take a moment.",
+		"Expo app successfully published to {0}"
+	],
+	"keys": [
+		"ExponentPublishingWasUnsuccessfulMakeSureYoureLoggedInToExpo",
+		"PublishingAppToExponentServer",
+		"ExpoAppSuccessfullyPublishedTo"
+	],
+	"filePath": "src/extension/commands/publishToExpHost"
+}

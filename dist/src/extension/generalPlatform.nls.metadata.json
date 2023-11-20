@@ -1,0 +1,19 @@
+{
+	"messages": [
+		"React Native: Run {0}",
+		"Connected to packager. You can now open your app in the simulator.",
+		"Debugger ready. Enable remote debugging in app.",
+		"Debugger ready. Disable remote debugging in app.",
+		"Starting React Native Packager.",
+		"Attaching to running React Native packager"
+	],
+	"keys": [
+		"ReactNativeRunPlatform",
+		"ConnectedToPackager",
+		"DebuggerReadyEnableRemoteDebuggingInApp",
+		"DebuggerReadyDisableRemoteDebuggingInApp",
+		"StartingReactNativePackager",
+		"AttachingToRunningReactNativePackager"
+	],
+	"filePath": "src/extension/generalPlatform"
+}

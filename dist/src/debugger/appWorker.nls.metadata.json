@@ -1,0 +1,11 @@
+{
+	"messages": [
+		"Disconnected from the Proxy (Packager) to the React Native application. Retrying reconnection soon...",
+		"Established a connection with the Proxy (Packager) to the React Native application"
+	],
+	"keys": [
+		"DisconnectedFromThePackagerToReactNative",
+		"EstablishedConnectionWithPackagerToReactNativeApp"
+	],
+	"filePath": "src/debugger/appWorker"
+}

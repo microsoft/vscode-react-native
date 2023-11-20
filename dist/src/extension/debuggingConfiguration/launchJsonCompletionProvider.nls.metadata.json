@@ -1,0 +1,11 @@
+{
+	"messages": [
+		"Select a React Native debug configuration",
+		"Select a React Native debug configuration"
+	],
+	"keys": [
+		"SelectReactNativeDebugConfiguration",
+		"SelectReactNativeDebugConfiguration"
+	],
+	"filePath": "src/extension/debuggingConfiguration/launchJsonCompletionProvider"
+}

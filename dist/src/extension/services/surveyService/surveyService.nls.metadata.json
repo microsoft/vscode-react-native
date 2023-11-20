@@ -1,0 +1,13 @@
+{
+	"messages": [
+		"Give Feedback",
+		"Remind Me later",
+		"Got a moment to help the React Native Tools team? Please tell us about your experience with the extension so far."
+	],
+	"keys": [
+		"giveFeedback",
+		"remindLater",
+		"surveyNotificationText"
+	],
+	"filePath": "src/extension/services/surveyService/surveyService"
+}

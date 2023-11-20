@@ -1,0 +1,17 @@
+{
+	"messages": [
+		"Could not recognize type of the target {0}",
+		"Select system version of iOS target",
+		"Error while launching simulator {0} : {1}",
+		"Launched simulator {0}",
+		"Could not start the simulator {0} within {1} seconds."
+	],
+	"keys": [
+		"CouldNotRecognizeTargetType",
+		"SelectIOSSystemVersion",
+		"ErrorWhileLaunchingSimulator",
+		"SimulatorLaunched",
+		"SimulatorStartWarning"
+	],
+	"filePath": "src/extension/ios/iOSTargetManager"
+}

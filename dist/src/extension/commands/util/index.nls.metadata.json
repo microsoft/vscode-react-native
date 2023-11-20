@@ -1,0 +1,9 @@
+{
+	"messages": [
+		"An error has occured. Please make sure you are logged in to Expo, your project is setup correctly for publishing and your packager is running as Expo."
+	],
+	"keys": [
+		"ExpoErrorOccuredMakeSureYouAreLoggedIn"
+	],
+	"filePath": "src/extension/commands/util/index"
+}

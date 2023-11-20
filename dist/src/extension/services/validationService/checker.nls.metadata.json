@@ -1,0 +1,13 @@
+{
+	"messages": [
+		"Starting Environment check...",
+		"Dev Environment verification result",
+		"All checks passed successfully!"
+	],
+	"keys": [
+		"DevEnvVerificationStart",
+		"DevEnvVerificationHeader",
+		"DevEnvVerificationFooter"
+	],
+	"filePath": "src/extension/services/validationService/checker"
+}

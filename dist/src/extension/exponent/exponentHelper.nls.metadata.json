@@ -1,0 +1,29 @@
+{
+	"messages": [
+		"Making sure your project uses the correct dependencies for Expo. This may take a while...",
+		"Checking if this is an Expo app.",
+		"Missing 'name' or 'version' field in package.json. These fields might be required for your application.",
+		"[Warning] Please make sure that expo package is installed locally for your project, otherwise further errors may occur. Please, run \"npm install expo --save-dev\" inside your project to install it.",
+		"You need to login to Expo. Please provide your Expo account username and password in the input boxes after closing this window. If you don't have an account, please go to https://expo.io to create one.",
+		"Expo username",
+		"Expo password",
+		"It seems that \"{0}\" package isn't installed globally. This package is required to use Expo tunnels, would you like to install it globally?",
+		"Install",
+		"Cancel",
+		"\"{0}\" package has been successfully installed globally."
+	],
+	"keys": [
+		"MakingSureYourProjectUsesCorrectExponentDependencies",
+		"CheckingIfThisIsExpoApp",
+		"MissingFieldsInExpoApp",
+		"ExpoPackageIsNotInstalled",
+		"YouNeedToLoginToExpo",
+		"ExpoUsername",
+		"ExpoPassword",
+		"ExpoInstallNgrokGlobally",
+		"InstallNgrokGloballyButtonOK",
+		"InstallNgrokGloballyButtonCancel",
+		"NgrokInstalledGlobally"
+	],
+	"filePath": "src/extension/exponent/exponentHelper"
+}

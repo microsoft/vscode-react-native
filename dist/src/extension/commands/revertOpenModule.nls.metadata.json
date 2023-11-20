@@ -1,0 +1,19 @@
+{
+	"messages": [
+		"Failed to delete open-main.js file.",
+		"Not find open-main.js file in open module, skip main file deleting.",
+		"Failed to delete main enrty.",
+		"Not find main entry in package.json file, skip entry deleting.",
+		"Open module clean up is complete.",
+		"Unable to find open module in your project. Please check it again."
+	],
+	"keys": [
+		"FailedToDeleteMainFile",
+		"NotFindMainFile",
+		"FailedToDeleteEntry",
+		"NotFindMainEntry",
+		"CompleteOpenModuleCleaUp",
+		"NotFindOpenModule"
+	],
+	"filePath": "src/extension/commands/revertOpenModule"
+}

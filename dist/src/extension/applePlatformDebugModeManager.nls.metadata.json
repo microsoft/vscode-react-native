@@ -1,0 +1,9 @@
+{
+	"messages": [
+		"Unable to find a plist file to configure debugging"
+	],
+	"keys": [
+		"UnableToFindPlistFileToConfigureDebugging"
+	],
+	"filePath": "src/extension/applePlatformDebugModeManager"
+}

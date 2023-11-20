@@ -1,0 +1,19 @@
+{
+	"messages": [
+		"Checking Expo project environment.",
+		"There is an eas.json file already existing in your app root.",
+		"Creating EAS build config file.",
+		"Create EAS build config file successfully.",
+		"Unable to find existing EAS project. Please run 'eas init' firstly to bind your app to EAS project.",
+		"The current app is not an Expo application."
+	],
+	"keys": [
+		"CheckExpoEnvironment",
+		"FoundEASJsonFile",
+		"ConfigEASBuildInProgress",
+		"ConfigEASBuildSuccessfully",
+		"NoExistingEASProject",
+		"NotExpoApplication"
+	],
+	"filePath": "src/extension/commands/configEASBuild"
+}

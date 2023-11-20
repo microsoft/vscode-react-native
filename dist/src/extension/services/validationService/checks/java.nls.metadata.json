@@ -1,0 +1,9 @@
+{
+	"messages": [
+		"Required as part of Anrdoid SDK"
+	],
+	"keys": [
+		"JavaCheckDescription"
+	],
+	"filePath": "src/extension/services/validationService/checks/java"
+}

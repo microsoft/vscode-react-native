@@ -1,0 +1,9 @@
+{
+	"messages": [
+		"Required for watching file changes"
+	],
+	"keys": [
+		"WatchmanTestDescription"
+	],
+	"filePath": "src/extension/services/validationService/checks/watchman"
+}

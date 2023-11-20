@@ -1,0 +1,19 @@
+{
+	"messages": [
+		"React Native Packager",
+		"Stop Packager",
+		"Start Packager",
+		"Restart Packager",
+		"Starting Packager",
+		"Stopping Packager"
+	],
+	"keys": [
+		"ReactNativePackager",
+		"StopPackager",
+		"StartPackager",
+		"RestartPackager",
+		"StartingPackager",
+		"StoppingPackager"
+	],
+	"filePath": "src/extension/packagerStatusIndicator"
+}

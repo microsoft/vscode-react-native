@@ -1,0 +1,9 @@
+{
+	"messages": [
+		"Requried for building android apps"
+	],
+	"keys": [
+		"GradleTestDescription"
+	],
+	"filePath": "src/extension/services/validationService/checks/gradle"
+}

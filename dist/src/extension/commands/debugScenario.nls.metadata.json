@@ -1,0 +1,9 @@
+{
+	"messages": [
+		"Couldn't find predefined debugging configuration by name '{0}'"
+	],
+	"keys": [
+		"CouldNotFindPredefinedDebugConfig"
+	],
+	"filePath": "src/extension/commands/debugScenario"
+}

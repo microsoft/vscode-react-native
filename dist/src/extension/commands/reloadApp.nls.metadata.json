@@ -1,0 +1,9 @@
+{
+	"messages": [
+		"React Native: Reload App"
+	],
+	"keys": [
+		"ReactNativeReloadApp"
+	],
+	"filePath": "src/extension/commands/reloadApp"
+}

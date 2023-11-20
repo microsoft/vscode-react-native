@@ -1,0 +1,15 @@
+{
+	"messages": [
+		"An error occurred while trying to get installed emulators: {0}\nContinue using only online targets",
+		"Android emulator was launched from the Windows RDP session, this might lead to failures.",
+		"Launched Android emulator {0}",
+		"Could not start the emulator {0} within {1} seconds."
+	],
+	"keys": [
+		"CouldNotUseEmulators",
+		"RDPEmulatorWarning",
+		"EmulatorLaunched",
+		"EmulatorStartWarning"
+	],
+	"filePath": "src/extension/android/androidTargetManager"
+}

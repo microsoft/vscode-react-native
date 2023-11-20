@@ -1,0 +1,9 @@
+{
+	"messages": [
+		"Certificate will expire soon: {0}"
+	],
+	"keys": [
+		"NICertificateExpireSoon"
+	],
+	"filePath": "src/extension/networkInspector/certificateProvider"
+}

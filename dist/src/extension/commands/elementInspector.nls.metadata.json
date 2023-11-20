@@ -1,0 +1,13 @@
+{
+	"messages": [
+		"React Native: Run Element Inspector",
+		"Another element inspector already run",
+		"React Native: Stop Element Inspector"
+	],
+	"keys": [
+		"ReactNativeRunElementInspector",
+		"AnotherElementInspectorAlreadyRun",
+		"ReactNativeStopElementInspector"
+	],
+	"filePath": "src/extension/commands/elementInspector"
+}

@@ -1,0 +1,9 @@
+{
+	"messages": [
+		"Couldn't start child debug session"
+	],
+	"keys": [
+		"CouldNotStartChildDebugSession"
+	],
+	"filePath": "src/debugger/direct/directDebugSession"
+}

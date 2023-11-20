@@ -1,0 +1,9 @@
+{
+	"messages": [
+		"Required for installing and managing Expo applications"
+	],
+	"keys": [
+		"ExpoCliTestDescription"
+	],
+	"filePath": "src/extension/services/validationService/checks/expoCli"
+}

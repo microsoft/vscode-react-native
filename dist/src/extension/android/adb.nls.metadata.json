@@ -1,0 +1,19 @@
+{
+	"messages": [
+		"No sdk.dir value found in local.properties file. Using Android SDK location from PATH.",
+		"Using Android SDK location defined in android/local.properties file: {0}.",
+		"Local.properties file has Andriod SDK path but cannot find it in your local, will switch to SDK PATH in environment variable. Please check Android SDK path in android/local.properties file.",
+		"local.properties file doesn't exist. Using Android SDK location from PATH.",
+		"Couldn't read from {0}.",
+		"Using Android SDK location from PATH."
+	],
+	"keys": [
+		"NoSdkDirFoundInLocalPropertiesFile",
+		"UsindAndroidSDKLocationDefinedInLocalPropertiesFile",
+		"LocalPropertiesAndroidSDKPathNotExistingInLocal",
+		"LocalPropertiesFileDoesNotExist",
+		"CouldNotReadFrom",
+		"UsingAndroidSDKLocationFromPATH"
+	],
+	"filePath": "src/extension/android/adb"
+}

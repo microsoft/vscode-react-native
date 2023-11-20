@@ -1,0 +1,13 @@
+{
+	"messages": [
+		"Allows to deploy and debug an application by means of Expo cloud services",
+		"Allows to deploy and install an application via your LAN",
+		"Allows to debug an application on an emulator or an Android device without network connection"
+	],
+	"keys": [
+		"expoHostTypeTunnel",
+		"expoHostTypeLAN",
+		"expoHostTypeLocal"
+	],
+	"filePath": "src/extension/debuggingConfiguration/debugConfigTypesAndConstants"
+}

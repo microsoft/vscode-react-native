@@ -1,0 +1,9 @@
+{
+	"messages": [
+		"Couldn't stop monitoring logcat: {0}"
+	],
+	"keys": [
+		"CouldNotStopMonitoringLogcat"
+	],
+	"filePath": "src/debugger/debugSessionBase"
+}

@@ -1,0 +1,15 @@
+{
+	"messages": [
+		"Attaching to app",
+		"Cannot start child debug session",
+		"Cannot get react native cdp proxy",
+		"Expo web is not running, please check metro status and browser launching url."
+	],
+	"keys": [
+		"AttachingToApp",
+		"FailedToStartDebugSession",
+		"NoReactNativeCdpProxy",
+		"ExpoWebIsNotRunning"
+	],
+	"filePath": "src/debugger/webDebugSession"
+}

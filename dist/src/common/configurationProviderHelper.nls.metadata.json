@@ -1,0 +1,43 @@
+{
+	"messages": [
+		"Select platform",
+		"Platform to run on",
+		"Select type of React Native application",
+		"Type of React Native application",
+		"Use Hermes engine",
+		"Use Hermes engine for direct debugging?",
+		"Using Hermes engine is not confirmed",
+		"Select type of Expo host parameter",
+		"Type of Expo host parameter",
+		"Select type of browser",
+		"Type of browser",
+		"Browser target is not selected",
+		"The address of the host",
+		"Enter the address of the host",
+		"Enter a valid host name or IP address",
+		"The port of the host",
+		"Enter the port number that the debug server is listening on",
+		"Enter a valid port number"
+	],
+	"keys": [
+		"PlatformSelectionTitle",
+		"PlatformSelectionPrompt",
+		"ApplicationTypeSelectionTitle",
+		"ApplicationTypeSelectionPrompt",
+		"UseHermesEngine",
+		"UseHermesEnginePrompt",
+		"UseHermesEngineInvalid",
+		"ExpoHostTypeSelectionTitle",
+		"ExpoHostTypeSelectionPrompt",
+		"BrowserTypeSelectionTitle",
+		"BrowserTypeSelectionPrompt",
+		"NoBrowserTargetSelected",
+		"AddressInputTitle",
+		"AddressInputPrompt",
+		"AddressInputInvalid",
+		"PortInputTitle",
+		"PortInputPrompt",
+		"PortInputInvalid"
+	],
+	"filePath": "src/common/configurationProviderHelper"
+}

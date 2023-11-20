@@ -1,0 +1,13 @@
+{
+	"messages": [
+		"Checking Expo project environment.",
+		"Your app not link to EAS project. Please run 'eas init' firstly to bind your app to EAS project.",
+		"Unable to find existing EAS project. Please run 'eas init' firstly to bind your app to EAS project."
+	],
+	"keys": [
+		"CheckExpoEnvironment",
+		"ExpoProjectNotLinkToEAS",
+		"NoExistingEASProject"
+	],
+	"filePath": "src/extension/commands/openEASProject"
+}
