@@ -146,6 +146,10 @@ export const ERROR_STRINGS = {
         "FailedToOpenProjectPage",
         "Failed to open EAS project in web page",
     ),
+    [InternalErrorCode.FailedToLaunchExpoWeb]: localize(
+        "FailedToLaunchExpoWeb",
+        "Failed to launch ExpoWeb",
+    ),
     [InternalErrorCode.FailedToRevertOpenModule]: localize(
         "FailedToRevertOpenModule",
         "Failed to revert Open module",

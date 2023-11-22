@@ -134,6 +134,12 @@
         "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       },
       {
+        "command": "reactNative.launchExpoWeb",
+        "title": "%reactNative.command.launchExpoWeb.title%",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
+      },
+      {
         "command": "reactNative.runAndroidSimulator",
         "title": "%reactNative.command.runAndroidSimulator.title%",
         "category": "React Native",

@@ -26,6 +26,7 @@ export enum InternalErrorCode {
     FailedToRevertOpenModule = 121,
     FailedToOpenRNUpgradeHelper = 122,
     FailedToInstallExpoGo = 123,
+    FailedToLaunchExpoWeb = 124,
 
     // Device Deployer errors
     IOSDeployNotFound = 201,
