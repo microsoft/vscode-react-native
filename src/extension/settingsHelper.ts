@@ -8,6 +8,7 @@ import { Packager } from "../common/packager";
 import { SystemColorTheme } from "../common/editorColorThemesHelper";
 import { LogLevel } from "./log/LogHelper";
 import { PackagerStatusIndicator } from "./packagerStatusIndicator";
+import stripJsonComments = require("strip-json-comments");
 
 export class SettingsHelper {
     /**
@@ -210,7 +211,7 @@ export class SettingsHelper {
         settingsPath: string | undefined,
     ): Promise<any> {
         const workspaceSettingsContent = settingsPath
-            ? JSON.parse(fs.readFileSync(settingsPath, "utf-8"))
+            ? JSON.parse(stripJsonComments(fs.readFileSync(settingsPath, "utf-8")))
             : null;
         if (workspaceSettingsContent) {
             if (workspaceSettingsContent.settings) {
