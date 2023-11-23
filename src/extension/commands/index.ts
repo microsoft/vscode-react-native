@@ -5,6 +5,7 @@ export * from "./debugScenario";
 export * from "./elementInspector";
 export * from "./launchAndroidEmulator";
 export * from "./launchIosSimulator";
+export * from "./launchExpoWeb";
 export * from "./networkInspector";
 export * from "./publishToExpHost";
 export * from "./reloadApp";
