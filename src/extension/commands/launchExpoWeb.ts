@@ -2,15 +2,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as assert from "assert";
+import * as nls from "vscode-nls";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { PlatformType } from "../launchArgs";
 import { AppLauncher } from "../appLauncher";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
+import { ExponentPlatform } from "../exponent/exponentPlatform";
 import { getRunOptions } from "./util";
 import { Command } from "./util/command";
-import { ExponentPlatform } from "../exponent/exponentPlatform";
-import * as nls from "vscode-nls";
 
 const localize = nls.loadMessageBundle();
 const logger = OutputChannelLogger.getMainChannel();
@@ -25,7 +25,7 @@ export class launchExpoWeb extends Command {
         const expoHelper = this.project.getExponentHelper();
         logger.info(localize("CheckExpoEnvironment", "Checking Expo project environment."));
         const isExpo = await expoHelper.isExpoManagedApp(true);
-        if (isExpo == false) {
+        if (!isExpo) {
             logger.info(localize("NotAnExpoProject", "This is not an Expo project."));
             return;
         }
