@@ -31,3 +31,4 @@ async function runExpoWeb(project: AppLauncher) {
     await platform.beforeStartPackager();
     await platform.startPackager();
 }
+
