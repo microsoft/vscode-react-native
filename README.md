@@ -54,6 +54,7 @@ Using this extension, you can **debug your code and quickly run `react-native` c
   - [TypeScript and Haul based applications](#typescript-and-haul)
   - [Debugger configuration properties](#debugger-configuration-properties)
 - [Customization](#customization)
+  - [Working in vscode workspace](#working-in-vscode-workspace)
   - [Logging](#logging)
   - [Build APK and generate bundle](#build-apk-and-generate-bundle)
   - [Specifying custom arguments for `react-native run-*` command](#specifying-custom-arguments-for-react-native-run--command)
@@ -183,7 +184,7 @@ The extension allows you to debug multiple devices and configurations, please re
 
 ## Hermes engine
 
-**Note**: Now react-native [0.70.0](https://github.com/facebook/react-native/releases/tag/v0.70.0) set Hermes as default engine to instead of JSCore. Please see [official documentation](https://reactnative.dev/blog/2022/07/08/hermes-as-the-default) to get details.
+From [0.70.0](https://github.com/facebook/react-native/releases/tag/v0.70.0), react-native set Hermes as default engine. Please see [official documentation](https://reactnative.dev/blog/2022/07/08/hermes-as-the-default) to get details.
 
 The Hermes engine is an open source JavaScript engine created by Facebook to optimize building and running React Native applications. It improves app performance and decreases app size.
 
@@ -682,6 +683,24 @@ The following is a list of all the configuration properties the debugger accepts
 # Customization
 
 The extension can be further customized for other React Native scenarios. These are the most common:
+
+## Working in vscode workspace
+
+Extension supports vscode multiple root workspace for development. If you have several react-native project in workspace, extension will show project selection list when react-native packager is starting. Also you can add settings in workspace to ignore specific project in selection list.
+
+- Open vscode command palette, select `Preferences: Open Workspace Settings (JSON)` to open workspace settings file.
+- Add below settings in the file:
+
+```
+	"settings": {
+		"react-native.workspace.exclude": [
+			"ProjectFolderName1",
+			"ProjectFolderName2"
+		]
+	}
+```
+
+- Since the folder selection list is handled by vscode rather than extension, we must set exclude folder when extension is not activated. If you add exclude folder after extension activating, you must re-activate you extension or reopen your vscode.
 
 ## Logging
 

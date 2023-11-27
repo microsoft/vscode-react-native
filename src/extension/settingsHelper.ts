@@ -3,12 +3,12 @@
 import * as path from "path";
 import * as fs from "fs";
 import * as vscode from "vscode";
+import stripJsonComments = require("strip-json-comments");
 import { ConfigurationReader } from "../common/configurationReader";
 import { Packager } from "../common/packager";
 import { SystemColorTheme } from "../common/editorColorThemesHelper";
 import { LogLevel } from "./log/LogHelper";
 import { PackagerStatusIndicator } from "./packagerStatusIndicator";
-import stripJsonComments = require("strip-json-comments");
 
 export class SettingsHelper {
     /**
