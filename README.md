@@ -54,7 +54,7 @@ Using this extension, you can **debug your code and quickly run `react-native` c
   - [TypeScript and Haul based applications](#typescript-and-haul)
   - [Debugger configuration properties](#debugger-configuration-properties)
 - [Customization](#customization)
-  - [Working in vscode workspace](#working-in-vscode-workspace)
+  - [Debug in vscode workspace](#debug-in-vscode-workspace)
   - [Logging](#logging)
   - [Build APK and generate bundle](#build-apk-and-generate-bundle)
   - [Specifying custom arguments for `react-native run-*` command](#specifying-custom-arguments-for-react-native-run--command)
@@ -684,7 +684,7 @@ The following is a list of all the configuration properties the debugger accepts
 
 The extension can be further customized for other React Native scenarios. These are the most common:
 
-## Working in vscode workspace
+## Debug in vscode workspace
 
 Extension supports vscode multiple root workspace for development. If you have several react-native project in workspace, extension will show project selection list when react-native packager is starting. Also you can add settings in workspace to ignore specific project in selection list.
 
