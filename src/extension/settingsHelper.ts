@@ -210,9 +210,14 @@ export class SettingsHelper {
     public static async getWorkspaceFileExcludeFolder(
         settingsPath: string | undefined,
     ): Promise<any> {
-        const workspaceSettingsContent = settingsPath
-            ? JSON.parse(stripJsonComments(fs.readFileSync(settingsPath, "utf-8")))
-            : null;
+        // Handle non-workspace project and untitled workspace
+        if (!settingsPath || !fs.existsSync(settingsPath)) {
+            return [];
+        }
+        // Get workspace settings
+        const workspaceSettingsContent = JSON.parse(
+            stripJsonComments(fs.readFileSync(settingsPath, "utf-8")),
+        );
         if (workspaceSettingsContent) {
             if (workspaceSettingsContent.settings) {
                 const exclude = workspaceSettingsContent.settings["react-native.workspace.exclude"];
