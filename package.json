@@ -1407,7 +1407,7 @@
     "@types/ws": "0.0.39",
     "@typescript-eslint/eslint-plugin": "4.15.0",
     "@typescript-eslint/parser": "4.15.0",
-    "@vscode/test-electron": "^2.2.2",
+    "@vscode/test-electron": "^2.3.8",
     "@vscode/vsce": "^2.19.0",
     "ansi-colors": "3.2.4",
     "copy-webpack-plugin": "6.0.2",
