@@ -1,0 +1,75 @@
+2023.12.19 11:35:13 INFO  Started: Metals version 1.2.0+12-644090c2-SNAPSHOT in folders '/workspaces/vscode-react-native' for client Visual Studio Code - Insiders 1.86.0-insider.
+2023.12.19 11:35:14 WARN  Build server is not auto-connectable.
+2023.12.19 11:35:14 WARN  no build tool detected in workspace '/workspaces/vscode-react-native'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
+2023.12.19 11:35:29 INFO  Attempting to connect to the build server...
+2023.12.19 11:35:29 INFO  No build server found
+2023.12.19 11:35:29 INFO  time: Connected to build server in 10ms
+2023.12.19 11:35:35 INFO  Attempting to connect to the build server...
+2023.12.19 11:35:35 INFO  No build server found
+2023.12.19 11:35:35 INFO  time: Connected to build server in 7ms
+2023.12.19 11:36:15 WARN  no build tool detected in workspace '/workspaces/vscode-react-native'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
+2023.12.19 11:36:44 WARN  Build server is not auto-connectable.
+2023.12.19 11:37:09 ERROR open browser: https://github.com/scalacenter/bloop
+java.io.IOException: Cannot run program "xdg-open": error=2, No such file or directory
+	at java.lang.ProcessBuilder.start(ProcessBuilder.java:1170)
+	at java.lang.ProcessBuilder.start(ProcessBuilder.java:1089)
+	at scala.sys.process.ProcessBuilderImpl$Simple.run(ProcessBuilderImpl.scala:85)
+	at scala.sys.process.ProcessBuilderImpl$AbstractBuilder.$bang(ProcessBuilderImpl.scala:145)
+	at scala.sys.process.ProcessBuilderImpl$AbstractBuilder.slurp(ProcessBuilderImpl.scala:161)
+	at scala.sys.process.ProcessBuilderImpl$AbstractBuilder.$bang$bang(ProcessBuilderImpl.scala:121)
+	at scala.meta.internal.metals.Urls$.openBrowser(Urls.scala:33)
+	at scala.meta.internal.metals.WorkspaceLspService.executeCommand(WorkspaceLspService.scala:779)
+	at scala.meta.metals.lsp.DelegatingScalaService.executeCommand(DelegatingScalaService.scala:169)
+	at jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.lang.reflect.Method.invoke(Method.java:580)
+	at org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint.lambda$null$0(GenericEndpoint.java:65)
+	at org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint.request(GenericEndpoint.java:120)
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.handleRequest(RemoteEndpoint.java:261)
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.consume(RemoteEndpoint.java:190)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.handleMessage(StreamMessageProducer.java:194)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:94)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.lang.Thread.run(Thread.java:1583)
+Caused by: java.io.IOException: error=2, No such file or directory
+	at java.lang.ProcessImpl.forkAndExec(Native Method)
+	at java.lang.ProcessImpl.<init>(ProcessImpl.java:295)
+	at java.lang.ProcessImpl.start(ProcessImpl.java:225)
+	at java.lang.ProcessBuilder.start(ProcessBuilder.java:1126)
+	at java.lang.ProcessBuilder.start(ProcessBuilder.java:1089)
+	at scala.sys.process.ProcessBuilderImpl$Simple.run(ProcessBuilderImpl.scala:85)
+	at scala.sys.process.ProcessBuilderImpl$AbstractBuilder.$bang(ProcessBuilderImpl.scala:145)
+	at scala.sys.process.ProcessBuilderImpl$AbstractBuilder.slurp(ProcessBuilderImpl.scala:161)
+	at scala.sys.process.ProcessBuilderImpl$AbstractBuilder.$bang$bang(ProcessBuilderImpl.scala:121)
+	at scala.meta.internal.metals.Urls$.openBrowser(Urls.scala:33)
+	at scala.meta.internal.metals.WorkspaceLspService.executeCommand(WorkspaceLspService.scala:779)
+	at scala.meta.metals.lsp.DelegatingScalaService.executeCommand(DelegatingScalaService.scala:169)
+	at jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.lang.reflect.Method.invoke(Method.java:580)
+	at org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint.lambda$null$0(GenericEndpoint.java:65)
+	at org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint.request(GenericEndpoint.java:120)
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.handleRequest(RemoteEndpoint.java:261)
+	at org.eclipse.lsp4j.jsonrpc.RemoteEndpoint.consume(RemoteEndpoint.java:190)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.handleMessage(StreamMessageProducer.java:194)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:94)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.lang.Thread.run(Thread.java:1583)
+
+2023.12.19 11:37:15 INFO  Attempting to connect to the build server...
+2023.12.19 11:37:15 INFO  No build server found
+2023.12.19 11:37:15 INFO  time: Connected to build server in 6ms
+2023.12.19 11:37:21 INFO  Attempting to connect to the build server...
+2023.12.19 11:37:21 INFO  No build server found
+2023.12.19 11:37:21 INFO  time: Connected to build server in 4ms
+2023.12.19 11:39:25 ERROR 2023-12-19 11:39:25 WARN  FS:606 - locking FileBasedConfig[/home/codespace/.config/jgit/config] failed after 5 retries
+2023.12.19 11:39:28 INFO  
+2023.12.19 11:39:28 INFO  Template applied in /workspaces/./zio-project-seed
+2023.12.19 11:39:28 INFO  
+2023.12.19 11:39:28 INFO  time: ran 'giter8.Giter8' in 10s

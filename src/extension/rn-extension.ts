@@ -47,6 +47,7 @@ import { TipNotificationService } from "./services/tipsNotificationsService/tips
 import { SurveyService } from "./services/surveyService/surveyService";
 import { RNProjectObserver } from "./rnProjectObserver";
 import { StopElementInspector, StopPackager } from "./commands";
+import { Z_FIXED } from "zlib";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -360,7 +361,7 @@ function onFolderRemoved(folder: vscode.WorkspaceFolder): void {
         // Preventing memory leaks
         EXTENSION_CONTEXT.subscriptions.forEach((element: any, index: number) => {
             if (element.isDisposed) {
-                EXTENSION_CONTEXT.subscriptions.splice(index, 1); // Array.prototype.filter doesn't work, "context.subscriptions" is read only
+                EXTENSION_CONTEXT.subscriptions.splice(index, 1);force Z_FIXED
             }
         });
     } catch (err) {

@@ -1,138 +1,200 @@
 {
-    "version": "0.2.0",
-    "configurations": [
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceRoot}"
+      ],
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceRoot}/src/**/*.js"
+      ],
+      "preLaunchTask": "gulp: build"
+    },
+    {
+      "name": "Quick Launch Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceRoot}"
+      ],
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceRoot}/src/**/*.js"
+      ]
+    },
+    {
+      "name": "Launch Extension tests",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceRoot}",
+        "--extensionTestsPath=${workspaceRoot}/test"
+      ],
+      "stopOnEntry": false,
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceRoot}/src/**/*.js"
+      ],
+      "preLaunchTask": "gulp: build"
+    },
+    {
+      "name": "Launch Localization Tests",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--locale=zh-cn",
+        "--extensionDevelopmentPath=${workspaceRoot}",
+        "--extensionTestsPath=${workspaceRoot}/test/localization"
+      ],
+      "stopOnEntry": false,
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceRoot}/src/**/*.js"
+      ],
+      "preLaunchTask": "gulp: build"
+    },
+    {
+      "name": "Launch All Smoke Tests",
+      "type": "node",
+      "request": "launch",
+      "protocol": "inspector",
+      "program": "${workspaceFolder}/test/smoke/vscode/test/smoke/node_modules/mocha/bin/_mocha",
+      "cwd": "${workspaceFolder}/test/smoke/vscode/test/smoke",
+      "args": [
+        "--dont-delete-vsix"
+      ],
+      "timeout": 240000,
+      "stopOnEntry": false,
+      "outFiles": [
+        "${workspaceRoot}/src/**/*.js"
+      ],
+      "sourceMaps": true,
+      "preLaunchTask": "Prepare Smoke Tests"
+    },
+    {
+      "name": "Launch Android Smoke Tests",
+      "type": "node",
+      "request": "launch",
+      "protocol": "inspector",
+      "program": "${workspaceFolder}/test/smoke/vscode/test/smoke/node_modules/mocha/bin/_mocha",
+      "cwd": "${workspaceFolder}/test/smoke/vscode/test/smoke",
+      "args": [
+        "--dont-delete-vsix",
+        "--android"
+      ],
+      "timeout": 240000,
+      "stopOnEntry": false,
+      "outFiles": [
+        "${workspaceRoot}/src/**/*.js"
+      ],
+      "sourceMaps": true,
+      "preLaunchTask": "Prepare Smoke Tests"
+    },
+    {
+      "name": "Launch iOS Smoke Tests",
+      "type": "node",
+      "request": "launch",
+      "protocol": "inspector",
+      "program": "${workspaceFolder}/test/smoke/vscode/test/smoke/node_modules/mocha/bin/_mocha",
+      "cwd": "${workspaceFolder}/test/smoke/vscode/test/smoke",
+      "args": [
+        "--dont-delete-vsix",
+        "--ios"
+      ],
+      "timeout": 240000,
+      "stopOnEntry": false,
+      "outFiles": [
+        "${workspaceRoot}/src/**/*.js"
+      ],
+      "sourceMaps": true,
+      "preLaunchTask": "Prepare Smoke Tests"
+    },
+    {
+      "name": "Launch All Smoke Tests (skip setup)",
+      "type": "node",
+      "request": "launch",
+      "protocol": "inspector",
+      "program": "${workspaceFolder}/test/smoke/vscode/test/smoke/node_modules/mocha/bin/_mocha",
+      "cwd": "${workspaceFolder}/test/smoke/vscode/test/smoke",
+      "args": [
+        "--dont-delete-vsix",
+        "--skip-setup"
+      ],
+      "timeout": 240000,
+      "stopOnEntry": false,
+      "outFiles": [
+        "${workspaceRoot}/src/**/*.js"
+      ],
+      "sourceMaps": true,
+      "preLaunchTask": "Build Smoke Tests"
+    },
+    {
+      "name": "Launch Android Smoke Tests (skip setup)",
+      "type": "node",
+      "request": "launch",
+      "protocol": "inspector",
+      "program": "${workspaceFolder}/test/smoke/vscode/test/smoke/node_modules/mocha/bin/_mocha",
+      "cwd": "${workspaceFolder}/test/smoke/vscode/test/smoke",
+      "args": [
+        "--dont-delete-vsix",
+        "--skip-setup",
+        "--android"
+      ],
+      "timeout": 240000,
+      "stopOnEntry": false,
+      "outFiles": [
+        "${workspaceRoot}/src/**/*.js"
+      ],
+      "sourceMaps": true,
+      "preLaunchTask": "Build Smoke Tests"
+    },
+    {
+      "name": "Launch iOS Smoke Tests (skip setup)",
+      "type": "node",
+      "request": "launch",
+      "protocol": "inspector",
+      "program": "${workspaceFolder}/test/smoke/vscode/test/smoke/node_modules/mocha/bin/_mocha",
+      "cwd": "${workspaceFolder}/test/smoke/vscode/test/smoke",
+      "args": [
+        "--dont-delete-vsix",
+        "--skip-setup",
+        "--ios"
+      ],
+      "timeout": 240000,
+      "stopOnEntry": false,
+      "outFiles": [
+        "${workspaceRoot}/src/**/*.js"
+      ],
+      "sourceMaps": true,
+      "preLaunchTask": "Build Smoke Tests"
+    },
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "cppdbg",
+      "request": "launch",
+      "args": [],
+      "stopAtEntry": false,
+      "externalConsole": false,
+      "cwd": "/workspaces/vscode-react-native/gulp_scripts",
+      "program": "/workspaces/vscode-react-native/gulp_scripts/build/Debug/outDebug",
+      "MIMode": "gdb",
+      "miDebuggerPath": "gdb",
+      "setupCommands": [
         {
-            "name": "Launch Extension",
-            "type": "extensionHost",
-            "request": "launch",
-            "runtimeExecutable": "${execPath}",
-            "args": ["--extensionDevelopmentPath=${workspaceRoot}"],
-            "sourceMaps": true,
-            "outFiles": ["${workspaceRoot}/src/**/*.js"],
-            "preLaunchTask": "gulp: build"
-        },
-        {
-            "name": "Quick Launch Extension",
-            "type": "extensionHost",
-            "request": "launch",
-            "runtimeExecutable": "${execPath}",
-            "args": ["--extensionDevelopmentPath=${workspaceRoot}"],
-            "sourceMaps": true,
-            "outFiles": ["${workspaceRoot}/src/**/*.js"]
-        },
-        {
-            "name": "Launch Extension tests",
-            "type": "extensionHost",
-            "request": "launch",
-            "runtimeExecutable": "${execPath}",
-            "args": [
-                "--extensionDevelopmentPath=${workspaceRoot}",
-                "--extensionTestsPath=${workspaceRoot}/test"
-            ],
-            "stopOnEntry": false,
-            "sourceMaps": true,
-            "outFiles": ["${workspaceRoot}/src/**/*.js"],
-            "preLaunchTask": "gulp: build"
-        },
-        {
-            "name": "Launch Localization Tests",
-            "type": "extensionHost",
-            "request": "launch",
-            "runtimeExecutable": "${execPath}",
-            "args": [
-                "--locale=zh-cn",
-                "--extensionDevelopmentPath=${workspaceRoot}",
-                "--extensionTestsPath=${workspaceRoot}/test/localization"
-            ],
-            "stopOnEntry": false,
-            "sourceMaps": true,
-            "outFiles": ["${workspaceRoot}/src/**/*.js"],
-            "preLaunchTask": "gulp: build"
-        },
-        {
-            "name": "Launch All Smoke Tests",
-            "type": "node",
-            "request": "launch",
-            "protocol": "inspector",
-            "program": "${workspaceFolder}/test/smoke/vscode/test/smoke/node_modules/mocha/bin/_mocha",
-            "cwd": "${workspaceFolder}/test/smoke/vscode/test/smoke",
-            "args": ["--dont-delete-vsix"],
-            "timeout": 240000,
-            "stopOnEntry": false,
-            "outFiles": ["${workspaceRoot}/src/**/*.js"],
-            "sourceMaps": true,
-            "preLaunchTask": "Prepare Smoke Tests"
-        },
-        {
-            "name": "Launch Android Smoke Tests",
-            "type": "node",
-            "request": "launch",
-            "protocol": "inspector",
-            "program": "${workspaceFolder}/test/smoke/vscode/test/smoke/node_modules/mocha/bin/_mocha",
-            "cwd": "${workspaceFolder}/test/smoke/vscode/test/smoke",
-            "args": ["--dont-delete-vsix", "--android"],
-            "timeout": 240000,
-            "stopOnEntry": false,
-            "outFiles": ["${workspaceRoot}/src/**/*.js"],
-            "sourceMaps": true,
-            "preLaunchTask": "Prepare Smoke Tests"
-        },
-        {
-            "name": "Launch iOS Smoke Tests",
-            "type": "node",
-            "request": "launch",
-            "protocol": "inspector",
-            "program": "${workspaceFolder}/test/smoke/vscode/test/smoke/node_modules/mocha/bin/_mocha",
-            "cwd": "${workspaceFolder}/test/smoke/vscode/test/smoke",
-            "args": ["--dont-delete-vsix", "--ios"],
-            "timeout": 240000,
-            "stopOnEntry": false,
-            "outFiles": ["${workspaceRoot}/src/**/*.js"],
-            "sourceMaps": true,
-            "preLaunchTask": "Prepare Smoke Tests"
-        },
-        {
-            "name": "Launch All Smoke Tests (skip setup)",
-            "type": "node",
-            "request": "launch",
-            "protocol": "inspector",
-            "program": "${workspaceFolder}/test/smoke/vscode/test/smoke/node_modules/mocha/bin/_mocha",
-            "cwd": "${workspaceFolder}/test/smoke/vscode/test/smoke",
-            "args": ["--dont-delete-vsix", "--skip-setup"],
-            "timeout": 240000,
-            "stopOnEntry": false,
-            "outFiles": ["${workspaceRoot}/src/**/*.js"],
-            "sourceMaps": true,
-            "preLaunchTask": "Build Smoke Tests"
-        },
-        {
-            "name": "Launch Android Smoke Tests (skip setup)",
-            "type": "node",
-            "request": "launch",
-            "protocol": "inspector",
-            "program": "${workspaceFolder}/test/smoke/vscode/test/smoke/node_modules/mocha/bin/_mocha",
-            "cwd": "${workspaceFolder}/test/smoke/vscode/test/smoke",
-            "args": ["--dont-delete-vsix", "--skip-setup", "--android"],
-            "timeout": 240000,
-            "stopOnEntry": false,
-            "outFiles": ["${workspaceRoot}/src/**/*.js"],
-            "sourceMaps": true,
-            "preLaunchTask": "Build Smoke Tests"
-        },
-        {
-            "name": "Launch iOS Smoke Tests (skip setup)",
-            "type": "node",
-            "request": "launch",
-            "protocol": "inspector",
-            "program": "${workspaceFolder}/test/smoke/vscode/test/smoke/node_modules/mocha/bin/_mocha",
-            "cwd": "${workspaceFolder}/test/smoke/vscode/test/smoke",
-            "args": ["--dont-delete-vsix", "--skip-setup", "--ios"],
-            "timeout": 240000,
-            "stopOnEntry": false,
-            "outFiles": ["${workspaceRoot}/src/**/*.js"],
-            "sourceMaps": true,
-            "preLaunchTask": "Build Smoke Tests"
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
         }
-    ],
-    "compounds": []
+      ]
+    }
+  ],
+  "compounds": []
 }
