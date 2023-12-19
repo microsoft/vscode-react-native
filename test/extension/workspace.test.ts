@@ -17,7 +17,7 @@ suite("workspace", function () {
                 "..",
                 "resources",
                 "workspaceSettingsSample",
-                "noExcludeSetting.json",
+                "noExcludeSetting.code-workspace",
             );
             const exclude2 = await SettingsHelper.getWorkspaceFileExcludeFolder(
                 noExcludeWorkspacePath,
@@ -29,13 +29,26 @@ suite("workspace", function () {
                 "..",
                 "resources",
                 "workspaceSettingsSample",
-                "excludeSetting.json",
+                "excludeSetting.code-workspace",
             );
             const exclude3 = await SettingsHelper.getWorkspaceFileExcludeFolder(
                 excludeWorkspacePath,
             );
             assert.strictEqual(exclude3.length, 1);
             assert.strictEqual(exclude3[0], "testProject2");
+        });
+
+        test("Should read content with comment line correctly from workspace settings file", async function () {
+            const commentSettingPath = path.resolve(
+                __dirname,
+                "..",
+                "resources",
+                "workspaceSettingsSample",
+                "settingWithComment.code-workspace",
+            );
+            const exclude = await SettingsHelper.getWorkspaceFileExcludeFolder(commentSettingPath);
+            assert.strictEqual(exclude.length, 1);
+            assert.strictEqual(exclude[0], "testProject2");
         });
     });
 });
