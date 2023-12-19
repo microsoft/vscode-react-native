@@ -1352,6 +1352,7 @@
   },
   "dependencies": {
     "@vscode/debugadapter": "^1.63.0",
+    "audit": "^0.0.6",
     "command-exists": "1.2.9",
     "configstore": "5.0.1",
     "extract-opts": "2.2.0",
