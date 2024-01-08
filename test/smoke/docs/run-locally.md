@@ -5,7 +5,7 @@ Please, be aware that automated tests don't cover debugging cases on real device
 
 ## Prerequisites
 
-Make sure you are on [Node.js >= 14.x](https://nodejs.org/en/download/). Install Node.js on **Windows** and **MacOS** from Node.js org, and suggest to install on **Linux** by [NVM](https://github.com/nvm-sh/nvm) that is more compatible.
+Make sure you are on [Node.js >= 18.x](https://nodejs.org/en/download/). Install Node.js on **Windows** and **MacOS** from Node.js org, and suggest to install on **Linux** by [NVM](https://github.com/nvm-sh/nvm) that is more compatible.
 
 Tests are running using [VS Code automation package](https://github.com/microsoft/vscode/tree/main/test/automation), so before the tests runs the VS Code build tools are required to be installed. Please make sure that [instructions for building VS Code from sources](https://github.com/microsoft/vscode/wiki/How-to-Contribute#prerequisites) are completed before running the tests.
 
@@ -17,18 +17,18 @@ Tests are running using [VS Code automation package](https://github.com/microsof
 
 ## Set up Android SDK environment
 
-1. Install `Java Development Kit 11`, `Android Studio` and `Git`
+1. Install `Java Development Kit 17`, `Android Studio` and `Git`
 
    * **Windows**:
     ```ps1
-    choco install jdk11 -y
+    choco install jdk17 -y
     choco install androidstudio -y
     choco install git -y
     ```
    * **Mac**:
     ```bash
     brew tap homebrew/cask-versions
-    brew install --cask  adoptopenjdk/openjdk/adoptopenjdk11
+    brew install --cask  adoptopenjdk/openjdk/adoptopenjdk17
     brew install --cask  android-studio
     brew install git
     brew install watchman
@@ -36,7 +36,7 @@ Tests are running using [VS Code automation package](https://github.com/microsof
    * **Ubuntu**:
     ```bash
     apt update
-    sudo apt install openjdk-11-jdk
+    sudo apt install openjdk-17-jdk
     sudo snap install android-studio --classic
     sudo apt install git
     sudo apt install xvfb
