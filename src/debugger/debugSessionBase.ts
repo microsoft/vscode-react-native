@@ -126,6 +126,27 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         response.body.supportTerminateDebuggee = true;
         response.body.supportsCancelRequest = true;
 
+        response.body.exceptionBreakpointFilters = [
+            {
+                filter: "all",
+                label: "Caught Exceptions",
+                default: false,
+                supportsCondition: true,
+                description: "Breaks on all throw errors, even if they're caught later.",
+                // eslint-disable-next-line @typescript-eslint/quotes
+                conditionDescription: 'error.name == "MyError"',
+            },
+            {
+                filter: "uncaught",
+                label: "Uncaught Exceptions",
+                default: false,
+                supportsCondition: true,
+                description: "Breaks only on errors or promise rejections that are not handled.",
+                // eslint-disable-next-line @typescript-eslint/quotes
+                conditionDescription: 'error.name == "MyError"',
+            },
+        ];
+
         this.sendResponse(response);
     }
 
