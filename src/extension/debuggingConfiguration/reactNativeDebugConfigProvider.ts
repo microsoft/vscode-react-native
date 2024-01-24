@@ -232,7 +232,6 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
                         state.config.type,
                         state.config.platform,
                         state.config.useHermesEngine !== false,
-                        true,
                     );
                 }
             } else {

@@ -342,7 +342,7 @@
       },
       {
         "command": "reactNative.debugScenario.debugInHermesExponentExperimental",
-        "title": "Debug in Hermes Exponent - Experimental",
+        "title": "Debug in Hermes Exponent",
         "category": "React Native",
         "enablement": "!config.security.workspace.trust.enabled && !inDebugMode || isWorkspaceTrusted && !inDebugMode",
         "icon": "$(debug-alt)"
