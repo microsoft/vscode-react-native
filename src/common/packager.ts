@@ -271,7 +271,7 @@ export class Packager {
 
         if (await this.stopWithlowNode()) {
             await this.stop();
-            throw Error(
+            throw new Error(
                 `React Native needs Node.js >= 18. You're currently on version ${await getNodeVersion()}. Please upgrade Node.js to a supported version and try again.`,
             );
         }
