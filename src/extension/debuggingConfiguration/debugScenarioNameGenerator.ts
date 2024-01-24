@@ -40,7 +40,7 @@ export class DebugScenarioNameGenerator {
             );
         }
 
-        if (platformType === PlatformType.ExpoWeb) {
+        if (platformType === PlatformType.ExpoWeb || !useHermesEngine) {
             isExperimental = true;
         }
 
