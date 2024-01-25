@@ -25,7 +25,6 @@ import { TipNotificationService } from "../../extension/services/tipsNotificatio
 import { RNSession } from "../debugSessionWrapper";
 import { SettingsHelper } from "../../extension/settingsHelper";
 import { ReactNativeProjectHelper } from "../../common/reactNativeProjectHelper";
-import { ExponentHelper } from "../../extension/exponent/exponentHelper";
 import { IWDPHelper } from "./IWDPHelper";
 
 nls.config({
@@ -144,13 +143,6 @@ export class DirectDebugSession extends DebugSessionBase {
         this.previousAttachArgs = attachArgs;
 
         try {
-            if (attachArgs.request === "attach") {
-                const expoHelper = new ExponentHelper(attachArgs.cwd, attachArgs.cwd);
-                const isExpo = await expoHelper.isExpoManagedApp(true);
-                if (!isExpo) {
-                    await ReactNativeProjectHelper.verifyMetroConfigFile(attachArgs.cwd);
-                }
-            }
             await this.initializeSettings(attachArgs);
 
             const packager = this.appLauncher.getPackager();
