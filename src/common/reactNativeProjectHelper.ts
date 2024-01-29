@@ -3,6 +3,7 @@
 
 import * as fs from "fs";
 import * as path from "path";
+import * as semver from "semver";
 import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
 import { ProjectVersionHelper } from "./projectVersionHelper";
 import { FileSystem } from "./node/fileSystem";
@@ -130,15 +131,11 @@ export class ReactNativeProjectHelper {
         const metroConfigPath = path.join(projectRoot, "metro.config.js");
         const content = fs.readFileSync(metroConfigPath, "utf-8");
         const isNewMetroConfig = content.includes("getDefaultConfig");
-        if (parseInt(version.reactNativeVersion.substring(2, 4)) <= 72 && !isNewMetroConfig) {
+
+        if (semver.gte(version.reactNativeVersion, "0.73.0") && !isNewMetroConfig) {
             logger.warning(
-                'The version of "metro.config.js" in current project will be deprecated from rn 0.73, please update your "metro.config.js" file according to template: https://github.com/facebook/react-native/blob/main/packages/react-native/template/metro.config.js',
+                'The version of "metro.config.js" in current project is deprecated, it may cause project build failure. Please update your "metro.config.js" file according to template: https://github.com/facebook/react-native/blob/main/packages/react-native/template/metro.config.js',
             );
-        } else if (parseInt(version.reactNativeVersion.substring(2, 4)) > 72 && !isNewMetroConfig) {
-            // As official mentioned, the new version of metro config will be required from 0.73, will enable this once the old version of config is totally disabled.
-            // throw new Error(
-            //     'The version of "metro.config.js" in current project is deprecated, please update your "metro.config.js" file according to template: https://github.com/facebook/react-native/blob/main/packages/react-native/template/metro.config.js',
-            // );
         }
     }
 }

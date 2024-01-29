@@ -13,7 +13,6 @@ import { RnCDPMessageHandler } from "../cdp-proxy/CDPMessageHandlers/rnCDPMessag
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { ReactNativeProjectHelper } from "../common/reactNativeProjectHelper";
-import { ExponentHelper } from "../extension/exponent/exponentHelper";
 import { MultipleLifetimesAppWorker } from "./appWorker";
 import {
     DebugSessionBase,
@@ -103,13 +102,6 @@ export class RNDebugSession extends DebugSessionBase {
 
         return new Promise<void>(async (resolve, reject) => {
             try {
-                if (attachArgs.request === "attach") {
-                    const expoHelper = new ExponentHelper(attachArgs.cwd, attachArgs.cwd);
-                    const isExpo = await expoHelper.isExpoManagedApp(true);
-                    if (!isExpo) {
-                        await ReactNativeProjectHelper.verifyMetroConfigFile(attachArgs.cwd);
-                    }
-                }
                 await this.initializeSettings(attachArgs);
                 logger.log("Attaching to the application");
                 logger.verbose(
