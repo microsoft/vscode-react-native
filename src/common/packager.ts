@@ -26,6 +26,7 @@ import { findFileInFolderHierarchy } from "./extensionHelper";
 import { FileSystem } from "./node/fileSystem";
 import { PromiseUtil } from "./node/promise";
 import { CONTEXT_VARIABLES_NAMES } from "./contextVariablesNames";
+import { getNodeVersion } from "./nodeHelper";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -57,6 +58,8 @@ export class Packager {
         old: "opn-main.js",
     };
     private static RN_VERSION_WITH_OPEN_PKG = "0.60.0";
+    private static NODE_AVAIABLE = "18.0.0";
+    private static RN_VERSION_WITH_PACKER_ISSUE = "0.73.0";
     private static JS_INJECTOR_DIRPATH =
         findFileInFolderHierarchy(__dirname, "js-patched") || __dirname;
     private static NODE_MODULES_FODLER_NAME = "node_modules";
@@ -126,6 +129,16 @@ export class Packager {
 
     public getProjectPath(): string {
         return this.projectPath;
+    }
+
+    private async stopWithlowNode() {
+        const versionInfo = await ProjectVersionHelper.getReactNativeVersions(this.projectPath);
+        const isNodeSupported = semver.gte(await getNodeVersion(), Packager.NODE_AVAIABLE);
+        const isRNWithPackerIssue = semver.gte(
+            versionInfo.reactNativeVersion,
+            Packager.RN_VERSION_WITH_PACKER_ISSUE,
+        );
+        return isRNWithPackerIssue && !isNodeSupported;
     }
 
     public async getPackagerArgs(
@@ -256,6 +269,12 @@ export class Packager {
             packagerSpawnResult.outcome.catch(() => {}); // We ignore all outcome errors
         }
 
+        if (await this.stopWithlowNode()) {
+            await this.stop();
+            throw new Error(
+                `React Native needs Node.js >= 18. You're currently on version ${await getNodeVersion()}. Please upgrade Node.js to a supported version and try again.`,
+            );
+        }
         await this.awaitStart();
         if (executedStartPackagerCmd) {
             this.logger.info(localize("PackagerStarted", "Packager started."));
