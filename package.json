@@ -1308,6 +1308,12 @@
           "type": "boolean",
           "scope": "resource",
           "default": true
+        },
+        "telemetry.optIn":  {
+          "description": "Whether to send usage data to Microsoft",
+          "type": ["string", "boolean"],
+          "scope": "resource",
+          "default": ""
         }
       }
     }
