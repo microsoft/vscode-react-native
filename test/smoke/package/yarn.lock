@@ -7299,15 +7299,6 @@ playwright-core@1.41.1:
   resolved "https://registry.npmjs.org/playwright-core/-/playwright-core-1.41.1.tgz"
   integrity sha512-/KPO5DzXSMlxSX77wy+HihKGOunh3hqndhqeo/nMxfigiKzogn8kfL0ZBDu0L1RKgan5XHCPmn6zXd2NUJgjhg==
 
-playwright@^1.41.1:
-  version "1.41.1"
-  resolved "https://registry.npmjs.org/playwright/-/playwright-1.41.1.tgz"
-  integrity sha512-gdZAWG97oUnbBdRL3GuBvX3nDDmUOuqzV/D24dytqlKt+eI5KbwusluZRGljx1YoJKZ2NRPaeWiFTeGZO7SosQ==
-  dependencies:
-    playwright-core "1.41.1"
-  optionalDependencies:
-    fsevents "2.3.2"
-
 plist@^3.0.5:
   version "3.1.0"
   resolved "https://registry.npmjs.org/plist/-/plist-3.1.0.tgz"
