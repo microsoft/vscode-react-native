@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { Application } from "../../automation";
+import { Application } from "../../automation/src";
 import * as assert from "assert";
 import * as cp from "child_process";
 import { SmokeTestsConstants } from "./helpers/smokeTestsConstants";
