@@ -115,7 +115,7 @@ cpx2@3.0.0:
     minimatch "^3.0.4"
     resolve "^1.12.0"
     safe-buffer "^5.2.0"
-    shell-quote "^1.7.3"
+    shell-quote "^1.7.1"
     subarg "^1.0.0"
 
 cross-spawn@^6.0.5:
@@ -443,7 +443,7 @@ npm-run-all@^4.1.5:
     minimatch "^3.0.4"
     pidtree "^0.3.0"
     read-pkg "^3.0.0"
-    shell-quote "^1.7.3"
+    shell-quote "^1.6.1"
     string.prototype.padend "^3.0.0"
 
 object-inspect@^1.8.0:
@@ -567,10 +567,10 @@ shebang-regex@^1.0.0:
   resolved "https://registry.yarnpkg.com/shebang-regex/-/shebang-regex-1.0.0.tgz#da42f49740c0b42db2ca9728571cb190c98efea3"
   integrity sha1-2kL0l0DAtC2yypcoVxyxkMmO/qM=
 
-shell-quote@^1.7.1:
-  version "1.7.3"
-  resolved "https://registry.yarnpkg.com/shell-quote/-/shell-quote-1.7.3.tgz#aa40edac170445b9a431e17bb62c0b881b9c4123"
-  integrity sha512-Vpfqwm4EnqGdlsBFNmHhxhElJYrdfcxPThu+ryKS5J8L/fhAwLazFZtq+S+TWZ9ANj2piSQLGj6NQg+lKPmxrw==
+shell-quote@^1.7.3:
+  version "1.8.1"
+  resolved "https://registry.yarnpkg.com/shell-quote/-/shell-quote-1.8.1.tgz#6dbf4db75515ad5bac63b4f1894c3a154c766680"
+  integrity sha512-6j1W9l1iAs/4xYBI1SYOVZyFcCis9b4KCLQ8fgAGG07QvzaRLVVRQvAy85yNmmZSjYjg4MWh4gNvlPujU/5LpA==
 
 spdx-correct@^3.0.0:
   version "3.1.1"
