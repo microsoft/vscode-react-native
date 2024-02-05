@@ -222,7 +222,7 @@ export function setPollRetryParameters(retryCount: number = 2000, retryInterval:
 
 async function poll<T>(
     fn: () => Thenable<T>,
-    acceptFn: (result: T) => boolean,
+    acceptFn: (result: any) => boolean,
     timeoutMessage: string,
     retryCount: number = pollRetryCount,
     retryInterval: number = pollRetryInterval // millis
@@ -324,7 +324,7 @@ export class Code {
 		accept = accept || (result => textContent !== undefined ? textContent === result : !!result);
 
 		return await poll(
-			() => this.driver.getElements(windowId, selector).then(els => els.length > 0 ? Promise.resolve(els[0].textContent) : Promise.reject(new Error("Element not found for textContent"))),
+			() => this.driver.getElements(windowId, selector).then((els: string | any[]) => els.length > 0 ? Promise.resolve(els[0].textContent) : Promise.reject(new Error("Element not found for textContent"))),
 			s => accept!(typeof s === "string" ? s : ""),
 			`get text content '${selector}'`,
 			retryCount
@@ -353,7 +353,7 @@ export class Code {
 
 	async waitForElement(selector: string, accept: (result: IElement | undefined) => boolean = result => !!result, retryCount?: number): Promise<IElement> {
 		const windowId = await this.getActiveWindowId();
-		return await poll<IElement>(() => this.driver.getElements(windowId, selector).then(els => els[0]), accept, `get element '${selector}'`, retryCount);
+		return await poll<IElement>(() => this.driver.getElements(windowId, selector).then((els: any[]) => els[0]), accept, `get element '${selector}'`, retryCount);
 	}
 
 	async waitForActiveElement(selector: string, retryCount?: number): Promise<void> {
@@ -395,7 +395,7 @@ export class Code {
         this.client.dispose();
     }
 
-    private async getActiveWindowId(): Promise<number> {
+    private async getActiveWindowId(): Promise<number | undefined> {
         if (typeof this._activeWindowId !== "number") {
             const windows = await this.driver.getWindowIds();
             this._activeWindowId = windows[0];

@@ -10,6 +10,7 @@
 		"noUnusedLocals": true,
 		"outDir": "out",
 		"sourceMap": true,
+		"skipLibCheck": true,
 		"lib": [
 			"es2017",
 			"dom"

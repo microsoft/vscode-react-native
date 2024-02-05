@@ -36,6 +36,7 @@
     "node-fetch": "2.6.7",
     "portastic": "^1.0.1",
     "rimraf": "^2.6.1",
+    "tar": "4.4.18",
     "tree-kill": "^1.2.2",
     "ts-node": "10.9.1",
     "typescript": "4.5.5",
