@@ -128,13 +128,25 @@ export class ReactNativeProjectHelper {
             );
         }
 
-        const metroConfigPath = path.join(projectRoot, "metro.config.js");
-        const content = fs.readFileSync(metroConfigPath, "utf-8");
-        const isNewMetroConfig = content.includes("getDefaultConfig");
+        const metroConfigJSPath = path.join(projectRoot, "metro.config.js");
+        const metroConfigCJSPath = path.join(projectRoot, "metro.config.cjs");
+        let content;
+        let ext = "js";
+        try {
+            content = fs.readFileSync(metroConfigJSPath, "utf-8");
+        } catch (error) {
+            try {
+                content = fs.readFileSync(metroConfigCJSPath, "utf-8");
+                ext = "cjs";
+            } catch (err) {
+                return;
+            }
+        }
 
+        const isNewMetroConfig = content.includes("getDefaultConfig");
         if (semver.gte(version.reactNativeVersion, "0.73.0") && !isNewMetroConfig) {
             logger.warning(
-                'The version of "metro.config.js" in current project is deprecated, it may cause project build failure. Please update your "metro.config.js" file according to template: https://github.com/facebook/react-native/blob/main/packages/react-native/template/metro.config.js',
+                `The version of "metro.config.${ext}" in current project is deprecated, it may cause project build failure. Please update your "metro.config.js" file according to template: https://github.com/facebook/react-native/blob/main/packages/react-native/template/metro.config.js`,
             );
         }
     }
