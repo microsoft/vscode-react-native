@@ -1359,7 +1359,7 @@
     "glob": "7.1.6",
     "ip": "1.1.5",
     "js-base64": "3.6.0",
-    "json5": "^1.0.1",
+    "json5": "^1.0.2",
     "jsonc-parser": "3.0.0",
     "mkdirp": "1.0.3",
     "openssl-wrapper": "0.3.4",
