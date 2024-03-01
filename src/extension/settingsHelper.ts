@@ -9,6 +9,7 @@ import { Packager } from "../common/packager";
 import { SystemColorTheme } from "../common/editorColorThemesHelper";
 import { LogLevel } from "./log/LogHelper";
 import { PackagerStatusIndicator } from "./packagerStatusIndicator";
+import { stripJsonTrailingComma } from "../../src/common/utils";
 
 export class SettingsHelper {
     /**
@@ -215,7 +216,7 @@ export class SettingsHelper {
             return [];
         }
         // Get workspace settings
-        const workspaceSettingsContent = JSON.parse(
+        const workspaceSettingsContent = stripJsonTrailingComma(
             stripJsonComments(fs.readFileSync(settingsPath, "utf-8")),
         );
         if (workspaceSettingsContent) {
