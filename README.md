@@ -372,9 +372,9 @@ If you want to debug Expo app using [expo-dev-client](https://docs.expo.dev/deve
 ```json
     "configurations": [
         {
-            "name": "Attach to packager",
+            "name": "Attach to Hermes application",
             "request": "attach",
-            "type": "reactnative",
+            "type": "reactnativedirect",
             "cwd": "${workspaceFolder}"
         }
     ]
