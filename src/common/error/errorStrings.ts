@@ -407,4 +407,8 @@ export const ERROR_STRINGS = {
         "UserInputCanceled",
         "User canceled data entry",
     ),
+    [InternalErrorCode.FailedToRunPrebuildClean]: localize(
+        "FailedToRunPrebuildClean",
+        "Failed to run prebuild clean",
+    ),
 };
