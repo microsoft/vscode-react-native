@@ -29,3 +29,4 @@ export * from "./revertOpenModule";
 export * from "./openRNUpgradeHelper";
 export * from "./installExpoGoApplication";
 export * from "./prebuild";
+export * from "./prebuildClean";

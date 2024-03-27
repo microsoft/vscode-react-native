@@ -411,4 +411,8 @@ export const ERROR_STRINGS = {
         "FailedToRunPrebuild",
         "Failed to run prebuild",
     ),
+    [InternalErrorCode.FailedToRunPrebuildClean]: localize(
+        "FailedToRunPrebuildClean",
+        "Failed to run prebuild clean",
+    ),
 };
