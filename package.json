@@ -435,6 +435,12 @@
         "title": "Expo Run Doctor",
         "category": "React Native",
         "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
+      },
+      {
+        "command": "reactNative.expoPrebuildClean",
+        "title": "Expo Prebuild Clean",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       }
     ],
     "menus": {

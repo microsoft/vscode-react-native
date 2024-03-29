@@ -29,6 +29,7 @@ export enum InternalErrorCode {
     FailedToLaunchExpoWeb = 124,
     FailedToRunRNDoctor = 125,
     FailedToRunExpoDoctor = 126,
+    FailedToRunPrebuildClean = 128,
     // Device Deployer errors
     IOSDeployNotFound = 201,
 
