@@ -1,7 +1,7 @@
 {
   "name": "vscode-react-native",
   "displayName": "React Native Tools",
-  "version": "1.12.3",
+  "version": "1.13.0",
   "private": true,
   "publisher": "msjsdiag",
   "icon": "resources/images/icon.png",
@@ -423,6 +423,24 @@
         "category": "React Native",
         "enablement": "!config.security.workspace.trust.enabled && !inDebugMode || isWorkspaceTrusted && !inDebugMode",
         "icon": "$(play)"
+      },
+      {
+        "command": "reactNative.doctor",
+        "title": "Run Doctor",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
+      },
+      {
+        "command": "reactNative.ExpoDoctor",
+        "title": "Expo Run Doctor",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
+      },
+      {
+        "command": "reactNative.expoPrebuildClean",
+        "title": "Expo Prebuild Clean",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       }
     ],
     "menus": {
@@ -1363,9 +1381,9 @@
     "extract-opts": "2.2.0",
     "flatten-source-map": "0.0.2",
     "glob": "7.1.6",
-    "ip": "1.1.5",
+    "ip": "1.1.9",
     "js-base64": "3.6.0",
-    "json5": "^1.0.1",
+    "json5": "^1.0.2",
     "jsonc-parser": "3.0.0",
     "mkdirp": "1.0.3",
     "openssl-wrapper": "0.3.4",

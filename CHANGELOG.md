@@ -1,3 +1,18 @@
+## 1.13.0
+* Support react-native and expo doctor in command palette [#2116](https://github.com/microsoft/vscode-react-native/pull/2116)
+* Skip extra commas for getting workspace settings [#2113](https://github.com/microsoft/vscode-react-native/pull/2113)
+* Support .cjs metro config file [#2103](hhttps://github.com/microsoft/vscode-react-native/pull/2103)
+* Remove all Experimental tags for Hermes debugging [#2094](https://github.com/microsoft/vscode-react-native/issues/2094)
+* Support default breakpoints filters for exceptions [#2097](https://github.com/microsoft/vscode-react-native/pull/2097)
+* Update package and software version for each doc [#2093](https://github.com/microsoft/vscode-react-native/pull/2093)
+* Internal changes:
+    * Fix security vulnerabilities
+    * Bump ip from 1.1.5 to 1.1.9 [#2112](https://github.com/microsoft/vscode-react-native/pull/2112)
+    * Bump JSON5 1.0.1 to 1.0.2, 2.x.x to 2.2.2 [#2106](https://github.com/microsoft/vscode-react-native/pull/2106)
+    * Bump follow-redirects from 1.15.2 to 1.15.4 [#2095](https://github.com/microsoft/vscode-react-native/pull/2095)
+    * Verify node version when start RN packager [#2099](https://github.com/microsoft/vscode-react-native/pull/2099)
+    * Improve metro config verification logic [#2100](https://github.com/microsoft/vscode-react-native/pull/2100)
+
 ## 1.12.3
 * Handle settings file for unsaved workspace [#2077](https://github.com/microsoft/vscode-react-native/pull/2077)
 * Documentation: debugging in vscode workspace [#2075](https://github.com/microsoft/vscode-react-native/pull/2075)

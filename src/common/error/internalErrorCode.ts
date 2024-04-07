@@ -27,7 +27,9 @@ export enum InternalErrorCode {
     FailedToOpenRNUpgradeHelper = 122,
     FailedToInstallExpoGo = 123,
     FailedToLaunchExpoWeb = 124,
-
+    FailedToRunRNDoctor = 125,
+    FailedToRunExpoDoctor = 126,
+    FailedToRunPrebuildClean = 128,
     // Device Deployer errors
     IOSDeployNotFound = 201,
 
