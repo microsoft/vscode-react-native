@@ -407,6 +407,10 @@ export const ERROR_STRINGS = {
         "UserInputCanceled",
         "User canceled data entry",
     ),
+    [InternalErrorCode.FailedToRunPrebuild]: localize(
+        "FailedToRunPrebuild",
+        "Failed to run prebuild",
+    ),
     [InternalErrorCode.FailedToRunPrebuildClean]: localize(
         "FailedToRunPrebuildClean",
         "Failed to run prebuild clean",
