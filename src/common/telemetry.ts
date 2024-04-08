@@ -43,10 +43,11 @@ export module Telemetry {
         public static init(appVersion: string, reporterToUse: ITelemetryReporter): void {
             TelemetryUtils.loadSettings();
             Telemetry.reporter = reporterToUse;
+            const telemetryVsSettings = TelemetryUtils.getTelemetryOptInVscodeSetting();
             Telemetry.isOptedIn =
-                TelemetryUtils.getTelemetryOptInVscodeSetting() === ""
+                telemetryVsSettings === ""
                     ? TelemetryUtils.getTelemetryOptInSetting()
-                    : TelemetryUtils.getTelemetryOptInVscodeSetting();
+                    : telemetryVsSettings;
             TelemetryUtils.saveSettings();
         }
 
