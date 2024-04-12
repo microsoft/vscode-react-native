@@ -4,8 +4,10 @@
 import * as path from "path";
 import * as fs from "fs";
 import * as assert from "assert";
+import * as sinon from "sinon";
 import { Node } from "../../src/common/node/node";
 import { ReactNativeProjectHelper } from "../../src/common/reactNativeProjectHelper";
+import { ProjectVersionHelper } from "../../src/common/projectVersionHelper";
 
 suite("ReactNativeProjectHelper", function () {
     const fsHelper = new Node.FileSystem();
@@ -274,6 +276,42 @@ suite("ReactNativeProjectHelper", function () {
                 sampleReactNativeProjectDir,
             );
             assert.strictEqual(windowsHermesEnabled, false);
+        });
+    });
+
+    suite("verifyMetroConfigFile", () => {
+        let getReactNativeVersionsStub: Sinon.SinonStub;
+        const metroConfigFileContent = `
+            const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config')
+            const config = {};
+            module.exports = mergeConfig(getDefaultConfig(__dirname), config);
+        `;
+        setup(async () => {
+            getReactNativeVersionsStub = sinon
+                .stub(ProjectVersionHelper, "getReactNativeVersions")
+                .returns(
+                    Promise.resolve({
+                        reactNativeVersion: "0.73.0",
+                        reactNativeWindowsVersion: "",
+                    }),
+                );
+        });
+        teardown(() => {
+            getReactNativeVersionsStub.restore();
+        });
+
+        test("read metro.config.js for verifyMetroConfig", async () => {
+            const metroConfigFilePath = path.join(sampleReactNativeProjectDir, "metro.config.js");
+            fs.writeFileSync(metroConfigFilePath, metroConfigFileContent);
+            ReactNativeProjectHelper.verifyMetroConfigFile(sampleReactNativeProjectDir);
+            fs.unlinkSync(metroConfigFilePath);
+        });
+
+        test("read metro.config.cjs for verifyMetroConfig", () => {
+            const metroConfigFilePath = path.join(sampleReactNativeProjectDir, "metro.config.cjs");
+            fs.writeFileSync(metroConfigFilePath, metroConfigFileContent);
+            ReactNativeProjectHelper.verifyMetroConfigFile(sampleReactNativeProjectDir);
+            fs.unlinkSync(metroConfigFilePath);
         });
     });
 });
