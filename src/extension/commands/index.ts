@@ -30,3 +30,4 @@ export * from "./openRNUpgradeHelper";
 export * from "./installExpoGoApplication";
 export * from "./prebuild";
 export * from "./prebuildClean";
+export * from "./reopenQRCode";
