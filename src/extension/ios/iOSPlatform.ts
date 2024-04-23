@@ -417,7 +417,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
             semver.gte(version, IOSPlatform.NEW_RN_CLI_BEHAVIOUR_VERSION) ||
             ProjectVersionHelper.isCanaryVersion(version)
         ) {
-            successPatterns.push(`Launching "${bundleId}"\nsuccess Successfully launched the app `);
+            successPatterns.push(`Launching "${bundleId}"\nsuccess Successfully launched the app`);
         } else {
             successPatterns.push(`Launching ${bundleId}\n${bundleId}: `);
         }
