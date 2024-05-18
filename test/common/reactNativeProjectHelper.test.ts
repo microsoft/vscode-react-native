@@ -276,4 +276,14 @@ suite("ReactNativeProjectHelper", function () {
             assert.strictEqual(windowsHermesEnabled, false);
         });
     });
+
+    suite("verifyMetroConfigFile", () => {
+        test("Should not throw an error for verifyMetroConfigFile function", async () => {
+            try {
+                ReactNativeProjectHelper.verifyMetroConfigFile(sampleReactNativeProjectDir);
+            } catch (err) {
+                assert.fail(err);
+            }
+        });
+    });
 });
