@@ -45,6 +45,7 @@ export class Packager {
     public static DEFAULT_PORT = 8081;
     private packagerSocket?: WebSocket;
     private packagerProcess: ChildProcess | undefined;
+    public workspaceProcess: ChildProcess | undefined;
     private packagerStatus: PackagerStatus;
     private packagerStatusIndicator: PackagerStatusIndicator;
     private logger: OutputChannelLogger = OutputChannelLogger.getChannel(
@@ -265,8 +266,8 @@ export class Packager {
             }
 
             this.packagerProcess = packagerSpawnResult.spawnedProcess;
-
             packagerSpawnResult.outcome.catch(() => {}); // We ignore all outcome errors
+            this.workspaceProcess = this.packagerProcess;
         }
 
         if (await this.stopWithlowNode()) {
@@ -306,7 +307,6 @@ export class Packager {
     public async stop(silent: boolean = false): Promise<boolean> {
         this.packagerStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPING);
         let successfullyStopped = false;
-
         if (await this.isRunning()) {
             if (!this.packagerProcess) {
                 if (!silent) {
@@ -318,10 +318,14 @@ export class Packager {
                             ),
                         ),
                     );
+                    this.packagerStatusIndicator.updatePackagerStatus(
+                        PackagerStatus.PACKAGER_STARTED,
+                    );
                 }
             } else {
                 await this.killPackagerProcess();
                 successfullyStopped = true;
+                this.setPackagerStopStateUI();
             }
         } else {
             if (!silent) {
@@ -332,8 +336,8 @@ export class Packager {
                 );
             }
             successfullyStopped = true;
+            this.setPackagerStopStateUI();
         }
-        this.setPackagerStopStateUI();
         void vscode.commands.executeCommand(
             "setContext",
             CONTEXT_VARIABLES_NAMES.IS_RN_PACKAGER_RUNNING,
