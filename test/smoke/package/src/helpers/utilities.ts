@@ -172,7 +172,7 @@ export function findFile(directoryToSearch: string, filePattern: RegExp): string
 }
 
 export function filterProgressBarChars(str: string): string {
-    const filterRegExp = /\||\/|\-|\\/;
+    const filterRegExp = /\||\/|\-|\\/g;
     str = str.replace(filterRegExp, "");
     return str;
 }
