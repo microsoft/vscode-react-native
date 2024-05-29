@@ -1332,6 +1332,12 @@
           "type": "boolean",
           "scope": "resource",
           "default": true
+        },
+        "telemetry.optIn":  {
+          "description": "Whether to send usage data to Microsoft",
+          "type": "boolean",
+          "scope": "resource",
+          "default": ""
         }
       }
     }
