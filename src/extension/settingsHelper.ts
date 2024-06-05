@@ -228,4 +228,12 @@ export class SettingsHelper {
         }
         return [];
     }
+
+    public static getWorkspaceTelemetry() {
+        const workspaceConfiguration = vscode.workspace.getConfiguration("telemetry", null);
+        if (workspaceConfiguration.has("optIn")) {
+            return workspaceConfiguration.get("optIn");
+        }
+        return "";
+    }
 }
