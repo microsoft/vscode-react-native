@@ -447,6 +447,12 @@
         "title": "Expo Prebuild Clean",
         "category": "React Native",
         "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
+      },
+      {
+        "command": "reactNative.reopenQRCode",
+        "title": "Reopen QR Code in Expo",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       }
     ],
     "menus": {
