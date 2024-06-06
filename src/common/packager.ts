@@ -45,7 +45,6 @@ export class Packager {
     public static DEFAULT_PORT = 8081;
     private packagerSocket?: WebSocket;
     private packagerProcess: ChildProcess | undefined;
-    public workspaceProcess: ChildProcess | undefined;
     private packagerStatus: PackagerStatus;
     private packagerStatusIndicator: PackagerStatusIndicator;
     private logger: OutputChannelLogger = OutputChannelLogger.getChannel(
@@ -266,6 +265,7 @@ export class Packager {
             }
 
             this.packagerProcess = packagerSpawnResult.spawnedProcess;
+
             packagerSpawnResult.outcome.catch(() => {}); // We ignore all outcome errors
         }
 
@@ -299,12 +299,14 @@ export class Packager {
                 return;
             }
         }
+
         this.packagerStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED);
     }
 
     public async stop(silent: boolean = false): Promise<boolean> {
         this.packagerStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPING);
         let successfullyStopped = false;
+
         if (await this.isRunning()) {
             if (!this.packagerProcess) {
                 if (!silent) {
