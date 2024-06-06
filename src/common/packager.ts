@@ -267,7 +267,6 @@ export class Packager {
 
             this.packagerProcess = packagerSpawnResult.spawnedProcess;
             packagerSpawnResult.outcome.catch(() => {}); // We ignore all outcome errors
-            this.workspaceProcess = this.packagerProcess;
         }
 
         if (await this.stopWithlowNode()) {
@@ -300,7 +299,6 @@ export class Packager {
                 return;
             }
         }
-
         this.packagerStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED);
     }
 
@@ -318,14 +316,10 @@ export class Packager {
                             ),
                         ),
                     );
-                    this.packagerStatusIndicator.updatePackagerStatus(
-                        PackagerStatus.PACKAGER_STARTED,
-                    );
                 }
             } else {
                 await this.killPackagerProcess();
                 successfullyStopped = true;
-                this.setPackagerStopStateUI();
             }
         } else {
             if (!silent) {
@@ -336,8 +330,8 @@ export class Packager {
                 );
             }
             successfullyStopped = true;
-            this.setPackagerStopStateUI();
         }
+        this.setPackagerStopStateUI();
         void vscode.commands.executeCommand(
             "setContext",
             CONTEXT_VARIABLES_NAMES.IS_RN_PACKAGER_RUNNING,

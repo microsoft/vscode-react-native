@@ -256,7 +256,6 @@ function onChangeWorkspaceFolders(event: vscode.WorkspaceFoldersChangeEvent) {
     if (event.added.length) {
         event.added.forEach(folder => {
             void onFolderAdded(folder);
-            addWorkspaceStop();
         });
     }
 }
@@ -343,18 +342,6 @@ export async function onFolderAdded(folder: vscode.WorkspaceFolder): Promise<voi
     await Promise.all(promises);
 }
 
-function addWorkspaceStop() {
-    const workspaceFolders = vscode.workspace.workspaceFolders;
-    if (workspaceFolders) {
-        workspaceFolders.forEach(async folder => {
-            const appLauncher = ProjectsStorage.getFolder(folder);
-            const packager = appLauncher?.getPackager();
-            if (packager && (await packager.isRunning()) && packager.workspaceProcess) {
-                await packager.stop();
-            }
-        });
-    }
-}
 function activateCommands(): void {
     void vscode.commands.executeCommand("setContext", CONTEXT_VARIABLES_NAMES.IS_RN_PROJECT, true);
 }
