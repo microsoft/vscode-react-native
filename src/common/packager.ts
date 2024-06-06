@@ -285,7 +285,7 @@ export class Packager {
                 true,
             );
         } else {
-            this.logger.warning(
+            this.logger.info(
                 localize(
                     "PackagerIsAlreadyRunning",
                     "Packager is already running in this port, you can either stop the packager or use a different port for this project.",
@@ -323,7 +323,7 @@ export class Packager {
                             ),
                         ),
                     );
-                    this.logger.warning(
+                    this.logger.info(
                         "Packager is already running in this port, you can either stop the packager or use a different port for this project.",
                     );
                 }
