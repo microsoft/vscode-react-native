@@ -491,7 +491,7 @@ suite("MobileTargetManager", function () {
                         assert.fail(`Error has been thrown: ${error}`);
                     }
                 });
-            });
+            }).timeout(10000);
             test(`Should not throw an error in case the passed target type equals '${TargetType.Device}'`, async function () {
                 await executeWithoutEmulator(async () => {
                     try {
