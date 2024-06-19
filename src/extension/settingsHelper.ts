@@ -236,4 +236,17 @@ export class SettingsHelper {
         }
         return "";
     }
+
+    public static getShowIndicator(): boolean {
+        const workspaceConfiguration = vscode.workspace.getConfiguration(
+            "react-native-tools",
+            null,
+        );
+        if (workspaceConfiguration.has("showPackagerIndicator")) {
+            return ConfigurationReader.readBoolean(
+                workspaceConfiguration.get("showPackagerIndicator"),
+            );
+        }
+        return true;
+    }
 }
