@@ -72,6 +72,7 @@ export class Packager {
     private static fs: FileSystem = new FileSystem();
     private expoHelper: ExponentHelper;
     private runOptions?: IRunOptions;
+    private nodeVersion: string;
 
     constructor(
         private workspacePath: string,
@@ -133,12 +134,16 @@ export class Packager {
 
     private async stopWithlowNode() {
         const versionInfo = await ProjectVersionHelper.getReactNativeVersions(this.projectPath);
-        const isNodeSupported = semver.gte(await getNodeVersion(), Packager.NODE_AVAIABLE);
-        const isRNWithPackerIssue = semver.gte(
-            versionInfo.reactNativeVersion,
-            Packager.RN_VERSION_WITH_PACKER_ISSUE,
-        );
-        return isRNWithPackerIssue && !isNodeSupported;
+        this.nodeVersion = await getNodeVersion(this.projectPath);
+        if (this.nodeVersion) {
+            const isNodeSupported = semver.gte(this.nodeVersion, Packager.NODE_AVAIABLE);
+            const isRNWithPackerIssue = semver.gte(
+                versionInfo.reactNativeVersion,
+                Packager.RN_VERSION_WITH_PACKER_ISSUE,
+            );
+            return isRNWithPackerIssue && !isNodeSupported;
+        }
+        return false;
     }
 
     public async getPackagerArgs(
@@ -272,7 +277,7 @@ export class Packager {
         if (await this.stopWithlowNode()) {
             await this.stop();
             throw new Error(
-                `React Native needs Node.js >= 18. You're currently on version ${await getNodeVersion()}. Please upgrade Node.js to a supported version and try again.`,
+                `React Native needs Node.js >= 18. You're currently on version ${this.nodeVersion}. Please upgrade Node.js to a supported version and try again.`,
             );
         }
         await this.awaitStart();
