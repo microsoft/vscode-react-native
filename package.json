@@ -1344,6 +1344,12 @@
           "type": "boolean",
           "scope": "resource",
           "default": ""
+        },
+        "react-native-tools.showPackagerIndicator": {
+          "description": "Whether to show the packager indicator in the status bar.",
+          "type": "boolean",
+          "scope": "resource",
+          "default": true
         }
       }
     }
