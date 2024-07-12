@@ -290,7 +290,12 @@ export class Packager {
                 true,
             );
         } else {
-            this.logger.info(localize("PackagerIsAlreadyRunning", "Packager is already running."));
+            this.logger.info(
+                localize(
+                    "PackagerIsAlreadyRunning",
+                    "Packager is already running in this port, you can either stop the packager or use a different port for this project.",
+                ),
+            );
             if (!this.packagerProcess) {
                 this.logger.warning(
                     ErrorHelper.getWarning(
@@ -322,6 +327,9 @@ export class Packager {
                                 "Packager is still running. If the packager was started outside VS Code, please quit the packager process using the task manager.",
                             ),
                         ),
+                    );
+                    this.logger.info(
+                        "Packager is already running in this port, you can either stop the packager or use a different port for this project.",
                     );
                 }
             } else {
