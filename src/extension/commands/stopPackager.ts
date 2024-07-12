@@ -17,8 +17,11 @@ export class StopPackager extends ReactNativeCommand<[AppLauncher]> {
 
     async onBeforeExecute(appLauncher: AppLauncher): Promise<void> {
         await super.onBeforeExecute(appLauncher);
-
-        this.project = appLauncher || (await this.selectProject());
+        if (appLauncher instanceof AppLauncher) {
+            this.project = appLauncher;
+        } else {
+            this.project = await this.selectProject();
+        }
     }
 
     // this function requires argument because we need it in extension 'deactivate' hook
