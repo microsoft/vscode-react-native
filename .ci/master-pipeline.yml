@@ -1,78 +1,82 @@
 trigger:
   - master
   - preview
-
 variables:
   Codeql.Enabled: true
-
 pr:
   - none
-
-jobs:
-  - job: Linux
+resources:
+  repositories:
+    - repository: 1ESPipelineTemplates
+      type: git
+      name: 1ESPipelineTemplates/1ESPipelineTemplates
+      ref: refs/tags/release
+extends:
+  template: v1/1ES.Official.PipelineTemplate.yml@1ESPipelineTemplates
+  parameters:
     pool:
-      vmImage: ubuntu-latest
-    timeoutInMinutes: 20
-    steps:
-      - checkout: self
-        clean: true
-      - template: common-validation.yml
-
-      - task: ComponentGovernanceComponentDetection@0
-        displayName: "Component Detection"
-        inputs:
-          ignoreDirectories: ".vscode-test"
-
-      - task: notice@0
-        displayName: "NOTICE File Generator"
-        inputs:
-          outputfile: "ThirdPartyNotices_Generated.txt"
-          additionaldata: release/AdditionalAttributions.txt
-
-      - bash: gulp release
-        displayName: "gulp release"
-
-      - bash: 'node -e "console.log(require(''./package.json'').version)" -> version.txt'
-        displayName: "Strip version from package.json and save to version.txt"
-
-      - task: CopyFiles@2
-        displayName: "Copy Files to: $(Build.ArtifactStagingDirectory)"
-        inputs:
-          Contents: |
-            *.vsix
-            CHANGELOG.md
-            version.txt
-          TargetFolder: "$(Build.ArtifactStagingDirectory)"
-
-      - task: PublishBuildArtifacts@1
-        displayName: "Publish artifacts: drop-win"
-        inputs:
-          ArtifactName: "drop-win"
-
-  - job: Windows
-    pool:
-      vmImage: windows-latest
-    timeoutInMinutes: 20
-    steps:
-      - checkout: self
-        clean: true
-      - template: common-validation.yml
-
-      - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
-        displayName: "Component Detection"
-        inputs:
-          ignoreDirectories: ".vscode-test"
-
-  - job: macOS
-    pool:
-      vmImage: macOS-latest
-    timeoutInMinutes: 20
-    steps:
-      - checkout: self
-        clean: true
-      - template: common-validation.yml
-
-      - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
-        displayName: "Component Detection"
-        inputs:
-          ignoreDirectories: ".vscode-test"
+      name: VSWebDiag1ESPipelinePool
+      image: VSWebDiag_1ESImage_Windows
+      os: windows
+    customBuildTags:
+      - ES365AIMigrationTooling
+    stages:
+      - stage: stage
+        jobs:
+          - job: Linux
+            pool:
+              name: VSWebDiag1ESPipelinePool
+              image: VSWebDiag_1ESImage_Ubuntu
+              os: linux
+            timeoutInMinutes: 20
+            templateContext:
+              outputs:
+                - output: pipelineArtifact
+                  displayName: "Publish artifacts: drop-win"
+                  targetPath: "$(Build.ArtifactStagingDirectory)"
+                  artifactName: "drop-win"
+            steps:
+              - checkout: self
+                clean: true
+              - template: /.ci/common-validation.yml@self
+              - task: ComponentGovernanceComponentDetection@0
+                displayName: "Component Detection"
+                inputs:
+                  ignoreDirectories: ".vscode-test"
+              - task: notice@0
+                displayName: "NOTICE File Generator"
+                inputs:
+                  outputfile: "ThirdPartyNotices_Generated.txt"
+                  additionaldata: release/AdditionalAttributions.txt
+              - bash: gulp release
+                displayName: "gulp release"
+              - bash: 'node -e "console.log(require(''./package.json'').version)" -> version.txt'
+                displayName: "Strip version from package.json and save to version.txt"
+              - task: CopyFiles@2
+                displayName: "Copy Files to: $(Build.ArtifactStagingDirectory)"
+                inputs:
+                  Contents: |
+                    *.vsix
+                    CHANGELOG.md
+                    version.txt
+                  TargetFolder: "$(Build.ArtifactStagingDirectory)"
+          - job: Windows
+            pool:
+              name: VSWebDiag1ESPipelinePool
+              image: VSWebDiag_1ESImage_Windows
+              os: windows
+            timeoutInMinutes: 20
+            steps:
+              - checkout: self
+                clean: true
+              - template: /.ci/common-validation.yml@self
+          - job: macOS
+            pool:
+              name: Azure Pipelines
+              image: macos-latest
+              os: macOS
+            timeoutInMinutes: 20
+            steps:
+              - checkout: self
+                clean: true
+              - template: /.ci/common-validation.yml@self
