@@ -31,6 +31,7 @@ export enum InternalErrorCode {
     FailedToRunExpoDoctor = 126,
     FailedToRunPrebuild = 127,
     FailedToRunPrebuildClean = 128,
+    FailedToReopenQRCode = 129,
     // Device Deployer errors
     IOSDeployNotFound = 201,
 
