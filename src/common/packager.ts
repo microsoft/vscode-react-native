@@ -74,6 +74,7 @@ export class Packager {
     private static fs: FileSystem = new FileSystem();
     private expoHelper: ExponentHelper;
     private runOptions?: IRunOptions;
+    private nodeVersion: string;
 
     constructor(
         private workspacePath: string,
@@ -135,12 +136,16 @@ export class Packager {
 
     private async stopWithlowNode() {
         const versionInfo = await ProjectVersionHelper.getReactNativeVersions(this.projectPath);
-        const isNodeSupported = semver.gte(await getNodeVersion(), Packager.NODE_AVAIABLE);
-        const isRNWithPackerIssue = semver.gte(
-            versionInfo.reactNativeVersion,
-            Packager.RN_VERSION_WITH_PACKER_ISSUE,
-        );
-        return isRNWithPackerIssue && !isNodeSupported;
+        this.nodeVersion = await getNodeVersion(this.projectPath);
+        if (this.nodeVersion) {
+            const isNodeSupported = semver.gte(this.nodeVersion, Packager.NODE_AVAIABLE);
+            const isRNWithPackerIssue = semver.gte(
+                versionInfo.reactNativeVersion,
+                Packager.RN_VERSION_WITH_PACKER_ISSUE,
+            );
+            return isRNWithPackerIssue && !isNodeSupported;
+        }
+        return false;
     }
 
     private async verifiyTSVersion() {
@@ -289,7 +294,7 @@ export class Packager {
         if (await this.stopWithlowNode()) {
             await this.stop();
             throw new Error(
-                `React Native needs Node.js >= 18. You're currently on version ${await getNodeVersion()}. Please upgrade Node.js to a supported version and try again.`,
+                `React Native needs Node.js >= 18. You're currently on version ${this.nodeVersion}. Please upgrade Node.js to a supported version and try again.`,
             );
         }
         await this.verifiyTSVersion();
@@ -303,7 +308,12 @@ export class Packager {
                 true,
             );
         } else {
-            this.logger.info(localize("PackagerIsAlreadyRunning", "Packager is already running."));
+            this.logger.info(
+                localize(
+                    "PackagerIsAlreadyRunning",
+                    "Packager is already running in this port, you can either stop the packager or use a different port for this project.",
+                ),
+            );
             if (!this.packagerProcess) {
                 this.logger.warning(
                     ErrorHelper.getWarning(
@@ -335,6 +345,9 @@ export class Packager {
                                 "Packager is still running. If the packager was started outside VS Code, please quit the packager process using the task manager.",
                             ),
                         ),
+                    );
+                    this.logger.info(
+                        "Packager is already running in this port, you can either stop the packager or use a different port for this project.",
                     );
                 }
             } else {

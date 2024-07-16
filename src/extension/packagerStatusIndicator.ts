@@ -44,6 +44,7 @@ export class PackagerStatusIndicator implements Disposable {
     private static STOPPING_TOOLTIP: string = localize("StoppingPackager", "Stopping Packager");
 
     private static START_ICON = "$(play)";
+    private static NOT_SHOW_INDICATOR = "$(combine)";
     private static STOP_ICON = "$(primitive-square)";
     private static ACTIVITY_ICON = "$(loading~spin)";
     private static RESTART_ICON = "$(sync)";
@@ -55,9 +56,12 @@ export class PackagerStatusIndicator implements Disposable {
     public static FULL_VERSION = "Full";
     public static SHORT_VERSION = "Short";
 
+    private isShowIndicator: boolean = true;
+
     public constructor(projectRoot?: string) {
         this.projectRoot = projectRoot;
 
+        this.isShowIndicator = SettingsHelper.getShowIndicator();
         // Remove after updating supported VS Code engine version to 1.57.0
         if (semver.gte(vscodeVersion, "1.57.0")) {
             this.restartPackagerItem = (window as any).createStatusBarItem(
@@ -115,6 +119,9 @@ export class PackagerStatusIndicator implements Disposable {
         this.updateDisplayVersion();
         this.togglePackagerItem.command = command;
         this.togglePackagerItem.tooltip = tooltip;
+        if (!this.isShowIndicator) {
+            icon = PackagerStatusIndicator.NOT_SHOW_INDICATOR;
+        }
         switch (this.displayVersion) {
             case PackagerStatusIndicator.FULL_VERSION:
                 this.togglePackagerItem.text = `${icon} ${PackagerStatusIndicator.PACKAGER_NAME}`;

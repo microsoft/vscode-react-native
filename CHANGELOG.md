@@ -1,3 +1,25 @@
+## 1.13.1
+* Add command for expo prebuild directories clean up [#2124](https://github.com/microsoft/vscode-react-native/pull/2124)
+* Integrate expo prebuild to generate react-native app for android and ios platform [#2128](https://github.com/microsoft/vscode-react-native/pull/2128)
+* Add telemetry toggle in vscode settings [#2131](https://github.com/microsoft/vscode-react-native/pull/2131)
+* Add command to reopen QR code in webview for expo application [#2137](https://github.com/microsoft/vscode-react-native/pull/2137)
+* Change path for findXcodeProject for iOS since RN 0.74.0 [#2140](https://github.com/microsoft/vscode-react-native/pull/2140)
+* Change react native output regular expression to match success pattern [#2141](https://github.com/microsoft/vscode-react-native/pull/2141)
+* Add optional argument in settings.json to hide indicator [#2157](https://github.com/microsoft/vscode-react-native/pull/2157)
+* Internal changes:
+    * Bump follow-redirects from 1.15.5 to 1.15.6 [#2123](https://github.com/microsoft/vscode-react-native/pull/2123)
+    * Bump webpack-dev-middleware from 5.3.3 to 5.3.4 [#2127](https://github.com/microsoft/vscode-react-native/pull/2127)
+    * Bump minimatch from 3.0.4 to 3.1.2 [#2130](https://github.com/microsoft/vscode-react-native/pull/2130)
+    * Bump tar from 4.4.18 to 6.2.1 [#2132](https://github.com/microsoft/vscode-react-native/pull/2132)
+    * Add unit test for metro config verification [#2134](https://github.com/microsoft/vscode-react-native/pull/2134)
+    * Resolve CodeQL analysis alert: reg only replace its first occurence [#2148](https://github.com/microsoft/vscode-react-native/pull/2148)
+    * Resolve CodeQL analysis alert: cross-site scripting vulnerability [#2152](https://github.com/microsoft/vscode-react-native/pull/2152)
+    * Migrate pipeline to 1ES pipeline template - master pipeline [#2162](https://github.com/microsoft/vscode-react-native/pull/2162)
+    * Bump braces and gulp [#2163](https://github.com/microsoft/vscode-react-native/pull/2163)
+    * Migrate pipeline to 1ES pipeline tempalte - nightly pipeline [#2165](https://github.com/microsoft/vscode-react-native/pull/2165)
+    * Bump braces from 3.0.2 to 3.0.3 [#2166](https://github.com/microsoft/vscode-react-native/pull/2166)
+    * Bump ws from 7.4.6 to 7.5.10 [#2167](https://github.com/microsoft/vscode-react-native/pull/2167)
+
 ## 1.13.0
 * Support react-native and expo doctor in command palette [#2116](https://github.com/microsoft/vscode-react-native/pull/2116)
 * Skip extra commas for getting workspace settings [#2113](https://github.com/microsoft/vscode-react-native/pull/2113)

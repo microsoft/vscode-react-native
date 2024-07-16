@@ -1,35 +1,46 @@
-# Run on a schedule
 trigger: none
 pr: none
-
-jobs:
-  - job: nightly_release
-    displayName: Nightly Release
+resources:
+  repositories:
+    - repository: 1ESPipelineTemplates
+      type: git
+      name: 1ESPipelineTemplates/1ESPipelineTemplates
+      ref: refs/tags/release
+extends:
+  template: v1/1ES.Official.PipelineTemplate.yml@1ESPipelineTemplates
+  parameters:
     pool:
-      vmImage: ubuntu-latest
-    steps:
-      - template: common-validation.yml
-
-      - task: Gulp@0
-        displayName: gulp release
-        inputs:
-          targets: release
-          arguments: --nightly
-
-      - task: CopyFiles@2
-        displayName: "Copy Files to: $(Build.ArtifactStagingDirectory)"
-        inputs:
-          Contents: |
-            *.vsix
-          TargetFolder: "$(Build.ArtifactStagingDirectory)"
-
-      - task: PublishBuildArtifacts@1
-        displayName: "Publish artifacts: Nightly Extension"
-        inputs:
-          ArtifactName: "Extension (nightly)"
-
-      - bash: |
-          VSIX=`ls *.vsix`
-          vsce publish --pat $(extension-publish-vswdbot-PAT) --packagePath $VSIX
-        displayName: "VSCE publish"
-        condition: and(succeeded(), eq(variables['dryrun'], 'false'))
+      name: VSWebDiag1ESPipelinePool
+      image: VSWebDiag_1ESImage_Windows
+      os: windows
+    customBuildTags:
+      - ES365AIMigrationTooling
+    stages:
+      - stage: stage
+        jobs:
+          - job: nightly_release
+            displayName: Nightly Release
+            templateContext:
+              outputs:
+                - output: pipelineArtifact
+                  displayName: "Publish artifacts: Nightly Extension"
+                  targetPath: "$(Build.ArtifactStagingDirectory)"
+                  artifactName: "Extension (nightly)"
+            steps:
+              - template: /.ci/common-validation.yml@self
+              - task: Gulp@0
+                displayName: gulp release
+                inputs:
+                  targets: release
+                  arguments: --nightly
+              - task: CopyFiles@2
+                displayName: "Copy Files to: $(Build.ArtifactStagingDirectory)"
+                inputs:
+                  Contents: |
+                    *.vsix
+                  TargetFolder: "$(Build.ArtifactStagingDirectory)"
+              - bash: |
+                  VSIX=`ls *.vsix`
+                  vsce publish --pat $(extension-publish-vswdbot-PAT) --packagePath $VSIX
+                displayName: "VSCE publish"
+                condition: and(succeeded(), eq(variables['dryrun'], 'false'))

@@ -43,7 +43,11 @@ export module Telemetry {
         public static init(appVersion: string, reporterToUse: ITelemetryReporter): void {
             TelemetryUtils.loadSettings();
             Telemetry.reporter = reporterToUse;
-            Telemetry.isOptedIn = TelemetryUtils.getTelemetryOptInSetting();
+            const telemetryVsSettings = TelemetryUtils.getTelemetryOptInVscodeSetting();
+            Telemetry.isOptedIn =
+                telemetryVsSettings === ""
+                    ? TelemetryUtils.getTelemetryOptInSetting()
+                    : telemetryVsSettings;
             TelemetryUtils.saveSettings();
         }
 
@@ -54,6 +58,11 @@ export module Telemetry {
             }
 
             return TelemetryUtils.telemetrySettings.optIn;
+        }
+
+        public static getTelemetryOptInVscodeSetting() {
+            const SettingsHelper = require("../extension/settingsHelper").SettingsHelper;
+            return SettingsHelper.getWorkspaceTelemetry();
         }
 
         /**
