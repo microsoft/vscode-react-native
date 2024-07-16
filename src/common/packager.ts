@@ -152,7 +152,9 @@ export class Packager {
                 );
             }
         } catch (err) {
-            this.logger.error(err);
+            this.logger.warning(
+                `Couldn't verify TypeScript version. Please make sure you have TypeScript >=${Packager.TS_VERSION_SUPPORTED} installed.`,
+            );
         }
     }
 
