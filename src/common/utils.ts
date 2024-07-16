@@ -104,3 +104,8 @@ export function getTimestamp(): string {
 
     return `${year}${month}${time}`;
 }
+
+export function getTSVersion(projectPath: string): Promise<string> {
+    const childProcess = new ChildProcess();
+    return childProcess.execToString("npx tsc -v", { cwd: projectPath });
+}

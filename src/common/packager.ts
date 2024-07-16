@@ -27,6 +27,7 @@ import { FileSystem } from "./node/fileSystem";
 import { PromiseUtil } from "./node/promise";
 import { CONTEXT_VARIABLES_NAMES } from "./contextVariablesNames";
 import { getNodeVersion } from "./nodeHelper";
+import { getTSVersion } from "./utils";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -60,6 +61,7 @@ export class Packager {
     private static RN_VERSION_WITH_OPEN_PKG = "0.60.0";
     private static NODE_AVAIABLE = "18.0.0";
     private static RN_VERSION_WITH_PACKER_ISSUE = "0.73.0";
+    private static TS_VERSION_SUPPORTED = "0.70.0";
     private static JS_INJECTOR_DIRPATH =
         findFileInFolderHierarchy(__dirname, "js-patched") || __dirname;
     private static NODE_MODULES_FODLER_NAME = "node_modules";
@@ -144,6 +146,21 @@ export class Packager {
             return isRNWithPackerIssue && !isNodeSupported;
         }
         return false;
+    }
+
+    private async verifiyTSVersion() {
+        try {
+            const tsVersion = await getTSVersion(this.projectPath);
+            if (semver.lt(tsVersion.replace("Version", ""), Packager.TS_VERSION_SUPPORTED)) {
+                this.logger.warning(
+                    `React Native needs TypeScript >=${Packager.TS_VERSION_SUPPORTED}. You're currently on ${tsVersion}. Please upgrade TypeScript to a supported version and try again.`,
+                );
+            }
+        } catch (err) {
+            this.logger.warning(
+                `Couldn't verify TypeScript version. Please make sure you have TypeScript >=${Packager.TS_VERSION_SUPPORTED} installed.`,
+            );
+        }
     }
 
     public async getPackagerArgs(
@@ -280,6 +297,7 @@ export class Packager {
                 `React Native needs Node.js >= 18. You're currently on version ${this.nodeVersion}. Please upgrade Node.js to a supported version and try again.`,
             );
         }
+        await this.verifiyTSVersion();
         await this.awaitStart();
         if (executedStartPackagerCmd) {
             this.logger.info(localize("PackagerStarted", "Packager started."));
