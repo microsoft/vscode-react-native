@@ -7,9 +7,9 @@ import stripJsonComments = require("strip-json-comments");
 import { ConfigurationReader } from "../common/configurationReader";
 import { Packager } from "../common/packager";
 import { SystemColorTheme } from "../common/editorColorThemesHelper";
+import { stripJsonTrailingComma } from "../common/utils";
 import { LogLevel } from "./log/LogHelper";
 import { PackagerStatusIndicator } from "./packagerStatusIndicator";
-import { stripJsonTrailingComma } from "../../src/common/utils";
 
 export class SettingsHelper {
     /**
