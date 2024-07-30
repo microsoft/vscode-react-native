@@ -5,8 +5,8 @@ import * as vscode from "vscode";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { QRCodeContentProvider } from "../qrCodeContentProvider";
-import { Command } from "./util/command";
 import { getQRCodeUrl } from "../exponent/exponentPlatform";
+import { Command } from "./util/command";
 
 export class ReopenQRCode extends Command {
     codeName = "reopenQRCode";

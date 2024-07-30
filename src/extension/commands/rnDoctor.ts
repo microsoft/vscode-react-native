@@ -2,13 +2,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as assert from "assert";
-import { ReactNativeCommand } from "./util/reactNativeCommand";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { CommandExecutor } from "../../common/commandExecutor";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { OutputVerifier, PatternToFailure } from "../../common/outputVerifier";
-import { AppLauncher } from "../../extension/appLauncher";
+import { AppLauncher } from "../appLauncher";
+import { ReactNativeCommand } from "./util/reactNativeCommand";
 
 export class rnDoctor extends ReactNativeCommand {
     private static RUN_DOCTOR_SUCCESS_PATTERNS: string[] = ["run doctor succeeded"];
