@@ -3,9 +3,9 @@
 
 import { ChildProcess } from "./node/childProcess";
 
-export async function getNodeVersion(projectPath: string) {
+export async function getNodeVersion(projectPath: string, env: object) {
     try {
-        return await new ChildProcess().execToString("node -v", { cwd: projectPath });
+        return await new ChildProcess().execToString("node -v", { cwd: projectPath, env });
     } catch (error) {
         return "";
     }
