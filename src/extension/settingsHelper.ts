@@ -230,7 +230,10 @@ export class SettingsHelper {
     }
 
     public static getWorkspaceTelemetry() {
-        const workspaceConfiguration = vscode.workspace.getConfiguration("telemetry", null);
+        const workspaceConfiguration = vscode.workspace.getConfiguration(
+            "react-native-tools.telemetry",
+            null,
+        );
         if (workspaceConfiguration.has("optIn")) {
             return workspaceConfiguration.get("optIn");
         }
@@ -248,5 +251,16 @@ export class SettingsHelper {
             );
         }
         return true;
+    }
+
+    public static getSettingNodeVersion(): string {
+        const workspaceConfiguration = vscode.workspace.getConfiguration(
+            "react-native-tools",
+            null,
+        );
+        if (workspaceConfiguration.has("setNodeVersion")) {
+            return ConfigurationReader.readString(workspaceConfiguration.get("setNodeVersion"));
+        }
+        return "";
     }
 }
