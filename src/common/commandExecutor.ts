@@ -232,7 +232,9 @@ export class CommandExecutor {
         args: string[],
         options: Options = {},
     ): ISpawnResult {
-        const spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options);
+        const spawnOptions = Object.assign({}, { cwd: this.currentWorkingDirectory }, options, {
+            shell: true,
+        });
         const commandWithArgs = `${command} ${args.join(" ")}`;
 
         this.logger.debug(

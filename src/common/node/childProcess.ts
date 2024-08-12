@@ -39,6 +39,7 @@ interface ISpawnOptions {
     stdio?: any;
     env?: any;
     detached?: boolean;
+    shell?: boolean;
 }
 
 export class ChildProcess {
@@ -97,7 +98,11 @@ export class ChildProcess {
         options: ISpawnOptions = {},
         showStdOutputsOnError: boolean = false,
     ): ISpawnResult {
-        const spawnedProcess = this.childProcess.spawn(command, args, options);
+        const spawnedProcess = this.childProcess.spawn(
+            command,
+            args,
+            Object.assign({}, options, { shell: true }),
+        );
         const outcome: Promise<void> = new Promise((resolve, reject) => {
             spawnedProcess.once("error", (error: any) => {
                 reject(error);
