@@ -53,6 +53,7 @@ export class RunElementInspector extends Command {
 
         elementInspector = child_process.spawn(command, [], {
             env,
+            shell: true,
         });
 
         if (!elementInspector.pid) {
