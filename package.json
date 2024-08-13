@@ -1399,7 +1399,6 @@
     "extract-opts": "2.2.0",
     "flatten-source-map": "0.0.2",
     "glob": "7.1.6",
-    "ip": "1.1.9",
     "ip-address": "^9.0.5",
     "js-base64": "3.6.0",
     "json5": "^1.0.2",

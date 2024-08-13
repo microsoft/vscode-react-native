@@ -5,7 +5,6 @@ import * as URL from "url";
 import * as http from "http";
 import * as https from "https";
 import { promises as dns } from "dns";
-import * as ipModule from "ip";
 import { CancellationToken } from "vscode";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { ErrorHelper } from "../common/error/errorHelper";
@@ -200,7 +199,7 @@ export class DebuggerEndpointHelper {
 
         let buf: Buffer;
         try {
-            buf = ipModule.toBuffer(ipOrLocalhost);
+            buf = ipToBuffer(ipOrLocalhost);
         } catch {
             return false;
         }
