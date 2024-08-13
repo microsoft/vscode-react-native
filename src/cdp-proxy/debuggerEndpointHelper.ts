@@ -10,6 +10,7 @@ import { CancellationToken } from "vscode";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { PromiseUtil } from "../common/node/promise";
+import { ipToBuffer } from "../common/utils";
 
 interface DebuggableEndpointData {
     webSocketDebuggerUrl: string;
@@ -21,8 +22,8 @@ export class DebuggerEndpointHelper {
     private localv6: Buffer;
 
     constructor() {
-        this.localv4 = ipModule.toBuffer("127.0.0.1");
-        this.localv6 = ipModule.toBuffer("::1");
+        this.localv4 = ipToBuffer("127.0.0.1");
+        this.localv6 = ipToBuffer("::1");
     }
 
     /**

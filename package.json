@@ -1339,7 +1339,7 @@
           "scope": "resource",
           "default": true
         },
-        "telemetry.optIn":  {
+        "telemetry.optIn": {
           "description": "Whether to send usage data to Microsoft",
           "type": "boolean",
           "scope": "resource",
@@ -1400,10 +1400,12 @@
     "flatten-source-map": "0.0.2",
     "glob": "7.1.6",
     "ip": "1.1.9",
+    "ip-address": "^9.0.5",
     "js-base64": "3.6.0",
     "json5": "^1.0.2",
     "jsonc-parser": "3.0.0",
     "mkdirp": "1.0.3",
+    "net": "^1.0.2",
     "openssl-wrapper": "0.3.4",
     "pako": "2.0.3",
     "qr-image": "3.2.0",
