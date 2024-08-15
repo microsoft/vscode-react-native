@@ -5,11 +5,11 @@ import * as URL from "url";
 import * as http from "http";
 import * as https from "https";
 import { promises as dns } from "dns";
-import * as ipModule from "ip";
 import { CancellationToken } from "vscode";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { PromiseUtil } from "../common/node/promise";
+import { ipToBuffer } from "../common/utils";
 
 interface DebuggableEndpointData {
     webSocketDebuggerUrl: string;
@@ -21,8 +21,8 @@ export class DebuggerEndpointHelper {
     private localv6: Buffer;
 
     constructor() {
-        this.localv4 = ipModule.toBuffer("127.0.0.1");
-        this.localv6 = ipModule.toBuffer("::1");
+        this.localv4 = ipToBuffer("127.0.0.1");
+        this.localv6 = ipToBuffer("::1");
     }
 
     /**
@@ -199,7 +199,7 @@ export class DebuggerEndpointHelper {
 
         let buf: Buffer;
         try {
-            buf = ipModule.toBuffer(ipOrLocalhost);
+            buf = ipToBuffer(ipOrLocalhost);
         } catch {
             return false;
         }
