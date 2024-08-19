@@ -45,7 +45,7 @@
 	"reactNative.snippets.runDirectiOS.description": "직접 디버깅을 활성화하지 않고 iOS에서 React Native 앱을 실행하기 위한 새로운 구성",
 	"reactNative.snippets.debugDirectiOS.description": "직접 디버깅이 활성화된 iOS에서 React Native 앱을 실행하기 위한 새로운 구성",
 	"reactNative.snippets.debugExpo.description": "Expo 앱 실행을 위한 새로운 구성",
-	"reactNative.attach.program.description": "[더 이상 사용되지 않습니다. ",
+	"reactNative.attach.program.description": "[사용되지 않음. 대신 cwd 사용] vscode 폴더에 있는 launchReactNative.js의 경로입니다.",
 	"reactNative.attach.cwd.description": "프로젝트 루트 폴더 경로",
 	"reactNative.attach.sourceMaps.description": "생성된 번들 코드를 원래 소스에 다시 매핑하기 위해 JavaScript 소스 맵을 사용할지 여부",
 	"reactNative.attach.sourceMapsPathOverrides.description": "소스 맵에 표시된 소스 파일의 위치를 ​​디스크의 위치로 다시 쓰기 위한 매핑 세트입니다. ",

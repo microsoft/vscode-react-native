@@ -45,7 +45,7 @@
 	"reactNative.snippets.runDirectiOS.description": "Una nuova configurazione per l'avvio dell'app React Native su iOS senza il debug diretto abilitato",
 	"reactNative.snippets.debugDirectiOS.description": "Una nuova configurazione per l'avvio dell'app React Native su iOS con il debug diretto abilitato",
 	"reactNative.snippets.debugExpo.description": "Una nuova configurazione per il lancio dell'app Expo",
-	"reactNative.attach.program.description": "[DEPRECATO. ",
+	"reactNative.attach.program.description": "[DEPRECATO. IN ALTERNATIVA USARE cwd] Percorso di launchReactNative.js nella cartella vscode",
 	"reactNative.attach.cwd.description": "Il percorso della cartella radice del progetto",
 	"reactNative.attach.sourceMaps.description": "Se utilizzare le mappe di origine JavaScript per mappare il codice in bundle generato alle sue origini originali",
 	"reactNative.attach.sourceMapsPathOverrides.description": "Una serie di mappature per riscrivere le posizioni dei file di origine da ciò che dice la mappa di origine alle loro posizioni su disco. ",

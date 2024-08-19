@@ -45,7 +45,7 @@
 	"reactNative.snippets.runDirectiOS.description": "Новая конфигурация для запуска приложения React Native на iOS без включения прямой отладки.",
 	"reactNative.snippets.debugDirectiOS.description": "Новая конфигурация для запуска приложения React Native на iOS с включенной прямой отладкой.",
 	"reactNative.snippets.debugExpo.description": "Новая конфигурация для запуска приложения Expo",
-	"reactNative.attach.program.description": "[УСТАРЕЛО. ",
+	"reactNative.attach.program.description": "[Устарело. Используйте cwd] Путь к launchReactNative.js в папке vscode",
 	"reactNative.attach.cwd.description": "Путь к корневой папке проекта",
 	"reactNative.attach.sourceMaps.description": "Следует ли использовать карты исходного кода JavaScript для сопоставления сгенерированного связанного кода с его исходными источниками.",
 	"reactNative.attach.sourceMapsPathOverrides.description": "Набор сопоставлений для перезаписи местоположений исходных файлов из того, что указано в исходной карте, в их расположение на диске. ",

@@ -45,7 +45,7 @@
 	"reactNative.snippets.runDirectiOS.description": "Doğrudan hata ayıklama etkinleştirilmeden iOS'ta React Native uygulamasını başlatmak için yeni bir yapılandırma",
 	"reactNative.snippets.debugDirectiOS.description": "React Native uygulamasını doğrudan hata ayıklamanın etkin olduğu iOS'ta başlatmak için yeni bir yapılandırma",
 	"reactNative.snippets.debugExpo.description": "Expo uygulamasını başlatmak için yeni bir yapılandırma",
-	"reactNative.attach.program.description": "[KULLANIMDAN KALDIRILDI. ",
+	"reactNative.attach.program.description": "[KULLANIM DIŞI. BUNUN YERİNE cwd KULLANIN] launchReactNative.js dosyasının vscode klasöründeki yolu",
 	"reactNative.attach.cwd.description": "Proje kök klasörünün yolu",
 	"reactNative.attach.sourceMaps.description": "Oluşturulan paket kodu orijinal kaynaklarına geri eşlemek için JavaScript kaynak eşlemelerinin kullanılıp kullanılmayacağı",
 	"reactNative.attach.sourceMapsPathOverrides.description": "Kaynak dosyaların konumlarını, kaynak haritanın söylediklerinden diskteki konumlarına yeniden yazmaya yönelik bir dizi eşleme. ",

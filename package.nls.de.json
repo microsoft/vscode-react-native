@@ -45,7 +45,7 @@
 	"reactNative.snippets.runDirectiOS.description": "Eine neue Konfiguration zum Starten der React Native-App unter iOS ohne aktiviertes direktes Debugging",
 	"reactNative.snippets.debugDirectiOS.description": "Eine neue Konfiguration zum Starten der React Native-App unter iOS mit aktiviertem direkten Debugging",
 	"reactNative.snippets.debugExpo.description": "Eine neue Konfiguration zum Starten der Expo-App",
-	"reactNative.attach.program.description": "[VERALTET. ",
+	"reactNative.attach.program.description": "[DEPRECATED. USE cwd INSTEAD] Der Pfad zu \"launchReactNative.js\" im Ordner \"vscode\".",
 	"reactNative.attach.cwd.description": "Der Pfad zum Projektstammordner",
 	"reactNative.attach.sourceMaps.description": "Ob JavaScript-Quellzuordnungen verwendet werden sollen, um den generierten gebündelten Code wieder seinen Originalquellen zuzuordnen",
 	"reactNative.attach.sourceMapsPathOverrides.description": "Eine Reihe von Zuordnungen zum Umschreiben der Speicherorte von Quelldateien von dem, was in der Quellzuordnung angegeben ist, in ihre Speicherorte auf der Festplatte. ",

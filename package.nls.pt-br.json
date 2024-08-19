@@ -45,7 +45,7 @@
 	"reactNative.snippets.runDirectiOS.description": "Uma nova configuração para iniciar o aplicativo React Native no iOS sem depuração direta habilitada",
 	"reactNative.snippets.debugDirectiOS.description": "Uma nova configuração para iniciar o aplicativo React Native no iOS com depuração direta habilitada",
 	"reactNative.snippets.debugExpo.description": "Uma nova configuração para lançar o aplicativo Expo",
-	"reactNative.attach.program.description": "[DESATIVADO. ",
+	"reactNative.attach.program.description": "[PRETERIDO. EM VEZ DISSO, USE cwd] O caminho para launchReactNative.js na pasta vscode",
 	"reactNative.attach.cwd.description": "O caminho para a pasta raiz do projeto",
 	"reactNative.attach.sourceMaps.description": "Se deve usar mapas de origem JavaScript para mapear o código agrupado gerado de volta às suas fontes originais",
 	"reactNative.attach.sourceMapsPathOverrides.description": "Um conjunto de mapeamentos para reescrever as localizações dos arquivos de origem a partir do que o mapa de origem diz, para suas localizações no disco. ",

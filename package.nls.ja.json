@@ -45,7 +45,7 @@
 	"reactNative.snippets.runDirectiOS.description": "直接デバッグを有効にせずに iOS で React Native アプリを起動するための新しい構成",
 	"reactNative.snippets.debugDirectiOS.description": "直接デバッグを有効にして iOS 上で React Native アプリを起動するための新しい構成",
 	"reactNative.snippets.debugExpo.description": "Expo アプリを起動するための新しい構成",
-	"reactNative.attach.program.description": "[非推奨。 ",
+	"reactNative.attach.program.description": "[非推奨。代わりに cwd を使用] vscode フォルダー内の launchReactNative.js へのパスです",
 	"reactNative.attach.cwd.description": "プロジェクトのルートフォルダーへのパス",
 	"reactNative.attach.sourceMaps.description": "生成されたバンドル コードを元のソースにマッピングするために JavaScript ソース マップを使用するかどうか",
 	"reactNative.attach.sourceMapsPathOverrides.description": "ソース ファイルの場所を、ソース マップに記載されている内容からディスク上の場所に書き換えるための一連のマッピング。",

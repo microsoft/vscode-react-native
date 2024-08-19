@@ -45,7 +45,7 @@
 	"reactNative.snippets.runDirectiOS.description": "Nová konfigurace pro spouštění aplikace React Native na iOS bez povoleného přímého ladění",
 	"reactNative.snippets.debugDirectiOS.description": "Nová konfigurace pro spouštění aplikace React Native na iOS s povoleným přímým laděním",
 	"reactNative.snippets.debugExpo.description": "Nová konfigurace pro spouštění aplikace Expo",
-	"reactNative.attach.program.description": "[UKONČENO. ",
+	"reactNative.attach.program.description": "[ZASTARALÉ. POUŽIJTE MÍSTO TOHO cwd] Cesta k souboru launchReactNative.js ve složce vscode",
 	"reactNative.attach.cwd.description": "Cesta ke kořenové složce projektu",
 	"reactNative.attach.sourceMaps.description": "Zda použít mapy zdroje JavaScript k mapování vygenerovaného sdruženého kódu zpět do jeho původních zdrojů",
 	"reactNative.attach.sourceMapsPathOverrides.description": "Sada mapování pro přepisování umístění zdrojových souborů z toho, co říká zdrojová mapa, do jejich umístění na disku. ",
