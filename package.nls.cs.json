@@ -68,7 +68,7 @@
 	"reactNative.attach.debuggerWorkerUrlPath.description": "Cesta k pracovníkovi ladicího programu aplikace, který má být přepsán. ",
 	"reactNative.launch.direct.platform.description": "Platforma, na kterou je třeba cílit. ",
 	"reactNative.launch.platform.description": "Platforma, na kterou je třeba cílit. ",
-	"reactNative.launch.program.description": "[UKONČENO. ",
+	"reactNative.launch.program.description": "[ZASTARALÉ. POUŽIJTE MÍSTO TOHO cwd] Cesta k souboru launchReactNative.js ve složce vscode",
 	"reactNative.launch.cwd.description": "Cesta ke kořenové složce projektu",
 	"reactNative.launch.target.description": "Cíl běžet dál. <iOS device name>', '<Android emulator/device id>', '<iOS simulator name>'",
 	"reactNative.launch.sourceMaps.description": "Zda použít mapy zdroje JavaScript k mapování vygenerovaného sdruženého kódu zpět do jeho původních zdrojů",

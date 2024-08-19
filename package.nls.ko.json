@@ -68,7 +68,7 @@
 	"reactNative.attach.debuggerWorkerUrlPath.description": "재정의할 앱 디버거 작업자의 경로입니다. ",
 	"reactNative.launch.direct.platform.description": "타겟팅할 플랫폼입니다. ",
 	"reactNative.launch.platform.description": "타겟팅할 플랫폼입니다. ",
-	"reactNative.launch.program.description": "[더 이상 사용되지 않습니다. ",
+	"reactNative.launch.program.description": "[사용되지 않음. 대신 cwd 사용] vscode 폴더에 있는 launchReactNative.js의 경로입니다.",
 	"reactNative.launch.cwd.description": "프로젝트 루트 폴더 경로",
 	"reactNative.launch.target.description": "실행할 대상입니다. <iOS device name>','<Android emulator/device id>','<iOS simulator name>'",
 	"reactNative.launch.sourceMaps.description": "생성된 번들 코드를 원래 소스에 다시 매핑하기 위해 JavaScript 소스 맵을 사용할지 여부",

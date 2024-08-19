@@ -68,7 +68,7 @@
 	"reactNative.attach.debuggerWorkerUrlPath.description": "Geçersiz kılınacak uygulama hata ayıklayıcı çalışanının yolu. ",
 	"reactNative.launch.direct.platform.description": "Hedeflenecek platform. ",
 	"reactNative.launch.platform.description": "Hedeflenecek platform. ",
-	"reactNative.launch.program.description": "[KULLANIMDAN KALDIRILDI. ",
+	"reactNative.launch.program.description": "[KULLANIM DIŞI. BUNUN YERİNE cwd KULLANIN] launchReactNative.js dosyasının vscode klasöründeki yolu",
 	"reactNative.launch.cwd.description": "Proje kök klasörünün yolu",
 	"reactNative.launch.target.description": "Devam etmek için hedef. <iOS device name>','<Android emulator/device id>','<iOS simulator name>'",
 	"reactNative.launch.sourceMaps.description": "Oluşturulan paket kodu orijinal kaynaklarına geri eşlemek için JavaScript kaynak eşlemelerinin kullanılıp kullanılmayacağı",

@@ -68,7 +68,7 @@
 	"reactNative.attach.debuggerWorkerUrlPath.description": "オーバーライドするアプリ デバッガー ワーカーへのパス。",
 	"reactNative.launch.direct.platform.description": "ターゲットとするプラットフォーム。",
 	"reactNative.launch.platform.description": "ターゲットとするプラットフォーム。",
-	"reactNative.launch.program.description": "[非推奨。 ",
+	"reactNative.launch.program.description": "[非推奨。代わりに cwd を使用] vscode フォルダー内の launchReactNative.js へのパスです",
 	"reactNative.launch.cwd.description": "プロジェクトのルートフォルダーへのパス",
 	"reactNative.launch.target.description": "実行するターゲット。<iOS device name>「、」<Android emulator/device id>「、」<iOS simulator name>'",
 	"reactNative.launch.sourceMaps.description": "生成されたバンドル コードを元のソースにマッピングするために JavaScript ソース マップを使用するかどうか",

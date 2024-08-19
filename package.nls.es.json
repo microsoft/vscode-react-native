@@ -68,7 +68,7 @@
 	"reactNative.attach.debuggerWorkerUrlPath.description": "Ruta al trabajador del depurador de aplicaciones que se va a anular. ",
 	"reactNative.launch.direct.platform.description": "La plataforma a la que apuntar. ",
 	"reactNative.launch.platform.description": "La plataforma a la que apuntar. ",
-	"reactNative.launch.program.description": "[OBSECUTIVO. ",
+	"reactNative.launch.program.description": "[EN DESUSO. UTILICE cwd EN SU LUGAR] Ruta de acceso a launchReactNative.js en la carpeta vscode.",
 	"reactNative.launch.cwd.description": "La ruta a la carpeta raíz del proyecto.",
 	"reactNative.launch.target.description": "Objetivo para seguir corriendo. <iOS device name>','<Android emulator/device id>','<iOS simulator name>'",
 	"reactNative.launch.sourceMaps.description": "Si se deben utilizar mapas de origen de JavaScript para asignar el código empaquetado generado a sus fuentes originales",

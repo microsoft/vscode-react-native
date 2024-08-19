@@ -68,7 +68,7 @@
 	"reactNative.attach.debuggerWorkerUrlPath.description": "Pfad zum App-Debugger-Worker, der überschrieben werden soll. ",
 	"reactNative.launch.direct.platform.description": "Die Plattform zum Ansprechen. ",
 	"reactNative.launch.platform.description": "Die Plattform zum Ansprechen. ",
-	"reactNative.launch.program.description": "[VERALTET. ",
+	"reactNative.launch.program.description": "[DEPRECATED. USE cwd INSTEAD] Der Pfad zu \"launchReactNative.js\" im Ordner \"vscode\".",
 	"reactNative.launch.cwd.description": "Der Pfad zum Projektstammordner",
 	"reactNative.launch.target.description": "Ziel zum Laufen. <iOS device name>', '<Android emulator/device id>', '<iOS simulator name>'",
 	"reactNative.launch.sourceMaps.description": "Ob JavaScript-Quellzuordnungen verwendet werden sollen, um den generierten gebündelten Code wieder seinen Originalquellen zuzuordnen",

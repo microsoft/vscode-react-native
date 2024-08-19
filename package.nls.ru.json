@@ -68,7 +68,7 @@
 	"reactNative.attach.debuggerWorkerUrlPath.description": "Путь к рабочему процессу отладчика приложения, который необходимо переопределить. ",
 	"reactNative.launch.direct.platform.description": "Целевая платформа. ",
 	"reactNative.launch.platform.description": "Целевая платформа. ",
-	"reactNative.launch.program.description": "[УСТАРЕЛО. ",
+	"reactNative.launch.program.description": "[Устарело. Используйте cwd] Путь к launchReactNative.js в папке vscode",
 	"reactNative.launch.cwd.description": "Путь к корневой папке проекта",
 	"reactNative.launch.target.description": "Цель, по которой нужно бежать. <iOS device name>', '<Android emulator/device id>', '<iOS simulator name>'",
 	"reactNative.launch.sourceMaps.description": "Следует ли использовать карты исходного кода JavaScript для сопоставления сгенерированного связанного кода с его исходными источниками.",

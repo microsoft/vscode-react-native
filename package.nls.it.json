@@ -68,7 +68,7 @@
 	"reactNative.attach.debuggerWorkerUrlPath.description": "Percorso del lavoratore del debugger dell'app da sovrascrivere. ",
 	"reactNative.launch.direct.platform.description": "La piattaforma su cui puntare. ",
 	"reactNative.launch.platform.description": "La piattaforma su cui puntare. ",
-	"reactNative.launch.program.description": "[DEPRECATO. ",
+	"reactNative.launch.program.description": "[DEPRECATO. IN ALTERNATIVA USARE cwd] Percorso di launchReactNative.js nella cartella vscode",
 	"reactNative.launch.cwd.description": "Il percorso della cartella radice del progetto",
 	"reactNative.launch.target.description": "Obiettivo su cui correre. <iOS device name>', '<Android emulator/device id>', '<iOS simulator name>'",
 	"reactNative.launch.sourceMaps.description": "Se utilizzare le mappe di origine JavaScript per mappare il codice in bundle generato alle sue origini originali",

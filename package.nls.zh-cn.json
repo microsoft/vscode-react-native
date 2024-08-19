@@ -68,7 +68,7 @@
 	"reactNative.attach.debuggerWorkerUrlPath.description": "要覆盖的应用程序调试器工作线程的路径。",
 	"reactNative.launch.direct.platform.description": "目标平台。",
 	"reactNative.launch.platform.description": "目标平台。",
-	"reactNative.launch.program.description": "[已弃用。 ",
+	"reactNative.launch.program.description": "[DEPRECATED. USE cwd INSTEAD] 指向 vscode 文件夹中的 launchReactNative.js 的路径",
 	"reactNative.launch.cwd.description": "项目根文件夹的路径",
 	"reactNative.launch.target.description": "要运行的目标。<iOS device name>','<Android emulator/device id>','<iOS simulator name>'",
 	"reactNative.launch.sourceMaps.description": "是否使用 JavaScript 源映射将生成的捆绑代码映射回其原始源",

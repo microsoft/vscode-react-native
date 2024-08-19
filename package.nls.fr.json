@@ -68,7 +68,7 @@
 	"reactNative.attach.debuggerWorkerUrlPath.description": "Chemin d’accès au travailleur du débogueur d’application à remplacer. ",
 	"reactNative.launch.direct.platform.description": "La plateforme à cibler. ",
 	"reactNative.launch.platform.description": "La plateforme à cibler. ",
-	"reactNative.launch.program.description": "[OBSERVÉ. ",
+	"reactNative.launch.program.description": "[DÉPRÉCIÉ. UTILISER cwd À LA PLACE] Chemin de launchReactNative.js dans le dossier vscode",
 	"reactNative.launch.cwd.description": "Le chemin d'accès au dossier racine du projet",
 	"reactNative.launch.target.description": "Cible sur laquelle courir. <iOS device name>', '<Android emulator/device id>', '<iOS simulator name>'",
 	"reactNative.launch.sourceMaps.description": "S'il faut utiliser des mappages de sources JavaScript pour mapper le code groupé généré à ses sources d'origine",

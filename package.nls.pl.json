@@ -68,7 +68,7 @@
 	"reactNative.attach.debuggerWorkerUrlPath.description": "Ścieżka do procesu roboczego debugera aplikacji do zastąpienia. ",
 	"reactNative.launch.direct.platform.description": "Platforma docelowa. ",
 	"reactNative.launch.platform.description": "Platforma docelowa. ",
-	"reactNative.launch.program.description": "[przestarzałe. ",
+	"reactNative.launch.program.description": "[PRZESTARZAŁE. UŻYJ W ZASTĘPSTWIE cwd] Ścieżka do pliku launchReactNative.js w folderze vscode",
 	"reactNative.launch.cwd.description": "Ścieżka do folderu głównego projektu",
 	"reactNative.launch.target.description": "Cel, po którym można biegać. <iOS device name>', '<Android emulator/device id>', '<iOS simulator name>'",
 	"reactNative.launch.sourceMaps.description": "Określa, czy używać map źródeł JavaScript do mapowania wygenerowanego pakietu kodu z powrotem na jego oryginalne źródła",

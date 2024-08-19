@@ -68,7 +68,7 @@
 	"reactNative.attach.debuggerWorkerUrlPath.description": "Caminho para o trabalhador do depurador de aplicativo a ser substituído. ",
 	"reactNative.launch.direct.platform.description": "A plataforma a ser segmentada. ",
 	"reactNative.launch.platform.description": "A plataforma a ser segmentada. ",
-	"reactNative.launch.program.description": "[DESATIVADO. ",
+	"reactNative.launch.program.description": "[PRETERIDO. EM VEZ DISSO, USE cwd] O caminho para launchReactNative.js na pasta vscode",
 	"reactNative.launch.cwd.description": "O caminho para a pasta raiz do projeto",
 	"reactNative.launch.target.description": "Alvo para correr. <iOS device name>','<Android emulator/device id>','<iOS simulator name>'",
 	"reactNative.launch.sourceMaps.description": "Se deve usar mapas de origem JavaScript para mapear o código agrupado gerado de volta às suas fontes originais",
