@@ -67,7 +67,7 @@ function existsCaseSensitive(filePath) {
 }
 
 function executeCommand(command, args, callback, opts) {
-    const proc = child_process.spawn(command + (process.platform === "win32" ? ".cmd" : ""), args, opts);
+    const proc = child_process.spawn(command + (process.platform === "win32" ? ".cmd" : ""), args, Object.assign({}, opts, { shell: true }));
     let errorSignaled = false;
 
     proc.stdout.on("data", (data) => {

@@ -9,7 +9,7 @@ nls.config({
     messageFormat: nls.MessageFormat.bundle,
     bundleFormat: nls.BundleFormat.standalone,
 })();
-const toLocale = nls.loadMessageBundle();
+const localize = nls.loadMessageBundle();
 
 const label = "Xcode CLI";
 
@@ -31,8 +31,8 @@ async function test(): Promise<ValidationResultT> {
 const main: IValidation = {
     label,
     platform: ["darwin"],
-    description: toLocale(
-        "xcodeCLICheckDescription",
+    description: localize(
+        "XcodeCLICheckDescription",
         "Required for building and testing RN macOS apps",
     ),
     category: ValidationCategoryE.macOS,
