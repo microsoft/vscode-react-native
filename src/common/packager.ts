@@ -134,9 +134,9 @@ export class Packager {
         return this.projectPath;
     }
 
-    private async stopWithlowNode() {
+    private async stopWithlowNode(env: object) {
         const versionInfo = await ProjectVersionHelper.getReactNativeVersions(this.projectPath);
-        this.nodeVersion = await getNodeVersion(this.projectPath);
+        this.nodeVersion = await getNodeVersion(this.projectPath, env);
         if (this.nodeVersion) {
             const isNodeSupported = semver.gte(this.nodeVersion, Packager.NODE_AVAIABLE);
             const isRNWithPackerIssue = semver.gte(
@@ -207,7 +207,7 @@ export class Packager {
         this.packagerStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTING);
         let executedStartPackagerCmd = false;
         let rnVersion: string;
-
+        let reactEnv = {};
         if (!(await this.isRunning())) {
             if (this.packagerProcess) {
                 this.logger.warning(
@@ -248,7 +248,7 @@ export class Packager {
                 env = GeneralPlatform.getEnvArgument(env, null, rootEnv);
             }
 
-            const reactEnv = Object.assign({}, env, {
+            reactEnv = Object.assign({}, env, {
                 REACT_DEBUGGER: "echo A debugger is not needed: ",
                 REACT_EDITOR: !failedRNVersions.includes(rnVersion)
                     ? "code"
@@ -291,7 +291,7 @@ export class Packager {
             packagerSpawnResult.outcome.catch(() => {}); // We ignore all outcome errors
         }
 
-        if (await this.stopWithlowNode()) {
+        if (await this.stopWithlowNode(reactEnv)) {
             await this.stop();
             throw new Error(
                 `React Native needs Node.js >= 18. You're currently on version ${this.nodeVersion}. Please upgrade Node.js to a supported version and try again.`,

@@ -199,8 +199,18 @@ export class GeneralPlatform {
     }
 
     public static getEnvArgument(processEnv: any, env?: any, envFile?: string): any {
-        const modifyEnv = Object.assign({}, processEnv);
-
+        let newVersion = SettingsHelper.getSettingNodeVersion();
+        let nodeEnv;
+        if (newVersion) {
+            newVersion = newVersion.includes("v") ? newVersion : `v${newVersion}`;
+            const regex = /versions\/node\/v?\d+\.\d+\.\d+/g;
+            nodeEnv = {
+                NVM_BIN: processEnv.NVM_BIN?.replace(regex, `versions/node/${newVersion}`),
+                NVM_INC: processEnv.NVM_INC?.replace(regex, `versions/node/${newVersion}`),
+                PATH: processEnv.PATH?.replace(regex, `versions/node/${newVersion}`),
+            };
+        }
+        const modifyEnv = Object.assign({}, processEnv, nodeEnv);
         if (envFile) {
             // .env variables never overwrite existing variables
             const argsFromEnvFile = this.readEnvFile(envFile);

@@ -1339,7 +1339,7 @@
           "scope": "resource",
           "default": true
         },
-        "telemetry.optIn": {
+        "react-native-tools.telemetry.optIn":  {
           "description": "Whether to send usage data to Microsoft",
           "type": "boolean",
           "scope": "resource",
@@ -1350,6 +1350,12 @@
           "type": "boolean",
           "scope": "resource",
           "default": true
+        },
+        "react-native-tools.setNodeVersion": {
+          "description": "The version of Node.js to use for running React Native.",
+          "type": "string",
+          "scope": "resource",
+          "default": ""
         }
       }
     }
