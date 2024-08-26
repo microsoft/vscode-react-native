@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as assert from "assert";
-import * as nls from "vscode-nls";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ProjectVersionHelper, REACT_NATIVE_PACKAGES } from "../../common/projectVersionHelper";
@@ -13,19 +12,13 @@ import { WindowsPlatform } from "../windows/windowsPlatform";
 import { getRunOptions } from "./util";
 import { Command } from "./util/command";
 
-nls.config({
-    messageFormat: nls.MessageFormat.bundle,
-    bundleFormat: nls.BundleFormat.standalone,
-})();
-const localize = nls.loadMessageBundle();
-
 export class ReloadApp extends Command {
     codeName = "reloadApp";
     requiresTrust = false;
     label = "ReloadApp";
     error = ErrorHelper.getInternalError(
         InternalErrorCode.CommandFailed,
-        localize("ReactNativeReloadApp", "React Native: Reload App"),
+        "React Native: Reload App",
     );
 
     async baseFn(): Promise<void> {
