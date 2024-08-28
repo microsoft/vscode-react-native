@@ -15,5 +15,11 @@
 	"AboutToGetURL": "Verrà scaricato: {0}",
 	"BundleCacheWasPrewarmed": "La cache del bundle è stata preriscaldata.",
 	"CouldNotStartPackager": "Non è stato possibile avviare lo strumento per la creazione di pacchetti.",
-	"StoppingPackager": "Arresto dello strumento per la creazione di pacchetti"
+	"StoppingPackager": "Arresto dello strumento per la creazione di pacchetti",
+	"PackagerIsRunningBeforeStarting": "Packager è già in esecuzione. Se desideri eseguire il debug, utilizza l'opzione \"Allega a Packager\".",
+	"VerifyOpenModuleMainFileAndEntry": "È necessario controllare il file principale e il punto di ingresso del modulo aperto, configurare e scrivere nuovi contenuti se non esistono, Percorso: {0}",
+	"NoOpenMainFile": "Impossibile trovare il file principale nel modulo aperto, esecuzione dell'installazione in corso...",
+	"CopyOpenMainFile": "Copia open-main.js per aprire il modulo...",
+	"AddOpenMainEntry": "Aggiungi la voce open-main.js al campo \"main\" di package.json...",
+	"OpenMainEntryIsExisting": "Trova open-main.js e la voce nel modulo aperto, salta la configurazione..."
 }

@@ -15,5 +15,11 @@
 	"AboutToGetURL": "Chystá se načtení: {0}",
 	"BundleCacheWasPrewarmed": "Skupinová mezipaměť byla předběžně připravena.",
 	"CouldNotStartPackager": "Nepodařilo se spustit balíčkovač.",
-	"StoppingPackager": "Balíčkovač se zastavuje."
+	"StoppingPackager": "Balíčkovač se zastavuje.",
+	"PackagerIsRunningBeforeStarting": "Packager je již spuštěn, pokud chcete ladit, použijte volbu 'Připojit k balíčkovači'",
+	"VerifyOpenModuleMainFileAndEntry": "Potřebujete zkontrolovat hlavní soubor a vstupní bod otevřeného modulu, nastaví a zapíše nový obsah, pokud neexistují, cesta: {0}",
+	"NoOpenMainFile": "Nelze najít hlavní soubor v otevřeném modulu, spouští se nastavení...",
+	"CopyOpenMainFile": "Zkopírujte open-main.js pro otevření modulu...",
+	"AddOpenMainEntry": "Přidat položku open-main.js do pole package.json 'main'...",
+	"OpenMainEntryIsExisting": "Najděte open-main.js a záznam v otevřeném modulu, přeskočte nastavení..."
 }

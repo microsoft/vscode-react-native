@@ -15,5 +15,11 @@
 	"AboutToGetURL": "Folgendes wird abgerufen: {0}",
 	"BundleCacheWasPrewarmed": "Vorbereitende Aufwärmphase für Bundlecache abgeschlossen.",
 	"CouldNotStartPackager": "Der Paketerstellungs-Manager konnte nicht gestartet werden.",
-	"StoppingPackager": "Paketerstellungs-Manager wird beendet"
+	"StoppingPackager": "Paketerstellungs-Manager wird beendet",
+	"PackagerIsRunningBeforeStarting": "Packager läuft bereits. Wenn Sie debuggen möchten, verwenden Sie bitte die Option „An Packager anhängen“.",
+	"VerifyOpenModuleMainFileAndEntry": "Die Hauptdatei und der Einstiegspunkt des geöffneten Moduls müssen überprüft werden. Es werden neue Inhalte eingerichtet und geschrieben, falls diese nicht vorhanden sind. Pfad: {0}",
+	"NoOpenMainFile": "Die Hauptdatei kann im geöffneten Modul nicht gefunden werden, Setup wird ausgeführt ...",
+	"CopyOpenMainFile": "Kopieren Sie open-main.js, um das Modul zu öffnen ...",
+	"AddOpenMainEntry": "Fügen Sie den Eintrag „open-main.js“ zum Feld „main“ von package.json hinzu ...",
+	"OpenMainEntryIsExisting": "Suchen Sie open-main.js und den Eintrag im offenen Modul, überspringen Sie die Einrichtung ..."
 }

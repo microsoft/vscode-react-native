@@ -15,5 +15,11 @@
 	"AboutToGetURL": "Şu alınmak üzere: {0}",
 	"BundleCacheWasPrewarmed": "Toplu Paket Önbelleği önceden hazırlandı.",
 	"CouldNotStartPackager": "Paketleyici başlatılamadı.",
-	"StoppingPackager": "Paketleyici durduruluyor"
+	"StoppingPackager": "Paketleyici durduruluyor",
+	"PackagerIsRunningBeforeStarting": "Paketleyici zaten çalışıyor. Hata ayıklamak istiyorsanız lütfen 'Paketleyiciye ekle' seçeneğini kullanın.",
+	"VerifyOpenModuleMainFileAndEntry": "Ana dosyayı ve açık modülün giriş noktasını kontrol etmeniz gerekiyor, mevcut değilse yeni içerik oluşturup yazacak, Yol: {0}",
+	"NoOpenMainFile": "Açık modülde ana dosya bulunamıyor, kurulum yürütülüyor...",
+	"CopyOpenMainFile": "open-main.js dosyasını açık modüle kopyalayın...",
+	"AddOpenMainEntry": "package.json 'ana' alanına open-main.js girişini ekleyin...",
+	"OpenMainEntryIsExisting": "Open-main.js'yi bulun ve açık modüle girin, kurulumu atlayın..."
 }

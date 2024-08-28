@@ -15,5 +15,11 @@
 	"AboutToGetURL": "Descarga que se va a obtener: {0}",
 	"BundleCacheWasPrewarmed": "El conjunto en caché se ha preparado.",
 	"CouldNotStartPackager": "No se pudo iniciar el empaquetador.",
-	"StoppingPackager": "Deteniendo el empaquetador"
+	"StoppingPackager": "Deteniendo el empaquetador",
+	"PackagerIsRunningBeforeStarting": "El empaquetador ya se está ejecutando. Si desea depurar, utilice la opción 'Adjuntar al empaquetador'.",
+	"VerifyOpenModuleMainFileAndEntry": "Es necesario verificar el archivo principal y el punto de entrada del módulo abierto; configurará y escribirá contenido nuevo si no existe. Ruta: {0}",
+	"NoOpenMainFile": "No se puede encontrar el archivo principal en el módulo abierto, ejecutando la configuración...",
+	"CopyOpenMainFile": "Copie open-main.js para abrir el módulo...",
+	"AddOpenMainEntry": "Agregue la entrada open-main.js al campo 'principal' de package.json...",
+	"OpenMainEntryIsExisting": "Busque open-main.js y entre en el módulo abierto, omita la configuración..."
 }

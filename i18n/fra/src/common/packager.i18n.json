@@ -15,5 +15,11 @@
 	"AboutToGetURL": "Prêt à obtenir : {0}",
 	"BundleCacheWasPrewarmed": "Le cache de bundle a été préparé.",
 	"CouldNotStartPackager": "Impossible de démarrer le packager.",
-	"StoppingPackager": "Arrêt du packager"
+	"StoppingPackager": "Arrêt du packager",
+	"PackagerIsRunningBeforeStarting": "Le packager est déjà en cours d'exécution. Si vous souhaitez déboguer, veuillez utiliser l'option « Attacher au packager ».",
+	"VerifyOpenModuleMainFileAndEntry": "Besoin de vérifier le fichier principal et le point d'entrée du module ouvert, de configurer et d'écrire du nouveau contenu s'ils n'existent pas, chemin : {0}",
+	"NoOpenMainFile": "Impossible de trouver le fichier principal dans le module ouvert, exécution de l'installation...",
+	"CopyOpenMainFile": "Copiez open-main.js pour ouvrir le module...",
+	"AddOpenMainEntry": "Ajoutez l'entrée open-main.js au champ 'main' de package.json...",
+	"OpenMainEntryIsExisting": "Recherchez open-main.js et l'entrée dans le module ouvert, ignorez la configuration..."
 }
