@@ -8,5 +8,6 @@
 	"UsindAndroidSDKLocationDefinedInLocalPropertiesFile": "android/local.properties dosyasında tanımlanan Android SDK konumu kullanılıyor: {0}.",
 	"LocalPropertiesFileDoesNotExist": "local.properties dosyası yok. PATH içindeki Android SDK konumu kullanılıyor.",
 	"CouldNotReadFrom": "{0} konumundan okunamadı.",
-	"UsingAndroidSDKLocationFromPATH": "PATH içindeki Android SDK konumu kullanılıyor."
+	"UsingAndroidSDKLocationFromPATH": "PATH içindeki Android SDK konumu kullanılıyor.",
+	"LocalPropertiesAndroidSDKPathNotExistingInLocal": "Local.properties dosyasında Andriod SDK yolu var ancak yerelinizde bulamıyor, ortam değişkeninde SDK PATH'e geçecek. Lütfen android/local.properties dosyasındaki Android SDK yolunu kontrol edin."
 }

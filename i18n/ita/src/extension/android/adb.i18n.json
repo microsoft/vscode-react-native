@@ -8,5 +8,6 @@
 	"UsindAndroidSDKLocationDefinedInLocalPropertiesFile": "Uso del percorso di Android SDK definito nel file android/local.properties: {0}.",
 	"LocalPropertiesFileDoesNotExist": "Il file local.properties non esiste. Verrà usato il percorso di Android SDK di PATH.",
 	"CouldNotReadFrom": "Non è stato possibile leggere da {0}.",
-	"UsingAndroidSDKLocationFromPATH": "Verrà usato il percorso di Android SDK di PATH."
+	"UsingAndroidSDKLocationFromPATH": "Verrà usato il percorso di Android SDK di PATH.",
+	"LocalPropertiesAndroidSDKPathNotExistingInLocal": "Il file local.properties contiene il percorso dell'SDK di Android, ma se non lo si trova in locale, si passa al PATH dell'SDK nella variabile di ambiente. Controllare il percorso dell'SDK Android nel file android/local.properties."
 }
