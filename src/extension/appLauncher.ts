@@ -339,17 +339,11 @@ export class AppLauncher {
                             generator.step("mobilePlatform.enableHermesDebuggingMode");
                             if (mobilePlatformOptions.enableDebug) {
                                 this.logger.info(
-                                    localize(
-                                        "PrepareHermesDebugging",
-                                        "Prepare Hermes debugging (experimental)",
-                                    ),
+                                    localize("PrepareHermesDebugging", "Prepare Hermes debugging"),
                                 );
                             } else {
                                 this.logger.info(
-                                    localize(
-                                        "PrepareHermesLaunch",
-                                        "Prepare Hermes launch (experimental)",
-                                    ),
+                                    localize("PrepareHermesLaunch", "Prepare Hermes launch"),
                                 );
                             }
                         } else if (launchArgs.platform === PlatformType.iOS) {
