@@ -11,5 +11,7 @@
 	"PackagerStopped": "{0}: beendet",
 	"PackagerStopping": "{0}: wird beendet",
 	"PackagerStarted": "{0}: gestartet",
-	"PackagerStarting": "{0}: wird gestartet"
+	"PackagerStarting": "{0}: wird gestartet",
+	"StartingPackager": "Packager starten",
+	"StoppingPackager": "Packager stoppen"
 }

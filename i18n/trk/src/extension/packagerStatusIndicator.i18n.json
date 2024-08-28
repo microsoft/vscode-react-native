@@ -11,5 +11,7 @@
 	"PackagerStopped": "{0}: Durduruldu",
 	"PackagerStopping": "{0}: Durduruluyor",
 	"PackagerStarted": "{0}: Başlatıldı",
-	"PackagerStarting": "{0}: Başlatılıyor"
+	"PackagerStarting": "{0}: Başlatılıyor",
+	"StartingPackager": "Paketleyiciyi Başlatma",
+	"StoppingPackager": "Paketleyiciyi Durdurma"
 }

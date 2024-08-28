@@ -11,5 +11,7 @@
 	"PackagerStopped": "{0}: arrestato",
 	"PackagerStopping": "{0}: in fase di arresto",
 	"PackagerStarted": "{0}: avviato",
-	"PackagerStarting": "{0}: in fase di avvio"
+	"PackagerStarting": "{0}: in fase di avvio",
+	"StartingPackager": "Avvio di Packager",
+	"StoppingPackager": "Arresto di Packager"
 }

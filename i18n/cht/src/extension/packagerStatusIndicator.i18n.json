@@ -11,5 +11,7 @@
 	"PackagerStopped": "{0}: 已停止",
 	"PackagerStopping": "{0}: 正在停止",
 	"PackagerStarted": "{0}: 已啟動",
-	"PackagerStarting": "{0}: 正在啟動"
+	"PackagerStarting": "{0}: 正在啟動",
+	"StartingPackager": "啟動打包器",
+	"StoppingPackager": "停止打包程序"
 }

@@ -11,5 +11,7 @@
 	"PackagerStopped": "{0}: 중지됨",
 	"PackagerStopping": "{0}: 중지하는 중",
 	"PackagerStarted": "{0}: 시작됨",
-	"PackagerStarting": "{0}: 시작하는 중"
+	"PackagerStarting": "{0}: 시작하는 중",
+	"StartingPackager": "패키저 시작",
+	"StoppingPackager": "패키저 중지"
 }

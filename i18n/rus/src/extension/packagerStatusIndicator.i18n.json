@@ -11,5 +11,7 @@
 	"PackagerStopped": "{0}: остановлен",
 	"PackagerStopping": "{0}: остановка",
 	"PackagerStarted": "{0}: запущен",
-	"PackagerStarting": "{0}: выполняется запуск"
+	"PackagerStarting": "{0}: выполняется запуск",
+	"StartingPackager": "Запуск упаковщика",
+	"StoppingPackager": "Остановка упаковщика"
 }

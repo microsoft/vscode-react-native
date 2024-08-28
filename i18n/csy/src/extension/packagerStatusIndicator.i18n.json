@@ -11,5 +11,7 @@
 	"PackagerStopped": "{0}: Zastaveno",
 	"PackagerStopping": "{0}: Zastavuje se",
 	"PackagerStarted": "{0}: Spuštěno",
-	"PackagerStarting": "{0}: Spouští se"
+	"PackagerStarting": "{0}: Spouští se",
+	"StartingPackager": "Spuštění Packageru",
+	"StoppingPackager": "Zastavení baliče"
 }
