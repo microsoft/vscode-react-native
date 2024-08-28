@@ -8,5 +8,6 @@
 	"UsindAndroidSDKLocationDefinedInLocalPropertiesFile": "使用 Android SDK android/local.properties 檔案中定義的位置: {0}。",
 	"LocalPropertiesFileDoesNotExist": "local.properties 檔案不存在。請使用來自於 PATH 的 Android SDK 位置。",
 	"CouldNotReadFrom": "無法從 {0} 讀取。",
-	"UsingAndroidSDKLocationFromPATH": "使用 PATH 中的 Android SDK 位置。"
+	"UsingAndroidSDKLocationFromPATH": "使用 PATH 中的 Android SDK 位置。",
+	"LocalPropertiesAndroidSDKPathNotExistingInLocal": "Local.properties 檔案有 Andriod SDK 路徑，但在本機中找不到，因此會切換到環境變數中的 SDK PATH。請檢查 android/local.properties 檔案中的 Android SDK 路徑。"
 }

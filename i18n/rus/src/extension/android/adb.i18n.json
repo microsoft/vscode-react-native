@@ -8,5 +8,6 @@
 	"UsindAndroidSDKLocationDefinedInLocalPropertiesFile": "Использование расположения пакета SDK для Android, определенного в файле android/local.properties: {0}.",
 	"LocalPropertiesFileDoesNotExist": "Файл local.properties не существует. Использование расположения пакета SDK для Android из переменной PATH.",
 	"CouldNotReadFrom": "Не удалось выполнить чтение из {0}.",
-	"UsingAndroidSDKLocationFromPATH": "Использование расположения пакета SDK для Android из переменной PATH."
+	"UsingAndroidSDKLocationFromPATH": "Использование расположения пакета SDK для Android из переменной PATH.",
+	"LocalPropertiesAndroidSDKPathNotExistingInLocal": "В файле local.properties указан путь к Andriod SDK, но вы не можете найти его в локальной сети, поэтому будет произведено переключение на SDK PATH в переменной окружения. Пожалуйста, проверьте путь к Android SDK в файле android/local.properties."
 }

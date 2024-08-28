@@ -11,5 +11,7 @@
 	"PackagerStopped": "{0} : arrêté",
 	"PackagerStopping": "{0} : arrêt en cours",
 	"PackagerStarted": "{0} : démarré",
-	"PackagerStarting": "{0} : démarrage en cours"
+	"PackagerStarting": "{0} : démarrage en cours",
+	"StartingPackager": "Démarrage du conditionneur",
+	"StoppingPackager": "Arrêt du conditionneur"
 }

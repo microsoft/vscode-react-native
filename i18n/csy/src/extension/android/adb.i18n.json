@@ -8,5 +8,6 @@
 	"UsindAndroidSDKLocationDefinedInLocalPropertiesFile": "Použije se umístění sady Android SDK definované v souboru android/local.properties: {0}.",
 	"LocalPropertiesFileDoesNotExist": "Soubor local.properties neexistuje. Použije se umístění sady Android SDK z cesty.",
 	"CouldNotReadFrom": "Nejde číst z {0}.",
-	"UsingAndroidSDKLocationFromPATH": "Použije se umístění sady Android SDK z cesty."
+	"UsingAndroidSDKLocationFromPATH": "Použije se umístění sady Android SDK z cesty.",
+	"LocalPropertiesAndroidSDKPathNotExistingInLocal": "Soubor local.properties obsahuje cestu k SDK Andriod, ale nelze ji najít v místním prostředí, přepne se na SDK PATH v proměnné prostředí. Zkontrolujte prosím cestu k Android SDK v souboru android/local.properties."
 }

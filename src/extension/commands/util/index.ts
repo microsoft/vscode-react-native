@@ -78,7 +78,7 @@ export async function loginToExponent(project: AppLauncher): Promise<xdl.IUser> 
         OutputChannelLogger.getMainChannel().warning(
             localize(
                 "ExpoErrorOccuredMakeSureYouAreLoggedIn",
-                "An error has occured. Please make sure you are logged in to Expo, your project is setup correctly for publishing and your packager is running as Expo.",
+                "An error has occurred. Please make sure you are logged in to Expo, your project is setup correctly for publishing and your packager is running as Expo.",
             ),
         );
         throw err;

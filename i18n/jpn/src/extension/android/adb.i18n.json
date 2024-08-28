@@ -8,5 +8,6 @@
 	"UsindAndroidSDKLocationDefinedInLocalPropertiesFile": "android/local.properties ファイルで定義されている Android SDK の場所を使用しています: {0}。",
 	"LocalPropertiesFileDoesNotExist": "local.properties ファイルが存在しません。PATH から Android SDK の場所を使用しています。",
 	"CouldNotReadFrom": "{0} から読み取れませんでした。",
-	"UsingAndroidSDKLocationFromPATH": "PATH から Android SDK の場所を使用しています。"
+	"UsingAndroidSDKLocationFromPATH": "PATH から Android SDK の場所を使用しています。",
+	"LocalPropertiesAndroidSDKPathNotExistingInLocal": "Local.propertiesファイルにはAndriod SDKのパスがありますが、ローカルに見つからないため、環境変数のSDK PATHに切り替わります。android/local.propertiesファイルのAndroid SDKパスを確認してください。"
 }

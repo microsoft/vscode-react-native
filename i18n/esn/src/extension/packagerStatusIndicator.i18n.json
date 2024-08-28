@@ -11,5 +11,7 @@
 	"PackagerStopped": "{0}: detenido",
 	"PackagerStopping": "{0}: deteniéndose",
 	"PackagerStarted": "{0}: iniciado",
-	"PackagerStarting": "{0}: iniciándose"
+	"PackagerStarting": "{0}: iniciándose",
+	"StartingPackager": "Empaquetador inicial",
+	"StoppingPackager": "Detener el empaquetador"
 }

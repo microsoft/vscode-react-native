@@ -8,5 +8,6 @@
 	"UsindAndroidSDKLocationDefinedInLocalPropertiesFile": "Utilisation de l'emplacement du kit Android SDK défini dans le fichier android/local.properties : {0}.",
 	"LocalPropertiesFileDoesNotExist": "Le fichier local.properties n'existe pas. Utilisation de l'emplacement du kit Android SDK à partir de PATH.",
 	"CouldNotReadFrom": "Impossible de lire à partir de {0}.",
-	"UsingAndroidSDKLocationFromPATH": "Utilisation de l'emplacement du kit Android SDK à partir de PATH."
+	"UsingAndroidSDKLocationFromPATH": "Utilisation de l'emplacement du kit Android SDK à partir de PATH.",
+	"LocalPropertiesAndroidSDKPathNotExistingInLocal": "Le fichier local.properties contient le chemin du SDK Android mais ne le trouve pas dans votre fichier local, il bascule sur le PATH SDK dans la variable d'environnement. Veuillez vérifier le chemin du SDK Android dans le fichier android/local.properties."
 }
