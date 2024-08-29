@@ -15,5 +15,11 @@
 	"AboutToGetURL": "가져올 예정: {0}",
 	"BundleCacheWasPrewarmed": "번들 캐시가 사전 준비되었습니다.",
 	"CouldNotStartPackager": "패키지 작성 도구를 시작할 수 없습니다.",
-	"StoppingPackager": "패키지 작성 도구를 중지하는 중"
+	"StoppingPackager": "패키지 작성 도구를 중지하는 중",
+	"PackagerIsRunningBeforeStarting": "패키저가 이미 실행 중입니다. 디버깅하려면 '패키저에 연결' 옵션을 사용하세요.",
+	"VerifyOpenModuleMainFileAndEntry": "열린 모듈의 기본 파일과 진입점을 확인해야 합니다. 존재하지 않는 경우 새 콘텐츠를 설정하고 작성합니다. 경로: {0}",
+	"NoOpenMainFile": "열려 있는 모듈에서 기본 파일을 찾을 수 없습니다. 설정을 실행 중입니다...",
+	"CopyOpenMainFile": "open-main.js를 복사하여 모듈을 엽니다...",
+	"AddOpenMainEntry": "package.json 'main' 필드에 open-main.js 항목 추가...",
+	"OpenMainEntryIsExisting": "open-main.js를 찾아 열린 모듈에 항목을 입력하고 설정을 건너뛰세요..."
 }

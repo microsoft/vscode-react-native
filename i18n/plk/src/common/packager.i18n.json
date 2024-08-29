@@ -15,5 +15,11 @@
 	"AboutToGetURL": "Zamierzasz pobrać: {0}",
 	"BundleCacheWasPrewarmed": "Pamięć podręczna pakietu została wstępnie zapełniona.",
 	"CouldNotStartPackager": "Nie można uruchomić narzędzia do tworzenia pakietów.",
-	"StoppingPackager": "Trwa zatrzymywanie narzędzia do tworzenia pakietów"
+	"StoppingPackager": "Trwa zatrzymywanie narzędzia do tworzenia pakietów",
+	"PackagerIsRunningBeforeStarting": "Program pakujący jest już uruchomiony. Jeśli chcesz przeprowadzić debugowanie, użyj opcji „Dołącz do programu pakującego”.",
+	"VerifyOpenModuleMainFileAndEntry": "Należy sprawdzić plik główny i punkt wejścia otwartego modułu, skonfiguruję i napiszę nową zawartość, jeśli nie istnieje, ścieżka: {0}",
+	"NoOpenMainFile": "Nie można znaleźć głównego pliku w otwartym module, uruchamiam instalację...",
+	"CopyOpenMainFile": "Skopiuj open-main.js, aby otworzyć moduł...",
+	"AddOpenMainEntry": "Dodaj wpis open-main.js do pola „main” pakietu.json...",
+	"OpenMainEntryIsExisting": "Znajdź open-main.js i wpis w otwartym module, pomiń instalację..."
 }

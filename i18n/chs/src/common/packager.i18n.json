@@ -15,5 +15,11 @@
 	"AboutToGetURL": "即将获得: {0}",
 	"BundleCacheWasPrewarmed": "已预热捆绑缓存。",
 	"CouldNotStartPackager": "无法启动包生成工具。",
-	"StoppingPackager": "正在停止包生成工具"
+	"StoppingPackager": "正在停止包生成工具",
+	"PackagerIsRunningBeforeStarting": "打包器已经在运行，如果您想调试，请使用“附加到打包器”选项",
+	"VerifyOpenModuleMainFileAndEntry": "需要检查主文件和打开模块的入口点，如果不存在则设置并写入新内容，路径：{0}",
+	"NoOpenMainFile": "在打开的模块中找不到主文件，正在执行安装程序...",
+	"CopyOpenMainFile": "复制 open-main.js 打开模块...",
+	"AddOpenMainEntry": "将 open-main.js 条目添加到 package.json 'main' 字段...",
+	"OpenMainEntryIsExisting": "在打开的模块中找到 open-main.js 和入口，跳过设置..."
 }

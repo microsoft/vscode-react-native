@@ -15,5 +15,11 @@
 	"AboutToGetURL": "Планируется получить: {0}",
 	"BundleCacheWasPrewarmed": "Кэш пакетов был предварительно подготовлен.",
 	"CouldNotStartPackager": "Не удалось запустить упаковщик.",
-	"StoppingPackager": "Остановка упаковщика"
+	"StoppingPackager": "Остановка упаковщика",
+	"PackagerIsRunningBeforeStarting": "Упаковщик уже запущен. Если вы хотите выполнить отладку, используйте опцию «Присоединиться к упаковщику».",
+	"VerifyOpenModuleMainFileAndEntry": "Необходимо проверить основной файл и точку входа открытого модуля, настроит и запишет новый контент, если они не существуют, путь: {0}",
+	"NoOpenMainFile": "Невозможно найти основной файл в открытом модуле, выполняется установка...",
+	"CopyOpenMainFile": "Скопируйте open-main.js, чтобы открыть модуль...",
+	"AddOpenMainEntry": "Добавьте запись open-main.js в поле «main» package.json...",
+	"OpenMainEntryIsExisting": "Найдите open-main.js и запись в открытом модуле, пропустите настройку..."
 }

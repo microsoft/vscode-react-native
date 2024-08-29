@@ -15,5 +15,11 @@
 	"AboutToGetURL": "次のものを取得しようとしています: {0}",
 	"BundleCacheWasPrewarmed": "バンドル キャッシュが事前ウォーミングされました。",
 	"CouldNotStartPackager": "パッケージャーを開始できませんでした。",
-	"StoppingPackager": "パッケージャーを停止しています"
+	"StoppingPackager": "パッケージャーを停止しています",
+	"PackagerIsRunningBeforeStarting": "パッケージャーはすでに実行されています。デバッグしたい場合は、「パッケージャーにアタッチ」オプションを使用してください。",
+	"VerifyOpenModuleMainFileAndEntry": "開いているモジュールのメイン ファイルとエントリ ポイントを確認する必要があります。存在しない場合は新しいコンテンツをセットアップして書き込みます。パス: {0}",
+	"NoOpenMainFile": "開いているモジュールにメイン ファイルが見つかりません。セットアップを実行しています...",
+	"CopyOpenMainFile": "open-main.js をオープンモジュールにコピーします...",
+	"AddOpenMainEntry": "open-main.js エントリを package.json の「main」フィールドに追加します...",
+	"OpenMainEntryIsExisting": "open-main.js を見つけてオープン モジュールにエントリし、セットアップをスキップします..."
 }
