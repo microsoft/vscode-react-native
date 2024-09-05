@@ -14,6 +14,7 @@ To avoid conflicts with your existing installation, it is recommended to delete 
 - Run `npm ci`
 - Run `npm install -g gulp-cli` and add `"gulp.autoDetect": "on"` to your VS Code settings
 - Run `gulp` and check `dist` folder for extension files (now the tasks from gulpfile.js are being exported following the latest guidance from https://gulpjs.com/docs/en/getting-started/creating-tasks/ as the task() API isn't the recommended pattern anymore)
+- After completing above steps, run `gulp release` to package extension `.vsix` file. A VSIX package can help you install the latest extension maunally in VS Code extension tab.
 
 ## Debugging
 
