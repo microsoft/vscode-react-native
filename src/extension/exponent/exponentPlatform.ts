@@ -103,7 +103,12 @@ export class ExponentPlatform extends GeneralPlatform {
                 default:
                     exponentUrl = await XDL.getUrl(this.projectPath, { dev: true, minify: false });
             }
-            exponentUrl = `exp://${String(url.parse(exponentUrl).host)}`;
+
+            // Switch expo app url port to customization
+            const port = this.packager.getPort();
+            const urlString = url.parse(exponentUrl);
+            urlString.port = port.toString();
+            exponentUrl = `exp://${String(urlString.hostname)}:${String(urlString.port)}`;
 
             if (!exponentUrl) {
                 throw ErrorHelper.getInternalError(InternalErrorCode.ExpectedExponentTunnelPath);
