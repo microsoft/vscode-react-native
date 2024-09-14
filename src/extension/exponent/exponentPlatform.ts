@@ -49,7 +49,8 @@ export class ExponentPlatform extends GeneralPlatform {
 
         await TelemetryHelper.generate("ExponentPlatform.runApp", extProps, async () => {
             await this.loginToExponentOrSkip(this.runOptions.expoHostType);
-            await XDL.setOptions(this.projectPath, { packagerPort: this.packager.getPort() });
+            const port = this.packager.getPort();
+            await XDL.setOptions(this.projectPath, { packagerPort: port });
             await XDL.startExponentServer(this.projectPath);
 
             // the purpose of this is to save the same sequence of handling 'adb reverse' command execution as in Expo
@@ -103,7 +104,11 @@ export class ExponentPlatform extends GeneralPlatform {
                 default:
                     exponentUrl = await XDL.getUrl(this.projectPath, { dev: true, minify: false });
             }
-            exponentUrl = `exp://${String(url.parse(exponentUrl).host)}`;
+
+            // Make sure expo app url port is switched to customization
+            const urlString = url.parse(exponentUrl);
+            urlString.port = port.toString();
+            exponentUrl = `exp://${String(urlString.hostname)}:${String(urlString.port)}`;
 
             if (!exponentUrl) {
                 throw ErrorHelper.getInternalError(InternalErrorCode.ExpectedExponentTunnelPath);
