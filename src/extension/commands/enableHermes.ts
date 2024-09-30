@@ -10,6 +10,8 @@ import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { Command } from "./util/command";
 import { FileSystem } from "../../common/node/fileSystem";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
+import { CommandExecutor } from "../../common/commandExecutor";
+import { AppLauncher } from "../appLauncher";
 
 const logger = OutputChannelLogger.getMainChannel();
 
@@ -29,6 +31,7 @@ export class EnableHermes extends Command {
         });
         const projectRoot = this.project.getPackager().getProjectPath();
 
+        if (type === undefined || isHermesEnabled === undefined) return;
         if (type === "iOS") {
             const podfilePath = path.join(projectRoot, "ios", "Podfile");
             if (!projectRoot || !fs.existsSync(podfilePath)) {
@@ -40,6 +43,13 @@ export class EnableHermes extends Command {
             const hermesMatches = podfileContent.match(/#?\s*:hermes_enabled\s*=>\s*\w*/);
             const regex = /(use_react_native!\s*\([^)]*?)(\n\s*\))/;
             const rnMatches = podfileContent.match(regex);
+            const nodeModulesRoot: string =
+                AppLauncher.getNodeModulesRootByProjectPath(projectRoot);
+            const commandExecutor = new CommandExecutor(
+                nodeModulesRoot,
+                `${projectRoot}/ios`,
+                logger,
+            );
 
             if (hermesMatches && !hermesMatches[0].startsWith("#")) {
                 const updatedHermes = podfileContent.replace(
@@ -47,9 +57,7 @@ export class EnableHermes extends Command {
                     `:hermes_enabled => ${isHermesEnabled}`,
                 );
                 await this.nodeFileSystem.writeFile(podfilePath, updatedHermes);
-                void vscode.window.showInformationMessage(
-                    "Please run 'cd ios && pod install' to apply changes",
-                );
+                await commandExecutor.spawn("pod", ["install"]);
             } else {
                 if (rnMatches) {
                     let content = rnMatches[1];
@@ -61,9 +69,7 @@ export class EnableHermes extends Command {
                     content += `\n    :hermes_enabled => ${isHermesEnabled}`;
                     const newData = podfileContent.replace(regex, content + closing);
                     await this.nodeFileSystem.writeFile(podfilePath, newData);
-                    void vscode.window.showInformationMessage(
-                        "Please run 'cd ios && pod install' to apply changes",
-                    );
+                    await commandExecutor.spawn("pod", ["install"]);
                 }
             }
         }
