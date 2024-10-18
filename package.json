@@ -459,6 +459,12 @@
         "title": "Enable Hermes",
         "category": "React Native",
         "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
+      },
+      {
+        "command": "reactNative.expoHermesEnable",
+        "title": "Enable & Disable Expo Hermes",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       }
     ],
     "menus": {
