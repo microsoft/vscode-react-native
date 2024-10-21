@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import * as vscode from "vscode";
 import * as assert from "assert";
 import * as semver from "semver";
 import { ErrorHelper } from "../../common/error/errorHelper";
@@ -17,9 +18,20 @@ export class EnableDebugging extends Command {
 
     async baseFn(): Promise<void> {
         assert(this.project);
+
+        const type = await vscode.window.showQuickPick([
+            "Using react-native-tools debugger",
+            "Default",
+        ]);
         const projectRootPath = this.project.getPackager().getProjectPath();
         const versions = await ProjectVersionHelper.getReactNativeVersions(projectRootPath);
         if (semver.lt(versions.reactNativeVersion, EnableDebugging.RN_Remote_jsDebug)) return;
-        await switchBundleOptions(projectRootPath, true);
+        if (!type) return;
+        if (type === "Using react-native-tools debugger") {
+            await switchBundleOptions(projectRootPath, true);
+        }
+        if (type === "Default") {
+            await switchBundleOptions(projectRootPath, false);
+        }
     }
 }

@@ -27,7 +27,7 @@ import { RNSession } from "../debugSessionWrapper";
 import { SettingsHelper } from "../../extension/settingsHelper";
 import { ReactNativeProjectHelper } from "../../common/reactNativeProjectHelper";
 import { IWDPHelper } from "./IWDPHelper";
-import { checkBundleOptions, switchBundleOptions } from "../../common/utils";
+import { checkBundleOptions } from "../../common/utils";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -43,7 +43,6 @@ export class DirectDebugSession extends DebugSessionBase {
     private attachSession: vscode.DebugSession | null;
     private iOSWKDebugProxyHelper: IWDPHelper;
     private static RN_Remote_jsDebug = "0.76.0";
-    private showBundleMessage = true;
 
     constructor(rnSession: RNSession) {
         super(rnSession);
@@ -94,9 +93,6 @@ export class DirectDebugSession extends DebugSessionBase {
                     this.projectRootPath,
                     ProjectVersionHelper.generateAdditionalPackagesToCheckByPlatform(launchArgs),
                 );
-                if (semver.gte(versions.reactNativeVersion, DirectDebugSession.RN_Remote_jsDebug)) {
-                    this.showBundleMessage = false;
-                }
                 extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(
                     launchArgs,
                     versions,
@@ -184,9 +180,9 @@ export class DirectDebugSession extends DebugSessionBase {
             );
 
             if (semver.gte(versions.reactNativeVersion, DirectDebugSession.RN_Remote_jsDebug)) {
-                if (!checkBundleOptions(this.projectRootPath) && this.showBundleMessage) {
+                if (!checkBundleOptions(this.projectRootPath)) {
                     void vscode.window.showWarningMessage(
-                        `You are currently on react native ${versions.reactNativeVersion} >= 0.76.0, please use command React Native: Enable Debugging and then build your application before Attach`,
+                        `You are currently on react native ${versions.reactNativeVersion} >= 0.76.0, please use command React Native: Update metro bundler configure(from 0.76) -- Experimental -> Using react-native-tools debugger and then rebuild your application before Attach`,
                         "",
                     );
                 }
@@ -300,12 +296,6 @@ export class DirectDebugSession extends DebugSessionBase {
         this.onDidStartDebugSessionHandler.dispose();
         this.appLauncher.getPackager().closeWsConnection();
         this.appTargetConnectionClosedHandlerDescriptor?.dispose();
-        this.showBundleMessage = true;
-
-        const versions = await ProjectVersionHelper.getReactNativeVersions(this.projectRootPath);
-        if (semver.gte(versions.reactNativeVersion, DirectDebugSession.RN_Remote_jsDebug)) {
-            await switchBundleOptions(this.projectRootPath, false);
-        }
         return super.disconnectRequest(response, args, request);
     }
 

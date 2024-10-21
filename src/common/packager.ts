@@ -27,7 +27,7 @@ import { FileSystem } from "./node/fileSystem";
 import { PromiseUtil } from "./node/promise";
 import { CONTEXT_VARIABLES_NAMES } from "./contextVariablesNames";
 import { getNodeVersion } from "./nodeHelper";
-import { getTSVersion, checkBundleOptions, switchBundleOptions } from "./utils";
+import { getTSVersion, switchBundleOptions } from "./utils";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -227,12 +227,7 @@ export class Packager {
             const versions = await ProjectVersionHelper.getReactNativeVersions(this.projectPath);
             rnVersion = versions.reactNativeVersion;
             if (semver.gte(rnVersion, Packager.RN_Remote_jsDebug)) {
-                if (!checkBundleOptions(this.projectPath)) {
-                    void vscode.window.showWarningMessage(
-                        `You are currently on react native ${versions.reactNativeVersion} >= 0.76.0, please use command React Native: Enable Debugging before Debug`,
-                        "",
-                    );
-                }
+                await switchBundleOptions(this.projectPath, true);
             }
             await this.monkeyPatchOpnForRNPackager(rnVersion);
 
@@ -362,12 +357,6 @@ export class Packager {
             } else {
                 await this.killPackagerProcess();
                 successfullyStopped = true;
-                const versions = await ProjectVersionHelper.getReactNativeVersions(
-                    this.projectPath,
-                );
-                if (semver.gte(versions.reactNativeVersion, Packager.RN_Remote_jsDebug)) {
-                    await switchBundleOptions(this.projectPath, false);
-                }
             }
         } else {
             if (!silent) {
