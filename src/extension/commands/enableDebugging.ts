@@ -13,7 +13,7 @@ import { switchBundleOptions } from "../../common/utils";
 export class EnableDebugging extends Command {
     codeName = "debugEnable";
     label = "Enable Debugging";
-    error = ErrorHelper.getInternalError(InternalErrorCode.FailedToEnableHermes);
+    error = ErrorHelper.getInternalError(InternalErrorCode.FailedToEnableorDisableDebugging);
     private static RN_Remote_jsDebug = "0.76.0";
 
     async baseFn(): Promise<void> {

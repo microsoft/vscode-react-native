@@ -420,4 +420,6 @@ export const ERROR_STRINGS = {
         "Failed to reopen QR code",
     ),
     [InternalErrorCode.FailedToEnableHermes]: "Failed to make changes to Hermes",
+    [InternalErrorCode.FailedToEnableorDisableDebugging]:
+        "Failed to toggle react-native-tools debugger",
 };

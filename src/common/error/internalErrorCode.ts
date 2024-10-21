@@ -33,6 +33,7 @@ export enum InternalErrorCode {
     FailedToRunPrebuildClean = 128,
     FailedToReopenQRCode = 129,
     FailedToEnableHermes = 130,
+    FailedToEnableorDisableDebugging = 131,
     // Device Deployer errors
     IOSDeployNotFound = 201,
 
