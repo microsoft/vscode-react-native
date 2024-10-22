@@ -62,7 +62,7 @@ export class Packager {
     private static NODE_AVAIABLE = "18.0.0";
     private static RN_VERSION_WITH_PACKER_ISSUE = "0.73.0";
     private static TS_VERSION_SUPPORTED = "0.70.0";
-    private static RN_Remote_jsDebug = "0.76.0";
+    private static RNVersion_Direct_Debug = "0.76.0";
     private static JS_INJECTOR_DIRPATH =
         findFileInFolderHierarchy(__dirname, "js-patched") || __dirname;
     private static NODE_MODULES_FODLER_NAME = "node_modules";
@@ -226,7 +226,7 @@ export class Packager {
 
             const versions = await ProjectVersionHelper.getReactNativeVersions(this.projectPath);
             rnVersion = versions.reactNativeVersion;
-            if (semver.gte(rnVersion, Packager.RN_Remote_jsDebug)) {
+            if (semver.gte(rnVersion, Packager.RNVersion_Direct_Debug)) {
                 await switchBundleOptions(this.projectPath, true);
             }
             await this.monkeyPatchOpnForRNPackager(rnVersion);

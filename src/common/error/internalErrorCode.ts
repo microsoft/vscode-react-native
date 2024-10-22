@@ -34,7 +34,7 @@ export enum InternalErrorCode {
     FailedToReopenQRCode = 129,
     FailedToEnableHermes = 130,
     FailedToEnableExpoHermes = 131,
-    FailedToEnableorDisableDebugging = 132,
+    FailedToUpdateMetro = 132,
 
     // Device Deployer errors
     IOSDeployNotFound = 201,

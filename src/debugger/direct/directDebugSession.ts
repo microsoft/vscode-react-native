@@ -42,7 +42,7 @@ export class DirectDebugSession extends DebugSessionBase {
     private appTargetConnectionClosedHandlerDescriptor?: vscode.Disposable;
     private attachSession: vscode.DebugSession | null;
     private iOSWKDebugProxyHelper: IWDPHelper;
-    private static RN_Remote_jsDebug = "0.76.0";
+    private static RNVersion_Direct_Debug = "0.76.0";
 
     constructor(rnSession: RNSession) {
         super(rnSession);
@@ -179,11 +179,12 @@ export class DirectDebugSession extends DebugSessionBase {
                 ProjectVersionHelper.generateAdditionalPackagesToCheckByPlatform(attachArgs),
             );
 
-            if (semver.gte(versions.reactNativeVersion, DirectDebugSession.RN_Remote_jsDebug)) {
+            if (
+                semver.gte(versions.reactNativeVersion, DirectDebugSession.RNVersion_Direct_Debug)
+            ) {
                 if (!checkBundleOptions(this.projectRootPath)) {
-                    void vscode.window.showWarningMessage(
+                    logger.warn(
                         `You are currently on react native ${versions.reactNativeVersion} >= 0.76.0, please use command React Native: Update metro bundler configure(from 0.76) -- Experimental -> Using react-native-tools debugger and then rebuild your application before Attach`,
-                        "",
                     );
                 }
             }

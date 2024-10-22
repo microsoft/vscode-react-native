@@ -467,7 +467,7 @@
         "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       },
       {
-        "command": "reactNative.debugEnable",
+        "command": "reactNative.updateMetro",
         "title": "Update metro bundler configure(from 0.76) -- Experimental",
         "category": "React Native",
         "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
