@@ -184,7 +184,7 @@ export class DirectDebugSession extends DebugSessionBase {
             ) {
                 if (!checkBundleOptions(this.projectRootPath)) {
                     logger.warn(
-                        `You are currently on react native ${versions.reactNativeVersion} >= 0.76.0, please use command React Native: Update metro bundler configure(from 0.76) -- Experimental -> Using react-native-tools debugger and then rebuild your application before Attach`,
+                        "You are currently on react native >= 0.76.0, please use command React Native: Update metro bundler configure(from 0.76) -- Experimental -> Using react-native-tools debugger and then rebuild your application before Attach",
                     );
                 }
             }
