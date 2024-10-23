@@ -29,7 +29,13 @@ export class JsDebugConfigAdapter {
         cdpProxyPort: number,
         sessionId: string,
     ): any {
-        return Object.assign({}, JsDebugConfigAdapter.getExistingExtraArgs(attachArgs), {
+        const extraArgs: any = {};
+        // Handle project file path from 0.76
+        extraArgs.sourceMapPathOverrides = {
+            "/[metro-project]/*": `${attachArgs.cwd}/*`,
+        };
+
+        return Object.assign({}, JsDebugConfigAdapter.getExistingExtraArgs(attachArgs), extraArgs, {
             type: "pwa-node",
             request: "attach",
             name: "Attach",
