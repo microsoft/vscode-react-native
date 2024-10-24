@@ -7,8 +7,8 @@ import stripJsonComments = require("strip-json-comments");
 import { logger } from "@vscode/debugadapter";
 import { Address4, Address6 } from "ip-address";
 import { ChildProcess } from "./node/childProcess";
-import { HostPlatform } from "./hostPlatform";
 import { FileSystem } from "./node/fileSystem";
+import { HostPlatform } from "./hostPlatform";
 import customRequire from "./customRequire";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -161,22 +161,4 @@ export async function switchBundleOptions(projectRootPath: string, flag: boolean
     }
     const nodeFileSystem = new FileSystem();
     await nodeFileSystem.writeFile(splitBundleOptionsPath, modifiedData);
-}
-
-export function checkBundleOptions(projectRootPath: string): boolean {
-    const splitBundleOptionsPath = path.resolve(
-        projectRootPath,
-        "node_modules",
-        "metro",
-        "src",
-        "lib",
-        "splitBundleOptions.js",
-    );
-
-    const splitBundleOptionsContent = fs.readFileSync(splitBundleOptionsPath, "utf-8");
-
-    const excludeSourceRegex = /excludeSource\s*:\s*false/.test(splitBundleOptionsContent);
-    const sourcePathsRegex = /sourcePaths\s*:\s*"absolute"/.test(splitBundleOptionsContent);
-
-    return excludeSourceRegex && sourcePathsRegex;
 }
