@@ -10,4 +10,6 @@ export const CDP_API_NAMES = {
     RUNTIME_CONSOLE_API_CALLED: "Runtime.consoleAPICalled",
     EXECUTION_CONTEXT_CREATED: "Runtime.executionContextCreated",
     CLOSE: "close",
+    DEBUGGER_SCRIPT_PARSED: "Debugger.scriptParsed",
+    DEBUGGER_SET_BREAKPOINT_BY_URL: "Debugger.setBreakpointByUrl",
 };
