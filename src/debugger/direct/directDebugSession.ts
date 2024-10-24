@@ -5,6 +5,7 @@ import * as vscode from "vscode";
 import { logger } from "@vscode/debugadapter";
 import { DebugProtocol } from "vscode-debugprotocol";
 import * as nls from "vscode-nls";
+import * as semver from "semver";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
 import { TelemetryHelper } from "../../common/telemetryHelper";
 import { HermesCDPMessageHandler } from "../../cdp-proxy/CDPMessageHandlers/hermesCDPMessageHandler";
@@ -26,6 +27,7 @@ import { RNSession } from "../debugSessionWrapper";
 import { SettingsHelper } from "../../extension/settingsHelper";
 import { ReactNativeProjectHelper } from "../../common/reactNativeProjectHelper";
 import { IWDPHelper } from "./IWDPHelper";
+import { checkBundleOptions } from "../../common/utils";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -40,6 +42,7 @@ export class DirectDebugSession extends DebugSessionBase {
     private appTargetConnectionClosedHandlerDescriptor?: vscode.Disposable;
     private attachSession: vscode.DebugSession | null;
     private iOSWKDebugProxyHelper: IWDPHelper;
+    private static RNVersion_Direct_Debug = "0.76.0";
 
     constructor(rnSession: RNSession) {
         super(rnSession);
@@ -175,6 +178,17 @@ export class DirectDebugSession extends DebugSessionBase {
                 this.projectRootPath,
                 ProjectVersionHelper.generateAdditionalPackagesToCheckByPlatform(attachArgs),
             );
+
+            if (
+                semver.gte(versions.reactNativeVersion, DirectDebugSession.RNVersion_Direct_Debug)
+            ) {
+                if (!checkBundleOptions(this.projectRootPath)) {
+                    logger.warn(
+                        "You are currently on react native >= 0.76.0, please use command React Native: Update metro bundler configure(from 0.76) -- Experimental -> Using react-native-tools debugger and then rebuild your application before Attach",
+                    );
+                }
+            }
+
             extProps = TelemetryHelper.addPlatformPropertiesToTelemetryProperties(
                 attachArgs,
                 versions,

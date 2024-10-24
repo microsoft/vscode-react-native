@@ -2,11 +2,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 import * as path from "path";
 import * as net from "net";
+import * as fs from "fs";
 import stripJsonComments = require("strip-json-comments");
 import { logger } from "@vscode/debugadapter";
 import { Address4, Address6 } from "ip-address";
 import { ChildProcess } from "./node/childProcess";
 import { HostPlatform } from "./hostPlatform";
+import { FileSystem } from "./node/fileSystem";
 import customRequire from "./customRequire";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -123,4 +125,58 @@ export function ipToBuffer(ip: string): Buffer {
         return Buffer.from(address.toByteArray());
     }
     throw new Error("Invalid IP address format.");
+}
+
+export async function switchBundleOptions(projectRootPath: string, flag: boolean) {
+    const splitBundleOptionsPath = path.resolve(
+        projectRootPath,
+        "node_modules",
+        "metro",
+        "src",
+        "lib",
+        "splitBundleOptions.js",
+    );
+    const splitBundleOptionsContent = fs.readFileSync(splitBundleOptionsPath, "utf-8");
+    let modifiedData;
+    if (flag) {
+        modifiedData = splitBundleOptionsContent.replace(
+            /excludeSource:\s*options\.excludeSource/,
+            "excludeSource: false",
+        );
+
+        modifiedData = modifiedData.replace(
+            /sourcePaths:\s*options\.sourcePaths/,
+            'sourcePaths: "absolute"',
+        );
+    } else {
+        modifiedData = splitBundleOptionsContent.replace(
+            /excludeSource:\s*false/,
+            "excludeSource: options.excludeSource",
+        );
+
+        modifiedData = modifiedData.replace(
+            /sourcePaths:\s*"absolute"/,
+            "sourcePaths: options.sourcePaths",
+        );
+    }
+    const nodeFileSystem = new FileSystem();
+    await nodeFileSystem.writeFile(splitBundleOptionsPath, modifiedData);
+}
+
+export function checkBundleOptions(projectRootPath: string): boolean {
+    const splitBundleOptionsPath = path.resolve(
+        projectRootPath,
+        "node_modules",
+        "metro",
+        "src",
+        "lib",
+        "splitBundleOptions.js",
+    );
+
+    const splitBundleOptionsContent = fs.readFileSync(splitBundleOptionsPath, "utf-8");
+
+    const excludeSourceRegex = /excludeSource\s*:\s*false/.test(splitBundleOptionsContent);
+    const sourcePathsRegex = /sourcePaths\s*:\s*"absolute"/.test(splitBundleOptionsContent);
+
+    return excludeSourceRegex && sourcePathsRegex;
 }

@@ -421,4 +421,5 @@ export const ERROR_STRINGS = {
     ),
     [InternalErrorCode.FailedToEnableHermes]: "Failed to make changes to Hermes",
     [InternalErrorCode.FailedToEnableExpoHermes]: "Failed to make changes to Expo Hermes",
+    [InternalErrorCode.FailedToUpdateMetro]: "Failed to update metro bundle configration",
 };

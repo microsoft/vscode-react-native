@@ -465,6 +465,12 @@
         "title": "Enable & Disable Expo Hermes",
         "category": "React Native",
         "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
+      },
+      {
+        "command": "reactNative.updateMetro",
+        "title": "Update metro bundler configure(from 0.76) -- Experimental",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       }
     ],
     "menus": {

@@ -33,3 +33,4 @@ export * from "./prebuildClean";
 export * from "./reopenQRCode";
 export * from "./enableHermes";
 export * from "./enableExpoHemes";
+export * from "./updateMetro";
