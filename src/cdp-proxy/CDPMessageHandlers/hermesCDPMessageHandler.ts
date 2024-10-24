@@ -42,6 +42,16 @@ export class HermesCDPMessageHandler extends BaseCDPMessageHandler {
             event = this.handleFunctionTypeResult(event);
         }
 
+        // Handle unused console log in cdp event
+        if (
+            event.method === CDP_API_NAMES.RUNTIME_CONSOLE_API_CALLED &&
+            String(event.params.args[0].value).includes(
+                "You are using an unsupported debugging client",
+            )
+        ) {
+            event.params.args[0].value = "";
+        }
+
         return {
             event,
             sendBack,
