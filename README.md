@@ -33,13 +33,15 @@ Using this extension, you can **debug your code and quickly run `react-native` c
 - [Customize metro configuration](#customize-metro-configuration)
 - [Debugging React Native applications](#debugging-react-native-applications)
   - [Hermes engine](#hermes-engine)
+  - [Attach to Hermes application](#attach-to-hermes-application)
+  - [Android Hermes Debugging](#android-hermes-debugging)
   - [Android applications](#android-applications)
     - [Custom build for android apps](#custom-build-for-android-apps)
   - [iOS applications](#ios-applications)
+    - [iOS Hermes debugging](#ios-hermes-debugging)
     - [iOS devices](#ios-devices)
     - [Custom scheme for iOS apps](#custom-scheme-for-ios-apps)
     - [iOS direct debugging](#iOS-direct-debugging)
-    - [iOS Hermes debugging](#ios-hermes-debugging)
   - [Expo applications](#expo-applications)
     - [Debug on Expo Go](#debug-on-expo-go)
     - [Debug on expo-dev-client](#debug-on-expo-dev-client)
@@ -48,11 +50,12 @@ Using this extension, you can **debug your code and quickly run `react-native` c
     - [Expo Hermes](#expo-hermes)
   - [Windows applications](#react-native-for-windows)
     - [Windows Hermes debugging](#windows-hermes-debugging)
-  - [macOS applications](#react-native-for-macos)
-    - [macOS Hermes debugging](#macos-hermes-debugging)
+  - [MacOS applications](#react-native-for-macos)
+    - [MacOS Hermes debugging](#macos-hermes-debugging)
   - [Debug out of React Native project directory](#debug-out-of-react-native-project-directory)
   - [TypeScript and Haul based applications](#typescript-and-haul)
   - [Debugger configuration properties](#debugger-configuration-properties)
+  - [Remote JavaScript Debugging (Deprecated)](#remote-javascript-debugging-deprecated)
 - [Customization](#customization)
   - [Debug in vscode workspace](#debug-in-vscode-workspace)
   - [Logging](#logging)
@@ -155,11 +158,11 @@ Note: From React Native 0.72.0, the config loading setup for Metro in React Nati
 
 # Debugging React Native applications
 
-To start debugging create a new debug configuration for your ReactNative app in your `.vscode/launch.json`. Adding a new configuration can be done by opening your `launch.json` file and clicking on `Add Configuration...` button and then selecting `React Native` option. After that the extension will prompt you to create a debugging configuration by selecting debugging parameters in dropdown lists at the top of the editor. A new debugging configuration will be generated and added to the `launch.json` file automatically as shown in the image below. For Expo projects, please make sure choose `Application in direct mode(Hermes)` if you are using SDK 48 or a newer SDK.
+To start debugging create a new debug configuration for your ReactNative app in your `.vscode/launch.json`. Adding a new configuration can be done by opening your `launch.json` file and clicking on `Add Configuration...` button and then selecting `React Native` option. After that the extension will prompt you to create a debugging configuration by selecting debugging parameters in dropdown lists at the top of the editor. A new debugging configuration will be generated and added to the `launch.json` file automatically as shown in the image below.
 
 ![Add React Native debug configuration](resources/images/add-debug-configuration.gif)
 
-In case you haven't created the `.vscode/launch.json` file yet, you can add a whole default debug configuration set. To do that click the debug icon ![Choose React Native debugger](resources/images/debug-view-icon.png) in the View bar, and then click the configuration (gear) icon ![Configure-gear](resources/images/configure-gear-icon.png), then choose the React Native debug environment.
+In case you haven't created the `.vscode/launch.json` file yet, you can add a whole default debug configuration set. To do that click `create a launch.json file` in the View bar, then choose the React Native debug environment.
 
 ![Choose React Native debugger](resources/images/choose-debugger.png)
 
@@ -181,50 +184,18 @@ The extension also allows to start debugging without creating the `launch.json` 
 
   ![Select and run debugging command](resources/images/debug-commands-button.png)
 
-Once app is loaded and running, [open the developer menu](https://reactnative.dev/docs/debugging#accessing-the-in-app-developer-menu) inside your application and enable remote debugging by clicking on `Debug JS Remotely` button.
-
-![React Native enable remote debug](resources/images/enable-remote-debug.png)
-
 The extension allows you to debug multiple devices and configurations, please read the following sections for more information for your particular use case.
 
-## Hermes engine
+## Hermes engine and direct debugging (Recommended)
 
-From [0.70.0](https://github.com/facebook/react-native/releases/tag/v0.70.0), react-native set Hermes as default engine. Please see [official documentation](https://reactnative.dev/blog/2022/07/08/hermes-as-the-default) to get details.
+React-native set Hermes as default engine from 0.70. Please see [official documentation](https://reactnative.dev/blog/2022/07/08/hermes-as-the-default) to get details.
 
 The Hermes engine is an open source JavaScript engine created by Facebook to optimize building and running React Native applications. It improves app performance and decreases app size.
 
 Click [here](https://reactnative.dev/docs/hermes) to learn more about Hermes and how to enable it for your application.
 To turn off Hermes, you can do the same changes in documentation but set `Hermes Flag` to `False`.
 
-Debugging apps with Hermes enabled is currently experimental. Please see [this issue](https://github.com/microsoft/vscode-react-native/issues/1266) for current known issues on Hermes support.
-
-### Android Hermes
-
-To debug while using Hermes engine use `Debug Android Hermes - Experimental` launch configuration:
-
-```json
-{
-  "name": "Debug Android Hermes - Experimental",
-  "cwd": "${workspaceFolder}",
-  "type": "reactnativedirect",
-  "request": "launch",
-  "platform": "android"
-}
-```
-
-### iOS Hermes
-
-The extension provides experimental support of debugging iOS Hermes applications. See [iOS Hermes debugging](#ios-hermes-debugging) for more details.
-
-### macOS Hermes
-
-The extension provides experimental support of debugging macOS Hermes applications. See [macOS Hermes debugging](#macos-hermes-debugging) for more details.
-
-### Windows Hermes
-
-The extension provides experimental support of debugging Windows Hermes applications. See [Windows Hermes debugging](#windows-hermes-debugging) for more details.
-
-### Attach to Hermes application
+## Attach to Hermes application
 
 To attach to a running Hermes application use `Attach to Hermes application - Experimental` launch configuration:
 
@@ -239,6 +210,20 @@ To attach to a running Hermes application use `Attach to Hermes application - Ex
 
 ## Android applications
 
+### Android Hermes debugging
+
+To debug while using Hermes engine use `Debug Android Hermes` launch configuration:
+
+```json
+{
+  "name": "Debug Android Hermes",
+  "cwd": "${workspaceFolder}",
+  "type": "reactnativedirect",
+  "request": "launch",
+  "platform": "android"
+}
+```
+
 ### Custom build for Android apps
 
 If you want to use a custom `applicationIdSuffix` for your application to launch specific build, you can either pass it as part of the `runArguments` parameter arguments as shown below:
@@ -250,6 +235,20 @@ If you want to use a custom `applicationIdSuffix` for your application to launch
 ```
 
 ## iOS applications
+
+### iOS Hermes debugging
+
+To debug your iOS Hermes application, you can use `Debug iOS Hermes` launch configuration to debug an iOS Hermes application:
+
+```json
+{
+  "name": "Debug iOS Hermes",
+  "cwd": "${workspaceFolder}",
+  "type": "reactnativedirect",
+  "request": "launch",
+  "platform": "ios"
+}
+```
 
 ### iOS devices
 
@@ -309,27 +308,6 @@ You can use the following debug scenarios to debug iOS apps directly:
     "port": 9221
 ```
 
-### iOS Hermes debugging
-
-You can enable Hermes engine for an iOS application by editing `ios/Podfile` file the following way:
-
-```diff
--  use_react_native!(:path => config[:reactNativePath])
-+  use_react_native!(:path => config[:reactNativePath], :hermes_enabled => true)
-```
-
-After this change you need to execute `pod install` command in `ios` folder. After that you can use `Debug iOS Hermes - Experimental` launch configuration to debug an iOS Hermes application:
-
-```json
-{
-  "name": "Debug iOS Hermes - Experimental",
-  "cwd": "${workspaceFolder}",
-  "type": "reactnativedirect",
-  "request": "launch",
-  "platform": "ios"
-}
-```
-
 ## Expo applications
 
 To debug a project created using Expo or the `create-react-native-app` task, you can use embedded support for Expo.
@@ -357,9 +335,6 @@ If you're using [Expo Go](https://expo.dev/expo-go), follow below steps tp start
    Note that there is no e-mail associated with the account, and no way to recover a forgotten password.
    If you don't want to create an Exponent account, you can specify `expoHostType` parameter in your debug configuration to make Expo work locally (via LAN or on localhost).
 1. Once the packager starts, the extension will open a separate tab with QR code to scan from the Expo Go. Once you do so, the Expo Go will connect to the packager and begin running your app.
-1. Once the app is loaded and running, [open the developer menu](https://reactnative.dev/docs/debugging#accessing-the-in-app-developer-menu) and enable remote debugging by clicking on `Debug JS Remotely` button.
-
-   ![React Native developer menu](./resources/images/enable-remote-debug.png)
 
 ### Debug on expo-dev-client
 
@@ -455,9 +430,11 @@ You can add or remove `"jsEngine": "hermes"` in `app.json` to enable or disable 
 
 ## React Native for Windows
 
-### How to launch and debug a React Native for Windows application
+### Windows Hermes debugging
 
 Before launching and debugging a React Native for Windows application, please make sure that your development environment is configured properly in accordance with [the official system requirements](https://microsoft.github.io/react-native-windows/docs/rnw-dependencies).
+
+Please follow [the official guide](https://microsoft.github.io/react-native-windows/docs/hermes#hermes-on-windows) to enable Hermes engine for a Windows application.
 
 You can debug UWP React Native for Windows applications by changing the `platform` in your `launch.json` configuration to `windows`:
 
@@ -465,91 +442,33 @@ You can debug UWP React Native for Windows applications by changing the `platfor
 {
   "name": "Debug Windows",
   "cwd": "${workspaceFolder}",
-  "type": "reactnative",
-  "request": "launch",
-  "platform": "windows"
-}
-```
-
-### How to attach to a running React Native for Windows application
-
-1. Add the `Attach to packager` configuration to `.vscode/launch.json` in your project
-
-   ```json
-   {
-     "name": "Attach to packager",
-     "cwd": "${workspaceFolder}",
-     "type": "reactnative",
-     "request": "attach"
-   }
-   ```
-
-1. (**Optional**) Start Metro packager by means of the `React Native: Start Packager` Command Palette command or run `npx react-native start` command in the terminal in the project root folder
-1. Select the `Attach to packager` configuration and click the `play` button. If Metro packager isn't running yet, the extension will start it automatically.
-1. Launch your React Native Windows application. Please make sure that the application is on remote debugging mode.
-
-Then the extension should attach to the running application.
-
-You can find more information on how to setup your application to work with Windows in [React Native for Windows Getting started instruction](https://microsoft.github.io/react-native-windows/docs/getting-started)
-
-### Windows Hermes debugging
-
-Please follow [the official guide](https://microsoft.github.io/react-native-windows/docs/hermes#hermes-on-windows) to enable Hermes engine for a Windows application.
-
-To debug a Windows Hermes application you can use `Debug Windows Hermes - Experimental` debugging scenario:
-
-```json
-{
-  "name": "Debug Windows Hermes - Experimental",
-  "request": "launch",
   "type": "reactnativedirect",
-  "cwd": "${workspaceFolder}",
+  "request": "launch",
   "platform": "windows"
 }
 ```
 
-## React Native for macOS
+Also you can attach running application using `Attach to Hermes application` configuration to `.vscode/launch.json` in your project.
 
-You can debug React Native for macOS applications by changing the `platform` in your `launch.json` configuration to `macos`:
+## React Native for MacOS
 
-```json
-{
-  "name": "Debug macOS",
-  "cwd": "${workspaceFolder}",
-  "type": "reactnative",
-  "request": "launch",
-  "platform": "macos"
-}
-```
-
-To attach to a running macOS application you can use the default `Attach to packager` debugging configuration. Please make sure that the application is on remote debugging mode.
-
-```json
-{
-  "name": "Attach to packager",
-  "cwd": "${workspaceFolder}",
-  "type": "reactnative",
-  "request": "attach"
-}
-```
-
-You can find more information on how to setup your application to work with macOS in [React Native for macOS Getting started instruction](https://microsoft.github.io/react-native-windows/docs/rnm-getting-started)
-
-### macOS Hermes debugging
+### MacOS Hermes debugging
 
 Please follow [the official guide](https://microsoft.github.io/react-native-windows/docs/hermes#available-on-macos) to enable Hermes engine for a macOS application.
 
-To debug a macOS Hermes application you can use `Debug macOS Hermes - Experimental` debugging scenario:
+To debug a macOS Hermes application you can use `Debug macOS Hermes` debugging scenario:
 
 ```json
 {
-  "name": "Debug macOS Hermes - Experimental",
+  "name": "Debug macOS Hermes",
   "request": "launch",
   "type": "reactnativedirect",
   "cwd": "${workspaceFolder}",
   "platform": "macos"
 }
 ```
+
+Also you can attach running application using `Attach to Hermes application` configuration to `.vscode/launch.json` in your project.
 
 ## Debug out of React Native project directory
 
@@ -684,6 +603,24 @@ The following is a list of all the configuration properties the debugger accepts
 | `scheme`                           | A scheme name to be passed to `react-native run-ios`, e.g. `devDebug` to specify `--scheme=devDebug`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | `string`   | n/a                                           |
 | `productName`                      | iOS bundle display name e.g. `AwesomeProject` value means that the extension will search for `AwesomeProject.app` bundle                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | `string`   | n/a                                           |
 | `jsDebugTrace`                     | Enable trace collection for depended extension `vscode-js-debug`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | `boolean`  | n/a                                           |
+
+## Remote JavaScript Debugging (Deprecated)
+
+Remote JavScript is deprecated by react-native from [0.73](https://reactnative.dev/docs/0.75/other-debugging-methods#remote-javascript-debugging-deprecated) and maybe removed officially at any time.
+
+We strongly recommend to use Hermes engine and direct debugging in your application.
+
+Below config showed classic debug mode in extension, we may remove it from extension in the future if it's totally removed officially.
+
+```
+     {
+            "name": "Debug Android",
+            "request": "launch",
+            "type": "reactnative",
+            "cwd": "${workspaceFolder}",
+            "platform": "android"
+     }
+```
 
 # Customization
 
