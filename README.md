@@ -67,7 +67,7 @@ Using this extension, you can **debug your code and quickly run `react-native` c
   - [Configure dependencies versions for debugging Expo projects](#configure-dependencies-versions-for-debugging-expo-projects)
   - [Configure custom key bindings for extension commands](#configure-custom-key-bindings-for-extension-commands)
   - [Configure custom colors for extension output logs](#configure-custom-colors-for-extension-output-logs)
-- [Element inspector](#element-inspector)
+- [Element inspector (Deprecated)](#element-inspector-deprecated)
 - [Network Inspector](#network-inspector)
 - [Developing inside a Docker Container](#developing-inside-a-docker-container)
 - [Contributing](#contributing)
@@ -947,10 +947,12 @@ Now you can customize React Native Tools output logs with `editor.tokenColorCust
 }
 ```
 
-# Element inspector
+# Element inspector (Deprecated)
 
 In the extension you can run React DevTools Element inspector to inspect the DOM-tree of your application.
 It's required to install the [`react-devtools`](https://www.npmjs.com/package/react-devtools) package globally to run React DevTools from the extension.
+
+Note: react-devtools is deprecated from 0.76.
 
 ```
 npm install -g react-devtools
