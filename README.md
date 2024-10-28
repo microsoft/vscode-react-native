@@ -606,9 +606,9 @@ The following is a list of all the configuration properties the debugger accepts
 
 ## Remote JavaScript Debugging (Deprecated)
 
-Remote JavScript is deprecated by react-native from [0.73](https://reactnative.dev/docs/0.75/other-debugging-methods#remote-javascript-debugging-deprecated) and maybe removed officially at any time.
+Remote JavScript debugging is deprecated by react-native team from [0.73](https://reactnative.dev/docs/0.75/other-debugging-methods#remote-javascript-debugging-deprecated) and may be removed officially at any time.
 
-We strongly recommend to use Hermes engine and direct debugging in your application.
+**We strongly recommend to use Hermes engine and direct debugging in your application.**
 
 Below config showed classic debug mode in extension, we may remove it from extension in the future if it's totally removed officially.
 
@@ -952,7 +952,7 @@ Now you can customize React Native Tools output logs with `editor.tokenColorCust
 In the extension you can run React DevTools Element inspector to inspect the DOM-tree of your application.
 It's required to install the [`react-devtools`](https://www.npmjs.com/package/react-devtools) package globally to run React DevTools from the extension.
 
-Note: react-devtools is deprecated from 0.76.
+**Note: react-devtools is deprecated from 0.76.**
 
 ```
 npm install -g react-devtools
