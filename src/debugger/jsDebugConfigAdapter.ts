@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 import * as semver from "semver";
-import { IAttachRequestArgs } from "./debugSessionBase";
 import { ProjectVersionHelper } from "../common/projectVersionHelper";
+import { IAttachRequestArgs } from "./debugSessionBase";
 
 export class JsDebugConfigAdapter {
     private static RNVersion_Direct_Debug = "0.76.0";
