@@ -2,14 +2,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as assert from "assert";
-import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs";
+import * as vscode from "vscode";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
-import { Command } from "./util/command";
 import { FileSystem } from "../../common/node/fileSystem";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
+import { Command } from "./util/command";
 
 const logger = OutputChannelLogger.getMainChannel();
 
