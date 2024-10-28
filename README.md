@@ -608,7 +608,7 @@ The following is a list of all the configuration properties the debugger accepts
 
 Remote JavScript debugging is deprecated by react-native team from [0.73](https://reactnative.dev/docs/0.75/other-debugging-methods#remote-javascript-debugging-deprecated) and may be removed officially at any time.
 
-**We strongly recommend to use Hermes engine and direct debugging in your application.**
+**We strongly recommend to use [Hermes engine and direct debugging](#hermes-engine-and-direct-debugging-recommended) in your application.**
 
 Below config showed classic debug mode in extension, we may remove it from extension in the future if it's totally removed officially.
 
