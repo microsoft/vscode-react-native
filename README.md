@@ -34,7 +34,7 @@ Using this extension, you can **debug your code and quickly run `react-native` c
 - [Debugging React Native applications](#debugging-react-native-applications)
   - [Hermes engine](#hermes-engine)
   - [Attach to Hermes application](#attach-to-hermes-application)
-    - [Android applications](#android-applications)
+  - [Android applications](#android-applications)
     - [Android Hermes Debugging](#android-hermes-debugging)
     - [Custom build for android apps](#custom-build-for-android-apps)
   - [iOS applications](#ios-applications)
