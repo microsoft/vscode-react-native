@@ -197,11 +197,11 @@ To turn off Hermes, you can do the same changes in documentation but set `Hermes
 
 ## Attach to Hermes application
 
-To attach to a running Hermes application use `Attach to Hermes application - Experimental` launch configuration:
+To attach to a running Hermes application use `Attach to Hermes application` launch configuration:
 
 ```json
 {
-  "name": "Attach to Hermes application - Experimental",
+  "name": "Attach to Hermes application",
   "cwd": "${workspaceFolder}",
   "type": "reactnativedirect",
   "request": "attach"
