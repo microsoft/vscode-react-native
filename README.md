@@ -32,7 +32,7 @@ Using this extension, you can **debug your code and quickly run `react-native` c
 - [React Native commands in the Command Palette](#react-native-commands-in-the-command-palette)
 - [Customize metro configuration](#customize-metro-configuration)
 - [Debugging React Native applications](#debugging-react-native-applications)
-  - [Hermes engine](#hermes-engine)
+  - [Hermes engine and direct debugging (Recommended)](#hermes-engine-and-direct-debugging-recommended)
   - [Attach to Hermes application](#attach-to-hermes-application)
   - [Android applications](#android-applications)
     - [Android Hermes Debugging](#android-hermes-debugging)
