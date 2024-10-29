@@ -310,57 +310,53 @@ You can use the following debug scenarios to debug iOS apps directly:
 
 ## Expo applications
 
-To debug a project created using Expo or the `create-react-native-app` task, you can use embedded support for Expo.
+Extension also support [Expo](https://expo.dev/) application debugging scenarios.
 
-Prepare your environment by following the [Expo CLI Quickstart instruction](https://reactnative.dev/docs/environment-setup).
-For correct work with Expo this extension **`requires Android SDK`**.
-So also pay attention to the `React Native CLI Quickstart` tab, where you can find the Android SDK installation guide:
+To create Expo application, please prepare your environment by following the [Expo CLI Quickstart instruction](https://reactnative.dev/docs/environment-setup).
 
-- Install the [Expo app](https://getexponent.com/) on the target device or emulator
-- Ensure that the `Android SDK` is installed on your computer (You may install it using the [`React Native CLI Quickstart` guide](https://reactnative.dev/docs/environment-setup))
-- Ensure that the `expo-cli` is installed globally (`npm install -g expo-cli`)
-
-You can verify that everything is working correctly and that the environment is ready for use with the `npx react-native doctor` command.
+You can verify if the environment is ready to use by `React Native: Run Expo Doctor` in command palette.
 
 ### Debug on Expo Go
 
 If you're using [Expo Go](https://expo.dev/expo-go), follow below steps tp start debugging Expo application:
 
 1. Open your project in VS Code with this extension installed.
-1. Create a debug configuration (as described in [Debugging React Native applications](#debugging-react-native-applications)), select `Debug in Exponent` in the debug drop-down menu, and start debugging
-1. Wait while some dependencies are configured - the extension will install [`Expo Development Library(xdl)`](https://www.npmjs.com/package/xdl) when this feature is used for the first time.
-1. If you have not used Exponent on this system before, you will be prompted for an Exponent username and password.
-   Exponent account allows you to use Expo cloud services. More info about how it works is available [here](https://docs.expo.io/versions/latest/workflow/how-expo-works/).
-   If you have not created an Exponent account, then specifying a new username and password will create one.
-   Note that there is no e-mail associated with the account, and no way to recover a forgotten password.
-   If you don't want to create an Exponent account, you can specify `expoHostType` parameter in your debug configuration to make Expo work locally (via LAN or on localhost).
-1. Once the packager starts, the extension will open a separate tab with QR code to scan from the Expo Go. Once you do so, the Expo Go will connect to the packager and begin running your app.
+2. Add below configure in `launch.json`.
+
+```json
+{
+  "name": "Debug Exponent Hermes",
+  "request": "launch",
+  "type": "reactnativedirect",
+  "cwd": "${workspaceFolder}",
+  "platform": "exponent",
+  "expoHostType": "local"
+}
+```
+
+3. Wait while some dependencies are configured - the extension will install [`Expo Development Library(xdl)`](https://www.npmjs.com/package/xdl) when this feature is used for the first time.
+4. Once the packager starts, the extension will open a separate tab with QR code and app link. You can open app in Expo Go and start debugging.
+   ![Expo QRCode](/resources/images/expo-qrcode.png)
 
 ### Debug on expo-dev-client
 
 If you want to debug Expo app using [expo-dev-client](https://docs.expo.dev/development/getting-started/), follow below steps to start debugging Expo application:
 
 1. Open your project in VS Code with this extension installed.
-2. In project folder, install expo-dev-client for your app using `npx expo install expo-dev-client`
+2. In project folder, install expo-dev-client for your app using `npx expo install expo-dev-client`.
 3. Create your app in development mode `eas build --profile development --platform all`, replace `--platform all` to `android` or `iOS` to build specific platform application(need development account for `iOS` platform).
-4. After build success, download your build and install application to your device or simulator
-5. In project, using `npx expo start --dev-client` to start Metro and load application in device or simulator
-6. Using `CMD + D` or `Ctrl + M` to open dev menu, then enable local devtools
-7. If your Chrome or MS Edge open devtools after enabling local devtools, waiting the status is changed to `Status: Debugger session active`, then close browser devtools.
-8. Add `Attach to application` command `./.vscode/launch.json`
+4. After build success, download your build and install application to your device or simulator.
+5. In project, using `npx expo start --dev-client` to start Metro and load application in device or simulator.
+6. Add `Attach to application` command `launch.json`, and start debugging.
 
 ```json
-    "configurations": [
-        {
-            "name": "Attach to Hermes application",
-            "request": "attach",
-            "type": "reactnativedirect",
-            "cwd": "${workspaceFolder}"
-        }
-    ]
+{
+  "name": "Attach to Hermes application",
+  "request": "attach",
+  "type": "reactnativedirect",
+  "cwd": "${workspaceFolder}"
+}
 ```
-
-9. Run `Attach` command in debug tab and debugger will start to work(If debugger not go into breakpoint, you need to reload app from Metro to refresh app since maybe it had some conflicts between Browser devtools debug session and RNT debug session).
 
 ### Debug on Expo Web
 
@@ -368,29 +364,25 @@ Expo support open application in browser, the expo web application is generated 
 
 1. Open your project in VS Code with this extension installed.
 2. Check and install related package: `react-dom`, `react-native-web` and `@expo/webpack-config` (this package is deprecated from Expo 49) by `npx expo install` command.
-3. Add Expo Web debugging configure in `launch.json`:
+3. Add Expo Web debugging configure in `launch.json` and start debugging.
 
 ```json
-    "configurations": [
-       {
-            "name": "Debug Expo Web - Experimental",
-            "request": "launch",
-            "type": "reactnativedirect",
-            "cwd": "${workspaceFolder}",
-            "platform": "expoweb",
-            "browserTarget": "chrome",
-            "url": "http://localhost:8081"
-        }
-    ]
+{
+  "name": "Debug Expo Web - Experimental",
+  "request": "launch",
+  "type": "reactnativedirect",
+  "cwd": "${workspaceFolder}",
+  "platform": "expoweb",
+  "browserTarget": "chrome",
+  "url": "http://localhost:8081"
+}
 ```
-
-4. Execute and start debugging
 
 ### Configuring Expo
 
 The extension supports running through Exponent not just the applications created with Expo but even pure React Native applications (in that case you need to add `expo` package to `node_modules` in order to make it work with Expo: `npm install expo --save-dev`. In either cases it uses `app.json` configuration file in the root of the project.)
 
-If you are running `Debug in Exponent` configuration or any of pallette commands like `Run in Exponent`, `Publish to Exponent` then this file will be created automatically if absent or updated with the following basic configuration section:
+If you are running `Debug Exponent Hermes` configuration or any of palette commands like `Run in Exponent`, `Publish to Exponent` then this file will be created automatically if absent or updated with the following basic configuration section:
 
 ```json
 {
@@ -414,14 +406,15 @@ If you want to change your app entrypoint (for example, from `index.js` to `inde
 
 ### Expo Hermes
 
-Expo app is supporting Hermes Engine, and please note that Hermes engine is the default Javascript engine used by Expo since SDK 48. SDK 47 and lower version will no longer be supported in the next release. (Please refer to https://docs.expo.dev/guides/using-hermes/) We suggest everyone to upgrade your Expo projects to use Expo 48 or newer SDKs.
-
-You can add or remove `"jsEngine": "hermes"` in `app.json` to enable or disable Hermes Engine. And any changes for app engine you need to run `eas build` to rebuild your application.
+Expo using Hermes as default engine, you can switch engine on a specific platform using below configure.
 
 ```json
 {
   "expo": {
-    "jsEngine": "hermes"
+    "jsEngine": "hermes",
+    "ios": {
+      "jsEngine": "jsc"
+    }
   }
 }
 ```
@@ -430,17 +423,17 @@ You can add or remove `"jsEngine": "hermes"` in `app.json` to enable or disable 
 
 ## React Native for Windows
 
+Please make sure that your development environment is configured properly in accordance with [the official system requirements](https://microsoft.github.io/react-native-windows/docs/rnw-dependencies).
+
+And follow [the official guide](https://microsoft.github.io/react-native-windows/docs/hermes#hermes-on-windows) to enable Hermes engine for a Windows application.
+
 ### Windows Hermes debugging
 
-Before launching and debugging a React Native for Windows application, please make sure that your development environment is configured properly in accordance with [the official system requirements](https://microsoft.github.io/react-native-windows/docs/rnw-dependencies).
-
-Please follow [the official guide](https://microsoft.github.io/react-native-windows/docs/hermes#hermes-on-windows) to enable Hermes engine for a Windows application.
-
-You can debug UWP React Native for Windows applications by changing the `platform` in your `launch.json` configuration to `windows`:
+To debug React Native for Windows applications, you can use below configure in `launch.json`:
 
 ```json
 {
-  "name": "Debug Windows",
+  "name": "Debug Windows Hermes",
   "cwd": "${workspaceFolder}",
   "type": "reactnativedirect",
   "request": "launch",
@@ -452,9 +445,11 @@ Also you can attach running application using `Attach to Hermes application` con
 
 ## React Native for MacOS
 
-### MacOS Hermes debugging
+Please make sure that your development environment is configured properly in accordance with [the official system requirements](https://microsoft.github.io/react-native-windows/docs/rnm-dependencies).
 
-Please follow [the official guide](https://microsoft.github.io/react-native-windows/docs/hermes#available-on-macos) to enable Hermes engine for a macOS application.
+And follow [the official guide](https://microsoft.github.io/react-native-windows/docs/hermes#available-on-macos) to enable Hermes engine for a macOS application.
+
+### MacOS Hermes debugging
 
 To debug a macOS Hermes application you can use `Debug macOS Hermes` debugging scenario:
 
@@ -476,10 +471,10 @@ If your project structure like this:
 
 ```
 common
-- utils.ts
+  - utils.ts
 app
-- src/
-- metro.config.js
+  - src/
+  - metro.config.js
 ```
 
 When you import `utils.ts` in your project. Using
@@ -508,15 +503,6 @@ const watchFolders = [path.resolve(__dirname + "/../common")];
 2. Add module and watch folder in metro config.
 
 ```js
-// React native <= 0.72.0
-module.exports = {
-  resolver: {
-    extraNodeModules,
-  },
-  watchFolders,
-};
-
-// React native >= 0.72.0
 const config = {
   resolver: {
     extraNodeModules,
@@ -606,20 +592,20 @@ The following is a list of all the configuration properties the debugger accepts
 
 ## Remote JavaScript Debugging (Deprecated)
 
-Remote JavScript debugging is deprecated by react-native team from [0.73](https://reactnative.dev/docs/0.75/other-debugging-methods#remote-javascript-debugging-deprecated) and may be removed officially at any time.
+Remote JavaScript debugging is deprecated by react-native team from [0.73](https://reactnative.dev/docs/0.75/other-debugging-methods#remote-javascript-debugging-deprecated) and may be removed officially at any time.
 
 **We strongly recommend to use [Hermes engine and direct debugging](#hermes-engine-and-direct-debugging-recommended) in your application.**
 
 Below config showed classic debug mode in extension, we may remove it from extension in the future if it's totally removed officially.
 
-```
-     {
-            "name": "Debug Android",
-            "request": "launch",
-            "type": "reactnative",
-            "cwd": "${workspaceFolder}",
-            "platform": "android"
-     }
+```json
+{
+  "name": "Debug Android",
+  "request": "launch",
+  "type": "reactnative",
+  "cwd": "${workspaceFolder}",
+  "platform": "android"
+}
 ```
 
 # Customization
@@ -633,7 +619,7 @@ Extension supports vscode multiple root workspace for development. If you have s
 - Open vscode command palette, select `Preferences: Open Workspace Settings (JSON)` to open workspace settings file.
 - Add below settings in the file:
 
-```
+```json
 	"settings": {
 		"react-native.workspace.exclude": [
 			"ProjectFolderName1",
@@ -863,9 +849,9 @@ There are two ways to filter your LogCat Monitor output depending on how LogCat 
 
 ```json
 {
-  "name": "Debug Android",
+  "name": "Debug Android Hermes",
   "cwd": "${workspaceFolder}",
-  "type": "reactnative",
+  "type": "reactnativedirect",
   "request": "launch",
   "platform": "android",
   "logCatArguments": ["ReactNativeJS:V"]
