@@ -17,8 +17,8 @@ To avoid conflicts, if both extensions are installed - only stable version will 
 
 ## About the extension
 
-This VS Code extension provides a development environment for React Native projects.
-Using this extension, you can **debug your code and quickly run `react-native` commands** from the command palette.
+This VS Code extension provides a development environment for React Native and Expo projects.
+Using this extension, you can **debug your code and quickly run `react-native` or `expo` commands** from the command palette.
 
 ![React Native features](resources/images/react-features.gif)
 
