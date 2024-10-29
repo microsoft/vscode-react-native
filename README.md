@@ -154,23 +154,21 @@ To run React Native Tools commands via VS Code tasks, you can create a `.vscode/
 
 Metro is a JavaScript bundler for React Native and include in React Native package. Metro configuration can be customized in `metro.config.js`.
 
-Note: From React Native 0.72.0, the config loading setup for Metro in React Native CLI(`@react-native/metro-config`).
-
 # Debugging React Native applications
 
-To start debugging create a new debug configuration for your ReactNative app in your `.vscode/launch.json`. Adding a new configuration can be done by opening your `launch.json` file and clicking on `Add Configuration...` button and then selecting `React Native` option. After that the extension will prompt you to create a debugging configuration by selecting debugging parameters in dropdown lists at the top of the editor. A new debugging configuration will be generated and added to the `launch.json` file automatically as shown in the image below.
+To debug react-native application:
+
+1. Create `launch.json` file in `.vscode` folder.
+2. Click on `Add Configuration` button and choose `React Native` option.
+3. Select any scenario needed in dropdown list.
 
 ![Add React Native debug configuration](resources/images/add-debug-configuration.gif)
 
-In case you haven't created the `.vscode/launch.json` file yet, you can add a whole default debug configuration set. To do that click `create a launch.json file` in the View bar, then choose the React Native debug environment.
-
-![Choose React Native debugger](resources/images/choose-debugger.png)
-
-VS Code will generate a `launch.json` in your project with some default configuration settings as shown below. You can safely close this file, choose the appropriate configuration in the Configuration dropdown, and then press F5 (or click _Green Arrow_ ![Configure-gear](resources/images/debug-icon.png) button) to start debugging your app in VS Code.
+4. Choose the appropriate configuration in the Configuration dropdown, and then press F5 (or click _Green Arrow_ ![Configure-gear](resources/images/debug-icon.png) button) to start debugging your app in VS Code.
 
 ![React Native launch targets](resources/images/debug-targets.png)
 
-The extension also allows to start debugging without creating the `launch.json` file in one of the following ways:
+Optional: The extension also allows to start debugging without creating the `launch.json` file in one of the following ways:
 
 - Using dynamic debugging configurations
 
