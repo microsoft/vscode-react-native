@@ -465,6 +465,12 @@
         "title": "Enable & Disable Expo Hermes",
         "category": "React Native",
         "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
+      },
+      {
+        "command": "reactNative.openExpoUpgradeHelper",
+        "title": "Open expo upgrade helper in web page",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       }
     ],
     "menus": {
