@@ -4,12 +4,7 @@
 import * as assert from "assert";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
-import { ProjectVersionHelper, REACT_NATIVE_PACKAGES } from "../../common/projectVersionHelper";
-import { PlatformType } from "../launchArgs";
-import { AndroidPlatform } from "../android/androidPlatform";
-import { IOSPlatform } from "../ios/iOSPlatform";
-import { WindowsPlatform } from "../windows/windowsPlatform";
-import { getRunOptions } from "./util";
+import { sendMessageToDevice } from "./util";
 import { Command } from "./util/command";
 
 export class ReloadApp extends Command {
@@ -22,44 +17,10 @@ export class ReloadApp extends Command {
     );
 
     async baseFn(): Promise<void> {
+        await this.reloadApp();
+    }
+    public async reloadApp(): Promise<void> {
         assert(this.project);
-
-        const androidPlatform = new AndroidPlatform(
-            getRunOptions(this.project, PlatformType.Android),
-            {
-                packager: this.project.getPackager(),
-            },
-        );
-
-        androidPlatform.reloadApp().catch(() => {});
-
-        if (process.platform === "win32") {
-            const nodeModulesRoot = this.project.getOrUpdateNodeModulesRoot();
-            const RNPackageVersions =
-                await ProjectVersionHelper.getReactNativePackageVersionsFromNodeModules(
-                    nodeModulesRoot,
-                    [REACT_NATIVE_PACKAGES.REACT_NATIVE_WINDOWS],
-                );
-
-            const isRNWProject = !ProjectVersionHelper.isVersionError(
-                RNPackageVersions.reactNativeWindowsVersion,
-            );
-
-            if (isRNWProject) {
-                const windowsPlatform = new WindowsPlatform(
-                    getRunOptions(this.project, PlatformType.Windows),
-                    {
-                        packager: this.project.getPackager(),
-                    },
-                );
-                windowsPlatform.reloadApp(this.project).catch(() => {});
-            }
-        } else if (process.platform === "darwin") {
-            const iosPlatform = new IOSPlatform(getRunOptions(this.project, PlatformType.iOS), {
-                packager: this.project.getPackager(),
-            });
-
-            iosPlatform.reloadApp(this.project).catch(() => {});
-        }
+        await sendMessageToDevice("reload", this.project);
     }
 }
