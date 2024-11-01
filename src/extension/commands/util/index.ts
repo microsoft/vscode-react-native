@@ -3,6 +3,7 @@
 
 import * as vscode from "vscode";
 import * as nls from "vscode-nls";
+import * as WebSocket from "ws";
 import { AppLauncher } from "../../appLauncher";
 import {
     IAndroidRunOptions,
@@ -109,4 +110,19 @@ export async function selectProject(): Promise<AppLauncher> {
 
     logger.debug(`Command palette: selected project ${selected}`);
     return ProjectsStorage.projectsCache[selected];
+}
+
+export async function sendMessageToMetro(method: "devMenu" | "reload", project: AppLauncher) {
+    const port = SettingsHelper.getPackagerPort(project.getWorkspaceFolderUri().fsPath);
+    const ws = new WebSocket(`ws://localhost:${port}/message`);
+    await new Promise(resolve => {
+        ws.addEventListener("open", resolve);
+    });
+    ws.send(
+        JSON.stringify({
+            version: 2,
+            method,
+        }),
+    );
+    ws.close();
 }
