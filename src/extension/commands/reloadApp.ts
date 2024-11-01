@@ -4,7 +4,7 @@
 import * as assert from "assert";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
-import { sendMessageToDevice } from "./util";
+import { sendMessageToMetro } from "./util";
 import { Command } from "./util/command";
 
 export class ReloadApp extends Command {
@@ -21,6 +21,6 @@ export class ReloadApp extends Command {
     }
     public async reloadApp(): Promise<void> {
         assert(this.project);
-        await sendMessageToDevice("reload", this.project);
+        await sendMessageToMetro("reload", this.project);
     }
 }
