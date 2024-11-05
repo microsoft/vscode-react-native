@@ -24,7 +24,6 @@
     "gulp-chmod": "^2.0.0",
     "gulp-filter": "^5.0.1",
     "gulp-gunzip": "1.1.0",
-    "gulp-remote-src-vscode": "^0.5.1",
     "gulp-untar": "^0.0.7",
     "gulp-vinyl-zip": "2.5.0",
     "minimatch": "^3.0.5",
