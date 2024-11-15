@@ -35,7 +35,7 @@ export enum InternalErrorCode {
     FailedToEnableHermes = 130,
     FailedToEnableExpoHermes = 131,
     FailedToOpenExpoUpgradeHelper = 132,
-
+    FailedToKillPort = 133,
     // Device Deployer errors
     IOSDeployNotFound = 201,
 
