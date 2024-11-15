@@ -17,9 +17,6 @@ export class ReloadApp extends Command {
     );
 
     async baseFn(): Promise<void> {
-        await this.reloadApp();
-    }
-    public async reloadApp(): Promise<void> {
         assert(this.project);
         await sendMessageToMetro("reload", this.project);
     }
