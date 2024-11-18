@@ -29,6 +29,7 @@ export class PlistBuddy {
     private static readonly NEW_RN_IOS_CLI_LOCATION_VERSION = "0.60.0";
     private static readonly RN69_FUND_XCODE_PROJECT_LOCATION_VERSION = "0.69.0";
     private static readonly RN_VERSION_CLI_PLATFORM_APPLE = "0.74.0";
+    private static readonly RN_VERSION_CLI_CONFIG_APPLE = "0.76.2";
     private readonly TARGET_BUILD_DIR_SEARCH_KEY = "TARGET_BUILD_DIR";
     private readonly FULL_PRODUCT_NAME_SEARCH_KEY = "FULL_PRODUCT_NAME";
     private nodeChildProcess: ChildProcess;
@@ -248,7 +249,9 @@ export class PlistBuddy {
          */
 
         const iOSCliPlatform = semver.gte(rnVersion, PlistBuddy.RN_VERSION_CLI_PLATFORM_APPLE)
-            ? "cli-platform-apple"
+            ? semver.gte(rnVersion, PlistBuddy.RN_VERSION_CLI_CONFIG_APPLE)
+                ? "cli-config-apple"
+                : "cli-platform-apple"
             : "cli-platform-ios";
         const iOSCliFolderName =
             semver.gte(rnVersion, PlistBuddy.NEW_RN_IOS_CLI_LOCATION_VERSION) ||
