@@ -14,6 +14,7 @@ import { ipToBuffer } from "../common/utils";
 interface DebuggableEndpointData {
     webSocketDebuggerUrl: string;
     title: string;
+    description: string;
 }
 
 export class DebuggerEndpointHelper {
@@ -104,6 +105,22 @@ export class DebuggerEndpointHelper {
             return isHermes
                 ? this.tryToGetHermesImprovedChromeReloadsWebSocketDebuggerUrl(defaultJsonList)
                 : defaultJsonList[0].webSocketDebuggerUrl;
+        }
+
+        throw new Error("Could not find any debuggable target");
+    }
+
+    /**
+     * Returns the debugger type for expo app and react-native pure app.
+     * @param browserURL -- Address like `http://localhost:1234`
+     */
+    public async getDebuggerTpye(browserURL: string): Promise<string> {
+        const jsonList = await this.fetchJson<DebuggableEndpointData[]>(
+            URL.resolve(browserURL, "/json/list"),
+        );
+        if (jsonList.length) {
+            const type = jsonList[0].description.toLowerCase();
+            return type.includes("exponent") ? "expo" : "react-native";
         }
 
         throw new Error("Could not find any debuggable target");
