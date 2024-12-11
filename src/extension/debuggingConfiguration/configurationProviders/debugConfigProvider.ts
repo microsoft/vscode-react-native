@@ -64,6 +64,9 @@ export class DebugConfigProvider extends BaseConfigProvider {
         } else if (state.config.platform === PlatformType.Exponent) {
             return async () => {
                 await this.configureApplicationType(input, state.config);
+                if (state.config.type === "reactnativedirect") {
+                    await this.configureExpoPlatform(input, state.config);
+                }
                 await this.configureExpoHostType(input, state.config);
             };
         } else if (state.config.platform === PlatformType.ExpoWeb) {
@@ -92,12 +95,14 @@ export class DebugConfigProvider extends BaseConfigProvider {
         input: MultiStepInput<DebugConfigurationState>,
         config: Partial<ILaunchRequestArgs>,
     ): Promise<InputStep<DebugConfigurationState> | void> {
-        await this.configurationProviderHelper.selectExpoHostType(
-            input,
-            config,
-            2,
-            this.maxStepCount,
-        );
+        await this.configurationProviderHelper.selectExpoHostType(input, config, 4, 4);
+    }
+
+    private async configureExpoPlatform(
+        input: MultiStepInput<DebugConfigurationState>,
+        config: Partial<ILaunchRequestArgs>,
+    ): Promise<InputStep<DebugConfigurationState> | void> {
+        await this.configurationProviderHelper.selectExpoPlatform(input, config, 3, 4);
     }
 
     private async configureUseHermesEngine(

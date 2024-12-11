@@ -113,6 +113,17 @@ export const shouldUseHermesEngine: DebugConfigurationQuickPickItem[] = [
     },
 ];
 
+export const expoPlatform: DebugConfigurationQuickPickItem[] = [
+    {
+        label: "Android",
+        type: PlatformType.Android,
+    },
+    {
+        label: "iOS",
+        type: PlatformType.iOS,
+    },
+];
+
 export const expoHostTypePickConfig: DebugConfigurationQuickPickItem[] = [
     {
         label: "Tunnel",

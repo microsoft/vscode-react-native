@@ -10,6 +10,8 @@
 	"ApplicationTypeSelectionPrompt": "React Native uygulamasının türü",
 	"UseHermesEnginePrompt": "Doğrudan hata ayıklama için Hermes motoru kullanılsın mı?",
 	"UseHermesEngineInvalid": "Hermes motorunun kullanılması onaylanmadı",
+	"ExpoPlatformTypeSelection": "Çalıştırılacak platformu seçin",
+  	"ExpoPlatformTypeSelectionPrompt": "Çalıştırılacak platform türü",
 	"ExpoHostTypeSelectionTitle": "Expo ana bilgisayar parametresi türünü seçin",
 	"ExpoHostTypeSelectionPrompt": "Expo ana bilgisayar parametresi türü",
 	"BrowserTypeSelectionTitle": "Tarayıcı türünü seçin",
