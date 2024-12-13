@@ -273,6 +273,7 @@ export class Packager {
                     this.logger,
                 ).spawnReactPackager(args, spawnOptions);
             } else if (this.runOptions?.platform == "exponent") {
+                args.push(`--${this.runOptions?.expoPlatformType?.toLowerCase()}`);
                 packagerSpawnResult = new CommandExecutor(
                     nodeModulesRoot,
                     this.projectPath,
