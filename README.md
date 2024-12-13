@@ -186,12 +186,11 @@ The extension allows you to debug multiple devices and configurations, please re
 
 ## Hermes engine and direct debugging (Recommended)
 
-React-native set Hermes as default engine from 0.70. Please see [official documentation](https://reactnative.dev/blog/2022/07/08/hermes-as-the-default) to get details.
+React-native set Hermes as default engine. Please see [official documentation](https://reactnative.dev/blog/2022/07/08/hermes-as-the-default) to get details.
 
 The Hermes engine is an open source JavaScript engine created by Facebook to optimize building and running React Native applications. It improves app performance and decreases app size.
 
 Click [here](https://reactnative.dev/docs/hermes) to learn more about Hermes and how to enable it for your application.
-To turn off Hermes, you can do the same changes in documentation but set `Hermes Flag` to `False`.
 
 ## Attach to Hermes application
 
@@ -594,7 +593,7 @@ Remote JavaScript debugging is deprecated by react-native team from [0.73](https
 
 **We strongly recommend to use [Hermes engine and direct debugging](#hermes-engine-and-direct-debugging-recommended) in your application.**
 
-Below config showed classic debug mode in extension, we may remove it from extension in the future if it's totally removed officially.
+Below config showed classic debug mode in extension. With the version update of react-native, some features of Remote JavaScript Debugging may become unavailable, we will remove it from extension in the future if it's totally removed officially.
 
 ```json
 {
