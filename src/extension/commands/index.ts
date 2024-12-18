@@ -35,3 +35,4 @@ export * from "./enableHermes";
 export * from "./enableExpoHemes";
 export * from "./openExpoUpgradeHelper";
 export * from "./killPort";
+export * from "./setNewArch";
