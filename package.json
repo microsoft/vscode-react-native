@@ -1051,6 +1051,13 @@
                 ],
                 "description": "%reactNative.launch.direct.platform.description%"
               },
+              "expoPlatformType": {
+                "type": "string",
+                "enum": [
+                  "Android",
+                  "iOS"
+                ]
+              },
               "expoHostType": {
                 "type": "string",
                 "enum": [
