@@ -78,10 +78,10 @@ Using this extension, you can **debug your code and quickly run `react-native` o
 Before going any further make sure that you:
 
 - [have a working React Native environment](https://reactnative.dev/docs/environment-setup).
-- have the [`emulator`](https://developer.android.com/studio/run/emulator-commandline) utility available in your `PATH` if you're developing Android applications
+- have the Android emulator available in your `PATH` or install iOS simulator in MacOS
 - are using [VS Code](https://code.visualstudio.com) and have [installed this extension from the Marketplace](https://marketplace.visualstudio.com/items?itemName=msjsdiag.vscode-react-native).
 - have your React Native project root folder open in VS Code.
-- have launched "React Native: Check development environment configuration" command in order to make sure that all necessary software is installed and recognized correctly.
+- have executed `React Native: Check development environment configuration` or `React Native: Run expo doctor`command to make sure that all necessary softwares are installed correctly.
 
 Please notice that the extension uses `.vscode/.react` directory at the project root to store intermediate files required for debugging. Although these files usually get removed after debug session ends, you may want to add this directory to your project's `.gitignore` file.
 
@@ -91,9 +91,9 @@ In the Command Palette, type `React Native` and choose a command.
 
 ![React Native commands](resources/images/command-palette.png)
 
-The **Run Android** command triggers `react-native run-android` and starts your app for Android.
+The **Run Android** or **Run iOS** command triggers `react-native run-android` or `react-native run-android` to starts your app for Android emulator or iOS simulator.
 
-The **Run iOS** command similarly triggers `react-native run-ios` and starts your app in the iOS simulator (e.g. iPhone 6).
+The **Run Expo** command triggers `expo start` and starts your expo application.
 
 The **Packager** commands allow you to start/stop the [**Metro Bundler**](https://github.com/facebook/metro-bundler) (formerly React Packager).
 
@@ -254,8 +254,7 @@ Debugging on an iOS device requires following manual steps:
 - Install [ios-deploy](https://github.com/ios-control/ios-deploy) `brew install ios-deploy`.
 - Install a valid iOS development certificate.
 - In your project's `launch.json` file set `target` to `device`. If you need to specify the exact device to run, you can set `target` to `<iOS device name/udid>`, or you can also use `runArguments` property to specify a particular device to run on in case multiple devices are connected (e.g. `"runArguments": [ "--device", "My iPhone" ]`)
-- Choose the **Debug iOS** option from the "Configuration" dropdown and press F5.
-- Shake the device to open the development menu and select "Debug JS Remotely".
+- Choose the **Debug iOS Hermes** option from the "Configuration" dropdown and press F5.
 
 ### Custom scheme for iOS apps
 
@@ -274,6 +273,8 @@ Please be aware, specifying the scheme value as a part of the `runArguments` par
 The extension provides experimental support of iOS direct debugging. See more info here: [react-native-community/discussions-and-proposals#40](https://github.com/react-native-community/discussions-and-proposals/issues/40), [react-native-community/discussions-and-proposals#206](https://github.com/react-native-community/discussions-and-proposals/issues/206)
 
 For now the extension supports iOS direct debugging only on real iOS devices.
+
+Since this scenario are using some 3rd party tools for the debugging process. Sometimes it may have limitation from upstream. We still recommend using **Hermes direct debugging** as a first choice.
 
 To be able to debug an iOS app directly, you need to install [ios-webkit-debug-proxy](https://github.com/google/ios-webkit-debug-proxy):
 
