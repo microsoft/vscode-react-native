@@ -91,7 +91,7 @@ In the Command Palette, type `React Native` and choose a command.
 
 ![React Native commands](resources/images/command-palette.png)
 
-The **Run Android** or **Run iOS** command triggers `react-native run-android` or `react-native run-android` to starts your app for Android emulator or iOS simulator.
+The **Run Android** or **Run iOS** command triggers `react-native run-android` or `react-native run-ios` to starts your app for Android emulator or iOS simulator.
 
 The **Run Expo** command triggers `expo start` and starts your expo application.
 
