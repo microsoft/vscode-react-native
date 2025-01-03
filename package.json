@@ -1369,7 +1369,7 @@
           "scope": "resource",
           "default": true
         },
-        "react-native-tools.telemetry.optIn":  {
+        "react-native-tools.telemetry.optIn": {
           "description": "Whether to send usage data to Microsoft",
           "type": "boolean",
           "scope": "resource",
@@ -1477,6 +1477,8 @@
     "@types/rsocket-core": "0.0.6",
     "@types/rsocket-tcp-server": "0.0.2",
     "@types/semver": "6.2.1",
+    "@types/shell-quote": "^1.7.5",
+    "shell-quote": "^1.8.1",
     "@types/shelljs": "0.7.0",
     "@types/source-map": "0.5.2",
     "@types/source-map-support": "0.2.28",
