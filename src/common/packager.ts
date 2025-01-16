@@ -28,6 +28,7 @@ import { PromiseUtil } from "./node/promise";
 import { CONTEXT_VARIABLES_NAMES } from "./contextVariablesNames";
 import { getNodeVersion } from "./nodeHelper";
 import { getTSVersion } from "./utils";
+import { logger } from "@vscode/debugadapter";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -274,6 +275,9 @@ export class Packager {
                 ).spawnReactPackager(args, spawnOptions);
             } else if (this.runOptions?.platform == "exponent") {
                 args.push(`--${this.runOptions?.expoPlatformType?.toLowerCase()}`);
+                logger.log(
+                    "It may take a while to install Expo Go if it is not installed on your device...",
+                );
                 packagerSpawnResult = new CommandExecutor(
                     nodeModulesRoot,
                     this.projectPath,
