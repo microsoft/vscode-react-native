@@ -10,6 +10,8 @@
 	"ApplicationTypeSelectionPrompt": "React Native 애플리케이션 유형",
 	"UseHermesEnginePrompt": "직접 디버깅을 위해 Hermes 엔진을 사용하시겠습니까?",
 	"UseHermesEngineInvalid": "Hermes 엔진 사용 여부는 확인되지 않았습니다.",
+	"ExpoPlatformTypeSelection": "실행할 플랫폼 선택",
+  	"ExpoPlatformTypeSelectionPrompt": "실행할 플랫폼 유형",
 	"ExpoHostTypeSelectionTitle": "Expo 호스트 매개변수 유형 선택",
 	"ExpoHostTypeSelectionPrompt": "Expo 호스트 매개변수 유형",
 	"BrowserTypeSelectionTitle": "브라우저 유형 선택",

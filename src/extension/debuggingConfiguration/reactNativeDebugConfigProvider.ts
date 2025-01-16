@@ -226,6 +226,15 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
                         state.config.platform,
                         state.config.useHermesEngine !== false,
                     );
+                } else if (state.config.platform === "exponent") {
+                    state.config.name = DebugScenarioNameGenerator.createScenarioName(
+                        state.scenarioType,
+                        state.config.type,
+                        state.config.platform,
+                        state.config.useHermesEngine !== false,
+                        false,
+                        state.config.expoPlatformType,
+                    );
                 } else {
                     state.config.name = DebugScenarioNameGenerator.createScenarioName(
                         state.scenarioType,

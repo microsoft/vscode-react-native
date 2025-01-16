@@ -10,6 +10,8 @@
 	"ApplicationTypeSelectionPrompt": "Tipo de aplicativo React Native",
 	"UseHermesEnginePrompt": "Usar o mecanismo Hermes para depuração direta?",
 	"UseHermesEngineInvalid": "O uso do motor Hermes não está confirmado",
+	"ExpoPlatformTypeSelection": "Selecione a plataforma para rodar",
+  	"ExpoPlatformTypeSelectionPrompt": "Tipo de plataforma para rodar",
 	"ExpoHostTypeSelectionTitle": "Selecione o tipo de parâmetro de host da Expo",
 	"ExpoHostTypeSelectionPrompt": "Tipo de parâmetro de host da Expo",
 	"BrowserTypeSelectionTitle": "Selecione o tipo de navegador",
