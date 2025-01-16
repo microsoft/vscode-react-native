@@ -8,6 +8,7 @@ import * as semver from "semver";
 import * as vscode from "vscode";
 import * as nls from "vscode-nls";
 import * as WebSocket from "ws";
+import { logger } from "@vscode/debugadapter";
 import { GeneralPlatform } from "../extension/generalPlatform";
 import { ExponentHelper } from "../extension/exponent/exponentHelper";
 import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
@@ -28,7 +29,6 @@ import { PromiseUtil } from "./node/promise";
 import { CONTEXT_VARIABLES_NAMES } from "./contextVariablesNames";
 import { getNodeVersion } from "./nodeHelper";
 import { getTSVersion } from "./utils";
-import { logger } from "@vscode/debugadapter";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
