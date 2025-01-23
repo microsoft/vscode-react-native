@@ -248,6 +248,8 @@ export class PlistBuddy {
          * @format
          */
 
+        const nodeModulesRoot: string = AppLauncher.getNodeModulesRootByProjectPath(projectRoot);
+
         const iOSCliPlatform = semver.gte(rnVersion, PlistBuddy.RN_VERSION_CLI_PLATFORM_APPLE)
             ? semver.gte(rnVersion, PlistBuddy.RN_VERSION_CLI_CONFIG_APPLE)
                 ? "cli-config-apple"
@@ -258,16 +260,35 @@ export class PlistBuddy {
             ProjectVersionHelper.isCanaryVersion(rnVersion)
                 ? iOSCliPlatform
                 : "cli";
-        const findXcodeProjectLocation = `node_modules/@react-native-community/${iOSCliFolderName}/build/${
+
+        let findXcodeBase = "node_modules/@react-native-community";
+
+        const pnpmProjectPath = path.resolve(nodeModulesRoot, "node_modules", ".pnpm");
+
+        const isPnpmProject = fs.existsSync(pnpmProjectPath);
+        if (isPnpmProject) {
+            const modules = fs.readdirSync(pnpmProjectPath);
+            const regex = new RegExp(`\@react-native-community\\+${iOSCliFolderName}@`);
+            const communityModule = modules.find(module => regex.test(module));
+            if (communityModule) {
+                findXcodeBase = path.join(
+                    "node_modules",
+                    ".pnpm",
+                    communityModule,
+                    "node_modules",
+                    "@react-native-community",
+                );
+            }
+        }
+
+        const findXcodeProjectLocation = `${findXcodeBase}/${iOSCliFolderName}/build/${
             semver.gte(rnVersion, PlistBuddy.RN69_FUND_XCODE_PROJECT_LOCATION_VERSION)
                 ? "config/findXcodeProject"
                 : "commands/runIOS/findXcodeProject"
         }`;
+
         const findXcodeProject = customRequire(
-            path.join(
-                AppLauncher.getNodeModulesRootByProjectPath(projectRoot),
-                findXcodeProjectLocation,
-            ),
+            path.join(nodeModulesRoot, findXcodeProjectLocation),
         ).default;
         const xcodeProject = findXcodeProject(fs.readdirSync(platformProjectRoot));
         if (!xcodeProject) {

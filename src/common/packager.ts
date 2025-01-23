@@ -71,6 +71,7 @@ export class Packager {
     };
     private static REACT_NATIVE_PACKAGE_NAME = "react-native";
     private static OPN_PACKAGE_MAIN_FILENAME = "index.js";
+    private static PNPM_PACKAGE_NAME = ".pnpm";
     private static fs: FileSystem = new FileSystem();
     private expoHelper: ExponentHelper;
     private runOptions?: IRunOptions;
@@ -509,48 +510,90 @@ export class Packager {
             const nodeModulesRoot: string = AppLauncher.getNodeModulesRootByProjectPath(
                 this.projectPath,
             );
-
-            const openModulePath = path.resolve(
+            const pnpmProjectPath = path.resolve(
                 nodeModulesRoot,
                 Packager.NODE_MODULES_FODLER_NAME,
-                OPN_PACKAGE_NAME,
+                Packager.PNPM_PACKAGE_NAME,
             );
-            this.logger.info(
-                localize(
-                    "VerifyOpenModuleMainFileAndEntry",
-                    "Need to check main file and entry point of open module, will setup and write new content if they're not existing. Path: {0}",
-                    openModulePath,
-                ),
-            );
+            const isPnpmProject = await Packager.fs.exists(pnpmProjectPath);
 
-            const flatDependencyPackagePath = path.resolve(
-                nodeModulesRoot,
-                Packager.NODE_MODULES_FODLER_NAME,
-                OPN_PACKAGE_NAME,
-                Packager.OPN_PACKAGE_MAIN_FILENAME,
-            );
+            if (!isPnpmProject) {
+                const openModulePath = path.resolve(
+                    nodeModulesRoot,
+                    Packager.NODE_MODULES_FODLER_NAME,
+                    OPN_PACKAGE_NAME,
+                );
+                this.logger.info(
+                    localize(
+                        "VerifyOpenModuleMainFileAndEntry",
+                        "Need to check main file and entry point of open module, will setup and write new content if they're not existing. Path: {0}",
+                        openModulePath,
+                    ),
+                );
 
-            const nestedDependencyPackagePath = path.resolve(
-                nodeModulesRoot,
-                Packager.NODE_MODULES_FODLER_NAME,
-                Packager.REACT_NATIVE_PACKAGE_NAME,
-                Packager.NODE_MODULES_FODLER_NAME,
-                OPN_PACKAGE_NAME,
-                Packager.OPN_PACKAGE_MAIN_FILENAME,
-            );
+                const flatDependencyPackagePath = path.resolve(
+                    nodeModulesRoot,
+                    Packager.NODE_MODULES_FODLER_NAME,
+                    OPN_PACKAGE_NAME,
+                    Packager.OPN_PACKAGE_MAIN_FILENAME,
+                );
 
-            const fsHelper = new FileSystem();
+                const nestedDependencyPackagePath = path.resolve(
+                    nodeModulesRoot,
+                    Packager.NODE_MODULES_FODLER_NAME,
+                    Packager.REACT_NATIVE_PACKAGE_NAME,
+                    Packager.NODE_MODULES_FODLER_NAME,
+                    OPN_PACKAGE_NAME,
+                    Packager.OPN_PACKAGE_MAIN_FILENAME,
+                );
 
-            // Attempt to find the 'opn' package directly under the project's node_modules folder (node4 +)
-            // Else, attempt to find the package within the dependent node_modules of react-native package
-            const possiblePaths = [flatDependencyPackagePath, nestedDependencyPackagePath];
-            const paths = await Promise.all(
-                possiblePaths.map(async fsPath => ((await fsHelper.exists(fsPath)) ? fsPath : "")),
-            );
-            const packagePath = paths.find(fsPath => !!fsPath);
-            if (packagePath) {
-                return packagePath;
+                const fsHelper = new FileSystem();
+
+                // Attempt to find the 'opn' package directly under the project's node_modules folder (node4 +)
+                // Else, attempt to find the package within the dependent node_modules of react-native package
+                const possiblePaths = [flatDependencyPackagePath, nestedDependencyPackagePath];
+                const paths = await Promise.all(
+                    possiblePaths.map(async fsPath =>
+                        (await fsHelper.exists(fsPath)) ? fsPath : "",
+                    ),
+                );
+                const packagePath = paths.find(fsPath => !!fsPath);
+                if (packagePath) {
+                    return packagePath;
+                }
+            } else {
+                const pnpmModulesPath = path.join(
+                    nodeModulesRoot,
+                    Packager.NODE_MODULES_FODLER_NAME,
+                    Packager.PNPM_PACKAGE_NAME,
+                );
+                const modules = await Packager.fs.readDir(pnpmModulesPath);
+                const openRegex = /^open@/;
+                const reactNativeRegex = /^react-native@/;
+                let openModulePath = "";
+                const openModule = modules.find(module => openRegex.test(module));
+                const reactNativeModule = modules.find(module => reactNativeRegex.test(module));
+                if (openModule) {
+                    openModulePath = path.join(
+                        pnpmModulesPath,
+                        openModule,
+                        Packager.NODE_MODULES_FODLER_NAME,
+                        OPN_PACKAGE_NAME,
+                        Packager.OPN_PACKAGE_MAIN_FILENAME,
+                    );
+                } else if (reactNativeModule) {
+                    openModulePath = path.join(
+                        pnpmModulesPath,
+                        reactNativeModule,
+                        Packager.REACT_NATIVE_PACKAGE_NAME,
+                        Packager.NODE_MODULES_FODLER_NAME,
+                        OPN_PACKAGE_NAME,
+                        Packager.OPN_PACKAGE_MAIN_FILENAME,
+                    );
+                }
+                return openModulePath;
             }
+
             throw ErrorHelper.getInternalError(InternalErrorCode.OpnPackagerLocationNotFound);
         } catch (err) {
             throw ErrorHelper.getInternalError(InternalErrorCode.OpnPackagerNotFound, err);
