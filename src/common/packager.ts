@@ -515,7 +515,9 @@ export class Packager {
                 Packager.NODE_MODULES_FODLER_NAME,
                 Packager.PNPM_PACKAGE_NAME,
             );
-            const isPnpmProject = await Packager.fs.exists(pnpmProjectPath);
+            const isPnpmProject =
+                (await Packager.fs.exists(pnpmProjectPath)) &&
+                SettingsHelper.getPackageManager() === "pnpm";
 
             if (!isPnpmProject) {
                 const openModulePath = path.resolve(
@@ -562,12 +564,7 @@ export class Packager {
                     return packagePath;
                 }
             } else {
-                const pnpmModulesPath = path.join(
-                    nodeModulesRoot,
-                    Packager.NODE_MODULES_FODLER_NAME,
-                    Packager.PNPM_PACKAGE_NAME,
-                );
-                const modules = await Packager.fs.readDir(pnpmModulesPath);
+                const modules = await Packager.fs.readDir(pnpmProjectPath);
                 const openRegex = /^open@/;
                 const reactNativeRegex = /^react-native@/;
                 let openModulePath = "";
@@ -575,7 +572,7 @@ export class Packager {
                 const reactNativeModule = modules.find(module => reactNativeRegex.test(module));
                 if (openModule) {
                     openModulePath = path.join(
-                        pnpmModulesPath,
+                        pnpmProjectPath,
                         openModule,
                         Packager.NODE_MODULES_FODLER_NAME,
                         OPN_PACKAGE_NAME,
@@ -583,7 +580,7 @@ export class Packager {
                     );
                 } else if (reactNativeModule) {
                     openModulePath = path.join(
-                        pnpmModulesPath,
+                        pnpmProjectPath,
                         reactNativeModule,
                         Packager.REACT_NATIVE_PACKAGE_NAME,
                         Packager.NODE_MODULES_FODLER_NAME,

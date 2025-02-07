@@ -1386,6 +1386,16 @@
           "type": "string",
           "scope": "resource",
           "default": ""
+        },
+        "react-native-tools.setPackageManager": {
+          "description": "The package manager to use for running React Native.",
+          "type": "string",
+          "enum": [
+            "npm",
+            "pnpm"
+          ],
+          "scope": "resource",
+          "default": "npm"
         }
       }
     }

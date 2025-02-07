@@ -14,6 +14,7 @@ import { getFileNameWithoutExtension } from "../../common/utils";
 import customRequire from "../../common/customRequire";
 import { PlatformType } from "../launchArgs";
 import { AppLauncher } from "../appLauncher";
+import { SettingsHelper } from "../../extension/settingsHelper";
 
 export interface ConfigurationData {
     fullProductName: string;
@@ -265,7 +266,8 @@ export class PlistBuddy {
 
         const pnpmProjectPath = path.resolve(nodeModulesRoot, "node_modules", ".pnpm");
 
-        const isPnpmProject = fs.existsSync(pnpmProjectPath);
+        const isPnpmProject =
+            fs.existsSync(pnpmProjectPath) && SettingsHelper.getPackageManager() === "pnpm";
         if (isPnpmProject) {
             const modules = fs.readdirSync(pnpmProjectPath);
             const regex = new RegExp(`\@react-native-community\\+${iOSCliFolderName}@`);
