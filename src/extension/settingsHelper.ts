@@ -263,4 +263,15 @@ export class SettingsHelper {
         }
         return "";
     }
+
+    public static getPackageManager(): string {
+        const workspaceConfiguration = vscode.workspace.getConfiguration(
+            "react-native-tools",
+            null,
+        );
+        if (workspaceConfiguration.has("setPackageManager")) {
+            return ConfigurationReader.readString(workspaceConfiguration.get("setPackageManager"));
+        }
+        return "";
+    }
 }
