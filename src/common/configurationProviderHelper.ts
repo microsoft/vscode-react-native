@@ -7,11 +7,12 @@ import {
     IQuickPickParameters,
 } from "../extension/debuggingConfiguration/multiStepInput";
 import { ILaunchRequestArgs } from "../debugger/debugSessionBase";
-import { ExpoHostType, PlatformType } from "../extension/launchArgs";
+import { ExpoHostType, PlatformType, ExpoPlatform } from "../extension/launchArgs";
 import {
     DebugConfigurationState,
     DebugConfigurationQuickPickItem,
     appTypePickConfig,
+    expoPlatform,
     expoHostTypePickConfig,
     shouldUseHermesEngine,
     DEBUG_TYPES,
@@ -116,6 +117,32 @@ export class ConfigurationProviderHelper {
 
         config.useHermesEngine = shouldUseHermes.type === "yes";
 
+        return config;
+    }
+
+    public async selectExpoPlatform(
+        input: MultiStepInput<DebugConfigurationState>,
+        config: Partial<ILaunchRequestArgs>,
+        step: number,
+        totalSteps: number,
+    ): Promise<Partial<ILaunchRequestArgs>> {
+        const pick = await input.showQuickPick<
+            DebugConfigurationQuickPickItem,
+            IQuickPickParameters<DebugConfigurationQuickPickItem>
+        >({
+            title: localize("ExpoPlatformTypeSelection", "Select platform to run on"),
+            placeholder: localize("ExpoPlatformTypeSelectionPrompt", "Type of platform to run on"),
+            step,
+            totalSteps,
+            items: expoPlatform,
+            activeItem: expoPlatform[0],
+        });
+
+        if (!pick) {
+            throw new Error("Expo platform is not selected");
+        }
+
+        config.expoPlatformType = pick.label as ExpoPlatform;
         return config;
     }
 
