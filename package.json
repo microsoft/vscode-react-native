@@ -22,7 +22,7 @@
     "url": "https://github.com/microsoft/vscode-react-native"
   },
   "engines": {
-     "vscode": "^1.75.0"
+    "vscode": "^1.75.0"
   },
   "categories": [
     "Debuggers",
@@ -1373,6 +1373,16 @@
           "type": "string",
           "scope": "resource",
           "default": ""
+        },
+        "react-native-tools.setPackageManager": {
+          "description": "The package manager to use for running React Native.",
+          "type": "string",
+          "enum": [
+            "npm",
+            "pnpm"
+          ],
+          "scope": "resource",
+          "default": "npm"
         }
       }
     }
