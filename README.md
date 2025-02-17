@@ -67,6 +67,7 @@ Using this extension, you can **debug your code and quickly run `react-native` o
   - [Configure dependencies versions for debugging Expo projects](#configure-dependencies-versions-for-debugging-expo-projects)
   - [Configure custom key bindings for extension commands](#configure-custom-key-bindings-for-extension-commands)
   - [Configure custom colors for extension output logs](#configure-custom-colors-for-extension-output-logs)
+  - [Set pnpm as package manager](#set-pnpm-as-package-manager)
 - [Element inspector (Deprecated)](#element-inspector-deprecated)
 - [Network Inspector](#network-inspector)
 - [Developing inside a Docker Container](#developing-inside-a-docker-container)
@@ -928,6 +929,16 @@ Now you can customize React Native Tools output logs with `editor.tokenColorCust
       "scope": "rnt.output.string"
     }
   ]
+}
+```
+
+## Set pnpm as package manager
+
+If you want to use pnpm as your package manager, please set `react-native-tools.setPackageManager` settings in your `settings.json`:
+
+```json
+{
+  "react-native-tools.setPackageManager": "pnpm"
 }
 ```
 
