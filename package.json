@@ -1455,7 +1455,8 @@
     "vscode-extension-telemetry": "0.4.5",
     "vscode-js-debug-browsers": "^1.0.5",
     "vscode-nls": "4.1.2",
-    "ws": "7.5.10"
+    "ws": "7.5.10",
+    "execa": "^5.1.1"
   },
   "devDependencies": {
     "@mixer/parallel-prettier": "^2.0.1",
