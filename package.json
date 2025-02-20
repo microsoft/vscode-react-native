@@ -1488,7 +1488,6 @@
     "@vscode/test-electron": "^2.3.8",
     "@vscode/vsce": "^2.19.0",
     "ansi-colors": "3.2.4",
-    "copy-webpack-plugin": "6.0.2",
     "del": "2.2.0",
     "devtools-protocol": "0.0.762508",
     "eslint": "7.19.0",
