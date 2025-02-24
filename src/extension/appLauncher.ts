@@ -6,7 +6,6 @@ import * as path from "path";
 import * as child_process from "child_process";
 import * as vscode from "vscode";
 import * as nls from "vscode-nls";
-import * as execa from "execa";
 import * as BrowserHelper from "vscode-js-debug-browsers";
 import { Packager } from "../common/packager";
 import { RNPackageVersions, ProjectVersionHelper } from "../common/projectVersionHelper";
@@ -490,6 +489,7 @@ export class AppLauncher {
 
     public async launchBrowser(launchArgs: any): Promise<void> {
         const runArguments = this.getRunArguments(launchArgs);
+        const { execa } = await import("execa");
 
         // Launch browser
         let browserFinder: BrowserHelper.IBrowserFinder;
