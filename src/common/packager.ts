@@ -8,6 +8,7 @@ import * as semver from "semver";
 import * as vscode from "vscode";
 import * as nls from "vscode-nls";
 import * as WebSocket from "ws";
+import { logger } from "@vscode/debugadapter";
 import { GeneralPlatform } from "../extension/generalPlatform";
 import { ExponentHelper } from "../extension/exponent/exponentHelper";
 import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
@@ -274,6 +275,10 @@ export class Packager {
                     this.logger,
                 ).spawnReactPackager(args, spawnOptions);
             } else if (this.runOptions?.platform == "exponent") {
+                args.push(`--${this.runOptions?.expoPlatformType?.toLowerCase()}`);
+                logger.log(
+                    "It may take a while to install Expo Go if it is not installed on your device...",
+                );
                 packagerSpawnResult = new CommandExecutor(
                     nodeModulesRoot,
                     this.projectPath,
