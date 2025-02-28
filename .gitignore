@@ -23,6 +23,7 @@ SmokeTestLogs
 VSCodeUserData
 **/*.js.map
 vscode-react-native-*.vsix
+vscode-react-native-*.vsix.zip
 *-report
 
 # Sample Application auto-generated files

@@ -5,6 +5,7 @@ import * as events from "events";
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
+import { quote } from "shell-quote";
 import child_process = require("child_process");
 
 import {
@@ -48,7 +49,7 @@ export class Recorder {
         args: string[] = [],
         options: ISpawnOptions = {},
     ): child_process.ChildProcess {
-        const spawnedProcess = this.originalSpawn(command, args, options);
+        const spawnedProcess = this.originalSpawn(command, [quote(args)], options);
         new Recorder(spawnedProcess, { command, args, options }).record();
         return spawnedProcess;
     }

@@ -5,8 +5,8 @@ import * as fs from "fs";
 import * as path from "path";
 import * as child_process from "child_process";
 import * as vscode from "vscode";
-import * as nls from "vscode-nls";
 import * as execa from "execa";
+import * as nls from "vscode-nls";
 import * as BrowserHelper from "vscode-js-debug-browsers";
 import { Packager } from "../common/packager";
 import { RNPackageVersions, ProjectVersionHelper } from "../common/projectVersionHelper";
@@ -517,7 +517,6 @@ export class AppLauncher {
                 this.browserProc = child_process.spawn(browserPath.path, runArguments, {
                     detached: true,
                     stdio: ["ignore"],
-                    shell: true,
                 });
                 this.browserProc.unref();
                 this.browserProc.on("error", err => {

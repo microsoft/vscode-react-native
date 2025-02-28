@@ -423,4 +423,5 @@ export const ERROR_STRINGS = {
     [InternalErrorCode.FailedToEnableExpoHermes]: "Failed to make changes to Expo Hermes",
     [InternalErrorCode.FailedToOpenExpoUpgradeHelper]: "Failed to open expo upgrade helper",
     [InternalErrorCode.FailedToKillPort]: "Failed to kill port",
+    [InternalErrorCode.FaiedToSetNewArch]: "Failed to set New Architecture",
 };
