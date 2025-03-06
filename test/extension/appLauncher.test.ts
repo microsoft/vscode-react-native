@@ -5,6 +5,9 @@ import * as assert from "assert";
 import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs";
+import * as BrowserHelper from "vscode-js-debug-browsers";
+import * as sinon from "sinon";
+import * as child_process from "child_process";
 import { AppLauncher } from "../../src/extension/appLauncher";
 import { ProjectsStorage } from "../../src/extension/projectsStorage";
 import { activate, deactivate } from "../../src/extension/rn-extension";
@@ -172,6 +175,27 @@ suite("appLauncher", function () {
             nodeModulesRoot2 = appLauncher.getOrUpdateNodeModulesRoot(true);
             assert.deepStrictEqual(nodeModulesRoot2, sampleTestProjectDir);
             assert.notStrictEqual(nodeModulesRoot1, nodeModulesRoot2);
+        });
+    });
+    suite("launchBrowser", function () {
+        test("expo web launch on edge browser", async function () {
+            try {
+                const browserPath = {
+                    path: "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+                };
+                const browserFinderStub = sinon.stub(
+                    BrowserHelper.EdgeBrowserFinder.prototype,
+                    "findAll",
+                );
+                browserFinderStub.returns(Promise.resolve([browserPath]));
+                child_process.spawn(browserPath.path, {
+                    detached: true,
+                    stdio: ["ignore"],
+                });
+                browserFinderStub.restore();
+            } catch (err) {
+                assert.fail(err);
+            }
         });
     });
 });
