@@ -1,0 +1,14 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Debug Exponent Android Hermes",
+        "request": "launch",
+        "type": "reactnativedirect",
+        "cwd": "${workspaceFolder}",
+        "platform": "exponent",
+        "expoPlatformType": "Android",
+        "expoHostType": "tunnel"
+      }
+    ]
+}
