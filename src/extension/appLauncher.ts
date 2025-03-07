@@ -332,7 +332,9 @@ export class AppLauncher {
                             "Building and running application.",
                         ),
                     );
-                    await this.mobilePlatform.runApp();
+                    if (launchArgs.platform !== "exponent") {
+                        await this.mobilePlatform.runApp();
+                    }
 
                     if (mobilePlatformOptions.isDirect) {
                         if (launchArgs.useHermesEngine) {
@@ -595,6 +597,7 @@ export class AppLauncher {
 
         if (args.platform === PlatformType.Exponent) {
             mobilePlatformOptions.expoHostType = args.expoHostType || "lan";
+            mobilePlatformOptions.expoPlatformType = args.expoPlatformType || "Android";
             mobilePlatformOptions.openExpoQR =
                 typeof args.openExpoQR !== "boolean" ? true : args.openExpoQR;
         }
