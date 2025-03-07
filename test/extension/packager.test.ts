@@ -1,9 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import * as path from "path";
 import { Packager } from "../../src/common/packager";
 import { Request } from "../../src/common/node/request";
 import { ExponentHelper } from "../../src/extension/exponent/exponentHelper";
+import { FileSystem } from "../../src/common/node/fileSystem";
+import { stripJsonTrailingComma } from "../../src/common/utils";
 
 import * as assert from "assert";
 import * as sinon from "sinon";
@@ -134,6 +137,30 @@ suite("packager", function () {
                 PROJECT_PATH,
                 rnVersion,
             );
+            assert.deepEqual(args, expected);
+        });
+
+        test("getPackagerArgs should return correct value for expo app with android platform", async function () {
+            isExpoManagedAppStub.returns(Promise.resolve(true));
+            getExpPackagerOptionsStub.returns(Promise.resolve({}));
+            const rnVersion = "0.70.0";
+            const expected = ["--port", "10001", "--android"];
+
+            const projectPath = path.join(__dirname, "..", "resources", "sampleExpoProject");
+            const launchJsonPath = path.join(projectPath, "launch.json");
+            const fs = new FileSystem();
+            const launchJson = await fs.readFile(launchJsonPath).then(content => {
+                return stripJsonTrailingComma(content.toString());
+            });
+
+            const args = await new Packager(WORKSPACE_PATH, PROJECT_PATH, 10001).getPackagerArgs(
+                PROJECT_PATH,
+                rnVersion,
+            );
+
+            if (launchJson.configurations[0].platform === "exponent") {
+                args.push(`--${launchJson.configurations[0].expoPlatformType.toLowerCase()}`);
+            }
             assert.deepEqual(args, expected);
         });
     });
