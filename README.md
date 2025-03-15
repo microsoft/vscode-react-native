@@ -10,11 +10,6 @@ Preview:
 ![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/msjsdiag.vscode-react-native-preview?color=deep%20green&label=Version)
 ![Visual Studio Marketplace Rating (Stars)](https://img.shields.io/visual-studio-marketplace/stars/msjsdiag.vscode-react-native-preview?label=Rating)
 
-## React Native Tools Preview
-
-The extension has a [nightly version](https://marketplace.visualstudio.com/items?itemName=msjsdiag.vscode-react-native-preview) which is released on a daily basis at 9 PM PST on each day that changes occur.
-To avoid conflicts, if both extensions are installed - only stable version will be activated. So to use the preview version it is needed to disable or remove the stable version and reload VS Code.
-
 ## Package extension locally
 
 You can not only download React Native Tools in the marketplace, but can also package your extension `.vsix` installation file by yourself locally. Following [this documentation](https://github.com/microsoft/vscode-react-native/blob/master/CONTRIBUTING.md#build-the-project) to package and install your React Native Tools to get the latest updates.
@@ -30,7 +25,6 @@ Using this extension, you can **debug your code and quickly run `react-native` o
 
 # Table of Contents
 
-- [React Native Tools Preview](#react-native-tools-preview)
 - [Package extension locally](#package-extension-locally)
 - [About the extension](#about-the-extension)
 - [Getting started](#getting-started)
