@@ -11,8 +11,8 @@ import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
 import { findFileInFolderHierarchy } from "../../common/extensionHelper";
-import { ReactNativeCommand } from "./util/reactNativeCommand";
 import { SettingsHelper } from "../settingsHelper";
+import { ReactNativeCommand } from "./util/reactNativeCommand";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,

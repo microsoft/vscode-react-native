@@ -7,8 +7,8 @@ import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ChildProcess } from "../../common/node/childProcess";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
-import { ReactNativeCommand } from "./util/reactNativeCommand";
 import { wait } from "../../common/utils";
+import { ReactNativeCommand } from "./util/reactNativeCommand";
 
 const logger = OutputChannelLogger.getMainChannel();
 export class killPort extends ReactNativeCommand {

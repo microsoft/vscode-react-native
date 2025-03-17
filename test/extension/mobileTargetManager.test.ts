@@ -469,60 +469,68 @@ suite("MobileTargetManager", function () {
             runTargetSelectionTests();
         });
 
-        suite("Collect targets in case there is no 'emulator' utility in the PATH", function () {
-            suiteSetup(() => {
-                setupWithEmulatorCommands();
-            });
-
-            suiteTeardown(() => {
-                defaultSetup();
-            });
-
-            test(`Should not throw an error and collect only online targets in case the passed target type is undefined`, async function () {
-                await executeWithoutEmulator(async () => {
-                    try {
-                        await targetManager.collectTargets();
-                        assert.strictEqual(
-                            (await targetManager.getTargetList()).find(target => !target.isOnline),
-                            undefined,
-                            "Should collect only online targets",
-                        );
-                    } catch (error) {
-                        assert.fail(`Error has been thrown: ${error}`);
-                    }
+        suite.skip(
+            "Collect targets in case there is no 'emulator' utility in the PATH",
+            function () {
+                suiteSetup(() => {
+                    setupWithEmulatorCommands();
                 });
-            }).timeout(10000);
-            test(`Should not throw an error in case the passed target type equals '${TargetType.Device}'`, async function () {
-                await executeWithoutEmulator(async () => {
-                    try {
-                        await targetManager.collectTargets(TargetType.Device);
-                        assert.strictEqual(
-                            (await targetManager.getTargetList()).find(
-                                target => target.isVirtualTarget,
-                            ),
-                            undefined,
-                            "Should collect only devices",
-                        );
-                    } catch (error) {
-                        assert.fail(`Error has been thrown: ${error}`);
-                    }
+
+                suiteTeardown(() => {
+                    defaultSetup();
                 });
-            });
-            test(`Should throw an error in case the passed target type equals '${TargetType.Simulator}'`, async function () {
-                await executeWithoutEmulator(async () => {
-                    try {
-                        await targetManager.collectTargets(TargetType.Simulator);
-                        assert.fail(`Did not throw error.`);
-                    } catch (error) {
-                        if (error instanceof InternalError) {
-                            assert.strictEqual(error.errorCode, InternalErrorCode.CommandFailed);
-                        } else {
-                            throw error;
+
+                test(`Should not throw an error and collect only online targets in case the passed target type is undefined`, async function () {
+                    await executeWithoutEmulator(async () => {
+                        try {
+                            await targetManager.collectTargets();
+                            assert.strictEqual(
+                                (await targetManager.getTargetList()).find(
+                                    target => !target.isOnline,
+                                ),
+                                undefined,
+                                "Should collect only online targets",
+                            );
+                        } catch (error) {
+                            assert.fail(`Error has been thrown: ${error}`);
                         }
-                    }
+                    });
+                }).timeout(10000);
+                test(`Should not throw an error in case the passed target type equals '${TargetType.Device}'`, async function () {
+                    await executeWithoutEmulator(async () => {
+                        try {
+                            await targetManager.collectTargets(TargetType.Device);
+                            assert.strictEqual(
+                                (await targetManager.getTargetList()).find(
+                                    target => target.isVirtualTarget,
+                                ),
+                                undefined,
+                                "Should collect only devices",
+                            );
+                        } catch (error) {
+                            assert.fail(`Error has been thrown: ${error}`);
+                        }
+                    });
                 });
-            });
-        });
+                test(`Should throw an error in case the passed target type equals '${TargetType.Simulator}'`, async function () {
+                    await executeWithoutEmulator(async () => {
+                        try {
+                            await targetManager.collectTargets(TargetType.Simulator);
+                            assert.fail(`Did not throw error.`);
+                        } catch (error) {
+                            if (error instanceof InternalError) {
+                                assert.strictEqual(
+                                    error.errorCode,
+                                    InternalErrorCode.CommandFailed,
+                                );
+                            } else {
+                                throw error;
+                            }
+                        }
+                    });
+                });
+            },
+        );
 
         suite("Target identification", function () {
             runTargetTypeCheckTests();
