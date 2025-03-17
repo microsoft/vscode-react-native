@@ -10,6 +10,8 @@
     "ApplicationTypeSelectionPrompt": "React Native 应用程序的类型",
     "UseHermesEnginePrompt": "使用Hermes引擎直接调试？",
     "UseHermesEngineInvalid": "使用 Hermes 引擎尚未确认",
+    "ExpoPlatformTypeSelection": "选择要运行的平台",
+    "ExpoPlatformTypeSelectionPrompt": "运行的平台类型",
     "ExpoHostTypeSelectionTitle": "选择Expo主机参数类型",
     "ExpoHostTypeSelectionPrompt": "Expo主机参数类型",
     "BrowserTypeSelectionTitle": "选择浏览器类型",

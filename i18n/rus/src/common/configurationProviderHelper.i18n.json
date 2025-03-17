@@ -10,6 +10,8 @@
 	"ApplicationTypeSelectionPrompt": "Тип приложения React Native",
 	"UseHermesEnginePrompt": "Использовать движок Hermes для прямой отладки?",
 	"UseHermesEngineInvalid": "Использование двигателя Hermes не подтверждено",
+	"ExpoPlatformTypeSelection": "Выберите платформу для запуска",
+  	"ExpoPlatformTypeSelectionPrompt": "Тип платформы для запуска",
 	"ExpoHostTypeSelectionTitle": "Выберите тип параметра хоста Expo",
 	"ExpoHostTypeSelectionPrompt": "Тип параметра хоста Expo",
 	"BrowserTypeSelectionTitle": "Выберите тип браузера",

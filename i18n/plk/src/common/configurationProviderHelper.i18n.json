@@ -10,6 +10,8 @@
 	"ApplicationTypeSelectionPrompt": "Typ aplikacji React Native",
 	"UseHermesEnginePrompt": "Używać silnika Hermes do bezpośredniego debugowania?",
 	"UseHermesEngineInvalid": "Korzystanie z silnika Hermes nie zostało potwierdzone",
+	"ExpoPlatformTypeSelection": "Wybierz platformę, na której chcesz uruchomić",
+  	"ExpoPlatformTypeSelectionPrompt": "Typ platformy, na której można uruchomić",
 	"ExpoHostTypeSelectionTitle": "Wybierz typ parametru gospodarza Expo",
 	"ExpoHostTypeSelectionPrompt": "Typ parametru gospodarza Expo",
 	"BrowserTypeSelectionTitle": "Wybierz typ przeglądarki",

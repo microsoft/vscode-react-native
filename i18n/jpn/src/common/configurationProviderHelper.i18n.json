@@ -10,6 +10,8 @@
 	"ApplicationTypeSelectionPrompt": "React Native アプリケーションの種類",
 	"UseHermesEnginePrompt": "直接デバッグにHermesエンジンを使用しますか?",
 	"UseHermesEngineInvalid": "ヘルメスエンジンの使用は未確認",
+	"ExpoPlatformTypeSelection": "実行するプラットフォームを選択してください",
+  	"ExpoPlatformTypeSelectionPrompt": "実行するプラットフォームの種類",
 	"ExpoHostTypeSelectionTitle": "Expo ホストパラメータのタイプを選択してください",
 	"ExpoHostTypeSelectionPrompt": "Expo ホストパラメータのタイプ",
 	"BrowserTypeSelectionTitle": "ブラウザの種類を選択してください",

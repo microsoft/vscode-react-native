@@ -14,7 +14,7 @@ import { getFileNameWithoutExtension } from "../../common/utils";
 import customRequire from "../../common/customRequire";
 import { PlatformType } from "../launchArgs";
 import { AppLauncher } from "../appLauncher";
-import { SettingsHelper } from "../../extension/settingsHelper";
+import { SettingsHelper } from "../settingsHelper";
 
 export interface ConfigurationData {
     fullProductName: string;

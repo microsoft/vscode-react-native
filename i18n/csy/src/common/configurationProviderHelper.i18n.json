@@ -10,6 +10,8 @@
 	"ApplicationTypeSelectionPrompt": "Typ aplikace React Native",
 	"UseHermesEnginePrompt": "Použít Hermes engine pro přímé ladění?",
 	"UseHermesEngineInvalid": "Použití enginu Hermes není potvrzeno",
+	"ExpoPlatformTypeSelection": "Vyberte platformu, na které chcete spustit",
+  	"ExpoPlatformTypeSelectionPrompt": "Typ platformy pro provoz",
 	"ExpoHostTypeSelectionTitle": "Vyberte typ parametru hostitele Expo",
 	"ExpoHostTypeSelectionPrompt": "Typ parametru hostitele Expo",
 	"BrowserTypeSelectionTitle": "Vyberte typ prohlížeče",
