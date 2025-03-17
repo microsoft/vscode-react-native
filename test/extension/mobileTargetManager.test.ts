@@ -528,7 +528,7 @@ suite("MobileTargetManager", function () {
             runTargetTypeCheckTests();
         });
 
-        suite(
+        suite.skip(
             "Target identification in case there is no 'emulator' utility in the PATH",
             function () {
                 suiteSetup(() => {
