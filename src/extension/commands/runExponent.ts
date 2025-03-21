@@ -30,7 +30,6 @@ export class RunExponent extends ReactNativeCommand {
 
         await platform.beforeStartPackager();
         await platform.startPackager();
-        await platform.runApp();
     }
 
     async onBeforeExecute(): Promise<void> {
