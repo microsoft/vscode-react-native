@@ -275,7 +275,8 @@ export class Packager {
                     this.logger,
                 ).spawnReactPackager(args, spawnOptions);
             } else if (this.runOptions?.platform == "exponent") {
-                args.push(`--${this.runOptions?.expoPlatformType?.toLowerCase()}`);
+                this.runOptions?.expoPlatformType &&
+                    args.push(`--${this.runOptions?.expoPlatformType?.toLowerCase()}`);
                 logger.log(
                     "It may take a while to install Expo Go if it is not installed on your device...",
                 );
