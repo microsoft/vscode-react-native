@@ -61,6 +61,7 @@ export class ChildProcess {
                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
                     (error: Error, stdout: string, stderr: string) => {
                         if (error) {
+                            console.log(error.message);
                             reject(
                                 ErrorHelper.getNestedError(
                                     error,
