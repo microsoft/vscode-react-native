@@ -55,6 +55,10 @@ export const platformTypeRunPickConfig: DebugConfigurationQuickPickItem[] = [
         label: "Windows",
         type: PlatformType.Windows,
     },
+    {
+        label: "ExpoWeb",
+        type: PlatformType.ExpoWeb,
+    },
 ];
 
 export const platformTypeDebugPickConfig: DebugConfigurationQuickPickItem[] = [
