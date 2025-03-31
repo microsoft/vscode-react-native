@@ -3,6 +3,7 @@
 
 import * as fs from "fs";
 import * as cp from "child_process";
+import { quote } from 'shell-quote';
 import { dirname } from "path";
 import { SpawnSyncOptions } from "child_process";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
@@ -104,7 +105,7 @@ export function execSync(
     options = Object.assign(options, { stdio: "pipe" });
     let output = "";
     try {
-        output = cp.execSync(command, options).toString();
+        output = cp.execSync(quote([`${command}`]), options).toString();
     } catch (err) {
         output += err.stdout && err.stdout.toString();
         output += err.stderr && err.stderr.toString();
