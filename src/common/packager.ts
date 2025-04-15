@@ -108,6 +108,10 @@ export class Packager {
         return this.packagerPort || SettingsHelper.getPackagerPort(this.workspacePath);
     }
 
+    public getPlatform(): string | undefined {
+        return this.runOptions?.platform;
+    }
+
     public resetToSettingsPort(): void {
         this.packagerPort = SettingsHelper.getPackagerPort(this.workspacePath);
     }

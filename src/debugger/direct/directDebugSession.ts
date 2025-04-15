@@ -165,7 +165,7 @@ export class DirectDebugSession extends DebugSessionBase {
                     );
                     void this.terminate();
                 },
-                () => {},
+                () => { },
             );
 
             logger.log("Attaching to the application");
@@ -187,8 +187,8 @@ export class DirectDebugSession extends DebugSessionBase {
                 const port = attachArgs.useHermesEngine
                     ? attachArgs.port || this.appLauncher.getPackagerPort(attachArgs.cwd)
                     : attachArgs.platform === PlatformType.iOS
-                    ? attachArgs.port || IWDPHelper.iOS_WEBKIT_DEBUG_PROXY_DEFAULT_PORT
-                    : null;
+                        ? attachArgs.port || IWDPHelper.iOS_WEBKIT_DEBUG_PROXY_DEFAULT_PORT
+                        : null;
                 if (port === null) {
                     throw ErrorHelper.getInternalError(
                         InternalErrorCode.CouldNotDirectDebugWithoutHermesEngine,
@@ -202,8 +202,8 @@ export class DirectDebugSession extends DebugSessionBase {
                 const cdpMessageHandler: BaseCDPMessageHandler | null = attachArgs.useHermesEngine
                     ? new HermesCDPMessageHandler()
                     : attachArgs.platform === PlatformType.iOS
-                    ? new IOSDirectCDPMessageHandler()
-                    : null;
+                        ? new IOSDirectCDPMessageHandler()
+                        : null;
 
                 if (!cdpMessageHandler) {
                     throw ErrorHelper.getInternalError(
@@ -289,6 +289,11 @@ export class DirectDebugSession extends DebugSessionBase {
         request?: DebugProtocol.Request,
     ): Promise<void> {
         this.debugSessionStatus = DebugSessionStatus.Stopping;
+
+        // Stop packager when using expo-cli, to avoid launch conflicts in the next launch request
+        if (this.appLauncher.getPackager().getPlatform() == "exponent") {
+            await this.appLauncher.getPackager().stop();
+        }
 
         this.iOSWKDebugProxyHelper.cleanUp();
         this.onDidTerminateDebugSessionHandler.dispose();
