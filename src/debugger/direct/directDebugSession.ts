@@ -290,6 +290,11 @@ export class DirectDebugSession extends DebugSessionBase {
     ): Promise<void> {
         this.debugSessionStatus = DebugSessionStatus.Stopping;
 
+        // Stop packager when using expo-cli, to avoid launch conflicts in the next launch request
+        if (this.appLauncher.getPackager().getPlatform() == "exponent") {
+            await this.appLauncher.getPackager().stop();
+        }
+
         this.iOSWKDebugProxyHelper.cleanUp();
         this.onDidTerminateDebugSessionHandler.dispose();
         this.onDidStartDebugSessionHandler.dispose();
