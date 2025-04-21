@@ -67,14 +67,6 @@ export const platformTypeRunPickConfig: DebugConfigurationQuickPickItem[] = [
 
 export const platformTypeDebugPickConfig: DebugConfigurationQuickPickItem[] = [
     ...platformTypeRunPickConfig,
-    {
-        label: "Exponent",
-        type: PlatformType.Exponent,
-    },
-    {
-        label: "ExpoWeb",
-        type: PlatformType.ExpoWeb,
-    },
 ];
 
 export const platformTypeDirectPickConfig: DebugConfigurationQuickPickItem[] = [
