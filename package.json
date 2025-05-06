@@ -1434,8 +1434,10 @@
   },
   "dependencies": {
     "@vscode/debugadapter": "^1.63.0",
+    "@vscode/js-debug-browsers": "^1.1.2",
     "command-exists": "1.2.9",
     "configstore": "5.0.1",
+    "execa": "5.1.1",
     "extract-opts": "2.2.0",
     "flatten-source-map": "0.0.2",
     "glob": "7.1.6",
@@ -1460,10 +1462,8 @@
     "uuid": "9.0.0",
     "vscode-cdp-proxy": "0.2.0",
     "vscode-extension-telemetry": "0.4.5",
-    "vscode-js-debug-browsers": "^1.0.5",
     "vscode-nls": "4.1.2",
-    "ws": "7.5.10",
-    "execa": "5.1.1"
+    "ws": "7.5.10"
   },
   "devDependencies": {
     "@mixer/parallel-prettier": "^2.0.1",

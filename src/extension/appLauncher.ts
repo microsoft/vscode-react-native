@@ -7,7 +7,7 @@ import * as child_process from "child_process";
 import * as vscode from "vscode";
 import * as execa from "execa";
 import * as nls from "vscode-nls";
-import * as BrowserHelper from "vscode-js-debug-browsers";
+import * as BrowserHelper from "@vscode/js-debug-browsers";
 import { Packager } from "../common/packager";
 import { RNPackageVersions, ProjectVersionHelper } from "../common/projectVersionHelper";
 import { CommandExecutor } from "../common/commandExecutor";
