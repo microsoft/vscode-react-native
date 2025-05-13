@@ -7,8 +7,8 @@ import * as nls from "vscode-nls";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
-import { ReactNativeCommand } from "./util/reactNativeCommand";
 import { wait } from "../../common/utils";
+import { ReactNativeCommand } from "./util/reactNativeCommand";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
