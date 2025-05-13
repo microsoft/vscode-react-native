@@ -37,6 +37,7 @@ export enum InternalErrorCode {
     FailedToOpenExpoUpgradeHelper = 132,
     FailedToKillPort = 133,
     FaiedToSetNewArch = 134,
+    FailedToToggleNetworkView = 135,
 
     // Device Deployer errors
     IOSDeployNotFound = 201,

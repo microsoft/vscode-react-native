@@ -424,4 +424,5 @@ export const ERROR_STRINGS = {
     [InternalErrorCode.FailedToOpenExpoUpgradeHelper]: "Failed to open expo upgrade helper",
     [InternalErrorCode.FailedToKillPort]: "Failed to kill port",
     [InternalErrorCode.FaiedToSetNewArch]: "Failed to set New Architecture",
+    [InternalErrorCode.FailedToToggleNetworkView]: "Failed to config network view",
 };
