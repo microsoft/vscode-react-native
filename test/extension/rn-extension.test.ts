@@ -97,4 +97,92 @@ suite("rn-extension", function () {
             });
         });
     });
+
+    suite("commandsRegistered", async () => {
+        const fsHelper = new Node.FileSystem();
+
+        const SAMPLE_PROJECT_NAME: string = "sampleReactNativeProject";
+        const reactNativePackageDir = path.join(
+            SAMPLE_PROJECT_NAME,
+            "node_modules",
+            "react-native",
+        );
+
+        suiteSetup(() => {
+            fsHelper.makeDirectoryRecursiveSync(reactNativePackageDir);
+        });
+
+        suiteTeardown(() => {
+            fsHelper.removePathRecursivelySync(path.join(SAMPLE_PROJECT_NAME, "node_modules"));
+        });
+
+        test("Verify that the commands registered by Cordova extension are loaded", async () => {
+            const commandsAvailable: string[] = (await vscode.commands.getCommands(true)).filter(
+                (commandName: string) => commandName.includes("reactNative."),
+            );
+            console.log(commandsAvailable);
+            assert.deepStrictEqual(commandsAvailable, [
+                "reactNative.doctor",
+                "reactNative.ExpoDoctor",
+                "reactNative.debugScenario.attachHermesApplicationExperimental",
+                "reactNative.debugScenario.attachDirectIosExperimental",
+                "reactNative.debugScenario.attachToPackager",
+                "reactNative.debugScenario.debugAndroid",
+                "reactNative.debugScenario.debugIos",
+                "reactNative.debugScenario.debugWindows",
+                "reactNative.debugScenario.debugMacos",
+                "reactNative.debugScenario.debugInExponent",
+                "reactNative.debugScenario.debugInHermesExponentExperimental",
+                "reactNative.debugScenario.debugInExponentWebExperimental",
+                "reactNative.debugScenario.debugAndroidHermesExperimental",
+                "reactNative.debugScenario.debugDirectIosExperimental",
+                "reactNative.debugScenario.debugIosHermesExperimental",
+                "reactNative.debugScenario.debugMacosHermesExperimental",
+                "reactNative.debugScenario.debugWindowsHermesExperimental",
+                "reactNative.debugScenario.runAndroid",
+                "reactNative.debugScenario.runIos",
+                "reactNative.debugScenario.runAndroidHermesExperimental",
+                "reactNative.debugScenario.runIosHermesExperimental",
+                "reactNative.debugScenario.runDirectIosExperimental",
+                "reactNative.runInspector",
+                "reactNative.stopInspector",
+                "reactNative.launchAndroidSimulator",
+                "reactNative.launchIOSSimulator",
+                "reactNative.launchExpoWeb",
+                "reactNative.startNetworkInspector",
+                "reactNative.stopNetworkInspector",
+                "reactNative.publishToExpHost",
+                "reactNative.reloadApp",
+                "reactNative.restartPackager",
+                "reactNative.runAndroidDevice",
+                "reactNative.runAndroidSimulator",
+                "reactNative.runExponent",
+                "reactNative.runIosDevice",
+                "reactNative.runIosSimulator",
+                "reactNative.runMacOS",
+                "reactNative.runWindows",
+                "reactNative.selectAndInsertDebugConfiguration",
+                "reactNative.showDevMenu",
+                "reactNative.startLogCatMonitor",
+                "reactNative.startPackager",
+                "reactNative.stopLogCatMonitor",
+                "reactNative.stopPackager",
+                "reactNative.testDevEnvironment",
+                "reactNative.createExpoEASBuildConfigFile",
+                "reactNative.openEASProjectInWebPage",
+                "reactNative.revertOpenModule",
+                "reactNative.openRNUpgradeHelper",
+                "reactNative.installExpoGoApplication",
+                "reactNative.expoPrebuild",
+                "reactNative.expoPrebuildClean",
+                "reactNative.reopenQRCode",
+                "reactNative.hermesEnable",
+                "reactNative.expoHermesEnable",
+                "reactNative.openExpoUpgradeHelper",
+                "reactNative.killPort",
+                "reactNative.setNewArch",
+                "reactNative.toggleNetworkView",
+            ]);
+        });
+    });
 });
