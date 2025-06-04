@@ -40,6 +40,14 @@ export class JsDebugConfigAdapter {
             };
         }
 
+        // Combine source map path between extra arguments and attach arguments
+        if (attachArgs.sourceMapPathOverrides) {
+            extraArgs.sourceMapPathOverrides = {
+                ...extraArgs.sourceMapPathOverrides,
+                ...attachArgs.sourceMapPathOverrides,
+            };
+        }
+
         return Object.assign({}, JsDebugConfigAdapter.getExistingExtraArgs(attachArgs), extraArgs, {
             type: "pwa-node",
             request: "attach",

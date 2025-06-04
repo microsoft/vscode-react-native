@@ -46,7 +46,7 @@ function prepareLicenses() {
             let packageJson = readJson("/package.json");
             packageJson.main = "/dist/rn-extension";
             if (isNightly) {
-                log("Performing gul release...");
+                log("Performing gulp release...");
                 packageJson.version = getVersionNumber();
                 packageJson.name = extensionName;
                 packageJson.preview = true;
