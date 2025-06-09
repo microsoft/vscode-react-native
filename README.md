@@ -58,10 +58,11 @@ Using this extension, you can **debug your code and quickly run `react-native` o
   - [MacOS applications](#react-native-for-macos)
     - [MacOS Hermes debugging](#macos-hermes-debugging)
   - [Monorepo: debug out of React Native project directory](#monorepo-debug-out-of-react-native-project-directory)
-  - [TypeScript and Haul based applications](#typescript-and-haul)
   - [Debugger configuration properties](#debugger-configuration-properties)
   - [Remote JavaScript Debugging (Deprecated)](#remote-javascript-debugging-deprecated)
+  - [Haul debugging](#haul-debugging)
 - [Customization](#customization)
+  - [Sourcemaps](#sourcemaps)
   - [Debug in vscode workspace](#debug-in-vscode-workspace)
   - [Logging](#logging)
   - [Build APK and generate bundle](#build-apk-and-generate-bundle)
@@ -549,47 +550,6 @@ import { functionInUtils } from "../../packages/common/src/utils";
 
 4. Launcn app and attach debugger
 
-## TypeScript and Haul
-
-### Sourcemaps
-
-The debugger uses sourcemaps to let you debug with your original sources, but sometimes the sourcemaps aren't generated properly and overrides are needed. In the config we support `sourceMapPathOverrides`, a mapping of source paths from the sourcemap, to the locations of these sources on disk. Useful when the sourcemap isn't accurate or can't be fixed in the build process.
-
-The left hand side of the mapping is a pattern that can contain a wildcard, and will be tested against the `sourceRoot` + `sources` entry in the source map. If it matches, the source file will be resolved to the path on the right hand side, which should be an absolute path to the source file on disk.
-
-Below there are some examples of how sourcemaps could be resolved in different scenarios:
-
-```javascript
-// webRoot = /Users/me/project
-"sourceMapPathOverrides": {
-    "webpack:///./~/*": "${webRoot}/node_modules/*",       // Example: "webpack:///./~/querystring/index.js" -> "/Users/me/project/node_modules/querystring/index.js"
-    "webpack:///./*":   "${webRoot}/*",                    // Example: "webpack:///./src/app.js" -> "/Users/me/project/src/app.js",
-    "webpack:///*":     "*",                               // Example: "webpack:///project/app.ts" -> "/project/app.ts"
-    "webpack:///src/*": "${webRoot}/*"                     // Example: "webpack:///src/app.js" -> "/Users/me/project/app.js"
-}
-```
-
-### Haul debugging
-
-The extension provides functional to attach to [Haul packager](https://callstack.github.io/haul/) based applications. You can use the `Attach to packager` scenario to attach to a Haul based app and debug it. For now launch scenarios aren't supported. You can find more info in [the issue](https://github.com/microsoft/vscode-react-native/issues/883).
-
-You can prepare your React Native application to work with `Haul` by following the [`Haul Getting started` guide](https://github.com/callstack/haul#getting-started).
-
-If you use the [legacy version](https://github.com/callstack/haul/tree/legacy) of `Haul` as your React Native bundler instead of the default [Metro](https://facebook.github.io/metro/), it could be required to add `sourceMapPathOverrides` to the `launch.json` file.
-
-For example:
-
-```json
-{
-  // Other configurations
-  "sourceMapPathOverrides": {
-    "webpack:///./~/*": "${workspaceRoot}/node_modules/*",
-    "webpack:///./*": "${workspaceRoot}/*",
-    "webpack:///*": "*"
-  }
-}
-```
-
 ## Debugger configuration properties
 
 The following is a list of all the configuration properties the debugger accepts in `launch.json`:
@@ -640,9 +600,48 @@ Below config showed classic debug mode in extension. With the version update of 
 }
 ```
 
+## Haul debugging
+
+The extension provides functional to attach to [Haul packager](https://callstack.github.io/haul/) based applications. You can use the `Attach to packager` scenario to attach to a Haul based app and debug it. For now launch scenarios aren't supported. You can find more info in [the issue](https://github.com/microsoft/vscode-react-native/issues/883).
+
+You can prepare your React Native application to work with `Haul` by following the [`Haul Getting started` guide](https://github.com/callstack/haul#getting-started).
+
+If you use the [legacy version](https://github.com/callstack/haul/tree/legacy) of `Haul` as your React Native bundler instead of the default [Metro](https://facebook.github.io/metro/), it could be required to add `sourceMapPathOverrides` to the `launch.json` file.
+
+For example:
+
+```json
+{
+  // Other configurations
+  "sourceMapPathOverrides": {
+    "webpack:///./~/*": "${workspaceRoot}/node_modules/*",
+    "webpack:///./*": "${workspaceRoot}/*",
+    "webpack:///*": "*"
+  }
+}
+```
+
 # Customization
 
 The extension can be further customized for other React Native scenarios. These are the most common:
+
+## Sourcemaps
+
+The debugger uses sourcemaps to let you debug with your original sources, but sometimes the sourcemaps aren't generated properly and overrides are needed. In the config we support `sourceMapPathOverrides`, a mapping of source paths from the sourcemap, to the locations of these sources on disk. Useful when the sourcemap isn't accurate or can't be fixed in the build process.
+
+The left hand side of the mapping is a pattern that can contain a wildcard, and will be tested against the `sourceRoot` + `sources` entry in the source map. If it matches, the source file will be resolved to the path on the right hand side, which should be an absolute path to the source file on disk.
+
+Below there are some examples of how sourcemaps could be resolved in different scenarios:
+
+```javascript
+// webRoot = /Users/me/project
+"sourceMapPathOverrides": {
+    "webpack:///./~/*": "${webRoot}/node_modules/*",       // Example: "webpack:///./~/querystring/index.js" -> "/Users/me/project/node_modules/querystring/index.js"
+    "webpack:///./*":   "${webRoot}/*",                    // Example: "webpack:///./src/app.js" -> "/Users/me/project/src/app.js",
+    "webpack:///*":     "*",                               // Example: "webpack:///project/app.ts" -> "/project/app.ts"
+    "webpack:///src/*": "${webRoot}/*"                     // Example: "webpack:///src/app.js" -> "/Users/me/project/app.js"
+}
+```
 
 ## Debug in vscode workspace
 
