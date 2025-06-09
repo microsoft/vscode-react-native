@@ -57,7 +57,7 @@ Using this extension, you can **debug your code and quickly run `react-native` o
     - [Windows Hermes debugging](#windows-hermes-debugging)
   - [MacOS applications](#react-native-for-macos)
     - [MacOS Hermes debugging](#macos-hermes-debugging)
-  - [Debug out of React Native project directory](#debug-out-of-react-native-project-directory)
+  - [Monorepo: debug out of React Native project directory](#monorepo-debug-out-of-react-native-project-directory)
   - [TypeScript and Haul based applications](#typescript-and-haul)
   - [Debugger configuration properties](#debugger-configuration-properties)
   - [Remote JavaScript Debugging (Deprecated)](#remote-javascript-debugging-deprecated)
@@ -143,6 +143,7 @@ The full list of commands is:
 | Open expo upgrade helper in web page          | `reactNative.openExpoUpgradeHelper`   | Open expo upgrade helper in web browser                                                                                                                                                                                                    |
 | Kill Port                                     | `reactNative.killPort`                | Kill the process running on a specific port                                                                                                                                                                                                |
 | Set React Native New Architecture             | `reactNative.setNewArch`              | Enable or disable the new architecture settings in RN projects                                                                                                                                                                             |
+| Toggle Network View                           | `reactNative.toggleNetworkView`       | Enable or disable vscode network view feature for web debugging                                                                                                                                                                            |
 
 ## Using commands in VS Code tasks
 
@@ -474,44 +475,49 @@ To debug a macOS Hermes application you can use `Debug macOS Hermes` debugging s
 
 Also you can attach running application using `Attach to Hermes application` configuration to `.vscode/launch.json` in your project.
 
-## Debug out of React Native project directory
+## Monorepo: debug out of React Native project directory
 
-If your project structure like this:
+If you're using monorepo like:
 
 ```
-common
-  - utils.ts
-app
-  - src/
-  - metro.config.js
+monorepo/
+├── apps/
+│   ├── app1/
+│   │   └── src/
+│   └── app2/
+│       └── src/
+├── packages/
+│   ├── ui/
+│   │   └── src/
+│   └── common/
+│       └── src/
+│           └── utils.ts
+└── package.json
 ```
 
 When you import `utils.ts` in your project. Using
 
 ```js
-import { commonFunction } from "../../common/utils";
+import { commonFunction } from "../../packages/common/src/utils";
 ```
 
 Will get error when start Metro:
 
 ```
-error: bundling failed: Error: Unable to resolve module `../../common/utils` from `src/App.js`
+error: bundling failed: Error: Unable to resolve module `../../packages/common/src/utils` from `src/App.js`
 ```
 
-To import files in `metro.config.js`, user can debug code out of react native project.
+To debug your code in monorepo, please follow below steps:
 
-1. Add extra module and watch folder for the file parent folder.
+1. In `metro.config.js`, add extra module and watch folder.
 
 ```js
 const extraNodeModules = {
-  common: path.resolve(__dirname + "/../common"),
+  common: path.resolve(__dirname + "/../packages/common/src"),
 };
-const watchFolders = [path.resolve(__dirname + "/../common")];
-```
 
-2. Add module and watch folder in metro config.
+const watchFolders = [path.resolve(__dirname + "/../packages/common/src")];
 
-```js
 const config = {
   resolver: {
     extraNodeModules,
@@ -520,11 +526,28 @@ const config = {
 };
 ```
 
-3. After mapping common key to common/ path, we can include any files inside common/ relative to this path. Metro is started, launching or debugging is working well.
+2. Import function in application.
 
 ```js
-import { commonFunction } from "common/utils";
+import { functionInUtils } from "common/utils";
 ```
+
+or
+
+```js
+import { functionInUtils } from "../../packages/common/src/utils";
+```
+
+3. Set source map override config in `launch.json`. Example:
+
+```json
+/* Get source map url from vscode debug diagnostics tab */
+"sourceMapPathOverrides": {
+    "/[metro-watchFolders]/1/*": "/Monorepo-Project-Full-Path/*",
+}
+```
+
+4. Launcn app and attach debugger
 
 ## TypeScript and Haul
 
@@ -1094,7 +1117,8 @@ Here is the list of common known issues you may experience while using the exten
 
 VS Code React Native extension collects usage data and sends it to Microsoft to help improve our products and services. Read our [privacy statement](https://www.visualstudio.com/en-us/dn948229) to learn more.
 
-If you don’t wish to send usage data to Microsoft, edit `VSCodeTelemetrySettings.json` file at `~/.vscode-react-native` and add `optIn:false`.
+If you don’t wish to send usage data to Microsoft:
+create and add `VSCodeTelemetrySettings.json` file at `~/.vscode-react-native` and add `optIn:false`. Or add `react-native-tools.telemetry.optIn: false` in `~/.vscode/settings.json` file.
 
 # Code of conduct
 

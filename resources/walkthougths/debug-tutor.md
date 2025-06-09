@@ -14,10 +14,3 @@ The extension also allows to start debugging without creating the `launch.json` 
 
     ![Select and run debugging command](../images/debug-commands-button.png)
 
-## Enable debugging mode and attach to the application
-After using one of the suggested methods of launching the application, wait for the application to launch.
-
-Once app is loaded and running, [open the developer menu](https://reactnative.dev/docs/debugging#accessing-the-in-app-developer-menu) inside your application and enable remote debugging by clicking on `Debug JS Remotely` button. After that, please wait until the extension attaches to your application.
-
-![React Native enable remote debug](../images/enable-remote-debug.png)
-
