@@ -1,10 +1,10 @@
-# Getting started
-Before going any further, please check out the following information to help you get started with React Native Tools successfully.
+# React Native application
 
-Make sure that you:
+Prepare your environment by following the [React native Quickstart instruction](https://reactnative.dev/docs/environment-setup). You can create your app using 3rd party framework like Expo or create app without framework.
 
-- [have a working React Native environment](https://reactnative.dev/docs/environment-setup).
-- have the [`emulator`](https://developer.android.com/studio/run/emulator-commandline) utility available in your `PATH` if you're developing Android applications using emulators.
-- have your React Native project root folder open in VS Code.
+- Ensure install react-native using: `npm i -g react-native`.
+- Create new project without framework using: `npx @react-native-community/cli@latest init`.
+- Start metro using: `npm start`.
+- Build and launch app using" `npm run android`.
 
-Please notice that the extension uses `.vscode/.react` directory at the project root to store intermediate files required for debugging. Although these files usually get removed after debug session ends, you may want to add this directory to your project's `.gitignore` file.
+You can verify that everything is working correctly and that the environment is ready for use with the `React Native: Run Doctor` in command palette.
