@@ -1,0 +1,4 @@
+{
+    "react-native.packager.port": 8088,
+    "react-native-tools.telemetry.optIn": false
+}
