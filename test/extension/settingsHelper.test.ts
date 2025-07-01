@@ -9,16 +9,12 @@ import { SettingsHelper } from "../../src/extension/settingsHelper";
 
 suite("settingsHelper", function () {
     suite("extensionContext", function () {
-        const settingsPath = path.resolve(
-            __dirname,
-            "..",
-            "resources",
-            "sampleReactNativeProject",
-            ".vscode",
-            "settings.json",
-        );
+        const projectPath = path.resolve(__dirname, "..", "resources", "sampleReactNativeProject");
+
+        const settingsPath = path.resolve(projectPath, ".vscode", "settings.json");
+
         test("Should get the packager port configured from workspace settings file", async function () {
-            const port = await SettingsHelper.getPackagerPort(settingsPath);
+            const port = await SettingsHelper.getPackagerPort(projectPath);
             assert.strictEqual(port, 8088);
         });
 
