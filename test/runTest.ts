@@ -14,12 +14,17 @@ async function launchTests() {
         // The path to the extension test runner script
         // Passed to --extensionTestsPath
         const extensionTestsPath = path.resolve(__dirname, "index");
-        console.log(extensionTestsPath);
+
+        // Path to the test project sample
+        // Passed to launchArgs and vscode will be opened at this path
+        const projectPath = path.resolve(__dirname, "resources", "sampleReactNativeProject");
+
         // Download VS Code, unzip it and run the integration test
         await runTests({
             extensionDevelopmentPath,
             extensionTestsPath,
-            version: "1.94.2",
+            version: "stable",
+            launchArgs: [projectPath],
         });
     } catch (err) {
         console.error(err);
