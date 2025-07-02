@@ -3,42 +3,37 @@
 
 import * as assert from "assert";
 import * as path from "path";
-import * as mockFs from "mock-fs";
-import * as fs from "fs";
 import { SettingsHelper } from "../../src/extension/settingsHelper";
 
 suite("settingsHelper", function () {
     suite("extensionContext", function () {
         const projectPath = path.resolve(__dirname, "..", "resources", "sampleReactNativeProject");
-
         const settingsPath = path.resolve(projectPath, ".vscode", "settings.json");
+        const emptyTelemetrySettingsPath = path.resolve(
+            projectPath,
+            ".vscode",
+            "emptyTelemetrySettings.json",
+        );
 
-        test("Should get the packager port configured from workspace settings file", async function () {
-            const port = await SettingsHelper.getPackagerPort(projectPath);
-            assert.strictEqual(port, 8088);
-        });
-
-        test("Should get the telemetry configured from workspace settings file", async function () {
-            const telemetry = await SettingsHelper.getWorkspaceTelemetry(settingsPath);
-            assert.strictEqual(telemetry, false);
-        });
-
-        test("should return empty string when telemetry setting is not present", async function () {
-            mockFs({
-                [settingsPath]: JSON.stringify({
-                    "react-native.packager.port": 8088,
-                    "react-native-tools.telemetry.optIn": false,
-                }),
+        suite("PackagerSettings", function () {
+            test("Should get the packager port configured from workspace settings file", async function () {
+                const port = await SettingsHelper.getPackagerPort(projectPath);
+                assert.strictEqual(port, 8088);
             });
-            const raw = fs.readFileSync(settingsPath, "utf-8");
-            const settings = JSON.parse(raw);
+        });
 
-            delete settings["react-native-tools.telemetry.optIn"];
+        suite("TemeletrySettings", function () {
+            test("Should get the telemetry config from workspace settings file", async function () {
+                const telemetry = await SettingsHelper.getWorkspaceTelemetry(settingsPath);
+                assert.strictEqual(telemetry, false);
+            });
 
-            fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2), "utf-8");
-            const telemetry = await SettingsHelper.getWorkspaceTelemetry(settingsPath);
-            assert.strictEqual(telemetry, "");
-            mockFs.restore();
+            test("Should get correct telemetry config when user changes settings", async function () {
+                const telemetry = await SettingsHelper.getWorkspaceTelemetry(
+                    emptyTelemetrySettingsPath,
+                );
+                assert.strictEqual(telemetry, "");
+            });
         });
     });
 });
