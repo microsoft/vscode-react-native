@@ -229,13 +229,16 @@ export class SettingsHelper {
         return [];
     }
 
-    public static getWorkspaceTelemetry() {
-        const workspaceConfiguration = vscode.workspace.getConfiguration(
-            "react-native-tools.telemetry",
-            null,
+    public static getWorkspaceTelemetry(fsPath: string) {
+        if (!fsPath || !fs.existsSync(fsPath)) {
+            return "";
+        }
+
+        const settingsContent = stripJsonTrailingComma(
+            stripJsonComments(fs.readFileSync(fsPath, "utf-8")),
         );
-        if (workspaceConfiguration.has("optIn")) {
-            return workspaceConfiguration.get("optIn");
+        if ("react-native-tools.telemetry.optIn" in settingsContent) {
+            return settingsContent["react-native-tools.telemetry.optIn"];
         }
         return "";
     }
