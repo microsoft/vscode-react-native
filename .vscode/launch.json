@@ -26,7 +26,7 @@
             "request": "launch",
             "runtimeExecutable": "${execPath}",
             "args": [
-                "${workspaceFolder}/test/resources/sampleReactNativeProject",
+                "${workspaceFolder}/test/resources/newVersionReactNativeProject",
                 "--extensionDevelopmentPath=${workspaceRoot}",
                 "--extensionTestsPath=${workspaceRoot}/test"
             ],

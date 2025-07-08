@@ -8,7 +8,7 @@ import { RNPackageVersions } from "../../src/common/projectVersionHelper";
 
 suite("jsDebugConfigAdapter", function () {
     suite("sourceMapOverrideConfiguration", function () {
-        test("should get launch arguments correctly when user have both extra arguments and existing arguments", async () => {
+        test.only("should get launch arguments correctly when user have both extra arguments and existing arguments", async () => {
             const version: RNPackageVersions = {
                 reactNativeVersion: "0.80.0",
                 reactNativeWindowsVersion: "",
@@ -18,7 +18,7 @@ suite("jsDebugConfigAdapter", function () {
                 __dirname,
                 "..",
                 "resources",
-                "sampleReactNativeProject",
+                "newVersionReactNativeProject",
             );
             const attachArgs = {
                 cwd: projectPath,

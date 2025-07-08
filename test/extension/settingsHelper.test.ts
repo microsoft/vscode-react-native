@@ -7,7 +7,12 @@ import { SettingsHelper } from "../../src/extension/settingsHelper";
 
 suite("settingsHelper", function () {
     suite("extensionContext", function () {
-        const projectPath = path.resolve(__dirname, "..", "resources", "sampleReactNativeProject");
+        const projectPath = path.resolve(
+            __dirname,
+            "..",
+            "resources",
+            "newVersionReactNativeProject",
+        );
         const settingsPath = path.resolve(projectPath, ".vscode", "settings.json");
         const emptyTelemetrySettingsPath = path.resolve(
             projectPath,

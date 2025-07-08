@@ -15,7 +15,8 @@ src/**/*.js
 dist/**
 !src/extension/appcenter/lib/**/*.js
 test/**/*.js
-!test/resources/sampleReactNativeProject/metro.config.js
+!test/resources/sampleReactNativeProject/*.js
+!test/resources/newVersionReactNativeProject/*.js
 !test/**/.eslintrc.js
 test/smoke/vscode
 !gulpfile.js

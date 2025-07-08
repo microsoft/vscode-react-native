@@ -17,7 +17,7 @@ async function launchTests() {
 
         // Path to the test project sample
         // Passed to launchArgs and vscode will be opened at this path
-        const projectPath = path.resolve(__dirname, "resources", "sampleReactNativeProject");
+        const projectPath = path.resolve(__dirname, "resources", "newVersionReactNativeProject");
 
         // Download VS Code, unzip it and run the integration test
         await runTests({
