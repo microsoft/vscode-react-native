@@ -41,7 +41,7 @@ suite("jsDebugConfigAdapter", function () {
             appLauncherStub.restore();
         });
 
-        test("should get launch arguments correctly when user have both extra arguments and existing arguments", async () => {
+        test("should get source map override path correctly when user have both extra arguments and existing arguments", async () => {
             const attachArgs = {
                 cwd: projectPath,
                 port: 8081,
