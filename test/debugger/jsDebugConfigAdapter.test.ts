@@ -3,23 +3,45 @@
 
 import * as assert from "assert";
 import * as path from "path";
+import * as sinon from "sinon";
 import { JsDebugConfigAdapter } from "../../src/debugger/jsDebugConfigAdapter";
 import { RNPackageVersions } from "../../src/common/projectVersionHelper";
+import { AppLauncher } from "../../src/extension/appLauncher";
+// import { AppLauncher } from "../../src/extension/appLauncher";
 
 suite("jsDebugConfigAdapter", function () {
     suite("sourceMapOverrideConfiguration", function () {
-        test("should get launch arguments correctly when user have both extra arguments and existing arguments", async () => {
-            const version: RNPackageVersions = {
-                reactNativeVersion: "0.80.0",
-                reactNativeWindowsVersion: "",
-                reactNativeMacOSVersion: "",
-            };
-            const projectPath = path.resolve(
-                __dirname,
-                "..",
-                "resources",
-                "sampleReactNativeProject",
+        const version: RNPackageVersions = {
+            reactNativeVersion: "0.80.0",
+            reactNativeWindowsVersion: "",
+            reactNativeMacOSVersion: "",
+        };
+
+        let appLauncherStub: Sinon.SinonStub;
+        const projectPath = path.resolve(
+            __dirname,
+            "..",
+            "resources",
+            "newVersionReactNativeProject",
+        );
+
+        let nodeModulesRoot: string;
+
+        setup(() => {
+            appLauncherStub = sinon.stub(
+                AppLauncher,
+                "getNodeModulesRootByProjectPath",
+                (projectRoot: string) => nodeModulesRoot,
             );
+
+            nodeModulesRoot = projectPath;
+        });
+
+        teardown(function () {
+            appLauncherStub.restore();
+        });
+
+        test.only("should get launch arguments correctly when user have both extra arguments and existing arguments", async () => {
             const attachArgs = {
                 cwd: projectPath,
                 port: 8081,
@@ -31,7 +53,7 @@ suite("jsDebugConfigAdapter", function () {
                 platform: "android",
                 workspaceRoot: projectPath,
                 projectRoot: projectPath,
-                nodeModulesRoot: `${projectPath}/node_modules`,
+                nodeModulesRoot: projectPath,
                 type: "reactnativedirect",
                 name: "Test attach",
                 request: "launch",
@@ -42,6 +64,7 @@ suite("jsDebugConfigAdapter", function () {
                 "",
             );
             const expected = {
+                "/[metro-project]/*": `${projectPath}/*`,
                 testPath: "testNativePath",
             };
             assert.deepStrictEqual(attachConfiguration.sourceMapPathOverrides, expected);
