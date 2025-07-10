@@ -1,0 +1,56 @@
+﻿trigger: none
+
+name: $(date:yyyyMMdd)$(rev:.r)
+
+resources:
+  repositories:
+  - repository: CustomPipelineTemplates # Consume the MicroBuild template via a repo resource
+    type: git
+    name: 1ESPipelineTemplates/MicroBuildTemplate
+
+extends: # Extend the template in your YAML
+  template: azure-pipelines/MicroBuild.1ES.Official.yml@CustomPipelineTemplates
+  parameters:
+    oneESTemplateTag: ${{ parameters.oneESTemplateTag }}
+    pool: # This example is for Windows, but Mac/Linux are also supported.
+      name: VSEngSS-MicroBuild2022-1ES
+      demands:
+      - msbuild
+      - visualstudio
+      os: windows
+    stages:
+    - stage: stage
+      jobs:
+      - job: job
+        templateContext:
+          mb: # Enable the MicroBuild Signing toolset
+            signing:
+              enabled: true
+              signType: real # options are 'real' & 'test'
+              zipSources: false
+          outputs: # Build artifacts are declared in outputs when using the template
+          - output: pipelineArtifact
+            displayName: 'Publish Drop Artifact'
+            targetPath: '$(Build.StagingDirectory)\drop'
+        steps:
+        - task: NodeTool@0
+          inputs:
+            versionSpec: '20.x'
+
+        - script: npx @vscode/vsce@latest package -o $(Build.ArtifactStagingDirectory)/extension.vsix
+          displayName: 'Package extension'
+          workingDirectory: samples\extension-signing
+
+        - script: npx @vscode/vsce@latest generate-manifest -i $(Build.ArtifactStagingDirectory)/extension.vsix -o $(Build.ArtifactStagingDirectory)/extension.manifest
+          displayName: 'Generate extension manifest'
+          workingDirectory: samples\extension-signing
+
+        - script: cp $(Build.ArtifactStagingDirectory)/extension.manifest $(Build.ArtifactStagingDirectory)/extension.signature.p7s
+          displayName: 'Prepare manifest for signing'
+          workingDirectory: samples\extension-signing
+
+        # Add signing step here (details in following sections)
+
+        - script: npx @vscode/vsce@latest publish -i $(Build.ArtifactStagingDirectory)/extension.vsix --manifestPath $(Build.ArtifactStagingDirectory)/extension.manifest --signaturePath $(Build.ArtifactStagingDirectory)/extension.signature.p7s
+          displayName: 'Publish extension'
+          workingDirectory: samples\extension-signing

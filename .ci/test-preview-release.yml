@@ -1,0 +1,150 @@
+trigger: none
+
+# TODO
+# schedules:
+
+name: $(date:yyyyMMdd)$(rev:.r)
+appendCommitMessageToRunName: false
+
+parameters:
+  - name: dryRun
+    displayName: Dry run
+    type: boolean
+    default: false
+
+resources:
+  repositories:
+    - repository: 1ESPipelineTemplates
+      type: git
+      name: 1ESPipelineTemplates/1ESPipelineTemplates
+      ref: refs/tags/release
+  pipelines:
+    - pipeline: 'TypeScript_Native_Preview'
+      project: 'DevDiv'
+      source: 'TypeScript Native Preview'
+      trigger:
+        tags:
+          - Build.Reason.Schedule
+        branches:
+          include:
+            - main
+
+extends:
+  template: v1/1ES.Official.PipelineTemplate.yml@1ESPipelineTemplates
+  
+  parameters:
+    sdl:
+      sourceAnalysisPool: VSEngSS-MicroBuild2022-1ES
+    pool:
+      name: AzurePipelines-EO
+      image: 1ESPT-Ubuntu22.04
+      os: linux
+    
+    stages:
+      - stage: Publish
+        displayName: Publish
+
+        jobs:
+          - job: Publish_npm
+            displayName: Publish npm
+
+            templateContext:
+              templateContext:
+                type: releaseJob
+                isProduction: true
+              inputs:
+                - input: pipelineArtifact
+                  pipeline: 'TypeScript_Native_Preview'
+                  artifactName: 'npm'
+                  targetPath: '$(Pipeline.Workspace)/npm'
+
+            steps:
+              - checkout: none
+
+              - task: AzureKeyVault@2
+                inputs:
+                  azureSubscription: TypeScript-DevDiv-KeyVault
+                  KeyVaultName: jststeam-passwords
+                  SecretsFilter: typescript-deploys-npm-typescript-native-preview
+                displayName: Get secrets
+                retryCountOnTaskFailure: 3
+
+              - task: NodeTool@0
+                inputs:
+                  versionSpec: 20.x
+                displayName: 'Install Node'
+
+              - bash: |
+                  ls -R $(Pipeline.Workspace)/npm
+                displayName: 'List contents of artifacts'
+
+              - bash: |
+                  set -euo pipefail
+                  npm set "//registry.npmjs.org/:_authToken=$NPM_TOKEN"
+                  npm whoami
+                displayName: 'Set auth token'
+                env:
+                  NPM_TOKEN: $(typescript-deploys-npm-typescript-native-preview)
+
+              - ${{ if eq(parameters.dryRun, false) }}:
+                - bash: |
+                    set -euo pipefail
+                    cd $(Pipeline.Workspace)/npm
+                    cat publish-order.txt | while read pkg; do
+                      echo "Publishing $pkg"
+                      npm publish $pkg --tag latest
+                    done
+                  displayName: 'Publish npm packages'
+
+          - job: Publish_vsix
+            displayName: Publish VSIX
+
+            templateContext:
+              templateContext:
+                type: releaseJob
+                isProduction: true
+              inputs:
+                - input: pipelineArtifact
+                  pipeline: 'TypeScript_Native_Preview'
+                  artifactName: 'vsix'
+                  targetPath: '$(Pipeline.Workspace)/vsix'
+
+            steps:
+              - checkout: none
+
+              - task: NodeTool@0
+                inputs:
+                  versionSpec: 20.x
+                displayName: 'Install Node'
+
+              - bash: |
+                  ls -R $(Pipeline.Workspace)/vsix
+                displayName: 'List contents of artifacts'
+
+              - task: AzureCLI@2
+                displayName: 'Check Marketplace Auth'
+                inputs:
+                  azureSubscription: TypeScript-VSMarketplacePublishAuth
+                  scriptType: 'bash'
+                  scriptLocation: 'inlineScript'
+                  inlineScript: |
+                    set -euo pipefail
+                    az rest -u https://app.vssps.visualstudio.com/_apis/profile/profiles/me --resource 499b84ac-1321-427f-aa17-267ca6975798
+                    npx @vscode/vsce@latest verify-pat TypeScriptTeam --azure-credential
+
+              - ${{ if eq(parameters.dryRun, false) }}:
+                - task: AzureCLI@2
+                  displayName: 'Publish VSIXs to Marketplace'
+                  inputs:
+                    azureSubscription: TypeScript-VSMarketplacePublishAuth
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      set -euo pipefail
+                      cd $(Pipeline.Workspace)/vsix
+                      for vsixFilePath in *.vsix; do
+                        manifestFilePath=${vsixFilePath%.vsix}.manifest
+                        signatureFilePath=${vsixFilePath%.vsix}.signature.p7s
+                        echo "Verifying $manifestFilePath with $manifestFilePath and $signatureFilePath"
+                        npx @vscode/vsce@latest publish --packagePath $vsixFilePath --manifestPath $manifestFilePath --signaturePath $signatureFilePath --azure-credential
+                      done
