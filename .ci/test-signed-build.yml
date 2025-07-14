@@ -4,14 +4,14 @@ name: $(date:yyyyMMdd)$(rev:.r)
 
 resources:
   repositories:
-  - repository: CustomPipelineTemplates # Consume the MicroBuild template via a repo resource
-    type: git
-    name: 1ESPipelineTemplates/MicroBuildTemplate
+    - repository: 1ESPipelineTemplates
+      type: git
+      name: 1ESPipelineTemplates/1ESPipelineTemplates
+      ref: refs/tags/release
 
 extends: # Extend the template in your YAML
-  template: azure-pipelines/MicroBuild.1ES.Official.yml@CustomPipelineTemplates
+  template: v1/1ES.Official.PipelineTemplate.yml@1ESPipelineTemplates
   parameters:
-    oneESTemplateTag: ${{ parameters.oneESTemplateTag }}
     pool: # This example is for Windows, but Mac/Linux are also supported.
       name: VSEngSS-MicroBuild2022-1ES
       demands:
