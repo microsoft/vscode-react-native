@@ -5,10 +5,8 @@ These are the scenarios that should be tested during manual smoke testing:
 ## Windows
 |Debug  scenario|Does it work?|If no, then why?|Is it an extension bug?|
 |---|---|---|---|
-|Debug Android on device||||
-|Debug Android on emulator||||
-|Debug Android (Hermes) - Experimental on device||||
-|Debug Android (Hermes) - Experimental on emulator||||
+|Debug Android Hermes on device||||
+|Debug Android Hermes on emulator||||
 |Debug Expo Android on device (Tunnel, LAN, localhost)||||
 |Debug Expo iOS on device||||
 |Debug Expo Android on emulator||||
@@ -16,15 +14,15 @@ These are the scenarios that should be tested during manual smoke testing:
 |Debug Expo (pure React Native) Android on device (Tunnel, LAN, localhost)||||
 |Debug Expo (pure React Native) iOS on device||||
 |Debug RNW app||||
-|Debug RNW app (Hermes) - Experimental||||
+|Debug RNW app Hermes||||
 
 ## Ubuntu
 |Debug  scenario|Does it work?|If no, then why?|Is it an extension bug?|
 |---|---|---|---|
 |Debug Android on device||||
 |Debug Android on emulator||||
-|Debug Android (Hermes) - Experimental on device||||
-|Debug Android (Hermes) - Experimental on emulator||||
+|Debug Android Hermes on device||||
+|Debug Android Hermes on emulator||||
 |Debug Expo Android on device (Tunnel, LAN, localhost)||||
 |Debug Expo iOS on device||||
 |Debug Expo Android on emulator||||
@@ -37,8 +35,8 @@ These are the scenarios that should be tested during manual smoke testing:
 |---|---|---|---|
 |Debug Android on device||||
 |Debug Android on emulator||||
-|Debug Android (Hermes) - Experimental on device||||
-|Debug Android (Hermes) - Experimental on emulator||||
+|Debug Android Hermes on device||||
+|Debug Android Hermes on emulator||||
 |Debug iOS on simulator||||
 |Debug iOS on device||||
 |Debug Expo Android on device (Tunnel, LAN, localhost)||||
@@ -50,7 +48,7 @@ These are the scenarios that should be tested during manual smoke testing:
 |Debug Expo (pure React Native) Android on device (Tunnel, LAN, localhost)||||
 |Debug Expo (pure React Native) iOS on device||||
 |Debug RN macOS app||||
-|Debug RN macOS app (Hermes) - Experimental||||
+|Debug RN macOS app Hermes||||
 
 ### Script for generating test apps
 

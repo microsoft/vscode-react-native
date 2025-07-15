@@ -67,14 +67,14 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             ),
         },
         {
-            label: DEBUG_CONFIGURATION_NAMES.DEBUG_IN_EXPONENT_HERMES_EXPERIMENTAL,
+            label: DEBUG_CONFIGURATION_NAMES.DEBUG_IN_EXPONENT_HERMES,
             description: localize(
                 "DebugHermesExpoConfigDesc",
                 "Debug Hermes Expo application or React Native application in Expo",
             ),
         },
         {
-            label: DEBUG_CONFIGURATION_NAMES.DEBUG_IN_EXPONENT_WEB_EXPERIMENTAL,
+            label: DEBUG_CONFIGURATION_NAMES.DEBUG_IN_EXPONENT_WEB,
             description: localize(
                 "DebugExpoWebConfigDesc",
                 "Debug Hermes Expo application on web browser",
@@ -103,14 +103,14 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
             description: localize("RunIosHermesConfigDesc", "Run iOS Hermes application"),
         },
         {
-            label: DEBUG_CONFIGURATION_NAMES.DEBUG_MACOS_HERMES_EXPERIMENTAL,
+            label: DEBUG_CONFIGURATION_NAMES.DEBUG_MACOS_HERMES,
             description: localize(
                 "DebugMacOSHermesConfigDesc",
                 "Run and debug macOS Hermes application",
             ),
         },
         {
-            label: DEBUG_CONFIGURATION_NAMES.DEBUG_WINDOWS_HERMES_EXPERIMENTAL,
+            label: DEBUG_CONFIGURATION_NAMES.DEBUG_WINDOWS_HERMES,
             description: localize(
                 "DebugWindowsHermesConfigDesc",
                 "Run and debug Windows Hermes application",

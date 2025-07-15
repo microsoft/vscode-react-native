@@ -47,10 +47,6 @@ export class DebugScenarioNameGenerator {
             );
         }
 
-        if (platformType === PlatformType.ExpoWeb || !useHermesEngine) {
-            isExperimental = true;
-        }
-
         if (isExperimental) {
             debugScenarioName.experimentalDescription = "- Experimental";
         }
