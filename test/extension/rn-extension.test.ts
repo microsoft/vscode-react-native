@@ -143,7 +143,7 @@ suite("rn-extension", function () {
                 "reactNative.debugScenario.runIos",
                 "reactNative.debugScenario.runAndroidHermes",
                 "reactNative.debugScenario.runIosHermes",
-                "reactNative.debugScenario.runDirectIos",
+                "reactNative.debugScenario.runDirectIosExperimental",
                 "reactNative.runInspector",
                 "reactNative.stopInspector",
                 "reactNative.launchAndroidSimulator",
