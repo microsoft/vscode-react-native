@@ -9,6 +9,7 @@ function clean() {
         "out/",
         "dist",
         "!test/resources/sampleReactNativeProject/**/*.js",
+        "!test/resources/newVersionReactNativeProject/**/*.js",
         ".vscode-test/",
         "nls.*.json",
         "!test/smoke/**/*",

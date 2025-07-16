@@ -1,0 +1,69 @@
+pr: none
+
+trigger:
+  tags:
+    include:
+    - '*'
+
+variables:
+  # Required for Microbuild
+  - name: TeamName
+    value: VSCodeWebdiagExtensions
+
+resources:
+  repositories:
+  - repository: 1esPipelines
+    type: git
+    name: 1ESPipelineTemplates/1ESPipelineTemplates
+    ref: refs/tags/release
+
+# VSCode extension signing: https://aka.ms/vsm-ms-publisher-sign
+extends:
+  template: v1/1ES.Official.PipelineTemplate.yml@1ESPipelineTemplates
+  parameters:
+    pool:
+      name: VSWebDiag1ESPipelinePool
+      image: VSWebDiag_1ESImage_Windows
+      os: windows
+    stages:
+    - stage: Stage
+      jobs:
+      - job: HostJob
+        steps:
+        - task: UseNode@1
+          inputs:
+            version: '20.x'
+          displayName: 'Install Node.js'
+        - task: MicroBuildSigningPlugin@4
+          inputs:
+            signType: real
+            feedSource: 'https://devdiv.pkgs.visualstudio.com/DefaultCollection/_packaging/MicroBuildToolset/nuget/v3/index.json'
+        - script: npm ci
+          displayName: 'Install dependencies'
+        - task: PowerShell@2
+          displayName: 'Package the extension'
+          inputs:
+            targetType: 'inline'
+            script: |
+                gulp release --nightly --out extension.vsix
+        - script: npx vsce generate-manifest -i extension.vsix -o extension.manifest
+          displayName: 'Generate the manifest'
+        - task: DotNetCoreCLI@2
+          displayName: Sign
+          inputs:
+            command: 'build'
+            projects: 'VSCodeReactNative.signproj'
+        # - task: AzureCLI@2
+        #   displayName: 'Publishing with Managed Identity'
+        #   inputs:
+        #     azureSubscription: 'Playwright-VSMarketplacePublishing'
+        #     scriptType: "pscore"
+        #     scriptLocation: 'inlineScript'
+        #     inlineScript: |
+        #       $aadToken = az account get-access-token --query accessToken --resource 499b84ac-1321-427f-aa17-267ca6975798 -o tsv
+        #       npx vsce verify-pat --pat $aadToken ms-playwright
+        #       if ("$(Build.Reason)" -eq "Manual") {
+        #         npx vsce publish --pre-release --pat $aadToken --packagePath extension.vsix --manifestPath extension.manifest --signaturePath extension.signature.p7s
+        #       } else {
+        #         npx vsce publish --pat $aadToken --packagePath extension.vsix --manifestPath extension.manifest --signaturePath extension.signature.p7s
+        #       }
