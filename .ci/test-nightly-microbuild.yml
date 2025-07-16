@@ -36,7 +36,7 @@ extends:
           displayName: 'Install Node.js'
         - task: MicroBuildSigningPlugin@4
           inputs:
-            signType: real
+            signType: test
             feedSource: 'https://devdiv.pkgs.visualstudio.com/DefaultCollection/_packaging/MicroBuildToolset/nuget/v3/index.json'
         - script: npm ci
           displayName: 'Install dependencies'
