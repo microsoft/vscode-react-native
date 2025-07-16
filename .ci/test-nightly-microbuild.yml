@@ -12,10 +12,10 @@ variables:
 
 resources:
   repositories:
-  - repository: 1esPipelines
-    type: git
-    name: 1ESPipelineTemplates/1ESPipelineTemplates
-    ref: refs/tags/release
+    - repository: 1ESPipelineTemplates
+      type: git
+      name: 1ESPipelineTemplates/1ESPipelineTemplates
+      ref: refs/tags/release
 
 # VSCode extension signing: https://aka.ms/vsm-ms-publisher-sign
 extends:
