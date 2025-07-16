@@ -58,7 +58,7 @@ function prepareLicenses() {
                 // NOTE: vsce must see npm 3.X otherwise it will not correctly strip out dev dependencies.
                 executeCommand(
                     "vsce",
-                    ["package", "--no-yarn"],
+                    ["package", "--no-yarn" , "-o", "extension.vsix"],
                     arg => {
                         if (arg) {
                             reject(arg);
