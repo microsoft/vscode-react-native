@@ -379,7 +379,7 @@ Expo support open application in browser, the expo web application is generated 
 
 ```json
 {
-  "name": "Debug Expo Web - Experimental",
+  "name": "Debug Expo Web",
   "request": "launch",
   "type": "reactnativedirect",
   "cwd": "${workspaceFolder}",

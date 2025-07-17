@@ -163,15 +163,15 @@ export const DEBUG_CONFIGURATION_NAMES = {
     DEBUG_ANDROID_HERMES: "Debug Android Hermes",
     DEBUG_DIRECT_IOS_EXPERIMENTAL: "Debug Direct iOS - Experimental",
     DEBUG_IOS_HERMES: "Debug iOS Hermes",
-    DEBUG_MACOS_HERMES_EXPERIMENTAL: "Debug macOS Hermes - Experimental",
-    DEBUG_WINDOWS_HERMES_EXPERIMENTAL: "Debug Windows Hermes - Experimental",
+    DEBUG_MACOS_HERMES: "Debug macOS Hermes",
+    DEBUG_WINDOWS_HERMES: "Debug Windows Hermes",
     RUN_ANDROID: "Run Android",
     RUN_IOS: "Run iOS",
     RUN_ANDROID_HERMES: "Run Android Hermes",
     RUN_IOS_HERMES: "Run iOS Hermes",
     RUN_DIRECT_IOS_EXPERIMENTAL: "Run Direct iOS - Experimental",
-    DEBUG_IN_EXPONENT_HERMES_EXPERIMENTAL: "Debug in Hermes Exponent - Experimental",
-    DEBUG_IN_EXPONENT_WEB_EXPERIMENTAL: "Debug in Exponent Web - Experimental",
+    DEBUG_IN_EXPONENT_HERMES: "Debug in Hermes Exponent",
+    DEBUG_IN_EXPONENT_WEB: "Debug in Exponent Web",
 };
 
 export const debugConfigurations: Record<string, vscode.DebugConfiguration> = {
@@ -255,15 +255,15 @@ export const debugConfigurations: Record<string, vscode.DebugConfiguration> = {
         request: "launch",
         platform: PlatformType.iOS,
     },
-    [DEBUG_CONFIGURATION_NAMES.DEBUG_MACOS_HERMES_EXPERIMENTAL]: {
-        name: DEBUG_CONFIGURATION_NAMES.DEBUG_MACOS_HERMES_EXPERIMENTAL,
+    [DEBUG_CONFIGURATION_NAMES.DEBUG_MACOS_HERMES]: {
+        name: DEBUG_CONFIGURATION_NAMES.DEBUG_MACOS_HERMES,
         cwd: "${workspaceFolder}",
         type: DEBUG_TYPES.REACT_NATIVE_DIRECT,
         request: "launch",
         platform: PlatformType.macOS,
     },
-    [DEBUG_CONFIGURATION_NAMES.DEBUG_WINDOWS_HERMES_EXPERIMENTAL]: {
-        name: DEBUG_CONFIGURATION_NAMES.DEBUG_WINDOWS_HERMES_EXPERIMENTAL,
+    [DEBUG_CONFIGURATION_NAMES.DEBUG_WINDOWS_HERMES]: {
+        name: DEBUG_CONFIGURATION_NAMES.DEBUG_WINDOWS_HERMES,
         cwd: "${workspaceFolder}",
         type: DEBUG_TYPES.REACT_NATIVE_DIRECT,
         request: "launch",
@@ -311,15 +311,15 @@ export const debugConfigurations: Record<string, vscode.DebugConfiguration> = {
         useHermesEngine: false,
         target: "device",
     },
-    [DEBUG_CONFIGURATION_NAMES.DEBUG_IN_EXPONENT_HERMES_EXPERIMENTAL]: {
-        name: DEBUG_CONFIGURATION_NAMES.DEBUG_IN_EXPONENT_HERMES_EXPERIMENTAL,
+    [DEBUG_CONFIGURATION_NAMES.DEBUG_IN_EXPONENT_HERMES]: {
+        name: DEBUG_CONFIGURATION_NAMES.DEBUG_IN_EXPONENT_HERMES,
         cwd: "${workspaceFolder}",
         type: DEBUG_TYPES.REACT_NATIVE_DIRECT,
         request: "launch",
         platform: PlatformType.Exponent,
     },
-    [DEBUG_CONFIGURATION_NAMES.DEBUG_IN_EXPONENT_WEB_EXPERIMENTAL]: {
-        name: DEBUG_CONFIGURATION_NAMES.DEBUG_IN_EXPONENT_WEB_EXPERIMENTAL,
+    [DEBUG_CONFIGURATION_NAMES.DEBUG_IN_EXPONENT_WEB]: {
+        name: DEBUG_CONFIGURATION_NAMES.DEBUG_IN_EXPONENT_WEB,
         cwd: "${workspaceFolder}",
         type: DEBUG_TYPES.REACT_NATIVE_DIRECT,
         request: "launch",
