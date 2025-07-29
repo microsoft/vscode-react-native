@@ -6,6 +6,7 @@ const fs = require("fs");
 const GulpExtras = require("../tools/gulp-extras");
 
 const isNightly = process.argv.includes("--nightly");
+const useNpm = process.argv.includes("--no-yarn");
 const extensionName = isNightly ? "vscode-react-native-preview" : "vscode-react-native";
 const executeCommand = GulpExtras.executeCommand;
 
@@ -56,9 +57,16 @@ function prepareLicenses() {
             log("Creating release package...");
             return new Promise((resolve, reject) => {
                 // NOTE: vsce must see npm 3.X otherwise it will not correctly strip out dev dependencies.
+                let vsceArgs = ["package"];
+                if (useNpm) {
+                    vsceArgs = ["package", "--no-yarn"];
+                    log("Using npm for vsce packaging...");
+                } else {
+                    log("Using yarn for vsce packaging...");
+                }
                 executeCommand(
                     "vsce",
-                    ["package"],
+                    vsceArgs,
                     arg => {
                         if (arg) {
                             reject(arg);
