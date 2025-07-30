@@ -59,8 +59,8 @@ Using this extension, you can **debug your code and quickly run `react-native` o
     - [MacOS Hermes debugging](#macos-hermes-debugging)
   - [Monorepo: debug out of React Native project directory](#monorepo-debug-out-of-react-native-project-directory)
   - [Debugger configuration properties](#debugger-configuration-properties)
+  - [Re.Pack and Haul debugging](#repack-and-haul-debugging)
   - [Remote JavaScript Debugging (Deprecated)](#remote-javascript-debugging-deprecated)
-  - [Haul debugging](#haul-debugging)
 - [Customization](#customization)
   - [Sourcemaps](#sourcemaps)
   - [Debug in vscode workspace](#debug-in-vscode-workspace)
@@ -582,6 +582,31 @@ The following is a list of all the configuration properties the debugger accepts
 | `productName`                      | iOS bundle display name e.g. `AwesomeProject` value means that the extension will search for `AwesomeProject.app` bundle                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | `string`   | n/a                                           |
 | `jsDebugTrace`                     | Enable trace collection for depended extension `vscode-js-debug`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | `boolean`  | n/a                                           |
 
+## Re.Pack and Haul debugging
+
+[Re.Pack](https://github.com/callstack/repack): A modern bundler for React Native applications, powered by Rspack and Webpack.
+
+[Haul](https://github.com/callstack/haul): A command line tool for developing React Native apps. Legacy tools, recommend using Re.Pack.
+
+Both Re.Pack and Haul can use `Attach` request to attach to a react-native based app and debug it.
+Add config in `launch.json` file as below, make sure adding `sourceMapPathOverrides` argument to update source map for your application webpack.
+
+For example:
+
+```json
+{
+  "name": "Attach to Hermes application",
+  "request": "attach",
+  "type": "reactnativedirect",
+  "cwd": "${workspaceFolder}",
+  "sourceMapPathOverrides": {
+    "webpack:///./~/*": "${workspaceRoot}/node_modules/*",
+    "webpack:///./*": "${workspaceRoot}/*",
+    "webpack:///*": "*"
+  }
+}
+```
+
 ## Remote JavaScript Debugging (Deprecated)
 
 Remote JavaScript debugging is deprecated by react-native team from [0.73](https://reactnative.dev/docs/0.75/other-debugging-methods#remote-javascript-debugging-deprecated) and may be removed officially at any time.
@@ -600,27 +625,6 @@ Below config showed classic debug mode in extension. With the version update of 
 }
 ```
 
-## Haul debugging
-
-The extension provides functional to attach to [Haul packager](https://callstack.github.io/haul/) based applications. You can use the `Attach to packager` scenario to attach to a Haul based app and debug it. For now launch scenarios aren't supported. You can find more info in [the issue](https://github.com/microsoft/vscode-react-native/issues/883).
-
-You can prepare your React Native application to work with `Haul` by following the [`Haul Getting started` guide](https://github.com/callstack/haul#getting-started).
-
-If you use the [legacy version](https://github.com/callstack/haul/tree/legacy) of `Haul` as your React Native bundler instead of the default [Metro](https://facebook.github.io/metro/), it could be required to add `sourceMapPathOverrides` to the `launch.json` file.
-
-For example:
-
-```json
-{
-  // Other configurations
-  "sourceMapPathOverrides": {
-    "webpack:///./~/*": "${workspaceRoot}/node_modules/*",
-    "webpack:///./*": "${workspaceRoot}/*",
-    "webpack:///*": "*"
-  }
-}
-```
-
 # Customization
 
 The extension can be further customized for other React Native scenarios. These are the most common:
@@ -633,7 +637,7 @@ The left hand side of the mapping is a pattern that can contain a wildcard, and 
 
 Below there are some examples of how sourcemaps could be resolved in different scenarios:
 
-```javascript
+```json
 // webRoot = /Users/me/project
 "sourceMapPathOverrides": {
     "webpack:///./~/*": "${webRoot}/node_modules/*",       // Example: "webpack:///./~/querystring/index.js" -> "/Users/me/project/node_modules/querystring/index.js"
