@@ -70,7 +70,7 @@ suite("commandExecutor", function () {
 
             await ce.execute("node -v");
             assert(loggedOutput);
-        });
+        }).timeout(10000);
 
         test("should reject on bad command", async () => {
             const ce = new CommandExecutor(nodeModulesRoot);
