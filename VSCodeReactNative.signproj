@@ -4,10 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <!-- FilesToSign needs to be inside $(OutDir) hence we copy it into
-    $(OutDir) before (from CWD) and move it back outside after the signing -->
-    <FilesToSign Include="$(OutDir)\extension.signature.p7s">
-      <!-- Add the certificate friendly name below -->
+    <FilesToSign Include="$(OutDir)\drop\extension.signature.p7s">
       <Authenticode>VSCodePublisher</Authenticode>
     </FilesToSign>
   </ItemGroup>
@@ -18,12 +15,4 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
-
-  <Target Name="CopySignatureFile" BeforeTargets="SignFiles">
-    <Copy SourceFiles="$(ProjectDir)\extension.manifest" DestinationFiles="$(OutDir)\extension.signature.p7s" />
-  </Target>
-
-  <Target Name="CopyBackSignatureFile" AfterTargets="SignFiles">
-    <Copy SourceFiles="$(OutDir)\extension.signature.p7s" DestinationFiles="$(ProjectDir)\extension.signature.p7s" />
-  </Target>
 </Project>
