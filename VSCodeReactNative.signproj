@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.Build.NoTargets/3.4.0">
+<Project ToolsVersion="Current" Sdk="Microsoft.Build.NoTargets/3.7.56">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <FilesToSign Include="$(OutDir)\extension.signature.p7s">
+    <FilesToSign Include="extension.signature.p7s">
       <Authenticode>VSCodePublisher</Authenticode>
-      <InProject>false</InProject>
     </FilesToSign>
   </ItemGroup>
 
@@ -16,12 +15,4 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
-
-  <Target Name="CopySignatureFile" BeforeTargets="SignFiles">
-    <Copy SourceFiles="$(ProjectDir)\extension.manifest" DestinationFiles="$(OutDir)\extension.signature.p7s" />
-  </Target>
-
-  <Target Name="CopyBackSignatureFile" AfterTargets="SignFiles">
-    <Copy SourceFiles="$(OutDir)\extension.signature.p7s" DestinationFiles="$(ProjectDir)\extension.signature.p7s" />
-  </Target>
 </Project>
