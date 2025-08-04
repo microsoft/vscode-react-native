@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="Current" Sdk="Microsoft.Build.NoTargets">
+<Project Sdk="Microsoft.Build.NoTargets/3.4.0">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <FilesToSign Include="$(OutDir)\extension.signature.p7s">
       <Authenticode>VSCodePublisher</Authenticode>
+      <InProject>false</InProject>
     </FilesToSign>
   </ItemGroup>
 
