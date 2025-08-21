@@ -123,7 +123,7 @@ suite("rn-extension", function () {
             console.log(commandsAvailable);
             assert.deepStrictEqual(commandsAvailable, [
                 "reactNative.doctor",
-                "reactNative.ExpoDoctor",
+                "reactNative.expoDoctor",
                 "reactNative.debugScenario.attachHermesApplication",
                 "reactNative.debugScenario.attachDirectIosExperimental",
                 "reactNative.debugScenario.attachToPackager",

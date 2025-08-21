@@ -418,20 +418,20 @@
         "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       },
       {
-        "command": "reactNative.ExpoDoctor",
-        "title": "Expo Run Doctor",
+        "command": "reactNative.expoDoctor",
+        "title": "Expo - Run Doctor",
         "category": "React Native",
         "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       },
       {
         "command": "reactNative.expoPrebuild",
-        "title": "Expo Prebuild",
+        "title": "Expo - Prebuild",
         "category": "React Native",
         "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       },
       {
         "command": "reactNative.expoPrebuildClean",
-        "title": "Expo Prebuild Clean",
+        "title": "Expo - Prebuild Clean",
         "category": "React Native",
         "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       },
@@ -443,19 +443,19 @@
       },
       {
         "command": "reactNative.hermesEnable",
-        "title": "Enable Hermes",
+        "title": "Enable Hermes engine",
         "category": "React Native",
         "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       },
       {
         "command": "reactNative.expoHermesEnable",
-        "title": "Enable & Disable Expo Hermes",
+        "title": "Expo - Enable Hermes engine",
         "category": "React Native",
         "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       },
       {
         "command": "reactNative.openExpoUpgradeHelper",
-        "title": "Open expo upgrade helper in web page",
+        "title": "Expo - Open upgrade helper in web page",
         "category": "React Native",
         "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       },
