@@ -10,7 +10,7 @@ import { ReactNativeCommand } from "./util/reactNativeCommand";
 
 const logger = OutputChannelLogger.getMainChannel();
 export class expoDoctor extends ReactNativeCommand {
-    codeName = "ExpoDoctor";
+    codeName = "expoDoctor";
     label = "Expo Doctor";
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToRunExpoDoctor);
 
