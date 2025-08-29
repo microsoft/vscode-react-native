@@ -1,4 +1,8 @@
-# VS Code React Native Tools Smoke Tests
+# VS Code React Native Tools Smoke Tests(Deprecated)
+
+## Current Status: Disabled
+
+## Previous documentation:
 
 This implementation uses sdk from [VS Code Smoke Tests](https://github.com/microsoft/vscode/tree/main/test/smoke).
 
