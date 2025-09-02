@@ -164,9 +164,14 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
             let logLevel: string = args.trace;
             if (logLevel) {
                 logLevel = logLevel.replace(logLevel[0], logLevel[0].toUpperCase());
-                logger.setup(Logger.LogLevel[logLevel], chromeDebugCoreLogs || false);
+                logger.setup(
+                    Logger.LogLevel[logLevel as keyof typeof Logger.LogLevel],
+                    chromeDebugCoreLogs || false,
+                );
                 this.cdpProxyLogLevel =
-                    LogLevel[logLevel] === LogLevel.Verbose ? LogLevel.Custom : LogLevel.None;
+                    LogLevel[logLevel as keyof typeof LogLevel] === LogLevel.Verbose
+                        ? LogLevel.Custom
+                        : LogLevel.None;
             } else {
                 logger.setup(Logger.LogLevel.Log, chromeDebugCoreLogs || false);
                 this.cdpProxyLogLevel =

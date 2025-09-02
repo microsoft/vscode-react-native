@@ -194,8 +194,12 @@ export class Packager {
                 const packagerOptions = await this.getExponentHelper().getExpPackagerOptions(
                     projectRoot,
                 );
-                Object.keys(packagerOptions).forEach(key => {
-                    args = args.concat([`--${key}`, packagerOptions[key]]);
+                Object.keys(packagerOptions).forEach(k => {
+                    const key = k as keyof typeof packagerOptions;
+                    const value = packagerOptions[key];
+                    if (value !== undefined) {
+                        args = args.concat([`--${key}`, value.toString()]);
+                    }
                 });
             } catch (error) {
                 this.logger.warning(

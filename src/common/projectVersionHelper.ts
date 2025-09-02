@@ -40,7 +40,7 @@ export function RNPackageVersionsToPackageVersion(
     packageVersions: RNPackageVersions,
 ): PackageVersion[] {
     const res: PackageVersion[] = [];
-    Object.keys(packageVersions).forEach(key => {
+    (Object.keys(packageVersions) as (keyof RNPackageVersions)[]).forEach(key => {
         const item: PackageVersion = {};
         item[key] = packageVersions[key];
         res.push(item);

@@ -225,6 +225,7 @@ export class DebuggerEndpointHelper {
             return false;
         }
 
+        // @ts-expect-error Handle this code warning
         return buf.equals(this.localv4) || buf.equals(this.localv6);
     }
 }

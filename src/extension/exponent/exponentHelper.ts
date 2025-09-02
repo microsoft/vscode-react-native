@@ -440,7 +440,7 @@ require('${entryPoint}');`;
         }
     }
 
-    private async getFromExpConfig<T>(key: string): Promise<T> {
+    private async getFromExpConfig<K extends keyof ExpConfig>(key: K): Promise<ExpConfig[K]> {
         const config = await this.getExpConfig();
         return config[key];
     }
