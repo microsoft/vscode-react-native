@@ -119,12 +119,13 @@ export class DebuggerEndpointHelper {
             URL.resolve(browserURL, "/json/list"),
         );
         if (jsonList.length) {
-            if (jsonList[0].description) {
-                const type = jsonList[0].description.toLowerCase();
-                return type.includes("exponent") ? "expo" : "react-native";
-            } else {
-                return "react-native";
+            if (jsonList[0].title || jsonList[0].description) {
+                const isExpo =
+                    jsonList[0].title.toLowerCase().includes("exponent") ||
+                    jsonList[0].description.toLowerCase().includes("exponent");
+                return isExpo ? "expo" : "react-native";
             }
+            return "react-native";
         }
         throw new Error("Could not find any debuggable target");
     }
