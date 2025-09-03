@@ -6,9 +6,8 @@ import { Editors } from "./editors";
 import { Code } from "./code";
 
 export class Explorer extends Viewlet {
-
-	private static readonly EXPLORER_VIEWLET = 'div[id="workbench.view.explorer"]';
-	private static readonly OPEN_EDITORS_VIEW = `${Explorer.EXPLORER_VIEWLET} .split-view-view:nth-child(1) .title`;
+    private static readonly EXPLORER_VIEWLET = 'div[id="workbench.view.explorer"]';
+    private static readonly OPEN_EDITORS_VIEW = `${Explorer.EXPLORER_VIEWLET} .split-view-view:nth-child(1) .title`;
 
     constructor(code: Code, private editors: Editors) {
         super(code);
@@ -27,7 +26,11 @@ export class Explorer extends Viewlet {
     }
 
     public async openFile(fileName: string): Promise<any> {
-        await this.code.waitAndDoubleClick(`div[class="monaco-icon-label file-icon ${fileName.toLowerCase()}-name-file-icon ${this.getExtensionSelector(fileName.toLowerCase())} explorer-item"]`);
+        await this.code.waitAndDoubleClick(
+            `div[class="monaco-icon-label file-icon ${fileName.toLowerCase()}-name-file-icon ${this.getExtensionSelector(
+                fileName.toLowerCase(),
+            )} explorer-item"]`,
+        );
         await this.editors.waitForEditorFocus(fileName);
     }
 
@@ -42,5 +45,4 @@ export class Explorer extends Viewlet {
         }
         throw new Error("No class defined for this file extension");
     }
-
 }

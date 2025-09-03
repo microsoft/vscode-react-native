@@ -4,7 +4,6 @@
 import { Code } from "./code";
 
 export class QuickInput {
-
     public static QUICK_INPUT = ".quick-input-widget";
     public static QUICK_INPUT_ROW = `${QuickInput.QUICK_INPUT} .quick-input-list .monaco-list-row`;
     public static QUICK_INPUT_INPUT = `${QuickInput.QUICK_INPUT} .quick-input-box input`;
@@ -12,16 +11,16 @@ export class QuickInput {
     public static QUICK_INPUT_ENTRY_LABEL = `${QuickInput.QUICK_INPUT_ROW} .label-name`;
     public static QUICK_INPUT_ENTRY_LABEL_SPAN = `${QuickInput.QUICK_INPUT_ROW} .monaco-highlighted-label span`;
 
-    constructor(private code: Code) { }
+    constructor(private code: Code) {}
 
     public async closeQuickInput(): Promise<void> {
         await this.code.dispatchKeybinding("escape");
         await this.waitForQuickInputClosed();
     }
 
-	public async waitForQuickInputOpened(retryCount?: number): Promise<void> {
-		await this.code.waitForActiveElement(QuickInput.QUICK_INPUT_INPUT, retryCount);
-	}
+    public async waitForQuickInputOpened(retryCount?: number): Promise<void> {
+        await this.code.waitForActiveElement(QuickInput.QUICK_INPUT_INPUT, retryCount);
+    }
 
     public async selectQuickInputElement(index: number, close: boolean = true): Promise<void> {
         await this.waitForQuickInputOpened();
@@ -35,7 +34,10 @@ export class QuickInput {
     }
 
     private async waitForQuickInputClosed(): Promise<void> {
-        await this.code.waitForElement(QuickInput.QUICK_INPUT, r => !!r && r.attributes.style.indexOf("display: none;") !== -1);
+        await this.code.waitForElement(
+            QuickInput.QUICK_INPUT,
+            r => !!r && r.attributes.style.indexOf("display: none;") !== -1,
+        );
     }
 
     public async inputAndSelect(text: string): Promise<void> {
@@ -50,7 +52,8 @@ export class QuickInput {
     }
 
     public async waitForQuickInputElements(accept: (names: string[]) => boolean): Promise<void> {
-        await this.code.waitForElements(QuickInput.QUICK_INPUT_ENTRY_LABEL, false, els => accept(els.map(e => e.textContent)));
+        await this.code.waitForElements(QuickInput.QUICK_INPUT_ENTRY_LABEL, false, els =>
+            accept(els.map(e => e.textContent)),
+        );
     }
-
 }

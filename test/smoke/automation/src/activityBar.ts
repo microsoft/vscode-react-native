@@ -9,8 +9,7 @@ export const enum ActivityBarPosition {
 }
 
 export class ActivityBar {
-
-    constructor(private code: Code) { }
+    constructor(private code: Code) {}
 
     public async waitForActivityBar(position: ActivityBarPosition): Promise<void> {
         let positionClass: string;

@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as cp from "child_process";
-import { quote } from 'shell-quote';
+import { quote } from "shell-quote";
 import { SmokeTestLogger } from "./smokeTestLogger";
 import { SmokeTestsConstants } from "./smokeTestsConstants";
 import { waitUntil, sleep } from "./utilities";
@@ -61,7 +61,7 @@ export default class AndroidEmulatorManager {
 
         const condition = () => {
             const result = cp
-                .execSync(`adb shell pm list packages `+ quote([`${appPackage}`]))
+                .execSync(`adb shell pm list packages ` + quote([`${appPackage}`]))
                 .toString()
                 .trim();
             if (result) {
