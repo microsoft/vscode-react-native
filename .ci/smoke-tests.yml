@@ -1,0 +1,7 @@
+steps:
+  - bash: npm run prepare-smoke-tests
+    displayName: "Prepare smoke tests"
+  - bash: npm run smoke-tests --verbose
+    displayName: "Run smoke tests"
+    env:
+      DISPLAY: ":99.0"

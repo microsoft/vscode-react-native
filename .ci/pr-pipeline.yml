@@ -14,10 +14,7 @@ jobs:
       - checkout: self
         clean: true
       - template: common-validation.yml
-      - bash: npm run smoke-tests --verbose
-        displayName: "Run smoke tests"
-        env:
-          DISPLAY: ":99.0"
+      - template: smoke-tests.yml
 
   - job: Windows
     pool:
@@ -27,10 +24,7 @@ jobs:
       - checkout: self
         clean: true
       - template: common-validation.yml
-      - bash: npm run smoke-tests --verbose
-        displayName: "Run smoke tests"
-        env:
-          DISPLAY: ":99.0"
+      - template: smoke-tests.yml
 
   - job: macOS
     pool:
@@ -40,7 +34,4 @@ jobs:
       - checkout: self
         clean: true
       - template: common-validation.yml
-      - bash: npm run smoke-tests --verbose
-        displayName: "Run smoke tests"
-        env:
-          DISPLAY: ":99.0"
+      - template: smoke-tests.yml
