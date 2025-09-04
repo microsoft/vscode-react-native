@@ -3,7 +3,7 @@
 
 import * as fs from "fs";
 import * as cp from "child_process";
-import { quote } from 'shell-quote';
+import { quote } from "shell-quote";
 import { dirname } from "path";
 import { SpawnSyncOptions } from "child_process";
 import { SmokeTestsConstants } from "./smokeTestsConstants";

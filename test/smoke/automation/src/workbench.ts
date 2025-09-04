@@ -24,7 +24,6 @@ export interface Commands {
 }
 
 export class Workbench {
-
     public readonly quickaccess: QuickAccess;
     public readonly quickinput: QuickInput;
     public readonly editors: Editors;
@@ -55,7 +54,13 @@ export class Workbench {
         this.debug = new Debug(code, this.quickaccess, this.editors, this.editor);
         this.statusbar = new StatusBar(code);
         this.problems = new Problems(code, this.quickaccess);
-        this.settingsEditor = new SettingsEditor(code, userDataPath, this.editors, this.editor, this.quickaccess);
+        this.settingsEditor = new SettingsEditor(
+            code,
+            userDataPath,
+            this.editors,
+            this.editor,
+            this.quickaccess,
+        );
         this.keybindingsEditor = new KeybindingsEditor(code);
         this.terminal = new Terminal(code, this.quickaccess);
         this.localization = new Localization(code);

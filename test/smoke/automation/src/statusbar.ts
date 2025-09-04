@@ -16,10 +16,9 @@ export const enum StatusBarElement {
 }
 
 export class StatusBar {
+    private readonly mainSelector = 'footer[id="workbench.parts.statusbar"]';
 
-	private readonly mainSelector = "footer[id=\"workbench.parts.statusbar\"]";
-
-    constructor(private code: Code) { }
+    constructor(private code: Code) {}
 
     public async waitForStatusbarElement(element: StatusBarElement): Promise<void> {
         await this.code.waitForElement(this.getSelector(element));
@@ -34,11 +33,16 @@ export class StatusBar {
     }
 
     public async waitForStatusbarText(title: string, text: string): Promise<void> {
-        await this.code.waitForTextContent(`${this.mainSelector} .statusbar-item[title="${title}"]`, text);
+        await this.code.waitForTextContent(
+            `${this.mainSelector} .statusbar-item[title="${title}"]`,
+            text,
+        );
     }
 
     public async waitForStatusbarLabel(text: string): Promise<void> {
-        await this.code.waitForElement(`${this.mainSelector} .statusbar-item[aria-label="${text}"]`);
+        await this.code.waitForElement(
+            `${this.mainSelector} .statusbar-item[aria-label="${text}"]`,
+        );
     }
 
     private getSelector(element: StatusBarElement): string {

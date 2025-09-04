@@ -4,18 +4,19 @@
 import { Code } from "./code";
 import { QuickAccess } from "./quickaccess";
 
-const PANEL_SELECTOR = "div[id=\"workbench.panel.terminal\"]";
+const PANEL_SELECTOR = 'div[id="workbench.panel.terminal"]';
 const XTERM_SELECTOR = `${PANEL_SELECTOR} .terminal-wrapper`;
 const XTERM_TEXTAREA = `${XTERM_SELECTOR} textarea.xterm-helper-textarea`;
 
 export class Terminal {
-
-    constructor(private code: Code, private quickaccess: QuickAccess) { }
+    constructor(private code: Code, private quickaccess: QuickAccess) {}
 
     public async showTerminal(): Promise<void> {
         await this.quickaccess.runCommand("workbench.action.terminal.toggleTerminal");
         await this.code.waitForActiveElement(XTERM_TEXTAREA);
-        await this.code.waitForTerminalBuffer(XTERM_SELECTOR, lines => lines.some(line => line.length > 0));
+        await this.code.waitForTerminalBuffer(XTERM_SELECTOR, lines =>
+            lines.some(line => line.length > 0),
+        );
     }
 
     public async showTerminalWithoutNecessaryFocus(): Promise<void> {

@@ -4,8 +4,7 @@
 import { Code } from "./code";
 
 export class Editors {
-
-    constructor(private code: Code) { }
+    constructor(private code: Code) {}
 
     public async saveOpenedFile(): Promise<any> {
         if (process.platform === "darwin") {
@@ -30,17 +29,31 @@ export class Editors {
         await this.waitForActiveEditor(fileName);
     }
 
-    public async waitForActiveTab(fileName: string, isDirty: boolean = false, isWebview?: boolean, retryCount?: number): Promise<void> {
+    public async waitForActiveTab(
+        fileName: string,
+        isDirty: boolean = false,
+        isWebview?: boolean,
+        retryCount?: number,
+    ): Promise<void> {
         await this.code.waitForElement(
-            `.tabs-container div.tab.active${isDirty ? ".dirty" : ""}[aria-selected="true"][${isWebview ? "title" : "data-resource-name$"}="${fileName}"]`,
+            `.tabs-container div.tab.active${isDirty ? ".dirty" : ""}[aria-selected="true"][${
+                isWebview ? "title" : "data-resource-name$"
+            }="${fileName}"]`,
             undefined,
             retryCount,
         );
     }
 
-    public async waitForTab(fileName: string, isDirty: boolean = false, isWebview?: boolean, retryCount?: number): Promise<void> {
+    public async waitForTab(
+        fileName: string,
+        isDirty: boolean = false,
+        isWebview?: boolean,
+        retryCount?: number,
+    ): Promise<void> {
         await this.code.waitForElement(
-            `.tabs-container div.tab${isDirty ? ".dirty" : ""}[${isWebview ? "title" : "data-resource-name$"}="${fileName}"]`,
+            `.tabs-container div.tab${isDirty ? ".dirty" : ""}[${
+                isWebview ? "title" : "data-resource-name$"
+            }="${fileName}"]`,
             undefined,
             retryCount,
         );
