@@ -1,14 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { startDirectDebugTests } from "./commands.test";
+import { startCommandPaletteTests } from "./commands.test";
 import { SmokeTestLogger } from "./helper/smokeTestLogger";
 import { smokeTestFail } from "./helper/utilities";
 
-export function startSmokeTests(
-    setup: () => Promise<void>,
-    cleanUp: () => Promise<void>,
-): void {
+export function startSmokeTests(setup: () => Promise<void>, cleanUp: () => Promise<void>): void {
     before(async function () {
         try {
             await cleanUp();
@@ -23,6 +20,6 @@ export function startSmokeTests(
     });
 
     describe("Extension smoke tests", () => {
-        startDirectDebugTests();
+        startCommandPaletteTests();
     });
 }

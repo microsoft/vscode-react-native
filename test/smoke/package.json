@@ -1,7 +1,7 @@
 {
   "name": "vscode-react-native-smoke-test",
   "version": "0.1.0",
-  "main": "./test/main.js",
+  "main": "./suites/main.js",
   "scripts": {
     "watch": "tsc --watch",
     "test": "tsc && node ./node_modules/mocha/bin/_mocha --config ./.mocharc.js --reporter mocha-multi-reporters"

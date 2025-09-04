@@ -26,6 +26,8 @@ VSCodeUserData
 vscode-react-native-*.vsix
 vscode-react-native-*.vsix.zip
 *-report
+!test/smoke/resources/sampleReactNativeProject/*.js
+test/smoke/*.xml
 
 # Sample Application auto-generated files
 SampleApplication/.vscode/.react/debuggerWorker.js

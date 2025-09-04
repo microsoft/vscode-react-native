@@ -6,7 +6,7 @@ import { Application } from "./helper/application";
 
 export const app = new Application();
 
-startSmokeTests( setUp, cleanUp);
+startSmokeTests(setUp, cleanUp);
 
 async function setUp(): Promise<void> {
     const vscodeExecutablePath = await app.downloadVSCodeExecutable();

@@ -259,6 +259,59 @@ export function waitUntil(
     });
 }
 
+export function waitConditionUntil<T>(
+    condition: () => Promise<T | null> | T | null,
+    interval: number = 1000,
+    timeout?: number,
+): Promise<T | null> {
+    return new Promise(async (resolve, reject) => {
+        let rejectTimeout: NodeJS.Timeout | undefined;
+        // eslint-disable-next-line prefer-const
+        let сheckInterval: NodeJS.Timeout | undefined;
+
+        if (timeout) {
+            rejectTimeout = setTimeout(() => {
+                // eslint-disable-next-line @typescript-eslint/no-use-before-define
+                cleanup();
+                resolve(null);
+            }, timeout);
+        }
+
+        const cleanup = () => {
+            if (rejectTimeout) {
+                clearTimeout(rejectTimeout);
+            }
+            if (сheckInterval) {
+                clearInterval(сheckInterval);
+            }
+        };
+
+        const tryToResolve = async (): Promise<boolean> => {
+            try {
+                const result = await condition();
+                if (result) {
+                    cleanup();
+                    resolve(result);
+                }
+                return !!result;
+            } catch (err) {
+                cleanup();
+                reject(err);
+                return false;
+            }
+        };
+
+        const resolved = await tryToResolve();
+        if (resolved) {
+            return;
+        }
+
+        сheckInterval = setInterval(async () => {
+            await tryToResolve();
+        }, interval);
+    });
+}
+
 export async function smokeTestFail(message: string): Promise<void> {
     SmokeTestLogger.error(message);
 }

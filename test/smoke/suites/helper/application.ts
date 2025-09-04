@@ -1,17 +1,23 @@
 import * as path from "path";
 import { _electron as electron, ElectronApplication, Page } from "playwright";
-import { downloadAndUnzipVSCode, resolveCliArgsFromVSCodeExecutablePath } from "@vscode/test-electron";
+import {
+    downloadAndUnzipVSCode,
+    resolveCliArgsFromVSCodeExecutablePath,
+} from "@vscode/test-electron";
 import * as utilities from "./utilities";
 import { SmokeTestLogger } from "./smokeTestLogger";
 import * as fs from "fs";
 import * as rimraf from "rimraf";
+import { Extension } from "./extension";
 
 export class Application {
     private app: ElectronApplication | null = null;
-    private page: Page | null = null;
+    private mainPage: Page | null = null;
+    private extension: Extension | null = null;
     private extensionDirectory = path.join(__dirname, "..", "..", ".vscode-test", "extensions");
     private userDataDirectory = path.join(__dirname, "..", "..", ".vscode-test", "user-data");
     private vsixDirectory = path.join(__dirname, "..", "..", "resources", "extension");
+    private projectPath = path.join(__dirname, "..", "..", "resources", "sampleReactNativeProject");
 
     async downloadVSCodeExecutable(): Promise<string> {
         const vscodeExecutablePath = await downloadAndUnzipVSCode("stable");
@@ -19,21 +25,23 @@ export class Application {
     }
 
     async launch(): Promise<Page> {
-        if (this.page) return this.page;
+        if (this.mainPage) return this.mainPage;
 
         const vscodeExecutablePath = await this.downloadVSCodeExecutable();
 
         const [...args] = resolveCliArgsFromVSCodeExecutablePath(vscodeExecutablePath);
+        args.push("--disable-workspace-trust");
 
         this.app = await electron.launch({
             executablePath: vscodeExecutablePath,
-            args: [path.resolve(__dirname, ".."), ...args],
+            args: [this.projectPath, ...args],
         });
 
-        this.page = await this.app.firstWindow();
-        await this.page.waitForSelector(".monaco-workbench");
+        this.mainPage = await this.app.firstWindow();
+        await this.mainPage.waitForSelector(".monaco-workbench");
 
-        return this.page;
+        await utilities.sleep(5000);
+        return this.mainPage;
     }
 
     async close(): Promise<void> {
@@ -46,30 +54,30 @@ export class Application {
         if (this.app) {
             await this.app.close();
             this.app = null;
-            this.page = null;
+            this.mainPage = null;
         }
     }
 
-    async installExtensionFromVSIX(vscodeExecutablePath: string): Promise<void> {
+    async installExtensionFromVSIX(vscodeExecutablePath: string): Promise<Extension> {
         const [cliPath, ...args] = resolveCliArgsFromVSCodeExecutablePath(vscodeExecutablePath);
         args.push(`--extensions-dir=${this.extensionDirectory}`);
         let extensionFile = utilities.findFile(this.vsixDirectory, /.*\.(vsix)/);
         if (!extensionFile) {
-            throw new Error(
-                `React Native extension .vsix is not found in ${this.vsixDirectory}`,
-            );
+            throw new Error(`React Native extension .vsix is not found in ${this.vsixDirectory}`);
         }
 
         extensionFile = path.join(this.vsixDirectory, extensionFile);
         args.push(`--install-extension=${extensionFile}`);
-
         utilities.spawnSync(cliPath, args, { stdio: "inherit" });
+
+        this.extension = new Extension();
+        return this.extension;
     }
 
-    getPage(): Page {
-        if (!this.page) {
+    getMainPage(): Page {
+        if (!this.mainPage) {
             throw new Error("VSCode has not been launched yet.");
         }
-        return this.page;
+        return this.mainPage;
     }
 }

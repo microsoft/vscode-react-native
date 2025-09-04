@@ -3,10 +3,10 @@
 
 import { SmokeTestLogger } from "./helper/smokeTestLogger";
 import { app } from "./main";
-import { expect } from "chai";
+import * as assert from "assert";
 
-export function startDirectDebugTests(): void {
-    describe("Command palette", () => {
+export function startCommandPaletteTests(): void {
+    describe("Command palette test", () => {
         async function initApp(): Promise<void> {
             await app.launch();
         }
@@ -26,29 +26,22 @@ export function startDirectDebugTests(): void {
 
         afterEach(disposeAll);
 
-        it("Command test", async () => {
+        it("Verify react native command is visible in command palette", async () => {
             await initApp();
-            const page = app.getPage();
+            const page = app.getMainPage();
             const cmdKey = process.platform === "darwin" ? "Meta" : "Control";
 
             await page.keyboard.press(`${cmdKey}+Shift+P`);
             await page.waitForSelector(".quick-input-widget", { timeout: 10000 });
 
-            await page.keyboard.type("React");
-            await page.keyboard.press("Enter");
+            await page.keyboard.type("React Native: Start Packager");
 
-            await page.waitForSelector(".editor-instance .view-lines", {
+            const option = await page.waitForSelector("#quickInput_list .monaco-list-row.focused", {
                 timeout: 30000,
             });
+            const value = await option.getAttribute("aria-label");
 
-            await page.keyboard.type("Hello VSCode UI Test!");
-            await page.keyboard.press(`${cmdKey}+S`);
-
-            const content = await page.$eval(
-                ".editor-instance .view-lines",
-                (el) => el.textContent?.replace(/\s+/g, "")
-            );
-            expect(content).to.contain("HelloVSCodeUITest!");
+            assert.ok(value?.includes("React Native: Start Packager"));
         });
     });
 }
