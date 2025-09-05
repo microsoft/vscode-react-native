@@ -59,6 +59,14 @@ export class Application {
             SmokeTestLogger.info("Cannot clean up user data, will try it again in test setup.");
         }
 
+        try {
+            await this.cleanExtensionData();
+        } catch {
+            SmokeTestLogger.info(
+                "Cannot clean up extension data, will try it again in test setup.",
+            );
+        }
+
         if (this.app) {
             await this.app.close();
             this.app = null;
@@ -76,7 +84,12 @@ export class Application {
 
         extensionFile = path.join(this.vsixDirectory, extensionFile);
         args.push(`--install-extension=${extensionFile}`);
-        utilities.spawnSync(cliPath, args, { stdio: "inherit", shell: true });
+
+        if (process.platform == "win32") {
+            utilities.spawnSync(cliPath, args, { stdio: "inherit", shell: true });
+        } else {
+            utilities.spawnSync(cliPath, args, { stdio: "inherit" });
+        }
 
         this.extension = new Extension();
         return this.extension;
@@ -95,6 +108,13 @@ export class Application {
                 `*** Deleting VS Code temporary user data dir: ${this.userDataDirectory}`,
             );
             rimraf.sync(this.userDataDirectory);
+        }
+    }
+
+    async cleanExtensionData(): Promise<void> {
+        if (fs.existsSync(this.extensionDirectory)) {
+            SmokeTestLogger.info(`*** Deleting VS Code extension dir: ${this.extensionDirectory}`);
+            rimraf.sync(this.extensionDirectory);
         }
     }
 }

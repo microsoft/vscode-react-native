@@ -7,18 +7,34 @@ export class Screenshots {
     private application = app;
     private screenshotFolder = path.join(__dirname, "..", "..", "screenshots");
 
-    async createScreenshotsFolder(): Promise<void> {
+    async createScreenshotsFolder(platform: string): Promise<void> {
         if (!fs.existsSync(this.screenshotFolder)) {
-            mkdirp.sync(this.screenshotFolder);
+            mkdirp.sync(path.join(this.screenshotFolder, platform));
         }
     }
 
-    async takeScreenshots(fileName: string): Promise<void> {
-        await this.createScreenshotsFolder();
+    async prepareScreenshotFolderForPlatform(): Promise<string> {
+        switch (process.platform) {
+            case "win32":
+                await this.createScreenshotsFolder("windows");
+                return "windows";
+            case "linux":
+                await this.createScreenshotsFolder("linux");
+                return "linux";
+            case "darwin":
+                await this.createScreenshotsFolder("macos");
+                return "macos";
+            default:
+                return "other";
+        }
+    }
+
+    async takeScreenshots(suiteName: string, fileName: string): Promise<void> {
+        const platform = await this.prepareScreenshotFolderForPlatform();
 
         const mainPage = this.application.getMainPage();
         await mainPage.screenshot({
-            path: `screenshots/commandPaletteTest/${fileName}.jpg`,
+            path: `screenshots/${platform}/${suiteName}/${fileName}.jpg`,
             fullPage: true,
         });
     }

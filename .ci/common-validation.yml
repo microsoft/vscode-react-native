@@ -1,8 +1,8 @@
 steps:
   - task: NodeTool@0
-    displayName: "Use Node 18.x"
+    displayName: "Use Node 20.x"
     inputs:
-      versionSpec: 18.x
+      versionSpec: 20.x
   - bash: npm install gulp react-devtools @vscode/vsce -g --force
     displayName: "npm install gulp react-devtools @vscode/vsce -g"
   - bash: npm ci
