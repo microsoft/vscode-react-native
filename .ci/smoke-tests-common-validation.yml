@@ -1,9 +1,9 @@
 steps:
   - task: Gulp@0
-    displayName: gulp release --nightly
+    displayName: gulp release
     inputs:
       targets: release
-      arguments: --nightly
+      arguments: "--nightly --no-yarn"
   - task: CopyFiles@2
     displayName: "Copy Files to: $(Build.ArtifactStagingDirectory)"
     inputs:
