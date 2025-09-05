@@ -113,9 +113,7 @@ export class Application {
 
     async cleanExtensionData(): Promise<void> {
         if (fs.existsSync(this.extensionDirectory)) {
-            SmokeTestLogger.info(
-                `*** Deleting VS Code temporary user data dir: ${this.extensionDirectory}`,
-            );
+            SmokeTestLogger.info(`*** Deleting VS Code extension dir: ${this.extensionDirectory}`);
             rimraf.sync(this.extensionDirectory);
         }
     }
