@@ -7,6 +7,7 @@ steps:
       DISPLAY: ":99.0"
   - task: PublishBuildArtifacts@1
     displayName: "Publish screenshots"
+    condition: succeededOrFailed()
     inputs:
       PathtoPublish: '$(System.DefaultWorkingDirectory)/test/smoke/screenshots'
       ArtifactName: 'smoke-test-screenshots'
