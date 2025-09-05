@@ -1,0 +1,24 @@
+{
+	"compilerOptions": {
+		"module": "commonjs",
+		"noImplicitAny": false,
+		"removeComments": false,
+		"preserveConstEnums": true,
+		"target": "es2016",
+		"strictNullChecks": true,
+		"noUnusedParameters": false,
+		"noUnusedLocals": true,
+		"outDir": "out",
+		"sourceMap": true,
+		"skipLibCheck": true,
+		"lib": [
+			"es2017",
+			"dom"
+		],
+		"types": ["mocha"]
+	},
+	"exclude": [
+		"node_modules",
+		"resources"
+	]
+}
