@@ -15,7 +15,7 @@ export class Application {
     private mainPage: Page | null = null;
     private extension: Extension | null = null;
     private extensionDirectory = path.join(__dirname, "..", "..", ".vscode-test", "extensions");
-    private userDataDirectory = path.join(__dirname, "..", "..", ".vscode-test", "user-data");
+    private userDataDirectory = path.join(__dirname, "..", "..", ".vscode-test", "temp-user-data");
     private vsixDirectory = path.join(__dirname, "..", "..", "resources", "extension");
     private projectPath = path.join(__dirname, "..", "..", "resources", "sampleReactNativeProject");
 
@@ -33,6 +33,13 @@ export class Application {
         args.push("--disable-workspace-trust");
         args.push("--no-sandbox");
 
+        const userDataIndex = args.findIndex(arg => arg.startsWith("--user-data-dir="));
+        if (userDataIndex >= 0) {
+            args[userDataIndex] = `--user-data-dir=${this.userDataDirectory}`;
+        } else {
+            args.push(`--user-data-dir=${this.userDataDirectory}`);
+        }
+
         this.app = await electron.launch({
             executablePath: vscodeExecutablePath,
             args: [this.projectPath, ...args],
@@ -46,12 +53,12 @@ export class Application {
     }
 
     async close(): Promise<void> {
-        if (fs.existsSync(this.userDataDirectory)) {
-            SmokeTestLogger.info(
-                `*** Deleting VS Code temporary user data dir: ${this.userDataDirectory}`,
-            );
-            rimraf.sync(this.userDataDirectory);
+        try {
+            await this.cleanUserData();
+        } catch {
+            SmokeTestLogger.info("Cannot clean up user data, will try it again in test setup.");
         }
+
         if (this.app) {
             await this.app.close();
             this.app = null;
@@ -69,7 +76,7 @@ export class Application {
 
         extensionFile = path.join(this.vsixDirectory, extensionFile);
         args.push(`--install-extension=${extensionFile}`);
-        utilities.spawnSync(cliPath, args, { stdio: "inherit" });
+        utilities.spawnSync(cliPath, args, { stdio: "inherit", shell: true });
 
         this.extension = new Extension();
         return this.extension;
@@ -80,5 +87,14 @@ export class Application {
             throw new Error("VSCode has not been launched yet.");
         }
         return this.mainPage;
+    }
+
+    async cleanUserData(): Promise<void> {
+        if (fs.existsSync(this.userDataDirectory)) {
+            SmokeTestLogger.info(
+                `*** Deleting VS Code temporary user data dir: ${this.userDataDirectory}`,
+            );
+            rimraf.sync(this.userDataDirectory);
+        }
     }
 }

@@ -8,6 +8,7 @@ import * as assert from "assert";
 export function startCommandPaletteTests(): void {
     describe("Command palette test", () => {
         async function initApp(): Promise<void> {
+            await app.cleanUserData();
             await app.launch();
         }
 
