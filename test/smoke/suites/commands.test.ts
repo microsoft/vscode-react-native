@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { SmokeTestLogger } from "./helper/smokeTestLogger";
-import { app } from "./main";
+import { app, screenshots } from "./main";
 import * as assert from "assert";
 
 export function startCommandPaletteTests(): void {
@@ -45,10 +45,7 @@ export function startCommandPaletteTests(): void {
             try {
                 assert.ok(value?.includes("React Native: Start Packager"));
             } catch {
-                await page.screenshot({
-                    path: "screenshots/commandPaletteTest/testFailure1.png",
-                    fullPage: true,
-                });
+                await screenshots.takeScreenshots("CommandVisibleTest");
             }
         });
     });

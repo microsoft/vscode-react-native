@@ -3,8 +3,10 @@
 
 import { startSmokeTests } from "./smoke.test";
 import { Application } from "./helper/application";
+import { Screenshots } from "./helper/screenshot";
 
 export const app = new Application();
+export const screenshots = new Screenshots();
 
 startSmokeTests(setUp, cleanUp);
 
