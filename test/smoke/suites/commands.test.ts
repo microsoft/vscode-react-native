@@ -29,6 +29,7 @@ export function startCommandPaletteTests(): void {
         it("Verify react native command is visible in command palette", async () => {
             await initApp();
             const page = app.getMainPage();
+
             const cmdKey = process.platform === "darwin" ? "Meta" : "Control";
 
             await page.keyboard.press(`${cmdKey}+Shift+P`);
@@ -44,7 +45,7 @@ export function startCommandPaletteTests(): void {
             try {
                 assert.ok(value?.includes("React Native: Start Packager"));
             } catch {
-                await screenshots.takeScreenshots("CommandVisibleTest");
+                await screenshots.takeScreenshots("CommandPaletteTest", "VerifyCommandVisible");
             }
         });
     });
