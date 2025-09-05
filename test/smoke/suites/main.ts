@@ -12,7 +12,9 @@ startSmokeTests(setUp, cleanUp);
 
 async function setUp(): Promise<void> {
     const vscodeExecutablePath = await app.downloadVSCodeExecutable();
+    await app.cleanUserData();
     await app.installExtensionFromVSIX(vscodeExecutablePath);
+    await screenshots.createScreenshotsFolder();
 }
 
 async function cleanUp(): Promise<void> {
