@@ -1,0 +1,13 @@
+steps:
+  - bash: npm run prepare-smoke-tests
+    displayName: "Prepare smoke tests"
+  - bash: npm run smoke-tests --verbose
+    displayName: "Run smoke tests"
+    env:
+      DISPLAY: ":99.0"
+  - task: PublishBuildArtifacts@1
+    displayName: "Publish screenshots"
+    inputs:
+      PathtoPublish: '$(System.DefaultWorkingDirectory)/test/smoke/screenshots'
+      ArtifactName: 'smoke-test-screenshots'
+      publishLocation: 'Container'

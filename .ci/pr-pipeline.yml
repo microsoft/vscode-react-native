@@ -14,7 +14,7 @@ jobs:
       - checkout: self
         clean: true
       - template: common-validation.yml
-      - template: smoke-tests.yml
+      - template: smoke-tests-common-validation.yml
 
   - job: Windows
     pool:
@@ -24,7 +24,7 @@ jobs:
       - checkout: self
         clean: true
       - template: common-validation.yml
-      - template: smoke-tests.yml
+      - template: smoke-tests-common-validation.yml
 
   - job: macOS
     pool:
@@ -34,4 +34,4 @@ jobs:
       - checkout: self
         clean: true
       - template: common-validation.yml
-      - template: smoke-tests.yml
+      - template: smoke-tests-common-validation.yml
