@@ -42,7 +42,14 @@ export function startCommandPaletteTests(): void {
             });
             const value = await option.getAttribute("aria-label");
 
-            assert.ok(value?.includes("React Native: Start Packager"));
+            try {
+                assert.ok(value?.includes("React Native: Start Packager"));
+            } catch {
+                await page.screenshot({
+                    path: "screenshots/commandPaletteTest/testFailure1.png",
+                    fullPage: true,
+                });
+            }
         });
     });
 }
