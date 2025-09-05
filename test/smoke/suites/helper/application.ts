@@ -31,6 +31,7 @@ export class Application {
 
         const [...args] = resolveCliArgsFromVSCodeExecutablePath(vscodeExecutablePath);
         args.push("--disable-workspace-trust");
+        args.push("--no-sandbox");
 
         this.app = await electron.launch({
             executablePath: vscodeExecutablePath,
