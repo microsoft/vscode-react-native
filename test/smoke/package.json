@@ -25,7 +25,6 @@
     "gulp-chmod": "^4.0.0",
     "gulp-filter": "^9.0.1",
     "gulp-gunzip": "1.1.0",
-    "gulp-untar": "^0.0.8",
     "gulp-vinyl-zip": "2.5.0",
     "minimatch": "^10.0.3",
     "mkdirp": "^3.0.1",
