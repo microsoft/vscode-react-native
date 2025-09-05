@@ -5,6 +5,8 @@ steps:
     displayName: "Run smoke tests"
     env:
       DISPLAY: ":99.0"
+  - script: mkdir -p $(System.DefaultWorkingDirectory)/test/smoke/screenshots
+    displayName: 'Create screenshots folder
   - task: PublishBuildArtifacts@1
     displayName: "Publish screenshots"
     condition: succeededOrFailed()
