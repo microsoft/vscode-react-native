@@ -7,8 +7,6 @@ steps:
   - bash: gulp release --nightly --no-yarn
     displayName: "gulp release: linux, macos"
     condition: or(eq(variables['Agent.OS'], 'Linux'), eq(variables['Agent.OS'], 'Darwin'))
-    inputs:
-      script: "gulp release --nightly --no-yarn"
   - task: CopyFiles@2
     displayName: "Copy Files to: $(Build.ArtifactStagingDirectory)"
     inputs:
