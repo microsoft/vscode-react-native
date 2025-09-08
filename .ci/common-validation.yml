@@ -3,10 +3,12 @@ steps:
     displayName: "Use Node 20.x"
     inputs:
       versionSpec: 20.x
-  - bash: npm install gulp react-devtools @vscode/vsce -g --force
-    displayName: "npm install gulp react-devtools @vscode/vsce -g"
+  - bash: npm install gulp @vscode/vsce -g --force
+    displayName: "npm install gulp @vscode/vsce -g"
   - bash: npm ci
     displayName: "npm ci"
+  - bash: gulp
+    displayName: "gulp"
   - bash: npm run build
     displayName: "npm run build"
   - bash: |
