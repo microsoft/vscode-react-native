@@ -1,5 +1,5 @@
 steps:
-  - script: gulp release --nightly --no-yarn
+  - script: gulp release --nightly --no-yarn --no-prepublish
     displayName: "gulp release"
   - task: CopyFiles@2
     displayName: "Copy Files to: $(Build.ArtifactStagingDirectory)"
