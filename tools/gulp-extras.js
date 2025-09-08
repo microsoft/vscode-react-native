@@ -4,10 +4,10 @@
 
 const child_process = require("child_process");
 const fs = require("fs");
-const log = require('fancy-log');
-const colors = require('ansi-colors');
+const log = require("fancy-log");
+const colors = require("ansi-colors");
 const path = require("path");
-const PluginError = require('plugin-error');
+const PluginError = require("plugin-error");
 const through = require("through2");
 
 /**
@@ -27,29 +27,35 @@ function logError(pluginName, file, message) {
 function checkCopyright() {
     const pluginName = "check-copyright";
     let hadErrors = false;
-    const copyrightNotice = "// Copyright (c) Microsoft Corporation. All rights reserved.\n// Licensed under the MIT license. See LICENSE file in the project root for details.";
+    const copyrightNotice =
+        "// Copyright (c) Microsoft Corporation. All rights reserved.\n// Licensed under the MIT license. See LICENSE file in the project root for details.";
 
-    return through.obj(function (file, encoding, callback) {
-        if (file.isBuffer()) {
-            let fileContents = file.contents.toString(encoding);
-            fileContents = fileContents.replace("\r\n", "\n");
-            fileContents = fileContents.replace("\"use strict\";\n", "");
-            fileContents = fileContents.replace("Object.defineProperty(exports, \"__esModule\", { value: true });\n", "");
+    return through.obj(
+        function (file, encoding, callback) {
+            if (file.isBuffer()) {
+                let fileContents = file.contents.toString(encoding);
+                fileContents = fileContents.replace("\r\n", "\n");
+                fileContents = fileContents.replace('"use strict";\n', "");
+                fileContents = fileContents.replace(
+                    'Object.defineProperty(exports, "__esModule", { value: true });\n',
+                    "",
+                );
 
-            if (fileContents.indexOf(copyrightNotice) !== 0) {
-                logError(pluginName, file, "missing copyright notice");
-                hadErrors = true;
+                if (fileContents.indexOf(copyrightNotice) !== 0) {
+                    logError(pluginName, file, "missing copyright notice");
+                    hadErrors = true;
+                }
             }
-        }
 
-        callback(null, file);
-    },
+            callback(null, file);
+        },
         function (callback) {
             if (hadErrors) {
                 return this.emit("error", new PluginError(pluginName, "Failed copyright check"));
             }
             callback();
-        });
+        },
+    );
 }
 
 /**
@@ -67,25 +73,29 @@ function existsCaseSensitive(filePath) {
 }
 
 function executeCommand(command, args, callback, opts) {
-    const proc = child_process.spawn(command + (process.platform === "win32" ? ".cmd" : ""), args, Object.assign({}, opts, { shell: true }));
+    const proc = child_process.spawn(
+        command + (process.platform === "win32" ? ".cmd" : ""),
+        args,
+        Object.assign({}, opts, { shell: true }),
+    );
     let errorSignaled = false;
 
-    proc.stdout.on("data", (data) => {
+    proc.stdout.on("data", data => {
         log(`${data}`);
     });
 
-    proc.stderr.on("data", (data) => {
+    proc.stderr.on("data", data => {
         log.error(`${data}`);
     });
 
-    proc.on("error", (error) => {
+    proc.on("error", error => {
         if (!errorSignaled) {
             callback(`An error occurred. ${error}`);
             errorSignaled = true;
         }
     });
 
-    proc.on("exit", (code) => {
+    proc.on("exit", code => {
         if (code === 0) {
             callback();
         } else if (!errorSignaled) {
@@ -95,7 +105,29 @@ function executeCommand(command, args, callback, opts) {
     });
 }
 
+async function withTimeout(promise, ms, { onTimeout, fallbackValue } = {}) {
+    let timer;
+    const guarded = promise
+        .then(value => ({ kind: "ok", value }))
+        .catch(error => ({ kind: "error", error }));
+
+    const timed = new Promise(resolve => {
+        timer = setTimeout(() => {
+            if (onTimeout) onTimeout();
+            resolve({ kind: "timeout", value: fallbackValue });
+        }, ms);
+    });
+
+    const result = await Promise.race([guarded, timed]);
+    clearTimeout(timer);
+
+    if (result.kind === "error") throw result.error;
+    if (result.kind === "timeout") return result.value;
+    return result.value;
+}
+
 module.exports = {
     checkCopyright,
-    executeCommand
-}
+    executeCommand,
+    withTimeout,
+};

@@ -30,6 +30,7 @@
   ],
   "activationEvents": [
     "workspaceContains:node_modules/react-native",
+    "workspaceContains:metro.config.js",
     "onDebugResolve:reactnative",
     "onDebugResolve:reactnativedirect",
     "onDebugDynamicConfigurations:reactnative",

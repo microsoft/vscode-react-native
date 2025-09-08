@@ -1,4 +1,12 @@
 steps:
+  - script: gulp release --nightly --no-yarn --no-prepublish
+    displayName: "gulp release"
+  - task: CopyFiles@2
+    displayName: "Copy Files to: $(Build.ArtifactStagingDirectory)"
+    inputs:
+      Contents: |
+        $(System.DefaultWorkingDirectory)/*.vsix
+      TargetFolder: "$(System.DefaultWorkingDirectory)/test/smoke/resources/extension"
   - bash: npm run prepare-smoke-tests
     displayName: "Prepare smoke tests"
   - bash: npm run smoke-tests --verbose
@@ -8,6 +16,6 @@ steps:
   - task: PublishBuildArtifacts@1
     displayName: "Publish screenshots"
     inputs:
-      PathtoPublish: '$(System.DefaultWorkingDirectory)/test/smoke/screenshots'
+      PathtoPublish: "$(System.DefaultWorkingDirectory)/test/smoke/screenshots"
       ArtifactName: 'smoke-test-screenshots'
       publishLocation: 'Container'

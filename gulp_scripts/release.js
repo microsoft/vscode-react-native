@@ -7,6 +7,7 @@ const GulpExtras = require("../tools/gulp-extras");
 
 const isNightly = process.argv.includes("--nightly");
 const useNpm = process.argv.includes("--no-yarn");
+const isPrepublish = process.argv.includes("--no-prepublish");
 const extensionName = isNightly ? "vscode-react-native-preview" : "vscode-react-native";
 const executeCommand = GulpExtras.executeCommand;
 
@@ -46,6 +47,13 @@ function prepareLicenses() {
         .then(() => {
             let packageJson = readJson("/package.json");
             packageJson.main = "/dist/rn-extension";
+
+            if (isPrepublish) {
+                log("Ignore vscode:prepublish script before vsce package");
+                const scripts = packageJson.scripts;
+                delete scripts["vscode:prepublish"];
+            }
+
             if (isNightly) {
                 log("Performing gulp release...");
                 packageJson.version = getVersionNumber();
