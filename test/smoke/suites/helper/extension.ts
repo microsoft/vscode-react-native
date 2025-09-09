@@ -1,21 +1,23 @@
-import { app } from "../main";
-import { waitConditionUntil } from "./utilities";
+import { Page } from "playwright";
+import { SmokeTestLogger } from "./smokeTestLogger";
 
 export class Extension {
-    private application = app;
-    private extensionId = "msjsdiag.vscode-react-native";
+    async checkExtensionActivated(page: Page): Promise<boolean> {
+        const prodExtensionId = "msjsdiag.vscode-react-native.togglePackagerItem";
+        const previewExtensionId = "msjsdiag.vscode-react-native-preview.togglePackagerItem";
 
-    async waitForExtensionActive(): Promise<void> {
-        const mainPage = this.application.getMainPage();
-        if (!mainPage) {
-            throw new Error("VSCode must be launched before waiting for extension activation.");
+        try {
+            await page.waitForSelector(`[id="${previewExtensionId}"]`, { timeout: 2000 });
+            SmokeTestLogger.info("React-native-preview extension is activated");
+            return true;
+        } catch {
+            try {
+                await page.waitForSelector(`[id="${prodExtensionId}"]`, { timeout: 2000 });
+                SmokeTestLogger.info("React-native-prod extension is activated");
+                return true;
+            } catch {
+                return false;
+            }
         }
-        await waitConditionUntil(
-            () =>
-                (window as any).vscode?.extensions?.getExtension(this.extensionId)?.isActive ==
-                true,
-            1000,
-            10000,
-        );
     }
 }
