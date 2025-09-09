@@ -5,6 +5,8 @@ import { Page } from "playwright";
 import { SmokeTestLogger } from "./helper/smokeTestLogger";
 import { app, screenshots } from "./main";
 import assert = require("assert");
+import { ElementHelper } from "./helper/elementHelper";
+import { Constant } from "./helper/constants";
 
 export function startExtensionActivationTests(): void {
     describe("ExtensionActivationTest", () => {
@@ -40,8 +42,28 @@ export function startExtensionActivationTests(): void {
         afterEach(dispose);
 
         it("Verify extension is activated", async () => {
-            const page = await initApp();
-            const isActivited = await app.getExtension().checkExtensionActivated(page);
+            let isActivited = false;
+            await initApp();
+
+            try {
+                await ElementHelper.WaitElementSelectorVisible(
+                    `[id="${Constant.previewExtensionId}"]`,
+                    2000,
+                );
+                SmokeTestLogger.info("React-native-preview extension is activated");
+                isActivited = true;
+            } catch {
+                try {
+                    await ElementHelper.WaitElementSelectorVisible(
+                        `[id="${Constant.prodExtensionId}"]`,
+                        2000,
+                    );
+                    SmokeTestLogger.info("React-native-prod extension is activated");
+                    isActivited = true;
+                } catch {
+                    isActivited = false;
+                }
+            }
             assert.ok(isActivited, "Extension is not activated. Skip other test cases...");
         });
     });

@@ -1418,6 +1418,7 @@
     "test-localization": "node ./test/localization/runTest.js",
     "prepare": "husky install",
     "prepare-smoke-tests": "cd test/smoke && npm ci",
+    "prepare-smoke-tests-project": "cd test/smoke/resources/sampleReactNativeProject && npm install",
     "smoke-tests": "cd test/smoke && tsc && node ./node_modules/mocha/bin/_mocha --config ./.mocharc.js --reporter mocha-multi-reporters"
   },
   "prettier": {

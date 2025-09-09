@@ -9,16 +9,20 @@ src/**/nodeDebugLocation.json
 nls.*.json
 test/*.xml
 test/resources/projects/*
+test/**/*.js
+!test/**/.eslintrc.js
+test/smoke/vscode
+test/smoke/resources/sampleReactNativeProject
+!test/smoke/resources/sampleReactNativeProject/*.js
+!test/resources/sampleReactNativeProject/metro.config.js
+!test/resources/newVersionReactNativeProject/*.js
+test/smoke/*.xml
+test/smoke/screenshots
 
 # Compiled files
 src/**/*.js
 dist/**
 !src/extension/appcenter/lib/**/*.js
-test/**/*.js
-!test/resources/sampleReactNativeProject/metro.config.js
-!test/resources/newVersionReactNativeProject/*.js
-!test/**/.eslintrc.js
-test/smoke/vscode
 !gulpfile.js
 SmokeTestLogs
 VSCodeUserData
@@ -26,9 +30,6 @@ VSCodeUserData
 vscode-react-native-*.vsix
 vscode-react-native-*.vsix.zip
 *-report
-!test/smoke/resources/sampleReactNativeProject/*.js
-test/smoke/*.xml
-test/smoke/screenshots
 
 # Sample Application auto-generated files
 SampleApplication/.vscode/.react/debuggerWorker.js

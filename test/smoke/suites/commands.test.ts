@@ -5,6 +5,8 @@ import { Page } from "playwright";
 import { SmokeTestLogger } from "./helper/smokeTestLogger";
 import { app, screenshots } from "./main";
 import * as assert from "assert";
+import { ElementHelper } from "./helper/elementHelper";
+import { Element } from "./helper/constants";
 
 export function startCommandPaletteTests(): void {
     describe("CommandPaletteTest", () => {
@@ -40,19 +42,20 @@ export function startCommandPaletteTests(): void {
         afterEach(dispose);
 
         it("Verify react native command is visible in command palette", async () => {
-            const page = await initApp();
+            const text = "React Native: Start Packager";
+            await initApp();
 
-            const cmdKey = process.platform === "darwin" ? "Meta" : "Control";
-            await page.keyboard.press(`${cmdKey}+Shift+P`);
-            await page.waitForSelector(".quick-input-widget", { timeout: 10000 });
+            await ElementHelper.openCommandPalette();
+            await ElementHelper.WaitElementClassNameVisible(Element.commandPaletteClassName, 5000);
 
-            await page.keyboard.type("React Native: Start Packager");
-            const option = await page.waitForSelector("#quickInput_list .monaco-list-row.focused", {
-                timeout: 30000,
-            });
+            await ElementHelper.inputText(text);
+            const option = await ElementHelper.WaitElementSelectorVisible(
+                Element.commandPaletteFocusedItemSelector,
+                5000,
+            );
 
             const value = await option.getAttribute("aria-label");
-            assert.ok(value?.includes("React Native: Start Packager"));
+            assert.ok(value?.includes(text));
         });
     });
 }
