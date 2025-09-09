@@ -14,6 +14,8 @@ export class Application {
     private app: ElectronApplication | null = null;
     private mainPage: Page | null = null;
     private extension: Extension | null = null;
+    private vscodeExecutablePath: string | null = null;
+    private isExtensionActivited: boolean = false;
     private extensionDirectory = path.join(__dirname, "..", "..", ".vscode-test", "extensions");
     private userDataDirectory = path.join(__dirname, "..", "..", ".vscode-test", "temp-user-data");
     private vsixDirectory = path.join(__dirname, "..", "..", "resources", "extension");
@@ -27,8 +29,11 @@ export class Application {
     async launch(): Promise<Page> {
         if (this.mainPage) return this.mainPage;
 
-        const vscodeExecutablePath = await this.downloadVSCodeExecutable();
+        if (!this.vscodeExecutablePath) {
+            throw new Error("VSCode has not been downloaded yet.");
+        }
 
+        const vscodeExecutablePath = this.vscodeExecutablePath;
         const [...args] = resolveCliArgsFromVSCodeExecutablePath(vscodeExecutablePath);
         args.push("--disable-workspace-trust");
         args.push("--no-sandbox");
@@ -59,14 +64,6 @@ export class Application {
             SmokeTestLogger.info("Cannot clean up user data, will try it again in test setup.");
         }
 
-        try {
-            await this.cleanExtensionData();
-        } catch {
-            SmokeTestLogger.info(
-                "Cannot clean up extension data, will try it again in test setup.",
-            );
-        }
-
         if (this.app) {
             await this.app.close();
             this.app = null;
@@ -91,8 +88,9 @@ export class Application {
             utilities.spawnSync(cliPath, args, { stdio: "inherit" });
         }
 
-        this.extension = new Extension();
-        return this.extension;
+        const extension = new Extension();
+        this.extension = extension;
+        return extension;
     }
 
     getMainPage(): Page {
@@ -100,6 +98,28 @@ export class Application {
             throw new Error("VSCode has not been launched yet.");
         }
         return this.mainPage;
+    }
+
+    getExtension(): Extension {
+        if (!this.extension) {
+            throw new Error("VSCode has not been launched yet.");
+        }
+        return this.extension;
+    }
+
+    setVSCodeExecutablePath(vscodeExecutablePath: string) {
+        this.vscodeExecutablePath = vscodeExecutablePath;
+    }
+
+    setExtensionStatus(isActivited: boolean) {
+        this.isExtensionActivited = isActivited;
+    }
+
+    getExtensionStatus(): boolean {
+        if (!this.isExtensionActivited) {
+            throw new Error("Cannot get extension status.");
+        }
+        return this.isExtensionActivited;
     }
 
     async cleanUserData(): Promise<void> {

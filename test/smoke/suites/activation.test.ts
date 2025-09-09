@@ -4,10 +4,10 @@
 import { Page } from "playwright";
 import { SmokeTestLogger } from "./helper/smokeTestLogger";
 import { app, screenshots } from "./main";
-import * as assert from "assert";
+import assert = require("assert");
 
-export function startCommandPaletteTests(): void {
-    describe("CommandPaletteTest", () => {
+export function startExtensionActivationTests(): void {
+    describe("ExtensionActivationTest", () => {
         async function initApp(): Promise<Page> {
             await app.launch();
             return app.getMainPage();
@@ -39,20 +39,10 @@ export function startCommandPaletteTests(): void {
 
         afterEach(dispose);
 
-        it("Verify react native command is visible in command palette", async () => {
+        it("Verify extension is activated", async () => {
             const page = await initApp();
-
-            const cmdKey = process.platform === "darwin" ? "Meta" : "Control";
-            await page.keyboard.press(`${cmdKey}+Shift+P`);
-            await page.waitForSelector(".quick-input-widget", { timeout: 10000 });
-
-            await page.keyboard.type("React Native: Start Packager");
-            const option = await page.waitForSelector("#quickInput_list .monaco-list-row.focused", {
-                timeout: 30000,
-            });
-
-            const value = await option.getAttribute("aria-label");
-            assert.ok(value?.includes("React Native: Start Packager"));
+            const isActivited = await app.getExtension().checkExtensionActivated(page);
+            assert.ok(isActivited, "Extension is not activated. Skip other test cases...");
         });
     });
 }
