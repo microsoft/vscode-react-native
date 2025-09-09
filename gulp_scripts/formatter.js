@@ -15,6 +15,7 @@ const runPrettier = async fix => {
             "!test/smoke/.vscode-test/**",
             "!src/**/*.d.ts",
             "!SECURITY.md",
+            "!test/smoke/resources/sampleReactNativeProject/**"
         ],
         {
             stdio: "inherit",
