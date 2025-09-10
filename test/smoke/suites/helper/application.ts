@@ -115,7 +115,7 @@ export class Application {
     async cleanUserData(): Promise<void> {
         if (fs.existsSync(this.userDataDirectory)) {
             SmokeTestLogger.info(
-                `*** Deleting VS Code temporary user data dir: ${this.userDataDirectory}`,
+                `Deleting VSCode temporary user data dir: ${this.userDataDirectory}`,
             );
             rimraf.sync(this.userDataDirectory);
         }
@@ -123,7 +123,7 @@ export class Application {
 
     async cleanExtensionData(): Promise<void> {
         if (fs.existsSync(this.extensionDirectory)) {
-            SmokeTestLogger.info(`*** Deleting VS Code extension dir: ${this.extensionDirectory}`);
+            SmokeTestLogger.log(`Deleting VS Code extension dir: ${this.extensionDirectory}`);
             rimraf.sync(this.extensionDirectory);
         }
     }

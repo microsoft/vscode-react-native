@@ -1,7 +1,7 @@
 import { ElementHandle, Page } from "playwright";
 import { app } from "../main";
 import { ElementHelper } from "./elementHelper";
-import { Element } from "./constants";
+import { Constant, Element } from "./constants";
 import { SmokeTestLogger } from "./smokeTestLogger";
 
 export class ComponentHelper {
@@ -23,7 +23,7 @@ export class ComponentHelper {
             const explorerIcon = await ElementHelper.WaitElementSelectorVisible(
                 Element.fileExplorerIconSelector,
             );
-            explorerIcon.click();
+            await explorerIcon.click();
             await ElementHelper.WaitElementSelectorVisible(
                 `[id="${Element.fileExplorerViewId}"]`,
                 2000,
@@ -42,5 +42,22 @@ export class ComponentHelper {
         } catch {
             return null;
         }
+    }
+
+    public static async getReactNativePackager(): Promise<ElementHandle<SVGElement | HTMLElement>> {
+        let packager: ElementHandle<SVGElement | HTMLElement>;
+        try {
+            packager = await ElementHelper.WaitElementSelectorVisible(
+                `[id="${Constant.previewExtensionId}"]`,
+                2000,
+            );
+        } catch {
+            packager = await ElementHelper.WaitElementSelectorVisible(
+                `[id="${Constant.prodExtensionId}"]`,
+                2000,
+            );
+        }
+
+        return packager;
     }
 }

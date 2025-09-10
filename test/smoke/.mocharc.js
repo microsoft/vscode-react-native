@@ -7,5 +7,7 @@ module.exports = {
     file: ["out/main.js"],
     extension: ["js"],
     slow: 200000,
-    timeout: 120000
+    timeout: 120000,
+    spec: "./out/**/*.test.js",
+    recursive: true,
 };
