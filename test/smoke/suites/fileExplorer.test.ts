@@ -4,13 +4,12 @@
 import { Page } from "playwright";
 import { SmokeTestLogger } from "./helper/smokeTestLogger";
 import { app, screenshots } from "./main";
-import * as assert from "assert";
-import { ElementHelper } from "./helper/elementHelper";
-import { Element } from "./helper/constants";
+import { CommonHelper } from "./helper/commonHelper";
 import { ComponentHelper } from "./helper/componentHelper";
+import assert = require("assert");
 
-export function startCommandPaletteTests(): void {
-    describe("CommandPaletteTest", () => {
+export function startFileExplorerTests(): void {
+    describe("FileExplorerTest", () => {
         async function initApp(): Promise<Page> {
             await app.launch();
             return app.getMainPage();
@@ -36,21 +35,17 @@ export function startCommandPaletteTests(): void {
 
         afterEach(dispose);
 
-        it("Verify react native command is visible in command palette", async () => {
-            const text = "React Native: Start Packager";
+        it("Verify .vscode folder will be created when extension is activated", async () => {
+            const projectName = "sampleReactNativeProject";
+            const folderName = ".vscode";
+            await CommonHelper.findAndDeleteVSCodeSettingsDirectory(projectName);
+
             await initApp();
 
-            await ComponentHelper.openCommandPalette();
-            await ElementHelper.WaitElementClassNameVisible(Element.commandPaletteClassName, 5000);
+            await ComponentHelper.openFileExplorer();
+            const folder = await ComponentHelper.WaitFileVisibleInFileExplorer(folderName);
 
-            await ElementHelper.inputText(text);
-            const option = await ElementHelper.WaitElementSelectorVisible(
-                Element.commandPaletteFocusedItemSelector,
-                5000,
-            );
-
-            const value = await option.getAttribute("aria-label");
-            assert.ok(value?.includes(text));
+            assert.notStrictEqual(folder, null);
         });
     });
 }
