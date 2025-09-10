@@ -8,12 +8,11 @@ import * as utilities from "./utilities";
 import { SmokeTestLogger } from "./smokeTestLogger";
 import * as fs from "fs";
 import * as rimraf from "rimraf";
-import { Extension } from "./extension";
+import { Element } from "./constants";
 
 export class Application {
     private app: ElectronApplication | null = null;
     private mainPage: Page | null = null;
-    private extension: Extension | null = null;
     private vscodeExecutablePath: string | null = null;
     private isExtensionActivited: boolean = false;
     private extensionDirectory = path.join(__dirname, "..", "..", ".vscode-test", "extensions");
@@ -51,7 +50,9 @@ export class Application {
         });
 
         this.mainPage = await this.app.firstWindow();
-        await this.mainPage.waitForSelector(".monaco-workbench");
+        await this.mainPage.waitForSelector(`.${Element.vscodeWorkbenchClassName}`, {
+            timeout: 10000,
+        });
 
         await utilities.sleep(5000);
         return this.mainPage;
@@ -71,7 +72,7 @@ export class Application {
         }
     }
 
-    async installExtensionFromVSIX(vscodeExecutablePath: string): Promise<Extension> {
+    async installExtensionFromVSIX(vscodeExecutablePath: string): Promise<void> {
         const [cliPath, ...args] = resolveCliArgsFromVSCodeExecutablePath(vscodeExecutablePath);
         args.push(`--extensions-dir=${this.extensionDirectory}`);
         let extensionFile = utilities.findFile(this.vsixDirectory, /.*\.(vsix)/);
@@ -87,10 +88,6 @@ export class Application {
         } else {
             utilities.spawnSync(cliPath, args, { stdio: "inherit" });
         }
-
-        const extension = new Extension();
-        this.extension = extension;
-        return extension;
     }
 
     getMainPage(): Page {
@@ -98,13 +95,6 @@ export class Application {
             throw new Error("VSCode has not been launched yet.");
         }
         return this.mainPage;
-    }
-
-    getExtension(): Extension {
-        if (!this.extension) {
-            throw new Error("VSCode has not been launched yet.");
-        }
-        return this.extension;
     }
 
     setVSCodeExecutablePath(vscodeExecutablePath: string) {
