@@ -6,7 +6,7 @@ import { SmokeTestLogger } from "./helper/smokeTestLogger";
 import { app, screenshots } from "./main";
 import { CommonHelper } from "./helper/commonHelper";
 import { ComponentHelper } from "./helper/componentHelper";
-import assert = require("assert");
+import * as assert from "assert";
 
 export function startFileExplorerTests(): void {
     describe("FileExplorerTest", () => {

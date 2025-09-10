@@ -6,6 +6,7 @@ import { startCommandPaletteTests } from "./commands.test";
 import { startFileExplorerTests } from "./fileExplorer.test";
 import { SmokeTestLogger } from "./helper/smokeTestLogger";
 import { smokeTestFail } from "./helper/utilities";
+import { startPackagerTests } from "./packager.test";
 
 export function startSmokeTests(setup: () => Promise<void>, cleanUp: () => Promise<void>): void {
     before(async function () {
@@ -18,7 +19,7 @@ export function startSmokeTests(setup: () => Promise<void>, cleanUp: () => Promi
     });
 
     after(async function () {
-        SmokeTestLogger.info("Test execution completed.");
+        SmokeTestLogger.testLog("Test execution completed.");
     });
 
     describe("Extension smoke tests", function () {
@@ -28,5 +29,6 @@ export function startSmokeTests(setup: () => Promise<void>, cleanUp: () => Promi
 
         startCommandPaletteTests();
         startFileExplorerTests();
+        startPackagerTests();
     });
 }
