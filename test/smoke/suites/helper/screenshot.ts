@@ -2,6 +2,7 @@ import * as fs from "fs";
 import * as mkdirp from "mkdirp";
 import * as path from "path";
 import { app } from "../main";
+import { SmokeTestLogger } from "./smokeTestLogger";
 
 export class Screenshots {
     private application = app;
@@ -30,12 +31,17 @@ export class Screenshots {
     }
 
     async takeScreenshots(suiteName: string, fileName: string): Promise<void> {
-        const platform = await this.prepareScreenshotFolderForPlatform();
+        try {
+            const platform = await this.prepareScreenshotFolderForPlatform();
 
-        const mainPage = this.application.getMainPage();
-        await mainPage.screenshot({
-            path: `screenshots/${platform}/${suiteName}/${fileName}.jpg`,
-            fullPage: true,
-        });
+            const mainPage = this.application.getMainPage();
+            await mainPage.screenshot({
+                path: `screenshots/${platform}/${suiteName}/${fileName}.jpg`,
+                fullPage: true,
+            });
+        } catch (error) {
+            // Log error when screenshot get error, but not throw exception
+            SmokeTestLogger.log(`Error with taking screenshot: ${error}`);
+        }
     }
 }

@@ -182,58 +182,6 @@ export function findStringInFile(filePath: string, strToFind: string): boolean {
     return false;
 }
 
-export async function findStringInFileWithTimeout(
-    filePath: string,
-    strToFind: string,
-    timeout?: number,
-): Promise<boolean> {
-    const condition = () => findStringInFile(filePath, strToFind);
-    return waitUntil(condition, timeout, 3000);
-}
-
-export function retrieveStringsFromLogFile(
-    filePath: string,
-    pattern: RegExp,
-): RegExpMatchArray | null {
-    if (fs.existsSync(filePath)) {
-        const content = fs.readFileSync(filePath).toString().trim();
-        return content.match(pattern);
-    }
-    return null;
-}
-
-export async function retrieveStringsFromLogFileWithTimeout(
-    filePath: string,
-    pattern: RegExp,
-    timeout?: number,
-): Promise<RegExpMatchArray | null> {
-    let result: RegExpMatchArray | null = null;
-    const condition = () => {
-        result = retrieveStringsFromLogFile(filePath, pattern);
-        return !!result;
-    };
-    await waitUntil(condition, timeout, 3000);
-    return result;
-}
-
-export function objectsContains(object: any, subObject: any): boolean {
-    for (let i = 0; i < Object.keys(subObject).length; i++) {
-        const key = Object.keys(subObject)[i];
-        if (typeof subObject[key] === "object" && subObject[key] !== null) {
-            if (typeof object[key] === "object" && object[key] !== null) {
-                if (!objectsContains(object[key], subObject[key])) {
-                    return false;
-                }
-            } else {
-                return false;
-            }
-        } else if (subObject[key] !== object[key]) {
-            return false;
-        }
-    }
-    return true;
-}
-
 export function waitUntil(
     condition: () => boolean,
     timeout: number = 30000,

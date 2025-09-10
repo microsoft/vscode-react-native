@@ -3,6 +3,7 @@
 
 import { startExtensionActivationTests } from "./activation.test";
 import { startCommandPaletteTests } from "./commands.test";
+import { startFileExplorerTests } from "./fileExplorer.test";
 import { SmokeTestLogger } from "./helper/smokeTestLogger";
 import { smokeTestFail } from "./helper/utilities";
 
@@ -26,5 +27,6 @@ export function startSmokeTests(setup: () => Promise<void>, cleanUp: () => Promi
         startExtensionActivationTests();
 
         startCommandPaletteTests();
+        startFileExplorerTests();
     });
 }

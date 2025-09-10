@@ -16,19 +16,13 @@ export function startExtensionActivationTests(): void {
         }
 
         async function dispose() {
-            try {
-                if (this.currentTest?.state === "failed") {
-                    SmokeTestLogger.info("Test failed, taking screenshot ...");
-                    await screenshots.takeScreenshots(
-                        this.currentTest.parent?.title || "Others",
-                        this.currentTest.title.replace(/\s+/g, "_"),
-                    );
-                }
-            } catch (error) {
-                // Log error when screenshot get error, but not throw exception
-                SmokeTestLogger.log(`Error with taking screenshot: ${error}`);
+            if (this.currentTest?.state === "failed") {
+                SmokeTestLogger.info("Test failed, taking screenshot ...");
+                await screenshots.takeScreenshots(
+                    this.currentTest.parent?.title || "Others",
+                    this.currentTest.title.replace(/\s+/g, "_"),
+                );
             }
-
             try {
                 SmokeTestLogger.info(`Dispose test: "${this.currentTest.title}" ...`);
                 if (app) {
