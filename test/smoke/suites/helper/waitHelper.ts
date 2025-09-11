@@ -24,6 +24,16 @@ export class WaitHelper {
         });
     }
 
+    public static async wait(time?: number): Promise<void> {
+        const times = time ? time : 2000;
+        await new Promise<void>(resolve => {
+            const timer = setTimeout(() => {
+                clearTimeout(timer);
+                resolve();
+            }, times);
+        });
+    }
+
     public static async waitConditionUntil<T>(
         condition: () => Promise<T | null> | T | null,
         interval: number = 1000,

@@ -5,7 +5,7 @@ import { Constant, Element } from "./constants";
 import { SmokeTestLogger } from "./smokeTestLogger";
 
 export class ComponentHelper {
-    static setPage(): Page {
+    static Page(): Page {
         const application = app;
         return application.getMainPage();
     }
@@ -35,10 +35,7 @@ export class ComponentHelper {
         fileName: string,
     ): Promise<ElementHandle<SVGElement | HTMLElement> | null> {
         try {
-            return await ElementHelper.WaitElementSelectorVisible(
-                `[aria-label="${fileName}"]`,
-                2000,
-            );
+            return await ElementHelper.WaitElementAriaLabelVisible(fileName, 2000);
         } catch {
             return null;
         }
