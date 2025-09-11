@@ -4,12 +4,14 @@
 import { Page } from "playwright";
 import { SmokeTestLogger } from "./helper/smokeTestLogger";
 import { app, screenshots } from "./main";
-import assert = require("assert");
 import { ElementHelper } from "./helper/elementHelper";
-import { Constant } from "./helper/constants";
+import { Element } from "./helper/constants";
+import { WaitHelper } from "./helper/waitHelper";
+import { ComponentHelper } from "./helper/componentHelper";
+import * as assert from "assert";
 
-export function startExtensionActivationTests(): void {
-    describe("ExtensionActivationTest", () => {
+export function startActionBarTests(): void {
+    describe("ActionBarTest", () => {
         async function initApp(): Promise<Page> {
             await app.launch();
             return app.getMainPage();
@@ -35,30 +37,29 @@ export function startExtensionActivationTests(): void {
 
         afterEach(dispose);
 
-        it("Verify extension is activated", async () => {
-            let isActivited = false;
+        it("Verify extension quick debug action button is working correctly", async () => {
             await initApp();
 
-            try {
-                await ElementHelper.WaitElementSelectorVisible(
-                    `[id="${Constant.previewExtensionId}"]`,
-                    2000,
-                );
-                SmokeTestLogger.info("React-native preview extension is activated");
-                isActivited = true;
-            } catch {
+            const debugActionItemDropdown = await ElementHelper.TryFindElement(
+                `[aria-label="${Element.debugActionItemDropdownAriaLable}"]`,
+            );
+            assert.notStrictEqual(debugActionItemDropdown, null);
+
+            const actionButton = await ElementHelper.WaitElementSelectorVisible(
+                Element.debugActionItemButtonSelector,
+            );
+            actionButton.click();
+
+            await WaitHelper.waitIsTrue(async () => {
+                const packager = await ComponentHelper.getReactNativePackager();
+                const currentState = await packager.getAttribute("aria-label");
                 try {
-                    await ElementHelper.WaitElementSelectorVisible(
-                        `[id="${Constant.prodExtensionId}"]`,
-                        2000,
-                    );
-                    SmokeTestLogger.info("React-native prod extension is activated");
-                    isActivited = true;
+                    assert.ok(currentState?.includes("primitive-square"));
+                    return true;
                 } catch {
-                    isActivited = false;
+                    return false;
                 }
-            }
-            assert.ok(isActivited, "Extension is not activated. Skip other test cases...");
+            });
         });
     });
 }

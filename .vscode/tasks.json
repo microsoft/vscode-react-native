@@ -2,66 +2,19 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "prepare-smoke-tests",
-            "type": "process",
-            "command": [
-                "yarn"
-            ],
-            "windows": {
-                "command": "yarn.cmd"
-            },
-            "args": [
-                "prepare-smoke-tests"
-            ],
-            "presentation": {
-                "echo": true,
-                "reveal": "silent",
-                "focus": false,
-                "panel": "shared",
-                "showReuseMessage": false,
-                "clear": false
-            }
-        },
-        {
-            "label": "compile-smoke-tests",
-            "type": "process",
-            "command": [
-                "./node_modules/.bin/tsc"
-            ],
-            "windows": {
-                "command": ".\\node_modules\\.bin\\tsc.cmd"
-            },
-            "options": {
-                "cwd": "${workspaceRoot}/test/smoke/vscode/test/smoke"
-            },
-            "presentation": {
-                "echo": true,
-                "reveal": "silent",
-                "focus": false,
-                "panel": "shared",
-                "showReuseMessage": false,
-                "clear": false
-            }
-        },
-        {
-            "label": "Prepare Smoke Tests",
-            "dependsOn": [
-                "prepare-smoke-tests"
-            ]
-        },
-        {
-            "label": "Build Smoke Tests",
-            "dependsOn": [
-                "compile-smoke-tests"
-            ]
-        },
-        {
             "type": "npm",
             "script": "build",
             "group": "build",
             "problemMatcher": [],
             "label": "gulp: build",
             "detail": "gulp build"
+        },
+        {
+            "label": "npm: compile-smoke-tests",
+            "type": "shell",
+            "command": "npm run compile-smoke-tests",
+            "group": "build",
+            "problemMatcher": []
         }
     ]
 }

@@ -6,9 +6,13 @@
             "type": "extensionHost",
             "request": "launch",
             "runtimeExecutable": "${execPath}",
-            "args": ["--extensionDevelopmentPath=${workspaceRoot}"],
+            "args": [
+                "--extensionDevelopmentPath=${workspaceRoot}"
+            ],
             "sourceMaps": true,
-            "outFiles": ["${workspaceRoot}/src/**/*.js"],
+            "outFiles": [
+                "${workspaceRoot}/src/**/*.js"
+            ],
             "preLaunchTask": "gulp: build"
         },
         {
@@ -16,9 +20,13 @@
             "type": "extensionHost",
             "request": "launch",
             "runtimeExecutable": "${execPath}",
-            "args": ["--extensionDevelopmentPath=${workspaceRoot}"],
+            "args": [
+                "--extensionDevelopmentPath=${workspaceRoot}"
+            ],
             "sourceMaps": true,
-            "outFiles": ["${workspaceRoot}/src/**/*.js"]
+            "outFiles": [
+                "${workspaceRoot}/src/**/*.js"
+            ]
         },
         {
             "name": "Launch Extension tests",
@@ -31,7 +39,9 @@
                 "--extensionTestsPath=${workspaceRoot}/test"
             ],
             "sourceMaps": true,
-            "outFiles": ["${workspaceRoot}/src/**/*.js"],
+            "outFiles": [
+                "${workspaceRoot}/src/**/*.js"
+            ],
             "preLaunchTask": "gulp: build"
         },
         {
@@ -45,20 +55,28 @@
                 "--extensionTestsPath=${workspaceRoot}/test/localization"
             ],
             "sourceMaps": true,
-            "outFiles": ["${workspaceRoot}/src/**/*.js"],
+            "outFiles": [
+                "${workspaceRoot}/src/**/*.js"
+            ],
             "preLaunchTask": "gulp: build"
         },
         {
-            "name": "Launch All Smoke Tests",
+            "name": "Launch Smoke Tests",
             "type": "node",
             "request": "launch",
             "program": "${workspaceFolder}/test/smoke/node_modules/mocha/bin/_mocha",
             "cwd": "${workspaceFolder}/test/smoke",
-            "args": ["--dont-delete-vsix"],
+            "args": [
+                "--config ./.mocharc.js ",
+                "--reporter mocha-multi-reporters"
+            ],
             "timeout": 240000,
             "stopOnEntry": false,
-            "outFiles": ["${workspaceRoot}/src/**/*.js"],
-            "sourceMaps": true
+            "outFiles": [
+                "${workspaceFolder}/test/smoke/out/**/*.js"
+            ],
+            "sourceMaps": true,
+            "preLaunchTask": "npm: compile-smoke-tests"
         }
     ],
     "compounds": []

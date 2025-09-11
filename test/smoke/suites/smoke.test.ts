@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import { startActionBarTests } from "./actionBar.test";
 import { startExtensionActivationTests } from "./activation.test";
 import { startCommandPaletteTests } from "./commands.test";
 import { startFileExplorerTests } from "./fileExplorer.test";
@@ -30,5 +31,6 @@ export function startSmokeTests(setup: () => Promise<void>, cleanUp: () => Promi
         startCommandPaletteTests();
         startFileExplorerTests();
         startPackagerTests();
+        startActionBarTests();
     });
 }

@@ -486,34 +486,6 @@
           "when": "isRNProject && isRNHermesProject && config.react-native-tools.displayDebuggingCommandsButton"
         },
         {
-          "command": "reactNative.debugScenario.attachDirectIosExperimental",
-          "when": "isRNProject && config.react-native-tools.displayDebuggingCommandsButton"
-        },
-        {
-          "command": "reactNative.debugScenario.attachToPackager",
-          "when": "isRNProject && config.react-native-tools.displayDebuggingCommandsButton"
-        },
-        {
-          "command": "reactNative.debugScenario.debugAndroid",
-          "when": "isRNProject && config.react-native-tools.displayDebuggingCommandsButton"
-        },
-        {
-          "command": "reactNative.debugScenario.debugIos",
-          "when": "isRNProject && config.react-native-tools.displayDebuggingCommandsButton"
-        },
-        {
-          "command": "reactNative.debugScenario.debugWindows",
-          "when": "isRNProject && isRNWindowsProject && config.react-native-tools.displayDebuggingCommandsButton"
-        },
-        {
-          "command": "reactNative.debugScenario.debugMacos",
-          "when": "isRNProject && isRNMacOSProject && config.react-native-tools.displayDebuggingCommandsButton"
-        },
-        {
-          "command": "reactNative.debugScenario.debugInExponent",
-          "when": "isRNProject && config.react-native-tools.displayDebuggingCommandsButton"
-        },
-        {
           "command": "reactNative.debugScenario.debugInHermesExponent",
           "when": "isRNProject && config.react-native-tools.displayDebuggingCommandsButton"
         },
@@ -523,42 +495,26 @@
         },
         {
           "command": "reactNative.debugScenario.debugAndroidHermes",
-          "when": "isRNProject && isRNAndroidHermesProject && config.react-native-tools.displayDebuggingCommandsButton"
-        },
-        {
-          "command": "reactNative.debugScenario.debugDirectIosExperimental",
           "when": "isRNProject && config.react-native-tools.displayDebuggingCommandsButton"
         },
         {
           "command": "reactNative.debugScenario.debugIosHermes",
-          "when": "isRNProject && isRNIosHermesProject && config.react-native-tools.displayDebuggingCommandsButton"
-        },
-        {
-          "command": "reactNative.debugScenario.debugMacosHermes",
-          "when": "isRNProject && isRNMacosHermesProject && config.react-native-tools.displayDebuggingCommandsButton"
-        },
-        {
-          "command": "reactNative.debugScenario.debugWindowsHermes",
-          "when": "isRNProject && isRNWindowsHermesProject && config.react-native-tools.displayDebuggingCommandsButton"
-        },
-        {
-          "command": "reactNative.debugScenario.runAndroid",
           "when": "isRNProject && config.react-native-tools.displayDebuggingCommandsButton"
         },
         {
-          "command": "reactNative.debugScenario.runIos",
+          "command": "reactNative.debugScenario.debugMacosHermes",
+          "when": "isRNProject && config.react-native-tools.displayDebuggingCommandsButton"
+        },
+        {
+          "command": "reactNative.debugScenario.debugWindowsHermes",
           "when": "isRNProject && config.react-native-tools.displayDebuggingCommandsButton"
         },
         {
           "command": "reactNative.debugScenario.runAndroidHermes",
-          "when": "isRNProject && isRNAndroidHermesProject && config.react-native-tools.displayDebuggingCommandsButton"
+          "when": "isRNProject && config.react-native-tools.displayDebuggingCommandsButton"
         },
         {
           "command": "reactNative.debugScenario.runIosHermes",
-          "when": "isRNProject && isRNIosHermesProject && config.react-native-tools.displayDebuggingCommandsButton"
-        },
-        {
-          "command": "reactNative.debugScenario.runDirectIosExperimental",
           "when": "isRNProject && config.react-native-tools.displayDebuggingCommandsButton"
         }
       ],
@@ -1419,6 +1375,7 @@
     "prepare": "husky install",
     "prepare-smoke-tests": "cd test/smoke && npm ci",
     "prepare-smoke-tests-project": "cd test/smoke/resources/sampleReactNativeProject && npm install",
+    "compile-smoke-tests": "cd test/smoke && tsc",
     "smoke-tests": "cd test/smoke && tsc && node ./node_modules/mocha/bin/_mocha --config ./.mocharc.js --reporter mocha-multi-reporters"
   },
   "prettier": {
