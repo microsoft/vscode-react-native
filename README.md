@@ -6,7 +6,7 @@ Stable:
 ![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/msjsdiag.vscode-react-native?color=deep%20green&label=Version)
 ![Visual Studio Marketplace Rating (Stars)](https://img.shields.io/visual-studio-marketplace/stars/msjsdiag.vscode-react-native?label=Rating)
 
-Preview:
+Preview::
 ![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/msjsdiag.vscode-react-native-preview?color=deep%20green&label=Version)
 ![Visual Studio Marketplace Rating (Stars)](https://img.shields.io/visual-studio-marketplace/stars/msjsdiag.vscode-react-native-preview?label=Rating)
 
