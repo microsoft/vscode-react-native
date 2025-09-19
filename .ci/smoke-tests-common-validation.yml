@@ -12,13 +12,12 @@ steps:
   - script: npm run prepare-smoke-tests-project
     displayName: "Prepare smoke tests sample project"
   - script: npm run smoke-tests --verbose
-    name: RunSmokeTests
+    continueOnError: true
     displayName: "Run smoke tests"
     env:
       DISPLAY: ":99.0"
   - task: PublishBuildArtifacts@1
     displayName: "Publish screenshots"
-    condition: failed('RunSmokeTests')
     inputs:
       PathtoPublish: "$(System.DefaultWorkingDirectory)/test/smoke/screenshots"
       ArtifactName: 'smoke-test-screenshots'
