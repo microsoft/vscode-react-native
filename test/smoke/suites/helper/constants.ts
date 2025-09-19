@@ -11,4 +11,8 @@ export class Element {
     public static fileExplorerViewId = "workbench.view.explorer";
     public static debugActionItemDropdownAriaLable = "Run or Debug...";
     public static debugActionItemButtonSelector = ".action-label.codicon.codicon-debug-alt";
+    public static runAndDebugTabButtonClassName = "codicon-run-view-icon";
+    public static createLaunchConfigFileLinkClassName = "monaco-link";
+    public static welcomeViewClassName = "welcome-view-content";
+    public static vscodeMonacoButtonClassName = "monaco-button";
 }

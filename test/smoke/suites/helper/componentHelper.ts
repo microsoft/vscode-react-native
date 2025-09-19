@@ -31,6 +31,13 @@ export class ComponentHelper {
         }
     }
 
+    public static async openRunAndDebugTab() {
+        const debugIcon = await ElementHelper.WaitElementClassNameVisible(
+            Element.runAndDebugTabButtonClassName,
+        );
+        await debugIcon.click();
+    }
+
     public static async WaitFileVisibleInFileExplorer(
         fileName: string,
     ): Promise<ElementHandle<SVGElement | HTMLElement> | null> {
