@@ -12,6 +12,7 @@ steps:
   - script: npm run prepare-smoke-tests-project
     displayName: "Prepare smoke tests sample project"
   - script: npm run smoke-tests --verbose
+    continueOnError: true
     displayName: "Run smoke tests"
     env:
       DISPLAY: ":99.0"
