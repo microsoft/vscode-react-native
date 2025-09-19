@@ -27,6 +27,10 @@ export class ElementHelper {
         }
     }
 
+    public static async clickElementByText(text: string) {
+        await this.Page().click(`text=${text}`);
+    }
+
     public static async WaitElementClassNameVisible(
         className: string,
         timeout: number = 1000,
