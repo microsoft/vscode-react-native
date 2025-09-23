@@ -15,4 +15,5 @@ export class Element {
     public static createLaunchConfigFileLinkClassName = "monaco-link";
     public static welcomeViewClassName = "welcome-view-content";
     public static vscodeMonacoButtonClassName = "monaco-button";
+    public static debugAddConfigurationButtonAriaLabel = "floating-click-widget";
 }
