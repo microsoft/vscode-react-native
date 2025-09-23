@@ -15,5 +15,9 @@ export class Element {
     public static createLaunchConfigFileLinkClassName = "monaco-link";
     public static welcomeViewClassName = "welcome-view-content";
     public static vscodeMonacoButtonClassName = "monaco-button";
-    public static debugAddConfigurationButtonAriaLabel = "floating-click-widget";
+    public static debugAddConfigurationButtonClassName = ".floating-click-widget";
+    public static androidButtonAriaLable = "Android";
+    public static reactNativeButtonAriaLable = "React Native, Enum";
+    public static debugApplicationButtonAriaLable = "Debug application, Debug React Native application";
+    public static applicationInDirectModeButtonAriaLable = "Application in direct mode(Hermes)";
 }
