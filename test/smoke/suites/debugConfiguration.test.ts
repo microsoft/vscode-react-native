@@ -66,40 +66,36 @@ export function startDebugConfigurationTests(): void {
             await ComponentHelper.openFileExplorer();
             const vscodeFolder = await ComponentHelper.WaitFileVisibleInFileExplorer(".vscode");
             assert.notStrictEqual(vscodeFolder, null, ".vscode folder should exist");
-            await ElementHelper.Page().waitForTimeout(9000);
             await ElementHelper.clickElementByText("launch.json");
 
             const debugAddConfigurationButton = await ElementHelper.WaitElementSelectorVisible(
-                Element.debugAddConfigurationButtonClassName,
-                3000
+                Element.debugAddConfigurationButtonSelector,
+                3000,
             );
             await debugAddConfigurationButton.click();
 
             const reactNativeButton = await ElementHelper.WaitElementSelectorVisible(
-                Element.reactNativeButtonAriaLable,
-                3000
+                Element.reactNativeButtonAriaLabel,
+                3000,
             );
             await reactNativeButton.click();
 
             const debugApplicationButton = await ElementHelper.WaitElementSelectorVisible(
-                Element.debugApplicationButtonAriaLable,
-                1000
+                Element.debugApplicationButtonAriaLabel,
+                1000,
             );
-            assert.notStrictEqual(debugApplicationButton, null);
             await debugApplicationButton.click();
 
             const androidButton = await ElementHelper.WaitElementSelectorVisible(
-                Element.androidButtonAriaLable,
-                1000
+                Element.androidButtonAriaLabel,
+                1000,
             );
-            assert.notStrictEqual(androidButton, null);
             await androidButton.click();
 
             const applicationInDirectModeButton = await ElementHelper.WaitElementSelectorVisible(
-                Element.applicationInDirectModeButtonAriaLable,
-                1000
+                Element.applicationInDirectModeButtonAriaLabel,
+                1000,
             );
-            assert.notStrictEqual(applicationInDirectModeButton, null);
             await applicationInDirectModeButton.click();
 
             const rnOption = await ElementHelper.TryFindElement(
