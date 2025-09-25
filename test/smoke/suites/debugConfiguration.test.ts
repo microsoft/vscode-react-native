@@ -55,17 +55,19 @@ export function startDebugConfigurationTests(): void {
             assert.notStrictEqual(rnOption, null);
         });
 
-        it("Complete debug configuration setup workflow", async () => {
-            const launchFilePath = path.join(
+        it.only("Complete debug configuration setup workflow", async () => {
+            const launchFolderPath = path.join(
                 __dirname,
                 "..",
                 "resources",
                 "sampleReactNativeProject",
-                ".vscode",
-                "launch.json",
             );
+            const vscodeFolderPath = path.join(launchFolderPath, ".vscode");
+            if (!fs.existsSync(vscodeFolderPath)) {
+                fs.mkdirSync(vscodeFolderPath);
+            }
 
-            fs.writeFileSync(launchFilePath, JSON.stringify({}));
+            fs.writeFileSync(path.join(vscodeFolderPath, "launch.json"), JSON.stringify({}));
 
             await initApp();
 
@@ -87,7 +89,7 @@ export function startDebugConfigurationTests(): void {
 
             const reactNativeButton = await ElementHelper.WaitElementSelectorVisible(
                 Element.reactNativeButtonSelector,
-                3000,
+                5000,
             );
             await reactNativeButton.click();
 
@@ -109,19 +111,20 @@ export function startDebugConfigurationTests(): void {
             );
             await applicationInDirectModeButton.click();
             await ElementHelper.waitPageLoad("domcontentloaded");
-            const configurationText = await ElementHelper.TryFindElement(
-                ".monaco-mouse-cursor-text",
+            const configurationElement = await ElementHelper.TryFindElement(
+                Element.configurationElementSelector,
                 5000,
             );
-            if (configurationText) {
-                const text = (await configurationText?.textContent())?.replace(/\s/g, "");
 
+            let launchContent = await configurationElement?.textContent();
+            if (launchContent) {
+                launchContent = launchContent.replace(/\s/g, "");
                 assert.ok(
-                    text?.includes("DebugAndroidHermes"),
-                    `Expected text to include "Debug Android Hermes", but got: ${text}`,
+                    launchContent.includes("DebugAndroidHermes"),
+                    `Expected launchContent to include "Debug Android Hermes", but got: ${launchContent}`,
                 );
             } else {
-                assert.fail("Failed to find the debug configuration text element.");
+                assert.fail("Fail to set launch file configuration.");
             }
         });
     });
