@@ -55,8 +55,15 @@ export function startDebugConfigurationTests(): void {
             assert.notStrictEqual(rnOption, null);
         });
 
-        it.only("Complete debug configuration setup workflow", async () => {
-            const launchFilePath = path.join(__dirname, "..", "resources", "sampleReactNativeProject", ".vscode", "launch.json");
+        it("Complete debug configuration setup workflow", async () => {
+            const launchFilePath = path.join(
+                __dirname,
+                "..",
+                "resources",
+                "sampleReactNativeProject",
+                ".vscode",
+                "launch.json",
+            );
 
             fs.writeFileSync(launchFilePath, JSON.stringify({}));
 
@@ -65,7 +72,9 @@ export function startDebugConfigurationTests(): void {
             await ComponentHelper.openFileExplorer();
             const vscodeFolder = await ComponentHelper.WaitFileVisibleInFileExplorer(".vscode");
             if (!vscodeFolder) {
-                throw new Error("vscodeFolder is null. File '.vscode' was not found in the file explorer.");
+                throw new Error(
+                    "vscodeFolder is null. File '.vscode' was not found in the file explorer.",
+                );
             }
             await vscodeFolder.click();
             await ElementHelper.clickElementByText("launch.json");
@@ -99,12 +108,21 @@ export function startDebugConfigurationTests(): void {
                 1000,
             );
             await applicationInDirectModeButton.click();
-            await ElementHelper.Page().waitForLoadState("domcontentloaded");
-            const test = await ElementHelper.TryFindElement(".monaco-mouse-cursor-text", 5000);
-            console.log(await test?.innerText());
-            //assert.equal((await test?.innerText())?.toString().includes("Debug Android Hermes"), true, "launch.json file is not correctly updated");
-            const text = JSON.stringify(await test?.innerText());
-            assert.ok(text?.includes("Debug Android Hermes"), `Expected text to include "Debug Android Hermes", but got: ${text}`);
+            await ElementHelper.waitPageLoad("domcontentloaded");
+            const configurationText = await ElementHelper.TryFindElement(
+                ".monaco-mouse-cursor-text",
+                5000,
+            );
+            if (configurationText) {
+                const text = (await configurationText?.textContent())?.replace(/\s/g, "");
+
+                assert.ok(
+                    text?.includes("DebugAndroidHermes"),
+                    `Expected text to include "Debug Android Hermes", but got: ${text}`,
+                );
+            } else {
+                assert.fail("Failed to find the debug configuration text element.");
+            }
         });
     });
 }

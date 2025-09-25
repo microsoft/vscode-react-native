@@ -31,6 +31,12 @@ export class ElementHelper {
         await this.Page().click(`text=${text}`);
     }
 
+    public static async waitPageLoad(
+        state: "load" | "domcontentloaded" | "networkidle" | undefined,
+    ) {
+        await this.Page().waitForLoadState(state);
+    }
+
     public static async WaitElementClassNameVisible(
         className: string,
         timeout: number = 1000,
