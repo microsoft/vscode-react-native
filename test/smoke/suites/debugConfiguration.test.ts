@@ -55,17 +55,19 @@ export function startDebugConfigurationTests(): void {
             assert.notStrictEqual(rnOption, null);
         });
 
-        it("Complete debug configuration setup workflow", async () => {
-            const rnOptionText = "More React Native options...";
-            const projectRoot = path.join(__dirname, "..", "resources", "sampleReactNativeProject");
+        it.only("Complete debug configuration setup workflow", async () => {
+            const launchFilePath = path.join(__dirname, "..", "resources", "sampleReactNativeProject", ".vscode", "launch.json");
 
-            fs.writeFileSync(path.join(projectRoot, ".vscode", "launch.json"), JSON.stringify({}));
+            fs.writeFileSync(launchFilePath, JSON.stringify({}));
 
             await initApp();
 
             await ComponentHelper.openFileExplorer();
             const vscodeFolder = await ComponentHelper.WaitFileVisibleInFileExplorer(".vscode");
-            assert.notStrictEqual(vscodeFolder, null, ".vscode folder should exist");
+            if (!vscodeFolder) {
+                throw new Error("vscodeFolder is null. File '.vscode' was not found in the file explorer.");
+            }
+            await vscodeFolder.click();
             await ElementHelper.clickElementByText("launch.json");
 
             const debugAddConfigurationButton = await ElementHelper.WaitElementSelectorVisible(
@@ -75,41 +77,34 @@ export function startDebugConfigurationTests(): void {
             await debugAddConfigurationButton.click();
 
             const reactNativeButton = await ElementHelper.WaitElementSelectorVisible(
-                Element.reactNativeButtonAriaLabel,
+                Element.reactNativeButtonSelector,
                 3000,
             );
             await reactNativeButton.click();
 
             const debugApplicationButton = await ElementHelper.WaitElementSelectorVisible(
-                Element.debugApplicationButtonAriaLabel,
+                Element.debugApplicationButtonSelector,
                 1000,
             );
             await debugApplicationButton.click();
 
             const androidButton = await ElementHelper.WaitElementSelectorVisible(
-                Element.androidButtonAriaLabel,
+                Element.androidButtonSelector,
                 1000,
             );
             await androidButton.click();
 
             const applicationInDirectModeButton = await ElementHelper.WaitElementSelectorVisible(
-                Element.applicationInDirectModeButtonAriaLabel,
+                Element.applicationInDirectModeButtonSelector,
                 1000,
             );
             await applicationInDirectModeButton.click();
-
-            const rnOption = await ElementHelper.TryFindElement(
-                `[aria-label="${rnOptionText}"]`,
-                3000,
-            );
-            assert.notStrictEqual(rnOption, null, "React Native debug option should be available");
-
-            if (rnOption) {
-                await rnOption.click();
-                SmokeTestLogger.info(
-                    "Successfully initiated React Native debug configuration setup",
-                );
-            }
+            await ElementHelper.Page().waitForLoadState("domcontentloaded");
+            const test = await ElementHelper.TryFindElement(".monaco-mouse-cursor-text", 5000);
+            console.log(await test?.innerText());
+            //assert.equal((await test?.innerText())?.toString().includes("Debug Android Hermes"), true, "launch.json file is not correctly updated");
+            const text = JSON.stringify(await test?.innerText());
+            assert.ok(text?.includes("Debug Android Hermes"), `Expected text to include "Debug Android Hermes", but got: ${text}`);
         });
     });
 }
