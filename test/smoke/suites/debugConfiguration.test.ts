@@ -55,7 +55,7 @@ export function startDebugConfigurationTests(): void {
             assert.notStrictEqual(rnOption, null);
         });
 
-        it.only("Complete debug configuration setup workflow", async () => {
+        it("Complete debug configuration setup workflow", async () => {
             const launchFolderPath = path.join(
                 __dirname,
                 "..",
