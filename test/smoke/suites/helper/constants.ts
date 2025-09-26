@@ -15,4 +15,12 @@ export class Element {
     public static createLaunchConfigFileLinkClassName = "monaco-link";
     public static welcomeViewClassName = "welcome-view-content";
     public static vscodeMonacoButtonClassName = "monaco-button";
+    public static debugAddConfigurationButtonSelector = ".floating-click-widget";
+    public static androidButtonSelector = "div[aria-label='Android']";
+    public static reactNativeButtonSelector = "div[aria-label='React Native, Enum']";
+    public static debugApplicationButtonSelector =
+        "div[aria-label='Debug application, Debug React Native application']";
+    public static applicationInDirectModeButtonSelector =
+        "div[aria-label='Application in direct mode(Hermes)']";
+    public static configurationElementSelector = ".monaco-mouse-cursor-text";
 }
