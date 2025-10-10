@@ -425,4 +425,5 @@ export const ERROR_STRINGS = {
     [InternalErrorCode.FailedToKillPort]: "Failed to kill port",
     [InternalErrorCode.FaiedToSetNewArch]: "Failed to set New Architecture",
     [InternalErrorCode.FailedToToggleNetworkView]: "Failed to config network view",
+    [InternalErrorCode.FailedToBuildPrecompiledIOS]: "Failed to build Precompiled IOS",
 };
