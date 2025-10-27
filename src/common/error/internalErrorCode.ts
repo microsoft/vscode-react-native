@@ -38,7 +38,6 @@ export enum InternalErrorCode {
     FailedToKillPort = 133,
     FaiedToSetNewArch = 134,
     FailedToToggleNetworkView = 135,
-    FailedToRunEasBuild = 136,
 
     // Device Deployer errors
     IOSDeployNotFound = 201,
