@@ -182,6 +182,7 @@ suite("rn-extension", function () {
                 "reactNative.killPort",
                 "reactNative.setNewArch",
                 "reactNative.toggleNetworkView",
+                "reactNative.runEasBuild",
             ]);
         });
     });
