@@ -479,6 +479,12 @@
         "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       },
       {
+        "command": "reactNative.runEasBuild",
+        "title": "Run EAS Build",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
+      },
+      {
         "command": "reactNative.buildPrecompiledIOS",
         "title": "Build iOS Precompiled (React Native)",
         "category": "React Native",

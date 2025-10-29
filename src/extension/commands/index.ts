@@ -37,4 +37,5 @@ export * from "./openExpoUpgradeHelper";
 export * from "./killPort";
 export * from "./setNewArch";
 export * from "./networkView";
+export * from "./runEasBuild";
 export * from "./buildPrecompiledIos";
