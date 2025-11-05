@@ -36,7 +36,7 @@
     "onDebugDynamicConfigurations:reactnative",
     "onDebugInitialConfigurations"
   ],
-  "main": "./src/extension/rn-extension",
+  "main": "./dist/rn-extension",
   "contributes": {
     "walkthroughs": [
       {
@@ -1382,7 +1382,9 @@
     "prepare-smoke-tests": "cd test/smoke && npm ci",
     "prepare-smoke-tests-project": "cd test/smoke/resources/sampleReactNativeProject && npm install",
     "compile-smoke-tests": "cd test/smoke && tsc",
-    "smoke-tests": "cd test/smoke && tsc && node ./node_modules/mocha/bin/_mocha --config ./.mocharc.js --reporter mocha-multi-reporters"
+    "smoke-tests": "cd test/smoke && tsc && node ./node_modules/mocha/bin/_mocha --config ./.mocharc.js --reporter mocha-multi-reporters",
+    "smoke-build": "node gulp_scripts/smoke-build.js",
+    "smoke-build-test": "node gulp_scripts/smoke-build.js --test"
   },
   "prettier": {
     "trailingComma": "all",
@@ -1441,7 +1443,7 @@
     "@types/configstore": "4.0.0",
     "@types/ip": "1.1.0",
     "@types/mkdirp": "1.0.0",
-    "@types/mocha": "8.0.3",
+    "@types/mocha": "^8.0.3",
     "@types/ncp": "2.0.3",
     "@types/node": "10.17.26",
     "@types/pako": "1.0.1",
@@ -1486,12 +1488,13 @@
     "gulp-typescript": "5.0.1",
     "husky": "^7.0.4",
     "minimist": "1.2.6",
-    "mocha": "^11.1.0",
+    "mocha": "^11.7.4",
     "mocha-junit-reporter": "^2.0.2",
     "mocha-multi-reporters": "^1.5.1",
     "mochawesome": "^7.1.3",
     "ncp": "2.0.0",
     "nyc": "^15.1.0",
+    "playwright": "^1.56.1",
     "plugin-error": "1.0.1",
     "prettier": "2.4.0",
     "proxyquire": "^2.1.3",
@@ -1502,7 +1505,8 @@
     "source-map-support": "0.4.0",
     "through2": "2.0.1",
     "ts-loader": "9.0.2",
-    "typescript": "5.0.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.0.4",
     "vscode-debugprotocol": "1.51.0",
     "vscode-nls-dev": "^4.0.4",
     "webpack": "5.94.0",

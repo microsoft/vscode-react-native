@@ -24,3 +24,4 @@ release/**
 .npmignore
 npm-shrinkwrap.json
 SmokeTestLogs
+!dist/rn-extension.js
