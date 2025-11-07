@@ -9,6 +9,7 @@ import { startFileExplorerTests } from "./fileExplorer.test";
 import { SmokeTestLogger } from "./helper/smokeTestLogger";
 import { smokeTestFail } from "./helper/utilities";
 import { startPackagerTests } from "./packager.test";
+import { startVsixExistenceTest } from "./vsixbuild.test";
 
 export function startSmokeTests(setup: () => Promise<void>, cleanUp: () => Promise<void>): void {
     before(async function () {
@@ -34,5 +35,6 @@ export function startSmokeTests(setup: () => Promise<void>, cleanUp: () => Promi
         startPackagerTests();
         startActionBarTests();
         startDebugConfigurationTests();
+        startVsixExistenceTest();
     });
 }
