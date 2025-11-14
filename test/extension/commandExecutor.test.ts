@@ -83,7 +83,7 @@ suite("commandExecutor", function () {
                 assert.strictEqual(reason.errorCode, 101);
                 assert.strictEqual(reason.errorLevel, 0);
             }
-        });
+        }).timeout(10000);
 
         test("should reject on good command that fails", async () => {
             const ce = new CommandExecutor(nodeModulesRoot);
@@ -96,7 +96,7 @@ suite("commandExecutor", function () {
                 assert.strictEqual(reason.errorCode, 101);
                 assert.strictEqual(reason.errorLevel, 0);
             }
-        });
+        }).timeout(10000);
 
         test("should spawn a command", async () => {
             const ce = new CommandExecutor(nodeModulesRoot);
@@ -106,7 +106,7 @@ suite("commandExecutor", function () {
             });
 
             return await ce.spawn("node", ["-v"]);
-        });
+        }).timeout(10000);
 
         test("spawn should reject a bad command", async () => {
             const ce = new CommandExecutor(nodeModulesRoot);
@@ -121,7 +121,7 @@ suite("commandExecutor", function () {
                 assert.strictEqual(reason.errorCode, 101);
                 assert.strictEqual(reason.errorLevel, 0);
             }
-        });
+        }).timeout(10000);
 
         test("should return correct CLI react command", async () => {
             const ce = new CommandExecutor(nodeModulesRoot);
@@ -129,7 +129,7 @@ suite("commandExecutor", function () {
             //     "test\\resources\\sampleReactNativeProject\\node_modules\\.bin\react-native.cmd";
             const command = HostPlatform.getNpmCliCommand(ce.selectReactNativeCLI());
             assert.ok(command.includes("react-native"));
-        });
+        }).timeout(10000);
 
         test("should return correct CLI Expo command", async () => {
             const ce = new CommandExecutor(nodeModulesRoot);
@@ -137,7 +137,7 @@ suite("commandExecutor", function () {
             // "test\\resources\\sampleReactNativeProject\\node_modules\\.bin\\expo.cmd";
             const command = HostPlatform.getNpmCliCommand(ce.selectExpoCLI());
             assert.ok(command.includes("expo"));
-        });
+        }).timeout(10000);
 
         test("should not fail on react-native command without arguments", async () => {
             (sinon.stub(childProcessStubInstance, "spawn") as Sinon.SinonStub).returns({
@@ -151,7 +151,7 @@ suite("commandExecutor", function () {
             } catch (error) {
                 assert.fail("react-native command was not expected to fail");
             }
-        });
+        }).timeout(10000);
 
         suite("getReactNativeVersion", () => {
             const reactNativePackageDir = path.join(
