@@ -53,6 +53,7 @@ Using this extension, you can **debug your code and quickly run `react-native` o
     - [Debug on Expo Web](#debug-on-expo-web)
     - [Configuring Expo](#configuring-expo)
     - [Expo Hermes](#expo-hermes)
+    - [EAS Build initialization](#eas-build-initialization)
   - [Windows applications](#react-native-for-windows)
     - [Windows Hermes debugging](#windows-hermes-debugging)
   - [MacOS applications](#react-native-for-macos)
@@ -143,6 +144,7 @@ The full list of commands is:
 | Enable & Disable Expo Hermes                  | `reactNative.expoHermesEnable`        | Use hermes or jsc as JavaScript engine for expo project                                                                                                                                                                                    |
 | Open expo upgrade helper in web page          | `reactNative.openExpoUpgradeHelper`   | Open expo upgrade helper in web browser                                                                                                                                                                                                    |
 | Kill Port                                     | `reactNative.killPort`                | Kill the process running on a specific port                                                                                                                                                                                                |
+| Run EAS Build                                 | `reactNative.runEasBuild`             | Initialize EAS Build configuration by creating `eas.json` and `.eas/workflows/create-production-builds.yml` files if they don't exist                                                                                                      |
 | Set React Native New Architecture             | `reactNative.setNewArch`              | Enable or disable the new architecture settings in RN projects                                                                                                                                                                             |
 | Toggle Network View                           | `reactNative.toggleNetworkView`       | Enable or disable vscode network view feature for web debugging                                                                                                                                                                            |
 
@@ -431,6 +433,74 @@ Expo using Hermes as default engine, you can switch engine on a specific platfor
 ```
 
 **Note**: You maybe need to create developer account to run `eas build`. Any other issue or limitiation, please see [expo hermes ducomentation](https://docs.expo.dev/guides/using-hermes/).
+
+### EAS Build initialization
+
+The **Run EAS Build** command (`reactNative.runEasBuild`) helps you quickly set up [Expo Application Services (EAS) Build](https://docs.expo.dev/build/introduction/) configuration in your Expo project.
+
+#### What it does
+
+When you run this command from the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P`), it will:
+
+1. Check if your project root directory is accessible
+2. Create an `eas.json` file (if it doesn't exist) with an empty configuration `{}`
+3. Create the `.eas/workflows/` directory structure
+4. Generate a `create-production-builds.yml` workflow file with the following content:
+
+```yaml
+name: Create Production Builds
+jobs:
+  build_android:
+    type: build # This job type creates a production build for Android
+    params:
+      platform: android
+  build_ios:
+    type: build # This job type creates a production build for iOS
+    params:
+      platform: ios
+```
+
+#### How to use
+
+1. Open your Expo project in VS Code
+2. Press `Ctrl+Shift+P` (Windows/Linux) or `Cmd+Shift+P` (macOS) to open the Command Palette
+3. Type "Run EAS Build" and select **React Native: Run EAS Build**
+4. The command will create the necessary files if they don't exist
+
+**Note**: The command is idempotent - it will not overwrite existing files. If the files already exist, the command will skip creation and display an appropriate message.
+
+#### Next steps after initialization
+
+After running this command, you should:
+
+1. **Configure `eas.json`**: Add your build profiles (e.g., `development`, `preview`, `production`). See [EAS Build Configuration](https://docs.expo.dev/build/eas-json/) for details.
+
+2. **Set up credentials**: Configure your iOS and Android signing credentials. Use `eas credentials` command or configure them in your EAS project.
+
+3. **Run your first build**:
+
+   ```bash
+   # For Android
+   npx eas build --platform android
+
+   # For iOS
+   npx eas build --platform ios
+
+   # For both platforms
+   npx eas build --platform all
+   ```
+
+4. **Customize workflows**: Edit `.eas/workflows/create-production-builds.yml` to add more complex build configurations, such as different build profiles, environment variables, or custom scripts.
+
+5. **Monitor builds**: Use `React Native: Open the eas project in a web page` command to view your build status in the EAS dashboard.
+
+#### Troubleshooting
+
+- **Permission errors**: Ensure VS Code has write permissions to your project directory
+- **Files already exist**: The command will skip file creation if they already exist - this is normal behavior
+- **Project not found**: Make sure you have opened a React Native/Expo project folder in VS Code
+
+For more information about EAS Build, visit the [official Expo documentation](https://docs.expo.dev/build/introduction/).
 
 ## React Native for Windows
 
