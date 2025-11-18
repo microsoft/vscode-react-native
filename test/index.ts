@@ -73,10 +73,10 @@ export async function run(): Promise<void> {
             });
         })
         .finally(() => {
-        if (nyc) {
-            nyc.writeCoverageFile();
-            return nyc.report();
-        }
-        return void 0;
+            if (nyc) {
+                nyc.writeCoverageFile();
+                return nyc.report();
+            }
+            return void 0;
         });
 }

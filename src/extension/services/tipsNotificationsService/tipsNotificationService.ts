@@ -13,6 +13,9 @@ import { OutputChannelLogger } from "../../log/OutputChannelLogger";
 import { areSameDates, getRandomIntInclusive } from "../../../common/utils";
 import tipsStorage from "./tipsStorage";
 
+type GeneralTipKey = keyof typeof tipsStorage.generalTips;
+type SpecificTipKey = keyof typeof tipsStorage.specificTips;
+
 enum TipNotificationAction {
     GET_MORE_INFO = "tipsMoreInfo",
     DO_NOT_SHOW_AGAIN = "tipsDoNotShow",
@@ -143,15 +146,15 @@ export class TipNotificationService implements vscode.Disposable {
     }
 
     public async setKnownDateForFeatureById(
-        key: string,
+        key: GeneralTipKey | SpecificTipKey,
         isGeneralTip: boolean = true,
     ): Promise<void> {
         await this.initializeTipsConfig();
 
         if (isGeneralTip) {
-            this.tipsConfig.tips.generalTips[key].knownDate = new Date();
+            this.tipsConfig.tips.generalTips[key as GeneralTipKey].knownDate = new Date();
         } else {
-            this.tipsConfig.tips.specificTips[key].knownDate = new Date();
+            this.tipsConfig.tips.specificTips[key as SpecificTipKey].knownDate = new Date();
         }
 
         ExtensionConfigManager.config.set(this.TIPS_CONFIG_NAME, this.tipsConfig);
@@ -329,7 +332,9 @@ export class TipNotificationService implements vscode.Disposable {
         }
 
         const randIndex: number = getRandomIntInclusive(leftIndex, generalTipsForRandom.length - 1);
-        const selectedGeneralTipKey: string = generalTipsForRandom[randIndex];
+        const selectedGeneralTipKey: GeneralTipKey = generalTipsForRandom[
+            randIndex
+        ] as GeneralTipKey;
         const tipNotificationText = this.getGeneralTipNotificationTextByKey(selectedGeneralTipKey);
 
         this.tipsConfig.tips.generalTips[selectedGeneralTipKey].shownDate = new Date();
@@ -361,7 +366,7 @@ export class TipNotificationService implements vscode.Disposable {
     }
 
     private async showSpecificTipNotification(
-        tipKey: string,
+        tipKey: SpecificTipKey,
     ): Promise<GeneratedTipResponse | undefined> {
         if (this.tipsConfig.tips.specificTips[tipKey].shownDate) {
             return;
@@ -393,19 +398,19 @@ export class TipNotificationService implements vscode.Disposable {
         return tipsConfig;
     }
 
-    private getGeneralTipNotificationTextByKey(key: string): string {
+    private getGeneralTipNotificationTextByKey(key: GeneralTipKey): string {
         return tipsStorage.generalTips[key].text;
     }
 
-    private getSpecificTipNotificationTextByKey(key: string): string {
+    private getSpecificTipNotificationTextByKey(key: SpecificTipKey): string {
         return tipsStorage.specificTips[key].text;
     }
 
-    private getGeneralTipNotificationAnchorLinkByKey(key: string): string {
+    private getGeneralTipNotificationAnchorLinkByKey(key: GeneralTipKey): string {
         return tipsStorage.generalTips[key].anchorLink;
     }
 
-    private getSpecificTipNotificationAnchorLinkByKey(key: string): string {
+    private getSpecificTipNotificationAnchorLinkByKey(key: SpecificTipKey): string {
         return tipsStorage.specificTips[key].anchorLink;
     }
 
