@@ -134,7 +134,7 @@ export class TipNotificationService implements vscode.Disposable {
                 this.tipsConfig.daysLeftBeforeGeneralTip--;
             }
         } else {
-            tipResponse = await this.showSpecificTipNotification(<string>specificTipKey);
+            tipResponse = await this.showSpecificTipNotification(specificTipKey as SpecificTipKey);
         }
 
         if (tipResponse) {

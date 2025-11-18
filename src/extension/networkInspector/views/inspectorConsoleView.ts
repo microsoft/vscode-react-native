@@ -239,7 +239,7 @@ export class InspectorConsoleView extends InspectorView {
         return headers.reduce((headersViewObject, header) => {
             headersViewObject[header.key] = header.value;
             return headersViewObject;
-        }, {});
+        }, {} as Record<string, string>);
     }
 
     private printNetworkRequestData(networkRequestData: ConsoleNetworkRequestDataView): void {
