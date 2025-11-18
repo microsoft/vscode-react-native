@@ -29,6 +29,7 @@
     "tree-kill": "^1.2.2",
     "ts-node": "10.9.2",
     "typescript": "5.9.2",
-    "url-parse": "^1.5.10"
+    "url-parse": "^1.5.10",
+    "js-yaml": "4.1.1"
   }
 }
