@@ -1412,7 +1412,7 @@
     "execa": "5.1.1",
     "extract-opts": "2.2.0",
     "flatten-source-map": "0.0.2",
-    "glob": ">=11.1.0",
+    "glob": "11.1.0",
     "ip-address": "^9.0.5",
     "js-base64": "3.6.0",
     "json5": "^1.0.2",
@@ -1516,6 +1516,9 @@
     "ms-vscode.js-debug"
   ],
   "overrides": {
-    "js-yaml": "4.1.1"
+    "js-yaml": "4.1.1",
+    "mocha": {
+      "glob": "11.1.0"
+    }
   }
 }
