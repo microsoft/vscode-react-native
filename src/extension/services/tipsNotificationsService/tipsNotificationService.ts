@@ -228,8 +228,8 @@ export class TipNotificationService implements vscode.Disposable {
 
             if (readmeFile) {
                 const anchorLink: string = isGeneralTip
-                    ? this.getGeneralTipNotificationAnchorLinkByKey(tipKey)
-                    : this.getSpecificTipNotificationAnchorLinkByKey(tipKey);
+                    ? this.getGeneralTipNotificationAnchorLinkByKey(tipKey as GeneralTipKey)
+                    : this.getSpecificTipNotificationAnchorLinkByKey(tipKey as SpecificTipKey);
 
                 const uriFile = vscode.Uri.parse(
                     path.normalize(`file://${readmeFile}${anchorLink}`),
