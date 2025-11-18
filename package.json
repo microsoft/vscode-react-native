@@ -1514,5 +1514,8 @@
   },
   "extensionDependencies": [
     "ms-vscode.js-debug"
-  ]
+  ],
+  "overrides": {
+    "js-yaml": "4.1.1"
+  }
 }
