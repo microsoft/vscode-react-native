@@ -230,8 +230,13 @@ suite("MobileTargetManager", function () {
             async (
                 items: string[] | Thenable<string[]> | QuickPickItem[] | Thenable<QuickPickItem[]>,
             ) => {
-                targetsForSelection = <string[]>await items;
-                return items[0];
+                // Resolve potential Thenable and safely narrow before indexing (fix TS7053)
+                const resolved = await Promise.resolve(items);
+                if (Array.isArray(resolved)) {
+                    targetsForSelection = resolved as string[]; // store for later assertions
+                    return resolved.length ? resolved[0] : undefined;
+                }
+                return undefined;
             },
         );
         targetsForSelection = [];

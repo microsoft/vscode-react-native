@@ -113,7 +113,8 @@ suite("checkEnvironment", function () {
         };
         const restoreEnv = () => {
             Object.keys(envVars).forEach(it => {
-                process.env[it] = envVars[it];
+                // Narrow key type to object keys to satisfy TS7053
+                process.env[it] = envVars[it as keyof typeof envVars];
             });
         };
 
