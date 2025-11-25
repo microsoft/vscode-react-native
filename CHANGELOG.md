@@ -1,3 +1,22 @@
+## 1.13.2
+* Add command to support Expo EAS workflow [#2432](https://github.com/microsoft/vscode-react-native/pull/2432)
+* Improve and verify added launch/debug configuration in `launch.json` [#2442](https://github.com/microsoft/vscode-react-native/pull/2442) [#2424](https://github.com/microsoft/vscode-react-native/pull/2424)
+* Add launch requests for Expo Go (Android & iOS) and Expo Web debugging [#2311](https://github.com/microsoft/vscode-react-native/pull/2311) [#2306](https://github.com/microsoft/vscode-react-native/pull/2306)
+* Support pnpm package manager in debugging workflow [#2278](https://github.com/microsoft/vscode-react-native/pull/2278)
+* Rename and clarify Expo related commands in command palette [#2382](https://github.com/microsoft/vscode-react-native/pull/2382)
+* Improve Expo debugging websocket endpoint URL [#2396](https://github.com/microsoft/vscode-react-native/pull/2396)
+* Update documentation for recent changes [#2445](https://github.com/microsoft/vscode-react-native/pull/2445)
+* Fix translation errors in README [#2449](https://github.com/microsoft/vscode-react-native/pull/2449)
+* Internal changes:
+    * Add smoke build to create VSIX file [#2436](https://github.com/microsoft/vscode-react-native/pull/2436)
+    * Add VSIX smoke test case [#2439](https://github.com/microsoft/vscode-react-native/pull/2439)
+    * Refactor smoke tests to use playwright & @vscode/test-electron [#2400](https://github.com/microsoft/vscode-react-native/pull/2400)
+    * Bump tar-fs from 2.1.3 to 2.1.4 [#2425](https://github.com/microsoft/vscode-react-native/pull/2425)
+    * Bump playwright from 1.55.0 to 1.55.1 in /test/smoke [#2431](https://github.com/microsoft/vscode-react-native/pull/2431)
+    * Bump validator from 13.7.0 to 13.15.20 [#2435](https://github.com/microsoft/vscode-react-native/pull/2435)
+    * Bump js-yaml from 4.1.0 to 4.1.1 [#2450](https://github.com/microsoft/vscode-react-native/pull/2450)
+    * Bump glob in /test/smoke [#2453](https://github.com/microsoft/vscode-react-native/pull/2453)
+
 ## 1.13.1
 * Add command for expo prebuild directories clean up [#2124](https://github.com/microsoft/vscode-react-native/pull/2124)
 * Integrate expo prebuild to generate react-native app for android and ios platform [#2128](https://github.com/microsoft/vscode-react-native/pull/2128)

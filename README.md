@@ -53,6 +53,7 @@ Using this extension, you can **debug your code and quickly run `react-native` o
     - [Debug on Expo Web](#debug-on-expo-web)
     - [Configuring Expo](#configuring-expo)
     - [Expo Hermes](#expo-hermes)
+    - [EAS Build initialization](#eas-build-initialization)
   - [Windows applications](#react-native-for-windows)
     - [Windows Hermes debugging](#windows-hermes-debugging)
   - [MacOS applications](#react-native-for-macos)
@@ -110,7 +111,7 @@ The full list of commands is:
 | --------------------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Launch Android Emulator                       | `reactNative.launchAndroidSimulator`  | Prompts you to select the name of the available Android emulator and launch it. If only one emulator is installed in the system, it will be selected automatically                                                                         |
 | Launch iOS Simulator                          | `reactNative.launchIOSSimulator`      | Prompts you to select the available system version of the iOS simulator, then select the simulator name for the selected system and launch it. If only one simulator is installed in the system, it will be selected automatically         |
-| Launch ExpoWeb                                | `reactNative.launchExpoWeb`           | Check if the current project is an Expo project. If so, lanuch ExpoWeb.                                                                                                                                                                    |
+| Launch ExpoWeb                                | `reactNative.launchExpoWeb`           | Check if the current project is an Expo project. If so, launch ExpoWeb.                                                                                                                                                                    |
 | Run Android on Emulator                       | `reactNative.runAndroidSimulator`     | Run an Android application on Emulator. Launch order: check target platform support, load run arguments, start Packager, run app on the selected emulator. Make sure the `emulator` utility is added to `PATH`                             |
 | Run Android on Device                         | `reactNative.runAndroidDevice`        | Run an Android application on Device. Launch order: check target platform support, load run arguments, start Packager, run app in all connected devices                                                                                    |
 | Run iOS on Simulator                          | `reactNative.runIosSimulator`         | Run an iOS application on Simulator. Launch order: load run arguments, check target platform support, start Packager, run app in only one connected emulator                                                                               |
@@ -122,7 +123,7 @@ The full list of commands is:
 | Stop Packager                                 | `reactNative.stopPackager`            | Stop Packager                                                                                                                                                                                                                              |
 | Restart Packager                              | `reactNative.restartPackager`         | Restart Packager and clear the Packager's cache                                                                                                                                                                                            |
 | Publish To Expo                               | `reactNative.publishToExpHost`        | Publish to Exponent Host. Launch order: login to exponent, execute `Run Expo` command, then publish app to host                                                                                                                            |
-| Show Dev Menu                                 | `reactNative.showDevMenu`             | Show development menu for running aplication on iOS or Android device or emulator                                                                                                                                                          |
+| Show Dev Menu                                 | `reactNative.showDevMenu`             | Show development menu for running application on iOS or Android device or emulator                                                                                                                                                         |
 | ReloadApp                                     | `reactNative.reloadApp`               | Reload an application                                                                                                                                                                                                                      |
 | Run Element Inspector                         | `reactNative.runInspector`            | Load development tools for inspect application UI elements                                                                                                                                                                                 |
 | Stop Element Inspector                        | `reactNative.stopInspector`           | Stop development tools for inspect application UI elements                                                                                                                                                                                 |
@@ -134,8 +135,8 @@ The full list of commands is:
 | Open the eas project in a web page            | `reactNative.openEASProjectInWebPage` | Open EAS build in your EAS project portal                                                                                                                                                                                                  |
 | Open react native upgrade helper in web page  | `reactNative.openRNUpgradeHelper`     | Open an official project upgrade tools in browser, support RN, RN for Windows, RN for MacOS                                                                                                                                                |
 | Revert extension input in open package module | `reactNative.revertOpenModule`        | Quickly revert some codes in Open Module which are changed by react-native-tools                                                                                                                                                           |
-| Run doctor                                    | `reactNative.docter`                  | Execute react-native doctor to check basic environemt for react-native development                                                                                                                                                         |
-| Run expo doctor                               | `reactNative.ExpoDocter`              | Execute expo docter to check basic environemt for Expo development                                                                                                                                                                         |
+| Run doctor                                    | `reactNative.doctor`                  | Execute react-native doctor to check basic environment for react-native development                                                                                                                                                        |
+| Run expo doctor                               | `reactNative.ExpoDoctor`              | Execute expo doctor to check basic environment for Expo development                                                                                                                                                                        |
 | Expo prebuild                                 | `reactNative.expoPrebuild`            | Create the android and ios directories for running your React code                                                                                                                                                                         |
 | Expo prebuild cleanup                         | `reactNative.expoPrebuildClean`       | Clean directories generated by prebuild                                                                                                                                                                                                    |
 | Reopen QR Code in Expo                        | `reactNative.reopenQRCode`            | Reopen expo generated QR code in webview                                                                                                                                                                                                   |
@@ -143,6 +144,7 @@ The full list of commands is:
 | Enable & Disable Expo Hermes                  | `reactNative.expoHermesEnable`        | Use hermes or jsc as JavaScript engine for expo project                                                                                                                                                                                    |
 | Open expo upgrade helper in web page          | `reactNative.openExpoUpgradeHelper`   | Open expo upgrade helper in web browser                                                                                                                                                                                                    |
 | Kill Port                                     | `reactNative.killPort`                | Kill the process running on a specific port                                                                                                                                                                                                |
+| Run EAS Build                                 | `reactNative.runEasBuild`             | Initialize EAS Build configuration by creating `eas.json` and `.eas/workflows/create-production-builds.yml` files if they don't exist                                                                                                      |
 | Set React Native New Architecture             | `reactNative.setNewArch`              | Enable or disable the new architecture settings in RN projects                                                                                                                                                                             |
 | Toggle Network View                           | `reactNative.toggleNetworkView`       | Enable or disable vscode network view feature for web debugging                                                                                                                                                                            |
 
@@ -165,7 +167,7 @@ To run React Native Tools commands via VS Code tasks, you can create a `.vscode/
 
 # Customize metro configuration
 
-Metro is a JavaScript bundler for React Native and include in React Native package. Metro configuration can be customized in `metro.config.js`.
+Metro is a JavaScript bundler for React Native and included in React Native package. Metro configuration can be customized in `metro.config.js`.
 
 # Debugging React Native applications
 
@@ -287,7 +289,7 @@ The extension provides experimental support of iOS direct debugging. See more in
 
 For now the extension supports iOS direct debugging only on real iOS devices.
 
-Since this scenario are using some 3rd party tools for the debugging process. Sometimes it may have limitation from upstream. We still recommend using **Hermes direct debugging** as a first choice.
+Since this scenarios are using some 3rd party tools for the debugging process. Sometimes it may have limitation from upstream. We still recommend using **Hermes direct debugging** as a first choice.
 
 To be able to debug an iOS app directly, you need to install [ios-webkit-debug-proxy](https://github.com/google/ios-webkit-debug-proxy):
 
@@ -329,7 +331,7 @@ You can verify if the environment is ready to use by `React Native: Run Expo Doc
 
 ### Debug on Expo Go
 
-If you're using [Expo Go](https://expo.dev/expo-go), follow below steps tp start debugging Expo application:
+If you're using [Expo Go](https://expo.dev/expo-go), follow below steps to start debugging Expo application:
 
 1. Open your project in VS Code with this extension installed.
 2. Add below configure in `launch.json`.
@@ -430,7 +432,75 @@ Expo using Hermes as default engine, you can switch engine on a specific platfor
 }
 ```
 
-**Note**: You maybe need to create developer account to run `eas build`. Any other issue or limitiation, please see [expo hermes ducomentation](https://docs.expo.dev/guides/using-hermes/).
+**Note**: You maybe need to create developer account to run `eas build`. Any other issue or limitation, please see [expo hermes documentation](https://docs.expo.dev/guides/using-hermes/).
+
+### EAS Build initialization
+
+The **Run EAS Build** command (`reactNative.runEasBuild`) helps you quickly set up [Expo Application Services (EAS) Build](https://docs.expo.dev/build/introduction/) configuration in your Expo project.
+
+#### What it does
+
+When you run this command from the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P`), it will:
+
+1. Check if your project root directory is accessible
+2. Create an `eas.json` file (if it doesn't exist) with an empty configuration `{}`
+3. Create the `.eas/workflows/` directory structure
+4. Generate a `create-production-builds.yml` workflow file with the following content:
+
+```yaml
+name: Create Production Builds
+jobs:
+  build_android:
+    type: build # This job type creates a production build for Android
+    params:
+      platform: android
+  build_ios:
+    type: build # This job type creates a production build for iOS
+    params:
+      platform: ios
+```
+
+#### How to use
+
+1. Open your Expo project in VS Code
+2. Press `Ctrl+Shift+P` (Windows/Linux) or `Cmd+Shift+P` (macOS) to open the Command Palette
+3. Type "Run EAS Build" and select **React Native: Run EAS Build**
+4. The command will create the necessary files if they don't exist
+
+**Note**: The command is idempotent - it will not overwrite existing files. If the files already exist, the command will skip creation and display an appropriate message.
+
+#### Next steps after initialization
+
+After running this command, you should:
+
+1. **Configure `eas.json`**: Add your build profiles (e.g., `development`, `preview`, `production`). See [EAS Build Configuration](https://docs.expo.dev/build/eas-json/) for details.
+
+2. **Set up credentials**: Configure your iOS and Android signing credentials. Use `eas credentials` command or configure them in your EAS project.
+
+3. **Run your first build**:
+
+   ```bash
+   # For Android
+   npx eas build --platform android
+
+   # For iOS
+   npx eas build --platform ios
+
+   # For both platforms
+   npx eas build --platform all
+   ```
+
+4. **Customize workflows**: Edit `.eas/workflows/create-production-builds.yml` to add more complex build configurations, such as different build profiles, environment variables, or custom scripts.
+
+5. **Monitor builds**: Use `React Native: Open the eas project in a web page` command to view your build status in the EAS dashboard.
+
+#### Troubleshooting
+
+- **Permission errors**: Ensure VS Code has write permissions to your project directory
+- **Files already exist**: The command will skip file creation if they already exist - this is normal behavior
+- **Project not found**: Make sure you have opened a React Native/Expo project folder in VS Code
+
+For more information about EAS Build, visit the [official Expo documentation](https://docs.expo.dev/build/introduction/).
 
 ## React Native for Windows
 
@@ -548,7 +618,7 @@ import { functionInUtils } from "../../packages/common/src/utils";
 }
 ```
 
-4. Launcn app and attach debugger
+4. Launch app and attach debugger
 
 ## Debugger configuration properties
 
@@ -1015,7 +1085,7 @@ Before using the Network inspector, please make sure that your system meets the 
   - Linux: `sudo apt-get install openssl`
 - (macOS only) [`idb`](https://fbidb.io/docs/installation/) utility is installed. It's required to interact with iOS physical devices
 
-The Network inspector uses functional of the Flipper plugin integrated to React Native apps. Please make sure that it's enabled in your application. You can use [this guide](https://fbflipper.com/docs/getting-started/react-native/) to integate Flipper into your projects.
+The Network inspector uses functional of the Flipper plugin integrated to React Native apps. Please make sure that it's enabled in your application. You can use [this guide](https://fbflipper.com/docs/getting-started/react-native/) to integrate Flipper into your projects.
 
 ### Network inspector usage
 
@@ -1049,7 +1119,7 @@ Here are the steps to run React Native debugging inside a Docker Container on a 
      -devcontainer.json
      -Dockerfile
    ```
-2. Сreate Dockerfile extending [reactnativecommunity/react-native-android image](https://hub.docker.com/r/reactnativecommunity/react-native-android). For example you can use the following Dockerfile:
+2. Create Dockerfile extending [reactnativecommunity/react-native-android image](https://hub.docker.com/r/reactnativecommunity/react-native-android). For example you can use the following Dockerfile:
 
    ```
    FROM reactnativecommunity/react-native-android:latest
