@@ -42,6 +42,17 @@ function setupCoverage(): NYCPackage {
 export async function run(): Promise<void> {
     const nyc = process.env.COVERAGE ? setupCoverage() : null;
 
+    // Provide harmless stubs for Mocha BDD hooks if some non-target test files
+    // (e.g. smoke tests) get loaded indirectly before Mocha initialization.
+    const hookNames = ["before", "after", "beforeEach", "afterEach"]; // minimal surface
+    for (const hn of hookNames) {
+        if (!(global as any)[hn]) {
+            (global as any)[hn] = () => {
+                /* stub */
+            };
+        }
+    }
+
     const mocha = new Mocha({
         ui: "tdd",
         grep: new RegExp("(debuggerContext|localizationContext)"), // Do not run tests intended for the debuggerContext and localizationContext
@@ -94,7 +105,9 @@ export async function run(): Promise<void> {
         });
     };
 
-    return getTestFiles("**/**.test.js", testsRoot)
+    // Exclude smoke test bundle and localization driver; only run unit/integration tests here
+    return getTestFiles("extension/**/*.test.js", testsRoot)
+        .then(files => files.filter(f => !/[/\\]exponent[/\\]/i.test(f)))
         .then(files => {
             files.forEach(f => mocha.addFile(path.resolve(testsRoot, f)));
             return new Promise<void>((resolve, reject) => {

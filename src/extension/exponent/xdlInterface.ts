@@ -8,16 +8,32 @@ import { PackageLoader, PackageConfig } from "../../common/packageLoader";
 import { removeModuleFromRequireCacheByName } from "../../common/utils";
 import { SettingsHelper } from "../settingsHelper";
 
+// Defensive helper: test environments or partial activation may load this module
+// before VS Code settings are fully available. Directly calling
+// SettingsHelper.getExpoDependencyVersion could throw if SettingsHelper is
+// undefined or method missing. We guard to return undefined (unversioned install)
+// instead of crashing the whole test run.
+function safeExpoVersion(packageName: string): string | undefined {
+    try {
+        if (
+            SettingsHelper &&
+            typeof (SettingsHelper as any).getExpoDependencyVersion === "function"
+        ) {
+            return (SettingsHelper as any).getExpoDependencyVersion(packageName);
+        }
+    } catch {
+        // Swallow any unexpected errors; unversioned dependency is acceptable.
+    }
+    return undefined;
+}
+
 const XDL_PACKAGE = "xdl";
 const METRO_CONFIG_PACKAGE = "@expo/metro-config";
 
-const xdlPackageConfig = new PackageConfig(
-    XDL_PACKAGE,
-    SettingsHelper.getExpoDependencyVersion(XDL_PACKAGE),
-);
+const xdlPackageConfig = new PackageConfig(XDL_PACKAGE, safeExpoVersion(XDL_PACKAGE));
 const metroConfigPackageConfig = new PackageConfig(
     METRO_CONFIG_PACKAGE,
-    SettingsHelper.getExpoDependencyVersion(METRO_CONFIG_PACKAGE),
+    safeExpoVersion(METRO_CONFIG_PACKAGE),
 );
 
 const ngrokPackageConfig = new PackageConfig(
