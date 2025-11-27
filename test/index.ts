@@ -5,8 +5,19 @@
 
 import * as path from "path";
 import * as Mocha from "mocha";
-import * as glob from "glob";
 import NYCPackage from "nyc";
+
+async function loadGlob(): Promise<any> {
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        return require("glob");
+    } catch (e) {
+        if (e && /ERR_REQUIRE_ESM/.test(String(e))) {
+            return await import("glob");
+        }
+        throw e;
+    }
+}
 
 function setupCoverage(): NYCPackage {
     const NYC = require("nyc");
@@ -52,34 +63,59 @@ export async function run(): Promise<void> {
     mocha.invert();
 
     const testsRoot = __dirname;
-    // Register Mocha options
-    return new Promise<void>((resolve, reject) => {
-        glob("**/**.test.js", { cwd: testsRoot }, (err, files) => {
-            if (err) {
-                return reject(err);
-            }
-
-            // Add files to the test suite
-            files.forEach(f => mocha.addFile(path.resolve(testsRoot, f)));
-
-            try {
-                // Run the mocha test
-                mocha.run((failures: any) => {
-                    if (failures > 0) {
-                        reject(new Error(`${failures} tests failed.`));
-                    } else {
-                        resolve();
-                    }
-                });
-            } catch (err) {
-                reject(err);
-            }
-        });
-    }).finally(() => {
-        if (nyc) {
-            nyc.writeCoverageFile();
-            return nyc.report();
+    const globPkg = await loadGlob();
+    const getTestFiles = (pattern: string, cwd: string): Promise<string[]> => {
+        const candidateFns: any[] = [];
+        if (globPkg) {
+            if (typeof globPkg.glob === "function") candidateFns.push(globPkg.glob);
+            if (typeof globPkg === "function") candidateFns.push(globPkg);
         }
-        return void 0;
-    });
+        for (const fn of candidateFns) {
+            try {
+                const res = fn(pattern, { cwd });
+                if (res && typeof res.then === "function") {
+                    return res as Promise<string[]>;
+                }
+            } catch (_e) {
+                // ignore and fallback to callback path
+            }
+        }
+        return new Promise<string[]>((resolve, reject) => {
+            const cb = (err: Error | null, files: string[]) => (err ? reject(err) : resolve(files));
+            for (const fn of candidateFns) {
+                try {
+                    fn(pattern, { cwd }, cb);
+                    return; // rely on callback
+                } catch (_e) {
+                    // try next
+                }
+            }
+            reject(new Error("Unsupported glob package shape"));
+        });
+    };
+
+    return getTestFiles("**/**.test.js", testsRoot)
+        .then(files => {
+            files.forEach(f => mocha.addFile(path.resolve(testsRoot, f)));
+            return new Promise<void>((resolve, reject) => {
+                try {
+                    mocha.run(failures => {
+                        if (failures > 0) {
+                            reject(new Error(`${failures} tests failed.`));
+                        } else {
+                            resolve();
+                        }
+                    });
+                } catch (err) {
+                    reject(err as Error);
+                }
+            });
+        })
+        .finally(() => {
+            if (nyc) {
+                nyc.writeCoverageFile();
+                return nyc.report();
+            }
+            return void 0;
+        });
 }
