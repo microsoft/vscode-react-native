@@ -5,7 +5,7 @@
 
 import * as path from "path";
 import * as Mocha from "mocha";
-import { glob } from "glob";
+import * as GlobModule from "glob";
 import NYCPackage from "nyc";
 
 function setupCoverage(): NYCPackage {
@@ -52,8 +52,36 @@ export async function run(): Promise<void> {
     mocha.invert();
 
     const testsRoot = __dirname;
+    // Cross-version glob: supports glob v11 Promise API and v7 callback API
+    const getTestFiles = (pattern: string, cwd: string): Promise<string[]> => {
+        const gm: any = GlobModule as any;
+        // glob v11: gm.glob exists and returns Promise
+        if (gm && typeof gm.glob === "function") {
+            return gm.glob(pattern, { cwd });
+        }
+        // glob v7: module is a callable function with callback style
+        const legacyGlob = GlobModule as unknown as (
+            p: string,
+            opts: { cwd: string },
+            cb: (err: Error | null, files: string[]) => void,
+        ) => void;
+        return new Promise<string[]>((resolve, reject) => {
+            try {
+                legacyGlob(pattern, { cwd }, (err, files) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(files);
+                    }
+                });
+            } catch (e) {
+                reject(e as Error);
+            }
+        });
+    };
+
     // Register Mocha options
-    return glob("**/**.test.js", { cwd: testsRoot })
+    return getTestFiles("**/**.test.js", testsRoot)
         .then((files: string[]) => {
             // Add files to the test suite
             files.forEach((f: string) => mocha.addFile(path.resolve(testsRoot, f)));
