@@ -5,7 +5,7 @@
 
 import * as path from "path";
 import * as Mocha from "mocha";
-import * as glob from "glob";
+import { glob } from "glob";
 import NYCPackage from "nyc";
 
 function setupCoverage(): NYCPackage {
@@ -54,27 +54,27 @@ export async function run(): Promise<void> {
     const testsRoot = __dirname;
     // Register Mocha options
     return new Promise<void>((resolve, reject) => {
-        glob("**/**.test.js", { cwd: testsRoot }, (err, files) => {
-            if (err) {
-                return reject(err);
-            }
+        glob("**/**.test.js", { cwd: testsRoot })
+            .then((files: string[]) => {
+                // Add files to the test suite
+                files.forEach((f: string) => mocha.addFile(path.resolve(testsRoot, f)));
 
-            // Add files to the test suite
-            files.forEach(f => mocha.addFile(path.resolve(testsRoot, f)));
-
-            try {
-                // Run the mocha test
-                mocha.run((failures: any) => {
-                    if (failures > 0) {
-                        reject(new Error(`${failures} tests failed.`));
-                    } else {
-                        resolve();
-                    }
-                });
-            } catch (err) {
+                try {
+                    // Run the mocha test
+                    mocha.run((failures: any) => {
+                        if (failures > 0) {
+                            reject(new Error(`${failures} tests failed.`));
+                        } else {
+                            resolve();
+                        }
+                    });
+                } catch (err) {
+                    reject(err);
+                }
+            })
+            .catch((err: Error) => {
                 reject(err);
-            }
-        });
+            });
     }).finally(() => {
         if (nyc) {
             nyc.writeCoverageFile();

@@ -225,6 +225,6 @@ export class DebuggerEndpointHelper {
             return false;
         }
 
-        return buf.equals(this.localv4) || buf.equals(this.localv6);
+        return buf.equals(this.localv4 as any) || buf.equals(this.localv6 as any);
     }
 }

@@ -442,7 +442,7 @@ require('${entryPoint}');`;
 
     private async getFromExpConfig<T>(key: string): Promise<T> {
         const config = await this.getExpConfig();
-        return config[key];
+        return (config as any)[key];
     }
 
     /**

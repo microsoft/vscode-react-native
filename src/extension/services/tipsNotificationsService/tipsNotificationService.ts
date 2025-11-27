@@ -394,19 +394,19 @@ export class TipNotificationService implements vscode.Disposable {
     }
 
     private getGeneralTipNotificationTextByKey(key: string): string {
-        return tipsStorage.generalTips[key].text;
+        return (tipsStorage.generalTips as any)[key].text;
     }
 
     private getSpecificTipNotificationTextByKey(key: string): string {
-        return tipsStorage.specificTips[key].text;
+        return (tipsStorage.specificTips as any)[key].text;
     }
 
     private getGeneralTipNotificationAnchorLinkByKey(key: string): string {
-        return tipsStorage.generalTips[key].anchorLink;
+        return (tipsStorage.generalTips as any)[key].anchorLink;
     }
 
     private getSpecificTipNotificationAnchorLinkByKey(key: string): string {
-        return tipsStorage.specificTips[key].anchorLink;
+        return (tipsStorage.specificTips as any)[key].anchorLink;
     }
 
     private deleteOutdatedKnownDate(): void {

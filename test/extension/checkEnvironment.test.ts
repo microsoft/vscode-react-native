@@ -113,7 +113,7 @@ suite("checkEnvironment", function () {
         };
         const restoreEnv = () => {
             Object.keys(envVars).forEach(it => {
-                process.env[it] = envVars[it];
+                process.env[it] = (envVars as any)[it];
             });
         };
 
