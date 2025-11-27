@@ -5,7 +5,9 @@
 
 import * as path from "path";
 import * as Mocha from "mocha";
-import * as GlobModule from "glob";
+// Use require to access CommonJS shape reliably across glob versions
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const globPkg = require("glob");
 import NYCPackage from "nyc";
 
 function setupCoverage(): NYCPackage {
@@ -52,28 +54,45 @@ export async function run(): Promise<void> {
     mocha.invert();
 
     const testsRoot = __dirname;
-    // Cross-version glob: supports glob v11 Promise API and v7 callback API
+    // Cross-version glob: supports glob v11 Promise API and glob v7 callback API
     const getTestFiles = (pattern: string, cwd: string): Promise<string[]> => {
-        const gm: any = GlobModule as any;
-        // glob v11: gm.glob exists and returns Promise
-        if (gm && typeof gm.glob === "function") {
-            return gm.glob(pattern, { cwd });
+        const globFn = globPkg && typeof globPkg.glob === "function" ? globPkg.glob : null;
+        // Try Promise API first (glob >= 11)
+        if (globFn) {
+            const res = globFn(pattern, { cwd });
+            if (res && typeof res.then === "function") {
+                return res as Promise<string[]>;
+            }
         }
-        // glob v7: module is a callable function with callback style
-        const legacyGlob = GlobModule as unknown as (
-            p: string,
-            opts: { cwd: string },
-            cb: (err: Error | null, files: string[]) => void,
-        ) => void;
+        // Fallback to callback API (glob <= 7)
         return new Promise<string[]>((resolve, reject) => {
             try {
-                legacyGlob(pattern, { cwd }, (err, files) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(files);
-                    }
-                });
+                if (typeof globPkg === "function") {
+                    (
+                        globPkg as unknown as (
+                            p: string,
+                            opts: { cwd: string },
+                            cb: (err: Error | null, files: string[]) => void,
+                        ) => void
+                    )(pattern, { cwd }, (err, files) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(files);
+                        }
+                    });
+                } else if (globPkg && typeof globPkg.glob === "function") {
+                    // Some versions expose callback via globPkg.glob as well
+                    globPkg.glob(pattern, { cwd }, (err: Error | null, files: string[]) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(files);
+                        }
+                    });
+                } else {
+                    reject(new Error("Unsupported glob package shape"));
+                }
             } catch (e) {
                 reject(e as Error);
             }
