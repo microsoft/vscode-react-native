@@ -10,11 +10,9 @@ const vsixName = `${pkg.name}-${pkg.version}.vsix`;
 const repoRoot = path.resolve(__dirname, '..');
 const vsixSource = path.resolve(repoRoot, vsixName);
 
-// Target directory for smoke tests (Windows/macOS friendly)
+// Target directory for smoke tests (repo-relative, matches test expectations)
 const targetDir = path.resolve(
-  process.env.USERPROFILE || process.env.HOME || '',
-  'vscode-extensions',
-  'vscode-react-native',
+  repoRoot,
   'test',
   'smoke',
   'resources',
