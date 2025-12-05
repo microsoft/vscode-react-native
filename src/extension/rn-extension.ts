@@ -347,7 +347,7 @@ function activateCommands(): void {
 }
 
 function onFolderRemoved(folder: vscode.WorkspaceFolder): void {
-    const appLauncher = ProjectsStorage.getFolder(folder);
+    const appLauncher = ProjectsStorage.getFolder(folder) as any;
     Object.keys(appLauncher).forEach(key => {
         if (appLauncher[key].dispose) {
             appLauncher[key].dispose();

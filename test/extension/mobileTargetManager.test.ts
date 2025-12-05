@@ -231,7 +231,7 @@ suite("MobileTargetManager", function () {
                 items: string[] | Thenable<string[]> | QuickPickItem[] | Thenable<QuickPickItem[]>,
             ) => {
                 targetsForSelection = <string[]>await items;
-                return items[0];
+                return (items as any)[0];
             },
         );
         targetsForSelection = [];

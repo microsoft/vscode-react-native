@@ -216,7 +216,7 @@ export class InspectorConsoleView extends InspectorView {
         };
 
         if (url.search) {
-            networkRequestConsoleView.networkRequestData["Request Query Parameters"] =
+            (networkRequestConsoleView.networkRequestData as any)["Request Query Parameters"] =
                 this.retrieveURLSearchParams(url.searchParams);
         }
 
@@ -239,7 +239,7 @@ export class InspectorConsoleView extends InspectorView {
         return headers.reduce((headersViewObject, header) => {
             headersViewObject[header.key] = header.value;
             return headersViewObject;
-        }, {});
+        }, {} as Record<string, string>);
     }
 
     private printNetworkRequestData(networkRequestData: ConsoleNetworkRequestDataView): void {

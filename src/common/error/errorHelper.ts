@@ -44,7 +44,7 @@ export class ErrorHelper {
 
     private static getErrorMessage(errorCode: InternalErrorCode, ...optionalArgs: any[]): string {
         return ErrorHelper.formatErrorMessage(
-            ErrorHelper.ERROR_STRINGS[errorCode],
+            ErrorHelper.ERROR_STRINGS[errorCode as keyof typeof ErrorHelper.ERROR_STRINGS],
             ...optionalArgs,
         );
     }

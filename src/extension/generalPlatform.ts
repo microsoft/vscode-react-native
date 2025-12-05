@@ -258,7 +258,7 @@ export class GeneralPlatform {
                     ) {
                         value = value.replace(/\\n/gm, "\n");
                     }
-                    result[key] = value.replace(/(^["']|["']$)/g, "");
+                    (result as any)[key] = value.replace(/(^["']|["']$)/g, "");
                 }
             });
 

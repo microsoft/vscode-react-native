@@ -135,7 +135,7 @@ export class SettingsHelper {
             const consoleLogsColorTheme: string = ConfigurationReader.readString(
                 workspaceConfiguration.get("consoleLogsColorTheme"),
             );
-            return SystemColorTheme[consoleLogsColorTheme];
+            return (SystemColorTheme as any)[consoleLogsColorTheme];
         }
         return SystemColorTheme.Light;
     }

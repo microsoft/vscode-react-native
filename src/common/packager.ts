@@ -195,7 +195,7 @@ export class Packager {
                     projectRoot,
                 );
                 Object.keys(packagerOptions).forEach(key => {
-                    args = args.concat([`--${key}`, packagerOptions[key]]);
+                    args = args.concat([`--${key}`, (packagerOptions as any)[key]]);
                 });
             } catch (error) {
                 this.logger.warning(

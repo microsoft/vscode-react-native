@@ -350,7 +350,10 @@ function fetch(url) {
                      * https://github.com/facebook/react-native/blob/588f01e9982775f0699c7bfd56623d4ed3949810/local-cli/server/util/webSocketProxy.js#L38
                      */
                     const msgKey = "_closeMessage";
-                    if (this.socketToApp[msgKey] === "Another debugger is already connected") {
+                    if (
+                        (this.socketToApp as any)[msgKey] ===
+                        "Another debugger is already connected"
+                    ) {
                         reject(
                             ErrorHelper.getInternalError(
                                 InternalErrorCode.AnotherDebuggerConnectedToPackager,
