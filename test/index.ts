@@ -5,9 +5,6 @@
 
 import * as path from "path";
 import * as Mocha from "mocha";
-// Use require to access CommonJS shape reliably across glob versions
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const globPkg = require("glob");
 import NYCPackage from "nyc";
 
 async function loadGlob(): Promise<any> {
@@ -23,6 +20,7 @@ async function loadGlob(): Promise<any> {
 }
 
 function setupCoverage(): NYCPackage {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const NYC = require("nyc");
     const nyc = new NYC({
         cwd: path.join(__dirname, ".."),
@@ -77,78 +75,31 @@ export async function run(): Promise<void> {
     mocha.invert();
 
     const testsRoot = __dirname;
-    // Cross-version glob: supports glob v11 Promise API and glob v7 callback API
-    const getTestFiles = (pattern: string, cwd: string): Promise<string[]> => {
-        const globFn = globPkg && typeof globPkg.glob === "function" ? globPkg.glob : null;
-        // Try Promise API first (glob >= 11)
-        if (globFn) {
-            const res = globFn(pattern, { cwd });
-            if (res && typeof res.then === "function") {
-                return res as Promise<string[]>;
-            }
-        }
-        // Fallback to callback API (glob <= 7)
-        return new Promise<string[]>((resolve, reject) => {
-            try {
-                if (typeof globPkg === "function") {
-                    (
-                        globPkg as unknown as (
-                            p: string,
-                            opts: { cwd: string },
-                            cb: (err: Error | null, files: string[]) => void,
-                        ) => void
-                    )(pattern, { cwd }, (err, files) => {
-                        if (err) {
-                            reject(err);
-                        } else {
-                            resolve(files);
-                        }
-                    });
-                } else if (globPkg && typeof globPkg.glob === "function") {
-                    // Some versions expose callback via globPkg.glob as well
-                    globPkg.glob(pattern, { cwd }, (err: Error | null, files: string[]) => {
-                        if (err) {
-                            reject(err);
-                        } else {
-                            resolve(files);
-                        }
-                    });
-                } else {
-                    reject(new Error("Unsupported glob package shape"));
-                }
-            } catch (e) {
-                reject(e as Error);
-            }
-        });
-    };
-
-    // Register Mocha options
-    return getTestFiles("**/**.test.js", testsRoot)
-        .then((files: string[]) => {
-            // Add files to the test suite
-            files.forEach((f: string) => mocha.addFile(path.resolve(testsRoot, f)));
-
-            return new Promise<void>((resolve, reject) => {
-                try {
-                    // Run the mocha test
-                    mocha.run((failures: any) => {
     const globPkg = await loadGlob();
+
+    // Cross-version glob: supports glob v11 Promise API and glob v7 callback API
     const getTestFiles = (pattern: string, cwd: string): Promise<string[]> => {
         const candidateFns: any[] = [];
         if (globPkg) {
-            if (typeof globPkg.glob === "function") candidateFns.push(globPkg.glob);
-            if (typeof globPkg === "function") candidateFns.push(globPkg);
+            if (typeof globPkg.glob === "function") {
+                candidateFns.push(globPkg.glob);
+            }
+            if (typeof globPkg === "function") {
+                candidateFns.push(globPkg);
+            }
         }
+
         for (const fn of candidateFns) {
             try {
                 const res = fn(pattern, { cwd });
                 if (res && typeof res.then === "function") {
-                    return res as Promise<string[]>;
+                    return res as Promise<string[]>; // glob >= 11 Promise API
                 }
             } catch (_e) {
                 // ignore and fallback to callback path
             }
         }
+
         return new Promise<string[]>((resolve, reject) => {
             const cb = (err: Error | null, files: string[]) => (err ? reject(err) : resolve(files));
             for (const fn of candidateFns) {
@@ -165,9 +116,10 @@ export async function run(): Promise<void> {
 
     // Exclude smoke test bundle and localization driver; only run unit/integration tests here
     return getTestFiles("extension/**/*.test.js", testsRoot)
-        .then(files => files.filter(f => !/[/\\]exponent[/\\]/i.test(f)))
+        .then(files => files.filter(f => !/[\\/]exponent[\\/]/i.test(f)))
         .then(files => {
             files.forEach(f => mocha.addFile(path.resolve(testsRoot, f)));
+
             return new Promise<void>((resolve, reject) => {
                 try {
                     mocha.run(failures => {
