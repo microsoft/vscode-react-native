@@ -12,6 +12,13 @@ import { startPackagerTests } from "./packager.test";
 import { startVsixExistenceTest } from "./vsixbuild.test";
 
 export function startSmokeTests(setup: () => Promise<void>, cleanUp: () => Promise<void>): void {
+    // Guard: if mocha BDD hooks are absent, do not attempt to register tests
+    if (
+        typeof (global as any).before !== "function" ||
+        typeof (global as any).describe !== "function"
+    ) {
+        return;
+    }
     before(async function () {
         try {
             await cleanUp();
