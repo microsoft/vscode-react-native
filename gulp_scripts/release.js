@@ -66,7 +66,11 @@ function prepareLicenses() {
             return new Promise((resolve, reject) => {
                 // NOTE: vsce must see npm 3.X otherwise it will not correctly strip out dev dependencies.
                 let vsceArgs = ["package"];
-                if (useNpm) {
+                const useBun = process.argv.includes("--bun");
+                if (useBun) {
+                    vsceArgs = ["package", "--no-yarn"];
+                    log("Using bun for vsce packaging...");
+                } else if (useNpm) {
                     vsceArgs = ["package", "--no-yarn"];
                     log("Using npm for vsce packaging...");
                 } else {
