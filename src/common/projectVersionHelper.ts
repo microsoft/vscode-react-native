@@ -50,6 +50,32 @@ export function RNPackageVersionsToPackageVersion(
 
 export class ProjectVersionHelper {
     private static SEMVER_INVALID = "SemverInvalid";
+    /**
+     * Reads required Node.js semver range from react-native's package.json engines.node.
+     * Falls back to null if not found.
+     */
+    public static async getReactNativeRequiredNodeRange(
+        projectRoot: string,
+        nodeModulesRoot?: string,
+    ): Promise<string | null> {
+        try {
+            if (!nodeModulesRoot) {
+                nodeModulesRoot = AppLauncher.getNodeModulesRootByProjectPath(projectRoot);
+            }
+            const rnPackage = new Package(nodeModulesRoot);
+            const rnPkgJson = await rnPackage.getPackageJsonFromNodeModules(
+                REACT_NATIVE_PACKAGES.REACT_NATIVE.packageName,
+            );
+            const engines = rnPkgJson && rnPkgJson.engines;
+            const nodeRange = engines && engines.node;
+            if (typeof nodeRange === "string" && nodeRange.trim().length > 0) {
+                return nodeRange.trim();
+            }
+            return null;
+        } catch {
+            return null;
+        }
+    }
 
     public static getRNVersionsWithBrokenMetroBundler(): string[] {
         // https://github.com/microsoft/vscode-react-native/issues/660 for details
