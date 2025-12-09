@@ -63,9 +63,9 @@ export class ProjectVersionHelper {
                 nodeModulesRoot = AppLauncher.getNodeModulesRootByProjectPath(projectRoot);
             }
             const rnPackage = new Package(nodeModulesRoot);
-            const rnPkgJson = await rnPackage.getPackageJsonFromNodeModules(
-                REACT_NATIVE_PACKAGES.REACT_NATIVE.packageName,
-            );
+            const rnPkgJson = await rnPackage
+                .dependencyPackage(REACT_NATIVE_PACKAGES.REACT_NATIVE.packageName)
+                .parsePackageInformation();
             const engines = rnPkgJson && rnPkgJson.engines;
             const nodeRange = engines && engines.node;
             if (typeof nodeRange === "string" && nodeRange.trim().length > 0) {
