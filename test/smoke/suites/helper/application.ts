@@ -54,7 +54,7 @@ export class Application {
             timeout: 10000,
         });
 
-        await utilities.sleep(5000);
+        await utilities.sleep(10000);
         return this.mainPage;
     }
 
