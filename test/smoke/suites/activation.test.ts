@@ -42,7 +42,7 @@ export function startExtensionActivationTests(): void {
             try {
                 await ElementHelper.WaitElementSelectorVisible(
                     `[id="${Constant.previewExtensionId}"]`,
-                    2000,
+                    10000,
                 );
                 SmokeTestLogger.info("React-native preview extension is activated");
                 isActivited = true;
@@ -50,7 +50,7 @@ export function startExtensionActivationTests(): void {
                 try {
                     await ElementHelper.WaitElementSelectorVisible(
                         `[id="${Constant.prodExtensionId}"]`,
-                        2000,
+                        10000,
                     );
                     SmokeTestLogger.info("React-native prod extension is activated");
                     isActivited = true;

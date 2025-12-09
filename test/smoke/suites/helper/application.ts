@@ -54,7 +54,7 @@ export class Application {
             timeout: 10000,
         });
 
-        await utilities.sleep(5000);
+        await utilities.sleep(10000);
         return this.mainPage;
     }
 
@@ -74,7 +74,13 @@ export class Application {
 
     async installExtensionFromVSIX(vscodeExecutablePath: string): Promise<void> {
         const [cliPath, ...args] = resolveCliArgsFromVSCodeExecutablePath(vscodeExecutablePath);
-        args.push(`--extensions-dir=${this.extensionDirectory}`);
+        // Remove existing --extensions-dir if present to avoid duplication
+        const extensionsDirIndex = args.findIndex(arg => arg.startsWith("--extensions-dir="));
+        if (extensionsDirIndex >= 0) {
+            args[extensionsDirIndex] = `--extensions-dir=${this.extensionDirectory}`;
+        } else {
+            args.push(`--extensions-dir=${this.extensionDirectory}`);
+        }
         let extensionFile = utilities.findFile(this.vsixDirectory, /.*\.(vsix)/);
         if (!extensionFile) {
             throw new Error(`React Native extension .vsix is not found in ${this.vsixDirectory}`);
