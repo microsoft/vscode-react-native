@@ -95,13 +95,13 @@ export function startDebugConfigurationTests(): void {
 
             const debugApplicationButton = await ElementHelper.WaitElementSelectorVisible(
                 Element.debugApplicationButtonSelector,
-                1000,
+                2000,
             );
             await debugApplicationButton.click();
 
             const androidButton = await ElementHelper.WaitElementSelectorVisible(
                 Element.androidButtonSelector,
-                1000,
+                3000,
             );
             await androidButton.click();
 

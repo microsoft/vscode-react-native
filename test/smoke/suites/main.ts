@@ -8,7 +8,11 @@ import { Screenshots } from "./helper/screenshot";
 export const app = new Application();
 export const screenshots = new Screenshots();
 
-startSmokeTests(setUp, cleanUp);
+// Skip executing smoke suite during regular extension unit test run
+// when mocha globals are not yet defined. We detect presence of 'it'.
+if (typeof (global as any).it === "function") {
+    startSmokeTests(setUp, cleanUp);
+}
 
 async function setUp(): Promise<void> {
     const vscodeExecutablePath = await app.downloadVSCodeExecutable();

@@ -9,8 +9,16 @@ import { startFileExplorerTests } from "./fileExplorer.test";
 import { SmokeTestLogger } from "./helper/smokeTestLogger";
 import { smokeTestFail } from "./helper/utilities";
 import { startPackagerTests } from "./packager.test";
+import { startVsixExistenceTest } from "./vsixbuild.test";
 
 export function startSmokeTests(setup: () => Promise<void>, cleanUp: () => Promise<void>): void {
+    // Guard: if mocha BDD hooks are absent, do not attempt to register tests
+    if (
+        typeof (global as any).before !== "function" ||
+        typeof (global as any).describe !== "function"
+    ) {
+        return;
+    }
     before(async function () {
         try {
             await cleanUp();
@@ -34,5 +42,6 @@ export function startSmokeTests(setup: () => Promise<void>, cleanUp: () => Promi
         startPackagerTests();
         startActionBarTests();
         startDebugConfigurationTests();
+        startVsixExistenceTest();
     });
 }

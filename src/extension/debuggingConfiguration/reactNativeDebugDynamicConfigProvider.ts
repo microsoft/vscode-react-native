@@ -96,7 +96,7 @@ export class ReactNativeDebugDynamicConfigProvider implements vscode.DebugConfig
         folder: vscode.WorkspaceFolder | undefined,
         config: vscode.DebugConfiguration,
         token?: vscode.CancellationToken,
-    ): Promise<vscode.ProviderResult<vscode.DebugConfiguration>> {
+    ): Promise<vscode.DebugConfiguration | null | undefined> {
         if (config.isDynamic) {
             const chosenConfigsEvent = TelemetryHelper.createTelemetryEvent(
                 "chosenDynamicDebugConfiguration",
