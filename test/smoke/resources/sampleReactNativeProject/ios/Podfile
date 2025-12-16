@@ -1,0 +1,19 @@
+platform :ios, '12.0'
+
+target 'SampleReactNativeProject' do
+  pod 'React', :path => '../node_modules/react-native'
+  
+  # Enable Hermes
+  pod 'hermes-engine', :podspec => '../node_modules/hermes-engine/hermes-engine.podspec'
+  
+  post_install do |installer|
+    installer.pods_project.targets.each do |target|
+      if target.name == "React"
+        target.build_configurations.each do |config|
+          config.build_settings["GCC_PREPROCESSOR_DEFINITIONS"] ||= []
+          config.build_settings["GCC_PREPROCESSOR_DEFINITIONS"] << "RCT_HERMES_ENABLED=1"
+        end
+      end
+    end
+  end
+end
