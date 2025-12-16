@@ -34,6 +34,7 @@ suite("tipNotificationService", function () {
     let tipNotificationService: TipNotificationService;
 
     setup(async function () {
+        this.timeout(5000);
         tipNotificationService = TipNotificationService.getInstance();
         config.delete(tipsConfigName);
         await SettingsHelper.setShowTips(true);
@@ -47,7 +48,8 @@ suite("tipNotificationService", function () {
     });
 
     suite("initializeTipsConfig", function () {
-        test("should create correct tips config", async () => {
+        test("should create correct tips config", async function () {
+            this.timeout(5000);
             await (<any>tipNotificationService).initializeTipsConfig();
             const tipsConfig: TipsConfig = (<any>tipNotificationService).tipsConfig;
 

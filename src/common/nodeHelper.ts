@@ -10,3 +10,5 @@ export async function getNodeVersion(projectPath: string, env: object) {
         return "";
     }
 }
+
+// Note: Additional helpers are not required for CDP messaging improvement.
