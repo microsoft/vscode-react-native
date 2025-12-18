@@ -6,12 +6,19 @@ import { FileSystem } from "../../common/node/fileSystem";
 
 export class PackageNameResolver {
     private static PackageNameRegexp: RegExp = /package="(.+?)"/;
+    private static ApplicationIdRegexp: RegExp = /applicationId\s+(=)?\s*["'](.+?)["']/;
     private static ManifestName = "AndroidManifest.xml";
+    private static GradleBuildName = "build.gradle";
     private static DefaultPackagePrefix = "com.";
     private static SourceRootRelPath: string[] = ["android", "app", "src", "main"];
     private static DefaultManifestLocation: string[] = PackageNameResolver.SourceRootRelPath.concat(
         PackageNameResolver.ManifestName,
     );
+    private static DefaultGradleBuildLocation: string[] = [
+        "android",
+        "app",
+        PackageNameResolver.GradleBuildName,
+    ];
     private applicationName: string;
 
     constructor(applicationName: string) {
@@ -22,12 +29,33 @@ export class PackageNameResolver {
      * Tries to find the package name in AndroidManifest.xml. If not found, it returns the default package name,
      * which is the application name prefixed with the default prefix.
      */
-    public resolvePackageName(projectRoot: string): Promise<string> {
+    public async resolvePackageName(projectRoot: string): Promise<string> {
+        const expectedGradleBuildPath = path.join.apply(
+            this,
+            [projectRoot].concat(PackageNameResolver.DefaultGradleBuildLocation),
+        );
+        const gradlePackageName = await this.readApplicationId(expectedGradleBuildPath);
+        if (gradlePackageName) {
+            return gradlePackageName;
+        }
+
         const expectedAndroidManifestPath = path.join.apply(
             this,
             [projectRoot].concat(PackageNameResolver.DefaultManifestLocation),
         );
         return this.readPackageName(expectedAndroidManifestPath);
+    }
+
+    private async readApplicationId(gradlePath: string): Promise<string | null> {
+        if (gradlePath) {
+            const fs = new FileSystem();
+            if (await fs.exists(gradlePath)) {
+                const content = await fs.readFile(gradlePath);
+                const match = content.toString().match(PackageNameResolver.ApplicationIdRegexp);
+                return match ? match[2] : null;
+            }
+        }
+        return null;
     }
 
     /**
