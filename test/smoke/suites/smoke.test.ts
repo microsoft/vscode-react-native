@@ -6,6 +6,7 @@ import { startExtensionActivationTests } from "./activation.test";
 import { startCommandPaletteTests } from "./commands.test";
 import { startDebugConfigurationTests } from "./debugConfiguration.test";
 import { startFileExplorerTests } from "./fileExplorer.test";
+import { startCDPNodeVersionCompatibilityTests } from "./cdpNodeVersionCompatibility.test";
 import { SmokeTestLogger } from "./helper/smokeTestLogger";
 import { smokeTestFail } from "./helper/utilities";
 import { startPackagerTests } from "./packager.test";
@@ -42,6 +43,7 @@ export function startSmokeTests(setup: () => Promise<void>, cleanUp: () => Promi
         startPackagerTests();
         startActionBarTests();
         startDebugConfigurationTests();
+        startCDPNodeVersionCompatibilityTests();
         startVsixExistenceTest();
     });
 }

@@ -1,0 +1,18 @@
+apply plugin: "com.android.application"
+
+android {
+    compileSdkVersion 33
+
+    defaultConfig {
+        applicationId "com.samplereactnativeproject"
+        minSdkVersion 21
+        targetSdkVersion 33
+        versionCode 1
+        versionName "1.0"
+    }
+
+    // Enable Hermes for smoke tests
+    project.ext.react = [
+        enableHermes: true,
+    ]
+}
