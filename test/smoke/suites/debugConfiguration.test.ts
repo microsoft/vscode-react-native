@@ -111,21 +111,38 @@ export function startDebugConfigurationTests(): void {
             );
             await applicationInDirectModeButton.click();
             await ElementHelper.waitPageLoad("domcontentloaded");
-            const configurationElement = await ElementHelper.TryFindElement(
-                Element.configurationElementSelector,
-                5000,
-            );
 
-            let launchContent = await configurationElement?.textContent();
-            if (launchContent) {
-                launchContent = launchContent.replace(/\s/g, "");
-                assert.ok(
-                    launchContent.includes("DebugAndroidHermes"),
-                    `Expected launchContent to include "Debug Android Hermes", but got: ${launchContent}`,
+            // Retry reading launch.json content to account for async insertion timing
+            let launchContent: string | null | undefined = null;
+            let includesHermesConfig = false;
+            const maxAttempts = 20; // ~10s with 500ms waits
+
+            for (let attempt = 0; attempt < maxAttempts; attempt++) {
+                const configurationElement = await ElementHelper.TryFindElement(
+                    Element.configurationElementSelector,
+                    5000,
                 );
-            } else {
+                launchContent = await configurationElement?.textContent();
+                if (launchContent) {
+                    const normalized = launchContent.replace(/\s/g, "");
+                    if (normalized.includes("DebugAndroidHermes")) {
+                        includesHermesConfig = true;
+                        break;
+                    }
+                }
+                await ElementHelper.waitPageLoad("networkidle");
+            }
+
+            if (!launchContent) {
                 assert.fail("Fail to set launch file configuration.");
             }
+
+            assert.ok(
+                includesHermesConfig,
+                `Expected launchContent to include "Debug Android Hermes", but got: ${(
+                    launchContent || ""
+                ).replace(/\s/g, "")}`,
+            );
         });
     });
 }
