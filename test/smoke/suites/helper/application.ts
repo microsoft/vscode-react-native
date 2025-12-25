@@ -51,7 +51,8 @@ export class Application {
 
         this.mainPage = await this.app.firstWindow();
         await this.mainPage.waitForSelector(`.${Element.vscodeWorkbenchClassName}`, {
-            timeout: 10000,
+            // CI occasionally needs longer to render the workbench; give it more headroom.
+            timeout: 30000,
         });
 
         await utilities.sleep(10000);
