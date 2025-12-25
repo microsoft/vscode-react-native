@@ -34,7 +34,8 @@
     "onDebugResolve:reactnative",
     "onDebugResolve:reactnativedirect",
     "onDebugDynamicConfigurations:reactnative",
-    "onDebugInitialConfigurations"
+    "onDebugInitialConfigurations",
+    "onCommand:reactNative.cleanRestartPackager"
   ],
   "main": "./dist/rn-extension",
   "contributes": {
@@ -184,6 +185,12 @@
       {
         "command": "reactNative.restartPackager",
         "title": "%reactNative.command.restartPackager.title%",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
+      },
+      {
+        "command": "reactNative.cleanRestartPackager",
+        "title": "%reactNative.command.cleanRestartPackager.title%",
         "category": "React Native",
         "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       },
