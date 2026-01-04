@@ -14,6 +14,8 @@ test/**/*.js
 test/smoke/vscode
 test/smoke/resources/sampleReactNativeProject
 !test/smoke/resources/sampleReactNativeProject/*.js
+!test/smoke/resources/sampleReactNativeProject/android/
+!test/smoke/resources/sampleReactNativeProject/ios/
 !test/resources/sampleReactNativeProject/metro.config.js
 !test/resources/newVersionReactNativeProject/*.js
 test/smoke/*.xml
