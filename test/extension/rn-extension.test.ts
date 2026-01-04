@@ -154,6 +154,7 @@ suite("rn-extension", function () {
                 "reactNative.publishToExpHost",
                 "reactNative.reloadApp",
                 "reactNative.restartPackager",
+                "reactNative.cleanRestartPackager",
                 "reactNative.runAndroidDevice",
                 "reactNative.runAndroidSimulator",
                 "reactNative.runExponent",
