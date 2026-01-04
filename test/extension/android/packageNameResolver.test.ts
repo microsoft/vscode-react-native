@@ -7,7 +7,7 @@ const sinon = require("sinon");
 import { PackageNameResolver } from "../../../src/extension/android/packageNameResolver";
 import { FileSystem } from "../../../src/common/node/fileSystem";
 
-describe("PackageNameResolver", function () {
+suite("PackageNameResolver", function () {
     const projectRoot = path.join(__dirname, "mockProject");
     const androidRoot = path.join(projectRoot, "android");
     const appRoot = path.join(androidRoot, "app");
@@ -17,18 +17,18 @@ describe("PackageNameResolver", function () {
     let readFileStub: any;
     let existsStub: any;
 
-    beforeEach(() => {
+    setup(() => {
         // Mock FileSystem methods
         existsStub = sinon.stub(FileSystem.prototype, "exists");
         readFileStub = sinon.stub(FileSystem.prototype, "readFile");
     });
 
-    afterEach(() => {
+    teardown(() => {
         if (existsStub) existsStub.restore();
         if (readFileStub) readFileStub.restore();
     });
 
-    it("should resolve package name from AndroidManifest.xml if build.gradle is missing", async () => {
+    test("should resolve package name from AndroidManifest.xml if build.gradle is missing", async () => {
         const manifestContent = `
             <manifest xmlns:android="http://schemas.android.com/apk/res/android"
                 package="com.example.manifest">
@@ -44,7 +44,7 @@ describe("PackageNameResolver", function () {
         assert.strictEqual(packageName, "com.example.manifest");
     });
 
-    it("should resolve application id from build.gradle", async () => {
+    test("should resolve application id from build.gradle", async () => {
         const buildGradleContent = `
             android {
                 defaultConfig {
@@ -63,7 +63,7 @@ describe("PackageNameResolver", function () {
         assert.strictEqual(packageName, "com.example.gradle");
     });
 
-    it("should prioritize build.gradle applicationId over AndroidManifest.xml package", async () => {
+    test("should prioritize build.gradle applicationId over AndroidManifest.xml package", async () => {
         const manifestContent = `
             <manifest xmlns:android="http://schemas.android.com/apk/res/android"
                 package="com.example.manifest">
@@ -88,7 +88,7 @@ describe("PackageNameResolver", function () {
         assert.strictEqual(packageName, "com.example.gradle");
     });
 
-    it("should resolve application id from build.gradle using single quotes", async () => {
+    test("should resolve application id from build.gradle using single quotes", async () => {
         const buildGradleContent = `
             android {
                 defaultConfig {
@@ -106,7 +106,7 @@ describe("PackageNameResolver", function () {
         assert.strictEqual(packageName, "com.example.gradle.singlequote");
     });
 
-    it("should resolve application id from build.gradle using assignment", async () => {
+    test("should resolve application id from build.gradle using assignment", async () => {
         const buildGradleContent = `
             android {
                 defaultConfig {
@@ -124,7 +124,7 @@ describe("PackageNameResolver", function () {
         assert.strictEqual(packageName, "com.example.gradle.assignment");
     });
 
-    it("should fall back to default package name if neither file exists", async () => {
+    test("should fall back to default package name if neither file exists", async () => {
         existsStub.returns(Promise.resolve(false));
 
         const resolver = new PackageNameResolver("ExampleApp");
