@@ -1,0 +1,218 @@
+# EditorConfig helps maintain consistent coding styles and settings
+# across different editors and IDEs. This file is automatically recognized
+# by most modern editors (VS Code, WebStorm, Sublime Text, etc.)
+# See: https://editorconfig.org/
+
+# Top-most EditorConfig file - Stop searching in parent directories
+root = true
+
+# Default settings for all files
+[*]
+# Character encoding (UTF-8 is standard for modern projects)
+charset = utf-8
+
+# Line ending style (auto will use system default)
+# - "lf" for Unix-like systems (Linux, macOS)
+# - "crlf" for Windows
+# - "auto" for mixed environments (recommended for projects with mixed OS users)
+end_of_line = auto
+
+# Insert a newline at the end of every file
+insert_final_newline = true
+
+# Remove trailing whitespace from all lines
+trim_trailing_whitespace = true
+
+# ============================================================================
+# TypeScript and JavaScript Files (Main source code)
+# Matches: .ts, .tsx, .js, .jsx, .mjs
+# Configured to match package.json prettier config: tabWidth = 4
+# ============================================================================
+[*.{ts,tsx,js,jsx,mjs}]
+indent_style = space
+indent_size = 4
+
+# ============================================================================
+# JSON Files
+# Includes: package.json, tsconfig.json, *.json files
+# Using 4 spaces for consistency with TypeScript files
+# ============================================================================
+[*.json]
+indent_style = space
+indent_size = 4
+
+# ============================================================================
+# JSON with Comments (like tsconfig.json comments)
+# Some tools support .jsonc extension for JSON with comments
+# ============================================================================
+[*.jsonc]
+indent_style = space
+indent_size = 4
+
+# ============================================================================
+# Markdown Files (.md)
+# Configured to match prettier override: tabWidth = 2
+# See package.json > prettier > overrides > files: ["*.md"]
+# ============================================================================
+[*.md]
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = false
+
+# Note: Markdown may have intentional trailing whitespace for line breaks (two spaces),
+# so we disable trim_trailing_whitespace for .md files to preserve intentional formatting
+
+# ============================================================================
+# YAML Files (.yml, .yaml)
+# Used in GitHub Actions (.github/workflows/*.yml) and CI configuration
+# Standard is 2 spaces for YAML files
+# ============================================================================
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
+
+# ============================================================================
+# Shell Script Files
+# Includes bash, sh scripts
+# Standard is 2-4 spaces (using 2 for compatibility)
+# ============================================================================
+[*.{sh,bash}]
+indent_style = space
+indent_size = 2
+
+# ============================================================================
+# Batch and PowerShell Files
+# Used for build scripts (prepareBuild.bat, PowerShell scripts)
+# ============================================================================
+[*.{bat,cmd,ps1}]
+indent_style = space
+indent_size = 4
+
+# ============================================================================
+# XML Files
+# Includes: .vscodeignore (VS Code manifest), test result files (.xml)
+# ============================================================================
+[*.xml]
+indent_style = space
+indent_size = 2
+
+# ============================================================================
+# Configuration Files (.cfg, .conf, .config)
+# Generic configuration files
+# ============================================================================
+[*.{cfg,conf,config}]
+indent_style = space
+indent_size = 4
+
+# ============================================================================
+# Property Files (.properties)
+# Java property files and similar
+# ============================================================================
+[*.properties]
+indent_style = space
+indent_size = 4
+
+# ============================================================================
+# Make Files
+# Unix Makefiles (must use tabs, not spaces)
+# WARNING: Do not change indent_style or indent_size for Makefiles!
+# ============================================================================
+[Makefile]
+indent_style = tab
+
+# ============================================================================
+# Git-related Files
+# .gitignore, .gitattributes, etc.
+# Keep them simple and readable
+# ============================================================================
+[.git*]
+indent_style = space
+indent_size = 2
+
+# ============================================================================
+# Documentation Files
+# Include LICENSE, README, CONTRIBUTING, etc.
+# ============================================================================
+[LICENSE*]
+insert_final_newline = false
+indent_style = space
+
+[README*]
+indent_style = space
+indent_size = 2
+
+[CONTRIBUTING*]
+indent_style = space
+indent_size = 2
+
+[CHANGELOG*]
+indent_style = space
+indent_size = 2
+
+# ============================================================================
+# Build and Package Files
+# gulpfile.js, webpack.config.js, etc.
+# ============================================================================
+[gulpfile.js]
+indent_style = space
+indent_size = 4
+
+[webpack.config.js]
+indent_style = space
+indent_size = 4
+
+# ============================================================================
+# Test Files
+# Matches test configuration and support files
+# ============================================================================
+[test/**/*.{ts,js}]
+indent_style = space
+indent_size = 4
+
+[test/**/*.json]
+indent_style = space
+indent_size = 4
+
+[*.test.{ts,tsx,js,jsx}]
+indent_style = space
+indent_size = 4
+
+# ============================================================================
+# i18n (Internationalization) Files
+# Language-specific JSON files
+# ============================================================================
+[i18n/**/*.json]
+indent_style = space
+indent_size = 4
+
+# ============================================================================
+# SPECIAL NOTES
+# ============================================================================
+
+# 1. SYNCHRONIZATION WITH PRETTIER
+#    This .editorconfig file is synchronized with prettier config in package.json:
+#    - Default indent_size: 4 (matches prettier.tabWidth)
+#    - Markdown indent_size: 2 (matches prettier.overrides[0].options.tabWidth)
+#    - end_of_line: auto (matches prettier.endOfLine)
+#    - insert_final_newline: true (recommended practice)
+#    - trim_trailing_whitespace: true (enforced by ESLint)
+
+# 2. SYNCHRONIZATION WITH ESLINT
+#    ESLint rules are also configured consistently with this EditorConfig.
+#    Most importantly:
+#    - No conflicting indentation rules between tools
+#    - Consistent line ending handling
+#    - Trailing whitespace removal is enforced
+
+# 3. EDITOR SETUP
+#    For VS Code, install the "EditorConfig for VS Code" extension:
+#    https://marketplace.visualstudio.com/items?itemName=EditorConfig.EditorConfig
+#    
+#    Other editors (WebStorm, Sublime Text, Vim, etc.) have built-in or plugin support.
+
+# 4. TROUBLESHOOTING
+#    If your editor doesn't respect .editorconfig:
+#    - Ensure the extension/plugin is installed
+#    - Reload the editor after installing
+#    - Check that .editorconfig is in the project root (root = true)
+#    - Some settings may require manual editor configuration as backup
