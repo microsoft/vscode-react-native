@@ -33,7 +33,7 @@ export * from "./prebuild";
 export * from "./prebuildClean";
 export * from "./reopenQRCode";
 export * from "./enableHermes";
-export * from "./enableExpoHemes";
+export * from "./enableExpoHermes";
 export * from "./openExpoUpgradeHelper";
 export * from "./killPort";
 export * from "./setNewArch";
