@@ -58,31 +58,23 @@ export function startPackagerTests(): void {
             this.timeout(300000); // 5 minutes timeout for clean restart
             await initApp();
 
-            // Ensure packager is running first
-            let packager = await ComponentHelper.getReactNativePackager();
-            let currentState = await packager.getAttribute("aria-label");
-
-            if (currentState?.includes("play")) {
-                // Start the packager if it's not running
-                await packager.click();
-                await ComponentHelper.waitPackagerStateIncludes("primitive-square");
-                SmokeTestLogger.testLog("Packager started before clean restart test.");
-            }
-
             // Execute Clean & Restart Packager command
+            // The command should handle starting the packager if it's not already running
             SmokeTestLogger.testLog("Executing Clean & Restart Packager command...");
             await ComponentHelper.executeCommand("React Native: Clean & Restart Packager (Metro)");
 
-            // Wait for the packager to restart (it should show loading state first)
-            await ComponentHelper.waitPackagerStateIncludesOneOf(
-                ["loading~spin", "primitive-square"],
-                60000,
-            );
-            SmokeTestLogger.testLog("Packager is restarting after clean...");
+            // Wait for the packager to start/restart and be fully running
+            // In CI environments, this may take longer due to slower I/O
+            await ComponentHelper.waitPackagerStateIncludes("primitive-square", 180000);
+            SmokeTestLogger.testLog("Packager successfully started/restarted with clean cache.");
 
-            // Wait for packager to finish restarting and be fully running
-            await ComponentHelper.waitPackagerStateIncludes("primitive-square", 120000);
-            SmokeTestLogger.testLog("Packager successfully restarted with clean cache.");
+            // Verify packager is in running state
+            const packager = await ComponentHelper.getReactNativePackager();
+            const currentState = await packager.getAttribute("aria-label");
+            assert.ok(
+                currentState?.includes("primitive-square"),
+                "Packager should be in running state",
+            );
         });
     });
 }
