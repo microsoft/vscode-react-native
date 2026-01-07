@@ -6,7 +6,6 @@ import { SmokeTestLogger } from "./helper/smokeTestLogger";
 import { app, screenshots } from "./main";
 import * as assert from "assert";
 import { ComponentHelper } from "./helper/componentHelper";
-import { WaitHelper } from "./helper/waitHelper";
 
 export function startPackagerTests(): void {
     describe("PackagerTest", () => {
@@ -44,42 +43,46 @@ export function startPackagerTests(): void {
             SmokeTestLogger.testLog("Packager is ready.");
 
             await packager.click();
-            await WaitHelper.waitIsTrue(async () => {
-                packager = await ComponentHelper.getReactNativePackager();
-                currentState = await packager.getAttribute("aria-label");
-                try {
-                    assert.ok(currentState?.includes("loading~spin"));
-                    return true;
-                } catch {
-                    return false;
-                }
-            });
+            await ComponentHelper.waitPackagerStateIncludes("loading~spin");
             SmokeTestLogger.testLog("Packager is starting.");
 
-            await WaitHelper.waitIsTrue(async () => {
-                packager = await ComponentHelper.getReactNativePackager();
-                currentState = await packager.getAttribute("aria-label");
-                try {
-                    assert.ok(currentState?.includes("primitive-square"));
-                    return true;
-                } catch {
-                    return false;
-                }
-            });
+            await ComponentHelper.waitPackagerStateIncludes("primitive-square");
             SmokeTestLogger.testLog("Packager is started.");
 
             await packager.click();
-            await WaitHelper.waitIsTrue(async () => {
-                packager = await ComponentHelper.getReactNativePackager();
-                currentState = await packager.getAttribute("aria-label");
-                try {
-                    assert.ok(currentState?.includes("play"));
-                    return true;
-                } catch {
-                    return false;
-                }
-            });
+            await ComponentHelper.waitPackagerStateIncludes("play");
             SmokeTestLogger.testLog("Packager is stoped.");
+        });
+
+        it("Verify Clean & Restart Packager command works correctly", async function () {
+            this.timeout(300000); // 5 minutes timeout for clean restart
+            await initApp();
+
+            // Ensure packager is running first
+            let packager = await ComponentHelper.getReactNativePackager();
+            let currentState = await packager.getAttribute("aria-label");
+
+            if (currentState?.includes("play")) {
+                // Start the packager if it's not running
+                await packager.click();
+                await ComponentHelper.waitPackagerStateIncludes("primitive-square");
+                SmokeTestLogger.testLog("Packager started before clean restart test.");
+            }
+
+            // Execute Clean & Restart Packager command
+            SmokeTestLogger.testLog("Executing Clean & Restart Packager command...");
+            await ComponentHelper.executeCommand("React Native: Clean & Restart Packager (Metro)");
+
+            // Wait for the packager to restart (it should show loading state first)
+            await ComponentHelper.waitPackagerStateIncludesOneOf(
+                ["loading~spin", "primitive-square"],
+                60000,
+            );
+            SmokeTestLogger.testLog("Packager is restarting after clean...");
+
+            // Wait for packager to finish restarting and be fully running
+            await ComponentHelper.waitPackagerStateIncludes("primitive-square", 120000);
+            SmokeTestLogger.testLog("Packager successfully restarted with clean cache.");
         });
     });
 }
