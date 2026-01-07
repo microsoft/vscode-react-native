@@ -11,6 +11,7 @@ export * from "./networkInspector";
 export * from "./publishToExpHost";
 export * from "./reloadApp";
 export * from "./restartPackager";
+export * from "./cleanRestartPackager";
 export * from "./runAndroid";
 export * from "./runExponent";
 export * from "./runIos";

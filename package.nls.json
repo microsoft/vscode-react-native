@@ -17,6 +17,7 @@
   "reactNative.command.startPackager.title": "Start Packager",
   "reactNative.command.stopPackager.title": "Stop Packager",
   "reactNative.command.restartPackager.title": "Restart Packager",
+  "reactNative.command.cleanRestartPackager.title": "Clean & Restart Packager (Metro)",
   "reactNative.command.publishToExpHost.title": "Expo - Publish",
   "reactNative.command.createExpoEASBuildConfigFile.title": "Expo - Create EAS config file",
   "reactNative.command.openEASProjectInWebPage.title": "Expo - Open the EAS project in a web page",
