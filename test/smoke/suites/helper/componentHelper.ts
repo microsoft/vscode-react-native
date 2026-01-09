@@ -2,6 +2,7 @@ import { ElementHandle, Page } from "playwright";
 import { app } from "../main";
 import { ElementHelper } from "./elementHelper";
 import { Constant, Element } from "./constants";
+import { WaitHelper } from "./waitHelper";
 import { SmokeTestLogger } from "./smokeTestLogger";
 
 export class ComponentHelper {
@@ -13,6 +14,23 @@ export class ComponentHelper {
     public static async openCommandPalette() {
         const cmdKey = process.platform === "darwin" ? "Meta" : "Control";
         await ElementHelper.sendKeys(`${cmdKey}+Shift+P`);
+    }
+
+    public static async executeCommand(commandName: string) {
+        await this.openCommandPalette();
+        await ElementHelper.WaitElementClassNameVisible(Element.commandPaletteClassName, 5000);
+
+        // Type the command name to search for it
+        await ElementHelper.inputText(commandName);
+
+        // Wait for the command to appear in the list
+        await ElementHelper.WaitElementSelectorVisible(
+            Element.commandPaletteFocusedItemSelector,
+            5000,
+        );
+
+        // Press Enter to execute the command
+        await ElementHelper.sendKeys("Enter");
     }
 
     public static async openFileExplorer() {
@@ -63,5 +81,37 @@ export class ComponentHelper {
         }
 
         return packager;
+    }
+
+    public static async waitPackagerStateIncludes(
+        expected: string,
+        timeout: number = 30000,
+    ): Promise<void> {
+        const ok = await WaitHelper.waitIsTrue(async () => {
+            const packager = await this.getReactNativePackager();
+            const currentState = await packager.getAttribute("aria-label");
+            return !!currentState?.includes(expected);
+        }, timeout);
+        if (!ok) {
+            throw new Error(`Packager state did not include "${expected}" within ${timeout}ms`);
+        }
+    }
+
+    public static async waitPackagerStateIncludesOneOf(
+        expectedList: string[],
+        timeout: number = 30000,
+    ): Promise<void> {
+        const ok = await WaitHelper.waitIsTrue(async () => {
+            const packager = await this.getReactNativePackager();
+            const currentState = await packager.getAttribute("aria-label");
+            return expectedList.some(exp => currentState?.includes(exp));
+        }, timeout);
+        if (!ok) {
+            throw new Error(
+                `Packager state did not include any of ${expectedList
+                    .map(e => `"${e}"`)
+                    .join(", ")} within ${timeout}ms`,
+            );
+        }
     }
 }
