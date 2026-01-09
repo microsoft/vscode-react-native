@@ -8,6 +8,7 @@ import * as assert from "assert";
 import { ComponentHelper } from "./helper/componentHelper";
 import { ElementHelper } from "./helper/elementHelper";
 import { Element } from "./helper/constants";
+import { TimeoutConstants } from "./helper/timeoutConstants";
 
 export function startCDPNodeVersionCompatibilityTests(): void {
     describe("CDPNodeVersionCompatibilityTest", () => {
@@ -42,7 +43,7 @@ export function startCDPNodeVersionCompatibilityTests(): void {
             await ComponentHelper.openRunAndDebugTab();
             await ElementHelper.WaitElementClassNameVisible(
                 Element.runAndDebugTabButtonClassName,
-                5000,
+                TimeoutConstants.COMMAND_PALETTE_TIMEOUT,
             );
 
             SmokeTestLogger.info("Run and Debug tab is accessible");
@@ -52,12 +53,15 @@ export function startCDPNodeVersionCompatibilityTests(): void {
             await initApp();
 
             await ComponentHelper.openCommandPalette();
-            await ElementHelper.WaitElementClassNameVisible(Element.commandPaletteClassName, 5000);
+            await ElementHelper.WaitElementClassNameVisible(
+                Element.commandPaletteClassName,
+                TimeoutConstants.COMMAND_PALETTE_TIMEOUT,
+            );
 
             await ElementHelper.inputText("debug");
             const option = await ElementHelper.WaitElementSelectorVisible(
                 Element.commandPaletteFocusedItemSelector,
-                5000,
+                TimeoutConstants.COMMAND_PALETTE_TIMEOUT,
             );
 
             const value = await option.getAttribute("aria-label");

@@ -4,6 +4,7 @@ import { ElementHelper } from "./elementHelper";
 import { Constant, Element } from "./constants";
 import { WaitHelper } from "./waitHelper";
 import { SmokeTestLogger } from "./smokeTestLogger";
+import { TimeoutConstants } from "./timeoutConstants";
 
 export class ComponentHelper {
     static Page(): Page {
@@ -18,7 +19,10 @@ export class ComponentHelper {
 
     public static async executeCommand(commandName: string) {
         await this.openCommandPalette();
-        await ElementHelper.WaitElementClassNameVisible(Element.commandPaletteClassName, 5000);
+        await ElementHelper.WaitElementClassNameVisible(
+            Element.commandPaletteClassName,
+            TimeoutConstants.COMMAND_PALETTE_TIMEOUT,
+        );
 
         // Type the command name to search for it
         await ElementHelper.inputText(commandName);
@@ -26,7 +30,7 @@ export class ComponentHelper {
         // Wait for the command to appear in the list
         await ElementHelper.WaitElementSelectorVisible(
             Element.commandPaletteFocusedItemSelector,
-            5000,
+            TimeoutConstants.COMMAND_PALETTE_TIMEOUT,
         );
 
         // Press Enter to execute the command
