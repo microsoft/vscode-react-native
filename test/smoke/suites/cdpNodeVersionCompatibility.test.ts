@@ -2,42 +2,19 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { Page } from "playwright";
-import { SmokeTestLogger } from "./helper/smokeTestLogger";
-import { app, screenshots } from "./main";
 import * as assert from "assert";
 import { ComponentHelper } from "./helper/componentHelper";
 import { ElementHelper } from "./helper/elementHelper";
 import { Element } from "./helper/constants";
+import { TimeoutConstants } from "./helper/timeoutConstants";
+import { BaseSmokeTest } from "./helper/baseSmokeTest";
 
 export function startCDPNodeVersionCompatibilityTests(): void {
     describe("CDPNodeVersionCompatibilityTest", () => {
-        async function initApp(): Promise<Page> {
-            await app.launch();
-            return app.getMainPage();
-        }
-
-        async function dispose() {
-            if (this.currentTest?.state === "failed") {
-                SmokeTestLogger.info("Test failed, taking screenshot ...");
-                await screenshots.takeScreenshots(
-                    this.currentTest.parent?.title || "Others",
-                    this.currentTest.title.replace(/\s+/g, "_"),
-                );
-            }
-            try {
-                SmokeTestLogger.info(`Dispose test: "${this.currentTest.title}" ...`);
-                if (app) {
-                    await app.close();
-                }
-            } catch (error) {
-                SmokeTestLogger.error(`Error while dispose: ${error}`);
-            }
-        }
-
-        afterEach(dispose);
+        afterEach(BaseSmokeTest.dispose);
 
         it("Verify Run and Debug tab is accessible for debugging operations", async () => {
-            await initApp();
+            await BaseSmokeTest.initApp();
 
             await ComponentHelper.openRunAndDebugTab();
             await ElementHelper.WaitElementClassNameVisible(
@@ -49,7 +26,7 @@ export function startCDPNodeVersionCompatibilityTests(): void {
         });
 
         it("Verify command palette can access debug-related commands", async () => {
-            await initApp();
+            await BaseSmokeTest.initApp();
 
             await ComponentHelper.openCommandPalette();
             await ElementHelper.WaitElementClassNameVisible(Element.commandPaletteClassName, 5000);
@@ -66,7 +43,7 @@ export function startCDPNodeVersionCompatibilityTests(): void {
         });
 
         it("Verify React Native packager is available for debugging", async () => {
-            await initApp();
+            await BaseSmokeTest.initApp();
 
             await ComponentHelper.getReactNativePackager();
             SmokeTestLogger.info("React Native packager is available for debugging");
