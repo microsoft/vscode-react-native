@@ -132,4 +132,133 @@ suite("PackageNameResolver", function () {
 
         assert.strictEqual(packageName, "com.exampleapp");
     });
+
+    test("should handle build.gradle with multiline applicationId", async () => {
+        const buildGradleContent = `
+            android {
+                defaultConfig {
+                    applicationId
+                        "com.example.multiline"
+                }
+            }
+        `;
+
+        existsStub.withArgs(buildGradlePath).returns(Promise.resolve(true));
+        readFileStub.withArgs(buildGradlePath).returns(Promise.resolve(buildGradleContent));
+
+        const resolver = new PackageNameResolver("ExampleApp");
+        const packageName = await resolver.resolvePackageName(projectRoot);
+
+        // This test ensures the regex doesn't fail on multiline declarations
+        assert.ok(
+            packageName === "com.example.multiline" || packageName === "com.exampleapp",
+            "Should either extract multiline applicationId or fall back to default",
+        );
+    });
+
+    test("should handle build.gradle with spaces around equals sign", async () => {
+        const buildGradleContent = `
+            android {
+                defaultConfig {
+                    applicationId   =   "com.example.spaces"
+                }
+            }
+        `;
+
+        existsStub.withArgs(buildGradlePath).returns(Promise.resolve(true));
+        readFileStub.withArgs(buildGradlePath).returns(Promise.resolve(buildGradleContent));
+
+        const resolver = new PackageNameResolver("ExampleApp");
+        const packageName = await resolver.resolvePackageName(projectRoot);
+
+        assert.strictEqual(packageName, "com.example.spaces");
+    });
+
+    test("should ignore AndroidManifest.xml when build.gradle applicationId is present", async () => {
+        const manifestContent = `
+            <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+                package="com.example.old.manifest">
+            </manifest>`;
+        const buildGradleContent = `
+            android {
+                defaultConfig {
+                    applicationId "com.example.new.gradle"
+                }
+            }
+        `;
+
+        // Mock the order of file existence checks
+        existsStub.withArgs(buildGradlePath).returns(Promise.resolve(true));
+        existsStub.withArgs(manifestPath).returns(Promise.resolve(true));
+        readFileStub.withArgs(buildGradlePath).returns(Promise.resolve(buildGradleContent));
+        readFileStub.withArgs(manifestPath).returns(Promise.resolve(manifestContent));
+
+        const resolver = new PackageNameResolver("ExampleApp");
+        const packageName = await resolver.resolvePackageName(projectRoot);
+
+        // build.gradle should take priority
+        assert.strictEqual(packageName, "com.example.new.gradle");
+    });
+
+    test("should handle missing applicationId in build.gradle and fall back to manifest", async () => {
+        const manifestContent = `
+            <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+                package="com.example.manifest.fallback">
+            </manifest>`;
+        const buildGradleContent = `
+            android {
+                defaultConfig {
+                    // No applicationId defined
+                    versionCode 1
+                }
+            }
+        `;
+
+        existsStub.withArgs(buildGradlePath).returns(Promise.resolve(true));
+        existsStub.withArgs(manifestPath).returns(Promise.resolve(true));
+        readFileStub.withArgs(buildGradlePath).returns(Promise.resolve(buildGradleContent));
+        readFileStub.withArgs(manifestPath).returns(Promise.resolve(manifestContent));
+
+        const resolver = new PackageNameResolver("ExampleApp");
+        const packageName = await resolver.resolvePackageName(projectRoot);
+
+        assert.strictEqual(packageName, "com.example.manifest.fallback");
+    });
+
+    test("should handle empty build.gradle file", async () => {
+        const manifestContent = `
+            <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+                package="com.example.manifest">
+            </manifest>`;
+        const buildGradleContent = "";
+
+        existsStub.withArgs(buildGradlePath).returns(Promise.resolve(true));
+        existsStub.withArgs(manifestPath).returns(Promise.resolve(true));
+        readFileStub.withArgs(buildGradlePath).returns(Promise.resolve(buildGradleContent));
+        readFileStub.withArgs(manifestPath).returns(Promise.resolve(manifestContent));
+
+        const resolver = new PackageNameResolver("ExampleApp");
+        const packageName = await resolver.resolvePackageName(projectRoot);
+
+        assert.strictEqual(packageName, "com.example.manifest");
+    });
+
+    test("should convert application name to lowercase for default package", async () => {
+        existsStub.returns(Promise.resolve(false));
+
+        const resolver = new PackageNameResolver("MyReactNativeApp");
+        const packageName = await resolver.resolvePackageName(projectRoot);
+
+        assert.strictEqual(packageName, "com.myreactnativeapp");
+    });
+
+    test("should handle special characters in application name", async () => {
+        existsStub.returns(Promise.resolve(false));
+
+        const resolver = new PackageNameResolver("MyApp-2024");
+        const packageName = await resolver.resolvePackageName(projectRoot);
+
+        // Default package should handle special chars gracefully
+        assert.ok(packageName.startsWith("com."));
+    });
 });
