@@ -1,12 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { Page } from "playwright";
 import assert = require("assert");
 import { ElementHelper } from "./helper/elementHelper";
 import { Constant } from "./helper/constants";
-import { TimeoutConstants } from "./helper/timeoutConstants";
 import { BaseSmokeTest } from "./helper/baseSmokeTest";
+import { SmokeTestLogger } from "./helper/smokeTestLogger";
 
 export function startExtensionActivationTests(): void {
     describe("ExtensionActivationTest", () => {

@@ -1,13 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { Page } from "playwright";
 import * as assert from "assert";
 import { ComponentHelper } from "./helper/componentHelper";
 import { ElementHelper } from "./helper/elementHelper";
 import { Element } from "./helper/constants";
-import { TimeoutConstants } from "./helper/timeoutConstants";
 import { BaseSmokeTest } from "./helper/baseSmokeTest";
+import { SmokeTestLogger } from "./helper/smokeTestLogger";
 
 export function startCDPNodeVersionCompatibilityTests(): void {
     describe("CDPNodeVersionCompatibilityTest", () => {
