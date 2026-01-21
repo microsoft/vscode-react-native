@@ -6,6 +6,7 @@ import { SmokeTestLogger } from "./helper/smokeTestLogger";
 import { app, screenshots } from "./main";
 import * as assert from "assert";
 import { ComponentHelper } from "./helper/componentHelper";
+import { TimeoutConstants } from "./helper/timeoutConstants";
 
 export function startPackagerTests(): void {
     describe("PackagerTest", () => {
@@ -55,7 +56,7 @@ export function startPackagerTests(): void {
         });
 
         it("Verify Clean & Restart Packager command works correctly", async function () {
-            this.timeout(300000); // 5 minutes timeout for clean restart
+            this.timeout(TimeoutConstants.PACKAGER_CLEAN_RESTART_TIMEOUT); // 5 minutes timeout for clean restart
             await initApp();
 
             // Execute Clean & Restart Packager command
@@ -65,7 +66,10 @@ export function startPackagerTests(): void {
 
             // Wait for the packager to start/restart and be fully running
             // In CI environments, this may take longer due to slower I/O
-            await ComponentHelper.waitPackagerStateIncludes("primitive-square", 180000);
+            await ComponentHelper.waitPackagerStateIncludes(
+                "primitive-square",
+                TimeoutConstants.PACKAGER_STATE_TIMEOUT,
+            );
             SmokeTestLogger.testLog("Packager successfully started/restarted with clean cache.");
 
             // Verify packager is in running state
