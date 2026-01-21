@@ -26,12 +26,16 @@ export function startActionBarTests(): void {
                 );
             }
             try {
-                SmokeTestLogger.info(`Dispose test: "${this.currentTest.title}" ...`);
+                SmokeTestLogger.info(`Dispose test: "${this.currentTest?.title ?? "unknown"}" ...`);
                 if (app) {
                     await app.close();
                 }
             } catch (error) {
-                SmokeTestLogger.error(`Error while dispose: ${error}`);
+                SmokeTestLogger.error(
+                    `Error while dispose: ${
+                        error instanceof Error ? error.message : String(error)
+                    }`,
+                );
             }
         }
 
@@ -43,18 +47,25 @@ export function startActionBarTests(): void {
             const debugActionItemDropdown = await ElementHelper.TryFindElement(
                 `[aria-label="${Element.debugActionItemDropdownAriaLable}"]`,
             );
-            assert.notStrictEqual(debugActionItemDropdown, null);
+            assert.notStrictEqual(
+                debugActionItemDropdown,
+                null,
+                "Debug action item dropdown should be present in the UI",
+            );
 
             const actionButton = await ElementHelper.WaitElementSelectorVisible(
                 Element.debugActionItemButtonSelector,
             );
-            actionButton.click();
+            await actionButton.click();
 
             await WaitHelper.waitIsTrue(async () => {
                 const packager = await ComponentHelper.getReactNativePackager();
                 const currentState = await packager.getAttribute("aria-label");
                 try {
-                    assert.ok(currentState?.includes("primitive-square"));
+                    assert.ok(
+                        currentState?.includes("primitive-square"),
+                        `Expected packager state to include 'primitive-square', got: ${currentState}`,
+                    );
                     return true;
                 } catch {
                     return false;
