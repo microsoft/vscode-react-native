@@ -6,6 +6,7 @@ import { ElementHelper } from "./helper/elementHelper";
 import { Constant } from "./helper/constants";
 import { BaseSmokeTest } from "./helper/baseSmokeTest";
 import { SmokeTestLogger } from "./helper/smokeTestLogger";
+import { TimeoutConstants } from "./helper/timeoutConstants";
 
 export function startExtensionActivationTests(): void {
     describe("ExtensionActivationTest", () => {
@@ -18,7 +19,7 @@ export function startExtensionActivationTests(): void {
             try {
                 await ElementHelper.WaitElementSelectorVisible(
                     `[id="${Constant.previewExtensionId}"]`,
-                    10000,
+                    TimeoutConstants.ACTIVATION_TIMEOUT,
                 );
                 SmokeTestLogger.info("React-native preview extension is activated");
                 isActivited = true;
@@ -26,7 +27,7 @@ export function startExtensionActivationTests(): void {
                 try {
                     await ElementHelper.WaitElementSelectorVisible(
                         `[id="${Constant.prodExtensionId}"]`,
-                        10000,
+                        TimeoutConstants.ACTIVATION_TIMEOUT,
                     );
                     SmokeTestLogger.info("React-native prod extension is activated");
                     isActivited = true;
