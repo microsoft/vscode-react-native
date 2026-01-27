@@ -20,9 +20,11 @@ export class PackageNameResolver {
         PackageNameResolver.GradleBuildName,
     ];
     private applicationName: string;
+    private fileSystem: FileSystem;
 
-    constructor(applicationName: string) {
+    constructor(applicationName: string, fileSystem?: FileSystem) {
         this.applicationName = applicationName;
+        this.fileSystem = fileSystem || new FileSystem();
     }
 
     /**
@@ -47,15 +49,13 @@ export class PackageNameResolver {
     }
 
     private async readApplicationId(gradlePath: string): Promise<string | null> {
-        if (gradlePath) {
-            const fs = new FileSystem();
-            if (await fs.exists(gradlePath)) {
-                const content = await fs.readFile(gradlePath);
-                const match = content.toString().match(PackageNameResolver.ApplicationIdRegexp);
-                return match ? match[2] : null;
-            }
+        if (!(await this.fileSystem.exists(gradlePath))) {
+            return null;
         }
-        return null;
+
+        const content = await this.fileSystem.readFile(gradlePath);
+        const match = content.toString().match(PackageNameResolver.ApplicationIdRegexp);
+        return match ? match[2] : null;
     }
 
     /**
@@ -63,20 +63,13 @@ export class PackageNameResolver {
      * If the package name cannot be parsed, the default packge name is returned.
      */
     private async readPackageName(manifestPath: string): Promise<string> {
-        if (manifestPath) {
-            const fs = new FileSystem();
-            const exists = await fs.exists(manifestPath);
-            if (exists) {
-                const manifestContent = await fs.readFile(manifestPath);
-                let packageName = this.parsePackageName(manifestContent.toString());
-                if (!packageName) {
-                    packageName = this.getDefaultPackageName(this.applicationName);
-                }
-                return packageName;
-            }
+        if (!(await this.fileSystem.exists(manifestPath))) {
             return this.getDefaultPackageName(this.applicationName);
         }
-        return this.getDefaultPackageName(this.applicationName);
+
+        const manifestContent = await this.fileSystem.readFile(manifestPath);
+        const packageName = this.parsePackageName(manifestContent.toString());
+        return packageName || this.getDefaultPackageName(this.applicationName);
     }
 
     /**
