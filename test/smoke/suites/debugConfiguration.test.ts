@@ -10,6 +10,7 @@ import * as assert from "assert";
 import { ElementHelper } from "./helper/elementHelper";
 import { Element } from "./helper/constants";
 import { ComponentHelper } from "./helper/componentHelper";
+import { TimeoutConstants } from "./helper/timeoutConstants";
 
 export function startDebugConfigurationTests(): void {
     describe("DebugConfigurationTest", () => {
@@ -89,7 +90,7 @@ export function startDebugConfigurationTests(): void {
 
             const reactNativeButton = await ElementHelper.WaitElementSelectorVisible(
                 Element.reactNativeButtonSelector,
-                5000,
+                TimeoutConstants.COMMAND_PALETTE_TIMEOUT,
             );
             await reactNativeButton.click();
 
@@ -120,7 +121,7 @@ export function startDebugConfigurationTests(): void {
             for (let attempt = 0; attempt < maxAttempts; attempt++) {
                 const configurationElement = await ElementHelper.TryFindElement(
                     Element.configurationElementSelector,
-                    5000,
+                    TimeoutConstants.COMMAND_PALETTE_TIMEOUT,
                 );
                 launchContent = await configurationElement?.textContent();
                 if (launchContent) {
