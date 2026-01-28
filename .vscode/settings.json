@@ -21,4 +21,9 @@
     },
     // "gulp.autoDetect": "on",
     "typescript.tsdk": "./node_modules/typescript/lib"
+    ,
+    "react-native-tools.logHighlight.enabled": true,
+    "files.associations": {
+        "*.rn-output": "rn-output-log"
+    }
 }

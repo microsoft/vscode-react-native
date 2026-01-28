@@ -1,0 +1,70 @@
+{
+    "scopeName": "react-native-tools-output-simple",
+    "patterns": [
+        {
+            "include": "#keywords-error"
+        },
+        {
+            "include": "#keywords-warn"
+        },
+        {
+            "include": "#keywords-info"
+        },
+        {
+            "include": "#keywords-debug"
+        },
+        {
+            "include": "#keywords-success"
+        },
+        {
+            "include": "#constants"
+        },
+        {
+            "include": "#string-quoted"
+        },
+        {
+            "include": "#url-simple"
+        },
+        {
+            "include": "#numeric-decimal"
+        }
+    ],
+    "repository": {
+        "keywords-error": {
+            "match": "\\b(ERROR|error|FAILED|failed|FAILURE|failure|Exception|exception|FATAL|fatal|Fatal)\\b",
+            "name": "markup.bold invalid.illegal rnt.output.error"
+        },
+        "keywords-warn": {
+            "match": "\\b(WARN|warn|WARNING|warning)\\b",
+            "name": "markup.bold markup.deleted rnt.output.warn"
+        },
+        "keywords-info": {
+            "match": "\\b(INFO|info|INFORMATION|information)\\b",
+            "name": "markup.bold markup.inserted rnt.output.info"
+        },
+        "keywords-debug": {
+            "match": "\\b(DEBUG|debug)\\b",
+            "name": "markup.bold markup.changed rnt.output.debug"
+        },
+        "keywords-success": {
+            "match": "\\b(SUCCESS|success|BUILD SUCCESSFUL|BUILD PASSED|PASSED|passed)\\b",
+            "name": "markup.bold markup.inserted rnt.output.success"
+        },
+        "constants": {
+            "match": "\\b(true|false|null|undefined|NaN)\\b",
+            "name": "constant.language rnt.output.constant"
+        },
+        "string-quoted": {
+            "match": "['\"]([^'\"]{0,50})['\"]",
+            "name": "string.quoted rnt.output.string"
+        },
+        "url-simple": {
+            "match": "https?://[^\\s]+",
+            "name": "markup.underline.link rnt.output.url"
+        },
+        "numeric-decimal": {
+            "match": "\\b\\d+(?:\\.\\d+)?\\b",
+            "name": "constant.numeric rnt.output.numeric"
+        }
+    }
+}
