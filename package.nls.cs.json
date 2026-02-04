@@ -23,6 +23,7 @@
 	"reactNative.command.revertOpenModule.title": "Vraťte vstup rozšíření v modulu otevřeného balíčku",
 	"reactNative.command.openRNUpgradeHelper.title": "Otevřete nativního pomocníka pro upgrade na webové stránce",
 	"reactNative.command.installExpoGoApplication.title": "Stáhněte a nainstalujte Expo Go na simulátoru nebo zařízení",
+	"reactNative.command.installPods.title": "Nainstalovat závislosti CocoaPods",
 	"reactNative.command.showDevMenu.title": "Zobrazit Dev Menu",
 	"reactNative.command.reloadApp.title": "Znovu načíst aplikaci",
 	"reactNative.command.runInspector.title": "Spusťte Element Inspector",

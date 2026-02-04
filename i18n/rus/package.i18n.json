@@ -6,6 +6,7 @@
 {
 	"reactNative.description": "Отладка и встроенные команды для React Native",
 	"reactNative.license": "См. условия лицензии в файле LICENSE.txt",
+	"reactNative.command.installPods.title": "Установить зависимости CocoaPods",
 	"reactNative.command.runAndroidSimulator.title": "Запустить Android в эмуляторе",
 	"reactNative.command.runAndroidDevice.title": "Запустить Android на устройстве",
 	"reactNative.command.runIosSimulator.title": "Запустить iOS в симуляторе",

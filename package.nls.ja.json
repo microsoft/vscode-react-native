@@ -23,6 +23,7 @@
 	"reactNative.command.revertOpenModule.title": "開いているパッケージ モジュールの拡張入力を元に戻す",
 	"reactNative.command.openRNUpgradeHelper.title": "Web ページで React Native アップグレード ヘルパーを開く",
 	"reactNative.command.installExpoGoApplication.title": "Expo Go をシミュレーターまたはデバイスにダウンロードしてインストールします",
+	"reactNative.command.installPods.title": "CocoaPods 依存関係をインストール",
 	"reactNative.command.showDevMenu.title": "開発メニューを表示",
 	"reactNative.command.reloadApp.title": "アプリをリロードする",
 	"reactNative.command.runInspector.title": "要素インスペクターを実行する",

@@ -24,6 +24,7 @@
   "reactNative.command.revertOpenModule.title": "Revert extension input in open package module",
   "reactNative.command.openRNUpgradeHelper.title": "Open react native upgrade helper in web page",
   "reactNative.command.installExpoGoApplication.title": "Expo - Download and install ExpoGo",
+  "reactNative.command.installPods.title": "Install CocoaPods dependencies",
   "reactNative.command.showDevMenu.title": "Show Dev Menu",
   "reactNative.command.reloadApp.title": "Reload App",
   "reactNative.command.runInspector.title": "Run Element Inspector",

@@ -1,0 +1,13 @@
+{
+    "CocoaPodsOnlyMacOS": "CocoaPods yalnızca macOS'ta desteklenir.",
+    "IOSDirectoryNotFound": "iOS dizini bulunamadı. Bunun iOS desteği olan bir React Native projesi olduğundan emin olun.",
+    "PodfileNotFound": "ios dizininde Podfile bulunamadı.",
+    "InstallingCocoaPods": "CocoaPods bağımlılıkları yükleniyor...",
+    "CocoaPodsInstallSuccess": "CocoaPods bağımlılıkları başarıyla yüklendi.",
+    "CocoaPodsInstallFailed": "CocoaPods bağımlılıkları yüklenemedi.",
+    "SuggestionCocoaPodsNotInstalled": "CocoaPods yüklü olmayabilir. 'sudo gem install cocoapods' komutunu çalıştırın.",
+    "SuggestionCDNError": "CDN hatası. 'pod repo update' komutunu çalıştırmayı deneyin.",
+    "SuggestionXcodeError": "Xcode komut satırı araçları yüklü olmayabilir. 'xcode-select --install' komutunu çalıştırın.",
+    "SuggestionRubyError": "Ruby ortam sorunu. Ruby kurulumunuzu kontrol edin.",
+    "SuggestionPermissionError": "İzin reddedildi. 'sudo' ile çalıştırmayı deneyin veya dizin izinlerini kontrol edin."
+}

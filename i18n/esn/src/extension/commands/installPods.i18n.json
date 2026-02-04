@@ -1,0 +1,13 @@
+{
+    "CocoaPodsOnlyMacOS": "CocoaPods solo es compatible con macOS.",
+    "IOSDirectoryNotFound": "No se encontró el directorio iOS. Asegúrese de que este es un proyecto React Native con soporte para iOS.",
+    "PodfileNotFound": "No se encontró Podfile en el directorio ios.",
+    "InstallingCocoaPods": "Instalando dependencias de CocoaPods...",
+    "CocoaPodsInstallSuccess": "Las dependencias de CocoaPods se instalaron correctamente.",
+    "CocoaPodsInstallFailed": "Error al instalar las dependencias de CocoaPods.",
+    "SuggestionCocoaPodsNotInstalled": "Es posible que CocoaPods no esté instalado. Ejecute 'sudo gem install cocoapods'.",
+    "SuggestionCDNError": "Error de CDN. Intente ejecutar 'pod repo update'.",
+    "SuggestionXcodeError": "Es posible que las herramientas de línea de comandos de Xcode no estén instaladas. Ejecute 'xcode-select --install'.",
+    "SuggestionRubyError": "Problema con el entorno Ruby. Verifique su instalación de Ruby.",
+    "SuggestionPermissionError": "Permiso denegado. Intente ejecutar con 'sudo' o verifique los permisos del directorio."
+}

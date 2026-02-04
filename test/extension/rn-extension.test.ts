@@ -174,6 +174,7 @@ suite("rn-extension", function () {
                 "reactNative.revertOpenModule",
                 "reactNative.openRNUpgradeHelper",
                 "reactNative.installExpoGoApplication",
+                "reactNative.installPods",
                 "reactNative.expoPrebuild",
                 "reactNative.expoPrebuildClean",
                 "reactNative.reopenQRCode",

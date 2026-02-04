@@ -1,0 +1,13 @@
+{
+    "CocoaPodsOnlyMacOS": "CocoaPods jest obsługiwany tylko w systemie macOS.",
+    "IOSDirectoryNotFound": "Nie znaleziono katalogu iOS. Upewnij się, że jest to projekt React Native z obsługą iOS.",
+    "PodfileNotFound": "Nie znaleziono pliku Podfile w katalogu ios.",
+    "InstallingCocoaPods": "Instalowanie zależności CocoaPods...",
+    "CocoaPodsInstallSuccess": "Zależności CocoaPods zostały pomyślnie zainstalowane.",
+    "CocoaPodsInstallFailed": "Nie udało się zainstalować zależności CocoaPods.",
+    "SuggestionCocoaPodsNotInstalled": "CocoaPods może nie być zainstalowany. Uruchom 'sudo gem install cocoapods'.",
+    "SuggestionCDNError": "Błąd CDN. Spróbuj uruchomić 'pod repo update'.",
+    "SuggestionXcodeError": "Narzędzia wiersza poleceń Xcode mogą nie być zainstalowane. Uruchom 'xcode-select --install'.",
+    "SuggestionRubyError": "Problem ze środowiskiem Ruby. Sprawdź instalację Ruby.",
+    "SuggestionPermissionError": "Odmowa dostępu. Spróbuj uruchomić z 'sudo' lub sprawdź uprawnienia katalogu."
+}

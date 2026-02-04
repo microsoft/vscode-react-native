@@ -23,6 +23,7 @@
 	"reactNative.command.revertOpenModule.title": "오픈 패키지 모듈에서 확장 입력 되돌리기",
 	"reactNative.command.openRNUpgradeHelper.title": "웹 페이지에서 반응 네이티브 업그레이드 도우미 열기",
 	"reactNative.command.installExpoGoApplication.title": "시뮬레이터 또는 장치에 Expo Go 다운로드 및 설치",
+	"reactNative.command.installPods.title": "CocoaPods 종속성 설치",
 	"reactNative.command.showDevMenu.title": "개발자 메뉴 표시",
 	"reactNative.command.reloadApp.title": "앱 새로고침",
 	"reactNative.command.runInspector.title": "요소 검사기 실행",

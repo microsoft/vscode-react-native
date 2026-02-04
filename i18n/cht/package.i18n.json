@@ -6,6 +6,7 @@
 {
 	"reactNative.description": "React Native 的偵錯及整合命令",
 	"reactNative.license": "請參閱 LICENSE.txt 中的授權",
+	"reactNative.command.installPods.title": "安裝 CocoaPods 依賴",
 	"reactNative.command.runAndroidSimulator.title": "在 Emulator 上執行 Android",
 	"reactNative.command.runAndroidDevice.title": "在裝置上執行 Android",
 	"reactNative.command.runIosSimulator.title": "在模擬器上執行 iOS",

@@ -6,6 +6,7 @@
 {
 	"reactNative.description": "Comandos integrados e de depuração do React Native",
 	"reactNative.license": "CONFIRA A LICENÇA EM LICENSE.txt",
+	"reactNative.command.installPods.title": "Instalar dependências do CocoaPods",
 	"reactNative.command.runAndroidSimulator.title": "Executar o Android no Emulador",
 	"reactNative.command.runAndroidDevice.title": "Executar o Android no Dispositivo",
 	"reactNative.command.runIosSimulator.title": "Executar o iOS no Simulador",

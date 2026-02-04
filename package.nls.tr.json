@@ -23,6 +23,7 @@
 	"reactNative.command.revertOpenModule.title": "Açık paket modülünde uzantı girişini geri alın",
 	"reactNative.command.openRNUpgradeHelper.title": "Web sayfasında tepki yerel yükseltme yardımcısını açın",
 	"reactNative.command.installExpoGoApplication.title": "Expo Go'yu simülatöre veya cihaza indirin ve yükleyin",
+	"reactNative.command.installPods.title": "CocoaPods bağımlılıklarını yükle",
 	"reactNative.command.showDevMenu.title": "Geliştirici Menüsünü Göster",
 	"reactNative.command.reloadApp.title": "Uygulamayı Yeniden Yükle",
 	"reactNative.command.runInspector.title": "Element Inspector'ı Çalıştır",

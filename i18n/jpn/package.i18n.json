@@ -6,6 +6,7 @@
 {
 	"reactNative.description": "React Native 用のデバッグおよび統合コマンド",
 	"reactNative.license": "LICENSE.txt のライセンスを参照してください",
+	"reactNative.command.installPods.title": "CocoaPods 依存関係をインストール",
 	"reactNative.command.runAndroidSimulator.title": "エミュレーター上での Android の実行",
 	"reactNative.command.runAndroidDevice.title": "デバイス上での Android の実行",
 	"reactNative.command.runIosSimulator.title": "シミュレーター上での iOS の実行",

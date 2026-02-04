@@ -6,6 +6,7 @@
 {
 	"reactNative.description": "React Native의 디버깅 및 통합 명령",
 	"reactNative.license": "LICENSE.txt에서 라이선스 참조",
+	"reactNative.command.installPods.title": "CocoaPods 종속성 설치",
 	"reactNative.command.runAndroidSimulator.title": "에뮬레이터에서 Android 실행",
 	"reactNative.command.runAndroidDevice.title": "디바이스에서 Android 실행",
 	"reactNative.command.runIosSimulator.title": "시뮬레이터에서 iOS 실행",

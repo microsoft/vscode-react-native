@@ -23,6 +23,7 @@
 	"reactNative.command.revertOpenModule.title": "Revertir la entrada de extensión en el módulo de paquete abierto",
 	"reactNative.command.openRNUpgradeHelper.title": "Abra el asistente de actualización nativo de reacción en la página web",
 	"reactNative.command.installExpoGoApplication.title": "Descargue e instale Expo Go en un simulador o dispositivo",
+	"reactNative.command.installPods.title": "Instalar dependencias de CocoaPods",
 	"reactNative.command.showDevMenu.title": "Mostrar menú de desarrollo",
 	"reactNative.command.reloadApp.title": "Recargar aplicación",
 	"reactNative.command.runInspector.title": "Ejecutar inspector de elementos",

@@ -1,0 +1,13 @@
+{
+    "CocoaPodsOnlyMacOS": "CocoaPods je podporován pouze v systému macOS.",
+    "IOSDirectoryNotFound": "Adresář iOS nebyl nalezen. Ujistěte se, že se jedná o projekt React Native s podporou iOS.",
+    "PodfileNotFound": "Soubor Podfile nebyl v adresáři ios nalezen.",
+    "InstallingCocoaPods": "Instalace závislostí CocoaPods...",
+    "CocoaPodsInstallSuccess": "Závislosti CocoaPods byly úspěšně nainstalovány.",
+    "CocoaPodsInstallFailed": "Instalace závislostí CocoaPods se nezdařila.",
+    "SuggestionCocoaPodsNotInstalled": "CocoaPods nemusí být nainstalován. Spusťte 'sudo gem install cocoapods'.",
+    "SuggestionCDNError": "Chyba CDN. Zkuste spustit 'pod repo update'.",
+    "SuggestionXcodeError": "Nástroje příkazového řádku Xcode nemusí být nainstalovány. Spusťte 'xcode-select --install'.",
+    "SuggestionRubyError": "Problém s prostředím Ruby. Zkontrolujte instalaci Ruby.",
+    "SuggestionPermissionError": "Přístup odepřen. Zkuste spustit s 'sudo' nebo zkontrolujte oprávnění adresáře."
+}

@@ -6,6 +6,7 @@
 {
 	"reactNative.description": "React Native 的代码提示、调试和集成的命令",
 	"reactNative.license": "请参阅 LICENSE.txt 中的许可证",
+	"reactNative.command.installPods.title": "安装 CocoaPods 依赖",
 	"reactNative.command.runAndroidSimulator.title": "在仿真器上运行 Android",
 	"reactNative.command.runAndroidDevice.title": "在设备上运行 Android",
 	"reactNative.command.runIosSimulator.title": "在模拟器上运行 iOS",

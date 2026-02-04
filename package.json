@@ -229,6 +229,12 @@
         "category": "React Native"
       },
       {
+        "command": "reactNative.installPods",
+        "title": "%reactNative.command.installPods.title%",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
+      },
+      {
         "command": "reactNative.showDevMenu",
         "title": "%reactNative.command.showDevMenu.title%",
         "category": "React Native"

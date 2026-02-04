@@ -1,0 +1,13 @@
+{
+    "CocoaPodsOnlyMacOS": "CocoaPods 仅在 macOS 上受支持。",
+    "IOSDirectoryNotFound": "未找到 iOS 目录。请确保这是一个支持 iOS 的 React Native 项目。",
+    "PodfileNotFound": "在 ios 目录中未找到 Podfile。",
+    "InstallingCocoaPods": "正在安装 CocoaPods 依赖...",
+    "CocoaPodsInstallSuccess": "CocoaPods 依赖安装成功。",
+    "CocoaPodsInstallFailed": "CocoaPods 依赖安装失败。",
+    "SuggestionCocoaPodsNotInstalled": "CocoaPods 可能未安装。请运行 'sudo gem install cocoapods'。",
+    "SuggestionCDNError": "CDN 错误。请尝试运行 'pod repo update'。",
+    "SuggestionXcodeError": "Xcode 命令行工具可能未安装。请运行 'xcode-select --install'。",
+    "SuggestionRubyError": "Ruby 环境问题。请检查您的 Ruby 安装。",
+    "SuggestionPermissionError": "权限被拒绝。请尝试使用 'sudo' 运行或检查目录权限。"
+}

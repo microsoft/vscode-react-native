@@ -29,6 +29,7 @@ export * from "./openEASProject";
 export * from "./revertOpenModule";
 export * from "./openRNUpgradeHelper";
 export * from "./installExpoGoApplication";
+export * from "./installPods";
 export * from "./prebuild";
 export * from "./prebuildClean";
 export * from "./reopenQRCode";

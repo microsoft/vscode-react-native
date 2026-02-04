@@ -6,6 +6,7 @@
 {
 	"reactNative.description": "React Native için hata ayıklama ve tümleşik komutlar",
 	"reactNative.license": "LICENSE.txt DOSYASINDAKİ LİSANSA BAKIN",
+	"reactNative.command.installPods.title": "CocoaPods bağımlılıklarını yükle",
 	"reactNative.command.runAndroidSimulator.title": "Android'i Öykünücüde Çalıştır",
 	"reactNative.command.runAndroidDevice.title": "Android'i Cihazda Çalıştır",
 	"reactNative.command.runIosSimulator.title": "iOS'u Simülatörde Çalıştır",

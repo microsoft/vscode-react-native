@@ -6,6 +6,7 @@
 {
 	"reactNative.description": "Ladění a integrované příkazy pro React Native",
 	"reactNative.license": "ZOBRAZIT LICENCI V LICENSE.txt",
+	"reactNative.command.installPods.title": "Nainstalovat závislosti CocoaPods",
 	"reactNative.command.runAndroidSimulator.title": "Spustit Android v emulátoru",
 	"reactNative.command.runAndroidDevice.title": "Spustit Android na zařízení",
 	"reactNative.command.runIosSimulator.title": "Spustit iOS na simulátoru",

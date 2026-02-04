@@ -23,6 +23,7 @@
 	"reactNative.command.revertOpenModule.title": "恢復開啟包模組中的擴充輸入",
 	"reactNative.command.openRNUpgradeHelper.title": "在網頁中開啟React Native升級助手",
 	"reactNative.command.installExpoGoApplication.title": "在模擬器或裝置上下載並安裝 Expo Go",
+	"reactNative.command.installPods.title": "安裝 CocoaPods 依賴",
 	"reactNative.command.showDevMenu.title": "顯示開發選單",
 	"reactNative.command.reloadApp.title": "重新載入應用程式",
 	"reactNative.command.runInspector.title": "運行元素檢查器",
