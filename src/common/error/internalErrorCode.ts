@@ -40,6 +40,7 @@ export enum InternalErrorCode {
     FaiedToSetNewArch = 135,
     FailedToToggleNetworkView = 136,
     FailedToRunEasBuild = 137,
+    FailedToInstallPods = 138,
 
     // Device Deployer errors
     IOSDeployNotFound = 201,

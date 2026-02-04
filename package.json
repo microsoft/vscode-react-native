@@ -475,6 +475,12 @@
         "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
       },
       {
+        "command": "reactNative.installPods",
+        "title": "Install CocoaPods dependencies",
+        "category": "React Native",
+        "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
+      },
+      {
         "command": "reactNative.killPort",
         "title": "Kill Port",
         "category": "React Native",
