@@ -39,6 +39,13 @@
   ],
   "main": "./dist/rn-extension",
   "contributes": {
+    "languages": [
+      {
+        "id": "rn-output-log",
+        "aliases": ["RN Output Log"],
+        "extensions": [".rn-output"]
+      }
+    ],
     "walkthroughs": [
       {
         "id": "RNTGetStarted",
@@ -1163,6 +1170,13 @@
         }
       }
     ],
+    "grammars": [
+      {
+        "language": "rn-output-log",
+        "scopeName": "react-native-tools-output-simple",
+        "path": "./syntaxes/rn-output-simple.tmGrammar.json"
+      }
+    ],
     "configuration": {
       "type": "object",
       "title": "%reactNative.configuration.title%",
@@ -1366,6 +1380,12 @@
           ],
           "scope": "resource",
           "default": "npm"
+        },
+        "react-native-tools.logHighlight.enabled": {
+          "description": "Enable lightweight syntax highlighting for extension output logs. When enabled, applies color highlighting to common log keywords (ERROR, WARN, INFO, DEBUG, SUCCESS, etc.). This feature is disabled by default to avoid performance issues.",
+          "type": "boolean",
+          "scope": "resource",
+          "default": false
         }
       }
     }

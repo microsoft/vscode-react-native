@@ -9,6 +9,8 @@ steps:
       TargetFolder: "$(System.DefaultWorkingDirectory)/test/smoke/resources/extension"
   - script: npm run prepare-smoke-tests
     displayName: "Prepare smoke tests"
+    env:
+      NODE_OPTIONS: "--openssl-legacy-provider"
   - script: npm run prepare-smoke-tests-project
     displayName: "Prepare smoke tests sample project"
   - script: npm run smoke-tests --verbose
