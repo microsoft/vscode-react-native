@@ -1534,7 +1534,7 @@
     "typescript": "^5.0.4",
     "vscode-debugprotocol": "1.51.0",
     "vscode-nls-dev": "^4.0.4",
-    "webpack": "5.94.0",
+    "webpack": "5.105.0",
     "webpack-bundle-analyzer": "4.4.0"
   },
   "extensionDependencies": [
