@@ -8,7 +8,7 @@ import * as assert from "assert";
 import { ElementHelper } from "./helper/elementHelper";
 import { Element } from "./helper/constants";
 import { ComponentHelper } from "./helper/componentHelper";
-
+import { TimeoutConstants } from "./helper/timeoutConstants";
 export function startCommandPaletteTests(): void {
     describe("CommandPaletteTest", () => {
         async function initApp(): Promise<Page> {
@@ -41,12 +41,15 @@ export function startCommandPaletteTests(): void {
             await initApp();
 
             await ComponentHelper.openCommandPalette();
-            await ElementHelper.WaitElementClassNameVisible(Element.commandPaletteClassName, 5000);
+            await ElementHelper.WaitElementClassNameVisible(
+                Element.commandPaletteClassName,
+                TimeoutConstants.COMMAND_PALETTE_TIMEOUT,
+            );
 
             await ElementHelper.inputText(text);
             const option = await ElementHelper.WaitElementSelectorVisible(
                 Element.commandPaletteFocusedItemSelector,
-                5000,
+                TimeoutConstants.COMMAND_PALETTE_TIMEOUT,
             );
 
             const value = await option.getAttribute("aria-label");
