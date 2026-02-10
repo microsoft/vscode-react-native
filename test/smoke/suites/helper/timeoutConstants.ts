@@ -26,4 +26,7 @@ export class TimeoutConstants {
 
     /** Packager state change timeout - 3 minutes (180 seconds) */
     static readonly PACKAGER_STATE_TIMEOUT = 180000;
+
+    /** File explorer element visibility timeout - 10 seconds */
+    static readonly FILE_EXPLORER_TIMEOUT = 10000;
 }
