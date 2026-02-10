@@ -426,4 +426,5 @@ export const ERROR_STRINGS = {
     [InternalErrorCode.FaiedToSetNewArch]: "Failed to set New Architecture",
     [InternalErrorCode.FailedToToggleNetworkView]: "Failed to config network view",
     [InternalErrorCode.FailedToRunEasBuild]: "Failed to run eas build",
+    [InternalErrorCode.FailedToInstallPods]: "Failed to install pods",
 };
