@@ -64,7 +64,10 @@ export class ComponentHelper {
         fileName: string,
     ): Promise<ElementHandle<SVGElement | HTMLElement> | null> {
         try {
-            return await ElementHelper.WaitElementAriaLabelVisible(fileName, 2000);
+            return await ElementHelper.WaitElementAriaLabelVisible(
+                fileName,
+                TimeoutConstants.FILE_EXPLORER_TIMEOUT,
+            );
         } catch {
             return null;
         }
