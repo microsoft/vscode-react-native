@@ -3,7 +3,9 @@ steps:
     displayName: "Use Node 20.x"
     inputs:
       versionSpec: 20.x
-  - bash: npm install gulp @vscode/vsce -g --force
+  - bash: |
+      npm install -g npm@latest
+      npm install gulp @vscode/vsce -g --force
     displayName: "npm install gulp @vscode/vsce -g"
   - bash: npm ci
     displayName: "npm ci"
