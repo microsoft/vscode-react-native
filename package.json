@@ -1547,6 +1547,7 @@
     "ms-vscode.js-debug"
   ],
   "overrides": {
-    "js-yaml": "4.1.1"
+    "js-yaml": "4.1.1",
+    "serialize-javascript": "7.0.3"
   }
 }
