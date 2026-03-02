@@ -31,5 +31,8 @@
     "typescript": "5.9.2",
     "url-parse": "^1.5.10",
     "js-yaml": "4.1.1"
+  },
+  "overrides": {
+    "serialize-javascript": "7.0.3"
   }
 }
