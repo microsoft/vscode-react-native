@@ -53,7 +53,7 @@ export class RequestBodyFormatter {
             } catch (err) {
                 this.logger.debug(
                     `RequestBodyFormatter exception from ${formatter.constructor.name} ${String(
-                        err.message,
+                        (err as Error).message,
                     )}`,
                 );
             }
@@ -95,7 +95,7 @@ export function decodeBody(container: Request | Response, logger?: OutputChannel
                 // on iOS, the stream send to flipper is already inflated, so the content-encoding will not
                 // match the actual data anymore, and we should skip inflating.
                 // In that case, we intentionally fall-through
-                if (!e.toString().includes("incorrect header check")) {
+                if (!(e as Error).toString().includes("incorrect header check")) {
                     throw e;
                 }
             }
@@ -108,7 +108,7 @@ export function decodeBody(container: Request | Response, logger?: OutputChannel
         logger?.debug(
             `Network inspector failed to decode request/response body (size: ${
                 container.data.length
-            }): ${String(err.toString())}`,
+            }): ${String((err as Error).toString())}`,
         );
         return "";
     }

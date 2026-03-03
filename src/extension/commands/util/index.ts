@@ -3,7 +3,7 @@
 
 import * as vscode from "vscode";
 import * as nls from "vscode-nls";
-import * as WebSocket from "ws";
+import WebSocket = require("ws");
 import { AppLauncher } from "../../appLauncher";
 import {
     IAndroidRunOptions,

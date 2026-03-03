@@ -7,8 +7,8 @@ import {
     ExperimentStatuses,
     ExperimentResult,
 } from "../../../src/extension/services/experimentService/experimentService";
-import * as Configstore from "configstore";
-import * as assert from "assert";
+import Configstore = require("configstore");
+import assert = require("assert");
 
 suite("experimentService", function () {
     const configName = "reactNativeToolsConfig";

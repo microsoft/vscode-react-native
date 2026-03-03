@@ -62,9 +62,9 @@ export abstract class Command<ArgT extends unknown[] = never[]> {
                     await this.onBeforeExecute(...args);
                     await fn.bind(this)(...args);
                 } catch (error) {
-                    switch (error.errorCode) {
+                    switch ((error as any).errorCode) {
                         case InternalErrorCode.CommandCanceled:
-                            generator.addError(error);
+                            generator.addError(error as Error);
                             return;
                         default:
                             throw error;
@@ -116,10 +116,10 @@ export abstract class Command<ArgT extends unknown[] = never[]> {
         try {
             return await selectProject();
         } catch (error) {
-            switch (error.errorCode) {
+            switch ((error as any).errorCode) {
                 case InternalErrorCode.UserInputCanceled:
                     throw ErrorHelper.getNestedError(
-                        error,
+                        error as Error,
                         InternalErrorCode.CommandCanceled,
                         this.label,
                     );

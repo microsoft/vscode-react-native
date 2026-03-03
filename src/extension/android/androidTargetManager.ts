@@ -63,7 +63,7 @@ export class AndroidTargetManager extends MobileTargetManager {
             throw new Error("There is no such target");
         } catch (error) {
             throw ErrorHelper.getNestedError(
-                error,
+                error as Error,
                 InternalErrorCode.CouldNotRecognizeTargetType,
                 target,
             );
@@ -111,7 +111,7 @@ export class AndroidTargetManager extends MobileTargetManager {
                 localize(
                     "CouldNotUseEmulators",
                     "An error occurred while trying to get installed emulators: {0}\nContinue using only online targets",
-                    error instanceof Error ? error.message : error.toString(),
+                    error instanceof Error ? (error as Error).message : (error as Error).toString(),
                 ),
             );
         }

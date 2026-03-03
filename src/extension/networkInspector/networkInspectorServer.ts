@@ -60,10 +60,10 @@ export class NetworkInspectorServer {
     public static readonly InsecureServerPort = 8089;
 
     private connections: Map<string, ClientDevice>;
-    private secureServer: RSocketServer<any, any> | null;
-    private insecureServer: RSocketServer<any, any> | null;
-    private certificateProvider: CertificateProvider;
-    private initialisePromise: Promise<void> | null;
+    private secureServer: RSocketServer<any, any> | null = null;
+    private insecureServer: RSocketServer<any, any> | null = null;
+    private certificateProvider!: CertificateProvider;
+    private initialisePromise: Promise<void> | null = null;
     private logger: OutputChannelLogger;
 
     constructor() {
@@ -105,7 +105,7 @@ export class NetworkInspectorServer {
             try {
                 await this.initialisePromise;
             } catch (err) {
-                this.logger.error(err.toString());
+                this.logger.error((err as Error).toString());
             }
             if (this.secureServer) {
                 this.secureServer.stop();

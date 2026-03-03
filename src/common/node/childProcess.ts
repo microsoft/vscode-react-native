@@ -59,7 +59,11 @@ export class ChildProcess {
                     command,
                     options,
                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                    (error: Error, stdout: string, stderr: string) => {
+                    (
+                        error: nodeChildProcess.ExecException | null,
+                        stdout: string | Buffer,
+                        stderr: string | Buffer,
+                    ) => {
                         if (error) {
                             reject(
                                 ErrorHelper.getNestedError(
@@ -69,7 +73,7 @@ export class ChildProcess {
                                 ),
                             );
                         } else {
-                            resolve(stdout);
+                            resolve(stdout.toString());
                         }
                     },
                 );

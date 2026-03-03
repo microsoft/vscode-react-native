@@ -39,7 +39,7 @@ export class TestDevEnvironment extends Command {
         try {
             project = await this.selectProject();
         } catch (error) {
-            switch (error.errorCode) {
+            switch ((error as any).errorCode) {
                 case InternalErrorCode.WorkspaceNotFound:
                     break;
                 default:

@@ -17,7 +17,7 @@ nls.config({
 const localize = nls.loadMessageBundle();
 
 export abstract class GeneralMobilePlatform extends GeneralPlatform {
-    protected targetManager: MobileTargetManager;
+    protected targetManager!: MobileTargetManager;
     protected target?: MobileTarget;
 
     public async getTargetsCountByFilter(filter?: (el: IMobileTarget) => boolean): Promise<number> {
@@ -90,15 +90,15 @@ export abstract class GeneralMobilePlatform extends GeneralPlatform {
         } catch (error) {
             if (
                 error &&
-                error.errorCode &&
-                error.errorCode === InternalErrorCode.TargetSelectionError
+                (error as any).errorCode &&
+                (error as any).errorCode === InternalErrorCode.TargetSelectionError
             ) {
                 TelemetryHelper.sendErrorEvent(
                     "TargetSelectionError",
                     ErrorHelper.getInternalError(InternalErrorCode.TargetSelectionError),
                 );
 
-                this.logger.warning(error);
+                this.logger.warning(error as any);
                 this.logger.warning(
                     localize(
                         "ContinueWithRnCliWorkflow",

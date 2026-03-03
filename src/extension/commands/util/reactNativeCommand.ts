@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as assert from "assert";
+import assert = require("assert");
 import * as vscode from "vscode";
 import { ReactNativeProjectHelper } from "../../../common/reactNativeProjectHelper";
 import { TelemetryHelper } from "../../../common/telemetryHelper";
@@ -13,7 +13,7 @@ export abstract class ReactNativeCommand<ArgT extends unknown[] = never[]> exten
     /** Execute base command with some telemetry */
     async executeLocally(...args: ArgT): Promise<void> {
         await this.onBeforeExecute(...args);
-        await this.executeInContext(this.baseFn.bind(this, ...args));
+        await this.executeInContext((this.baseFn as any).bind(this, ...args));
     }
 
     /** Execute some task before RN telemetry */
@@ -23,7 +23,7 @@ export abstract class ReactNativeCommand<ArgT extends unknown[] = never[]> exten
 
     protected createHandler(fn = this.baseFn.bind(this)): (...args: ArgT) => Promise<void> {
         return super.createHandler(async (...args: ArgT) => {
-            await this.executeInContext(fn.bind(this, ...args));
+            await this.executeInContext((fn as any).bind(this, ...args));
         });
     }
 

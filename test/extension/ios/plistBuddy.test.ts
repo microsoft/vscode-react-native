@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { PlistBuddy } from "../../../src/extension/ios/plistBuddy";
-import * as assert from "assert";
+import assert = require("assert");
 import * as path from "path";
 import * as fs from "fs";
 import * as sinon from "sinon";

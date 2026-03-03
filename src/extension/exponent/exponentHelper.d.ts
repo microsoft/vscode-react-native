@@ -2,23 +2,23 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 declare interface AppJson {
-    public name: string;
-    public displayName?: string;
-    public expo: ExpConfig;
+    name: string;
+    displayName?: string;
+    expo: ExpConfig;
 }
 
 declare interface ExpConfig {
-    public name: string;
-    public slug: string;
-    public sdkVersion: string;
-    public version?: string;
-    public entryPoint?: string;
-    public packagerOpts?: ExpConfigPackager;
-    public android?: [];
-    public ios?: [];
-    public web?:[];
+    name: string;
+    slug: string;
+    sdkVersion: string;
+    version?: string;
+    entryPoint?: string;
+    packagerOpts?: ExpConfigPackager;
+    android?: [];
+    ios?: [];
+    web?: [];
 }
 
 declare interface ExpMetroConfig {
-    public sourceExts?: string[];
+    sourceExts?: string[];
 }

@@ -173,7 +173,7 @@ export class ExponentHelper {
             if (showProgress) this.logger.logStream(".");
             return !isBareWorkflowProject;
         } catch (e) {
-            this.logger.error(e.message, e, e.stack);
+            this.logger.error((e as any as Error).message, e as any, (e as any).stack);
             if (showProgress) {
                 this.logger.logStream(".");
             }
@@ -432,7 +432,7 @@ require('${entryPoint}');`;
         try {
             return this.readExpJson();
         } catch (err) {
-            if (err.code === "ENOENT") {
+            if ((err as NodeJS.ErrnoException).code === "ENOENT") {
                 const appJson = await this.readAppJson();
                 return appJson.expo || {};
             }

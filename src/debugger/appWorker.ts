@@ -4,7 +4,7 @@
 import * as path from "path";
 import { EventEmitter } from "events";
 import * as vscode from "vscode";
-import * as WebSocket from "ws";
+import WebSocket = require("ws");
 import { logger } from "@vscode/debugadapter";
 import * as nls from "vscode-nls";
 import { ensurePackagerRunning } from "../common/packagerStatus";
@@ -215,9 +215,9 @@ function fetch(url) {
     private packagerRemoteRoot?: string;
     private packagerLocalRoot?: string;
     private debuggerWorkerUrlPath?: string;
-    private socketToApp: WebSocket;
+    private socketToApp!: WebSocket;
     private cancellationToken: vscode.CancellationToken;
-    private singleLifetimeWorker: IDebuggeeWorker | null;
+    private singleLifetimeWorker: IDebuggeeWorker | null = null;
     private webSocketConstructor: (url: string) => WebSocket;
 
     private executionLimiter = new ExecutionsLimiter();

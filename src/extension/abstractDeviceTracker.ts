@@ -25,7 +25,7 @@ export abstract class AbstractDeviceTracker {
                 setTimeout(() => this.queryDevicesLoop(), 3000);
             }
         } catch (err) {
-            this.logger.error(err.toString());
+            this.logger.error((err as Error).toString());
         }
     }
 

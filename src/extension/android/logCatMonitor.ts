@@ -29,7 +29,7 @@ export class LogCatMonitor implements vscode.Disposable {
 
     private _userProvidedLogCatArguments: any; // This is user input, we don't know what's here
 
-    private _logCatSpawn: ISpawnResult | null;
+    private _logCatSpawn: ISpawnResult | null = null;
     private adbHelper: AdbHelper;
     public deviceId: string;
 

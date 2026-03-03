@@ -61,7 +61,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         "Starting: Intent",
     ];
 
-    private packageName: string;
+    private packageName!: string;
     private adbHelper: AdbHelper;
     private logCatMonitor: LogCatMonitor | null = null;
     private needsToLaunchApps: boolean = false;
@@ -214,7 +214,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                     targetId = await this.getTargetIdForRunApp(onlineTargetsIds);
                 }
                 if (
-                    error.message ===
+                    (error as Error).message ===
                         ErrorHelper.getInternalError(
                             InternalErrorCode.AndroidMoreThanOneDeviceOrEmulator,
                         ).message &&
@@ -346,9 +346,13 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                 // "adb reverse" command could work incorrectly with remote devices, then skip the error and try to go on
                 if (
                     this.adbHelper.isRemoteTarget(deviceId) &&
-                    error.message.includes(AndroidPlatform.RUN_ANDROID_FAILURE_PATTERNS[3].pattern)
+                    (error as Error).message.includes(
+                        AndroidPlatform.RUN_ANDROID_FAILURE_PATTERNS[3].pattern instanceof RegExp
+                            ? AndroidPlatform.RUN_ANDROID_FAILURE_PATTERNS[3].pattern.source
+                            : AndroidPlatform.RUN_ANDROID_FAILURE_PATTERNS[3].pattern,
+                    )
                 ) {
-                    this.logger.warning(error.message);
+                    this.logger.warning((error as Error).message);
                 } else {
                     throw error;
                 }

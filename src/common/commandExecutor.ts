@@ -72,7 +72,7 @@ export class CommandExecutor {
             });
             return stdout;
         } catch (reason) {
-            return reason;
+            return reason as string;
         }
     }
 
