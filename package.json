@@ -1495,7 +1495,7 @@
     "@types/ws": "0.0.39",
     "@typescript-eslint/eslint-plugin": "^6.15.0",
     "@typescript-eslint/parser": "^6.15.0",
-    "@vscode/test-electron": "^2.3.8",
+    "@vscode/test-electron": "^2.5.2",
     "@vscode/vsce": "^2.19.0",
     "ansi-colors": "3.2.4",
     "del": "2.2.0",
