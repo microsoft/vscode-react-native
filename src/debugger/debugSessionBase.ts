@@ -238,7 +238,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
                     localize(
                         "CouldNotStopMonitoringLogcat",
                         "Couldn't stop monitoring logcat: {0}",
-                        (err as any).message || err,
+                        err instanceof Error ? err.message : String(err),
                     ),
                 );
             }

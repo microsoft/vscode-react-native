@@ -4,6 +4,7 @@
 import * as nls from "vscode-nls";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
+import { InternalError } from "../common/error/internalError";
 import { TelemetryHelper } from "../common/telemetryHelper";
 import { GeneralPlatform, TargetType } from "./generalPlatform";
 import { IMobileTarget, MobileTarget } from "./mobileTarget";
@@ -89,16 +90,15 @@ export abstract class GeneralMobilePlatform extends GeneralPlatform {
             }
         } catch (error) {
             if (
-                error &&
-                (error as any).errorCode &&
-                (error as any).errorCode === InternalErrorCode.TargetSelectionError
+                error instanceof InternalError &&
+                error.errorCode === InternalErrorCode.TargetSelectionError
             ) {
                 TelemetryHelper.sendErrorEvent(
                     "TargetSelectionError",
                     ErrorHelper.getInternalError(InternalErrorCode.TargetSelectionError),
                 );
 
-                this.logger.warning(error as any);
+                this.logger.warning(error);
                 this.logger.warning(
                     localize(
                         "ContinueWithRnCliWorkflow",

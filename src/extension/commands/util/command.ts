@@ -62,13 +62,14 @@ export abstract class Command<ArgT extends unknown[] = never[]> {
                     await this.onBeforeExecute(...args);
                     await fn.bind(this)(...args);
                 } catch (error) {
-                    switch ((error as any).errorCode) {
-                        case InternalErrorCode.CommandCanceled:
-                            generator.addError(error as Error);
-                            return;
-                        default:
-                            throw error;
+                    if (
+                        error instanceof InternalError &&
+                        error.errorCode === InternalErrorCode.CommandCanceled
+                    ) {
+                        generator.addError(error);
+                        return;
                     }
+                    throw error;
                 }
             };
 
@@ -116,16 +117,17 @@ export abstract class Command<ArgT extends unknown[] = never[]> {
         try {
             return await selectProject();
         } catch (error) {
-            switch ((error as any).errorCode) {
-                case InternalErrorCode.UserInputCanceled:
-                    throw ErrorHelper.getNestedError(
-                        error as Error,
-                        InternalErrorCode.CommandCanceled,
-                        this.label,
-                    );
-                default:
-                    throw error;
+            if (
+                error instanceof InternalError &&
+                error.errorCode === InternalErrorCode.UserInputCanceled
+            ) {
+                throw ErrorHelper.getNestedError(
+                    error,
+                    InternalErrorCode.CommandCanceled,
+                    this.label,
+                );
             }
+            throw error;
         }
     }
 

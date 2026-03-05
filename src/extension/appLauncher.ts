@@ -15,6 +15,7 @@ import { isNullOrUndefined } from "../common/utils";
 import { TelemetryHelper } from "../common/telemetryHelper";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
+import { InternalError } from "../common/error/internalError";
 import { TargetPlatformHelper } from "../common/targetPlatformHelper";
 import {
     getNodeModulesInFolderHierarchy,
@@ -385,24 +386,23 @@ export class AppLauncher {
                         return;
                     }
                     generator.addError(error as Error);
-                    this.logger.error(error as string);
+                    this.logger.error(
+                        error instanceof Error ? error.message : String(error),
+                        error instanceof Error ? error : undefined,
+                    );
                     throw error;
                 }
             });
         } catch (error) {
-            if (error && (error as any).errorCode) {
-                if (
-                    (error as any).errorCode === InternalErrorCode.ReactNativePackageIsNotInstalled
-                ) {
+            if (error instanceof InternalError) {
+                if (error.errorCode === InternalErrorCode.ReactNativePackageIsNotInstalled) {
                     TelemetryHelper.sendErrorEvent(
                         "ReactNativePackageIsNotInstalled",
                         ErrorHelper.getInternalError(
                             InternalErrorCode.ReactNativePackageIsNotInstalled,
                         ),
                     );
-                } else if (
-                    (error as any).errorCode === InternalErrorCode.ReactNativeWindowsIsNotInstalled
-                ) {
+                } else if (error.errorCode === InternalErrorCode.ReactNativeWindowsIsNotInstalled) {
                     TelemetryHelper.sendErrorEvent(
                         "ReactNativeWindowsPackageIsNotInstalled",
                         ErrorHelper.getInternalError(
@@ -411,7 +411,10 @@ export class AppLauncher {
                     );
                 }
             }
-            this.logger.error(error as string);
+            this.logger.error(
+                error instanceof Error ? error.message : String(error),
+                error instanceof Error ? error : undefined,
+            );
             throw error;
         }
     }
@@ -467,24 +470,23 @@ export class AppLauncher {
                     await this.mobilePlatform.startPackager();
                 } catch (error) {
                     generator.addError(error as Error);
-                    this.logger.error(error as string);
+                    this.logger.error(
+                        error instanceof Error ? error.message : String(error),
+                        error instanceof Error ? error : undefined,
+                    );
                     throw error;
                 }
             });
         } catch (error) {
-            if (error && (error as any).errorCode) {
-                if (
-                    (error as any).errorCode === InternalErrorCode.ReactNativePackageIsNotInstalled
-                ) {
+            if (error instanceof InternalError) {
+                if (error.errorCode === InternalErrorCode.ReactNativePackageIsNotInstalled) {
                     TelemetryHelper.sendErrorEvent(
                         "ReactNativePackageIsNotInstalled",
                         ErrorHelper.getInternalError(
                             InternalErrorCode.ReactNativePackageIsNotInstalled,
                         ),
                     );
-                } else if (
-                    (error as any).errorCode === InternalErrorCode.ReactNativeWindowsIsNotInstalled
-                ) {
+                } else if (error.errorCode === InternalErrorCode.ReactNativeWindowsIsNotInstalled) {
                     TelemetryHelper.sendErrorEvent(
                         "ReactNativeWindowsPackageIsNotInstalled",
                         ErrorHelper.getInternalError(
@@ -493,7 +495,10 @@ export class AppLauncher {
                     );
                 }
             }
-            this.logger.error(error as string);
+            this.logger.error(
+                error instanceof Error ? error.message : String(error),
+                error instanceof Error ? error : undefined,
+            );
             throw error;
         }
     }
