@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as assert from "assert";
+import assert = require("assert");
 import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs";
@@ -197,7 +197,7 @@ suite("appLauncher", function () {
                     });
                     browserFinderStub.restore();
                 } catch (err) {
-                    assert.fail(err);
+                    assert.fail(err as any);
                 }
             }
         });

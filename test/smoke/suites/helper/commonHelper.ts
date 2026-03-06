@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import * as rimraf from "rimraf";
+import rimraf = require("rimraf");
 import * as path from "path";
 import { SmokeTestLogger } from "./smokeTestLogger";
 

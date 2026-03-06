@@ -3,7 +3,7 @@
 
 import * as fs from "fs";
 import * as path from "path";
-import * as assert from "assert";
+import assert = require("assert");
 import { AndroidPlatform } from "../../../src/extension/android/androidPlatform";
 import { IAndroidRunOptions, PlatformType } from "../../../src/extension/launchArgs";
 import { FileSystem } from "../../../src/common/node/fileSystem";
@@ -241,7 +241,7 @@ suite("androidPlatform", function () {
                     await androidPlatform.runApp();
                     should.assert(false, "runApp should've exited with an error");
                 } catch (error) {
-                    error.message
+                    (error as Error).message
                         .startsWith("There is no any Android debuggable online target")
                         .should.be.true();
                 }
@@ -363,7 +363,9 @@ suite("androidPlatform", function () {
                     should.assert(false, "Expected runApp to end up with an error");
                     isRunning = false;
                 } catch (error) {
-                    error.message.should.eql("Android project not found. (error code 1203)");
+                    (error as Error).message.should.eql(
+                        "Android project not found. (error code 1203)",
+                    );
                     isRunning = !!devices[0].installedApplications[androidPackageName];
                 }
                 isRunning.should.be.false();
@@ -383,7 +385,7 @@ suite("androidPlatform", function () {
                     isRunning = false;
                 } catch (error) {
                     "An Android shell command timed-out. Please retry the operation. (error code 1202)".should.eql(
-                        error.message,
+                        (error as Error).message,
                     );
                     isRunning = !!devices[0].installedApplications[androidPackageName];
                 }

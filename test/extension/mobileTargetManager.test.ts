@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as path from "path";
-import * as assert from "assert";
+import assert = require("assert");
 import Sinon = require("sinon");
 import { QuickPickItem, window } from "vscode";
 import { AdbHelper } from "../../src/extension/android/adb";
@@ -202,7 +202,7 @@ suite("MobileTargetManager", function () {
             await checkTargetSeletionResult(
                 specificNameTargetFilter,
                 undefined,
-                (target: MobileTarget) => target.id === onlineSimulator1.id,
+                (target?: MobileTarget) => target?.id === onlineSimulator1.id,
             );
             assert.strictEqual(
                 showQuickPickStub.callCount - showQuickPickCallCount,
@@ -217,8 +217,11 @@ suite("MobileTargetManager", function () {
             await checkTargetSeletionResult(
                 specificNameTargetFilter,
                 undefined,
-                (target: MobileTarget) =>
-                    target.isOnline && !!target.id && target.name === offlineSimulator1.name,
+                (target?: MobileTarget) =>
+                    !!target &&
+                    target.isOnline &&
+                    !!target.id &&
+                    target.name === offlineSimulator1.name,
             );
         });
     }

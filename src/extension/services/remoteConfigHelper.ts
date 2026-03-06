@@ -23,9 +23,9 @@ export async function retryDownloadConfig<T extends IConfig | IConfig[]>(
     return PromiseUtil.retryAsync(
         async () => {
             try {
-                return await downloadConfig<T>(endpointURL);
+                return (await downloadConfig<T>(endpointURL)) as T;
             } catch (err) {
-                return;
+                throw err;
             }
         },
         (config: any) => !!config,

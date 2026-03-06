@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as assert from "assert";
+import assert = require("assert");
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { CommandExecutor } from "../../common/commandExecutor";
@@ -20,7 +20,7 @@ export class rnDoctor extends ReactNativeCommand {
     ];
     codeName = "doctor";
     label = "React Native Doctor";
-    nodeModulesRoot: string;
+    nodeModulesRoot!: string;
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToRunRNDoctor);
     async baseFn(): Promise<void> {
         assert(this.project);

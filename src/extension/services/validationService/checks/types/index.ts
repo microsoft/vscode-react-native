@@ -20,5 +20,5 @@ export interface IValidation {
     description: string;
     platform?: typeof process.platform[];
     category: ValidationCategoryE;
-    exec: () => Promise<ValidationResultT>;
+    exec: (prop?: string) => Promise<ValidationResultT>;
 }

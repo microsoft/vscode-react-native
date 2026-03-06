@@ -6,7 +6,7 @@ import { LogLevel } from "../../../src/extension/log/LogHelper";
 import { RequestBodyFormatter } from "../../../src/extension/networkInspector/requestBodyFormatters/requestBodyFormatter";
 import { Response, Request } from "../../../src/extension/networkInspector/networkMessageData";
 import * as sinon from "sinon";
-import * as assert from "assert";
+import assert = require("assert");
 
 suite("requestBodyFormatter", function () {
     suite("formatBody", function () {

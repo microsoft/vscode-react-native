@@ -5,7 +5,7 @@ import { InspectorConsoleView } from "../../../src/extension/networkInspector/vi
 import { OutputChannelLogger } from "../../../src/extension/log/OutputChannelLogger";
 import { Response, Request } from "../../../src/extension/networkInspector/networkMessageData";
 import { URL } from "url";
-import * as assert from "assert";
+import assert = require("assert");
 import * as querystring from "querystring";
 
 suite("inspectorConsoleView", function () {

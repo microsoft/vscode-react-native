@@ -17,7 +17,7 @@ import { HermesCDPMessageHandler } from "../../src/cdp-proxy/CDPMessageHandlers/
 import { LogLevel } from "../../src/extension/log/LogHelper";
 import { DebuggerEndpointHelper } from "./../../src/cdp-proxy/debuggerEndpointHelper";
 import { Request } from "../../src/common/node/request";
-import * as assert from "assert";
+import assert = require("assert");
 import { CDP_API_NAMES } from "../../src/cdp-proxy/CDPMessageHandlers/CDPAPINames";
 import {
     HERMES_NATIVE_FUNCTION_NAME,

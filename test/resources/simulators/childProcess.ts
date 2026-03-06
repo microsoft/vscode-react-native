@@ -15,10 +15,10 @@ export class ChildProcess extends events.EventEmitter implements child_process.C
     public stdin: stream.Writable = <stream.Writable>new Stream();
     public stdout: stream.Readable = <stream.Readable>new Stream();
     public stderr: stream.Readable = <stream.Readable>new Stream();
-    public pid: number; // Not yet implemented
-    public connected: boolean;
-    public stdio: [stream.Writable, stream.Readable, stream.Readable]; // Not yet implemented
-    public killed: boolean;
+    public pid!: number; // Not yet implemented
+    public connected!: boolean;
+    public stdio!: [stream.Writable, stream.Readable, stream.Readable]; // Not yet implemented
+    public killed!: boolean;
 
     public kill(signal?: string): void {
         this.notYetImplemented();

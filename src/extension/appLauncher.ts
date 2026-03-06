@@ -5,9 +5,9 @@ import * as fs from "fs";
 import * as path from "path";
 import * as child_process from "child_process";
 import * as vscode from "vscode";
-import * as execa from "execa";
 import * as nls from "vscode-nls";
 import * as BrowserHelper from "@vscode/js-debug-browsers";
+import execa = require("execa");
 import { Packager } from "../common/packager";
 import { RNPackageVersions, ProjectVersionHelper } from "../common/projectVersionHelper";
 import { CommandExecutor } from "../common/commandExecutor";
@@ -15,6 +15,7 @@ import { isNullOrUndefined } from "../common/utils";
 import { TelemetryHelper } from "../common/telemetryHelper";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
+import { InternalError } from "../common/error/internalError";
 import { TargetPlatformHelper } from "../common/targetPlatformHelper";
 import {
     getNodeModulesInFolderHierarchy,
@@ -50,17 +51,17 @@ export class AppLauncher {
     private readonly cdpProxyHostAddress = "127.0.0.1";
     public static readonly CHROME_DATA_DIR = "chrome_sandbox_dir";
     public static readonly EDGE_DATA_DIR = "edge_sandbox_dir";
-    private appWorker: MultipleLifetimesAppWorker | null;
+    private appWorker: MultipleLifetimesAppWorker | null = null;
     private packager: Packager;
     private exponentHelper: ExponentHelper;
     private reactNativeVersions?: RNPackageVersions;
     private rnCdpProxy: ReactNativeCDPProxy;
     private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
-    private mobilePlatform: GeneralPlatform;
+    private mobilePlatform!: GeneralPlatform;
     private launchScenariosManager: LaunchScenariosManager;
     private debugConfigurationRoot: string;
     private nodeModulesRoot?: string;
-    private browserProc: child_process.ChildProcess | null;
+    private browserProc: child_process.ChildProcess | null = null;
     private browserStopEventEmitter: vscode.EventEmitter<Error | undefined> =
         new vscode.EventEmitter();
 
@@ -384,13 +385,16 @@ export class AppLauncher {
                         // since the error doesn't affects an application launch process
                         return;
                     }
-                    generator.addError(error);
-                    this.logger.error(error);
+                    generator.addError(error as Error);
+                    this.logger.error(
+                        error instanceof Error ? error.message : String(error),
+                        error instanceof Error ? error : undefined,
+                    );
                     throw error;
                 }
             });
         } catch (error) {
-            if (error && error.errorCode) {
+            if (error instanceof InternalError) {
                 if (error.errorCode === InternalErrorCode.ReactNativePackageIsNotInstalled) {
                     TelemetryHelper.sendErrorEvent(
                         "ReactNativePackageIsNotInstalled",
@@ -407,7 +411,10 @@ export class AppLauncher {
                     );
                 }
             }
-            this.logger.error(error);
+            this.logger.error(
+                error instanceof Error ? error.message : String(error),
+                error instanceof Error ? error : undefined,
+            );
             throw error;
         }
     }
@@ -462,13 +469,16 @@ export class AppLauncher {
                     generator.step("startPackager");
                     await this.mobilePlatform.startPackager();
                 } catch (error) {
-                    generator.addError(error);
-                    this.logger.error(error);
+                    generator.addError(error as Error);
+                    this.logger.error(
+                        error instanceof Error ? error.message : String(error),
+                        error instanceof Error ? error : undefined,
+                    );
                     throw error;
                 }
             });
         } catch (error) {
-            if (error && error.errorCode) {
+            if (error instanceof InternalError) {
                 if (error.errorCode === InternalErrorCode.ReactNativePackageIsNotInstalled) {
                     TelemetryHelper.sendErrorEvent(
                         "ReactNativePackageIsNotInstalled",
@@ -485,7 +495,10 @@ export class AppLauncher {
                     );
                 }
             }
-            this.logger.error(error);
+            this.logger.error(
+                error instanceof Error ? error.message : String(error),
+                error instanceof Error ? error : undefined,
+            );
             throw error;
         }
     }

@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as assert from "assert";
+import assert = require("assert");
 import { promises as fs } from "fs";
 import * as os from "os";
 import * as path from "path";
-import * as proxyquire from "proxyquire";
+import proxyquire = require("proxyquire");
 
 suite("checkEnvironment", function () {
     suite("basicCheck", function () {

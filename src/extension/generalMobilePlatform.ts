@@ -4,6 +4,7 @@
 import * as nls from "vscode-nls";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
+import { InternalError } from "../common/error/internalError";
 import { TelemetryHelper } from "../common/telemetryHelper";
 import { GeneralPlatform, TargetType } from "./generalPlatform";
 import { IMobileTarget, MobileTarget } from "./mobileTarget";
@@ -17,7 +18,7 @@ nls.config({
 const localize = nls.loadMessageBundle();
 
 export abstract class GeneralMobilePlatform extends GeneralPlatform {
-    protected targetManager: MobileTargetManager;
+    protected targetManager!: MobileTargetManager;
     protected target?: MobileTarget;
 
     public async getTargetsCountByFilter(filter?: (el: IMobileTarget) => boolean): Promise<number> {
@@ -89,8 +90,7 @@ export abstract class GeneralMobilePlatform extends GeneralPlatform {
             }
         } catch (error) {
             if (
-                error &&
-                error.errorCode &&
+                error instanceof InternalError &&
                 error.errorCode === InternalErrorCode.TargetSelectionError
             ) {
                 TelemetryHelper.sendErrorEvent(

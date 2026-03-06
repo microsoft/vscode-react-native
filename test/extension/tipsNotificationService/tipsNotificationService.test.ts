@@ -7,11 +7,11 @@ import {
     TipsConfig,
 } from "../../../src/extension/services/tipsNotificationsService/tipsNotificationService";
 import { SettingsHelper } from "../../../src/extension/settingsHelper";
-import * as Configstore from "configstore";
-import * as assert from "assert";
+import Configstore = require("configstore");
+import assert = require("assert");
 import { window } from "vscode";
 import * as sinon from "sinon";
-import * as proxyquire from "proxyquire";
+import proxyquire = require("proxyquire");
 interface RawTipInfo {
     knownDate?: string;
     shownDate?: string;

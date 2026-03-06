@@ -76,7 +76,7 @@ async function getReactNativeWorkspaceForFile(file: string, workspace: string): 
         return await getPathForRNParentWorkspace(path.dirname(file));
     } catch (reason) {
         throw ErrorHelper.getNestedError(
-            reason,
+            reason as Error,
             InternalErrorCode.WorkspaceNotFound,
             `Error while looking at workspace for file: ${file}.`,
         );

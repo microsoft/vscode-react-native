@@ -6,7 +6,7 @@ import * as path from "path";
 import { Page } from "playwright";
 import { SmokeTestLogger } from "./helper/smokeTestLogger";
 import { app, screenshots } from "./main";
-import * as assert from "assert";
+import assert = require("assert");
 import { ElementHelper } from "./helper/elementHelper";
 import { Element } from "./helper/constants";
 import { ComponentHelper } from "./helper/componentHelper";

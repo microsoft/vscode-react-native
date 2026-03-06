@@ -8,7 +8,7 @@ import { ExponentHelper } from "../../src/extension/exponent/exponentHelper";
 import { FileSystem } from "../../src/common/node/fileSystem";
 import { stripJsonTrailingComma } from "../../src/common/utils";
 
-import * as assert from "assert";
+import assert = require("assert");
 import * as sinon from "sinon";
 
 suite("packager", function () {

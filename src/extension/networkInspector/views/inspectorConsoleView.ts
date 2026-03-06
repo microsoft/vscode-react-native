@@ -41,7 +41,7 @@ export class InspectorConsoleView extends InspectorView {
         Orange: "#f28b54",
     };
 
-    private consoleLogsColor: string;
+    private consoleLogsColor!: string;
 
     public async init(): Promise<void> {
         if (!this.isInitialized) {
