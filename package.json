@@ -1503,7 +1503,7 @@
     "@typescript-eslint/parser": "^6.15.0",
     "@typescript/native-preview": "^7.0.0-dev.20260302.1",
     "@vscode/debugadapter": "^1.68.0",
-    "@vscode/test-electron": "^2.3.8",
+    "@vscode/test-electron": "^2.5.2",
     "@vscode/vsce": "^2.19.0",
     "ansi-colors": "3.2.4",
     "del": "2.2.0",
