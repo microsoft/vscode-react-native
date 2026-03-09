@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as path from "path";
-import * as assert from "assert";
+import assert = require("assert");
 import { PromiseUtil } from "../../src/common/node/promise";
 import { IAndroidRunOptions } from "../../src/extension/launchArgs";
 import { ISpawnResult } from "../../src/common/node/childProcess";
@@ -21,7 +21,7 @@ export class ReactNative065 {
 
     private static ANDROID_APK_RELATIVE_PATH = "android/app/build/outputs/apk/app-debug.apk";
 
-    private projectFileContent: string;
+    private projectFileContent!: string;
 
     private simulator: Simulator = new Simulator({
         beforeStart: () => this.readAndroidPackageName(), // 1. We read the package.json to verify this is a RN project
@@ -41,11 +41,11 @@ export class ReactNative065 {
         ) => this.launchApp(stdout, stderr), // it means we were succesful
     });
 
-    private recording: Recording;
+    private recording!: Recording;
 
-    private androidPackageName: string;
-    private projectRoot: string;
-    private androidAPKPath: string;
+    private androidPackageName!: string;
+    private projectRoot!: string;
+    private androidAPKPath!: string;
 
     constructor(private fileSystem: FileSystem, private adbHelper: AdbHelper) {
         assert(this.fileSystem, "fileSystem shouldn't be null");

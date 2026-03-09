@@ -319,8 +319,7 @@ export class AdbHelper {
                         "Couldn't read from {0}.",
                         localPropertiesFilePath,
                     ),
-                    e,
-                    e.stack,
+                    e as Error,
                 );
                 logger.info(
                     localize(

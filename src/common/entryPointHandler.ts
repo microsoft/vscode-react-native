@@ -67,7 +67,10 @@ export class EntryPointHandler {
             Telemetry.init(appName, appVersion, reporter);
             return this.runFunction(appName, error, codeToRun, true, extProps);
         } catch (error) {
-            this.logger.error(error);
+            this.logger.error(
+                error instanceof Error ? error.message : String(error),
+                error instanceof Error ? error : undefined,
+            );
             throw error;
         }
     }

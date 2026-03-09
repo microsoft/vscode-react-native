@@ -91,14 +91,14 @@ export class RNDebugSession extends DebugSessionBase {
             } catch (error) {
                 throw ErrorHelper.getInternalError(
                     InternalErrorCode.ApplicationLaunchFailed,
-                    error.message || error,
+                    (error as Error).message || error,
                 );
             }
             // if debugging is enabled start attach request
             await this.vsCodeDebugSession.customRequest("attach", launchArgs);
             this.sendResponse(response);
         } catch (error) {
-            this.terminateWithErrorResponse(error, response);
+            this.terminateWithErrorResponse(error as Error, response);
         }
     }
 

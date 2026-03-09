@@ -3,6 +3,7 @@
 
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
+import { InternalError } from "../../common/error/internalError";
 import {
     ProjectVersionHelper,
     REACT_NATIVE_PACKAGES,
@@ -39,11 +40,11 @@ export class TestDevEnvironment extends Command {
         try {
             project = await this.selectProject();
         } catch (error) {
-            switch (error.errorCode) {
-                case InternalErrorCode.WorkspaceNotFound:
-                    break;
-                default:
-                    throw error;
+            const isWorkspaceNotFound =
+                error instanceof InternalError &&
+                error.errorCode === InternalErrorCode.WorkspaceNotFound;
+            if (!isWorkspaceNotFound) {
+                throw error;
             }
         }
 

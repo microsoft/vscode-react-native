@@ -25,7 +25,7 @@ interface IBasicCheckResult {
 
 export const basicCheck = async (arg: {
     command: string;
-    getVersion?: () => Promise<string | null | undefined>;
+    getVersion?: () => Promise<string | semver.SemVer | null | undefined>;
     versionRange?: semver.Range | string;
 }): Promise<IBasicCheckResult> => {
     const result = {

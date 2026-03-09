@@ -133,7 +133,7 @@ export class PackageLoader {
             resolve(module);
             return true;
         } catch (e) {
-            if (packageWasInstalled || e.code !== "MODULE_NOT_FOUND") {
+            if (packageWasInstalled || (e as NodeJS.ErrnoException).code !== "MODULE_NOT_FOUND") {
                 reject(e);
                 return true;
             }
@@ -216,7 +216,7 @@ export class PackageLoader {
         packageConfig: PackageConfig,
         ...additionalDependencies: PackageConfig[]
     ): Promise<T> {
-        return new Promise(async (resolve: (value: T) => void, reject) => {
+        return new Promise(async (resolve, reject) => {
             const tryToRequire = this.getTryToRequireFunction(packageConfig, resolve, reject);
             if (!(await tryToRequire())) {
                 this.tryToRequireAfterInstall(

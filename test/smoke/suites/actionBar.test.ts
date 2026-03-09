@@ -8,7 +8,7 @@ import { ElementHelper } from "./helper/elementHelper";
 import { Element } from "./helper/constants";
 import { WaitHelper } from "./helper/waitHelper";
 import { ComponentHelper } from "./helper/componentHelper";
-import * as assert from "assert";
+import assert = require("assert");
 
 export function startActionBarTests(): void {
     describe("ActionBarTest", () => {

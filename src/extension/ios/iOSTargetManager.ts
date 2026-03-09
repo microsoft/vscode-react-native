@@ -5,7 +5,7 @@ import * as nls from "vscode-nls";
 import { QuickPickOptions, window } from "vscode";
 import { ChildProcess } from "../../common/node/childProcess";
 import { PromiseUtil } from "../../common/node/promise";
-import { IDebuggableMobileTarget, MobileTarget } from "../mobileTarget";
+import { IDebuggableMobileTarget, IMobileTarget, MobileTarget } from "../mobileTarget";
 import { MobileTargetManager } from "../mobileTargetManager";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { TargetType } from "../generalPlatform";
@@ -23,7 +23,7 @@ export interface IDebuggableIOSTarget extends IDebuggableMobileTarget {
 
 export class IOSTarget extends MobileTarget implements IDebuggableIOSTarget {
     protected _system: string;
-    protected _name: string;
+    protected _name!: string;
 
     public static fromInterface(obj: IDebuggableIOSTarget): IOSTarget {
         return new IOSTarget(obj.isOnline, obj.isVirtualTarget, obj.id, obj.name, obj.system);
@@ -181,9 +181,11 @@ export class IOSTargetManager extends MobileTargetManager {
         const system = await this.selectSystem(filter);
         if (system) {
             return (await this.selectTarget(
-                (el: IDebuggableIOSTarget) =>
-                    (filter ? filter(el) : true) &&
-                    (system === IOSTargetManager.ANY_SYSTEM ? true : el.system === system),
+                (el: IMobileTarget) =>
+                    (filter ? filter(el as IDebuggableIOSTarget) : true) &&
+                    (system === IOSTargetManager.ANY_SYSTEM
+                        ? true
+                        : (el as IDebuggableIOSTarget).system === system),
             )) as IDebuggableIOSTarget | undefined;
         }
         return;
@@ -192,7 +194,9 @@ export class IOSTargetManager extends MobileTargetManager {
     protected async selectSystem(
         filter?: (el: IDebuggableIOSTarget) => boolean,
     ): Promise<string | undefined> {
-        const targets = (await this.getTargetList(filter)) as IDebuggableIOSTarget[];
+        const targets = (await this.getTargetList(
+            filter as ((el: IMobileTarget) => boolean) | undefined,
+        )) as IDebuggableIOSTarget[];
         // If we select only from devices, we should not select system
         if (!targets.find(target => target.isVirtualTarget)) {
             return IOSTargetManager.ANY_SYSTEM;

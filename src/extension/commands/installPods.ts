@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as assert from "assert";
+import assert = require("assert");
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
@@ -13,7 +13,6 @@ import { ChildProcess } from "../../common/node/childProcess";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { Command } from "./util/command";
 
-const logger = OutputChannelLogger.getMainChannel();
 const childProcess = new ChildProcess();
 
 export class InstallPods extends Command {
@@ -24,6 +23,7 @@ export class InstallPods extends Command {
 
     async baseFn(): Promise<void> {
         assert(this.project);
+        const logger = OutputChannelLogger.getMainChannel();
         if (os.platform() !== "darwin") {
             void vscode.window.showWarningMessage("CocoaPods is only supported on macOS.");
             return;
@@ -120,6 +120,7 @@ export class InstallPods extends Command {
     }
 
     private findPodCommand(): string {
+        const logger = OutputChannelLogger.getMainChannel();
         const homeDir = os.homedir();
         const possiblePodPaths = [
             `${homeDir}/.rbenv/shims/pod`,
@@ -147,6 +148,7 @@ export class InstallPods extends Command {
     }
 
     private getEnhancedEnvironment(): { [key: string]: string } {
+        const logger = OutputChannelLogger.getMainChannel();
         const env = { ...process.env } as { [key: string]: string };
         const homeDir = os.homedir();
         logger.info(`Using HOME directory: ${homeDir}`);

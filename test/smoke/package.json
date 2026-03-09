@@ -16,7 +16,7 @@
     "@types/shell-quote": "^1.7.5",
     "@types/url-parse": "^1.4.11",
     "ansi-styles": "^6.2.1",
-    "minimatch": "^10.0.3",
+    "minimatch": "^10.2.4",
     "mkdirp": "^3.0.1",
     "mocha": "11.7.2",
     "mocha-junit-reporter": "2.2.1",
@@ -25,11 +25,14 @@
     "playwright": "^1.55.1",
     "rimraf": "^6.0.1",
     "shell-quote": "^1.8.3",
-    "tar": "7.5.8",
+    "tar": "7.5.10",
     "tree-kill": "^1.2.2",
     "ts-node": "10.9.2",
     "typescript": "5.9.2",
     "url-parse": "^1.5.10",
     "js-yaml": "4.1.1"
+  },
+  "overrides": {
+    "serialize-javascript": "7.0.3"
   }
 }

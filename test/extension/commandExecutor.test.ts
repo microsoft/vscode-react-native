@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { EventEmitter } from "events";
-import * as assert from "assert";
+import assert = require("assert");
 import * as path from "path";
 import * as fs from "fs";
 import * as semver from "semver";
@@ -79,9 +79,9 @@ suite("commandExecutor", function () {
                 await ce.execute("bar");
                 assert.fail(null, null, "bar should not be a valid command");
             } catch (reason) {
-                console.log(reason.message);
-                assert.strictEqual(reason.errorCode, 101);
-                assert.strictEqual(reason.errorLevel, 0);
+                console.log((reason as Error).message);
+                assert.strictEqual((reason as any).errorCode, 101);
+                assert.strictEqual((reason as any).errorLevel, 0);
             }
         }).timeout(10000);
 
@@ -92,9 +92,9 @@ suite("commandExecutor", function () {
                 await ce.execute("node install bad-package");
                 assert.fail(null, null, "node should not be able to install bad-package");
             } catch (reason) {
-                console.log(reason.message);
-                assert.strictEqual(reason.errorCode, 101);
-                assert.strictEqual(reason.errorLevel, 0);
+                console.log((reason as Error).message);
+                assert.strictEqual((reason as any).errorCode, 101);
+                assert.strictEqual((reason as any).errorLevel, 0);
             }
         }).timeout(10000);
 
@@ -117,9 +117,9 @@ suite("commandExecutor", function () {
             try {
                 return await ce.spawn("bar", ["-v"]);
             } catch (reason) {
-                console.log(reason.message);
-                assert.strictEqual(reason.errorCode, 101);
-                assert.strictEqual(reason.errorLevel, 0);
+                console.log((reason as Error).message);
+                assert.strictEqual((reason as any).errorCode, 101);
+                assert.strictEqual((reason as any).errorLevel, 0);
             }
         }).timeout(10000);
 

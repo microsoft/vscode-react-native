@@ -32,7 +32,7 @@ export enum PackagerStatus {
 export class PackagerStatusIndicator implements Disposable {
     private togglePackagerItem: StatusBarItem;
     private restartPackagerItem: StatusBarItem;
-    private displayVersion: string;
+    private displayVersion!: string;
     private projectRoot?: string;
 
     private static PACKAGER_NAME: string = localize("ReactNativePackager", "React Native Packager");

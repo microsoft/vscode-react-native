@@ -4,7 +4,7 @@
 import { Page } from "playwright";
 import { SmokeTestLogger } from "./helper/smokeTestLogger";
 import { app, screenshots } from "./main";
-import * as assert from "assert";
+import assert = require("assert");
 import { ComponentHelper } from "./helper/componentHelper";
 import { TimeoutConstants } from "./helper/timeoutConstants";
 

@@ -47,7 +47,7 @@ export class OutputVerifier {
         try {
             await spawnResult.outcome;
         } catch (error) {
-            processError = error;
+            processError = error as any;
         }
 
         const failurePatterns = await this.generatePatternToFailure();

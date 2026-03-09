@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as path from "path";
-import * as Mocha from "mocha";
+import Mocha = require("mocha");
 
 export async function run(): Promise<void> {
     const mocha = new Mocha({

@@ -3,7 +3,7 @@
 
 import { MacOSDebugModeManager } from "../../../src/extension/macos/macOSDebugModeManager";
 
-import * as assert from "assert";
+import assert = require("assert");
 import * as path from "path";
 import * as sinon from "sinon";
 import { homedir } from "os";

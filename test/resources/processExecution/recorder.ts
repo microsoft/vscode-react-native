@@ -34,13 +34,13 @@ export class Recorder {
         options: ISpawnOptions,
     ) => child_process.ChildProcess;
 
-    private recording: Recording;
-    private previousEventTimestamp: number;
+    private recording!: Recording;
+    private previousEventTimestamp!: number;
 
     public static installGlobalRecorder(): void {
         if (!this.originalSpawn) {
             this.originalSpawn = child_process.spawn;
-            child_process.spawn = this.recordAndSpawn.bind(this);
+            child_process.spawn = this.recordAndSpawn.bind(this) as typeof child_process.spawn;
         }
     }
 
