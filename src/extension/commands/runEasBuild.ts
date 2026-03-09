@@ -14,8 +14,6 @@ export class runEasBuild extends ReactNativeCommand {
     label = "Run EAS Build";
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToRunEasBuild);
     async baseFn(): Promise<void> {
-        console.log("this.project:", this.project);
-
         assert(this.project);
         const packager = await this.project.getPackager();
         const projectRootPath = await packager.getProjectPath();
