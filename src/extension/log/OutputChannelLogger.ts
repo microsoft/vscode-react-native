@@ -16,8 +16,8 @@ const channels: { [channelName: string]: OutputChannelLogger } = {};
 export class OutputChannelLogger implements ILogger {
     public static MAIN_CHANNEL_NAME: string = "React Native";
     private readonly channelLogFilePath: string | undefined;
-    private channelLogFileStream: fs.WriteStream;
-    private outputChannel: vscode.OutputChannel;
+    private channelLogFileStream!: fs.WriteStream;
+    private outputChannel!: vscode.OutputChannel;
     private logTimestamps: boolean;
     private static forbiddenFileNameSymbols: RegExp = /\W/gi;
 

@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as path from "path";
-import * as assert from "assert";
+import assert = require("assert");
 const sinon = require("sinon");
 import { PackageNameResolver } from "../../../src/extension/android/packageNameResolver";
 import { FileSystem } from "../../../src/common/node/fileSystem";

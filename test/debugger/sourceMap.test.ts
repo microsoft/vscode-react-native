@@ -3,7 +3,7 @@
 
 import { SourceMapUtil, IStrictUrl } from "../../src/debugger/sourceMap";
 
-import * as assert from "assert";
+import assert = require("assert");
 import * as path from "path";
 import * as url from "url";
 

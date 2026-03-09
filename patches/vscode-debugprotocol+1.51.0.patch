@@ -1,0 +1,13 @@
+diff --git a/node_modules/vscode-debugprotocol/lib/debugProtocol.d.ts b/node_modules/vscode-debugprotocol/lib/debugProtocol.d.ts
+index a6a9f8d..3081db4 100644
+--- a/node_modules/vscode-debugprotocol/lib/debugProtocol.d.ts
++++ b/node_modules/vscode-debugprotocol/lib/debugProtocol.d.ts
+@@ -1,7 +1,7 @@
+ /** Declaration module describing the VS Code debug protocol.
+     Auto-generated from json schema. Do not edit manually.
+ */
+-export declare module DebugProtocol {
++export declare namespace DebugProtocol {
+     /** Base class of requests, responses, and events. */
+     interface ProtocolMessage {
+         /** Sequence number (also known as message ID). For protocol messages of type 'request' this ID can be used to cancel the request. */

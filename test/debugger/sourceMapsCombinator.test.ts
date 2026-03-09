@@ -3,7 +3,7 @@
 
 import { SourceMapsCombinator } from "../../src/debugger/sourceMapsCombinator";
 import { RawSourceMap } from "source-map";
-import * as assert from "assert";
+import assert = require("assert");
 import * as sinon from "sinon";
 import * as fs from "fs";
 import * as path from "path";

@@ -43,7 +43,7 @@ export interface IRecordingConsumer {
     });
 */
 export class RecordingsHelper {
-    public test: TestUsingRecording;
+    public test!: TestUsingRecording;
 
     private recordings: { [name: string]: string };
 

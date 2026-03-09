@@ -73,7 +73,7 @@ export abstract class TelemetryGeneratorBase {
             const code = codeToMeasure();
             return await code;
         } catch (error) {
-            this.addError(error);
+            this.addError(error as Error);
             return Promise.reject(error);
         } finally {
             this.finishTime(name, startTime);

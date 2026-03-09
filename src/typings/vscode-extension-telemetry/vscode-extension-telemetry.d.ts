@@ -27,10 +27,14 @@ declare module "vscode-extension-telemetry" {
          * @param {object} properties An associative array of strings
          * @param {object} measures An associative array of numbers
          */
-        sendTelemetryEvent(eventName: string, properties?: {
-            [key: string]: string;
-        }, measures?: {
-            [key: string]: number;
-        }): void;
+        sendTelemetryEvent(
+            eventName: string,
+            properties?: {
+                [key: string]: string;
+            },
+            measures?: {
+                [key: string]: number;
+            },
+        ): void;
     }
 }

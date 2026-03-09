@@ -3,7 +3,7 @@
 
 import { ExponentHelper } from "../../../src/extension/exponent/exponentHelper";
 import * as path from "path";
-import * as assert from "assert";
+import assert = require("assert");
 import * as sinon from "sinon";
 import * as glob from "glob";
 import { FileSystem } from "../../../src/common/node/fileSystem";

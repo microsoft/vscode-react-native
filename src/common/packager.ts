@@ -3,11 +3,11 @@
 
 import { ChildProcess } from "child_process";
 import * as path from "path";
-import * as assert from "assert";
+import assert = require("assert");
 import * as semver from "semver";
 import * as vscode from "vscode";
 import * as nls from "vscode-nls";
-import * as WebSocket from "ws";
+import WebSocket = require("ws");
 import { logger } from "@vscode/debugadapter";
 import { GeneralPlatform } from "../extension/generalPlatform";
 import { ExponentHelper } from "../extension/exponent/exponentHelper";
@@ -74,9 +74,9 @@ export class Packager {
     private static OPN_PACKAGE_MAIN_FILENAME = "index.js";
     private static PNPM_PACKAGE_NAME = ".pnpm";
     private static fs: FileSystem = new FileSystem();
-    private expoHelper: ExponentHelper;
+    private expoHelper?: ExponentHelper;
     private runOptions?: IRunOptions;
-    private nodeVersion: string;
+    private nodeVersion?: string;
 
     constructor(
         private workspacePath: string,
@@ -680,7 +680,7 @@ export class Packager {
                 await XDL.stopAll(this.projectPath);
                 this.logger.debug("Exponent Stopped");
             } catch (error) {
-                if (error.code !== "NOT_LOGGED_IN") {
+                if ((error as NodeJS.ErrnoException).code !== "NOT_LOGGED_IN") {
                     throw error;
                 }
             }

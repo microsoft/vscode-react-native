@@ -19,7 +19,7 @@ export class FileSystem {
                 throw new Error(`Expected ${dir} to be a directory`);
             }
         } catch (err) {
-            if (err && err.code === "ENOENT") {
+            if (err && (err as NodeJS.ErrnoException).code === "ENOENT") {
                 return this.mkDir(dir);
             }
             throw err;
@@ -38,7 +38,7 @@ export class FileSystem {
                 throw new Error(`Expected ${file} to be a file`);
             }
         } catch (err) {
-            if (err && err.code === "ENOENT") {
+            if (err && (err as NodeJS.ErrnoException).code === "ENOENT") {
                 return this.writeFile(file, contents);
             }
             throw err;
@@ -128,7 +128,7 @@ export class FileSystem {
             const stats = await this.stat(directoryPath);
             return stats.isDirectory();
         } catch (err) {
-            if (err.code === "ENOENT") {
+            if ((err as NodeJS.ErrnoException).code === "ENOENT") {
                 return false;
             }
             throw err;

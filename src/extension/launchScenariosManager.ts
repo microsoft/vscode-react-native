@@ -18,7 +18,7 @@ export interface ILaunchScenarios {
 
 export class LaunchScenariosManager {
     private pathToLaunchFile: string;
-    private launchScenarios: ILaunchScenarios;
+    private launchScenarios!: ILaunchScenarios;
 
     constructor(rootPath: string) {
         this.pathToLaunchFile = path.resolve(rootPath, ".vscode", "launch.json");

@@ -86,11 +86,11 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
     protected readonly terminateCommand: string;
     protected readonly pwaNodeSessionName: string;
 
-    protected appLauncher: AppLauncher;
-    protected projectRootPath: string;
+    protected appLauncher!: AppLauncher;
+    protected projectRootPath!: string;
     protected isSettingsInitialized: boolean; // used to prevent parameters reinitialization when attach is called from launch function
-    protected previousAttachArgs: IAttachRequestArgs;
-    protected cdpProxyLogLevel: LogLevel;
+    protected previousAttachArgs!: IAttachRequestArgs;
+    protected cdpProxyLogLevel!: LogLevel;
     protected debugSessionStatus: DebugSessionStatus;
     protected nodeSession: vscode.DebugSession | null;
     protected rnSession: RNSession;
@@ -238,7 +238,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
                     localize(
                         "CouldNotStopMonitoringLogcat",
                         "Couldn't stop monitoring logcat: {0}",
-                        err.message || err,
+                        err instanceof Error ? err.message : String(err),
                     ),
                 );
             }

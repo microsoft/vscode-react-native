@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as assert from "assert";
-import * as WebSocket from "ws";
+import assert = require("assert");
+import WebSocket = require("ws");
 import * as vscode from "vscode";
 import * as path from "path";
 import * as sinon from "sinon";
@@ -127,8 +127,8 @@ suite("appWorker", function () {
 
             test("should download script from remote packager", async () => {
                 class MockAppWorker extends ForkedAppWorker {
-                    public workerLoaded: Promise<void>;
-                    public scriptImporter: ScriptImporter;
+                    public workerLoaded!: Promise<void>;
+                    public scriptImporter!: ScriptImporter;
                     public debuggeeProcess: any = {
                         send: () => void 0,
                     };

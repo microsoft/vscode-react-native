@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as assert from "assert";
+import assert = require("assert");
 import * as nls from "vscode-nls";
 import * as vscode from "vscode";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
@@ -17,7 +17,7 @@ const localize = nls.loadMessageBundle();
 const logger = OutputChannelLogger.getMainChannel();
 
 export class OpenEASProject extends ReactNativeCommand {
-    nodeModulesRoot: string;
+    nodeModulesRoot!: string;
     codeName = "openEASProjectInWebPage";
     label = "Open the eas project in a web page";
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToOpenProjectPage);

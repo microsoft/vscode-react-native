@@ -2,55 +2,55 @@
 // Project: https://github.com/exponentjs/xdl
 // Definitions by: Patricio Beltran <https://github.com/patobeltran>
 
-declare module xdl {
+declare namespace xdl {
     interface ILoginOptions {
-        username: string,
-        password: string
+        username: string;
+        password: string;
     }
 
     interface IUser {
-        type: string,
-        username: string
+        type: string;
+        username: string;
     }
 
     var User: {
         loginAsync(loginType: string, options: ILoginOptions): Promise<IUser>;
         logoutAsync(): Promise<void>;
         getCurrentUserAsync(): Promise<IUser>;
-    }
+    };
 
     var UserManager: {
         loginAsync(loginType: string, options: ILoginOptions): Promise<IUser>;
         logoutAsync(): Promise<void>;
         getCurrentUserAsync(): Promise<IUser>;
-    }
+    };
 
     interface IStartOptions {
-        reset?: boolean
+        reset?: boolean;
     }
 
     interface IUrlOptions {
-        urlType?: "exp" | "http" | "redirect",
-        hostType?: "tunnel" | "lan" | "localhost",
-        dev: boolean,
-        minify: boolean
+        urlType?: "exp" | "http" | "redirect";
+        hostType?: "tunnel" | "lan" | "localhost";
+        dev: boolean;
+        minify: boolean;
     }
 
     interface IPublishOptions {
-        quiet: boolean
+        quiet: boolean;
     }
 
     interface IReactNativeServerOptions {
-        reset: boolean
+        reset: boolean;
     }
 
     interface IOptions {
-        packagerPort: number
+        packagerPort: number;
     }
 
     interface IPublishResponse {
-        err: any,
-        url: string
+        err: any;
+        url: string;
     }
 
     interface SDKVersion {
@@ -85,51 +85,58 @@ declare module xdl {
         publishAsync(projectRoot: string, options?: IPublishOptions): Promise<IPublishResponse>;
         startExpoServerAsync(projectRoot: string): Promise<void>;
         stopExpoServerAsync(projectRoot: string): Promise<void>;
-        startReactNativeServerAsync(projectRoot: string, options?: IReactNativeServerOptions): Promise<void>;
+        startReactNativeServerAsync(
+            projectRoot: string,
+            options?: IReactNativeServerOptions,
+        ): Promise<void>;
         stopReactNativeServerAsync(projectRoot: string): Promise<void>;
         startTunnelsAsync(projectRoot: string): Promise<void>;
         stopTunnelsAsync(projectRoot: string): Promise<void>;
-    }
+    };
 
     var ProjectSettings: {
         setPackagerInfoAsync(projectRoot: string, json: Partial<IOptions>): Promise<IOptions>;
-    }
+    };
 
     var UrlUtils: {
-        constructManifestUrlAsync(projectRoot: string, opts?: any, requestHostname?: string): Promise<string>;
-    }
+        constructManifestUrlAsync(
+            projectRoot: string,
+            opts?: any,
+            requestHostname?: string,
+        ): Promise<string>;
+    };
 
     var Versions: {
         sdkVersionsAsync(): Promise<SDKVersions>;
         releasedSdkVersionsAsync(): Promise<SDKVersions>;
-    }
+    };
 
     var Android: {
         startAdbReverseAsync(projectRoot: string): Promise<boolean>;
         stopAdbReverseAsync(projectRoot: string): Promise<void>;
-    }
+    };
 
     interface IApiConfig {
-        scheme: string,
-        host: string,
-        port: number
+        scheme: string;
+        host: string;
+        port: number;
     }
 
     interface INgrokConfig {
-        authToken: string,
-        authTokenPublicId: string,
-        domain: string
+        authToken: string;
+        authTokenPublicId: string;
+        domain: string;
     }
 
     interface IValidationConfig {
-        reactNativeVersionWarnings: boolean
+        reactNativeVersionWarnings: boolean;
     }
 
     interface IConfig {
-        api: IApiConfig,
-        ngrok: INgrokConfig,
-        developerTool: any,
-        validation: IValidationConfig
+        api: IApiConfig;
+        ngrok: INgrokConfig;
+        developerTool: any;
+        validation: IValidationConfig;
     }
 
     var Config: IConfig;
@@ -146,10 +153,9 @@ declare module xdl {
 
     var ProjectUtils: {
         attachLoggerStream(rootPath: string, options?: IBunyanStream): void;
-    }
+    };
 
-    interface ResolveNgrok
-    {
+    interface ResolveNgrok {
         resolveNgrokAsync(
             projectRoot: string,
             {
@@ -157,7 +163,7 @@ declare module xdl {
                 autoInstall = false,
             }: { shouldPrompt?: boolean; autoInstall?: boolean } = {},
         ): Promise<any>;
-    };
+    }
 }
 
 declare module "xdl" {

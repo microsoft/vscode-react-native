@@ -7,7 +7,7 @@ import {
 import * as utilities from "./utilities";
 import { SmokeTestLogger } from "./smokeTestLogger";
 import * as fs from "fs";
-import * as rimraf from "rimraf";
+import rimraf = require("rimraf");
 import { Element } from "./constants";
 import { TimeoutConstants } from "./timeoutConstants";
 

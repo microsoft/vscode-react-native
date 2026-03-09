@@ -3,7 +3,7 @@
 
 import * as path from "path";
 import * as fs from "fs";
-import * as assert from "assert";
+import assert = require("assert");
 import { Node } from "../../src/common/node/node";
 import { ReactNativeProjectHelper } from "../../src/common/reactNativeProjectHelper";
 
@@ -282,7 +282,7 @@ suite("ReactNativeProjectHelper", function () {
             try {
                 ReactNativeProjectHelper.verifyMetroConfigFile(sampleReactNativeProjectDir);
             } catch (err) {
-                assert.fail(err);
+                assert.fail(err as any);
             }
         });
     });

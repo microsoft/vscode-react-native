@@ -57,7 +57,7 @@ export class DebuggerEndpointHelper {
                     const internalError = ErrorHelper.getInternalError(
                         InternalErrorCode.CouldNotConnectToDebugTarget,
                         browserURL,
-                        err.message,
+                        (err as Error).message,
                     );
 
                     if (cancellationToken.isCancellationRequested) {

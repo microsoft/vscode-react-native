@@ -24,16 +24,16 @@ export class ReactNativeCDPProxy {
         APPLICATION_REPLY: "Reply From Target To Debugger",
     };
 
-    private server: Server | null;
+    private server: Server | null = null;
     private hostAddress: string;
     private port: number;
-    private debuggerTarget: Connection | null;
-    private applicationTarget: Connection | null;
+    private debuggerTarget: Connection | null = null;
+    private applicationTarget: Connection | null = null;
     private logger: OutputChannelLogger;
     private logLevel: LogLevel;
     private debuggerEndpointHelper: DebuggerEndpointHelper;
-    private CDPMessageHandler: BaseCDPMessageHandler;
-    private applicationTargetPort: number;
+    private CDPMessageHandler!: BaseCDPMessageHandler;
+    private applicationTargetPort: number = 0;
     private browserInspectUri: string;
     private cancellationToken: CancellationToken | undefined;
     private applicationTargetEventEmitter: EventEmitter<unknown> = new EventEmitter();

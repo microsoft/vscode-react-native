@@ -5,7 +5,7 @@ import { ProjectVersionHelper, REACT_NATIVE_PACKAGES } from "../../src/common/pr
 import { RN_VERSION_ERRORS } from "../../src/common/error/versionError";
 import { Node } from "../../src/common/node/node";
 
-import * as assert from "assert";
+import assert = require("assert");
 import * as path from "path";
 import * as fs from "fs";
 import { ParsedPackage } from "../../src/common/reactNativeProjectHelper";

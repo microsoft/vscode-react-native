@@ -4,7 +4,7 @@
 // This file is used by VS Code's default test runner to configure Mocha before the test run.
 
 import * as path from "path";
-import * as Mocha from "mocha";
+import Mocha = require("mocha");
 import NYCPackage from "nyc";
 
 async function loadGlob(): Promise<any> {
@@ -122,7 +122,7 @@ export async function run(): Promise<void> {
 
             return new Promise<void>((resolve, reject) => {
                 try {
-                    mocha.run(failures => {
+                    mocha.run((failures: any) => {
                         if (failures > 0) {
                             reject(new Error(`${failures} tests failed.`));
                         } else {

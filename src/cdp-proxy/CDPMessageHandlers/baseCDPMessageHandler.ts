@@ -5,8 +5,8 @@ import { Connection } from "vscode-cdp-proxy";
 import { ICDPMessageHandler, ProcessedCDPMessage } from "./ICDPMessageHandler";
 
 export abstract class BaseCDPMessageHandler implements ICDPMessageHandler {
-    protected debuggerTarget: Connection | null;
-    protected applicationTarget: Connection | null;
+    protected debuggerTarget: Connection | null = null;
+    protected applicationTarget: Connection | null = null;
 
     public processDebuggerCDPMessage(event: any): ProcessedCDPMessage {
         return {

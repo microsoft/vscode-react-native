@@ -36,8 +36,8 @@ export class ForkedAppWorker implements IDebuggeeWorker {
     /** A promise that we use to make sure that worker has been loaded completely before start sending IPC messages */
     protected workerLoaded: Promise<void> | undefined;
     private bundleLoaded: Promise<void> | undefined;
-    private logWriteStream: fs.WriteStream;
-    private logDirectory: string | null;
+    private logWriteStream!: fs.WriteStream;
+    private logDirectory: string | null = null;
 
     constructor(
         private packagerAddress: string,

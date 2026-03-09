@@ -4,7 +4,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { LaunchScenariosManager } from "../../src/extension/launchScenariosManager";
-import * as assert from "assert";
+import assert = require("assert");
 
 suite("LaunchScenarioManager", function () {
     const tmpPath = path.resolve(__dirname, "..", "resources", "tmp");

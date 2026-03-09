@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import * as assert from "assert";
+import assert = require("assert");
 import * as nls from "vscode-nls";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { ErrorHelper } from "../../common/error/errorHelper";
@@ -18,7 +18,7 @@ const localize = nls.loadMessageBundle();
 const logger = OutputChannelLogger.getMainChannel();
 
 export class ConfigEASBuild extends ReactNativeCommand {
-    nodeModulesRoot: string;
+    nodeModulesRoot!: string;
     codeName = "createExpoEASBuildConfigFile";
     label = "Config Expo app with EAS build";
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToConfigEASBuild);

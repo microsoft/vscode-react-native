@@ -36,7 +36,7 @@ export class ExperimentService implements vscode.Disposable {
 
     private readonly endpointURL: string;
     private downloadedExperimentsConfig: Array<ExperimentConfig> | null;
-    private experimentsInstances: Map<string, IExperiment>;
+    private experimentsInstances!: Map<string, IExperiment>;
     private downloadConfigRequest: Promise<ExperimentConfig[]>;
     private cancellationTokenSource: vscode.CancellationTokenSource;
 
@@ -94,7 +94,7 @@ export class ExperimentService implements vscode.Disposable {
                 expResult = {
                     resultStatus: ExperimentStatuses.FAILED,
                     updatedExperimentParameters: expConfig,
-                    error: err,
+                    error: err as Error,
                 };
             }
         } else {
