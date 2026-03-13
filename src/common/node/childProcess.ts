@@ -88,6 +88,37 @@ export class ChildProcess {
         return stdout.toString();
     }
 
+    public async execFileToString(
+        command: string,
+        args: string[] = [],
+        options: IExecOptions = {},
+    ): Promise<string> {
+        return new Promise<string>((resolve, reject) => {
+            this.childProcess.execFile(
+                command,
+                args,
+                options,
+                (
+                    error: nodeChildProcess.ExecException | null,
+                    stdout: string | Buffer,
+                    stderr: string | Buffer,
+                ) => {
+                    if (error) {
+                        reject(
+                            ErrorHelper.getNestedError(
+                                error,
+                                InternalErrorCode.CommandFailed,
+                                command,
+                            ),
+                        );
+                    } else {
+                        resolve(stdout.toString());
+                    }
+                },
+            );
+        });
+    }
+
     public execFileSync(
         command: string,
         args: string[] = [],
