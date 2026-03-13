@@ -20,9 +20,35 @@ export class Application {
     private userDataDirectory = path.join(__dirname, "..", "..", ".vscode-test", "temp-user-data");
     private vsixDirectory = path.join(__dirname, "..", "..", "resources", "extension");
     private projectPath = path.join(__dirname, "..", "..", "resources", "sampleReactNativeProject");
+    private vscodeVersion = process.env.SMOKE_TEST_VSCODE_VERSION || "1.107.1";
+
+    private async waitForWorkbenchWindow(timeout: number): Promise<Page> {
+        if (!this.app) {
+            throw new Error("VSCode has not been launched yet.");
+        }
+
+        const startTime = Date.now();
+        while (Date.now() - startTime < timeout) {
+            const windows = this.app.windows();
+            for (const window of windows) {
+                try {
+                    await window.waitForSelector(`.${Element.vscodeWorkbenchClassName}`, {
+                        timeout: 1000,
+                    });
+                    return window;
+                } catch {
+                    continue;
+                }
+            }
+
+            await utilities.sleep(500);
+        }
+
+        throw new Error("Timed out waiting for VSCode workbench window.");
+    }
 
     async downloadVSCodeExecutable(): Promise<string> {
-        const vscodeExecutablePath = await downloadAndUnzipVSCode("stable");
+        const vscodeExecutablePath = await downloadAndUnzipVSCode(this.vscodeVersion);
         return vscodeExecutablePath;
     }
 
@@ -50,11 +76,7 @@ export class Application {
             args: [this.projectPath, ...args],
         });
 
-        this.mainPage = await this.app.firstWindow();
-        await this.mainPage.waitForSelector(`.${Element.vscodeWorkbenchClassName}`, {
-            // CI occasionally needs longer to render the workbench; give it more headroom.
-            timeout: 30000,
-        });
+        this.mainPage = await this.waitForWorkbenchWindow(30000);
 
         await utilities.sleep(TimeoutConstants.APPLICATION_INIT_SLEEP);
         return this.mainPage;
