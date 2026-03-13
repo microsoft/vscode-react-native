@@ -11,6 +11,7 @@ import { SmokeTestLogger } from "./helper/smokeTestLogger";
 import { smokeTestFail } from "./helper/utilities";
 import { startPackagerTests } from "./packager.test";
 import { startVsixExistenceTest } from "./vsixbuild.test";
+import { startLogGrammarTests } from "./logGrammar.test";
 
 export function startSmokeTests(setup: () => Promise<void>, cleanUp: () => Promise<void>): void {
     // Guard: if mocha BDD hooks are absent, do not attempt to register tests
@@ -44,6 +45,7 @@ export function startSmokeTests(setup: () => Promise<void>, cleanUp: () => Promi
         startActionBarTests();
         startDebugConfigurationTests();
         startCDPNodeVersionCompatibilityTests();
+        startLogGrammarTests();
         startVsixExistenceTest();
     });
 }
