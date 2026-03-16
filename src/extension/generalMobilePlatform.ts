@@ -21,6 +21,10 @@ export abstract class GeneralMobilePlatform extends GeneralPlatform {
     protected targetManager!: MobileTargetManager;
     protected target?: MobileTarget;
 
+    public getResolvedTarget(): MobileTarget | undefined {
+        return this.target;
+    }
+
     public async getTargetsCountByFilter(filter?: (el: IMobileTarget) => boolean): Promise<number> {
         return this.targetManager.getTargetsCountWithFilter(filter);
     }

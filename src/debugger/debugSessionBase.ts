@@ -18,6 +18,7 @@ import { AppLauncher } from "../extension/appLauncher";
 import { RNPackageVersions } from "../common/projectVersionHelper";
 import { SettingsHelper } from "../extension/settingsHelper";
 import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
+import { DeviceStatusIndicator } from "../extension/deviceStatusIndicator";
 import { RNSession } from "./debugSessionWrapper";
 
 nls.config({
@@ -225,6 +226,8 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
         if (this.appLauncher) {
             await this.appLauncher.getRnCdpProxy().stopServer();
         }
+
+        DeviceStatusIndicator.hide();
 
         this.cancellationTokenSource.cancel();
         this.cancellationTokenSource.dispose();

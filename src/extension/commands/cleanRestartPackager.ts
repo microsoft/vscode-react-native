@@ -8,10 +8,10 @@ import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
 import { SettingsHelper } from "../settingsHelper";
-import { ReactNativeCommand } from "./util/reactNativeCommand";
 import { ChildProcess } from "../../common/node/childProcess";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { HostPlatform, HostPlatformId } from "../../common/hostPlatform";
+import { ReactNativeCommand } from "./util/reactNativeCommand";
 
 const logger = OutputChannelLogger.getMainChannel();
 

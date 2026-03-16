@@ -34,9 +34,10 @@ export class PackagerStatusIndicator implements Disposable {
     private restartPackagerItem: StatusBarItem;
     private displayVersion!: string;
     private projectRoot?: string;
+    private packagerPort?: number;
+    private isShowIndicator: boolean = true;
 
     private static PACKAGER_NAME: string = localize("ReactNativePackager", "React Native Packager");
-
     private static STOP_TOOLTIP: string = localize("StopPackager", "Stop Packager");
     private static START_TOOLTIP: string = localize("StartPackager", "Start Packager");
     private static RESTART_TOOLTIP: string = localize("RestartPackager", "Restart Packager");
@@ -55,8 +56,6 @@ export class PackagerStatusIndicator implements Disposable {
 
     public static FULL_VERSION = "Full";
     public static SHORT_VERSION = "Short";
-
-    private isShowIndicator: boolean = true;
 
     public constructor(projectRoot?: string) {
         this.projectRoot = projectRoot;
@@ -122,23 +121,28 @@ export class PackagerStatusIndicator implements Disposable {
         if (!this.isShowIndicator) {
             icon = PackagerStatusIndicator.NOT_SHOW_INDICATOR;
         }
+        const portSuffix = this.packagerPort ? ` :${this.packagerPort}` : "";
         switch (this.displayVersion) {
             case PackagerStatusIndicator.FULL_VERSION:
-                this.togglePackagerItem.text = `${icon} ${PackagerStatusIndicator.PACKAGER_NAME}`;
+                this.togglePackagerItem.text = `${icon} ${PackagerStatusIndicator.PACKAGER_NAME}${portSuffix}`;
                 this.togglePackagerItem.show();
                 this.restartPackagerItem.show();
                 break;
             case PackagerStatusIndicator.SHORT_VERSION:
-                this.togglePackagerItem.text = `${icon}`;
+                this.togglePackagerItem.text = `${icon}${portSuffix}`;
                 this.togglePackagerItem.show();
                 this.restartPackagerItem.show();
                 break;
         }
     }
 
-    public updatePackagerStatus(status: PackagerStatus): void {
+    public updatePackagerStatus(status: PackagerStatus, port?: number): void {
+        if (port !== undefined) {
+            this.packagerPort = port;
+        }
         switch (status) {
             case PackagerStatus.PACKAGER_STOPPED:
+                this.packagerPort = undefined;
                 this.setupPackagerStatusIndicatorItems(
                     PackagerStatusIndicator.START_ICON,
                     PackagerStatusIndicator.START_COMMAND,

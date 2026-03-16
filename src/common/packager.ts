@@ -339,7 +339,10 @@ export class Packager {
             }
         }
 
-        this.packagerStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED);
+        this.packagerStatusIndicator.updatePackagerStatus(
+            PackagerStatus.PACKAGER_STARTED,
+            this.getPort(),
+        );
     }
 
     public async stop(silent: boolean = false): Promise<boolean> {
