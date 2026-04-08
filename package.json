@@ -1517,7 +1517,7 @@
     "gulp-typescript": "5.0.1",
     "husky": "^7.0.4",
     "minimist": "1.2.6",
-    "mocha": "^11.7.4",
+    "mocha": "^11.7.5",
     "mocha-junit-reporter": "^2.0.2",
     "mocha-multi-reporters": "^1.5.1",
     "mochawesome": "^7.1.3",
@@ -1536,10 +1536,10 @@
     "through2": "2.0.1",
     "ts-loader": "9.0.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.0.4",
+    "typescript": "^5.9.3",
     "vscode-debugprotocol": "1.51.0",
     "vscode-nls-dev": "^4.0.4",
-    "webpack": "5.105.0",
+    "webpack": "^5.105.4",
     "webpack-bundle-analyzer": "4.4.0"
   },
   "extensionDependencies": [
