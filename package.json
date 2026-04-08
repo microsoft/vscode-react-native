@@ -1536,7 +1536,7 @@
     "through2": "2.0.1",
     "ts-loader": "9.0.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3",
+    "typescript": "~5.3.3",
     "vscode-debugprotocol": "1.51.0",
     "vscode-nls-dev": "^4.0.4",
     "webpack": "^5.105.4",
