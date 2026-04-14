@@ -630,6 +630,7 @@ export class AppLauncher {
         CommandExecutor.ReactNativeCommand = SettingsHelper.getReactNativeGlobalCommandName(
             workspaceFolder.uri,
         );
+        CommandExecutor.PackageManager = SettingsHelper.getPackageManager();
 
         if (!args.runArguments) {
             const runArgs = SettingsHelper.getRunArgs(

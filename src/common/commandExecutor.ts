@@ -42,6 +42,8 @@ export enum CommandStatus {
 
 export class CommandExecutor {
     public static ReactNativeCommand: string | null;
+    /** Set externally (e.g. from appLauncher) to the active package manager (npm/pnpm/bun). */
+    public static PackageManager: string | null;
     private childProcess = new Node.ChildProcess();
 
     constructor(
@@ -128,25 +130,33 @@ export class CommandExecutor {
     }
 
     /**
-     * Executes a react native command and waits for its completion.
+     * Spawns the React Native packager in a child process.
      */
     public spawnReactCommand(
         command: string,
         args: string[] = [],
         options: Options = {},
     ): ISpawnResult {
+        if (CommandExecutor.PackageManager === "bun") {
+            // bun uses `bunx` (equivalent of npx) to run CLIs.
+            return this.spawnChildProcess("bunx", ["react-native", command, ...args], options);
+        }
         const reactCommand = HostPlatform.getNpmCliCommand(this.selectReactNativeCLI());
         return this.spawnChildProcess(reactCommand, [command, ...args], options);
     }
 
     /**
-     * Executes a react native command and waits for its completion.
+     * Spawns the Expo CLI in a child process.
      */
     public spawnExpoCommand(
         command: string,
         args: string[] = [],
         options: Options = {},
     ): ISpawnResult {
+        if (CommandExecutor.PackageManager === "bun") {
+            // bun uses `bunx expo` instead of the local .bin/expo shim.
+            return this.spawnChildProcess("bunx", ["expo", command, ...args], options);
+        }
         const expoCommand = HostPlatform.getNpmCliCommand(this.selectExpoCLI());
         return this.spawnChildProcess(expoCommand, [command, ...args], options);
     }

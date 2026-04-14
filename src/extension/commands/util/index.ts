@@ -59,6 +59,7 @@ export function getRunOptions(
     CommandExecutor.ReactNativeCommand = SettingsHelper.getReactNativeGlobalCommandName(
         project.getWorkspaceFolderUri(),
     );
+    CommandExecutor.PackageManager = SettingsHelper.getPackageManager();
 
     return runOptions;
 }

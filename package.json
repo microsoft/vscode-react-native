@@ -1371,11 +1371,17 @@
           "default": ""
         },
         "react-native-tools.setPackageManager": {
-          "description": "The package manager to use for running React Native.",
+          "description": "The package manager to use for running React Native. Supported values: npm, pnpm, bun.",
           "type": "string",
           "enum": [
             "npm",
-            "pnpm"
+            "pnpm",
+            "bun"
+          ],
+          "enumDescriptions": [
+            "Use npm as the package manager (default).",
+            "Use pnpm as the package manager.",
+            "Use bun as the package manager. Commands will be run via bunx."
           ],
           "scope": "resource",
           "default": "npm"
