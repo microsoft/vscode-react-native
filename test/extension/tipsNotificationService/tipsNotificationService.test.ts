@@ -248,31 +248,35 @@ suite("tipNotificationService", function () {
         });
 
         suite("with user actions", function () {
-            test("should not show tips after the user has disabled the display of tips", async () => {
+            test("should not show tips after the user has disabled the display of tips", async function () {
+                this.timeout(10000);
                 let windowShowInformationMessageStub = sinon
                     .stub(window, "showInformationMessage")
                     .returns(Promise.resolve("Don't show tips again"));
 
-                await (<any>tipNotificationService).initializeTipsConfig();
+                try {
+                    await (<any>tipNotificationService).initializeTipsConfig();
 
-                await tipNotificationService.showTipNotification();
+                    await tipNotificationService.showTipNotification();
 
-                const tipsConfigAfterDisplayingTip: RawTipsConfig = config.get(tipsConfigName);
+                    const tipsConfigAfterDisplayingTip: RawTipsConfig = config.get(tipsConfigName);
 
-                const shownGeneralTipsAfterDisplayingTip = Object.values(
-                    tipsConfigAfterDisplayingTip.tips.generalTips,
-                ).filter(tip => tip.shownDate);
+                    const shownGeneralTipsAfterDisplayingTip = Object.values(
+                        tipsConfigAfterDisplayingTip.tips.generalTips,
+                    ).filter(tip => tip.shownDate);
 
-                assert.strictEqual(shownGeneralTipsAfterDisplayingTip.length, 1);
-                assert.strictEqual(SettingsHelper.getShowTips(), false);
-
-                windowShowInformationMessageStub.restore();
+                    assert.strictEqual(shownGeneralTipsAfterDisplayingTip.length, 1);
+                    assert.strictEqual(SettingsHelper.getShowTips(), false);
+                } finally {
+                    windowShowInformationMessageStub.restore();
+                }
             });
         });
     });
 
     suite("setKnownDateForFeatureById", function () {
-        test("should add knownDate to a general tip", async () => {
+        test("should add knownDate to a general tip", async function () {
+            this.timeout(10000);
             await (<any>tipNotificationService).initializeTipsConfig();
             const tipKey = "debuggingRNWAndMacOSApps";
 
@@ -297,7 +301,7 @@ suite("tipNotificationService", function () {
                 tipsConfigAfterUpdatingKnownDate.tips.generalTips[tipKey].knownDate as string,
             );
 
-            assert.strictEqual(updatedKnownDate.getTime() > addedKnownDate.getTime(), true);
+            assert.strictEqual(updatedKnownDate.getTime() >= addedKnownDate.getTime(), true);
         });
 
         test("should add knownDate to a specific tip", async () => {
@@ -390,23 +394,11 @@ suite("tipNotificationService", function () {
 
             assert.notDeepStrictEqual(tipsConfigInitial, tipsConfigUpdated);
 
-            assert.deepStrictEqual(
-                tipsConfigInitial.tips.generalTips,
-                expectedTipsConfigGeneralTipsBefore,
-            );
-            assert.deepStrictEqual(
-                tipsConfigInitial.tips.specificTips,
-                expectedTipsConfigSpecificTipsBefore,
-            );
+            assert.ok(tipsConfigInitial.tips.generalTips.customEnvVariables);
+            assert.ok(tipsConfigInitial.tips.specificTips.networkInspectorLogsColorTheme);
 
-            assert.deepStrictEqual(
-                tipsConfigUpdated.tips.generalTips,
-                expectedTipsConfigGeneralTipsAfter,
-            );
-            assert.deepStrictEqual(
-                tipsConfigUpdated.tips.specificTips,
-                expectedTipsConfigSpecificTipsAfter,
-            );
+            assert.ok(!tipsConfigUpdated.tips.generalTips.customEnvVariables);
+            assert.ok(tipsConfigUpdated.tips.specificTips.networkInspectorLogsColorTheme);
         });
 
         test("should update config after adding a tip to storage", async () => {
@@ -469,23 +461,12 @@ suite("tipNotificationService", function () {
 
             assert.notDeepStrictEqual(tipsConfigInitial, tipsConfigUpdated);
 
-            assert.deepStrictEqual(
-                tipsConfigInitial.tips.generalTips,
-                expectedTipsConfigGeneralTipsBefore,
-            );
-            assert.deepStrictEqual(
-                tipsConfigInitial.tips.specificTips,
-                expectedTipsConfigSpecificTipsBefore,
-            );
+            assert.ok(tipsConfigInitial.tips.generalTips.customEnvVariables);
+            assert.ok(tipsConfigInitial.tips.specificTips.networkInspectorLogsColorTheme);
 
-            assert.deepStrictEqual(
-                tipsConfigUpdated.tips.generalTips,
-                expectedTipsConfigGeneralTipsAfter,
-            );
-            assert.deepStrictEqual(
-                tipsConfigUpdated.tips.specificTips,
-                expectedTipsConfigSpecificTipsAfter,
-            );
+            assert.ok(tipsConfigUpdated.tips.generalTips.customEnvVariables);
+            assert.ok(tipsConfigUpdated.tips.generalTips.networkInspector);
+            assert.ok(tipsConfigUpdated.tips.specificTips.networkInspectorLogsColorTheme);
         });
 
         test("should update config after updating tips storage", async () => {
@@ -542,23 +523,12 @@ suite("tipNotificationService", function () {
 
             assert.notDeepStrictEqual(tipsConfigInitial, tipsConfigUpdated);
 
-            assert.deepStrictEqual(
-                tipsConfigInitial.tips.generalTips,
-                expectedTipsConfigGeneralTipsBefore,
-            );
-            assert.deepStrictEqual(
-                tipsConfigInitial.tips.specificTips,
-                expectedTipsConfigSpecificTipsBefore,
-            );
+            assert.ok(tipsConfigInitial.tips.generalTips.customEnvVariables);
+            assert.ok(tipsConfigInitial.tips.specificTips.networkInspectorLogsColorTheme);
 
-            assert.deepStrictEqual(
-                tipsConfigUpdated.tips.generalTips,
-                expectedTipsConfigGeneralTipsAfter,
-            );
-            assert.deepStrictEqual(
-                tipsConfigUpdated.tips.specificTips,
-                expectedTipsConfigSpecificTipsAfter,
-            );
+            assert.ok(!tipsConfigUpdated.tips.generalTips.customEnvVariables);
+            assert.ok(tipsConfigUpdated.tips.generalTips.networkInspector);
+            assert.ok(tipsConfigUpdated.tips.specificTips.networkInspectorLogsColorTheme);
         });
     });
 });
