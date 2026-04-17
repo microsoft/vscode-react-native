@@ -340,14 +340,6 @@ suite("tipNotificationService", function () {
             },
         };
 
-        const expectedTipsConfigGeneralTipsBefore = {
-            customEnvVariables: {},
-        };
-
-        const expectedTipsConfigSpecificTipsBefore = {
-            networkInspectorLogsColorTheme: {},
-        };
-
         test("should update config after deleting a tip from storage", async () => {
             const mockedTipsNotificationServiceBefore = proxyquire(tipsNotificationServicePath, {
                 "./tipsStorage": {
