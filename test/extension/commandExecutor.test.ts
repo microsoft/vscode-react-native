@@ -33,10 +33,10 @@ suite("commandExecutor", function () {
         let nodeModulesRoot: string;
 
         teardown(function () {
-            const mockedMethods = [Log.log, ...Object.keys(childProcessStubInstance)];
+            const mockedMethods = [Log.log, ...Object.values(childProcessStubInstance as any)];
 
             mockedMethods.forEach(method => {
-                if (method.hasOwnProperty("restore")) {
+                if (method && (method as any).hasOwnProperty("restore")) {
                     (<any>method).restore();
                 }
             });
