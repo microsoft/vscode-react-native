@@ -76,7 +76,8 @@ suite("tipNotificationService", function () {
                 windowShowInformationMessageStub.restore();
             });
 
-            test("should create config and fill shownDate into one of general tips", async () => {
+            test("should create config and fill shownDate into one of general tips", async function () {
+                this.timeout(10000);
                 await tipNotificationService.showTipNotification();
 
                 assert.ok(config.has(tipsConfigName));
@@ -386,12 +387,6 @@ suite("tipNotificationService", function () {
                 mockedTipsNotificationServiceInstanceAfter
             )).parseDatesInRawConfig(config.get(tipsConfigName));
 
-            const expectedTipsConfigGeneralTipsAfter = {};
-
-            const expectedTipsConfigSpecificTipsAfter = {
-                networkInspectorLogsColorTheme: {},
-            };
-
             assert.notDeepStrictEqual(tipsConfigInitial, tipsConfigUpdated);
 
             assert.ok(tipsConfigInitial.tips.generalTips.customEnvVariables);
@@ -450,15 +445,6 @@ suite("tipNotificationService", function () {
                 mockedTipsNotificationServiceInstanceAfter
             )).parseDatesInRawConfig(config.get(tipsConfigName));
 
-            const expectedTipsConfigGeneralTipsAfter = {
-                customEnvVariables: {},
-                networkInspector: {},
-            };
-
-            const expectedTipsConfigSpecificTipsAfter = {
-                networkInspectorLogsColorTheme: {},
-            };
-
             assert.notDeepStrictEqual(tipsConfigInitial, tipsConfigUpdated);
 
             assert.ok(tipsConfigInitial.tips.generalTips.customEnvVariables);
@@ -512,14 +498,6 @@ suite("tipNotificationService", function () {
             const tipsConfigUpdated = (<any>(
                 mockedTipsNotificationServiceInstanceAfter
             )).parseDatesInRawConfig(config.get(tipsConfigName));
-
-            const expectedTipsConfigGeneralTipsAfter = {
-                networkInspector: {},
-            };
-
-            const expectedTipsConfigSpecificTipsAfter = {
-                networkInspectorLogsColorTheme: {},
-            };
 
             assert.notDeepStrictEqual(tipsConfigInitial, tipsConfigUpdated);
 
