@@ -1547,6 +1547,11 @@
   ],
   "overrides": {
     "js-yaml": "4.1.1",
-    "serialize-javascript": "7.0.5"
+    "serialize-javascript": "7.0.5",
+    "brace-expansion": "^5.0.5",
+    "picomatch": "^2.3.2",
+    "flatted": "^3.4.2",
+    "minimatch": "^10.2.3",
+    "tar": "^7.5.11"
   }
 }
