@@ -1457,7 +1457,7 @@
     "source-map-resolve": "0.5.3",
     "strip-json-comments": "2.0.1",
     "tmp-promise": "3.0.2",
-    "uuid": "9.0.0",
+    "uuid": "^14.0.0",
     "vscode-cdp-proxy": "0.2.0",
     "vscode-extension-telemetry": "0.4.5",
     "vscode-nls": "4.1.2",
@@ -1484,7 +1484,7 @@
     "@types/shelljs": "0.7.0",
     "@types/source-map": "0.5.2",
     "@types/source-map-support": "0.2.28",
-    "@types/uuid": "9.0.0",
+    "@types/uuid": "^11.0.0",
     "@types/vscode": "^1.46.0",
     "@types/websocket": "0.0.33",
     "@types/ws": "0.0.39",
@@ -1546,6 +1546,7 @@
     "ms-vscode.js-debug"
   ],
   "overrides": {
+    "uuid": "^14.0.0",
     "js-yaml": "4.1.1",
     "serialize-javascript": "7.0.5",
     "brace-expansion": "^5.0.5",
