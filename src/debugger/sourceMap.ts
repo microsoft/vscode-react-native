@@ -6,7 +6,7 @@ import * as path from "path";
 import { RawSourceMap } from "source-map";
 import { SourceMapsCombinator } from "./sourceMapsCombinator";
 
-const IS_REMOTE = /^[A-z]{2,}:\/\//; // Detection remote sources or specific protocols (like "webpack:///")
+const IS_REMOTE = /^[A-Za-z]{2,}:\/\//; // Detection remote sources or specific protocols (like "webpack:///")
 
 interface ISourceMap extends RawSourceMap {
     sections?: ISourceMapSection[];

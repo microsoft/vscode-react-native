@@ -1,12 +1,19 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for details.
+
 import * as fs from "fs";
 import * as path from "path";
+import { fileURLToPath, pathToFileURL } from "url";
 import assert = require("assert");
 import AdmZip = require("adm-zip");
 
 export function startVsixExistenceTest(): void {
     describe("VSIX existence check", () => {
         // Use repo-relative path to match CI workspace
-        const targetDir = path.resolve(__dirname, "..", "..", "resources", "extension");
+        const targetDirUri = pathToFileURL(
+            path.resolve(__dirname, "..", "..", "resources", "extension"),
+        ).toString();
+        const targetDir = fileURLToPath(targetDirUri);
 
         it("Soft-check VSIX presence without failing PR", function () {
             const files = fs.existsSync(targetDir)
@@ -24,7 +31,7 @@ export function startVsixExistenceTest(): void {
             }
         });
 
-        it.only("VSIX manifest contains required Identity fields", function () {
+        it("VSIX manifest contains required Identity fields", function () {
             if (!fs.existsSync(targetDir)) {
                 this.skip?.();
                 return;
