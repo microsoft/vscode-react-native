@@ -1439,7 +1439,7 @@
     "extract-opts": "2.2.0",
     "flatten-source-map": "0.0.2",
     "glob": ">=10.5.0",
-    "ip-address": "^9.0.5",
+    "ip-address": "^10.1.1",
     "js-base64": "3.6.0",
     "json5": "^1.0.2",
     "jsonc-parser": "3.0.0",
