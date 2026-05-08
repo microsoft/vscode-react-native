@@ -12,7 +12,7 @@ interface ISourceMap extends RawSourceMap {
     sections?: ISourceMapSection[];
 }
 interface ISourceMapSection {
-    map: ISourceMap;
+    map: ISourceMap | null;
     offset: { column: number; line: number };
 }
 
@@ -69,8 +69,11 @@ export class SourceMapUtil {
             let sourceMap = <ISourceMap>JSON.parse(sourceMapBody);
 
             if (sourceMap.sections) {
-                // TODO: there is a need to handle value.map == null, make a fake map
-                sourceMap.sections = sourceMap.sections.filter(value => value.map != null);
+                // Preserve indexed sourcemap offsets even when Metro emits a null section map.
+                sourceMap.sections = sourceMap.sections.map(section => ({
+                    ...section,
+                    map: section.map ?? SourceMapUtil.createEmptySourceMap(),
+                }));
 
                 // eslint-disable-next-line @typescript-eslint/no-var-requires
                 sourceMap = require("flatten-source-map")(sourceMap);
@@ -195,5 +198,15 @@ export class SourceMapUtil {
     private makeUnixStylePath(p: string): string {
         const pathArgs = p.split(path.sep);
         return path.posix.join.apply(null, pathArgs);
+    }
+
+    private static createEmptySourceMap(): ISourceMap {
+        return {
+            version: 3,
+            sources: [],
+            names: [],
+            mappings: "",
+            file: "",
+        };
     }
 }
