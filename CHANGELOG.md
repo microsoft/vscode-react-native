@@ -1,3 +1,23 @@
+## 1.13.3
+* Align Android launch command naming [#2580](https://github.com/microsoft/vscode-react-native/pull/2580)
+* Improve packager status bar to display Metro port and connected device name [#2557](https://github.com/microsoft/vscode-react-native/pull/2557) [#2564](https://github.com/microsoft/vscode-react-native/pull/2564)
+* Remove deprecated Element Inspector feature [#2561](https://github.com/microsoft/vscode-react-native/pull/2561)
+* Update README with security dependency override guidance [#2582](https://github.com/microsoft/vscode-react-native/pull/2582)
+* Internal changes:
+    * Fix shell injection risk in macOS app termination [#2550](https://github.com/microsoft/vscode-react-native/pull/2550)
+    * Fix packager test failure [#2559](https://github.com/microsoft/vscode-react-native/pull/2559)
+    * Add smoke test for simplified log grammar and stabilize app launch [#2551](https://github.com/microsoft/vscode-react-native/pull/2551)
+    * Explore and fix TypeScript 7 compatibility [#2543](https://github.com/microsoft/vscode-react-native/pull/2543)
+    * Pin and upgrade serialize-javascript to non-vulnerable versions [#2539](https://github.com/microsoft/vscode-react-native/pull/2539) [#2541](https://github.com/microsoft/vscode-react-native/pull/2541) [#2576](https://github.com/microsoft/vscode-react-native/pull/2576) [#2578](https://github.com/microsoft/vscode-react-native/pull/2578)
+    * Exclude auto-generated mochawesome test reports [#2583](https://github.com/microsoft/vscode-react-native/pull/2583)
+    * Bump minimatch in /test/smoke [#2537](https://github.com/microsoft/vscode-react-native/pull/2537)
+    * Bump tar in /test/smoke to 7.5.11 [#2547](https://github.com/microsoft/vscode-react-native/pull/2547) [#2554](https://github.com/microsoft/vscode-react-native/pull/2554)
+    * Bump @tootallnate/once and @vscode/test-electron [#2545](https://github.com/microsoft/vscode-react-native/pull/2545)
+    * Bump flatted from 3.1.1 to 3.4.2 [#2565](https://github.com/microsoft/vscode-react-native/pull/2565)
+    * Bump picomatch from 2.2.3 to 2.3.2 [#2569](https://github.com/microsoft/vscode-react-native/pull/2569)
+    * Bump brace-expansion to 5.0.5 [#2572](https://github.com/microsoft/vscode-react-native/pull/2572)
+    * Bump lodash from 4.17.23 to 4.18.1 [#2585](https://github.com/microsoft/vscode-react-native/pull/2585) [#2588](https://github.com/microsoft/vscode-react-native/pull/2588)
+
 ## 1.13.2
 * Add command to support Expo EAS workflow [#2432](https://github.com/microsoft/vscode-react-native/pull/2432)
 * Improve and verify added launch/debug configuration in `launch.json` [#2442](https://github.com/microsoft/vscode-react-native/pull/2442) [#2424](https://github.com/microsoft/vscode-react-native/pull/2424)
