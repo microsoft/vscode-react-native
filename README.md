@@ -72,6 +72,7 @@ Using this extension, you can **debug your code and quickly run `react-native` o
   - [Change project root](#change-project-root)
   - [Configure an Android LogCat Monitor](#configure-an-android-logcat-monitor)
   - [Configure dependencies versions for debugging Expo projects](#configure-dependencies-versions-for-debugging-expo-projects)
+  - [Security dependency overrides](#security-dependency-overrides)
   - [Configure custom key bindings for extension commands](#configure-custom-key-bindings-for-extension-commands)
   - [Configure custom colors for extension output logs](#configure-custom-colors-for-extension-output-logs)
   - [Set pnpm as package manager](#set-pnpm-as-package-manager)
@@ -994,6 +995,22 @@ To debug Expo applications the extension requires additional dependencies, such 
 ```
 
 To enable new versions of the dependencies, it's required to restart VS Code editor. After that the extension will download the new versions of the packages on the next Expo debugging starting.
+
+## Security dependency overrides
+
+Recent repository updates include a security pin for `serialize-javascript` via npm `overrides`.
+If you maintain a fork or run local dependency audits, align your `package.json` with the following:
+
+```json
+{
+  "overrides": {
+    "js-yaml": "4.1.1",
+    "serialize-javascript": "7.0.5"
+  }
+}
+```
+
+After updating `package.json`, run your package manager install command to refresh the lock file.
 
 ## Configure custom key bindings for extension commands
 
