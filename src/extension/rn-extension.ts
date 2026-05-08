@@ -136,9 +136,6 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
                     onChangeWorkspaceFolders(event),
                 ),
             );
-            EXTENSION_CONTEXT.subscriptions.push(
-                vscode.workspace.onDidChangeConfiguration(() => onChangeConfiguration()),
-            );
             EXTENSION_CONTEXT.subscriptions.push(TipNotificationService.getInstance());
             EXTENSION_CONTEXT.subscriptions.push(SurveyService.getInstance());
 
@@ -257,11 +254,6 @@ function onChangeWorkspaceFolders(event: vscode.WorkspaceFoldersChangeEvent) {
             void onFolderAdded(folder);
         });
     }
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function onChangeConfiguration() {
-    // TODO implements
 }
 
 export function createAdditionalWorkspaceFolder(folderPath: string): vscode.WorkspaceFolder | null {
