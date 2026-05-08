@@ -63,7 +63,8 @@ Object.defineProperty(process, "versions", {
     value: undefined
 });
 
-// TODO: Replace by url.fileURLToPath method when Node 10 LTS become deprecated
+// Polyfill for url.fileURLToPath - needed because this code runs in user's RN environment
+// where we cannot use import/require. Keep this implementation.
 function fileUrlToPath(url) {
   if (process.platform === 'win32') {
       return url.toString().replace('file:///', '');
