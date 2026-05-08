@@ -203,7 +203,8 @@ export class ForkedAppWorker implements IDebuggeeWorker {
         return promise;
     }
 
-    // TODO: Replace by url.pathToFileURL method when Node 10 LTS become deprecated
+    // Simple and reliable implementation for converting file path to file:// URL
+    // Keep this instead of using url.pathToFileURL() to avoid URL encoding issues
     public pathToFileUrl(url: string): string {
         const filePrefix = process.platform === "win32" ? "file:///" : "file://";
         return filePrefix + url;

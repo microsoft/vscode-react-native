@@ -2,9 +2,9 @@
     "compilerOptions": {
         "moduleResolution": "node",
         "module": "commonjs",
-        "target": "es6",
+        "target": "es2020",
         "lib": [
-            "es2015"
+            "es2020"
         ],
         "rootDir": "./",
         "outDir": "./",

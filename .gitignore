@@ -32,6 +32,7 @@ VSCodeUserData
 vscode-react-native-*.vsix
 vscode-react-native-*.vsix.zip
 *-report
+mochawesome-report/
 
 # Sample Application auto-generated files
 SampleApplication/.vscode/.react/debuggerWorker.js
