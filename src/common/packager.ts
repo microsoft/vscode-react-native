@@ -114,6 +114,7 @@ export class Packager {
 
     public resetToSettingsPort(): void {
         this.packagerPort = SettingsHelper.getPackagerPort(this.workspacePath);
+        this.packagerStatusIndicator.setPendingPackagerPort(undefined);
     }
 
     public setRunOptions(runOptions: IRunOptions): void {

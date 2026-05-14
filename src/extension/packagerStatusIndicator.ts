@@ -35,6 +35,8 @@ export class PackagerStatusIndicator implements Disposable {
     private displayVersion!: string;
     private projectRoot?: string;
     private packagerPort?: number;
+    private pendingPackagerPort?: number;
+    private packagerStatus: PackagerStatus = PackagerStatus.PACKAGER_STOPPED;
     private isShowIndicator: boolean = true;
 
     private static PACKAGER_NAME: string = localize("ReactNativePackager", "React Native Packager");
@@ -117,32 +119,50 @@ export class PackagerStatusIndicator implements Disposable {
     ): void {
         this.updateDisplayVersion();
         this.togglePackagerItem.command = command;
-        this.togglePackagerItem.tooltip = tooltip;
+        this.togglePackagerItem.tooltip = this.getTooltip(tooltip);
         if (!this.isShowIndicator) {
             icon = PackagerStatusIndicator.NOT_SHOW_INDICATOR;
         }
         const portSuffix = this.packagerPort ? ` :${this.packagerPort}` : "";
+        const pendingPortSuffix = this.pendingPackagerPort ? " $(warning)" : "";
         switch (this.displayVersion) {
             case PackagerStatusIndicator.FULL_VERSION:
-                this.togglePackagerItem.text = `${icon} ${PackagerStatusIndicator.PACKAGER_NAME}${portSuffix}`;
+                this.togglePackagerItem.text = `${icon} ${PackagerStatusIndicator.PACKAGER_NAME}${portSuffix}${pendingPortSuffix}`;
                 this.togglePackagerItem.show();
                 this.restartPackagerItem.show();
                 break;
             case PackagerStatusIndicator.SHORT_VERSION:
-                this.togglePackagerItem.text = `${icon}${portSuffix}`;
+                this.togglePackagerItem.text = `${icon}${portSuffix}${pendingPortSuffix}`;
                 this.togglePackagerItem.show();
                 this.restartPackagerItem.show();
                 break;
         }
     }
 
+    private getTooltip(tooltip: string): string {
+        if (this.pendingPackagerPort && this.packagerPort) {
+            return `${tooltip}\n\nRunning on port ${this.packagerPort}.\nPort setting changed to ${this.pendingPackagerPort}. It will be reset on next start.`;
+        }
+        return tooltip;
+    }
+
+    public setPendingPackagerPort(port?: number): void {
+        this.pendingPackagerPort = port;
+        this.updatePackagerStatus(this.packagerStatus);
+    }
+
     public updatePackagerStatus(status: PackagerStatus, port?: number): void {
+        this.packagerStatus = status;
         if (port !== undefined) {
             this.packagerPort = port;
+            if (this.pendingPackagerPort === port) {
+                this.pendingPackagerPort = undefined;
+            }
         }
         switch (status) {
             case PackagerStatus.PACKAGER_STOPPED:
                 this.packagerPort = undefined;
+                this.pendingPackagerPort = undefined;
                 this.setupPackagerStatusIndicatorItems(
                     PackagerStatusIndicator.START_ICON,
                     PackagerStatusIndicator.START_COMMAND,
