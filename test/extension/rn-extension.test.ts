@@ -4,12 +4,103 @@
 import assert = require("assert");
 import * as vscode from "vscode";
 import * as path from "path";
+import Sinon = require("sinon");
 import { Node } from "../../src/common/node/node";
+import { PackagerStatus } from "../../src/extension/packagerStatusIndicator";
+import { ProjectsStorage } from "../../src/extension/projectsStorage";
+import { SettingsHelper } from "../../src/extension/settingsHelper";
 import {
     createAdditionalWorkspaceFolder,
     getCountOfWorkspaceFolders,
+    onChangeConfiguration,
 } from "../../src/extension/rn-extension";
 suite("rn-extension", function () {
+    suite("onChangeConfiguration", function () {
+        let getPackagerPortStub: Sinon.SinonStub | undefined;
+        let originalProjectsCache: typeof ProjectsStorage.projectsCache;
+
+        setup(() => {
+            originalProjectsCache = { ...ProjectsStorage.projectsCache };
+        });
+
+        teardown(() => {
+            if (getPackagerPortStub) {
+                getPackagerPortStub.restore();
+                getPackagerPortStub = undefined;
+            }
+            Object.keys(ProjectsStorage.projectsCache).forEach(key => {
+                delete ProjectsStorage.projectsCache[key];
+            });
+            Object.keys(originalProjectsCache).forEach(key => {
+                ProjectsStorage.projectsCache[key] = originalProjectsCache[key];
+            });
+        });
+
+        test("resets cached packager ports when packager port setting changes and packagers are stopped", function () {
+            const resetToSettingsPortStub = Sinon.stub();
+            ProjectsStorage.projectsCache["sample"] = {
+                getPackager: () => ({
+                    getPackagerStatus: () => PackagerStatus.PACKAGER_STOPPED,
+                    resetToSettingsPort: resetToSettingsPortStub,
+                    getStatusIndicator: () => ({
+                        setPendingPackagerPort: Sinon.stub(),
+                    }),
+                }),
+            } as any;
+
+            onChangeConfiguration({
+                affectsConfiguration: (section: string) => section === "react-native.packager.port",
+            } as vscode.ConfigurationChangeEvent);
+
+            assert.strictEqual(resetToSettingsPortStub.calledOnce, true);
+        });
+
+        test("marks the status indicator when port setting changes while a packager is running", function () {
+            const resetToSettingsPortStub = Sinon.stub();
+            const setPendingPackagerPortStub = Sinon.stub();
+            getPackagerPortStub = Sinon.stub(SettingsHelper, "getPackagerPort").returns(9090);
+            ProjectsStorage.projectsCache["sample"] = {
+                getPackager: () => ({
+                    getPackagerStatus: () => PackagerStatus.PACKAGER_STARTED,
+                    getProjectPath: () => "/workspace",
+                    getPort: () => 8081,
+                    getStatusIndicator: () => ({
+                        setPendingPackagerPort: setPendingPackagerPortStub,
+                    }),
+                    resetToSettingsPort: resetToSettingsPortStub,
+                }),
+            } as any;
+
+            onChangeConfiguration({
+                affectsConfiguration: (section: string) => section === "react-native.packager.port",
+            } as vscode.ConfigurationChangeEvent);
+
+            assert.strictEqual(resetToSettingsPortStub.notCalled, true);
+            assert.strictEqual(setPendingPackagerPortStub.calledOnce, true);
+            assert.strictEqual(setPendingPackagerPortStub.calledWithExactly(9090), true);
+        });
+
+        test("ignores unrelated configuration changes", function () {
+            const resetToSettingsPortStub = Sinon.stub();
+            ProjectsStorage.projectsCache["sample"] = {
+                getPackager: () => ({
+                    getPackagerStatus: () => PackagerStatus.PACKAGER_STOPPED,
+                    resetToSettingsPort: resetToSettingsPortStub,
+                    getStatusIndicator: () => ({
+                        setPendingPackagerPort: Sinon.stub(),
+                    }),
+                }),
+            } as any;
+
+            onChangeConfiguration({
+                affectsConfiguration: (section: string) =>
+                    section === "react-native-tools.logLevel",
+            } as vscode.ConfigurationChangeEvent);
+
+            assert.strictEqual(resetToSettingsPortStub.notCalled, true);
+        });
+    });
+
     suite("createAdditionalWorkspaceFolder", function () {
         test("createAdditionalWorkspaceFolder returns null", function () {
             const folderPath: string = "folderPath";

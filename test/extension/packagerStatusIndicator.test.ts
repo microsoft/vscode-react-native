@@ -105,5 +105,29 @@ suite("PackagerStatusIndicator", function () {
                 `Expected old port ':8081' to be gone, got: ${fakeToggleItem.text}`,
             );
         });
+        test("should show pending port setting change in status bar tooltip", function () {
+            indicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED, 8081);
+            indicator.setPendingPackagerPort(9090);
+
+            assert.ok(
+                (fakeToggleItem.text as string).includes("$(warning)"),
+                `Expected warning icon in text, got: ${fakeToggleItem.text}`,
+            );
+            assert.strictEqual(
+                fakeToggleItem.tooltip,
+                "Stop Packager\n\nRunning on port 8081.\nPort setting changed to 9090. It will be reset on next start.",
+            );
+        });
+        test("should clear pending port setting change after port is applied", function () {
+            indicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED, 8081);
+            indicator.setPendingPackagerPort(9090);
+            indicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTED, 9090);
+
+            assert.ok(
+                !(fakeToggleItem.text as string).includes("$(warning)"),
+                `Expected warning icon to be cleared, got: ${fakeToggleItem.text}`,
+            );
+            assert.strictEqual(fakeToggleItem.tooltip, "Stop Packager");
+        });
     });
 });
