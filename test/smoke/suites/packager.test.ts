@@ -15,16 +15,17 @@ export function startPackagerTests(): void {
             return app.getMainPage();
         }
 
-        async function dispose() {
-            if (this.currentTest?.state === "failed") {
+        async function dispose(this: Mocha.Context) {
+            const currentTest = this.currentTest;
+            if (currentTest?.state === "failed") {
                 SmokeTestLogger.info("Test failed, taking screenshot ...");
                 await screenshots.takeScreenshots(
-                    this.currentTest.parent?.title || "Others",
-                    this.currentTest.title.replace(/\s+/g, "_"),
+                    currentTest.parent?.title || "Others",
+                    currentTest.title.replace(/\s+/g, "_"),
                 );
             }
             try {
-                SmokeTestLogger.info(`Dispose test: "${this.currentTest.title}" ...`);
+                SmokeTestLogger.info(`Dispose test: "${currentTest?.title ?? "unknown"}" ...`);
                 if (app) {
                     await app.close();
                 }
