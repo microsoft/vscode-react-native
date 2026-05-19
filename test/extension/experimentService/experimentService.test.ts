@@ -7,21 +7,40 @@ import {
     ExperimentStatuses,
     ExperimentResult,
 } from "../../../src/extension/services/experimentService/experimentService";
-import Configstore = require("configstore");
+import { ExtensionConfigManager } from "../../../src/extension/extensionConfigManager";
 import assert = require("assert");
 
 suite("experimentService", function () {
-    const configName = "reactNativeToolsConfig";
     const testExperimentName = "testName";
-    const config = new Configstore(configName);
+    const rntPreviewPromptExpName = "RNTPreviewPrompt";
+    const remoteExperimentConfig = {
+        experimentName: rntPreviewPromptExpName,
+        popCoveragePercent: 1,
+        enabled: true,
+    };
+    const configData: Record<string, unknown> = {};
+    const config = {
+        get: (key: string) => configData[key],
+        set: (key: string, value: unknown) => {
+            configData[key] = value;
+        },
+        delete: (key: string) => {
+            delete configData[key];
+        },
+    };
 
     teardown(() => {
         (<any>ExperimentService).instance = null;
+        config.delete(testExperimentName);
+        config.delete(rntPreviewPromptExpName);
     });
 
     suite("initializationAndExperimentConfig", function () {
         test("should return correct experiment config", async () => {
             let experimentService = ExperimentService.create();
+            (<any>experimentService).downloadConfigRequest = Promise.resolve([
+                remoteExperimentConfig,
+            ]);
             let downloadedExperimentsConfig: ExperimentConfig[] = await (<any>experimentService)
                 .downloadConfigRequest;
             let result = downloadedExperimentsConfig.every(
@@ -43,7 +62,7 @@ suite("experimentService", function () {
         };
 
         const RNTPreviewPromptExp = {
-            experimentName: "RNTPreviewPrompt",
+            experimentName: rntPreviewPromptExpName,
             popCoveragePercent: 1,
             enabled: true,
         };
@@ -60,10 +79,11 @@ suite("experimentService", function () {
         teardown(() => {
             (<any>ExperimentService).instance = null;
             config.delete(testExperimentName);
-            config.delete(RNTPreviewPromptExp.experimentName);
+            config.delete(rntPreviewPromptExpName);
         });
 
         test("should skip the experiment", async () => {
+            (<any>ExtensionConfigManager).config = config;
             config.set(testExperimentName, expTestConfig);
             let experimentService = <any>ExperimentService.create();
             await configureExperimentService(experimentService, expTestConfig);
@@ -74,6 +94,7 @@ suite("experimentService", function () {
         });
 
         test("should succeed the experiment", async () => {
+            (<any>ExtensionConfigManager).config = config;
             let experimentService = <any>ExperimentService.create();
             await configureExperimentService(experimentService, RNTPreviewPromptExp);
             let experimentResult: ExperimentResult = await experimentService.executeExperiment(

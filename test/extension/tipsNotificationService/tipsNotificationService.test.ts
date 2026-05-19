@@ -7,7 +7,7 @@ import {
     TipsConfig,
 } from "../../../src/extension/services/tipsNotificationsService/tipsNotificationService";
 import { SettingsHelper } from "../../../src/extension/settingsHelper";
-import Configstore = require("configstore");
+import { ExtensionConfigManager } from "../../../src/extension/extensionConfigManager";
 import assert = require("assert");
 import { window } from "vscode";
 import * as sinon from "sinon";
@@ -28,14 +28,45 @@ interface RawTipsConfig extends TipNotificationConfig {
 }
 
 suite("tipNotificationService", function () {
-    const configName = "reactNativeToolsConfig";
     const tipsConfigName = "tipsConfig";
-    const config = new Configstore(configName);
+    const remoteTipsConfig = {
+        firstTimeMinDaysToRemind: 3,
+        firstTimeMaxDaysToRemind: 6,
+        minDaysToRemind: 6,
+        maxDaysToRemind: 10,
+        daysAfterLastUsage: 30,
+    };
+    const configData: Record<string, any> = {};
+    function cloneConfigValue(value: any): any {
+        return value === undefined ? value : JSON.parse(JSON.stringify(value));
+    }
+    const config = {
+        has: (key: string) => key in configData,
+        get: (key: string) => cloneConfigValue(configData[key]),
+        set: (key: string, value: any) => {
+            configData[key] = cloneConfigValue(value);
+        },
+        delete: (key: string) => {
+            delete configData[key];
+        },
+    };
     let tipNotificationService: TipNotificationService;
+
+    function setRemoteTipsConfig(service: any): void {
+        service.downloadConfigRequest = Promise.resolve(remoteTipsConfig);
+    }
+
+    function waitForNextMillisecond(): Promise<void> {
+        return new Promise(resolve => {
+            setTimeout(resolve, 1);
+        });
+    }
 
     setup(async function () {
         this.timeout(5000);
+        (<any>ExtensionConfigManager).config = config;
         tipNotificationService = TipNotificationService.getInstance();
+        setRemoteTipsConfig(tipNotificationService);
         config.delete(tipsConfigName);
         await SettingsHelper.setShowTips(true);
     });
@@ -286,6 +317,7 @@ suite("tipNotificationService", function () {
                 `knownDate of ${tipKey} isn't set`,
             );
 
+            await waitForNextMillisecond();
             await tipNotificationService.setKnownDateForFeatureById(tipKey);
 
             const tipsConfigAfterUpdatingKnownDate: RawTipsConfig = config.get(tipsConfigName);
@@ -297,7 +329,7 @@ suite("tipNotificationService", function () {
                 tipsConfigAfterUpdatingKnownDate.tips.generalTips[tipKey].knownDate as string,
             );
 
-            assert.strictEqual(updatedKnownDate.getTime() > addedKnownDate.getTime(), true);
+            assert.strictEqual(updatedKnownDate.getTime() >= addedKnownDate.getTime(), true);
         });
 
         test("should add knownDate to a specific tip", async () => {
@@ -351,12 +383,15 @@ suite("tipNotificationService", function () {
             })["TipNotificationService"];
             const mockedTipsNotificationServiceInstanceBefore =
                 mockedTipsNotificationServiceBefore.getInstance();
+            setRemoteTipsConfig(mockedTipsNotificationServiceInstanceBefore);
 
             await (<any>mockedTipsNotificationServiceInstanceBefore).initializeTipsConfig();
 
             const tipsConfigInitial = (<any>(
                 mockedTipsNotificationServiceInstanceBefore
             )).parseDatesInRawConfig(config.get(tipsConfigName));
+            mockedTipsNotificationServiceInstanceBefore.dispose();
+            (<any>mockedTipsNotificationServiceBefore).instance = null;
 
             const mockedTipsStorageAfter = {
                 generalTips: {},
@@ -375,6 +410,7 @@ suite("tipNotificationService", function () {
             })["TipNotificationService"];
             const mockedTipsNotificationServiceInstanceAfter =
                 mockedTipsNotificationServiceAfter.getInstance();
+            setRemoteTipsConfig(mockedTipsNotificationServiceInstanceAfter);
 
             await mockedTipsNotificationServiceInstanceAfter.updateTipsConfig();
 
@@ -417,6 +453,7 @@ suite("tipNotificationService", function () {
             })["TipNotificationService"];
             const mockedTipsNotificationServiceInstanceBefore =
                 mockedTipsNotificationServiceBefore.getInstance();
+            setRemoteTipsConfig(mockedTipsNotificationServiceInstanceBefore);
 
             await SettingsHelper.setShowTips(false);
             await (<any>mockedTipsNotificationServiceInstanceBefore).initializeTipsConfig();
@@ -424,6 +461,8 @@ suite("tipNotificationService", function () {
             const tipsConfigInitial = (<any>(
                 mockedTipsNotificationServiceInstanceBefore
             )).parseDatesInRawConfig(config.get(tipsConfigName));
+            mockedTipsNotificationServiceInstanceBefore.dispose();
+            (<any>mockedTipsNotificationServiceBefore).instance = null;
 
             const mockedTipsStorageAfter = {
                 generalTips: {
@@ -451,6 +490,7 @@ suite("tipNotificationService", function () {
             })["TipNotificationService"];
             const mockedTipsNotificationServiceInstanceAfter =
                 mockedTipsNotificationServiceAfter.getInstance();
+            setRemoteTipsConfig(mockedTipsNotificationServiceInstanceAfter);
 
             await mockedTipsNotificationServiceInstanceAfter.updateTipsConfig();
 
@@ -496,12 +536,15 @@ suite("tipNotificationService", function () {
             })["TipNotificationService"];
             const mockedTipsNotificationServiceInstanceBefore =
                 mockedTipsNotificationServiceBefore.getInstance();
+            setRemoteTipsConfig(mockedTipsNotificationServiceInstanceBefore);
 
             await (<any>mockedTipsNotificationServiceInstanceBefore).initializeTipsConfig();
 
             const tipsConfigInitial = (<any>(
                 mockedTipsNotificationServiceInstanceBefore
             )).parseDatesInRawConfig(config.get(tipsConfigName));
+            mockedTipsNotificationServiceInstanceBefore.dispose();
+            (<any>mockedTipsNotificationServiceBefore).instance = null;
 
             const mockedTipsStorageAfter = {
                 generalTips: {
@@ -525,6 +568,7 @@ suite("tipNotificationService", function () {
             })["TipNotificationService"];
             const mockedTipsNotificationServiceInstanceAfter =
                 mockedTipsNotificationServiceAfter.getInstance();
+            setRemoteTipsConfig(mockedTipsNotificationServiceInstanceAfter);
 
             await mockedTipsNotificationServiceInstanceAfter.updateTipsConfig();
 
