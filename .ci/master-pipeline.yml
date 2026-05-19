@@ -50,7 +50,7 @@ extends:
                 inputs:
                   outputfile: "ThirdPartyNotices_Generated.txt"
                   additionaldata: release/AdditionalAttributions.txt
-              - bash: gulp release
+              - bash: npx gulp release
                 displayName: "gulp release"
               - bash: 'node -e "console.log(require(''./package.json'').version)" -> version.txt'
                 displayName: "Strip version from package.json and save to version.txt"
@@ -74,8 +74,8 @@ extends:
               - template: /.ci/common-validation.yml@self
           - job: macOS
             pool:
-              name: Azure Pipelines
-              image: macos-latest
+              name: VSWebDiag1ESPipelinePool
+              image: VSWebDiag_1ESImage_macOS
               os: macOS
             timeoutInMinutes: 20
             steps:
