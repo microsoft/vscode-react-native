@@ -39,6 +39,8 @@ export function startCommandPaletteTests(): void {
 
                 const value = await option.getAttribute("aria-label");
                 assert.ok(value?.includes(command), `Command '${command}' is not visible`);
+
+                await ComponentHelper.closeCommandPalette();
             }
         });
     });
