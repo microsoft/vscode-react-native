@@ -1,42 +1,18 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { Page } from "playwright";
-import { SmokeTestLogger } from "./helper/smokeTestLogger";
-import { app, screenshots } from "./main";
 import assert = require("assert");
 import { ComponentHelper } from "./helper/componentHelper";
 import { TimeoutConstants } from "./helper/timeoutConstants";
+import { BaseSmokeTest } from "./helper/baseSmokeTest";
+import { SmokeTestLogger } from "./helper/smokeTestLogger";
 
 export function startPackagerTests(): void {
     describe("PackagerTest", () => {
-        async function initApp(): Promise<Page> {
-            await app.launch();
-            return app.getMainPage();
-        }
-
-        async function dispose() {
-            if (this.currentTest?.state === "failed") {
-                SmokeTestLogger.info("Test failed, taking screenshot ...");
-                await screenshots.takeScreenshots(
-                    this.currentTest.parent?.title || "Others",
-                    this.currentTest.title.replace(/\s+/g, "_"),
-                );
-            }
-            try {
-                SmokeTestLogger.info(`Dispose test: "${this.currentTest.title}" ...`);
-                if (app) {
-                    await app.close();
-                }
-            } catch (error) {
-                SmokeTestLogger.error(`Error while dispose: ${error}`);
-            }
-        }
-
-        afterEach(dispose);
+        afterEach(BaseSmokeTest.dispose);
 
         it("Verify react-native packager state is changed correctly when start and stop metro", async () => {
-            await initApp();
+            await BaseSmokeTest.initApp();
 
             let packager = await ComponentHelper.getReactNativePackager();
             let currentState = await packager.getAttribute("aria-label");
@@ -65,7 +41,7 @@ export function startPackagerTests(): void {
 
         it("Verify Clean & Restart Packager command works correctly", async function () {
             this.timeout(TimeoutConstants.PACKAGER_CLEAN_RESTART_TIMEOUT); // 5 minutes timeout for clean restart
-            await initApp();
+            await BaseSmokeTest.initApp();
 
             // Execute Clean & Restart Packager command
             // The command should handle starting the packager if it's not already running
