@@ -268,7 +268,8 @@ export class CertificateProvider {
         medium: CertificateExchangeMedium,
         certFolder: string,
     ): Promise<void> {
-        const appNamePromise = this.extractAppNameFromCSR(csr);
+        // Validate app name from CSR before any filesystem operations
+        await this.extractAppNameFromCSR(csr);
 
         if (medium === "WWW") {
             return fsUtils.writeFileToFolder(certFolder, filename, contents).catch(e => {
@@ -277,45 +278,40 @@ export class CertificateProvider {
         }
 
         if (os === ClientOS.Android) {
-            const deviceIdPromise = appNamePromise.then(app =>
-                this.getTargetAndroidDeviceId(app, destination, csr),
-            );
-            return Promise.all([deviceIdPromise, appNamePromise]).then(([deviceId, appName]) => {
-                if (process.platform === "win32") {
-                    return fsUtils
-                        .writeFileToFolder(certFolder, filename, contents)
-                        .then(() =>
-                            androidUtil.pushFile(
-                                this.adbHelper,
-                                deviceId,
-                                appName,
-                                destination + filename,
-                                path.join(certFolder, filename),
-                                this.logger,
-                            ),
-                        );
-                }
-                return androidUtil.push(
+            const appName = await this.extractAppNameFromCSR(csr);
+            const deviceId = await this.getTargetAndroidDeviceId(appName, destination, csr);
+            if (process.platform === "win32") {
+                await fsUtils.writeFileToFolder(certFolder, filename, contents);
+                return androidUtil.pushFile(
                     this.adbHelper,
                     deviceId,
                     appName,
                     destination + filename,
-                    contents,
+                    path.join(certFolder, filename),
                     this.logger,
                 );
-            });
+            }
+            return androidUtil.push(
+                this.adbHelper,
+                deviceId,
+                appName,
+                destination + filename,
+                contents,
+                this.logger,
+            );
         }
         if (os === ClientOS.iOS || os === ClientOS.Windows || os === ClientOS.MacOS) {
+            this.validateDestinationPath(destination, os);
             return fs.promises.writeFile(destination + filename, contents).catch(err => {
                 if (os === ClientOS.iOS) {
                     // Writing directly to FS failed. It's probably a physical device.
                     const relativePathInsideApp = this.getRelativePathInAppContainer(destination);
-                    return appNamePromise
+                    return this.extractAppNameFromCSR(csr)
                         .then(appName => {
                             return this.getTargetiOSDeviceId(appName, destination, csr);
                         })
                         .then(udid => {
-                            return appNamePromise.then(appName =>
+                            return this.extractAppNameFromCSR(csr).then(appName =>
                                 this.pushFileToiOSDevice(
                                     udid,
                                     appName,
@@ -333,6 +329,34 @@ export class CertificateProvider {
             });
         }
         return Promise.reject(new Error(`Unsupported device os: ${os}`));
+    }
+
+    private validateDestinationPath(destination: string, os: ClientOS): void {
+        const resolved = path.resolve(destination);
+        if (resolved.includes("..")) {
+            throw new Error(`Path traversal not allowed in destination: ${destination}`);
+        }
+
+        const allowedPrefixes: string[] = [];
+        if (os === ClientOS.iOS) {
+            allowedPrefixes.push(
+                path.join(process.env.HOME || "/Users", "Library", "Developer", "CoreSimulator", "Devices"),
+            );
+        } else if (os === ClientOS.MacOS) {
+            allowedPrefixes.push(
+                path.join(process.env.HOME || "/Users", "Library"),
+            );
+        } else if (os === ClientOS.Windows) {
+            allowedPrefixes.push(
+                path.join(process.env.LOCALAPPDATA || "C:\\Users"),
+            );
+        }
+
+        if (allowedPrefixes.length > 0 && !allowedPrefixes.some(prefix => resolved.startsWith(prefix))) {
+            throw new Error(
+                `Destination path is not within an allowed directory: ${destination}`,
+            );
+        }
     }
 
     private pushFileToiOSDevice(
