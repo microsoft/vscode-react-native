@@ -405,8 +405,12 @@ export class CertificateProvider {
     ): Promise<string> {
         const matches = /\/Devices\/([^/]+)\//.exec(deviceCsrFilePath);
         if (matches && matches.length == 2) {
+            const udid = matches[1];
+            if (!/^[A-F0-9-]{25,40}$/i.test(udid)) {
+                return Promise.reject(new Error(`Invalid iOS device UDID: ${udid}`));
+            }
             // It's a simulator, the deviceId is in the filepath.
-            return Promise.resolve(matches[1]);
+            return Promise.resolve(udid);
         }
         return iosUtil.targets().then(targets => {
             if (targets.length === 0) {
