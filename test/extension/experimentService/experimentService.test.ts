@@ -1,46 +1,79 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {
-    ExperimentService,
+import type {
+    ExperimentService as ExperimentServiceType,
     ExperimentConfig,
-    ExperimentStatuses,
     ExperimentResult,
 } from "../../../src/extension/services/experimentService/experimentService";
-import { ExtensionConfigManager } from "../../../src/extension/extensionConfigManager";
 import assert = require("assert");
+import proxyquire = require("proxyquire");
+
+const experimentServicePath = "../../../src/extension/services/experimentService/experimentService";
+
+class TestConfigstore {
+    private values: Record<string, unknown> = {};
+
+    public get<T>(key: string): T {
+        return this.clone(this.values[key]) as T;
+    }
+
+    public set(key: string, value: unknown): void {
+        this.values[key] = this.clone(value);
+    }
+
+    public delete(key: string): void {
+        delete this.values[key];
+    }
+
+    private clone(value: unknown): unknown {
+        return value === undefined ? undefined : JSON.parse(JSON.stringify(value));
+    }
+}
+
+const config = new TestConfigstore();
+
+type ExperimentServiceModule =
+    typeof import("../../../src/extension/services/experimentService/experimentService");
+
+const mockedExperimentsConfig: ExperimentConfig[] = [
+    {
+        experimentName: "RNTPreviewPrompt",
+        popCoveragePercent: 1,
+        enabled: true,
+    },
+];
+
+const experimentServiceModule = proxyquire(experimentServicePath, {
+    "../remoteConfigHelper": {
+        retryDownloadConfig: () => Promise.resolve(mockedExperimentsConfig),
+    },
+    "../../extensionConfigManager": {
+        ExtensionConfigManager: {
+            config,
+        },
+    },
+}) as ExperimentServiceModule;
+
+const { ExperimentService, ExperimentStatuses } = experimentServiceModule;
 
 suite("experimentService", function () {
     const testExperimentName = "testName";
-    const rntPreviewPromptExpName = "RNTPreviewPrompt";
-    const remoteExperimentConfig = {
-        experimentName: rntPreviewPromptExpName,
-        popCoveragePercent: 1,
-        enabled: true,
-    };
-    const configData: Record<string, unknown> = {};
-    const config = {
-        get: (key: string) => configData[key],
-        set: (key: string, value: unknown) => {
-            configData[key] = value;
-        },
-        delete: (key: string) => {
-            delete configData[key];
-        },
-    };
+    let experimentService: ExperimentServiceType | undefined;
 
-    teardown(() => {
+    function disposeExperimentService(): void {
+        if (experimentService) {
+            experimentService.dispose();
+            experimentService = undefined;
+        }
         (<any>ExperimentService).instance = null;
-        config.delete(testExperimentName);
-        config.delete(rntPreviewPromptExpName);
-    });
+    }
+
+    teardown(disposeExperimentService);
 
     suite("initializationAndExperimentConfig", function () {
         test("should return correct experiment config", async () => {
-            let experimentService = ExperimentService.create();
-            (<any>experimentService).downloadConfigRequest = Promise.resolve([
-                remoteExperimentConfig,
-            ]);
+            experimentService = ExperimentService.create();
             let downloadedExperimentsConfig: ExperimentConfig[] = await (<any>experimentService)
                 .downloadConfigRequest;
             let result = downloadedExperimentsConfig.every(
@@ -62,7 +95,7 @@ suite("experimentService", function () {
         };
 
         const RNTPreviewPromptExp = {
-            experimentName: rntPreviewPromptExpName,
+            experimentName: "RNTPreviewPrompt",
             popCoveragePercent: 1,
             enabled: true,
         };
@@ -77,27 +110,26 @@ suite("experimentService", function () {
         }
 
         teardown(() => {
-            (<any>ExperimentService).instance = null;
             config.delete(testExperimentName);
-            config.delete(rntPreviewPromptExpName);
+            config.delete(RNTPreviewPromptExp.experimentName);
         });
 
         test("should skip the experiment", async () => {
-            (<any>ExtensionConfigManager).config = config;
             config.set(testExperimentName, expTestConfig);
-            let experimentService = <any>ExperimentService.create();
-            await configureExperimentService(experimentService, expTestConfig);
-            let experimentResult: ExperimentResult = await experimentService.executeExperiment(
-                expTestConfig,
-            );
+            experimentService = ExperimentService.create();
+            const service = <any>experimentService;
+            service.downloadedExperimentsConfig = [expTestConfig];
+            service.experimentsInstances = new Map();
+
+            let experimentResult: ExperimentResult = await service.executeExperiment(expTestConfig);
             assert.strictEqual(experimentResult.resultStatus, ExperimentStatuses.DISABLED);
         });
 
         test("should succeed the experiment", async () => {
-            (<any>ExtensionConfigManager).config = config;
-            let experimentService = <any>ExperimentService.create();
-            await configureExperimentService(experimentService, RNTPreviewPromptExp);
-            let experimentResult: ExperimentResult = await experimentService.executeExperiment(
+            experimentService = ExperimentService.create();
+            const service = <any>experimentService;
+            await configureExperimentService(service, RNTPreviewPromptExp);
+            let experimentResult: ExperimentResult = await service.executeExperiment(
                 RNTPreviewPromptExp,
             );
             assert.strictEqual(experimentResult.resultStatus, ExperimentStatuses.ENABLED);
