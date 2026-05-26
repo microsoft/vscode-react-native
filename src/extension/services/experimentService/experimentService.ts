@@ -32,7 +32,7 @@ export interface ExperimentResult {
 }
 
 export class ExperimentService implements vscode.Disposable {
-    private static instance: ExperimentService;
+    private static instance: ExperimentService | null;
 
     private readonly endpointURL: string;
     private downloadedExperimentsConfig: Array<ExperimentConfig> | null;
@@ -64,6 +64,7 @@ export class ExperimentService implements vscode.Disposable {
     public dispose(): void {
         this.cancellationTokenSource.cancel();
         this.cancellationTokenSource.dispose();
+        ExperimentService.instance = null;
     }
 
     private constructor() {
