@@ -45,7 +45,7 @@ export class ReactNativeSessionManager
             });
         }
 
-        debugServer.listen(0);
+        debugServer.listen(0, "127.0.0.1");
         this.servers.set(session.id, debugServer);
 
         // make VS Code connect to debug server
