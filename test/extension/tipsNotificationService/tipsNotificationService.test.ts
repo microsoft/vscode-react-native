@@ -1,17 +1,75 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import {
-    TipNotificationService,
+import type {
+    TipNotificationService as TipNotificationServiceType,
     TipNotificationConfig,
     TipsConfig,
 } from "../../../src/extension/services/tipsNotificationsService/tipsNotificationService";
 import { SettingsHelper } from "../../../src/extension/settingsHelper";
-import Configstore = require("configstore");
 import assert = require("assert");
 import { window } from "vscode";
 import * as sinon from "sinon";
 import proxyquire = require("proxyquire");
+
+const tipsNotificationServicePath =
+    "../../../src/extension/services/tipsNotificationsService/tipsNotificationService";
+
+const mockedRemoteTipsConfig: TipNotificationConfig = {
+    firstTimeMinDaysToRemind: 3,
+    firstTimeMaxDaysToRemind: 6,
+    minDaysToRemind: 6,
+    maxDaysToRemind: 10,
+    daysAfterLastUsage: 30,
+};
+
+class TestConfigstore {
+    private values: Record<string, unknown> = {};
+
+    public has(key: string): boolean {
+        return Object.prototype.hasOwnProperty.call(this.values, key);
+    }
+
+    public get<T>(key: string): T {
+        return this.clone(this.values[key]) as T;
+    }
+
+    public set(key: string, value: unknown): void {
+        this.values[key] = this.clone(value);
+    }
+
+    public delete(key: string): void {
+        delete this.values[key];
+    }
+
+    private clone(value: unknown): unknown {
+        return value === undefined ? undefined : JSON.parse(JSON.stringify(value));
+    }
+}
+
+const config = new TestConfigstore();
+
+type TipsNotificationServiceModule =
+    typeof import("../../../src/extension/services/tipsNotificationsService/tipsNotificationService");
+
+function proxyquireTipsNotificationService(
+    stubs: Record<string, unknown> = {},
+): TipsNotificationServiceModule {
+    return proxyquire(tipsNotificationServicePath, {
+        "../remoteConfigHelper": {
+            retryDownloadConfig: () => Promise.resolve(mockedRemoteTipsConfig),
+        },
+        "../../extensionConfigManager": {
+            ExtensionConfigManager: {
+                config,
+            },
+        },
+        ...stubs,
+    }) as TipsNotificationServiceModule;
+}
+
+const TipNotificationService = proxyquireTipsNotificationService()["TipNotificationService"];
+
 interface RawTipInfo {
     knownDate?: string;
     shownDate?: string;
@@ -28,10 +86,8 @@ interface RawTipsConfig extends TipNotificationConfig {
 }
 
 suite("tipNotificationService", function () {
-    const configName = "reactNativeToolsConfig";
     const tipsConfigName = "tipsConfig";
-    const config = new Configstore(configName);
-    let tipNotificationService: TipNotificationService;
+    let tipNotificationService: TipNotificationServiceType;
 
     setup(async function () {
         this.timeout(5000);
@@ -276,28 +332,36 @@ suite("tipNotificationService", function () {
             await (<any>tipNotificationService).initializeTipsConfig();
             const tipKey = "debuggingRNWAndMacOSApps";
 
-            await tipNotificationService.setKnownDateForFeatureById(tipKey);
+            const clock = sinon.useFakeTimers(new Date(2021, 6, 26).getTime());
 
-            const tipsConfigAfterAddingKnownDate: RawTipsConfig = config.get(tipsConfigName);
+            try {
+                await tipNotificationService.setKnownDateForFeatureById(tipKey);
 
-            assert.strictEqual(
-                typeof tipsConfigAfterAddingKnownDate.tips.generalTips[tipKey].knownDate,
-                "string",
-                `knownDate of ${tipKey} isn't set`,
-            );
+                const tipsConfigAfterAddingKnownDate: RawTipsConfig = config.get(tipsConfigName);
 
-            await tipNotificationService.setKnownDateForFeatureById(tipKey);
+                assert.strictEqual(
+                    typeof tipsConfigAfterAddingKnownDate.tips.generalTips[tipKey].knownDate,
+                    "string",
+                    `knownDate of ${tipKey} isn't set`,
+                );
 
-            const tipsConfigAfterUpdatingKnownDate: RawTipsConfig = config.get(tipsConfigName);
+                const addedKnownDate = new Date(
+                    tipsConfigAfterAddingKnownDate.tips.generalTips[tipKey].knownDate as string,
+                );
 
-            const addedKnownDate = new Date(
-                tipsConfigAfterAddingKnownDate.tips.generalTips[tipKey].knownDate as string,
-            );
-            const updatedKnownDate = new Date(
-                tipsConfigAfterUpdatingKnownDate.tips.generalTips[tipKey].knownDate as string,
-            );
+                clock.tick(1000);
+                await tipNotificationService.setKnownDateForFeatureById(tipKey);
 
-            assert.strictEqual(updatedKnownDate.getTime() > addedKnownDate.getTime(), true);
+                const tipsConfigAfterUpdatingKnownDate: RawTipsConfig = config.get(tipsConfigName);
+
+                const updatedKnownDate = new Date(
+                    tipsConfigAfterUpdatingKnownDate.tips.generalTips[tipKey].knownDate as string,
+                );
+
+                assert.strictEqual(updatedKnownDate.getTime() > addedKnownDate.getTime(), true);
+            } finally {
+                clock.restore();
+            }
         });
 
         test("should add knownDate to a specific tip", async () => {
@@ -317,9 +381,6 @@ suite("tipNotificationService", function () {
     });
 
     suite("updateTipsConfig", function () {
-        const tipsNotificationServicePath =
-            "../../../src/extension/services/tipsNotificationsService/tipsNotificationService";
-
         const mockedTipsStorageBefore = {
             generalTips: {
                 customEnvVariables: {
@@ -344,7 +405,7 @@ suite("tipNotificationService", function () {
         };
 
         test("should update config after deleting a tip from storage", async () => {
-            const mockedTipsNotificationServiceBefore = proxyquire(tipsNotificationServicePath, {
+            const mockedTipsNotificationServiceBefore = proxyquireTipsNotificationService({
                 "./tipsStorage": {
                     default: mockedTipsStorageBefore,
                 },
@@ -368,7 +429,7 @@ suite("tipNotificationService", function () {
                 },
             };
 
-            const mockedTipsNotificationServiceAfter = proxyquire(tipsNotificationServicePath, {
+            const mockedTipsNotificationServiceAfter = proxyquireTipsNotificationService({
                 "./tipsStorage": {
                     default: mockedTipsStorageAfter,
                 },
@@ -410,7 +471,7 @@ suite("tipNotificationService", function () {
         });
 
         test("should update config after adding a tip to storage", async () => {
-            const mockedTipsNotificationServiceBefore = proxyquire(tipsNotificationServicePath, {
+            const mockedTipsNotificationServiceBefore = proxyquireTipsNotificationService({
                 "./tipsStorage": {
                     default: mockedTipsStorageBefore,
                 },
@@ -444,7 +505,7 @@ suite("tipNotificationService", function () {
                 },
             };
 
-            const mockedTipsNotificationServiceAfter = proxyquire(tipsNotificationServicePath, {
+            const mockedTipsNotificationServiceAfter = proxyquireTipsNotificationService({
                 "./tipsStorage": {
                     default: mockedTipsStorageAfter,
                 },
@@ -489,7 +550,7 @@ suite("tipNotificationService", function () {
         });
 
         test("should update config after updating tips storage", async () => {
-            const mockedTipsNotificationServiceBefore = proxyquire(tipsNotificationServicePath, {
+            const mockedTipsNotificationServiceBefore = proxyquireTipsNotificationService({
                 "./tipsStorage": {
                     default: mockedTipsStorageBefore,
                 },
@@ -518,7 +579,7 @@ suite("tipNotificationService", function () {
                 },
             };
 
-            const mockedTipsNotificationServiceAfter = proxyquire(tipsNotificationServicePath, {
+            const mockedTipsNotificationServiceAfter = proxyquireTipsNotificationService({
                 "./tipsStorage": {
                     default: mockedTipsStorageAfter,
                 },
