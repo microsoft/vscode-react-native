@@ -67,6 +67,7 @@ interface ISetupableDisposable extends vscode.Disposable {
 }
 
 let EXTENSION_CONTEXT: vscode.ExtensionContext;
+let extensionActivated = false;
 const PACKAGER_PORT_CONFIGURATION = "react-native.packager.port";
 /**
  * We initialize the counter starting with a large value in order
@@ -76,6 +77,10 @@ const PACKAGER_PORT_CONFIGURATION = "react-native.packager.port";
 let COUNT_WORKSPACE_FOLDERS = 9000;
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
+    if (extensionActivated) {
+        return;
+    }
+
     const extensionName = getExtensionName();
     const appVersion = getExtensionVersion();
     if (!appVersion) {
@@ -223,6 +228,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         },
         extProps,
     );
+
+    extensionActivated = true;
 }
 
 export function deactivate(): Promise<void> {
@@ -240,6 +247,7 @@ export function deactivate(): Promise<void> {
                     ),
                 );
                 LogCatMonitorManager.cleanUp();
+                extensionActivated = false;
                 resolve();
             },
             true,
@@ -396,7 +404,7 @@ async function setupAndDispose<T extends ISetupableDisposable>(
     setuptableDisposable: T,
 ): Promise<T> {
     await setuptableDisposable.setup();
-    EXTENSION_CONTEXT.subscriptions.push(setuptableDisposable);
+    EXTENSION_CONTEXT?.subscriptions.push(setuptableDisposable);
     return setuptableDisposable;
 }
 
