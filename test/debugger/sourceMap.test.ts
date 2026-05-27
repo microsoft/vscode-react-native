@@ -167,6 +167,44 @@ suite("sourceMap", function () {
         assert.strictEqual(expectedSourceMapBody, result);
     });
 
+    test("should normalize null section maps in indexed sourcemaps", function () {
+        const sourceMapBody: string = JSON.stringify({
+            version: 3,
+            sections: [
+                {
+                    offset: { line: 0, column: 0 },
+                    map: null,
+                },
+                {
+                    offset: { line: 1, column: 0 },
+                    map: {
+                        version: 3,
+                        sources: ["node_modules/react/index.js"],
+                        names: [],
+                        mappings: "",
+                        file: "test/index.js",
+                        sourceRoot: "",
+                    },
+                },
+            ],
+        });
+        const scriptPath: string = "test/newIndex.ts";
+        const sourcesRootPath: string = "new/src";
+        const sourceMap = new SourceMapUtil();
+
+        const result: string = sourceMap.updateSourceMapFile(
+            sourceMapBody,
+            scriptPath,
+            sourcesRootPath,
+        );
+        const parsedResult = JSON.parse(result);
+
+        assert.strictEqual(parsedResult.file, scriptPath);
+        assert.strictEqual(parsedResult.sourceRoot, "");
+        assert.strictEqual(parsedResult.sections, undefined);
+        assert.deepStrictEqual(parsedResult.sources, ["../../node_modules/react/index.js"]);
+    });
+
     test("should update scripts with source mapping urls", function () {
         const scriptBody: string = "//# sourceMappingURL=/index.ios.map?platform=ios&dev=true";
         const sourceMappingUrl: IStrictUrl = <IStrictUrl>url.parse("/index.android.map");
