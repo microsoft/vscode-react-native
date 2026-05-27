@@ -54,7 +54,7 @@ export interface GeneratedTipResponse {
 }
 
 export class TipNotificationService implements vscode.Disposable {
-    private static instance: TipNotificationService;
+    private static instance: TipNotificationService | null;
 
     private readonly TIPS_NOTIFICATIONS_LOG_CHANNEL_NAME: string;
     private readonly TIPS_CONFIG_NAME: string;
@@ -79,6 +79,7 @@ export class TipNotificationService implements vscode.Disposable {
     public dispose(): void {
         this.cancellationTokenSource.cancel();
         this.cancellationTokenSource.dispose();
+        TipNotificationService.instance = null;
     }
 
     private constructor() {
