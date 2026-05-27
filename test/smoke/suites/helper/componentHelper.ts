@@ -17,6 +17,10 @@ export class ComponentHelper {
         await ElementHelper.sendKeys(`${cmdKey}+Shift+P`);
     }
 
+    public static async closeCommandPalette() {
+        await ElementHelper.sendKeys("Escape");
+    }
+
     public static async executeCommand(commandName: string) {
         await this.openCommandPalette();
         await ElementHelper.WaitElementClassNameVisible(
