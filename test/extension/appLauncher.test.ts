@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import assert = require("assert");
-import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs";
 import * as BrowserHelper from "@vscode/js-debug-browsers";
@@ -11,7 +10,6 @@ import * as child_process from "child_process";
 import * as os from "os";
 import { AppLauncher } from "../../src/extension/appLauncher";
 import { ProjectsStorage } from "../../src/extension/projectsStorage";
-import { activate, deactivate } from "../../src/extension/rn-extension";
 import { Node } from "../../src/common/node/node";
 suite("appLauncher", function () {
     const fsHelper = new Node.FileSystem();
@@ -57,14 +55,9 @@ suite("appLauncher", function () {
                 if (appLauncherTest) {
                     ProjectsStorage.delFolder(appLauncherTest.getWorkspaceFolder());
                 }
-                deactivate();
             });
 
             assert.strictEqual(isAppLauncherExist, false);
-
-            activate(<vscode.ExtensionContext>{
-                subscriptions: [{}],
-            });
 
             const appLauncher = await AppLauncher.getOrCreateAppLauncherByProjectRootPath(
                 sampleReactNativeProjectDir,
@@ -99,11 +92,6 @@ suite("appLauncher", function () {
                 if (appLauncherTest) {
                     ProjectsStorage.delFolder(appLauncherTest.getWorkspaceFolder());
                 }
-                deactivate();
-            });
-
-            activate(<vscode.ExtensionContext>{
-                subscriptions: [{}],
             });
 
             const appLauncher = await AppLauncher.getOrCreateAppLauncherByProjectRootPath(
@@ -155,10 +143,6 @@ suite("appLauncher", function () {
                 if (appLauncherTest) {
                     ProjectsStorage.delFolder(appLauncherTest.getWorkspaceFolder());
                 }
-            });
-
-            activate(<vscode.ExtensionContext>{
-                subscriptions: [{}],
             });
 
             const appLauncher = await AppLauncher.getOrCreateAppLauncherByProjectRootPath(
