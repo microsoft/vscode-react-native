@@ -101,7 +101,7 @@ export class ReactNativeCDPProxy {
         // raw WebSocket client). Browser-initiated WebSocket connections always include
         // an Origin header and should be rejected.
         if (request.headers.origin) {
-            debuggerTarget.close();
+            await debuggerTarget.close();
             return;
         }
 
