@@ -340,19 +340,24 @@ export class CertificateProvider {
         const allowedPrefixes: string[] = [];
         if (os === ClientOS.iOS) {
             allowedPrefixes.push(
-                path.join(process.env.HOME || "/Users", "Library", "Developer", "CoreSimulator", "Devices"),
+                path.join(
+                    process.env.HOME || "/Users",
+                    "Library",
+                    "Developer",
+                    "CoreSimulator",
+                    "Devices",
+                ),
             );
         } else if (os === ClientOS.MacOS) {
-            allowedPrefixes.push(
-                path.join(process.env.HOME || "/Users", "Library"),
-            );
+            allowedPrefixes.push(path.join(process.env.HOME || "/Users", "Library"));
         } else if (os === ClientOS.Windows) {
-            allowedPrefixes.push(
-                path.join(process.env.LOCALAPPDATA || "C:\\Users"),
-            );
+            allowedPrefixes.push(path.join(process.env.LOCALAPPDATA || "C:\\Users"));
         }
 
-        if (allowedPrefixes.length > 0 && !allowedPrefixes.some(prefix => resolved.startsWith(prefix))) {
+        if (
+            allowedPrefixes.length > 0 &&
+            !allowedPrefixes.some(prefix => resolved.startsWith(prefix))
+        ) {
             throw new Error(
                 `Destination path is not within an allowed directory: ${destination}`,
             );
