@@ -58,7 +58,7 @@ export function startActionBarTests(): void {
             );
             await actionButton.click();
 
-            await WaitHelper.waitIsTrue(async () => {
+            const isPackagerStateUpdated = await WaitHelper.waitIsTrue(async () => {
                 const packager = await ComponentHelper.getReactNativePackager();
                 const currentState = await packager.getAttribute("aria-label");
                 try {
@@ -71,6 +71,11 @@ export function startActionBarTests(): void {
                     return false;
                 }
             });
+
+            assert.ok(
+                isPackagerStateUpdated,
+                "Packager state did not update to include 'primitive-square' within timeout",
+            );
         });
     });
 }
