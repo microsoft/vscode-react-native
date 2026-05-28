@@ -164,7 +164,11 @@ export class AdbHelper {
     }
 
     public async apiVersion(deviceId: string): Promise<AndroidAPILevel> {
-        const output = await this.executeQuery(deviceId, ["shell", "getprop", "ro.build.version.sdk"]);
+        const output = await this.executeQuery(deviceId, [
+            "shell",
+            "getprop",
+            "ro.build.version.sdk",
+        ]);
         return parseInt(output, 10);
     }
 
@@ -266,11 +270,7 @@ export class AdbHelper {
     }
 
     public executeQuery(deviceId: string, args: string[]): Promise<string> {
-        return this.childProcess.execFileToString(this.adbExecutable, [
-            "-s",
-            deviceId,
-            ...args,
-        ]);
+        return this.childProcess.execFileToString(this.adbExecutable, ["-s",deviceId,...args]);
     }
 
     private parseConnectedTargets(input: string): IDebuggableMobileTarget[] {

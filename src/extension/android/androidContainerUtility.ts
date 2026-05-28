@@ -102,10 +102,11 @@ async function _pushFile(
     const tmpFilePath = deviceTmpDir + destFileName;
 
     try {
-        const pushRes = await adbHelper.executeQuery(
-            deviceId,
-            ["push", sourceFilepath, tmpFilePath],
-        );
+        const pushRes = await adbHelper.executeQuery(deviceId, [
+            "push",
+            sourceFilepath,
+            tmpFilePath,
+        ]);
         logger?.debug(pushRes);
         const command = `cp "${tmpFilePath}" "${destFilepath}" && chmod 644 "${destFilepath}"`;
         const appCommandRes = await executeCommandAsApp(adbHelper, deviceId, app, command);
