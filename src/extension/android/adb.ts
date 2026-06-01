@@ -270,7 +270,7 @@ export class AdbHelper {
     }
 
     public executeQuery(deviceId: string, args: string[]): Promise<string> {
-        return this.childProcess.execFileToString(this.adbExecutable, ["-s",deviceId,...args]);
+        return this.childProcess.execFileToString(this.adbExecutable, ["-s", deviceId, ...args]);
     }
 
     private parseConnectedTargets(input: string): IDebuggableMobileTarget[] {
