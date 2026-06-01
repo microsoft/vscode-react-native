@@ -101,7 +101,7 @@ export class InstallExpoGoApplication extends Command {
                 );
 
                 const targetUrl = expoUrlInfo.iosClientUrl;
-                const iOSClientVersion = validateVersion(expoUrlInfo.iosClientVersion as string,);
+                const iOSClientVersion = validateVersion(expoUrlInfo.iosClientVersion as string);
 
                 const tarFile = `${this.project
                     .getPackager()
