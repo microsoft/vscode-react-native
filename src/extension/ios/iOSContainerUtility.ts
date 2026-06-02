@@ -182,9 +182,18 @@ async function push(
     await checkIdbIsInstalled();
     return wrapWithErrorMessage(
         cp
-            .execToString(
-                `${idbPath} --log ${idbLogLevel} file push --udid ${udid} --bundle-id ${bundleId} '${src}' '${dst}'`,
-            )
+            .execFileToString(idbPath, [
+                "--log",
+                idbLogLevel,
+                "file",
+                "push",
+                "--udid",
+                udid,
+                "--bundle-id",
+                bundleId,
+                src,
+                dst,
+            ])
             .then(() => {
                 return;
             })
@@ -204,9 +213,18 @@ async function pull(
     await checkIdbIsInstalled();
     return wrapWithErrorMessage(
         cp
-            .execToString(
-                `${idbPath} --log ${idbLogLevel} file pull --udid ${udid} --bundle-id ${bundleId} '${src}' '${dst}'`,
-            )
+            .execFileToString(idbPath, [
+                "--log",
+                idbLogLevel,
+                "file",
+                "pull",
+                "--udid",
+                udid,
+                "--bundle-id",
+                bundleId,
+                src,
+                dst,
+            ])
             .then(() => {
                 return;
             })
