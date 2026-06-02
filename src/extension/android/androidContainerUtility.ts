@@ -102,10 +102,11 @@ async function _pushFile(
     const tmpFilePath = deviceTmpDir + destFileName;
 
     try {
-        const pushRes = await adbHelper.executeQuery(
-            deviceId,
-            `push ${sourceFilepath} ${tmpFilePath}`,
-        );
+        const pushRes = await adbHelper.executeQuery(deviceId, [
+            "push",
+            sourceFilepath,
+            tmpFilePath,
+        ]);
         logger?.debug(pushRes);
         const command = `cp "${tmpFilePath}" "${destFilepath}" && chmod 644 "${destFilepath}"`;
         const appCommandRes = await executeCommandAsApp(adbHelper, deviceId, app, command);
@@ -135,10 +136,13 @@ function validateAppName(app: string): Promise<string> {
 }
 
 function validateFilePath(filePath: string): Promise<string> {
-    if (!filePath.match(/'/)) {
-        return Promise.resolve(filePath);
+    if (!/^[A-Za-z0-9._\/-]+$/.test(filePath)) {
+        return Promise.reject(new Error(`Disallowed filepath characters: ${filePath}`));
     }
-    return Promise.reject(new Error(`Disallowed escaping filepath: ${filePath}`));
+    if (filePath.includes("..")) {
+        return Promise.reject(new Error(`Path traversal not allowed: ${filePath}`));
+    }
+    return Promise.resolve(filePath);
 }
 
 function validateFileContent(content: string): Promise<string> {
