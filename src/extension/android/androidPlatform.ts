@@ -226,7 +226,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                                     // For physical devices, get model name
                                     const modelResult = await this.adbHelper.executeQuery(
                                         targetId,
-                                        "shell getprop ro.product.model",
+                                        ["shell", "getprop", "ro.product.model"],
                                     );
                                     const model = modelResult.trim();
                                     if (model) {
