@@ -164,12 +164,16 @@ export class AdbHelper {
     }
 
     public async apiVersion(deviceId: string): Promise<AndroidAPILevel> {
-        const output = await this.executeQuery(deviceId, "shell getprop ro.build.version.sdk");
+        const output = await this.executeQuery(deviceId, [
+            "shell",
+            "getprop",
+            "ro.build.version.sdk",
+        ]);
         return parseInt(output, 10);
     }
 
     public reverseAdb(deviceId: string, port: number): Promise<void> {
-        return this.execute(deviceId, `reverse tcp:${port} tcp:${port}`);
+        return this.execute(deviceId, ["reverse", `tcp:${port}`, `tcp:${port}`]);
     }
 
     public showDevMenu(deviceId?: string): Promise<void> {
@@ -237,7 +241,7 @@ export class AdbHelper {
             );
             const isExist = fs.existsSync(localPropertiesSdkPath);
             if (isExist) {
-                return `"${localPropertiesSdkPath}"`;
+                return localPropertiesSdkPath;
             }
             if (logger) {
                 logger.warning(
@@ -253,15 +257,20 @@ export class AdbHelper {
     }
 
     public executeShellCommand(deviceId: string, command: string): Promise<string> {
-        return this.executeQuery(deviceId, `shell "${command}"`);
+        return this.childProcess.execFileToString(this.adbExecutable, [
+            "-s",
+            deviceId,
+            "shell",
+            command,
+        ]);
     }
 
     public installApplicationToEmulator(appPath: string): Promise<string> {
         return this.childProcess.execFileToString("adb", ["install", appPath]);
     }
 
-    public executeQuery(deviceId: string, command: string): Promise<string> {
-        return this.childProcess.execToString(this.generateCommandForTarget(deviceId, command));
+    public executeQuery(deviceId: string, args: string[]): Promise<string> {
+        return this.childProcess.execFileToString(this.adbExecutable, ["-s", deviceId, ...args]);
     }
 
     private parseConnectedTargets(input: string): IDebuggableMobileTarget[] {
@@ -283,12 +292,9 @@ export class AdbHelper {
         return !!id.match(AdbHelper.AndroidSDKEmulatorPattern);
     }
 
-    private execute(deviceId: string, command: string): Promise<void> {
-        return this.commandExecutor.execute(this.generateCommandForTarget(deviceId, command));
-    }
-
-    private generateCommandForTarget(deviceId: string, adbCommand: string): string {
-        return `${this.adbExecutable} -s "${deviceId}" ${adbCommand}`;
+    private execute(deviceId: string, args: string[]): Promise<void> {
+        const command = `${this.adbExecutable} -s "${deviceId}" ${args.join(" ")}`;
+        return this.commandExecutor.execute(command);
     }
 
     private getSdkLocationFromLocalPropertiesFile(
