@@ -358,9 +358,7 @@ export class CertificateProvider {
             allowedPrefixes.length > 0 &&
             !allowedPrefixes.some(prefix => resolved.startsWith(prefix))
         ) {
-            throw new Error(
-                `Destination path is not within an allowed directory: ${destination}`,
-            );
+            throw new Error(`Destination path is not within an allowed directory: ${destination}`);
         }
     }
 
