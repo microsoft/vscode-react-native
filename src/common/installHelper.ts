@@ -45,14 +45,11 @@ export async function installiOSApplication(project: AppLauncher, appPath: strin
 
     try {
         // Create dir to iOS app
-        await childProcess.execToString(
-            `mkdir ${project.getPackager().getProjectPath()}/expoApp.app`,
-        );
+        const appDir = `${project.getPackager().getProjectPath()}/expoApp.app`;
+        await childProcess.execFileToString("mkdir", [appDir]);
 
         // Unpack .tar.gz file
-        await childProcess.execToString(
-            `tar -xf ${appPath} -C ${project.getPackager().getProjectPath()}/expoApp.app`,
-        );
+        await childProcess.execFileToString("tar", ["-xf", appPath, "-C", appDir]);
     } catch (e) {
         throw e;
     }
