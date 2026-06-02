@@ -27,7 +27,7 @@ export function startSmokeTests(setup: () => Promise<void>, cleanUp: () => Promi
             await cleanUp();
             await setup();
         } catch (err) {
-            // 规范化 unknown 错误
+            // Normalize unknown errors
             const { errorToString } = await import("./helper/utilities");
             await smokeTestFail(errorToString(err));
         }
