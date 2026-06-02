@@ -97,6 +97,14 @@ export class ReactNativeCDPProxy {
         Connection,
         IncomingMessage,
     ]): Promise<void> {
+        // Only allow connections without an Origin header (i.e., from vscode-js-debug's
+        // raw WebSocket client). Browser-initiated WebSocket connections always include
+        // an Origin header and should be rejected.
+        if (request.headers.origin) {
+            await debuggerTarget.close();
+            return;
+        }
+
         this.debuggerTarget = debuggerTarget;
 
         this.debuggerTarget.pause(); // don't listen for events until the target is ready
