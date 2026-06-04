@@ -56,12 +56,10 @@ declare namespace xdl {
     interface SDKVersion {
         androidExpoViewUrl?: string;
         expoReactNativeTag: string;
-        /* deprecated */ exponentReactNativeTag?: string;
         expokitNpmPackage?: string;
         facebookReactNativeVersion: string;
         facebookReactVersion?: string;
         iosExpoViewUrl?: string;
-        /* deprecated */ iosExponentViewUrl?: string;
         iosVersion?: string;
         isDeprecated?: boolean;
         packagesToInstallWhenEjecting?: { [name: string]: string };
