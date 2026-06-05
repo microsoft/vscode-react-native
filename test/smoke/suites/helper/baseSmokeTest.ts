@@ -21,7 +21,7 @@ export class BaseSmokeTest {
      * Common dispose function to be called after each test
      * Takes screenshots on failure and closes the app
      */
-    public static async dispose(this: any): Promise<void> {
+    public static async dispose(this: Mocha.Context): Promise<void> {
         if (this.currentTest?.state === "failed") {
             SmokeTestLogger.info("Test failed, taking screenshot ...");
             await screenshots.takeScreenshots(
@@ -30,7 +30,7 @@ export class BaseSmokeTest {
             );
         }
         try {
-            SmokeTestLogger.info(`Dispose test: "${this.currentTest.title}" ...`);
+            SmokeTestLogger.info(`Dispose test: "${this.currentTest?.title ?? "unknown"}" ...`);
             if (app) {
                 await app.close();
             }
