@@ -56,9 +56,7 @@ export interface ImacOSRunOptions extends ILaunchArgs {
     productName?: string;
 }
 
-export interface IIOSRunOptions extends ImacOSRunOptions {
-    iosRelativeProjectPath?: string; // TODO Remove deprecated
-}
+export interface IIOSRunOptions extends ImacOSRunOptions {}
 
 export interface IExponentRunOptions extends IAndroidRunOptions, IIOSRunOptions {
     expoHostType?: ExpoHostType;

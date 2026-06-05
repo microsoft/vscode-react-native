@@ -1550,6 +1550,9 @@
     "serialize-javascript": "7.0.5",
     "mochawesome": {
       "uuid": "11.1.1"
+    },
+    "istanbul-lib-processinfo": {
+      "uuid": "11.1.1"
     }
   }
 }

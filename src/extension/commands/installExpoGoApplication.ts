@@ -53,7 +53,9 @@ export class InstallExpoGoApplication extends Command {
                 );
 
                 const targetUrl = expoUrlInfo.androidClientUrl;
-                const androidClientVersion = expoUrlInfo.androidClientVersion as string;
+                const androidClientVersion = validateVersion(
+                    expoUrlInfo.androidClientVersion as string,
+                );
                 const fileName = `${this.project
                     .getPackager()
                     .getProjectPath()}/expogo_${androidClientVersion}.apk`;
@@ -99,7 +101,7 @@ export class InstallExpoGoApplication extends Command {
                 );
 
                 const targetUrl = expoUrlInfo.iosClientUrl;
-                const iOSClientVersion = expoUrlInfo.iosClientVersion as string;
+                const iOSClientVersion = validateVersion(expoUrlInfo.iosClientVersion as string);
 
                 const tarFile = `${this.project
                     .getPackager()
@@ -147,10 +149,7 @@ export class InstallExpoGoApplication extends Command {
 
 async function fetchJson(url: string): Promise<string> {
     return new Promise<string>((fulfill, reject) => {
-        const requestOptions: https.RequestOptions = {};
-        requestOptions.rejectUnauthorized = false; // CodeQL [js/disabling-certificate-validation] Debug extension does not need to verify certificate
-
-        const request = https.get(url, requestOptions, response => {
+        const request = https.get(url, response => {
             let data = "";
             response.setEncoding("utf8");
             response.on("data", (chunk: string) => {
@@ -163,4 +162,13 @@ async function fetchJson(url: string): Promise<string> {
         request.on("error", reject);
         request.end();
     });
+}
+
+const versionPattern = /^[0-9][0-9.]*$/;
+
+function validateVersion(version: string): string {
+    if (!versionPattern.test(version)) {
+        throw new Error(`Invalid Expo Go version string: ${version}`);
+    }
+    return version;
 }
