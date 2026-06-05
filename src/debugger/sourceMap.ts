@@ -75,8 +75,7 @@ export class SourceMapUtil {
                     map: section.map ?? SourceMapUtil.createEmptySourceMap(),
                 }));
 
-                // eslint-disable-next-line @typescript-eslint/no-var-requires
-                sourceMap = require("flatten-source-map")(sourceMap);
+                sourceMap = SourceMapUtil.flattenIndexedSourceMap(sourceMap);
             }
 
             const sourceMapsCombinator = new SourceMapsCombinator();
@@ -208,5 +207,42 @@ export class SourceMapUtil {
             mappings: "",
             file: "",
         };
+    }
+
+    private static flattenIndexedSourceMap(sourceMap: ISourceMap): ISourceMap {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const flattenSourceMap = require("flatten-source-map");
+        const meaningfulSections = (sourceMap.sections ?? []).filter(
+            section => section.map && (section.map.sources?.length || section.map.mappings),
+        );
+
+        if (meaningfulSections.length === 1 && meaningfulSections[0].map) {
+            return meaningfulSections[0].map;
+        }
+
+        try {
+            return flattenSourceMap(sourceMap);
+        } catch (error) {
+            if (!meaningfulSections.length) {
+                throw error;
+            }
+
+            const firstOffset = meaningfulSections[0].offset;
+            const rebasedSections = meaningfulSections.map(section => ({
+                ...section,
+                offset: {
+                    line: Math.max(0, section.offset.line - firstOffset.line),
+                    column:
+                        section.offset.line === firstOffset.line
+                            ? Math.max(0, section.offset.column - firstOffset.column)
+                            : section.offset.column,
+                },
+            }));
+
+            return flattenSourceMap({
+                ...sourceMap,
+                sections: rebasedSections,
+            });
+        }
     }
 }

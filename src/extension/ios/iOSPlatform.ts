@@ -66,16 +66,6 @@ export class IOSPlatform extends GeneralMobilePlatform {
         this.targetManager = new IOSTargetManager();
         this.runOptions.configuration = this.getConfiguration();
 
-        if (this.runOptions.iosRelativeProjectPath) {
-            // Deprecated option
-            this.logger.warning(
-                localize(
-                    "iosRelativeProjectPathOptionIsDeprecatedUseRunArgumentsInstead",
-                    "'iosRelativeProjectPath' option is deprecated. Please use 'runArguments' instead.",
-                ),
-            );
-        }
-
         const iosProjectFolderPath = IOSPlatform.getOptFromRunArgs(
             this.runArguments,
             "--project-path",
@@ -83,9 +73,7 @@ export class IOSPlatform extends GeneralMobilePlatform {
         );
         this.iosProjectRoot = path.join(
             this.projectPath,
-            iosProjectFolderPath ||
-                this.runOptions.iosRelativeProjectPath ||
-                IOSPlatform.DEFAULT_IOS_PROJECT_RELATIVE_PATH,
+            iosProjectFolderPath || IOSPlatform.DEFAULT_IOS_PROJECT_RELATIVE_PATH,
         );
         const schemeFromArgs = IOSPlatform.getOptFromRunArgs(this.runArguments, "--scheme", false);
         this.iosDebugModeManager = new IOSDebugModeManager(
@@ -325,10 +313,6 @@ export class IOSPlatform extends GeneralMobilePlatform {
         } else {
             if (this.runOptions.target) {
                 runArguments.push(...this.handleTargetArg(this.runOptions.target));
-            }
-
-            if (this.runOptions.iosRelativeProjectPath) {
-                runArguments.push("--project-path", this.runOptions.iosRelativeProjectPath);
             }
 
             // provide any defined scheme

@@ -156,6 +156,7 @@ export class NetworkInspectorServer {
                     : this.untrustedRequestHandler,
                 transport: new RSocketTCPServer({
                     port: port,
+                    host: "127.0.0.1",
                     serverFactory: serverFactory,
                 }),
             });
