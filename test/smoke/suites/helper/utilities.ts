@@ -1,3 +1,19 @@
+// --- Error normalization helpers ---
+export function asError(error: unknown): Error {
+    if (error instanceof Error) return error;
+    return new Error(errorToString(error));
+}
+
+export function errorToString(error: unknown): string {
+    if (typeof error === "string") return error;
+    if (error instanceof Error) return error.stack || error.message;
+    if (error && typeof error === "object") {
+        try {
+            return JSON.stringify(error);
+        } catch {}
+    }
+    return String(error);
+}
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
@@ -21,18 +37,15 @@ export async function mkdirp(path: string, mode?: number): Promise<boolean> {
     const mkdir = async () => {
         try {
             await nfcall(fs.mkdir, path, mode);
-        } catch (err) {
-            if (err.code === "EEXIST") {
+        } catch (err: unknown) {
+            if (typeof err === "object" && err && (err as any).code === "EEXIST") {
                 const stat = await nfcall<fs.Stats>(fs.stat, path);
-
                 if (stat.isDirectory()) {
                     return;
                 }
-
                 throw new Error(`'${path}' exists and is not a directory.`);
             }
-
-            throw err;
+            throw asError(err);
         }
     };
 
@@ -43,11 +56,10 @@ export async function mkdirp(path: string, mode?: number): Promise<boolean> {
 
     try {
         await mkdir();
-    } catch (err) {
-        if (err.code !== "ENOENT") {
-            throw err;
+    } catch (err: unknown) {
+        if (typeof err === "object" && err && (err as any).code !== "ENOENT") {
+            throw asError(err);
         }
-
         await mkdirp(dirname(path), mode);
         await mkdir();
     }
@@ -102,19 +114,22 @@ export function execSync(
     let output = "";
     try {
         output = cp.execSync(quote([`${command}`]), options).toString();
-    } catch (err) {
-        output += err.stdout && err.stdout.toString();
-        output += err.stderr && err.stderr.toString();
+    } catch (err: unknown) {
+        // Try to extract stdout/stderr if present
+        if (err && typeof err === "object") {
+            const stdout = (err as any).stdout;
+            const stderr = (err as any).stderr;
+            if (stdout) output += stdout.toString();
+            if (stderr) output += stderr.toString();
+        }
         if (logFilePath) {
             SmokeTestLogger.saveLogsInFile(output, logFilePath);
         }
-        throw err;
+        throw asError(err);
     }
-
     if (logFilePath) {
         SmokeTestLogger.saveLogsInFile(output, logFilePath);
     }
-
     return output;
 }
 
