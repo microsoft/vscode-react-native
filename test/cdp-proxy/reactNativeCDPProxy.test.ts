@@ -27,6 +27,7 @@ import {
     mockResults,
 } from "./cdpConstants";
 import { PromiseUtil } from "../../src/common/node/promise";
+import Sinon = require("sinon");
 
 suite("reactNativeCDPProxy", function () {
     const cdpProxyHostAddress = "127.0.0.1"; // localhost
@@ -237,6 +238,84 @@ suite("reactNativeCDPProxy", function () {
 
                 assert.deepStrictEqual(messageFromDebugger, resultMessage);
             });
+        });
+    });
+
+    suite("Origin validation", () => {
+        function createConnectionStub(): any {
+            return {
+                close: Sinon.stub().returns(Promise.resolve()),
+                pause: Sinon.stub(),
+                unpause: Sinon.stub(),
+                onError: Sinon.stub(),
+                onCommand: Sinon.stub(),
+                onReply: Sinon.stub(),
+                onEnd: Sinon.stub(),
+            };
+        }
+
+        function createTransportStub(): any {
+            return {
+                close: Sinon.stub().returns(Promise.resolve()),
+                send: Sinon.stub(),
+                onMessage: Sinon.stub(),
+                onError: Sinon.stub(),
+                onEnd: Sinon.stub(),
+            };
+        }
+
+        test("should close debugger connections that include an Origin header", async () => {
+            const localProxy = new ReactNativeCDPProxy(
+                cdpProxyHostAddress,
+                generateRandomPortNumber(),
+            );
+            const debuggerTarget = createConnectionStub();
+
+            await (localProxy as any).onConnectionHandler([
+                debuggerTarget,
+                {
+                    headers: {
+                        origin: "https://example.com",
+                    },
+                },
+            ]);
+
+            assert.strictEqual(debuggerTarget.close.calledOnce, true);
+            assert.strictEqual(debuggerTarget.pause.called, false);
+        });
+
+        test("should continue debugger connections without an Origin header", async () => {
+            const localProxy = new ReactNativeCDPProxy(
+                cdpProxyHostAddress,
+                generateRandomPortNumber(),
+            );
+            const debuggerTarget = createConnectionStub();
+            const createWebSocketTransportStub = Sinon.stub(WebSocketTransport, "create").returns(
+                Promise.resolve(createTransportStub()),
+            );
+
+            Object.assign(localProxy, {
+                browserInspectUri: "ws://localhost:1234/debugger",
+                CDPMessageHandler: {
+                    setApplicationTarget: Sinon.stub(),
+                    setDebuggerTarget: Sinon.stub(),
+                },
+            });
+
+            try {
+                await (localProxy as any).onConnectionHandler([
+                    debuggerTarget,
+                    {
+                        headers: {},
+                    },
+                ]);
+            } finally {
+                createWebSocketTransportStub.restore();
+            }
+
+            assert.strictEqual(debuggerTarget.close.called, false);
+            assert.strictEqual(debuggerTarget.pause.calledOnce, true);
+            assert.strictEqual(debuggerTarget.unpause.calledOnce, true);
         });
     });
 });
