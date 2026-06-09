@@ -17,7 +17,7 @@ export function startActionBarTests(): void {
             return app.getMainPage();
         }
 
-        async function dispose() {
+        async function dispose(this: Mocha.Context): Promise<void> {
             if (this.currentTest?.state === "failed") {
                 SmokeTestLogger.info("Test failed, taking screenshot ...");
                 await screenshots.takeScreenshots(
