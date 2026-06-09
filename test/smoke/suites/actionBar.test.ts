@@ -6,8 +6,8 @@ import { SmokeTestLogger } from "./helper/smokeTestLogger";
 import { app, screenshots } from "./main";
 import { ElementHelper } from "./helper/elementHelper";
 import { Element } from "./helper/constants";
-import { WaitHelper } from "./helper/waitHelper";
 import { ComponentHelper } from "./helper/componentHelper";
+import { TimeoutConstants } from "./helper/timeoutConstants";
 import assert = require("assert");
 
 export function startActionBarTests(): void {
@@ -58,23 +58,9 @@ export function startActionBarTests(): void {
             );
             await actionButton.click();
 
-            const isPackagerStateUpdated = await WaitHelper.waitIsTrue(async () => {
-                const packager = await ComponentHelper.getReactNativePackager();
-                const currentState = await packager.getAttribute("aria-label");
-                try {
-                    assert.ok(
-                        currentState?.includes("primitive-square"),
-                        `Expected packager state to include 'primitive-square', got: ${currentState}`,
-                    );
-                    return true;
-                } catch {
-                    return false;
-                }
-            });
-
-            assert.ok(
-                isPackagerStateUpdated,
-                "Packager state did not update to include 'primitive-square' within timeout",
+            await ComponentHelper.waitPackagerStateIncludes(
+                "primitive-square",
+                TimeoutConstants.PACKAGER_STATE_TIMEOUT,
             );
         });
     });
