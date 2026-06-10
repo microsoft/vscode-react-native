@@ -58,6 +58,11 @@ export function startActionBarTests(): void {
             );
             await actionButton.click();
 
+            await ComponentHelper.waitPackagerStateIncludesOneOf(
+                ["loading~spin", "primitive-square"],
+                TimeoutConstants.PACKAGER_STATE_TIMEOUT,
+            );
+
             await ComponentHelper.waitPackagerStateIncludes(
                 "primitive-square",
                 TimeoutConstants.PACKAGER_STATE_TIMEOUT,
