@@ -77,8 +77,8 @@ function prepareLicenses() {
                     log("Using yarn for vsce packaging...");
                 }
                 executeCommand(
-                    "vsce",
-                    vsceArgs,
+                    "npx",
+                    ["vsce", ...vsceArgs],
                     arg => {
                         if (arg) {
                             reject(arg);
