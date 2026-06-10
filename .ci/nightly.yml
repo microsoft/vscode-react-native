@@ -41,6 +41,6 @@ extends:
                   TargetFolder: "$(Build.ArtifactStagingDirectory)"
               - bash: |
                   VSIX=`ls *.vsix`
-                  vsce publish --pat $(extension-publish-vswdbot-PAT) --packagePath $VSIX
+                  npx vsce publish --pat $(extension-publish-vswdbot-PAT) --packagePath $VSIX
                 displayName: "VSCE publish"
                 condition: and(succeeded(), eq(variables['dryrun'], 'false'))
