@@ -22,10 +22,8 @@ steps:
       verbose: false
       customCommand: ci
 
-  - task: Gulp@0
+  - bash: npx gulp release
     displayName: "gulp release"
-    inputs:
-      targets: release
 
   - task: CopyFiles@2
     displayName: "Copy Files to: test/smoke/package/resources/drop-win"
