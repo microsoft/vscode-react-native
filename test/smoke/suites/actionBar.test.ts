@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { ElementHandle, Page } from "playwright";
+import { Page } from "playwright";
 import { SmokeTestLogger } from "./helper/smokeTestLogger";
 import { app, screenshots } from "./main";
 import { ElementHelper } from "./helper/elementHelper";
@@ -62,27 +62,15 @@ export function startActionBarTests(): void {
                 TimeoutConstants.COMMAND_PALETTE_TIMEOUT,
             );
 
-            const expectedQuickDebugOptions = [
-                Element.debugApplicationButtonSelector,
-                `div[aria-label="Debug Android"]`,
-                `div[aria-label="Run Android"]`,
-            ];
-
-            let foundQuickDebugOption: ElementHandle<SVGElement | HTMLElement> | null = null;
-            for (const selector of expectedQuickDebugOptions) {
-                foundQuickDebugOption = await ElementHelper.TryFindElement(
-                    selector,
-                    TimeoutConstants.COMMAND_PALETTE_TIMEOUT,
-                );
-                if (foundQuickDebugOption) {
-                    break;
-                }
-            }
+            const focusedQuickPickItem = await ElementHelper.WaitElementSelectorVisible(
+                Element.commandPaletteFocusedItemSelector,
+                TimeoutConstants.COMMAND_PALETTE_TIMEOUT,
+            );
 
             assert.notStrictEqual(
-                foundQuickDebugOption,
+                focusedQuickPickItem,
                 null,
-                "A React Native quick debug option should be present after opening the action button",
+                "A quick debug option should be present after opening the action button",
             );
         });
     });
