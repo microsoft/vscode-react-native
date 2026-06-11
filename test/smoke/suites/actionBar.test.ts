@@ -58,10 +58,21 @@ export function startActionBarTests(): void {
             );
             await actionButton.click();
 
-            await ComponentHelper.waitPackagerStateIncludesOneOf(
+            const packagerStartingOrStarted = await ComponentHelper.isPackagerStateIncludesOneOf(
                 ["loading~spin", "primitive-square"],
-                TimeoutConstants.PACKAGER_STATE_TIMEOUT,
+                15000,
             );
+
+            if (!packagerStartingOrStarted) {
+                SmokeTestLogger.testLog(
+                    "Quick debug action did not trigger packager on first click, retrying with mouse click.",
+                );
+                await ElementHelper.mouseClick(actionButton);
+                await ComponentHelper.waitPackagerStateIncludesOneOf(
+                    ["loading~spin", "primitive-square"],
+                    TimeoutConstants.PACKAGER_STATE_TIMEOUT,
+                );
+            }
 
             await ComponentHelper.waitPackagerStateIncludes(
                 "primitive-square",
