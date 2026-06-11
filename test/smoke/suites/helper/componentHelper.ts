@@ -112,11 +112,7 @@ export class ComponentHelper {
         expectedList: string[],
         timeout: number = 30000,
     ): Promise<void> {
-        const ok = await WaitHelper.waitIsTrue(async () => {
-            const packager = await this.getReactNativePackager();
-            const currentState = await packager.getAttribute("aria-label");
-            return expectedList.some(exp => currentState?.includes(exp));
-        }, timeout);
+        const ok = await this.isPackagerStateIncludesOneOf(expectedList, timeout);
         if (!ok) {
             throw new Error(
                 `Packager state did not include any of ${expectedList
@@ -124,5 +120,16 @@ export class ComponentHelper {
                     .join(", ")} within ${timeout}ms`,
             );
         }
+    }
+
+    public static async isPackagerStateIncludesOneOf(
+        expectedList: string[],
+        timeout: number = 30000,
+    ): Promise<boolean> {
+        return WaitHelper.waitIsTrue(async () => {
+            const packager = await this.getReactNativePackager();
+            const currentState = await packager.getAttribute("aria-label");
+            return expectedList.some(exp => currentState?.includes(exp));
+        }, timeout);
     }
 }
