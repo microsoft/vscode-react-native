@@ -65,9 +65,13 @@ export function startActionBarTests(): void {
 
             if (!packagerStartingOrStarted) {
                 SmokeTestLogger.testLog(
-                    "Quick debug action did not trigger packager on first click, retrying with mouse click.",
+                    "Quick debug action did not trigger packager on first click, retrying with force click.",
                 );
-                await ElementHelper.mouseClick(actionButton);
+                const retryActionButton = await ElementHelper.WaitElementSelectorVisible(
+                    Element.debugActionItemButtonSelector,
+                    5000,
+                );
+                await retryActionButton.click({ force: true });
                 await ComponentHelper.waitPackagerStateIncludesOneOf(
                     ["loading~spin", "primitive-square"],
                     TimeoutConstants.PACKAGER_STATE_TIMEOUT,
