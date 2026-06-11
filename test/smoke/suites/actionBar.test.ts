@@ -58,20 +58,40 @@ export function startActionBarTests(): void {
             );
             await actionButton.click();
 
-            const packagerStartingOrStarted = await ComponentHelper.isPackagerStateIncludesOneOf(
+            let packagerStartingOrStarted = await ComponentHelper.isPackagerStateIncludesOneOf(
                 ["loading~spin", "primitive-square"],
-                15000,
+                10000,
             );
 
             if (!packagerStartingOrStarted) {
                 SmokeTestLogger.testLog(
-                    "Quick debug action did not trigger packager on first click, retrying with force click.",
+                    "Quick debug action did not trigger packager on first click, trying quick input confirm.",
+                );
+
+                const quickInput = await ElementHelper.TryFindElement(
+                    `.${Element.commandPaletteClassName}`,
+                    3000,
+                );
+                if (quickInput) {
+                    await ElementHelper.sendKeys("Enter");
+                }
+
+                packagerStartingOrStarted = await ComponentHelper.isPackagerStateIncludesOneOf(
+                    ["loading~spin", "primitive-square"],
+                    10000,
+                );
+            }
+
+            if (!packagerStartingOrStarted) {
+                SmokeTestLogger.testLog(
+                    "Quick input confirm did not trigger packager, trying action dropdown and Enter.",
                 );
                 const retryActionButton = await ElementHelper.WaitElementSelectorVisible(
                     Element.debugActionItemButtonSelector,
                     5000,
                 );
                 await retryActionButton.click({ force: true });
+                await ElementHelper.sendKeys("Enter");
                 await ComponentHelper.waitPackagerStateIncludesOneOf(
                     ["loading~spin", "primitive-square"],
                     TimeoutConstants.PACKAGER_STATE_TIMEOUT,
