@@ -28,11 +28,8 @@ extends:
                   artifactName: "Extension (nightly)"
             steps:
               - template: /.ci/common-validation.yml@self
-              - task: Gulp@0
-                displayName: gulp release
-                inputs:
-                  targets: release
-                  arguments: --nightly
+              - bash: npx gulp release --nightly
+                displayName: "gulp release"
               - task: CopyFiles@2
                 displayName: "Copy Files to: $(Build.ArtifactStagingDirectory)"
                 inputs:
@@ -41,6 +38,6 @@ extends:
                   TargetFolder: "$(Build.ArtifactStagingDirectory)"
               - bash: |
                   VSIX=`ls *.vsix`
-                  vsce publish --pat $(extension-publish-vswdbot-PAT) --packagePath $VSIX
+                  npx vsce publish --pat $(extension-publish-vswdbot-PAT) --packagePath $VSIX
                 displayName: "VSCE publish"
                 condition: and(succeeded(), eq(variables['dryrun'], 'false'))
