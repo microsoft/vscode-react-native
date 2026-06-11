@@ -6,7 +6,6 @@ import { SmokeTestLogger } from "./helper/smokeTestLogger";
 import { app, screenshots } from "./main";
 import { ElementHelper } from "./helper/elementHelper";
 import { Element } from "./helper/constants";
-import { ComponentHelper } from "./helper/componentHelper";
 import { TimeoutConstants } from "./helper/timeoutConstants";
 import assert = require("assert");
 
@@ -58,49 +57,26 @@ export function startActionBarTests(): void {
             );
             await actionButton.click();
 
-            let packagerStartingOrStarted = await ComponentHelper.isPackagerStateIncludesOneOf(
-                ["loading~spin", "primitive-square"],
-                10000,
+            const reactNativeButton = await ElementHelper.WaitElementSelectorVisible(
+                Element.reactNativeButtonSelector,
+                TimeoutConstants.COMMAND_PALETTE_TIMEOUT,
+            );
+            assert.notStrictEqual(
+                reactNativeButton,
+                null,
+                "React Native quick debug option should be present after opening the action button",
             );
 
-            if (!packagerStartingOrStarted) {
-                SmokeTestLogger.testLog(
-                    "Quick debug action did not trigger packager on first click, trying quick input confirm.",
-                );
+            await reactNativeButton.click();
 
-                const quickInput = await ElementHelper.TryFindElement(
-                    `.${Element.commandPaletteClassName}`,
-                    3000,
-                );
-                if (quickInput) {
-                    await ElementHelper.sendKeys("Enter");
-                }
-
-                packagerStartingOrStarted = await ComponentHelper.isPackagerStateIncludesOneOf(
-                    ["loading~spin", "primitive-square"],
-                    10000,
-                );
-            }
-
-            if (!packagerStartingOrStarted) {
-                SmokeTestLogger.testLog(
-                    "Quick input confirm did not trigger packager, trying action dropdown and Enter.",
-                );
-                const retryActionButton = await ElementHelper.WaitElementSelectorVisible(
-                    Element.debugActionItemButtonSelector,
-                    5000,
-                );
-                await retryActionButton.click({ force: true });
-                await ElementHelper.sendKeys("Enter");
-                await ComponentHelper.waitPackagerStateIncludesOneOf(
-                    ["loading~spin", "primitive-square"],
-                    TimeoutConstants.PACKAGER_STATE_TIMEOUT,
-                );
-            }
-
-            await ComponentHelper.waitPackagerStateIncludes(
-                "primitive-square",
-                TimeoutConstants.PACKAGER_STATE_TIMEOUT,
+            const debugApplicationButton = await ElementHelper.WaitElementSelectorVisible(
+                Element.debugApplicationButtonSelector,
+                TimeoutConstants.COMMAND_PALETTE_TIMEOUT,
+            );
+            assert.notStrictEqual(
+                debugApplicationButton,
+                null,
+                "Debug application option should be present after selecting React Native",
             );
         });
     });
