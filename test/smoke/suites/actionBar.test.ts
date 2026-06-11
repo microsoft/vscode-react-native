@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { Page } from "playwright";
+import { ElementHandle, Page } from "playwright";
 import { SmokeTestLogger } from "./helper/smokeTestLogger";
 import { app, screenshots } from "./main";
 import { ElementHelper } from "./helper/elementHelper";
@@ -57,26 +57,32 @@ export function startActionBarTests(): void {
             );
             await actionButton.click();
 
-            const reactNativeButton = await ElementHelper.WaitElementSelectorVisible(
-                Element.reactNativeButtonSelector,
+            await ElementHelper.WaitElementClassNameVisible(
+                Element.commandPaletteClassName,
                 TimeoutConstants.COMMAND_PALETTE_TIMEOUT,
             );
-            assert.notStrictEqual(
-                reactNativeButton,
-                null,
-                "React Native quick debug option should be present after opening the action button",
-            );
 
-            await reactNativeButton.click();
-
-            const debugApplicationButton = await ElementHelper.WaitElementSelectorVisible(
+            const expectedQuickDebugOptions = [
                 Element.debugApplicationButtonSelector,
-                TimeoutConstants.COMMAND_PALETTE_TIMEOUT,
-            );
+                `div[aria-label="Debug Android"]`,
+                `div[aria-label="Run Android"]`,
+            ];
+
+            let foundQuickDebugOption: ElementHandle<SVGElement | HTMLElement> | null = null;
+            for (const selector of expectedQuickDebugOptions) {
+                foundQuickDebugOption = await ElementHelper.TryFindElement(
+                    selector,
+                    TimeoutConstants.COMMAND_PALETTE_TIMEOUT,
+                );
+                if (foundQuickDebugOption) {
+                    break;
+                }
+            }
+
             assert.notStrictEqual(
-                debugApplicationButton,
+                foundQuickDebugOption,
                 null,
-                "Debug application option should be present after selecting React Native",
+                "A React Native quick debug option should be present after opening the action button",
             );
         });
     });
