@@ -6,7 +6,6 @@ import { SmokeTestLogger } from "./helper/smokeTestLogger";
 import { app, screenshots } from "./main";
 import { ElementHelper } from "./helper/elementHelper";
 import { Element } from "./helper/constants";
-import { ComponentHelper } from "./helper/componentHelper";
 import { TimeoutConstants } from "./helper/timeoutConstants";
 import assert = require("assert");
 
@@ -58,10 +57,12 @@ export function startActionBarTests(): void {
             );
             await actionButton.click();
 
-            await ComponentHelper.waitPackagerStateIncludes(
-                "primitive-square",
-                TimeoutConstants.PACKAGER_STATE_TIMEOUT,
+            await ElementHelper.WaitElementClassNameVisible(
+                Element.commandPaletteClassName,
+                TimeoutConstants.COMMAND_PALETTE_TIMEOUT,
             );
+
+            SmokeTestLogger.testLog("Quick debug action opened quick input successfully.");
         });
     });
 }
