@@ -1461,7 +1461,7 @@
     "vscode-cdp-proxy": "0.2.0",
     "vscode-extension-telemetry": "0.4.5",
     "vscode-nls": "4.1.2",
-    "ws": "7.5.10"
+    "ws": "7.5.11"
   },
   "devDependencies": {
     "@mixer/parallel-prettier": "^2.0.1",
