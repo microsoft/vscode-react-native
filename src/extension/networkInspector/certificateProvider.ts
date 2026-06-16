@@ -332,7 +332,7 @@ export class CertificateProvider {
     }
 
     private validateDestinationPath(destination: string, os: ClientOS): void {
-        if (destination.split(/[\\/]+/).includes("..")) {
+        if (destination.split(path.sep).includes("..")) {
             throw new Error(`Path traversal not allowed in destination: ${destination}`);
         }
 
