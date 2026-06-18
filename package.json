@@ -1546,6 +1546,7 @@
     "ms-vscode.js-debug"
   ],
   "overrides": {
+    "@babel/core": "7.29.6",
     "js-yaml": "4.1.1",
     "serialize-javascript": "7.0.5",
     "mochawesome": {
