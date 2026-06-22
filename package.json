@@ -34,8 +34,7 @@
     "onDebugResolve:reactnative",
     "onDebugResolve:reactnativedirect",
     "onDebugDynamicConfigurations:reactnative",
-    "onDebugInitialConfigurations",
-    "onCommand:reactNative.cleanRestartPackager"
+    "onDebugInitialConfigurations"
   ],
   "main": "./dist/rn-extension",
   "contributes": {
