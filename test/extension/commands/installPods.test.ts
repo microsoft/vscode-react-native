@@ -328,6 +328,9 @@ suite("installPodsCommand", function () {
 
     suite("Enhanced environment", function () {
         test("should inject Ruby and CocoaPods paths and default shell and locale values", function () {
+            if (process.platform !== "darwin") {
+                this.skip();
+            }
             const homeDir = "/Users/test-user";
             const originalEnv = {
                 PATH: process.env.PATH,
