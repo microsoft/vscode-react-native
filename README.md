@@ -151,6 +151,16 @@ The full list of commands is:
 | Set React Native New Architecture | `reactNative.setNewArch` | Enable or disable the new architecture settings in RN projects |
 | Toggle Network View | `reactNative.toggleNetworkView` | Enable or disable vscode network view feature for web debugging |
 
+### Command behavior highlights
+
+- `Expo - Create EAS config file` runs `eas build:configure --platform all` for Expo managed projects. If `eas.json` already exists, the command exits without changing existing config.
+- `Run EAS Build` initializes local EAS build files by creating `eas.json` and `.eas/workflows/create-production-builds.yml` when they are missing.
+- `Enable Hermes` lets you choose platform and enable/disable Hermes:
+  - Android: updates the `hermesEnabled` property in `android/gradle.properties`.
+  - iOS: updates `:hermes_enabled` in `ios/Podfile` and runs `pod install`.
+- `Expo prebuild` runs `npx expo prebuild` from your project root.
+- `Kill Port` prompts for a port number and runs `npx kill-port <port>`.
+
 ## Using commands in VS Code tasks
 
 To run React Native Tools commands via VS Code tasks, you can create a `.vscode/tasks.json` file in your project and add tasks configurations the following way:

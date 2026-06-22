@@ -115,7 +115,11 @@ export async function run(): Promise<void> {
     };
 
     // Exclude smoke test bundle and localization driver; only run unit/integration tests here
-    return getTestFiles("extension/**/*.test.js", testsRoot)
+    return Promise.all([
+        getTestFiles("extension/**/*.test.js", testsRoot),
+        getTestFiles("cdp-proxy/**/*.test.js", testsRoot),
+    ])
+        .then(testFileGroups => testFileGroups.flat())
         .then(files => files.filter(f => !/[\\/]exponent[\\/]/i.test(f)))
         .then(files => {
             files.forEach(f => mocha.addFile(path.resolve(testsRoot, f)));
