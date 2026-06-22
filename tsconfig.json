@@ -14,7 +14,7 @@
         "alwaysStrict": true,
         "strictNullChecks": true,
         "noImplicitAny": true,
-        "ignoreDeprecations": "5.0",
+        "ignoreDeprecations": "6.0",
         "noImplicitThis": true,
         "noImplicitReturns": true,
         "noEmitOnError": true,
