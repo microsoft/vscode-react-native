@@ -22,6 +22,20 @@ export class Application {
     private projectPath = path.join(__dirname, "..", "..", "resources", "sampleReactNativeProject");
     private vscodeVersion = process.env.SMOKE_TEST_VSCODE_VERSION || "1.107.1";
 
+    private async ensureSmokeEnvironmentPrepared(): Promise<void> {
+        if (this.vscodeExecutablePath) {
+            return;
+        }
+
+        SmokeTestLogger.info(
+            "VSCode executable path is not initialized. Preparing smoke environment in launch().",
+        );
+        const vscodeExecutablePath = await this.downloadVSCodeExecutable();
+        this.setVSCodeExecutablePath(vscodeExecutablePath);
+        await this.cleanUserData();
+        await this.installExtensionFromVSIX(vscodeExecutablePath);
+    }
+
     private async waitForWorkbenchWindow(timeout: number): Promise<Page> {
         if (!this.app) {
             throw new Error("VSCode has not been launched yet.");
@@ -55,11 +69,12 @@ export class Application {
     async launch(): Promise<Page> {
         if (this.mainPage) return this.mainPage;
 
-        if (!this.vscodeExecutablePath) {
-            throw new Error("VSCode has not been downloaded yet.");
-        }
+        await this.ensureSmokeEnvironmentPrepared();
 
         const vscodeExecutablePath = this.vscodeExecutablePath;
+        if (!vscodeExecutablePath) {
+            throw new Error("VSCode executable path is not available after smoke setup.");
+        }
         const [...args] = resolveCliArgsFromVSCodeExecutablePath(vscodeExecutablePath);
         args.push("--disable-workspace-trust");
         args.push("--no-sandbox");

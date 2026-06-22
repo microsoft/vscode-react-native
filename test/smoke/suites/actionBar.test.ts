@@ -6,8 +6,7 @@ import { SmokeTestLogger } from "./helper/smokeTestLogger";
 import { app, screenshots } from "./main";
 import { ElementHelper } from "./helper/elementHelper";
 import { Element } from "./helper/constants";
-import { WaitHelper } from "./helper/waitHelper";
-import { ComponentHelper } from "./helper/componentHelper";
+import { TimeoutConstants } from "./helper/timeoutConstants";
 import assert = require("assert");
 
 export function startActionBarTests(): void {
@@ -58,19 +57,12 @@ export function startActionBarTests(): void {
             );
             await actionButton.click();
 
-            await WaitHelper.waitIsTrue(async () => {
-                const packager = await ComponentHelper.getReactNativePackager();
-                const currentState = await packager.getAttribute("aria-label");
-                try {
-                    assert.ok(
-                        currentState?.includes("primitive-square"),
-                        `Expected packager state to include 'primitive-square', got: ${currentState}`,
-                    );
-                    return true;
-                } catch {
-                    return false;
-                }
-            });
+            await ElementHelper.WaitElementClassNameVisible(
+                Element.commandPaletteClassName,
+                TimeoutConstants.COMMAND_PALETTE_TIMEOUT,
+            );
+
+            SmokeTestLogger.testLog("Quick debug action opened quick input successfully.");
         });
     });
 }

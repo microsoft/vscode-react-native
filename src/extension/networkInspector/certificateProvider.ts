@@ -332,11 +332,11 @@ export class CertificateProvider {
     }
 
     private validateDestinationPath(destination: string, os: ClientOS): void {
-        const resolved = path.resolve(destination);
-        if (resolved.includes("..")) {
+        if (destination.split(path.sep).includes("..")) {
             throw new Error(`Path traversal not allowed in destination: ${destination}`);
         }
 
+        const resolved = path.resolve(destination);
         const allowedPrefixes: string[] = [];
         if (os === ClientOS.iOS) {
             allowedPrefixes.push(
