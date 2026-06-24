@@ -18,7 +18,7 @@ const logger = OutputChannelLogger.getMainChannel();
 export class SetNewArch extends Command {
     codeName = "setNewArch";
     label = "Set React Native New Architecture";
-    error = ErrorHelper.getInternalError(InternalErrorCode.FaiedToSetNewArch);
+    error = ErrorHelper.getInternalError(InternalErrorCode.FailedToSetNewArch);
     private nodeFileSystem = new FileSystem();
 
     async baseFn(): Promise<void> {
