@@ -25,7 +25,7 @@ export class WaitHelper {
     }
 
     public static async wait(time?: number): Promise<void> {
-        const times = time ? time : 2000;
+        const times = time ?? 2000;
         await new Promise<void>(resolve => {
             const timer = setTimeout(() => {
                 clearTimeout(timer);
