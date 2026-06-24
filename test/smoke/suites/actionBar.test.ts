@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { Page } from "playwright";
 import { SmokeTestLogger } from "./helper/smokeTestLogger";
 import { app, screenshots } from "./main";
 import { ElementHelper } from "./helper/elementHelper";
@@ -11,9 +10,9 @@ import assert = require("assert");
 
 export function startActionBarTests(): void {
     describe("ActionBarTest", () => {
-        async function initApp(): Promise<Page> {
+        async function initApp(): Promise<void> {
             await app.launch();
-            return app.getMainPage();
+            await app.getMainPage();
         }
 
         async function dispose(this: Mocha.Context): Promise<void> {
