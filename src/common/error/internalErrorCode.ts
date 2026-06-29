@@ -37,7 +37,7 @@ export enum InternalErrorCode {
     FailedToEnableExpoHermes = 132,
     FailedToOpenExpoUpgradeHelper = 133,
     FailedToKillPort = 134,
-    FaiedToSetNewArch = 135,
+    FailedToSetNewArch = 135,
     FailedToToggleNetworkView = 136,
     FailedToRunEasBuild = 137,
     FailedToInstallPods = 138,
