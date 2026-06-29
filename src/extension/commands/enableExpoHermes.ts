@@ -44,9 +44,8 @@ export class EnableExpoHermes extends Command {
         const allMatches = appJson.match(regex);
 
         if (allMatches) {
-            const updatedJsEngine = appJson.replace(
-                /"jsEngine":\s*"[^"]*/,
-                `"jsEngine": "${jsEngine}`,
+            const updatedJsEngine = appJson.replace(regex, platformSection =>
+                platformSection.replace(/"jsEngine":\s*"[^"]*"/, `"jsEngine": "${jsEngine}"`),
             );
             await this.nodeFileSystem.writeFile(appJsonPath, updatedJsEngine);
         } else {
@@ -54,7 +53,9 @@ export class EnableExpoHermes extends Command {
             if (platform === "Expo") {
                 appJsonObj.expo.jsEngine = jsEngine;
             } else {
-                appJsonObj.expo[platform.toLocaleLowerCase()].jsEngine = jsEngine;
+                const platformKey = platform.toLocaleLowerCase();
+                appJsonObj.expo[platformKey] = appJsonObj.expo[platformKey] || {};
+                appJsonObj.expo[platformKey].jsEngine = jsEngine;
             }
             await this.nodeFileSystem.writeFile(appJsonPath, JSON.stringify(appJsonObj, null, 2));
         }
