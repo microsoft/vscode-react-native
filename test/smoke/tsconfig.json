@@ -8,6 +8,7 @@
 		"strictNullChecks": true,
 		"noUnusedParameters": false,
 		"noUnusedLocals": true,
+		"rootDir": "suites",
 		"outDir": "out",
 		"sourceMap": true,
 		"skipLibCheck": true,
@@ -17,8 +18,12 @@
 		],
 		"types": ["mocha"]
 	},
+	"include": [
+		"suites/**/*.ts"
+	],
 	"exclude": [
 		"node_modules",
+		"out",
 		"resources"
 	]
 }
