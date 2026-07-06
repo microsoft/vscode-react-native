@@ -24,6 +24,8 @@ suite("networkInspectorManager", function () {
         const clearCacheStub = sinon.stub();
         const androidDeviceTrackerStartStub = sinon.stub().returns(Promise.resolve());
         const androidDeviceTrackerStopStub = sinon.stub();
+        const iOSDeviceTrackerStartStub = sinon.stub().returns(Promise.resolve());
+        const iOSDeviceTrackerStopStub = sinon.stub();
         const networkInspectorStopStub = sinon.stub().returns(Promise.resolve());
 
         class FakeAndroidDeviceTracker {
@@ -38,8 +40,8 @@ suite("networkInspectorManager", function () {
         }
 
         class FakeIOSDeviceTracker {
-            public start = sinon.stub().returns(Promise.resolve());
-            public stop = sinon.stub();
+            public start = iOSDeviceTrackerStartStub;
+            public stop = iOSDeviceTrackerStopStub;
         }
 
         const module = proxyquire.noCallThru()(
@@ -76,6 +78,8 @@ suite("networkInspectorManager", function () {
             clearCacheStub,
             androidDeviceTrackerStartStub,
             androidDeviceTrackerStopStub,
+            iOSDeviceTrackerStartStub,
+            iOSDeviceTrackerStopStub,
             networkInspectorStart,
             networkInspectorStopStub,
         };
@@ -102,6 +106,7 @@ suite("networkInspectorManager", function () {
             executeCommandStub,
             clearCacheStub,
             androidDeviceTrackerStartStub,
+            iOSDeviceTrackerStartStub,
             networkInspectorStart,
         } = createManagerModule();
         const manager = new NetworkInspectorManager();
@@ -112,6 +117,7 @@ suite("networkInspectorManager", function () {
 
         assert.strictEqual(manager.isRunning(), true);
         assert.strictEqual(androidDeviceTrackerStartStub.calledOnce, true);
+        assert.strictEqual(iOSDeviceTrackerStartStub.called, false);
         assert.strictEqual(networkInspectorStart.calledOnce, true);
         assert.strictEqual(executeCommandStub.calledOnce, true);
         assert.deepStrictEqual(executeCommandStub.firstCall.args, [
@@ -120,6 +126,32 @@ suite("networkInspectorManager", function () {
             true,
         ]);
         assert.strictEqual(clearCacheStub.called, false);
+    });
+
+    test("should stop after start and report not running state", async () => {
+        const {
+            NetworkInspectorManager,
+            executeCommandStub,
+            clearCacheStub,
+            androidDeviceTrackerStopStub,
+            iOSDeviceTrackerStopStub,
+            networkInspectorStopStub,
+        } = createManagerModule();
+        const manager = new NetworkInspectorManager();
+
+        await manager.start(fakeAppLauncher as any);
+        await manager.stop();
+
+        assert.strictEqual(manager.isRunning(), false);
+        assert.strictEqual(androidDeviceTrackerStopStub.calledOnce, true);
+        assert.strictEqual(iOSDeviceTrackerStopStub.called, false);
+        assert.strictEqual(networkInspectorStopStub.calledOnce, true);
+        assert.strictEqual(clearCacheStub.calledOnce, true);
+        assert.deepStrictEqual(executeCommandStub.secondCall.args, [
+            "setContext",
+            "isRNTNetworkInspectorRunning",
+            false,
+        ]);
     });
 
     test("should throw when start is called twice", async () => {
