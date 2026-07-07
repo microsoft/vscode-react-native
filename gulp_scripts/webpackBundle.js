@@ -1,15 +1,21 @@
 const webpack = require("webpack");
 const TerserPlugin = require("terser-webpack-plugin");
 const path = require("path");
+const gulp = require("gulp");
+const preprocess = require("gulp-preprocess");
+const { runTypeScriptCompile } = require("./typescriptCli");
 const srcPath = "src";
 const distDir = appRoot + "/dist";
 const distSrcDir = `${distDir}/src`;
 
 /** Run webpack to bundle the extension output files */
 async function webpackBundle() {
+    await runTypeScriptCompile();
+    await preprocessCompiledJavaScript();
+
     const packages = [
         {
-            entry: `${srcPath}/extension/rn-extension.ts`,
+            entry: `${srcPath}/extension/rn-extension.js`,
             filename: "rn-extension.js",
             library: true,
         },
@@ -36,12 +42,12 @@ async function runWebpack({
             },
             devtool: devtool,
             resolve: {
-                extensions: [".js", ".ts", ".json"],
+                extensions: [".js", ".json"],
             },
             module: {
                 rules: [
                     {
-                        test: /\.ts$/,
+                        test: /\.js$/,
                         exclude: /node_modules/,
                         use: [
                             {
@@ -50,16 +56,6 @@ async function runWebpack({
                                 loader: "vscode-nls-dev/lib/webpack-loader",
                                 options: {
                                     base: path.join(appRoot),
-                                },
-                            },
-                            {
-                                // configure TypeScript loader:
-                                // * enable sources maps for end-to-end source maps
-                                loader: "ts-loader",
-                                options: {
-                                    compilerOptions: {
-                                        sourceMap: true,
-                                    },
                                 },
                             },
                         ],
@@ -120,3 +116,13 @@ async function runWebpack({
 module.exports = {
     webpackBundle,
 };
+
+function preprocessCompiledJavaScript() {
+    return new Promise((resolve, reject) => {
+        gulp.src(["src/**/*.js"], { base: ".", allowEmpty: true })
+            .pipe(preprocess({ context: { PROD: true } }))
+            .pipe(gulp.dest(file => file.cwd))
+            .once("error", reject)
+            .once("finish", resolve);
+    });
+}

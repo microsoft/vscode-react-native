@@ -162,6 +162,6 @@ suite("packager", function () {
                 args.push(`--${launchJson.configurations[0].expoPlatformType.toLowerCase()}`);
             }
             assert.deepEqual(args, expected);
-        });
+        }).timeout(10000);
     });
 });

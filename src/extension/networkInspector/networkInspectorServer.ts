@@ -5,7 +5,6 @@
 /* eslint-enable prettier/prettier*/
 
 import { RSocketServer } from "rsocket-core";
-import RSocketTCPServer from "rsocket-tcp-server";
 import { AdbHelper } from "../android/adb";
 import { Single } from "rsocket-flowable";
 import { appNameWithUpdateHint, buildClientId } from "./clientUtils";
@@ -28,6 +27,8 @@ nls.config({
     bundleFormat: nls.BundleFormat.standalone,
 })();
 const localize = nls.loadMessageBundle();
+const RSocketTCPServer = require("rsocket-tcp-server")
+    .default as typeof import("rsocket-tcp-server").default;
 
 /**
  * @preserve
