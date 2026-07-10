@@ -120,55 +120,57 @@ async function targets(): Promise<Array<DeviceTarget>> {
     if (process.platform !== "darwin") {
         return [];
     }
+
+    // Optimization: Check idb availability first to avoid unnecessary Xcode detection
+    // idb is more CPU-efficient than xcrun, so prioritize it
+    if (await isIdbAvailable()) {
+        return await idbListTargets(idbPath);
+    }
+
+    // Fallback: Check if Xcode is installed for xcrun support
     const isXcodeInstalled = await isXcodeDetected();
     if (!isXcodeInstalled) {
+        // No Xcode, try idb_companion as last resort
         const idbCompanionPath = path.dirname(idbPath) + "/idb_companion";
         return queryTargetsWithoutXcodeDependency(idbCompanionPath, isAvailable);
     }
 
-    // Not all users have idb installed because you can still use
-    // Flipper with Simulators without it.
-    // But idb is MUCH more CPU efficient than xcrun, so
-    // when installed, use it. This still holds true
-    // with the move from instruments to xcrun.
-    // TODO: Move idb availability check up.
-    return (await isIdbAvailable())
-        ? await idbListTargets(idbPath)
-        : new ChildProcess()
-              .execToString("xcrun xctrace list devices")
-              .then(stdout => {
-                  const targets: DeviceTarget[] = [];
-                  const lines = stdout
-                      .split("\n")
-                      .map(line => line.trim())
-                      .filter(line => !!line);
-                  const firstDevicesIndex = lines.indexOf("== Devices ==") + 1;
-                  const lastDevicesIndex = lines.indexOf("== Simulators ==") - 1;
-                  for (let i = firstDevicesIndex; i <= lastDevicesIndex; i++) {
-                      const line = lines[i];
-                      const params = line
-                          .split(" ")
-                          .map(el => el.trim())
-                          .filter(el => !!el);
-                      // Add only devices with system version
-                      if (
-                          params[params.length - 1].match(/\(.+\)/) &&
-                          params[params.length - 2].match(/\(.+\)/)
-                      ) {
-                          targets.push({
-                              id: params[params.length - 1].replace(/\(|\)/g, "").trim(),
-                              name: params.slice(0, params.length - 2).join(" "),
-                              isVirtualTarget: false,
-                              isOnline: true,
-                          });
-                      }
-                  }
-                  return targets;
-              })
-              .catch(e => {
-                  logger.warn(`Failed to query for devices using xctrace: ${e}`);
-                  return [];
-              });
+    // Xcode is installed, use xcrun to list devices
+    return new ChildProcess()
+        .execToString("xcrun xctrace list devices")
+        .then(stdout => {
+            const targets: DeviceTarget[] = [];
+            const lines = stdout
+                .split("\n")
+                .map(line => line.trim())
+                .filter(line => !!line);
+            const firstDevicesIndex = lines.indexOf("== Devices ==") + 1;
+            const lastDevicesIndex = lines.indexOf("== Simulators ==") - 1;
+            for (let i = firstDevicesIndex; i <= lastDevicesIndex; i++) {
+                const line = lines[i];
+                const params = line
+                    .split(" ")
+                    .map(el => el.trim())
+                    .filter(el => !!el);
+                // Add only devices with system version
+                if (
+                    params[params.length - 1].match(/\(.+\)/) &&
+                    params[params.length - 2].match(/\(.+\)/)
+                ) {
+                    targets.push({
+                        id: params[params.length - 1].replace(/\(|\)/g, "").trim(),
+                        name: params.slice(0, params.length - 2).join(" "),
+                        isVirtualTarget: false,
+                        isOnline: true,
+                    });
+                }
+            }
+            return targets;
+        })
+        .catch(e => {
+            logger.warn(`Failed to query for devices using xctrace: ${e}`);
+            return [];
+        });
 }
 
 async function push(
