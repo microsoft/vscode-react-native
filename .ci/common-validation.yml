@@ -5,7 +5,7 @@ steps:
       versionSpec: 20.x
   - bash: npm ci
     displayName: "npm ci"
-  - bash: ./node_modules/.bin/gulp
+  - bash: npx gulp
     displayName: "gulp"
   - bash: npm run build
     displayName: "npm run build"
