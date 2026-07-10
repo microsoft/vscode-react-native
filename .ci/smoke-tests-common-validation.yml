@@ -5,7 +5,7 @@ steps:
       versionSpec: 20.x
   - bash: npm ci
     displayName: "npm ci"
-  - script: ./node_modules/.bin/gulp release --nightly --no-yarn --no-prepublish
+  - bash: npx gulp release --nightly --no-yarn --no-prepublish
     displayName: "gulp release"
   - task: CopyFiles@2
     displayName: "Copy Files to: $(Build.ArtifactStagingDirectory)"
