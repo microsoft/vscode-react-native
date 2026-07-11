@@ -290,9 +290,10 @@ suite("reactNativeCDPProxy", function () {
                 generateRandomPortNumber(),
             );
             const debuggerTarget = createConnectionStub();
-            const createWebSocketTransportStub = Sinon.stub(WebSocketTransport, "create").returns(
-                Promise.resolve(createTransportStub()),
-            );
+            const createApplicationTransportStub = Sinon.stub(
+                localProxy as any,
+                "createApplicationTransport",
+            ).returns(Promise.resolve(createTransportStub()));
 
             Object.assign(localProxy, {
                 browserInspectUri: "ws://localhost:1234/debugger",
@@ -310,7 +311,7 @@ suite("reactNativeCDPProxy", function () {
                     },
                 ]);
             } finally {
-                createWebSocketTransportStub.restore();
+                createApplicationTransportStub.restore();
             }
 
             assert.strictEqual(debuggerTarget.close.called, false);
