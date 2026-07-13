@@ -152,6 +152,7 @@ The full list of commands is:
 ### Command behavior highlights
 
 - `Expo - Create EAS config file` runs `eas build:configure --platform all` for Expo managed projects. If `eas.json` already exists, the command exits without changing existing config.
+- `Publish to Expo Host` (`reactNative.publishToExpHost`) was deprecated and removed. Use Expo EAS workflows (`eas build`, `eas submit`) instead.
 - `Run EAS Build` initializes local EAS build files by creating `eas.json` and `.eas/workflows/create-production-builds.yml` when they are missing.
 - `Enable Hermes` lets you choose platform and enable/disable Hermes:
   - Android: updates the `hermesEnabled` property in `android/gradle.properties`.
