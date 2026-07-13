@@ -28,7 +28,7 @@ extends:
                   artifactName: "Extension (nightly)"
             steps:
               - template: /.ci/common-validation.yml@self
-              - bash: ./node_modules/.bin/gulp release --nightly
+              - bash: npx gulp release --nightly
                 displayName: "gulp release"
               - task: CopyFiles@2
                 displayName: "Copy Files to: $(Build.ArtifactStagingDirectory)"
