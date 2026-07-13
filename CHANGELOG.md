@@ -1,3 +1,21 @@
+## 1.14.1
+
+- Fix activation event for `reactNative.cleanRestartPackager` command [#2758](https://github.com/microsoft/vscode-react-native/pull/2758)
+- Remove deprecated Publish to Expo Host command [#2762](https://github.com/microsoft/vscode-react-native/pull/2762)
+- Fix Markdown table format in command palette docs [#2780](https://github.com/microsoft/vscode-react-native/pull/2780)
+- Internal changes:
+  - Add tests for `prebuild clean` command [#2770](https://github.com/microsoft/vscode-react-native/pull/2770)
+  - Add idempotent tests for `setNewArch` command [#2761](https://github.com/microsoft/vscode-react-native/pull/2761)
+  - Add lifecycle tests for Network Inspector manager [#2757](https://github.com/microsoft/vscode-react-native/pull/2757)
+  - Add tests for Start Packager command flow [#2756](https://github.com/microsoft/vscode-react-native/pull/2756)
+  - Add tests for Expo Hermes app.json handling [#2754](https://github.com/microsoft/vscode-react-native/pull/2754)
+  - Add unit tests for `setNewArch` command [#2747](https://github.com/microsoft/vscode-react-native/pull/2747)
+  - Add URL validation tests for `ScriptImporter` [#2744](https://github.com/microsoft/vscode-react-native/pull/2744)
+  - Add validation and execution tests for Android container utility [#2724](https://github.com/microsoft/vscode-react-native/pull/2724)
+  - Add tests for debugger endpoint helper [#2712](https://github.com/microsoft/vscode-react-native/pull/2712)
+  - Stabilize smoke tests and CI pipeline execution [#2778](https://github.com/microsoft/vscode-react-native/pull/2778) [#2776](https://github.com/microsoft/vscode-react-native/pull/2776) [#2768](https://github.com/microsoft/vscode-react-native/pull/2768) [#2750](https://github.com/microsoft/vscode-react-native/pull/2750) [#2745](https://github.com/microsoft/vscode-react-native/pull/2745) [#2741](https://github.com/microsoft/vscode-react-native/pull/2741) [#2739](https://github.com/microsoft/vscode-react-native/pull/2739) [#2689](https://github.com/microsoft/vscode-react-native/pull/2689)
+  - Bump dependencies and security overrides [#2735](https://github.com/microsoft/vscode-react-native/pull/2735) [#2732](https://github.com/microsoft/vscode-react-native/pull/2732) [#2730](https://github.com/microsoft/vscode-react-native/pull/2730) [#2721](https://github.com/microsoft/vscode-react-native/pull/2721) [#2720](https://github.com/microsoft/vscode-react-native/pull/2720) [#2719](https://github.com/microsoft/vscode-react-native/pull/2719)
+
 ## 1.14.0
 
 - Refactor Network Inspector lifecycle into manager [#2616](https://github.com/microsoft/vscode-react-native/pull/2616)
