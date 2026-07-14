@@ -7,7 +7,6 @@ export * from "./launchAndroidEmulator";
 export * from "./launchIosSimulator";
 export * from "./launchExpoWeb";
 export * from "./networkInspector";
-export * from "./publishToExpHost";
 export * from "./reloadApp";
 export * from "./restartPackager";
 export * from "./cleanRestartPackager";
