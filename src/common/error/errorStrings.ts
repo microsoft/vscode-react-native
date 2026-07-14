@@ -134,10 +134,6 @@ export const ERROR_STRINGS = {
         "FailedToRunExponent",
         "Failed to run the application in Expo",
     ),
-    [InternalErrorCode.FailedToPublishToExpHost]: localize(
-        "FailedToRunExponent",
-        "Failed to publish the application to Exponent",
-    ),
     [InternalErrorCode.FailedToConfigEASBuild]: localize(
         "FailedToConfigEASBuild",
         "Failed to config Expo app with EAS build",
