@@ -58,9 +58,30 @@ const localize = nls.loadMessageBundle();
 /* all components use the same packager instance */
 const outputChannelLogger = OutputChannelLogger.getMainChannel();
 const entryPointHandler = new EntryPointHandler(ProcessType.Extension, outputChannelLogger);
-// #todo> are we sure we need null here and this is the correct place for this?
-export let debugConfigProvider: ReactNativeDebugConfigProvider | null;
+// Private state for debug config provider - initialized during activation
+let debugConfigProvider: ReactNativeDebugConfigProvider | null = null;
 const APP_NAME = "react-native-tools";
+
+/**
+ * Gets the debug configuration provider.
+ * Throws an error if the extension is not yet activated.
+ */
+export function getDebugConfigProvider(): ReactNativeDebugConfigProvider {
+    if (!debugConfigProvider) {
+        throw new Error(
+            "Debug configuration provider is not initialized. Extension may not be activated yet.",
+        );
+    }
+    return debugConfigProvider;
+}
+
+/**
+ * Internal function to initialize the debug config provider.
+ * Should only be called during extension activation.
+ */
+function setDebugConfigProvider(provider: ReactNativeDebugConfigProvider | null): void {
+    debugConfigProvider = provider;
+}
 
 interface ISetupableDisposable extends vscode.Disposable {
     setup(): Promise<any>;
@@ -118,7 +139,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         appVersion,
         Telemetry.APPINSIGHTS_INSTRUMENTATIONKEY,
     );
-    const configProvider = (debugConfigProvider = new ReactNativeDebugConfigProvider());
+    const configProvider = new ReactNativeDebugConfigProvider();
+    setDebugConfigProvider(configProvider);
     const dymConfigProvider = new ReactNativeDebugDynamicConfigProvider();
     const completionItemProviderInst = new LaunchJsonCompletionProvider();
     const workspaceFolders: readonly vscode.WorkspaceFolder[] | undefined =
@@ -239,7 +261,7 @@ export function deactivate(): Promise<void> {
             "extension.deactivate",
             ErrorHelper.getInternalError(InternalErrorCode.FailedToStopPackagerOnExit),
             async () => {
-                debugConfigProvider = null;
+                setDebugConfigProvider(null);
 
                 await Promise.all(
                     Object.values(ProjectsStorage.projectsCache).map(it =>
