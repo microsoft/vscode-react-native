@@ -379,12 +379,13 @@ function activateCommands(): void {
 }
 
 function onFolderRemoved(folder: vscode.WorkspaceFolder): void {
-    const appLauncher = ProjectsStorage.getFolder(folder) as any;
-    Object.keys(appLauncher).forEach(key => {
-        if (appLauncher[key].dispose) {
-            appLauncher[key].dispose();
-        }
-    });
+    const appLauncher = ProjectsStorage.getFolder(folder);
+    if (!appLauncher) {
+        outputChannelLogger.debug(`Skip deleting uncached project: ${folder.uri.fsPath}`);
+        return;
+    }
+
+    appLauncher.dispose();
     outputChannelLogger.debug(`Delete project: ${folder.uri.fsPath}`);
     ProjectsStorage.delFolder(folder);
 
