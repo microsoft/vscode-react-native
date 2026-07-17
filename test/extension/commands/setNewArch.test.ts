@@ -254,4 +254,18 @@ suite("setNewArchCommand", function () {
         assert.strictEqual(writeFileStub.called, false);
         assert.strictEqual(spawnStub.called, false);
     });
+
+    test("should return without writing when new architecture selection is cancelled", async function () {
+        const showQuickPickStub = Sinon.stub();
+        showQuickPickStub.onFirstCall().returns(Promise.resolve("Android"));
+        showQuickPickStub.onSecondCall().returns(Promise.resolve(undefined));
+        const writeFileStub = Sinon.stub().returns(Promise.resolve());
+        const spawnStub = Sinon.stub().returns(Promise.resolve());
+        const { SetNewArch } = createCommandModule(showQuickPickStub, writeFileStub, spawnStub);
+
+        await runCommand(SetNewArch);
+
+        assert.strictEqual(writeFileStub.called, false);
+        assert.strictEqual(spawnStub.called, false);
+    });
 });
