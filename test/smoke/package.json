@@ -16,7 +16,7 @@
     "@types/semver": "^7.7.1",
     "@types/shell-quote": "^1.7.5",
     "@types/url-parse": "^1.4.11",
-    "adm-zip": "^0.5.17",
+    "adm-zip": "^0.6.0",
     "ansi-styles": "^6.2.1",
     "js-yaml": "4.2.0",
     "minimatch": "^10.2.4",
