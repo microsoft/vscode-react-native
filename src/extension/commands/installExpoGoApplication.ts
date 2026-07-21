@@ -164,7 +164,7 @@ async function fetchJson(url: string): Promise<string> {
     });
 }
 
-const versionPattern = /^[0-9][0-9.]*$/;
+const versionPattern = /^\d[\d.]*$/;
 
 function validateVersion(version: string): string {
     if (!versionPattern.test(version)) {
