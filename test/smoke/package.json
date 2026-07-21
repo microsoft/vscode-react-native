@@ -27,7 +27,7 @@
     "node-fetch": "3.3.2",
     "playwright": "^1.55.1",
     "rimraf": "^6.0.1",
-    "shell-quote": "^1.8.4",
+    "shell-quote": "^1.9.0",
     "tar": "7.5.19",
     "tree-kill": "^1.2.2",
     "ts-node": "10.9.2",
