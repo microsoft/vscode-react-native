@@ -5,6 +5,8 @@ import * as path from "path";
 
 import { runTests } from "@vscode/test-electron";
 
+const DOWNLOAD_TIMEOUT_MS = Number(process.env.VSCODE_DOWNLOAD_TIMEOUT_MS) || 120000;
+
 async function launchTests() {
     try {
         // The folder containing the Extension Manifest package.json
@@ -25,6 +27,7 @@ async function launchTests() {
             extensionTestsPath,
             version: "stable",
             launchArgs: [projectPath],
+            timeout: DOWNLOAD_TIMEOUT_MS,
         });
     } catch (err) {
         console.error(err);
