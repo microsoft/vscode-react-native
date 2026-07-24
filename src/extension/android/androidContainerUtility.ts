@@ -136,7 +136,7 @@ function validateAppName(app: string): Promise<string> {
 }
 
 function validateFilePath(filePath: string): Promise<string> {
-    if (!/^[A-Za-z0-9._\/-]+$/.test(filePath)) {
+    if (!/^[\w./-]+$/.test(filePath)) {
         return Promise.reject(new Error(`Disallowed filepath characters: ${filePath}`));
     }
     if (filePath.includes("..")) {
