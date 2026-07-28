@@ -15,6 +15,9 @@ export class TimeoutConstants {
     /** Command palette visibility timeout - 5 seconds */
     static readonly COMMAND_PALETTE_TIMEOUT = 5000;
 
+    /** launch.json debug configuration insertion timeout - 10 seconds */
+    static readonly DEBUG_CONFIGURATION_TIMEOUT = 10000;
+
     /** Package loader timeout - 4 minutes (240 seconds) */
     static readonly PACKAGE_LOADER_TIMEOUT = 4 * 60 * 1000;
 

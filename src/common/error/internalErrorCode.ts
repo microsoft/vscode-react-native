@@ -14,7 +14,6 @@ export enum InternalErrorCode {
     FailedToRestartPackager = 109,
     FailedToCleanRestartPackager = 110,
     FailedToRunExponent = 111,
-    FailedToPublishToExpHost = 112,
     UnsupportedCommandStatus = 113,
     CommandFailedWithDetails = 114,
     FailedToRunOnWindows = 115,

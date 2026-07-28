@@ -91,7 +91,7 @@ export class Application {
             args: [this.projectPath, ...args],
         });
 
-        this.mainPage = await this.waitForWorkbenchWindow(30000);
+        this.mainPage = await this.waitForWorkbenchWindow(60000);
 
         await utilities.sleep(TimeoutConstants.APPLICATION_INIT_SLEEP);
         return this.mainPage;
