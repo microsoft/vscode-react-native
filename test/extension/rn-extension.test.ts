@@ -149,6 +149,7 @@ suite("rn-extension", function () {
                 "reactNative.launchExpoWeb",
                 "reactNative.startNetworkInspector",
                 "reactNative.stopNetworkInspector",
+                "reactNative.publishToExpHost",
                 "reactNative.reloadApp",
                 "reactNative.restartPackager",
                 "reactNative.cleanRestartPackager",
