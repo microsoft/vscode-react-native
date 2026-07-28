@@ -98,28 +98,42 @@ export class ComponentHelper {
         expected: string,
         timeout: number = 30000,
     ): Promise<void> {
-        const ok = await WaitHelper.waitIsTrue(async () => {
-            const packager = await this.getReactNativePackager();
-            const currentState = await packager.getAttribute("aria-label");
-            return !!currentState?.includes(expected);
-        }, timeout);
-        if (!ok) {
-            throw new Error(`Packager state did not include "${expected}" within ${timeout}ms`);
-        }
+        await this.waitUntil(
+            async () => {
+                const packager = await this.getReactNativePackager();
+                const currentState = (await packager.getAttribute("aria-label")) || "<empty>";
+                return {
+                    ok: currentState.includes(expected),
+                    actual: currentState,
+                };
+            },
+            {
+                operation: "packager state update",
+                expected: `state includes \"${expected}\"`,
+                timeout,
+            },
+        );
     }
 
     public static async waitPackagerStateIncludesOneOf(
         expectedList: string[],
         timeout: number = 30000,
     ): Promise<void> {
-        const ok = await this.isPackagerStateIncludesOneOf(expectedList, timeout);
-        if (!ok) {
-            throw new Error(
-                `Packager state did not include any of ${expectedList
-                    .map(e => `"${e}"`)
-                    .join(", ")} within ${timeout}ms`,
-            );
-        }
+        await this.waitUntil(
+            async () => {
+                const packager = await this.getReactNativePackager();
+                const currentState = (await packager.getAttribute("aria-label")) || "<empty>";
+                return {
+                    ok: expectedList.some(exp => currentState.includes(exp)),
+                    actual: currentState,
+                };
+            },
+            {
+                operation: "packager state update",
+                expected: `state includes one of ${expectedList.map(e => `\"${e}\"`).join(", ")}`,
+                timeout,
+            },
+        );
     }
 
     public static async isPackagerStateIncludesOneOf(
@@ -131,5 +145,44 @@ export class ComponentHelper {
             const currentState = await packager.getAttribute("aria-label");
             return expectedList.some(exp => currentState?.includes(exp));
         }, timeout);
+    }
+
+    public static async waitUntil<T>(
+        condition: () => Promise<{ ok: boolean; actual?: string; value?: T }>,
+        options: {
+            operation: string;
+            expected: string;
+            timeout?: number;
+            interval?: number;
+        },
+    ): Promise<T | undefined> {
+        const timeout = options.timeout ?? 30000;
+        const interval = options.interval ?? 1000;
+        let lastActual = "<unavailable>";
+        let lastValue: T | undefined;
+
+        const ok = await WaitHelper.waitIsTrue(
+            async () => {
+                const result = await condition();
+                if (result.actual !== undefined) {
+                    lastActual = result.actual;
+                }
+                if (result.value !== undefined) {
+                    lastValue = result.value;
+                }
+
+                return result.ok;
+            },
+            timeout,
+            interval,
+        );
+
+        if (!ok) {
+            throw new Error(
+                `[WaitTimeout] ${options.operation}. Expected: ${options.expected}. Last actual: ${lastActual}. Timeout: ${timeout}ms. Interval: ${interval}ms.`,
+            );
+        }
+
+        return lastValue;
     }
 }

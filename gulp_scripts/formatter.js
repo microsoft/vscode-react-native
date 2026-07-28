@@ -1,6 +1,5 @@
 const { series } = require("gulp");
 const cp = require("child_process");
-const log = require("fancy-log");
 
 const runPrettier = async fix => {
     const child = cp.fork(
@@ -46,13 +45,6 @@ function lintPrettier(cb) {
  * @param {OptionsT} options_
  */
 const runEslint = async options_ => {
-    if (!hasTypeScriptJavaScriptApi()) {
-        log(
-            "Skipping ESLint because the installed TypeScript package does not expose the legacy JavaScript API.",
-        );
-        return;
-    }
-
     /** @type {OptionsT} */
     const options = Object.assign({ color: true, fix: false }, options_);
 
@@ -96,16 +88,3 @@ module.exports = {
     lintEslint,
     lint: lint,
 };
-
-function hasTypeScriptJavaScriptApi() {
-    try {
-        require.resolve("typescript");
-        return true;
-    } catch (error) {
-        if (error && error.code === "ERR_PACKAGE_PATH_NOT_EXPORTED") {
-            return false;
-        }
-
-        throw error;
-    }
-}

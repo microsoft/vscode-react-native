@@ -4,7 +4,7 @@ const path = require("path");
 function runTypeScriptCompile() {
     return new Promise((resolve, reject) => {
         const child = cp.fork(
-            path.join(appRoot, "node_modules", "typescript", "bin", "tsc"),
+            path.join(appRoot, "node_modules", "typescript-7", "bin", "tsc"),
             ["-p", "tsconfig.json"],
             {
                 cwd: appRoot,

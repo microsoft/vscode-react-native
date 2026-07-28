@@ -88,36 +88,32 @@ export function startDebugConfigurationTests(): void {
             await applicationInDirectModeButton.click();
             await ElementHelper.waitPageLoad("domcontentloaded");
 
-            // Retry reading launch.json content to account for async insertion timing
-            let launchContent: string | null | undefined = null;
-            let includesHermesConfig = false;
-            const maxAttempts = 20; // ~10s with 500ms waits
+            const launchContent = await ComponentHelper.waitUntil<string>(
+                async () => {
+                    const configurationElement = await ElementHelper.TryFindElement(
+                        Element.configurationElementSelector,
+                        TimeoutConstants.COMMAND_PALETTE_TIMEOUT,
+                    );
+                    const text = (await configurationElement?.textContent()) || "";
+                    const normalized = text.replace(/\s/g, "");
 
-            for (let attempt = 0; attempt < maxAttempts; attempt++) {
-                const configurationElement = await ElementHelper.TryFindElement(
-                    Element.configurationElementSelector,
-                    TimeoutConstants.COMMAND_PALETTE_TIMEOUT,
-                );
-                launchContent = await configurationElement?.textContent();
-                if (launchContent) {
-                    const normalized = launchContent.replace(/\s/g, "");
-                    if (normalized.includes("DebugAndroidHermes")) {
-                        includesHermesConfig = true;
-                        break;
-                    }
-                }
-                await ElementHelper.waitPageLoad("networkidle");
-            }
-
-            if (!launchContent) {
-                assert.fail("Fail to set launch file configuration.");
-            }
+                    return {
+                        ok: normalized.includes("DebugAndroidHermes"),
+                        actual: normalized || "<empty>",
+                        value: text,
+                    };
+                },
+                {
+                    operation: "launch.json debug configuration update",
+                    expected: 'content includes "DebugAndroidHermes"',
+                    timeout: TimeoutConstants.DEBUG_CONFIGURATION_TIMEOUT,
+                    interval: 500,
+                },
+            );
 
             assert.ok(
-                includesHermesConfig,
-                `Expected launchContent to include "Debug Android Hermes", but got: ${(
-                    launchContent || ""
-                ).replace(/\s/g, "")}`,
+                !!launchContent,
+                "Expected launch.json content to be available after configuration insertion.",
             );
         });
     });

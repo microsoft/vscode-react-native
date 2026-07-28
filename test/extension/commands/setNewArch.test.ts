@@ -202,10 +202,63 @@ suite("setNewArchCommand", function () {
         assert.strictEqual(spawnStub.calledWithExactly("pod", ["install"]), true);
     });
 
+    test("should not write or install pods when enabling iOS new architecture and disable line is already absent", async function () {
+        const iosPath = path.join(tempDir, "ios");
+        const podfilePath = path.join(iosPath, "Podfile");
+        fs.mkdirSync(iosPath, { recursive: true });
+        fs.writeFileSync(podfilePath, "use_react_native!(:path => config[:reactNativePath])");
+        const showQuickPickStub = Sinon.stub();
+        showQuickPickStub.onFirstCall().returns(Promise.resolve("iOS"));
+        showQuickPickStub.onSecondCall().returns(Promise.resolve("true"));
+        const writeFileStub = Sinon.stub().returns(Promise.resolve());
+        const spawnStub = Sinon.stub().returns(Promise.resolve());
+        const { SetNewArch } = createCommandModule(showQuickPickStub, writeFileStub, spawnStub);
+
+        await runCommand(SetNewArch);
+
+        assert.strictEqual(writeFileStub.called, false);
+        assert.strictEqual(spawnStub.called, false);
+    });
+
+    test("should not write or install pods when disabling iOS new architecture and disable line already exists", async function () {
+        const iosPath = path.join(tempDir, "ios");
+        const podfilePath = path.join(iosPath, "Podfile");
+        fs.mkdirSync(iosPath, { recursive: true });
+        fs.writeFileSync(
+            podfilePath,
+            "ENV['RCT_NEW_ARCH_ENABLED'] = '0'\nuse_react_native!(:path => config[:reactNativePath])",
+        );
+        const showQuickPickStub = Sinon.stub();
+        showQuickPickStub.onFirstCall().returns(Promise.resolve("iOS"));
+        showQuickPickStub.onSecondCall().returns(Promise.resolve("false"));
+        const writeFileStub = Sinon.stub().returns(Promise.resolve());
+        const spawnStub = Sinon.stub().returns(Promise.resolve());
+        const { SetNewArch } = createCommandModule(showQuickPickStub, writeFileStub, spawnStub);
+
+        await runCommand(SetNewArch);
+
+        assert.strictEqual(writeFileStub.called, false);
+        assert.strictEqual(spawnStub.called, false);
+    });
+
     test("should return without writing when the platform selection is cancelled", async function () {
         const showQuickPickStub = Sinon.stub();
         showQuickPickStub.onFirstCall().returns(Promise.resolve(undefined));
         showQuickPickStub.onSecondCall().returns(Promise.resolve("true"));
+        const writeFileStub = Sinon.stub().returns(Promise.resolve());
+        const spawnStub = Sinon.stub().returns(Promise.resolve());
+        const { SetNewArch } = createCommandModule(showQuickPickStub, writeFileStub, spawnStub);
+
+        await runCommand(SetNewArch);
+
+        assert.strictEqual(writeFileStub.called, false);
+        assert.strictEqual(spawnStub.called, false);
+    });
+
+    test("should return without writing when new architecture selection is cancelled", async function () {
+        const showQuickPickStub = Sinon.stub();
+        showQuickPickStub.onFirstCall().returns(Promise.resolve("Android"));
+        showQuickPickStub.onSecondCall().returns(Promise.resolve(undefined));
         const writeFileStub = Sinon.stub().returns(Promise.resolve());
         const spawnStub = Sinon.stub().returns(Promise.resolve());
         const { SetNewArch } = createCommandModule(showQuickPickStub, writeFileStub, spawnStub);

@@ -22,7 +22,7 @@ steps:
       verbose: false
       customCommand: ci
 
-  - bash: npx gulp release
+  - bash: ./node_modules/.bin/gulp release
     displayName: "gulp release"
 
   - task: CopyFiles@2

@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import assert = require("assert");
 import * as vscode from "vscode";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
+import { LogCatMonitor } from "../android/logCatMonitor";
 import { LogCatMonitorManager } from "../android/logCatMonitorManager";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { Command } from "./util/command";
@@ -19,11 +19,15 @@ export class StopLogCatMonitor extends Command {
 
     async baseFn(): Promise<void> {
         const monitor = await selectLogCatMonitor();
+        if (!monitor) {
+            return;
+        }
+
         LogCatMonitorManager.delMonitor(monitor.deviceId);
     }
 }
 
-function selectLogCatMonitor() {
+function selectLogCatMonitor(): LogCatMonitor | Promise<LogCatMonitor | undefined> {
     const logger = OutputChannelLogger.getMainChannel();
     const keys = Object.keys(LogCatMonitorManager.logCatMonitorsCache);
 
@@ -35,13 +39,10 @@ function selectLogCatMonitor() {
     if (keys.length > 1) {
         return new Promise<string | undefined>((res, rej) => {
             vscode.window.showQuickPick(keys).then(res, rej);
-        }).then(async selected => {
-            // #todo!>selectionHandling>
+        }).then(selected => {
             if (!selected) {
-                await new Promise(() => {});
+                return undefined;
             }
-
-            assert(selected, "Selection canceled");
             logger.debug(`Command palette: selected LogCat monitor ${selected}`);
             return LogCatMonitorManager.logCatMonitorsCache[selected];
         });
