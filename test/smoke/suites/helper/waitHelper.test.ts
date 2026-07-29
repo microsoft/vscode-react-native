@@ -142,6 +142,12 @@ class FakeClock {
     }
 }
 
+async function flushMicrotasks(turns: number = 3): Promise<void> {
+    for (let i = 0; i < turns; i += 1) {
+        await Promise.resolve();
+    }
+}
+
 describe("WaitHelper", () => {
     let clock: FakeClock;
 
@@ -213,6 +219,9 @@ describe("WaitHelper", () => {
                 100,
             );
 
+            // waitConditionUntil performs awaited checks before interval registration.
+            await flushMicrotasks();
+
             await clock.tick(20);
 
             assert.strictEqual(await resultPromise, expected);
@@ -229,6 +238,9 @@ describe("WaitHelper", () => {
                 10,
                 25,
             );
+
+            // waitConditionUntil performs awaited checks before interval registration.
+            await flushMicrotasks();
 
             await clock.tick(30);
 
