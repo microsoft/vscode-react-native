@@ -4,6 +4,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import assert = require("assert");
+import semver = require("semver");
 import { findFile } from "./helper/utilities";
 
 interface LanguageContribution {
@@ -40,6 +41,12 @@ export function startLogGrammarTests(): void {
             const packageJson = JSON.parse(
                 fs.readFileSync(packageJsonPath, "utf-8"),
             ) as ExtensionPackageJson;
+
+            const installedVersion = (packageJson as { version?: string }).version;
+            if (!installedVersion || semver.lt(installedVersion, "1.14.0")) {
+                // rn-output-log grammar contribution was introduced after older production VSIX builds.
+                return;
+            }
 
             const language = packageJson.contributes?.languages?.find(
                 contributedLanguage => contributedLanguage.id === "rn-output-log",
