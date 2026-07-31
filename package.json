@@ -1485,7 +1485,7 @@
         "@typescript-eslint/parser": "^6.15.0",
         "@typescript/native-preview": "7.0.0-dev.20260421.2",
         "@vscode/debugadapter": "^1.68.0",
-        "@vscode/test-electron": "^2.5.2",
+        "@vscode/test-electron": "^3.1.0",
         "@vscode/vsce": "^3.9.2",
         "ansi-colors": "3.2.4",
         "brace-expansion": "github:juliangruber/brace-expansion#v5.0.8",
