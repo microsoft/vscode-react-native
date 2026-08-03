@@ -1,5 +1,11 @@
 steps:
-  - script: ./node_modules/.bin/gulp release --nightly --no-yarn --no-prepublish
+  - task: NodeTool@0
+    displayName: "Use Node 20.x"
+    inputs:
+      versionSpec: 20.x
+  - bash: npm ci
+    displayName: "npm ci"
+  - bash: npx gulp release --nightly --no-yarn --no-prepublish
     displayName: "gulp release"
   - task: CopyFiles@2
     displayName: "Copy Files to: $(Build.ArtifactStagingDirectory)"
