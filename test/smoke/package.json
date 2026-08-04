@@ -35,7 +35,7 @@
     "url-parse": "^1.5.10"
   },
   "overrides": {
-    "brace-expansion": "github:juliangruber/brace-expansion#v5.0.8",
+    "brace-expansion": "github:juliangruber/brace-expansion#v5.0.9",
     "serialize-javascript": "7.0.5"
   }
 }
