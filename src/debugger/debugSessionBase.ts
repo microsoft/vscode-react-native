@@ -14,9 +14,8 @@ import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
 import { InternalError, NestedError } from "../common/error/internalError";
 import { ILaunchArgs, IRunOptions, PlatformType } from "../extension/launchArgs";
-import { AppLauncher } from "../extension/appLauncher";
+import type { AppLauncher } from "../extension/appLauncher";
 import { RNPackageVersions } from "../common/projectVersionHelper";
-import { SettingsHelper } from "../extension/settingsHelper";
 import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
 import { DeviceStatusIndicator } from "../extension/deviceStatusIndicator";
 import { RNSession } from "./debugSessionWrapper";
@@ -190,6 +189,13 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
                 args.sourceMapRenames = false;
             }
 
+            /* eslint-disable @typescript-eslint/no-var-requires */
+            const { SettingsHelper } =
+                require("../extension/settingsHelper") as typeof import("../extension/settingsHelper");
+            const { AppLauncher: AppLauncherClass } =
+                require("../extension/appLauncher") as typeof import("../extension/appLauncher");
+            /* eslint-enable @typescript-eslint/no-var-requires */
+
             const projectRootPath = SettingsHelper.getReactNativeProjectRoot(args.cwd);
             const isReactProject = await ReactNativeProjectHelper.isReactNativeProject(
                 projectRootPath,
@@ -198,7 +204,7 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
                 throw ErrorHelper.getInternalError(InternalErrorCode.NotInReactNativeFolderError);
             }
 
-            const appLauncher = await AppLauncher.getOrCreateAppLauncherByProjectRootPath(
+            const appLauncher = await AppLauncherClass.getOrCreateAppLauncherByProjectRootPath(
                 projectRootPath,
             );
             this.appLauncher = appLauncher;
