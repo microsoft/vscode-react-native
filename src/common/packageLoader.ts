@@ -3,7 +3,7 @@
 
 import * as path from "path";
 import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
-import { AppLauncher } from "../extension/appLauncher";
+import { ProjectsStorage } from "../extension/projectsStorage";
 import { CommandExecutor, CommandVerbosity } from "./commandExecutor";
 import customRequire from "./customRequire";
 import { findFileInFolderHierarchy, getVersionFromExtensionNodeModules } from "./extensionHelper";
@@ -65,7 +65,8 @@ export class PackageLoader {
     }
 
     public installGlobalPackage(packageConfig: PackageConfig, projectRoot: string): Promise<void> {
-        const nodeModulesRoot: string = AppLauncher.getNodeModulesRootByProjectPath(projectRoot);
+        const nodeModulesRoot: string =
+            ProjectsStorage.getFolderByProjectRootPath(projectRoot).getOrUpdateNodeModulesRoot();
         const commandExecutor = new CommandExecutor(nodeModulesRoot, projectRoot, this.logger);
 
         return commandExecutor.spawnWithProgress(
