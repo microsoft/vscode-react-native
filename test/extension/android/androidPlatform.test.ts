@@ -598,6 +598,34 @@ suite("androidPlatform", function () {
             assert.strictEqual(adbValue, "adb");
         });
     });
+
+    suite("AdbHelper", function () {
+        test("startLogCat should spawn adb directly with the provided parameters", function () {
+            const adbHelper = new adb.AdbHelper("", "node_modules");
+            const adbParameters = ["-s", "emulator-5554", "logcat", "ReactNativeJS:V"];
+            const spawnResult = {} as any;
+            const spawnStub = sinon
+                .stub((adbHelper as any).childProcess, "spawn")
+                .returns(spawnResult);
+            (adbHelper as any).adbExecutable = '"C:\\Android SDK\\platform-tools\\adb.exe"';
+
+            try {
+                const result = adbHelper.startLogCat(adbParameters);
+
+                assert.strictEqual(result, spawnResult);
+                assert.strictEqual(
+                    spawnStub.calledWithExactly(
+                        "C:\\Android SDK\\platform-tools\\adb.exe",
+                        adbParameters,
+                        { shell: false },
+                    ),
+                    true,
+                );
+            } finally {
+                spawnStub.restore();
+            }
+        });
+    });
 });
 
 function fillDevices(ids: string[]): any[] {
