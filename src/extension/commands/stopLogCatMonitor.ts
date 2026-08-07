@@ -41,8 +41,10 @@ function selectLogCatMonitor(): LogCatMonitor | Promise<LogCatMonitor | undefine
             vscode.window.showQuickPick(keys).then(res, rej);
         }).then(selected => {
             if (!selected) {
+                logger.debug("Command palette: LogCat monitor selection canceled");
                 return undefined;
             }
+
             logger.debug(`Command palette: selected LogCat monitor ${selected}`);
             return LogCatMonitorManager.logCatMonitorsCache[selected];
         });
