@@ -301,6 +301,12 @@ suite("appWorker", function () {
                     "http://localhost:8081/debugger-ui/debuggerWorker.js",
                 );
             });
+            test("prepareDebuggerWorkerURL should return debugger-ui URL for invalid RN versions", () => {
+                assert.strictEqual(
+                    scriptImporter.prepareDebuggerWorkerURL("not-a-semver"),
+                    "http://localhost:8081/debugger-ui/debuggerWorker.js",
+                );
+            });
             test("prepareDebuggerWorkerURL should return correct URL when debuggerWorkerUrlPath is used", () => {
                 assert.strictEqual(
                     scriptImporter.prepareDebuggerWorkerURL("0.55.4", ""),
