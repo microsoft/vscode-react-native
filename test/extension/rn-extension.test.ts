@@ -117,6 +117,7 @@ suite("rn-extension", function () {
         });
 
         test("Verify that the commands registered by Cordova extension are loaded", async () => {
+            await vscode.extensions.getExtension("msjsdiag.vscode-react-native")?.activate();
             const commandsAvailable: string[] = (await vscode.commands.getCommands(true)).filter(
                 (commandName: string) => commandName.includes("reactNative."),
             );
