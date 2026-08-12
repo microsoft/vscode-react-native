@@ -3,6 +3,7 @@
 
 import * as fs from "fs";
 import * as path from "path";
+import { EventEmitter } from "events";
 import assert = require("assert");
 import { AndroidPlatform } from "../../../src/extension/android/androidPlatform";
 import { IAndroidRunOptions, PlatformType } from "../../../src/extension/launchArgs";
@@ -15,6 +16,7 @@ import { ProjectVersionHelper } from "../../../src/common/projectVersionHelper";
 import "should";
 import * as sinon from "sinon";
 import { SettingsHelper } from "../../../src/extension/settingsHelper";
+import { LogCatMonitorManager } from "../../../src/extension/android/logCatMonitorManager";
 import { rimrafAsync } from "../../common/utils";
 
 suite("androidPlatform", function () {
@@ -60,6 +62,7 @@ suite("androidPlatform", function () {
         let spawnReactCommandStub: Sinon.SinonStub;
         let getReactNativeVersionsStub: Sinon.SinonStub;
         let installAppInDeviceStub: Sinon.SinonStub;
+        let startLogCatStub: Sinon.SinonStub;
 
         let devices: any;
         let adbHelper: adb.AdbHelper;
@@ -73,6 +76,13 @@ suite("androidPlatform", function () {
             fileSystem = new FileSystem();
 
             adbHelper = new adb.AdbHelper(genericRunOptions.projectRoot, nodeModulesRoot);
+            startLogCatStub = sinon.stub(adb.AdbHelper.prototype, "startLogCat").returns({
+                spawnedProcess: { kill: sinon.stub() },
+                stdin: {},
+                stdout: new EventEmitter(),
+                stderr: new EventEmitter(),
+                outcome: new Promise<void>(() => {}),
+            });
             launchAppStub = sinon.stub(
                 adbHelper,
                 "launchApp",
@@ -167,6 +177,7 @@ suite("androidPlatform", function () {
         });
 
         teardown(async () => {
+            LogCatMonitorManager.cleanUp();
             // Delete existing React Native project after each test
             await rimrafAsync(projectsFolder, {});
             launchAppStub.restore();
@@ -178,6 +189,7 @@ suite("androidPlatform", function () {
             spawnReactCommandStub.restore();
             getReactNativeVersionsStub.restore();
             installAppInDeviceStub.restore();
+            startLogCatStub.restore();
             devices = [];
         });
 
@@ -584,6 +596,34 @@ suite("androidPlatform", function () {
             const adbHelper = new adb.AdbHelper(mockProjectRoot, nodeModulesRoot);
             const adbValue = adbHelper.getAdbPath(mockProjectRoot);
             assert.strictEqual(adbValue, "adb");
+        });
+    });
+
+    suite("AdbHelper", function () {
+        test("startLogCat should spawn adb directly with the provided parameters", function () {
+            const adbHelper = new adb.AdbHelper("", "node_modules");
+            const adbParameters = ["-s", "emulator-5554", "logcat", "ReactNativeJS:V"];
+            const spawnResult = {} as any;
+            const spawnStub = sinon
+                .stub((adbHelper as any).childProcess, "spawn")
+                .returns(spawnResult);
+            (adbHelper as any).adbExecutable = '"C:\\Android SDK\\platform-tools\\adb.exe"';
+
+            try {
+                const result = adbHelper.startLogCat(adbParameters);
+
+                assert.strictEqual(result, spawnResult);
+                assert.strictEqual(
+                    spawnStub.calledWithExactly(
+                        "C:\\Android SDK\\platform-tools\\adb.exe",
+                        adbParameters,
+                        { shell: false },
+                    ),
+                    true,
+                );
+            } finally {
+                spawnStub.restore();
+            }
         });
     });
 });
