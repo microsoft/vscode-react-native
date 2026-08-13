@@ -78,26 +78,21 @@ export class NetworkInspectorServer {
             false,
             "networkInspectorLogsColorTheme",
         );
-        this.initialisePromise = new Promise(async (resolve, reject) => {
-            this.certificateProvider = new CertificateProvider(adbHelper);
-
-            try {
-                let options = await this.certificateProvider.loadSecureServerConfig();
-                this.secureServer = await this.startServer(
-                    NetworkInspectorServer.SecureServerPort,
-                    options,
-                );
-                this.insecureServer = await this.startServer(
-                    NetworkInspectorServer.InsecureServerPort,
-                );
-            } catch (err) {
-                return reject(err);
-            }
-
-            this.logger.info(localize("NetworkInspectorWorking", "Network inspector is working"));
-            resolve();
-        });
+        this.initialisePromise = this.initialize(adbHelper);
         return this.initialisePromise;
+    }
+
+    private async initialize(adbHelper: AdbHelper): Promise<void> {
+        this.certificateProvider = new CertificateProvider(adbHelper);
+
+        const options = await this.certificateProvider.loadSecureServerConfig();
+        this.secureServer = await this.startServer(
+            NetworkInspectorServer.SecureServerPort,
+            options,
+        );
+        this.insecureServer = await this.startServer(NetworkInspectorServer.InsecureServerPort);
+
+        this.logger.info(localize("NetworkInspectorWorking", "Network inspector is working"));
     }
 
     public async stop(): Promise<void> {
