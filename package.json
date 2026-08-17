@@ -1504,8 +1504,6 @@
         "gulp": "5.0.0",
         "gulp-filter": "6.0.0",
         "gulp-mocha": "^10.0.1",
-        "gulp-preprocess": "3.0.3",
-        "gulp-sourcemaps": "2.6.5",
         "husky": "^7.0.4",
         "minimist": "1.2.6",
         "mocha": "^11.7.5",

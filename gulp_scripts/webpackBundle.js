@@ -2,7 +2,7 @@ const webpack = require("webpack");
 const TerserPlugin = require("terser-webpack-plugin");
 const path = require("path");
 const gulp = require("gulp");
-const preprocess = require("gulp-preprocess");
+const { createLinePreservingPreprocessor } = require("./linePreservingPreprocessor");
 const { runTypeScriptCompile } = require("./typescriptCli");
 const srcPath = "src";
 const distDir = appRoot + "/dist";
@@ -120,7 +120,7 @@ module.exports = {
 function preprocessCompiledJavaScript() {
     return new Promise((resolve, reject) => {
         gulp.src(["src/**/*.js"], { base: ".", allowEmpty: true })
-            .pipe(preprocess({ context: { PROD: true } }))
+            .pipe(createLinePreservingPreprocessor({ PROD: true }))
             .pipe(gulp.dest(file => file.cwd))
             .once("error", reject)
             .once("finish", resolve);

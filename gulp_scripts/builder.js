@@ -8,7 +8,7 @@ const nls = require("vscode-nls-dev");
 const filter = require("gulp-filter");
 const minimist = require("minimist");
 const log = require("fancy-log");
-const preprocess = require("gulp-preprocess");
+const { createLinePreservingPreprocessor } = require("./linePreservingPreprocessor");
 const es = require("event-stream");
 
 const knownOptions = {
@@ -82,7 +82,7 @@ async function build(failOnError, buildNls) {
 
     const stream = gulp
         .src(["src/**/*.js", "test/**/*.js"], { base: ".", allowEmpty: true })
-        .pipe(preprocess({ context: preprocessorContext })) //To set environment variables in-line
+        .pipe(createLinePreservingPreprocessor(preprocessorContext))
         .pipe(buildNls ? nls.rewriteLocalizeCalls() : es.through())
         .pipe(
             buildNls
