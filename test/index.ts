@@ -6,6 +6,11 @@
 import * as path from "path";
 import Mocha = require("mocha");
 import NYCPackage from "nyc";
+import { LogCatMonitorManager } from "../src/extension/android/logCatMonitorManager";
+
+function cleanUpTestProcesses(): void {
+    LogCatMonitorManager.cleanUp();
+}
 
 async function loadGlob(): Promise<any> {
     try {
@@ -42,6 +47,7 @@ function setupCoverage(): NYCPackage {
 
 export async function run(): Promise<void> {
     const nyc = process.env.COVERAGE ? setupCoverage() : null;
+    process.once("exit", cleanUpTestProcesses);
 
     // Provide harmless stubs for Mocha BDD hooks if some non-target test files
     // (e.g. smoke tests) get loaded indirectly before Mocha initialization.
@@ -140,6 +146,7 @@ export async function run(): Promise<void> {
             });
         })
         .finally(() => {
+            cleanUpTestProcesses();
             if (nyc) {
                 nyc.writeCoverageFile();
                 return nyc.report();
