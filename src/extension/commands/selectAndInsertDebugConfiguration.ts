@@ -5,7 +5,7 @@ import assert = require("assert");
 import * as vscode from "vscode";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
-import { debugConfigProvider } from "../rn-extension";
+import { getDebugConfigProvider } from "../rn-extension";
 import { LaunchJsonCompletionHelper } from "../../common/launchJsonCompletionHelper";
 import { Command } from "./util/command";
 
@@ -22,7 +22,7 @@ export class SelectAndInsertDebugConfiguration extends Command {
         token: vscode.CancellationToken,
     ): Promise<void> {
         assert(
-            debugConfigProvider && document && position && token,
+            document && position && token,
             ErrorHelper.getInternalError(InternalErrorCode.CommandFailed),
         );
 
@@ -34,10 +34,8 @@ export class SelectAndInsertDebugConfiguration extends Command {
         }
 
         const folder = vscode.workspace.getWorkspaceFolder(document.uri);
-        const config = await debugConfigProvider.provideDebugConfigurationSequentially(
-            folder,
-            token,
-        );
+        const configProvider = getDebugConfigProvider();
+        const config = await configProvider.provideDebugConfigurationSequentially(folder, token);
 
         if (token.isCancellationRequested || !config) {
             return;

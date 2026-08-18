@@ -7,10 +7,13 @@ import * as fs from "fs";
 import * as BrowserHelper from "@vscode/js-debug-browsers";
 import * as sinon from "sinon";
 import * as child_process from "child_process";
+import { EventEmitter } from "events";
 import * as os from "os";
 import { AppLauncher } from "../../src/extension/appLauncher";
 import { ProjectsStorage } from "../../src/extension/projectsStorage";
 import { Node } from "../../src/common/node/node";
+import { PlatformType } from "../../src/extension/launchArgs";
+import { BROWSER_TYPES } from "../../src/extension/debuggingConfiguration/debugConfigTypesAndConstants";
 suite("appLauncher", function () {
     const fsHelper = new Node.FileSystem();
 
@@ -166,20 +169,47 @@ suite("appLauncher", function () {
         test("expo web launch on edge browser", async function () {
             // test for windows only
             if (os.platform() === "win32") {
+                let appLauncherTest: AppLauncher;
+                let browserFinderStub: Sinon.SinonStub;
+                let spawnStub: Sinon.SinonStub;
+
+                teardown(() => {
+                    browserFinderStub?.restore();
+                    spawnStub?.restore();
+                    if (appLauncherTest) {
+                        ProjectsStorage.delFolder(appLauncherTest.getWorkspaceFolder());
+                    }
+                });
+
                 try {
                     const browserPath = {
                         path: "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
                     };
-                    const browserFinderStub = sinon.stub(
+                    browserFinderStub = sinon.stub(
                         BrowserHelper.EdgeBrowserFinder.prototype,
                         "findAll",
                     );
                     browserFinderStub.returns(Promise.resolve([browserPath]));
-                    child_process.spawn(browserPath.path, {
-                        detached: true,
-                        stdio: ["ignore"],
+                    const browserProcess = new EventEmitter() as child_process.ChildProcess;
+                    browserProcess.unref = sinon.stub();
+                    spawnStub = sinon.stub(child_process, "spawn").returns(browserProcess);
+
+                    appLauncherTest = await AppLauncher.getOrCreateAppLauncherByProjectRootPath(
+                        sampleReactNativeProjectDir,
+                    );
+                    await appLauncherTest.launchBrowser({
+                        platform: PlatformType.ExpoWeb,
+                        browserTarget: BROWSER_TYPES.Edge,
+                        port: 9222,
                     });
-                    browserFinderStub.restore();
+
+                    sinon.assert.calledOnce(spawnStub);
+                    sinon.assert.calledWith(
+                        spawnStub,
+                        browserPath.path,
+                        sinon.match.array,
+                        sinon.match({ detached: true, stdio: ["ignore"] }),
+                    );
                 } catch (err) {
                     assert.fail(err as any);
                 }
