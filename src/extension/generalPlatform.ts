@@ -217,7 +217,7 @@ export class GeneralPlatform {
             if (argsFromEnvFile != null) {
                 // eslint-disable-next-line no-restricted-syntax
                 for (const key in argsFromEnvFile) {
-                    if (!modifyEnv[key] && argsFromEnvFile.hasOwnProperty(key)) {
+                    if (argsFromEnvFile.hasOwnProperty(key) && !modifyEnv.hasOwnProperty(key)) {
                         modifyEnv[key] = argsFromEnvFile[key];
                     }
                 }
