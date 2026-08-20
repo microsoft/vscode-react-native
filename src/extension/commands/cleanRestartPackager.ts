@@ -96,7 +96,7 @@ export class CleanRestartPackager extends ReactNativeCommand {
                 }
             }
         } catch (error) {
-            logger.warning(`Failed to kill Metro process: ${error}`);
+            logger.warning(`Failed to kill Metro process: ${String(error)}`);
         }
     }
 
@@ -114,7 +114,7 @@ export class CleanRestartPackager extends ReactNativeCommand {
                 logger.info("Metro cache directory not found, skipping...");
             }
         } catch (error) {
-            logger.warning(`Failed to clean Metro cache: ${error}`);
+            logger.warning(`Failed to clean Metro cache: ${String(error)}`);
         }
     }
 
