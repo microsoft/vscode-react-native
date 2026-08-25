@@ -1401,7 +1401,7 @@
         "prepare-smoke-tests": "cd test/smoke && npm ci",
         "prepare-smoke-tests-project": "cd test/smoke/resources/sampleReactNativeProject && npm install",
         "compile-smoke-tests": "cd test/smoke && tsc",
-        "smoke-tests": "cd test/smoke && tsc && node ./node_modules/mocha/bin/_mocha --config ./.mocharc.js --reporter mocha-multi-reporters",
+        "smoke-tests": "npm --prefix test/smoke test",
         "smoke-build": "node gulp_scripts/smoke-build.js",
         "smoke-build-test": "node gulp_scripts/smoke-build.js --test",
         "postinstall": "patch-package"
