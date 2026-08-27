@@ -1527,6 +1527,7 @@
         "sinon": "1.17.3",
         "source-map-support": "0.4.0",
         "through2": "2.0.1",
+        "terser-webpack-plugin": "^5.4.0",
         "ts-loader": "9.0.2",
         "ts-node": "^10.9.2",
         "typescript": "~5.3.3",
