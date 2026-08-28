@@ -63,6 +63,17 @@ suite("GeneralPlatform", function () {
                 });
             });
 
+            test("args from envFile should not overwrite existing falsy variables", function () {
+                assert.deepEqual(
+                    GeneralPlatform.getEnvArgument(
+                        { test3: "", test4: 0, test5: false },
+                        null,
+                        envFile,
+                    ),
+                    { test3: "", test4: 0, test5: false },
+                );
+            });
+
             test("args from envFile and original args should be overwritten by env args", function () {
                 assert.deepEqual(GeneralPlatform.getEnvArgument(origEnv, env, envFile), {
                     test1: "origEnv",

@@ -15,7 +15,7 @@ const runPrettier = async fix => {
             "!test/smoke/.vscode-test/**",
             "!src/**/*.d.ts",
             "!SECURITY.md",
-            "!test/smoke/resources/sampleReactNativeProject/**"
+            "!test/smoke/resources/sampleReactNativeProject/**",
         ],
         {
             stdio: "inherit",
@@ -30,13 +30,11 @@ const runPrettier = async fix => {
 };
 
 function formatPrettier(cb) {
-    runPrettier(true);
-    cb();
+    runPrettier(true).then(() => cb(), cb);
 }
 
 function lintPrettier(cb) {
-    runPrettier(false);
-    cb();
+    runPrettier(false).then(() => cb(), cb);
 }
 
 /**
@@ -71,13 +69,11 @@ const runEslint = async options_ => {
 };
 
 function formatEslint(cb) {
-    runEslint({ fix: true });
-    cb();
+    runEslint({ fix: true }).then(() => cb(), cb);
 }
 
 function lintEslint(cb) {
-    runEslint({ fix: false });
-    cb();
+    runEslint({ fix: false }).then(() => cb(), cb);
 }
 
 const lint = series(lintPrettier, lintEslint);

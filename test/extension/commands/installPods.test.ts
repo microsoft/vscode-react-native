@@ -4,10 +4,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import assert = require("assert");
-import * as path from "path";
-import * as fs from "fs";
-import * as os from "os";
+import fs = require("fs");
+import os = require("os");
 import Sinon = require("sinon");
+import * as path from "path";
 import * as vscode from "vscode";
 import { InstallPods } from "../../../src/extension/commands/installPods";
 import { AppLauncher } from "../../../src/extension/appLauncher";
