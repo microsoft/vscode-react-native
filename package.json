@@ -1537,7 +1537,7 @@
         "@babel/core": "7.29.6",
         "brace-expansion": "5.0.9",
         "decode-uri-component": "0.5.0",
-        "fast-uri": "3.1.5",
+        "fast-uri": "3.1.6",
         "js-yaml": "4.3.1",
         "serialize-javascript": "7.0.5",
         "mochawesome": {
