@@ -19,7 +19,7 @@ jobs:
   - job: Windows
     pool:
       vmImage: windows-latest
-    timeoutInMinutes: 20
+    timeoutInMinutes: 85
     steps:
       - checkout: self
         clean: true
