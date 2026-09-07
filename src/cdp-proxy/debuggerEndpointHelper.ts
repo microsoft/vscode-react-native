@@ -70,6 +70,7 @@ export class DebuggerEndpointHelper {
                     throw internalError;
                 }
 
+                attemptNumber--;
                 await PromiseUtil.delay(700);
             }
         }
