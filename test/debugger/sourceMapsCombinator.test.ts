@@ -63,5 +63,24 @@ suite("sourceMapsCombinator", function () {
             });
             assert.deepEqual(expected, result);
         });
+
+        test("propagates source file read errors", function () {
+            const expectedError = new Error("Unable to read source file");
+            fsReadFileStub.withArgs(pathToJS).throws(expectedError);
+
+            const rawBundleSourcemap: RawSourceMap = {
+                version: 3,
+                sources: [pathToJS],
+                names: [],
+                mappings: "AAAA",
+                file: "hello.js",
+                sourceRoot: "",
+            };
+
+            assert.throws(
+                () => new SourceMapsCombinator().convert(rawBundleSourcemap),
+                expectedError,
+            );
+        });
     });
 });

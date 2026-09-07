@@ -27,12 +27,9 @@ export class SourceMapsCombinator {
                 // Skip files inside node_modules
                 if (file.includes("node_modules")) return result;
 
-                try {
-                    const consumer: SourceMapConsumer | null = this.getSourceMapConsumerFrom(file);
-                    if (consumer) result[file] = consumer;
-                } finally {
-                    return result;
-                }
+                const consumer: SourceMapConsumer | null = this.getSourceMapConsumerFrom(file);
+                if (consumer) result[file] = consumer;
+                return result;
             },
             {},
         );
