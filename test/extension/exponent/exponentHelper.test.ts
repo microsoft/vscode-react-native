@@ -6,6 +6,7 @@ import * as path from "path";
 import assert = require("assert");
 import * as sinon from "sinon";
 import * as glob from "glob";
+import { Stats } from "fs";
 import { FileSystem } from "../../../src/common/node/fileSystem";
 
 suite("exponentHelper", function () {
@@ -80,6 +81,71 @@ suite("exponentHelper", function () {
                     { devDependencies: { expo: "37.0.1" } },
                     (pattern: string, options?: any) => [],
                 );
+            });
+        });
+
+        suite("EAS project configuration", () => {
+            test("should return EAS project fields from app.json", async () => {
+                const fs = new FileSystem();
+                sinon.stub(fs, "stat", async () => ({ mtimeMs: 1 } as Stats));
+                sinon.stub(fs, "readFile", async () =>
+                    JSON.stringify({
+                        expo: {
+                            owner: "owner",
+                            name: "project",
+                            extra: { eas: { projectId: "project-id" } },
+                        },
+                    }),
+                );
+                const expoHelper = new ExponentHelper(RESOURCES_ROOT, "", fs);
+
+                assert.strictEqual(await expoHelper.getExpoEasProjectOwner(), "owner");
+                assert.strictEqual(await expoHelper.getExpoEasProjectId(), "project-id");
+                assert.strictEqual(await expoHelper.getExpoEasProjectName(), "project");
+            });
+
+            test("should cache app.json until its modification time changes", async () => {
+                const fs = new FileSystem();
+                let statCallCount = 0;
+                sinon.stub(fs, "stat", async () => {
+                    statCallCount += 1;
+                    return { mtimeMs: statCallCount < 4 ? 1 : 2 } as Stats;
+                });
+                let readFileCallCount = 0;
+                sinon.stub(fs, "readFile", async () => {
+                    readFileCallCount += 1;
+                    return JSON.stringify(
+                        readFileCallCount === 1
+                            ? {
+                                  expo: {
+                                      owner: "owner",
+                                      name: "project",
+                                      extra: { eas: { projectId: "project-id" } },
+                                  },
+                              }
+                            : { expo: { owner: "new-owner" } },
+                    );
+                });
+                const expoHelper = new ExponentHelper(RESOURCES_ROOT, "", fs);
+
+                assert.strictEqual(await expoHelper.getExpoEasProjectOwner(), "owner");
+                assert.strictEqual(await expoHelper.getExpoEasProjectId(), "project-id");
+                assert.strictEqual(await expoHelper.getExpoEasProjectName(), "project");
+                assert.strictEqual(readFileCallCount, 1);
+
+                assert.strictEqual(await expoHelper.getExpoEasProjectOwner(), "new-owner");
+                assert.strictEqual(readFileCallCount, 2);
+            });
+
+            test("should return null when optional EAS configuration is missing", async () => {
+                const fs = new FileSystem();
+                sinon.stub(fs, "stat", async () => ({ mtimeMs: 1 } as Stats));
+                sinon.stub(fs, "readFile", async () => JSON.stringify({}));
+                const expoHelper = new ExponentHelper(RESOURCES_ROOT, "", fs);
+
+                assert.strictEqual(await expoHelper.getExpoEasProjectOwner(), null);
+                assert.strictEqual(await expoHelper.getExpoEasProjectId(), null);
+                assert.strictEqual(await expoHelper.getExpoEasProjectName(), null);
             });
         });
     });

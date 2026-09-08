@@ -71,7 +71,7 @@ export function startDebugConfigurationTests(): void {
 
             const debugApplicationButton = await ElementHelper.WaitElementSelectorVisible(
                 Element.debugApplicationButtonSelector,
-                2000,
+                TimeoutConstants.COMMAND_PALETTE_TIMEOUT,
             );
             await debugApplicationButton.click();
 
