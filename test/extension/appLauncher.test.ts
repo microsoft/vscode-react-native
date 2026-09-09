@@ -6,7 +6,7 @@ import * as path from "path";
 import * as fs from "fs";
 import * as BrowserHelper from "@vscode/js-debug-browsers";
 import * as sinon from "sinon";
-import * as child_process from "child_process";
+import childProcess = require("child_process");
 import { EventEmitter } from "events";
 import * as os from "os";
 import { AppLauncher } from "../../src/extension/appLauncher";
@@ -190,9 +190,9 @@ suite("appLauncher", function () {
                         "findAll",
                     );
                     browserFinderStub.returns(Promise.resolve([browserPath]));
-                    const browserProcess = new EventEmitter() as child_process.ChildProcess;
+                    const browserProcess = new EventEmitter() as childProcess.ChildProcess;
                     browserProcess.unref = sinon.stub();
-                    spawnStub = sinon.stub(child_process, "spawn").returns(browserProcess);
+                    spawnStub = sinon.stub(childProcess, "spawn").returns(browserProcess);
 
                     appLauncherTest = await AppLauncher.getOrCreateAppLauncherByProjectRootPath(
                         sampleReactNativeProjectDir,

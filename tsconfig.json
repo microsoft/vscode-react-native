@@ -1,11 +1,9 @@
 {
     "compilerOptions": {
-        "moduleResolution": "node",
+        "moduleResolution": "bundler",
         "module": "commonjs",
         "target": "es2020",
-        "lib": [
-            "es2020"
-        ],
+        "lib": ["es2020"],
         "rootDir": "./",
         "outDir": "./",
         "sourceMap": true,
@@ -42,5 +40,5 @@
         "test/smoke/"
     ],
     "compileOnSave": false,
-    "buildOnSave":false
+    "buildOnSave": false
 }

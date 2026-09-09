@@ -2,8 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import assert = require("assert");
+import os = require("os");
 import * as fs from "fs";
-import * as os from "os";
 import * as path from "path";
 import * as url from "url";
 import * as vscode from "vscode";
