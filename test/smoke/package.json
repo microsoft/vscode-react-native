@@ -7,7 +7,6 @@
     "test": "tsc && node ./node_modules/mocha/bin/_mocha --config ./.mocharc.js --reporter mocha-multi-reporters"
   },
   "devDependencies": {
-    "@types/adm-zip": "^0.5.8",
     "@types/mkdirp": "^2.0.0",
     "@types/mocha": "10.0.10",
     "@types/node": "^24.3.0",
@@ -16,9 +15,9 @@
     "@types/semver": "^7.7.1",
     "@types/shell-quote": "^1.7.5",
     "@types/url-parse": "^1.4.11",
-    "adm-zip": "^0.6.0",
     "ansi-styles": "^6.2.1",
-    "js-yaml": "4.3.1",
+    "js-yaml": "4.3.2",
+    "jszip": "3.10.1",
     "minimatch": "^10.2.4",
     "mkdirp": "^3.0.1",
     "mocha": "11.7.2",

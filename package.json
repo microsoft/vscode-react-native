@@ -1540,7 +1540,7 @@
         "brace-expansion": "5.0.9",
         "decode-uri-component": "0.5.0",
         "fast-uri": "3.1.6",
-        "js-yaml": "4.3.1",
+        "js-yaml": "4.3.2",
         "serialize-javascript": "7.0.5",
         "mochawesome": {
             "uuid": "11.1.1"
