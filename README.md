@@ -63,6 +63,7 @@ Using this extension, you can **debug your code and quickly run `react-native` o
   - [Re.Pack and Haul debugging](#repack-and-haul-debugging)
   - [Remote JavaScript Debugging (Deprecated)](#remote-javascript-debugging-deprecated)
 - [Customization](#customization)
+  - [Extension settings](#extension-settings)
   - [Sourcemaps](#sourcemaps)
   - [Debug in vscode workspace](#debug-in-vscode-workspace)
   - [Logging](#logging)
@@ -159,6 +160,7 @@ The full list of commands is:
   - iOS: updates `:hermes_enabled` in `ios/Podfile` and runs `pod install`.
 - `Expo prebuild` runs `npx expo prebuild` from your project root.
 - `Kill Port` prompts for a port number and runs `npx kill-port <port>`.
+- `Toggle Network View` enables or disables the built-in VS Code network view by updating the global `debug.javascript.enableNetworkView` setting.
 
 ## Using commands in VS Code tasks
 
@@ -318,6 +320,7 @@ You can use the following debug scenarios to debug iOS apps directly:
     "type": "reactnativedirect",
     "request": "launch",
     "platform": "ios",
+    "useHermesEngine": false,
     "port": 9221,
     "target": "device"
 ```
@@ -330,8 +333,11 @@ You can use the following debug scenarios to debug iOS apps directly:
     "type": "reactnativedirect",
     "request": "attach",
     "platform": "ios",
+    "useHermesEngine": false,
     "port": 9221
 ```
+
+**NOTE:** `useHermesEngine` has to be set to `false` in direct iOS debug scenarios, since these scenarios debug a JSC application via `ios-webkit-debug-proxy` instead of the Hermes engine.
 
 ## Expo applications
 
@@ -407,7 +413,7 @@ Expo support open application in browser, the expo web application is generated 
 
 The extension supports running through Exponent not just the applications created with Expo but even pure React Native applications (in that case you need to add `expo` package to `node_modules` in order to make it work with Expo: `npm install expo --save-dev`. In either cases it uses `app.json` configuration file in the root of the project.)
 
-If you are running `Debug Exponent Hermes` configuration or any of palette commands like `Run in Exponent`, `Publish to Exponent` then this file will be created automatically if absent or updated with the following basic configuration section:
+If you are running `Debug Exponent Hermes` configuration or any of palette commands like `Run Expo` then this file will be created automatically if absent or updated with the following basic configuration section:
 
 ```json
 {
@@ -651,7 +657,7 @@ The following is a list of all the configuration properties the debugger accepts
 | `localRoot`                        | The local source root that corresponds to the 'remoteRoot'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | `string`   | `${workspaceFolder}`                          |
 | `skipFiles`                        | An array of file or folder names, or glob patterns, to skip when debugging                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | `array`    | `[]`                                          |
 | `debuggerWorkerUrlPath`            | Path to the app debugger worker to override. For example, if debugger tries to attach to http://localhost:8081/debugger-ui/debuggerWorker.js and you get 404 error from packager output then you may want to change debuggerWorkerUrlPath to another value suitable for your packager (\"debugger-ui\" will be replaced with the value you provide)                                                                                                                                                                                                                                                                                                                                                                                                                    | `string`   | `debugger-ui/`                                |
-| `platform`                         | The platform to target. Possible values: `android`, `ios`, `exponent`, `windows`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | `string`   | n/a                                           |
+| `platform`                         | The platform to target. Possible values: `android`, `ios`, `macos`, `windows`, `exponent`, `expoweb` (`expoweb` is supported by the `reactnativedirect` debug type only)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | `string`   | n/a                                           |
 | `target`                           | Target to run on. Possible values: `simulator`, `device`, `<iOS target name/udid>`, [`<Android target id>`](https://github.com/react-native-community/cli/blob/master/docs/commands.md#--deviceid-string), `<Android emulator AVD name>`. If the value is `simulator` or `device` then the quick pick window will be expanded with the names of the available virtual or physical targets, then, in case there are more than one available target with specified type, the target value in `launch.json` will be changed to the name or id of the selected target. If you have only one target with specified type available, it will be selected automatically. If you're using Android emulator targets, please, make sure the `emulator` utility is added to `PATH` | `string`   | `simulator`                                   |
 | `logCatArguments`                  | Arguments to be used for LogCat (The LogCat output will appear on an Output Channel). It can be an array such as: `[":S", "ReactNative:V", "ReactNativeJS:V"]`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | `array`    | `["*:S", "ReactNative:V", "ReactNativeJS:V"]` |
 | `runArguments`                     | Run arguments to be passed to `react-native run-<platform>` command (override all other configuration params)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | `array`    | n/a                                           |
@@ -663,6 +669,11 @@ The following is a list of all the configuration properties the debugger accepts
 | `scheme`                           | A scheme name to be passed to `react-native run-ios`, e.g. `devDebug` to specify `--scheme=devDebug`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | `string`   | n/a                                           |
 | `productName`                      | iOS bundle display name e.g. `AwesomeProject` value means that the extension will search for `AwesomeProject.app` bundle                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | `string`   | n/a                                           |
 | `jsDebugTrace`                     | Enable trace collection for depended extension `vscode-js-debug`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | `boolean`  | n/a                                           |
+| `useHermesEngine`                  | Whether the application uses the Hermes engine. Applies to the `reactnativedirect` debug type only, set it to `false` to debug a direct (JSC) iOS application                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | `boolean`  | `true`                                        |
+| `browserTarget`                    | Browser to be used for Expo Web debugging (`platform: "expoweb"`). Possible values: `chrome`, `edge`. If it's not set, the extension asks you to select a browser on debug session start                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | `string`   | n/a                                           |
+| `url`                              | Address of the Expo Web application to open in the browser, for example `http://localhost:8081`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | `string`   | n/a                                           |
+| `expoPlatformType`                 | Platform to run the Expo application on. Possible values: `Android`, `iOS`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | `string`   | `Android`                                     |
+| `openExpoQR`                       | Determines whether to open a tab with a QR code after launching the Expo server. If set to `false`, a new tab with a QR code won't be opened after the Expo server starts. You can open it later with the `React Native: Reopen QR Code in Expo` command                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | `boolean`  | `true`                                        |
 
 ## Re.Pack and Haul debugging
 
@@ -710,6 +721,63 @@ Below config showed classic debug mode in extension. With the version update of 
 # Customization
 
 The extension can be further customized for other React Native scenarios. These are the most common:
+
+## Extension settings
+
+Extension settings are stored in VS Code `settings.json` and can be applied on the user, workspace or folder level. The extension contributes the following settings:
+
+| Setting                                                                                   | Description                                                                                                                                                                                                                           | Type      | Default                                                                         |
+| ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- | ------------------------------------------------------------------------------- |
+| `react-native-tools.projectRoot`                                                          | Absolute or relative path to the folder which contains the React Native project. See [Change project root](#change-project-root)                                                                                                      | `string`  | `""`                                                                            |
+| `react-native-tools.reactNativeGlobalCommandName`                                         | Command name used to execute React Native CLI commands, for example `npx react-native` or a custom CLI wrapper                                                                                                                        | `string`  | n/a                                                                             |
+| `react-native-tools.logLevel`                                                             | Logging level of the extension. Possible values: `None`, `Error`, `Warning`, `Info`, `Debug`, `Trace`. See [Logging](#logging)                                                                                                        | `string`  | `Info`                                                                          |
+| `react-native-tools.logHighlight.enabled`                                                 | Enables lightweight syntax highlighting for the extension output logs. See [Configure custom colors for extension output logs](#configure-custom-colors-for-extension-output-logs)                                                    | `boolean` | `false`                                                                         |
+| `react-native-tools.networkInspector.consoleLogsColorTheme`                               | Color theme for Network inspector logs in the VS Code DevTools console. Possible values: `Light`, `Dark`. See [Network inspector logs theme](#network-inspector-logs-theme)                                                           | `string`  | `Light`                                                                         |
+| `react-native-tools.showPackagerIndicator`                                                | Whether to show the packager indicator in the status bar                                                                                                                                                                              | `boolean` | `true`                                                                          |
+| `react-native-tools.displayDebuggingCommandsButton`                                       | Whether to show the debugging commands button in the editor title area menu                                                                                                                                                           | `boolean` | `true`                                                                          |
+| `react-native-tools.showUserTips`                                                         | Whether to show notifications with tips about extension features                                                                                                                                                                      | `boolean` | `true`                                                                          |
+| `react-native-tools.setNodeVersion`                                                       | Node.js version used to run React Native commands. The version has to be installed via [nvm](https://github.com/nvm-sh/nvm): the extension substitutes it in `NVM_BIN`, `NVM_INC` and `PATH` of the spawned processes, e.g. `18.20.4` | `string`  | `""`                                                                            |
+| `react-native-tools.setPackageManager`                                                    | Package manager used to run project commands. Possible values: `npm`, `pnpm`. See [Set pnpm as package manager](#set-pnpm-as-package-manager)                                                                                         | `string`  | `npm`                                                                           |
+| `react-native-tools.telemetry.optIn`                                                      | Whether to send usage data to Microsoft. Set it to `false` to opt out. See [Telemetry reporting](#telemetry-reporting)                                                                                                                | `boolean` | `true`                                                                          |
+| `react-native.packager.port`                                                              | Port used by the React Native packager. See [Setting up the React Native packager](#setting-up-the-react-native-packager)                                                                                                             | `number`  | `8081`                                                                          |
+| `react-native.packager.status-indicator`                                                  | React Native packager status representation in the VS Code status bar. Possible values: `Full`, `Short`                                                                                                                               | `string`  | `Full`                                                                          |
+| `react-native.workspace.exclude`                                                          | Names of the folders which should be excluded from the project selection list in a multi-root workspace. See [Debug in vscode workspace](#debug-in-vscode-workspace)                                                                  | `array`   | `[]`                                                                            |
+| `react-native.expo.dependencies`                                                          | Versions of the packages which are installed by the extension to debug Expo applications. See [Configure dependencies versions for debugging Expo projects](#configure-dependencies-versions-for-debugging-expo-projects)             | `object`  | `{ "xdl": "59.2.31", "@expo/metro-config": "0.3.13", "@expo/ngrok": "^4.1.0" }` |
+| `react-native.android.runArguments.simulator`, `react-native.android.runArguments.device` | Run arguments passed to `react-native run-android` by the `Run Android` commands. See [Specifying custom arguments](#specifying-custom-arguments-for-react-native-run--command)                                                       | `array`   | `[]`                                                                            |
+| `react-native.android.env.simulator`, `react-native.android.env.device`                   | Environment variables passed to `react-native run-android`                                                                                                                                                                            | `object`  | `{}`                                                                            |
+| `react-native.android.envFile.simulator`, `react-native.android.envFile.device`           | Path to the file with environment variables passed to `react-native run-android`                                                                                                                                                      | `string`  | n/a                                                                             |
+| `react-native.android.logCatArguments`                                                    | LogCat filtering arguments used by the `Run React Native LogCat Monitor` command. See [Configure an Android LogCat Monitor](#configure-an-android-logcat-monitor)                                                                     | `array`   | `["*:S", "ReactNative:V", "ReactNativeJS:V"]`                                   |
+| `react-native.ios.runArguments.simulator`, `react-native.ios.runArguments.device`         | Run arguments passed to `react-native run-ios` by the `Run iOS` commands. See [Specifying custom arguments](#specifying-custom-arguments-for-react-native-run--command)                                                               | `array`   | `[]`                                                                            |
+| `react-native.ios.env.simulator`, `react-native.ios.env.device`                           | Environment variables passed to `react-native run-ios`                                                                                                                                                                                | `object`  | `{}`                                                                            |
+| `react-native.ios.envFile.simulator`, `react-native.ios.envFile.device`                   | Path to the file with environment variables passed to `react-native run-ios`                                                                                                                                                          | `string`  | n/a                                                                             |
+
+An example of `settings.json` with the most commonly used options:
+
+```json
+{
+  "react-native-tools.projectRoot": "./",
+  "react-native-tools.reactNativeGlobalCommandName": "npx react-native",
+  "react-native-tools.logLevel": "Info",
+  "react-native-tools.logHighlight.enabled": true,
+  "react-native-tools.setNodeVersion": "18.20.4",
+  "react-native-tools.setPackageManager": "npm",
+  "react-native-tools.showPackagerIndicator": true,
+  "react-native-tools.displayDebuggingCommandsButton": true,
+  "react-native-tools.showUserTips": true,
+  "react-native.packager.port": 8081,
+  "react-native.packager.status-indicator": "Full",
+  "react-native.android.logCatArguments": ["ReactNativeJS:V"],
+  "react-native.ios.runArguments.simulator": ["--simulator", "iPhone 15"]
+}
+```
+
+**NOTE:** The `React Native: Toggle Network View` command doesn't use an extension setting, it turns the built-in VS Code network view on and off by updating the global `debug.javascript.enableNetworkView` setting:
+
+```json
+{
+  "debug.javascript.enableNetworkView": true
+}
+```
 
 ## Sourcemaps
 
@@ -944,7 +1012,7 @@ Variable2_name=Variable2_value
 
 Variables that are declared in this `.env` file can override the original environment variables from `process.env` of the Packager process.
 
-It is possible to transfer environment variables (via `env` and `envFile` arguments in `launch.json`) from the `launch` or `attach` debug scenarios to the Packager. If these variables are defined, then they will be used, otherwise the `.env` file is used.
+It is possible to transfer environment variables (via `env` and `envFile` arguments in `launch.json`) from the `launch` or `attach` debug scenarios to the Packager. If these variables are defined, then they will be used, otherwise the `.env` file is used. A variable declared in `env` or `envFile` takes precedence even when its value is an empty string or another falsy value; the `.env` file only supplies variables that the debug scenario does not declare at all.
 
 ## Change project root
 
@@ -1007,14 +1075,23 @@ To enable new versions of the dependencies, it's required to restart VS Code edi
 
 ## Security dependency overrides
 
-Recent repository updates include a security pin for `serialize-javascript` via npm `overrides`.
-If you maintain a fork or run local dependency audits, align your `package.json` with the following:
+The repository pins a number of transitive dependencies through npm `overrides` to resolve security advisories. If you maintain a fork or run local dependency audits, align your `package.json` with the following:
 
 ```json
 {
   "overrides": {
-    "js-yaml": "4.1.1",
-    "serialize-javascript": "7.0.5"
+    "@babel/core": "7.29.6",
+    "brace-expansion": "5.0.9",
+    "decode-uri-component": "0.5.0",
+    "fast-uri": "3.1.6",
+    "js-yaml": "4.3.1",
+    "serialize-javascript": "7.0.5",
+    "mochawesome": {
+      "uuid": "11.1.1"
+    },
+    "istanbul-lib-processinfo": {
+      "uuid": "11.1.1"
+    }
   }
 }
 ```
@@ -1034,19 +1111,34 @@ Using these context variables you can assign the same keyboard combination for s
 
 ## Configure custom colors for extension output logs
 
+Syntax highlighting of the extension output logs is disabled by default to avoid performance issues on large outputs. To enable it, add the following setting to your `settings.json`:
+
+```json
+{
+  "react-native-tools.logHighlight.enabled": true
+}
+```
+
+The extension also contributes the `RN Output Log` language (`rn-output-log`), which is applied to `.rn-output` files. If you save extension logs to a file to inspect them later, associate it with the language to get the same highlighting:
+
+```json
+{
+  "files.associations": {
+    "*.rn-output": "rn-output-log"
+  }
+}
+```
+
 The extension provides custom TextMate tokens, with the help of which it is now possible to customize the colors of the logs in output channels:
 |Scope|Description|
 |---|---|
 |`rnt.output.string`|Single and double quoted strings|
-|`rnt.output.url`|Links, email and ip address, filepaths|
-|`rnt.output.timestamp`|Date and time|
+|`rnt.output.url`|Links which start with `http` or `https`|
 |`rnt.output.numeric`|Constant decimal numbers|
-|`rnt.output.process`|Logs of processes such as npm, bundle, and other build tasks|
-|`rnt.output.error`|Errors, exceptions, fails and stack for them|
+|`rnt.output.error`|Errors, exceptions, failures and fatal logs|
 |`rnt.output.warn`|Warning logs|
 |`rnt.output.info`|Info logs|
 |`rnt.output.debug`|Debug logs|
-|`rnt.output.verbose`|Verbose logs|
 |`rnt.output.constant`|Such values as `true`, `false`, `null`, `undefined`, `NaN`|
 |`rnt.output.success`|Logs indicating successful completion of the process, such as `BUILD SUCCESSFUL` and others|
 
