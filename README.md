@@ -19,6 +19,8 @@ To avoid conflicts, if both extensions are installed - only stable version will 
 
 You can not only download React Native Tools in the marketplace, but can also package your extension `.vsix` installation file by yourself locally. Following [this documentation](https://github.com/microsoft/vscode-react-native/blob/master/CONTRIBUTING.md#build-the-project) to package and install your React Native Tools to get the latest updates.
 
+Building and testing React Native Tools from source requires Node.js 22 or later. This development requirement does not affect the runtime requirements of the installed extension.
+
 ## About the extension
 
 This VS Code extension provides a development environment for React Native and Expo projects.
@@ -942,9 +944,13 @@ Variable2_name=Variable2_value
 
 ```
 
-Variables that are declared in this `.env` file can override the original environment variables from `process.env` of the Packager process.
+It is possible to transfer environment variables via the `env` and `envFile` arguments in `launch.json` from `launch` or `attach` debug scenarios to the Packager. Environment variables are merged in the following order, from highest to lowest precedence:
 
-It is possible to transfer environment variables (via `env` and `envFile` arguments in `launch.json`) from the `launch` or `attach` debug scenarios to the Packager. If these variables are defined, then they will be used, otherwise the `.env` file is used.
+1. Variables in the `env` argument of the `launch.json` configuration
+2. Variables already present in the extension process environment
+3. Variables from `envFile`, or from the project `.env` file when `envFile` is not specified
+
+Variables from `envFile` or `.env` never overwrite an existing process environment variable, even when its existing value is an empty string. Variables explicitly defined in `env` override both the process environment and values loaded from a file.
 
 ## Change project root
 
