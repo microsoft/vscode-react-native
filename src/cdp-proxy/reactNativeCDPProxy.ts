@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { IncomingMessage } from "http";
+import { URL } from "url";
 import {
     Connection,
     Server,
@@ -11,6 +12,7 @@ import {
     IProtocolSuccess,
 } from "vscode-cdp-proxy";
 import { CancellationToken, EventEmitter } from "vscode";
+import * as WebSocket from "ws";
 import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
 import { LogLevel } from "../extension/log/LogHelper";
 import { DebuggerEndpointHelper } from "./debuggerEndpointHelper";
@@ -123,9 +125,7 @@ export class ReactNativeCDPProxy {
             }
         }
 
-        this.applicationTarget = new Connection(
-            await WebSocketTransport.create(this.browserInspectUri),
-        );
+        this.applicationTarget = new Connection(await this.createApplicationTransport());
 
         this.applicationTarget.onError(this.onApplicationTargetError.bind(this));
         this.debuggerTarget.onError(this.onDebuggerTargetError.bind(this));
@@ -212,6 +212,35 @@ export class ReactNativeCDPProxy {
 
     private onApplicationTargetError(err: Error) {
         this.logger.error("Error on application transport", err);
+    }
+
+    private createApplicationTransport(): Promise<WebSocketTransport> {
+        const webSocket = new WebSocket(this.browserInspectUri, [], {
+            perMessageDeflate: false,
+            maxPayload: 256 * 1024 * 1024,
+            origin: ReactNativeCDPProxy.getWebSocketOrigin(this.browserInspectUri),
+        } as WebSocket.IClientOptions & { maxPayload: number; perMessageDeflate: boolean });
+
+        return new Promise((resolve, reject) => {
+            webSocket.once("open", () => {
+                resolve(new WebSocketTransport(webSocket));
+            });
+            webSocket.once("error", reject);
+        });
+    }
+
+    private static getWebSocketOrigin(webSocketUrl: string): string | undefined {
+        const url = new URL(webSocketUrl);
+
+        if (url.protocol === "ws:") {
+            return `http://${url.host}`;
+        }
+
+        if (url.protocol === "wss:") {
+            return `https://${url.host}`;
+        }
+
+        return undefined;
     }
 
     private async onApplicationTargetClosed() {
