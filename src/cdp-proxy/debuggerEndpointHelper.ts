@@ -13,8 +13,8 @@ import { ipToBuffer } from "../common/utils";
 
 interface DebuggableEndpointData {
     webSocketDebuggerUrl: string;
-    title: string;
-    description: string;
+    title?: string;
+    description?: string;
 }
 
 export class DebuggerEndpointHelper {
@@ -89,25 +89,27 @@ export class DebuggerEndpointHelper {
 
         // Chrome its top-level debugg on /json/version, while Node does not.
         // Request both and return whichever one got us a string.
-        const jsonList = await this.fetchJson<DebuggableEndpointData[]>(
+        const jsonListResponse = await this.fetchJson<unknown>(
             URL.resolve(browserURL, "/json/list"),
         );
+        const jsonList = this.getDebuggableEndpoints(jsonListResponse);
         if (jsonList.length) {
             return isHermes
                 ? this.tryToGetHermesImprovedChromeReloadsWebSocketDebuggerUrl(jsonList)
                 : jsonList[0].webSocketDebuggerUrl;
         }
         // Try to get websocket endpoint from default metro bundler
-        const defaultJsonList = await this.fetchJson<DebuggableEndpointData[]>(
+        const defaultJsonListResponse = await this.fetchJson<unknown>(
             "http://localhost:8081/json/list",
         );
+        const defaultJsonList = this.getDebuggableEndpoints(defaultJsonListResponse);
         if (defaultJsonList.length) {
             return isHermes
                 ? this.tryToGetHermesImprovedChromeReloadsWebSocketDebuggerUrl(defaultJsonList)
                 : defaultJsonList[0].webSocketDebuggerUrl;
         }
 
-        throw new Error("Could not find any debuggable target");
+        throw new Error("Could not find any debuggable target with a valid webSocketDebuggerUrl");
     }
 
     /**
@@ -120,9 +122,11 @@ export class DebuggerEndpointHelper {
         );
         if (jsonList.length) {
             if (jsonList[0].title || jsonList[0].description) {
+                const title = jsonList[0].title || "";
+                const description = jsonList[0].description || "";
                 const isExpo =
-                    jsonList[0].title.toLowerCase().includes("exponent") ||
-                    jsonList[0].description.toLowerCase().includes("exponent");
+                    title.toLowerCase().includes("exponent") ||
+                    description.toLowerCase().includes("exponent");
                 return isExpo ? "expo" : "react-native";
             }
             return "react-native";
@@ -137,6 +141,20 @@ export class DebuggerEndpointHelper {
             target => target.title === "React Native Experimental (Improved Chrome Reloads)",
         );
         return target ? target.webSocketDebuggerUrl : jsonList[0].webSocketDebuggerUrl;
+    }
+
+    private getDebuggableEndpoints(value: unknown): DebuggableEndpointData[] {
+        return Array.isArray(value) ? value.filter(this.isDebuggableEndpointData) : [];
+    }
+
+    private isDebuggableEndpointData(value: unknown): value is DebuggableEndpointData {
+        if (!value || typeof value !== "object") {
+            return false;
+        }
+
+        const webSocketDebuggerUrl = (value as { webSocketDebuggerUrl?: unknown })
+            .webSocketDebuggerUrl;
+        return typeof webSocketDebuggerUrl === "string" && webSocketDebuggerUrl.trim().length > 0;
     }
 
     /**
