@@ -4,6 +4,8 @@
 import { Page } from "playwright";
 import { SmokeTestLogger } from "./smokeTestLogger";
 import { app, screenshots } from "../main";
+import { Constant } from "./constants";
+import { TimeoutConstants } from "./timeoutConstants";
 
 /**
  * Base class for smoke tests that provides common setup and teardown functionality
@@ -14,7 +16,12 @@ export class BaseSmokeTest {
      */
     public static async initApp(): Promise<Page> {
         await app.launch();
-        return app.getMainPage();
+        const page = app.getMainPage();
+        await page.waitForSelector(
+            `[id="${Constant.previewExtensionId}"], [id="${Constant.prodExtensionId}"]`,
+            { timeout: TimeoutConstants.ACTIVATION_TIMEOUT },
+        );
+        return page;
     }
 
     /**

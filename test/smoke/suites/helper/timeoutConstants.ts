@@ -9,9 +9,6 @@ export class TimeoutConstants {
     /** Activation timeout - 10 seconds */
     static readonly ACTIVATION_TIMEOUT = 10000;
 
-    /** Application initialization sleep - 10 seconds */
-    static readonly APPLICATION_INIT_SLEEP = 10000;
-
     /** Command palette visibility timeout - 5 seconds */
     static readonly COMMAND_PALETTE_TIMEOUT = 5000;
 

@@ -9,7 +9,6 @@ import { SmokeTestLogger } from "./smokeTestLogger";
 import * as fs from "fs";
 import rimraf = require("rimraf");
 import { Element } from "./constants";
-import { TimeoutConstants } from "./timeoutConstants";
 
 export class Application {
     private app: ElectronApplication | null = null;
@@ -92,8 +91,6 @@ export class Application {
         });
 
         this.mainPage = await this.waitForWorkbenchWindow(60000);
-
-        await utilities.sleep(TimeoutConstants.APPLICATION_INIT_SLEEP);
         return this.mainPage;
     }
 
