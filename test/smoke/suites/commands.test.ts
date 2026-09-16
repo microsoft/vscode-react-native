@@ -7,6 +7,7 @@ import { Element } from "./helper/constants";
 import { ComponentHelper } from "./helper/componentHelper";
 import { TimeoutConstants } from "./helper/timeoutConstants";
 import { BaseSmokeTest } from "./helper/baseSmokeTest";
+import { WaitHelper } from "./helper/waitHelper";
 
 async function commandVisible(commandVariants: string[]): Promise<boolean> {
     const rows = await ElementHelper.Page().$$(`#quickInput_list .monaco-list-row`);
@@ -62,7 +63,10 @@ export function startCommandPaletteTests(): void {
                     TimeoutConstants.COMMAND_PALETTE_TIMEOUT,
                 );
 
-                const found = await commandVisible(commandGroup.variants);
+                const found = await WaitHelper.waitIsTrue(
+                    () => commandVisible(commandGroup.variants),
+                    TimeoutConstants.COMMAND_PALETTE_TIMEOUT,
+                );
                 assert.ok(
                     found,
                     `Command variants are not visible: ${commandGroup.variants.join(" | ")}`,
