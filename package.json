@@ -1394,6 +1394,8 @@
     },
     "scripts": {
         "build": "gulp build",
+        "lint": "gulp lint",
+        "format": "gulp format",
         "vscode:prepublish": "gulp",
         "test": "node ./test/runTest.js",
         "test-localization": "node ./test/localization/runTest.js",
@@ -1401,7 +1403,7 @@
         "prepare-smoke-tests": "cd test/smoke && npm ci",
         "prepare-smoke-tests-project": "cd test/smoke/resources/sampleReactNativeProject && npm install",
         "compile-smoke-tests": "cd test/smoke && tsc",
-        "smoke-tests": "cd test/smoke && tsc && node ./node_modules/mocha/bin/_mocha --config ./.mocharc.js --reporter mocha-multi-reporters",
+        "smoke-tests": "npm --prefix test/smoke test",
         "smoke-build": "node gulp_scripts/smoke-build.js",
         "smoke-build-test": "node gulp_scripts/smoke-build.js --test",
         "postinstall": "patch-package"
@@ -1478,7 +1480,7 @@
         "@types/source-map": "0.5.2",
         "@types/source-map-support": "0.2.28",
         "@types/uuid": "9.0.0",
-        "@types/vscode": "^1.46.0",
+        "@types/vscode": "^1.75.0",
         "@types/websocket": "0.0.33",
         "@types/ws": "0.0.39",
         "@typescript-eslint/eslint-plugin": "8.67.0",
@@ -1523,6 +1525,7 @@
         "sinon": "1.17.3",
         "source-map-support": "0.4.0",
         "through2": "2.0.1",
+        "terser-webpack-plugin": "^5.4.0",
         "typescript": "npm:@typescript/typescript6@6.0.2",
         "typescript-7": "npm:typescript@7.0.2",
         "vscode-debugprotocol": "1.51.0",
@@ -1537,8 +1540,8 @@
         "@babel/core": "7.29.6",
         "brace-expansion": "5.0.9",
         "decode-uri-component": "0.5.0",
-        "fast-uri": "3.1.5",
-        "js-yaml": "4.3.1",
+        "fast-uri": "3.1.6",
+        "js-yaml": "4.3.2",
         "serialize-javascript": "7.0.5",
         "mochawesome": {
             "uuid": "11.1.1"
