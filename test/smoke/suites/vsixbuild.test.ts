@@ -5,7 +5,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 import assert = require("assert");
-import AdmZip = require("adm-zip");
+import JSZip = require("jszip");
 
 export function startVsixExistenceTest(): void {
     describe("VSIX existence check", () => {
@@ -31,7 +31,7 @@ export function startVsixExistenceTest(): void {
             }
         });
 
-        it("VSIX manifest contains required Identity fields", function () {
+        it("VSIX manifest contains required Identity fields", async function () {
             if (!fs.existsSync(targetDir)) {
                 this.skip?.();
                 return;
@@ -43,11 +43,11 @@ export function startVsixExistenceTest(): void {
             }
 
             const vsixPath = path.join(targetDir, vsixFiles[0]);
-            const zip = new AdmZip(vsixPath);
-            const manifestEntry = zip.getEntry("extension.vsixmanifest");
+            const zip = await JSZip.loadAsync(fs.readFileSync(vsixPath));
+            const manifestEntry = zip.file("extension.vsixmanifest");
             assert.ok(manifestEntry, "extension.vsixmanifest not found inside VSIX archive");
 
-            const manifestXml = zip.readAsText(manifestEntry);
+            const manifestXml = await manifestEntry.async("string");
             assert.ok(manifestXml.length > 0, "extension.vsixmanifest is empty");
 
             // Assert <PackageManifest> root element is present
