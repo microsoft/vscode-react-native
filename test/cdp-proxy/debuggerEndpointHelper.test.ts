@@ -133,6 +133,25 @@ suite("debuggerEndpointHelper", function () {
         assert.strictEqual(delayStub.calledWithExactly(700), true);
     });
 
+    test("retryGetWSEndpoint should stop when retry attempts are exhausted", async function () {
+        const helper = new DebuggerEndpointHelper();
+        const getWSEndpointStub = sinon.stub(helper, "getWSEndpoint");
+        const delayStub = sinon.stub(PromiseUtil, "delay");
+        stubs.push(getWSEndpointStub, delayStub);
+        getWSEndpointStub.returns(Promise.reject(new Error("not ready")));
+        delayStub.returns(Promise.resolve());
+
+        await assert.rejects(
+            helper.retryGetWSEndpoint("http://localhost:9222", 1, {
+                isCancellationRequested: false,
+            } as any),
+        );
+
+        assert.strictEqual(getWSEndpointStub.calledTwice, true);
+        assert.strictEqual(delayStub.calledOnce, true);
+        assert.strictEqual(delayStub.calledWithExactly(700), true);
+    });
+
     test("retryGetWSEndpoint should stop when cancellation is requested", async function () {
         const helper = new DebuggerEndpointHelper();
         const getWSEndpointStub = sinon.stub(helper, "getWSEndpoint");
