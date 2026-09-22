@@ -207,8 +207,8 @@ suite("installPodsCommand", function () {
                 "findPodCommand",
             ).returns(podCommand);
             const execFileToStringStub = Sinon.stub(ChildProcess.prototype, "execFileToString");
-            execFileToStringStub.onFirstCall().resolves("1.15.2\n");
-            execFileToStringStub.onSecondCall().resolves("Installation complete");
+            execFileToStringStub.onFirstCall().returns(Promise.resolve("1.15.2\n"));
+            execFileToStringStub.onSecondCall().returns(Promise.resolve("Installation complete"));
 
             try {
                 const mockProject = createMockProject(tempDir, path.join(tempDir, "node_modules"));
