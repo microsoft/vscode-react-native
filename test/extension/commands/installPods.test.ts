@@ -12,6 +12,7 @@ import * as vscode from "vscode";
 import { InstallPods } from "../../../src/extension/commands/installPods";
 import { AppLauncher } from "../../../src/extension/appLauncher";
 import { OutputChannelLogger } from "../../../src/extension/log/OutputChannelLogger";
+import { ChildProcess } from "../../../src/common/node/childProcess";
 
 suite("installPodsCommand", function () {
     let showWarningMessageStub: Sinon.SinonStub;
@@ -190,6 +191,46 @@ suite("installPodsCommand", function () {
                 loggerErrorStub.firstCall.args[0].includes("Podfile"),
                 "Error message should mention Podfile",
             );
+        });
+    });
+
+    suite("Pod command execution", function () {
+        test("should preserve spaces in the pod executable path", async function () {
+            const iosPath = path.join(tempDir, "ios");
+            fs.mkdirSync(iosPath, { recursive: true });
+            fs.writeFileSync(path.join(iosPath, "Podfile"), "");
+
+            const platformStub = Sinon.stub(os, "platform").returns("darwin");
+            const podCommand = "/Users/test user/.rbenv/shims/pod";
+            const findPodCommandStub = Sinon.stub(
+                installPodsCommand as any,
+                "findPodCommand",
+            ).returns(podCommand);
+            const execFileToStringStub = Sinon.stub(ChildProcess.prototype, "execFileToString");
+            execFileToStringStub.onFirstCall().resolves("1.15.2\n");
+            execFileToStringStub.onSecondCall().resolves("Installation complete");
+
+            try {
+                const mockProject = createMockProject(tempDir, path.join(tempDir, "node_modules"));
+                (installPodsCommand as any).project = mockProject;
+
+                await installPodsCommand.baseFn();
+
+                assert.strictEqual(execFileToStringStub.callCount, 2);
+                assert.deepStrictEqual(execFileToStringStub.firstCall.args.slice(0, 2), [
+                    podCommand,
+                    ["--version"],
+                ]);
+                assert.deepStrictEqual(execFileToStringStub.secondCall.args.slice(0, 2), [
+                    podCommand,
+                    ["install"],
+                ]);
+                assert.strictEqual(showInformationMessageStub.calledOnce, true);
+            } finally {
+                execFileToStringStub.restore();
+                findPodCommandStub.restore();
+                platformStub.restore();
+            }
         });
     });
 
