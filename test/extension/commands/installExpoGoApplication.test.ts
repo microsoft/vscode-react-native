@@ -22,6 +22,7 @@ suite("installExpoGoApplicationCommand", function () {
     function createCommandModule(
         androidClientVersion: string,
         downloadExpoGoStub: Sinon.SinonStub,
+        quickPickResults: Array<string | undefined> = ["Android", "Manual"],
     ) {
         const response = new EventEmitter() as any;
         response.setEncoding = Sinon.stub();
@@ -51,8 +52,9 @@ suite("installExpoGoApplicationCommand", function () {
         }) as any;
 
         const showQuickPickStub = Sinon.stub();
-        showQuickPickStub.onFirstCall().returns(Promise.resolve("Android"));
-        showQuickPickStub.onSecondCall().returns(Promise.resolve("Manual"));
+        quickPickResults.forEach((result, index) => {
+            showQuickPickStub.onCall(index).returns(Promise.resolve(result));
+        });
 
         const logger = {
             info: Sinon.stub(),
@@ -92,6 +94,7 @@ suite("installExpoGoApplicationCommand", function () {
         return {
             InstallExpoGoApplication: module.InstallExpoGoApplication,
             getStub,
+            showQuickPickStub,
         };
     }
 
@@ -128,5 +131,35 @@ suite("installExpoGoApplicationCommand", function () {
             "https://example.com/expo.apk",
             "/workspace/app/expogo_2.0.0.apk",
         ]);
+    });
+
+    test("should stop when platform selection is canceled", async function () {
+        const downloadExpoGoStub = Sinon.stub().returns(Promise.resolve());
+        const { InstallExpoGoApplication, getStub, showQuickPickStub } = createCommandModule(
+            "2.0.0",
+            downloadExpoGoStub,
+            [undefined],
+        );
+
+        await runCommand(InstallExpoGoApplication);
+
+        assert.strictEqual(showQuickPickStub.calledOnce, true);
+        assert.strictEqual(getStub.called, false);
+        assert.strictEqual(downloadExpoGoStub.called, false);
+    });
+
+    test("should stop when installation selection is canceled", async function () {
+        const downloadExpoGoStub = Sinon.stub().returns(Promise.resolve());
+        const { InstallExpoGoApplication, getStub, showQuickPickStub } = createCommandModule(
+            "2.0.0",
+            downloadExpoGoStub,
+            ["Android", undefined],
+        );
+
+        await runCommand(InstallExpoGoApplication);
+
+        assert.strictEqual(showQuickPickStub.callCount, 2);
+        assert.strictEqual(getStub.called, false);
+        assert.strictEqual(downloadExpoGoStub.called, false);
     });
 });
