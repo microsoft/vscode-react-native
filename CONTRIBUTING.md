@@ -28,9 +28,18 @@ There are currently 2 components to our extension: The extension running in the 
 
 ## Testing
 
-There is a set of Mocha tests for the extension and extension localization which can be run with `npm test` and `npm run test-localization` or by `Launch Extension Tests` and `Launch Localization Tests`. Also there are e2e smoke tests placed in [`test/smoke`](https://github.com/microsoft/vscode-react-native/tree/master/test/smoke) folder that can be launched by `yarn smoke-tests` command or by `Launch All Smoke Tests` command. Make sure to [prepare test environment](https://github.com/microsoft/vscode-react-native/blob/master/test/smoke/docs/run-locally.md) before launching e2e tests.
+The extension has Mocha-based extension tests, localization tests, and end-to-end smoke tests. The commands below serve different purposes:
 
-Run `gulp lint` to check your code against our linting rules or `gulp format` to try to auto fix all linting problems with Prettier.
+- `npm test` runs the extension tests in a VS Code Extension Host. Build the project first with `npm run build` (or `npx gulp`) so the test runner and extension JavaScript are up to date. In VS Code, use the `Launch Extension tests` configuration.
+- `npm run test-localization` runs the localization tests in a VS Code Extension Host. In VS Code, use the `Launch Localization Tests` configuration.
+- `npx gulp test:coverage` builds the development version and runs the extension tests with NYC coverage instrumentation. It writes text and HTML coverage reports under `coverage/`; no minimum coverage threshold is currently enforced.
+- `npx gulp test-no-build` invokes the extension test runner without building or linting first. Use it only when the generated JavaScript is already up to date.
+- `npx gulp watch-build-test` builds and tests once, then watches source and test files and repeats the build and tests after changes.
+- `npm run smoke-tests` runs the end-to-end smoke tests in `test/smoke` using a separate VS Code installation. It is not part of `npm test`.
+
+To prepare smoke tests, run `npm run prepare-smoke-tests` from the repository root. If you are running scenarios that use the sample React Native project, also run `npm run prepare-smoke-tests-project`. The smoke test package and setup details are documented in [`test/smoke/README.md`](https://github.com/microsoft/vscode-react-native/blob/master/test/smoke/README.md). In VS Code, `Launch Smoke Tests` compiles the smoke tests before running them; the required smoke-test dependencies must already be installed.
+
+Run `npx gulp lint` to check formatting and lint rules, or `npx gulp format` to apply automatic formatting and lint fixes.
 
 ## Legal
 
