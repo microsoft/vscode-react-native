@@ -23,7 +23,7 @@ export class ReactNativeSessionManager
     ): vscode.ProviderResult<vscode.DebugAdapterDescriptor> {
         const rnSession = new RNSession(session);
 
-        let debugServer;
+        let debugServer: Net.Server;
         if (session.configuration.platform != "expoweb") {
             debugServer = Net.createServer(socket => {
                 const rnDebugSession =
@@ -45,11 +45,18 @@ export class ReactNativeSessionManager
             });
         }
 
-        debugServer.listen(0, "127.0.0.1");
-        this.servers.set(session.id, debugServer);
+        return new Promise<vscode.DebugAdapterServer>((resolve, reject) => {
+            debugServer.once("error", reject);
+            debugServer.listen(0, "127.0.0.1", () => {
+                debugServer.removeListener("error", reject);
+                this.servers.set(session.id, debugServer);
 
-        // make VS Code connect to debug server
-        return new vscode.DebugAdapterServer((<Net.AddressInfo>debugServer.address()).port);
+                // make VS Code connect to debug server
+                resolve(
+                    new vscode.DebugAdapterServer((<Net.AddressInfo>debugServer.address()).port),
+                );
+            });
+        });
     }
 
     public terminate(terminateEvent: TerminateEventArgs): void {
