@@ -232,6 +232,40 @@ suite("installPodsCommand", function () {
                 platformStub.restore();
             }
         });
+
+        test("should report a pod version failure once", async function () {
+            const iosPath = path.join(tempDir, "ios");
+            fs.mkdirSync(iosPath, { recursive: true });
+            fs.writeFileSync(path.join(iosPath, "Podfile"), "");
+
+            const platformStub = Sinon.stub(os, "platform").returns("darwin");
+            const findPodCommandStub = Sinon.stub(
+                installPodsCommand as any,
+                "findPodCommand",
+            ).returns("pod");
+            const execFileToStringStub = Sinon.stub(
+                ChildProcess.prototype,
+                "execFileToString",
+            ).returns(Promise.reject(new Error("spawn EACCES")));
+
+            try {
+                const mockProject = createMockProject(tempDir, path.join(tempDir, "node_modules"));
+                (installPodsCommand as any).project = mockProject;
+
+                await installPodsCommand.baseFn();
+
+                assert.strictEqual(execFileToStringStub.calledOnce, true);
+                assert.strictEqual(showErrorMessageStub.calledOnce, true);
+                assert.ok(
+                    showErrorMessageStub.firstCall.args[0].includes("Cannot execute pod command"),
+                );
+                assert.ok(showErrorMessageStub.firstCall.args[0].includes("spawn EACCES"));
+            } finally {
+                execFileToStringStub.restore();
+                findPodCommandStub.restore();
+                platformStub.restore();
+            }
+        });
     });
 
     suite("Pod command discovery", function () {

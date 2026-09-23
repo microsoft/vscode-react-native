@@ -63,9 +63,9 @@ export class InstallPods extends Command {
             } catch (versionError) {
                 const errorMsg =
                     "Cannot execute pod command. Please ensure CocoaPods is properly installed.";
-                logger.error(errorMsg);
-                void vscode.window.showErrorMessage(errorMsg);
-                throw new Error(errorMsg);
+                const errorDetails =
+                    versionError instanceof Error ? versionError.message : String(versionError);
+                throw new Error(`${errorMsg} ${errorDetails}`);
             }
             logger.info(`Executing: ${podCommand} install`);
             const stdout = await childProcess.execFileToString(podCommand, ["install"], {
