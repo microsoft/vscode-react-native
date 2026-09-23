@@ -32,4 +32,7 @@ export class TimeoutConstants {
 
     /** File explorer element visibility timeout - 10 seconds */
     static readonly FILE_EXPLORER_TIMEOUT = 10000;
+
+    /** Run and Debug view visibility timeout - 10 seconds */
+    static readonly RUN_AND_DEBUG_VIEW_TIMEOUT = 10000;
 }
