@@ -19,8 +19,34 @@ export class HermesCDPMessageHandler extends BaseCDPMessageHandler {
      */
     private readonly HERMES_NATIVE_FUNCTION_SCRIPT_ID: string = "4294967295";
 
+    /**
+     * @description Quiet period after the last breakpoint request before the application
+     * is reloaded, so that a burst of breakpoint requests causes a single reload
+     * @type {number}
+     */
+    private readonly RELOAD_DEBOUNCE_MS: number = 300;
+
+    /**
+     * @description Id of the out-of-band Page.reload request. The debugger never sent it,
+     * so it discards the reply as an unknown response id
+     * @type {number}
+     */
+    private readonly RELOAD_REQUEST_ID: number = 2147483646;
+
+    private isFirstRun: boolean = true;
+    private reloadTimer: NodeJS.Timeout | null = null;
+
     public processDebuggerCDPMessage(event: any): ProcessedCDPMessage {
         let sendBack = false;
+        if (event.method === CDP_API_NAMES.CLOSE) {
+            this.cancelFirstRunReload();
+        } else if (
+            event.method === CDP_API_NAMES.DEBUGGER_SET_BREAKPOINT ||
+            event.method === CDP_API_NAMES.DEBUGGER_SET_BREAKPOINT_BY_URL
+        ) {
+            this.scheduleFirstRunReload();
+        }
+
         if (event.method === CDP_API_NAMES.DEBUGGER_SET_BREAKPOINT) {
             event = this.handleBreakpointSetting(event);
         } else if (event.method === CDP_API_NAMES.RUNTIME_CALL_FUNCTION_ON) {
@@ -98,6 +124,46 @@ export class HermesCDPMessageHandler extends BaseCDPMessageHandler {
         event.params.callFrames = callFrames;
 
         return event;
+    }
+
+    /**
+     * The application finishes executing its bundle before the debugger manages to attach,
+     * so breakpoints registered for the first run resolve but are never reached. Reload the
+     * application once the debugger has finished sending its initial breakpoints, so that the
+     * bundle is evaluated again while they are in place. Reloading is driven by the device
+     * (the "nativePageReloads" capability), so the debugger stays attached across it.
+     */
+    private scheduleFirstRunReload(): void {
+        if (!this.isFirstRun) {
+            return;
+        }
+
+        if (this.reloadTimer) {
+            clearTimeout(this.reloadTimer);
+        }
+
+        this.reloadTimer = setTimeout(() => {
+            this.reloadTimer = null;
+
+            if (!this.isFirstRun) {
+                return;
+            }
+            this.isFirstRun = false;
+
+            this.applicationTarget?.send({
+                id: this.RELOAD_REQUEST_ID,
+                method: CDP_API_NAMES.PAGE_RELOAD,
+                params: {},
+            });
+        }, this.RELOAD_DEBOUNCE_MS);
+    }
+
+    private cancelFirstRunReload(): void {
+        if (this.reloadTimer) {
+            clearTimeout(this.reloadTimer);
+            this.reloadTimer = null;
+        }
+        this.isFirstRun = true;
     }
 
     private handleBreakpointSetting(event: any): any {

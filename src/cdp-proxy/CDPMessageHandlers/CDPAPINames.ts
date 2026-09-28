@@ -12,4 +12,5 @@ export const CDP_API_NAMES = {
     CLOSE: "close",
     DEBUGGER_SCRIPT_PARSED: "Debugger.scriptParsed",
     DEBUGGER_SET_BREAKPOINT_BY_URL: "Debugger.setBreakpointByUrl",
+    PAGE_RELOAD: "Page.reload",
 };
