@@ -146,6 +146,10 @@ export class FileSystem {
     }
 
     public async removePathRecursivelyAsync(p: string): Promise<void> {
+        if (await this.unlinkSymlinkedParentAsync(p)) {
+            return;
+        }
+
         let stats: nodeFs.Stats;
         try {
             stats = await this.fs.promises.lstat(p);
@@ -171,6 +175,10 @@ export class FileSystem {
     }
 
     public removePathRecursivelySync(p: string): void {
+        if (this.unlinkSymlinkedParentSync(p)) {
+            return;
+        }
+
         let stats: nodeFs.Stats;
         try {
             stats = this.fs.lstatSync(p);
@@ -189,5 +197,41 @@ export class FileSystem {
             /* file or symbolic link */
             this.fs.unlinkSync(p);
         }
+    }
+
+    private async unlinkSymlinkedParentAsync(p: string): Promise<boolean> {
+        let parentPath = path.dirname(p);
+        while (parentPath !== path.dirname(parentPath)) {
+            try {
+                if ((await this.fs.promises.lstat(parentPath)).isSymbolicLink()) {
+                    await this.fs.promises.unlink(parentPath);
+                    return true;
+                }
+            } catch (err) {
+                if ((err as NodeJS.ErrnoException).code !== "ENOENT") {
+                    throw err;
+                }
+            }
+            parentPath = path.dirname(parentPath);
+        }
+        return false;
+    }
+
+    private unlinkSymlinkedParentSync(p: string): boolean {
+        let parentPath = path.dirname(p);
+        while (parentPath !== path.dirname(parentPath)) {
+            try {
+                if (this.fs.lstatSync(parentPath).isSymbolicLink()) {
+                    this.fs.unlinkSync(parentPath);
+                    return true;
+                }
+            } catch (err) {
+                if ((err as NodeJS.ErrnoException).code !== "ENOENT") {
+                    throw err;
+                }
+            }
+            parentPath = path.dirname(parentPath);
+        }
+        return false;
     }
 }

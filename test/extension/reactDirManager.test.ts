@@ -69,4 +69,48 @@ suite("reactDirManager.ts", () => {
             new FileSystem().removePathRecursivelySync(testRoot);
         }
     });
+
+    test("Should not follow a symbolic link in the react folder parent when setting up", async () => {
+        const testRoot = await fs.promises.mkdtemp(path.join(os.tmpdir(), "react-dir-manager-"));
+        const workspaceRoot = path.join(testRoot, "workspace");
+        const targetPath = path.join(testRoot, "target");
+        const targetFilePath = path.join(targetPath, "important.txt");
+        const manager = new ReactDirManager(workspaceRoot);
+
+        try {
+            await fs.promises.mkdir(path.dirname(manager.vscodeDirPath), { recursive: true });
+            await fs.promises.mkdir(targetPath);
+            await fs.promises.writeFile(targetFilePath, "must not be deleted");
+            await fs.promises.symlink(targetPath, manager.vscodeDirPath, "junction");
+
+            await manager.setup();
+
+            assert.strictEqual(fs.existsSync(targetFilePath), true);
+            assert.strictEqual(fs.lstatSync(manager.vscodeDirPath).isSymbolicLink(), false);
+        } finally {
+            new FileSystem().removePathRecursivelySync(testRoot);
+        }
+    });
+
+    test("Should not follow a symbolic link in the react folder parent when disposing", async () => {
+        const testRoot = await fs.promises.mkdtemp(path.join(os.tmpdir(), "react-dir-manager-"));
+        const workspaceRoot = path.join(testRoot, "workspace");
+        const targetPath = path.join(testRoot, "target");
+        const targetFilePath = path.join(targetPath, "important.txt");
+        const manager = new ReactDirManager(workspaceRoot);
+
+        try {
+            await fs.promises.mkdir(path.dirname(manager.vscodeDirPath), { recursive: true });
+            await fs.promises.mkdir(targetPath);
+            await fs.promises.writeFile(targetFilePath, "must not be deleted");
+            await fs.promises.symlink(targetPath, manager.vscodeDirPath, "junction");
+
+            manager.dispose();
+
+            assert.strictEqual(fs.existsSync(targetFilePath), true);
+            await assert.rejects(fs.promises.lstat(manager.vscodeDirPath), { code: "ENOENT" });
+        } finally {
+            new FileSystem().removePathRecursivelySync(testRoot);
+        }
+    });
 });
