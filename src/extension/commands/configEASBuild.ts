@@ -56,13 +56,14 @@ export class ConfigEASBuild extends ReactNativeCommand {
                             "Create EAS build config file successfully.",
                         ),
                     );
-                } catch {
+                } catch (error) {
                     logger.error(
                         localize(
                             "NoExistingEASProject",
                             "Unable to find existing EAS project. Please run 'eas init' firstly to bind your app to EAS project.",
                         ),
                     );
+                    throw error;
                 }
             }
         } else {
