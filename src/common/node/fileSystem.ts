@@ -146,37 +146,48 @@ export class FileSystem {
     }
 
     public async removePathRecursivelyAsync(p: string): Promise<void> {
-        const exists = await this.exists(p);
-        if (exists) {
-            const stats = await this.stat(p);
-            if (stats.isDirectory()) {
-                const childPaths = await this.readDir(p);
-                await Promise.all(
-                    childPaths.map(childPath =>
-                        this.removePathRecursivelyAsync(path.join(p, childPath)),
-                    ),
-                );
-                await this.rmdir(p);
-            } else {
-                /* file */
-                return this.unlink(p);
+        let stats: nodeFs.Stats;
+        try {
+            stats = await this.fs.promises.lstat(p);
+        } catch (err) {
+            if ((err as NodeJS.ErrnoException).code === "ENOENT") {
+                return;
             }
+            throw err;
+        }
+
+        if (stats.isDirectory()) {
+            const childPaths = await this.readDir(p);
+            await Promise.all(
+                childPaths.map(childPath =>
+                    this.removePathRecursivelyAsync(path.join(p, childPath)),
+                ),
+            );
+            await this.rmdir(p);
+        } else {
+            /* file or symbolic link */
+            return this.unlink(p);
         }
     }
 
     public removePathRecursivelySync(p: string): void {
-        if (this.fs.existsSync(p)) {
-            const stats = this.fs.statSync(p);
-            if (stats.isDirectory()) {
-                const contents = this.fs.readdirSync(p);
-                contents.forEach(childPath =>
-                    this.removePathRecursivelySync(path.join(p, childPath)),
-                );
-                this.fs.rmdirSync(p);
-            } else {
-                /* file */
-                this.fs.unlinkSync(p);
+        let stats: nodeFs.Stats;
+        try {
+            stats = this.fs.lstatSync(p);
+        } catch (err) {
+            if ((err as NodeJS.ErrnoException).code === "ENOENT") {
+                return;
             }
+            throw err;
+        }
+
+        if (stats.isDirectory()) {
+            const contents = this.fs.readdirSync(p);
+            contents.forEach(childPath => this.removePathRecursivelySync(path.join(p, childPath)));
+            this.fs.rmdirSync(p);
+        } else {
+            /* file or symbolic link */
+            this.fs.unlinkSync(p);
         }
     }
 }

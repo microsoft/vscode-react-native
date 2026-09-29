@@ -3,8 +3,11 @@
 
 // The module "assert" provides assertion methods from node
 import assert = require("assert");
+import * as fs from "fs";
+import * as os from "os";
 import * as path from "path";
 
+import { FileSystem } from "../../src/common/node/fileSystem";
 import { ReactDirManager } from "../../src/extension/reactDirManager";
 
 suite("reactDirManager.ts", () => {
@@ -18,5 +21,30 @@ suite("reactDirManager.ts", () => {
                 assert.strictEqual(".vscode", path.basename(reactPath));
             });
         });
+    });
+
+    test("Should not follow a symbolic link when setting up the react folder", async () => {
+        const testRoot = await fs.promises.mkdtemp(path.join(os.tmpdir(), "react-dir-manager-"));
+        const workspaceRoot = path.join(testRoot, "workspace");
+        const targetPath = path.join(testRoot, "target");
+        const targetFilePath = path.join(targetPath, "important.txt");
+        const manager = new ReactDirManager(workspaceRoot);
+
+        try {
+            await fs.promises.mkdir(manager.vscodeDirPath, { recursive: true });
+            await fs.promises.mkdir(targetPath);
+            await fs.promises.writeFile(targetFilePath, "must not be deleted");
+            await fs.promises.symlink(targetPath, manager.reactDirPath, "junction");
+
+            await manager.setup();
+
+            assert.strictEqual(fs.existsSync(targetFilePath), true);
+            assert.strictEqual(
+                (await fs.promises.lstat(manager.reactDirPath)).isSymbolicLink(),
+                false,
+            );
+        } finally {
+            new FileSystem().removePathRecursivelySync(testRoot);
+        }
     });
 });

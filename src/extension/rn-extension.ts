@@ -27,6 +27,7 @@ import {
     getExtensionVersion,
     getExtensionName,
     findFileInFolderHierarchy,
+    isWorkspaceTrusted,
 } from "../common/extensionHelper";
 import { SettingsHelper } from "./settingsHelper";
 import { ReactDirManager } from "./reactDirManager";
@@ -338,6 +339,10 @@ export function getCountOfWorkspaceFolders(): number {
 }
 
 export async function onFolderAdded(folder: vscode.WorkspaceFolder): Promise<void> {
+    if (!isWorkspaceTrusted()) {
+        return;
+    }
+
     const workspacePath = vscode.workspace.workspaceFile?.fsPath;
     const excludeFolders = await SettingsHelper.getWorkspaceFileExcludeFolder(workspacePath);
     let isExclude = false;
