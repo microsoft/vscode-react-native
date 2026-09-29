@@ -31,9 +31,17 @@ export class InstallExpoGoApplication extends Command {
         const item = await vscode.window.showQuickPick(["Android", "iOS"], {
             placeHolder: "Select type for mobile OS",
         });
+        if (!item) {
+            return;
+        }
+
         const installItem = await vscode.window.showQuickPick(["Manual", "Auto"], {
             placeHolder: "How to install application",
         });
+        if (!installItem) {
+            return;
+        }
+
         const expoHelper = this.project.getExponentHelper();
         logger.info(localize("CheckExpoEnvironment", "Checking Expo project environment."));
         const isExpo = await expoHelper.isExpoManagedApp(true);
