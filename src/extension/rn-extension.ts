@@ -166,6 +166,21 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
                     onChangeWorkspaceFolders(event),
                 ),
             );
+            const workspaceWithTrustEvent = vscode.workspace as typeof vscode.workspace & {
+                onDidGrantWorkspaceTrust?: (listener: () => void) => vscode.Disposable;
+            };
+            if (workspaceWithTrustEvent.onDidGrantWorkspaceTrust) {
+                EXTENSION_CONTEXT.subscriptions.push(
+                    workspaceWithTrustEvent.onDidGrantWorkspaceTrust(() => {
+                        const trustedWorkspaceFolders = vscode.workspace.workspaceFolders;
+                        if (trustedWorkspaceFolders) {
+                            trustedWorkspaceFolders.forEach(folder => {
+                                void onFolderAdded(folder);
+                            });
+                        }
+                    }),
+                );
+            }
             EXTENSION_CONTEXT.subscriptions.push(
                 vscode.workspace.onDidChangeConfiguration(event => onChangeConfiguration(event)),
             );

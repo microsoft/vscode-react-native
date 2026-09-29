@@ -47,4 +47,26 @@ suite("reactDirManager.ts", () => {
             new FileSystem().removePathRecursivelySync(testRoot);
         }
     });
+
+    test("Should not follow a symbolic link when disposing the react folder", async () => {
+        const testRoot = await fs.promises.mkdtemp(path.join(os.tmpdir(), "react-dir-manager-"));
+        const workspaceRoot = path.join(testRoot, "workspace");
+        const targetPath = path.join(testRoot, "target");
+        const targetFilePath = path.join(targetPath, "important.txt");
+        const manager = new ReactDirManager(workspaceRoot);
+
+        try {
+            await fs.promises.mkdir(manager.vscodeDirPath, { recursive: true });
+            await fs.promises.mkdir(targetPath);
+            await fs.promises.writeFile(targetFilePath, "must not be deleted");
+            await fs.promises.symlink(targetPath, manager.reactDirPath, "junction");
+
+            manager.dispose();
+
+            assert.strictEqual(fs.existsSync(targetFilePath), true);
+            await assert.rejects(fs.promises.lstat(manager.reactDirPath), { code: "ENOENT" });
+        } finally {
+            new FileSystem().removePathRecursivelySync(testRoot);
+        }
+    });
 });
