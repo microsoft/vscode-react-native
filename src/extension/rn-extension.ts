@@ -172,12 +172,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
             if (workspaceWithTrustEvent.onDidGrantWorkspaceTrust) {
                 EXTENSION_CONTEXT.subscriptions.push(
                     workspaceWithTrustEvent.onDidGrantWorkspaceTrust(() => {
-                        const trustedWorkspaceFolders = vscode.workspace.workspaceFolders;
-                        if (trustedWorkspaceFolders) {
-                            trustedWorkspaceFolders.forEach(folder => {
-                                void onFolderAdded(folder);
-                            });
-                        }
+                        initializeWorkspaceFoldersAfterTrust(vscode.workspace.workspaceFolders);
                     }),
                 );
             }
@@ -414,6 +409,15 @@ export async function onFolderAdded(folder: vscode.WorkspaceFolder): Promise<voi
         outputChannelLogger.debug(`react-native@${versions.reactNativeVersion} isn't supported`);
     }
     await Promise.all(promises);
+}
+
+export function initializeWorkspaceFoldersAfterTrust(
+    workspaceFolders: readonly vscode.WorkspaceFolder[] | undefined,
+    initializeFolder: (folder: vscode.WorkspaceFolder) => Promise<void> = onFolderAdded,
+): void {
+    workspaceFolders?.forEach(folder => {
+        void initializeFolder(folder);
+    });
 }
 
 function activateCommands(): void {
