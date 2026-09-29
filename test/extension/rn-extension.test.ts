@@ -4,12 +4,68 @@
 import assert = require("assert");
 import * as vscode from "vscode";
 import * as path from "path";
+import * as sinon from "sinon";
+import { RN_VERSION_ERRORS } from "../../src/common/error/versionError";
+import * as ExtensionHelper from "../../src/common/extensionHelper";
 import { Node } from "../../src/common/node/node";
+import { ProjectVersionHelper } from "../../src/common/projectVersionHelper";
 import {
     createAdditionalWorkspaceFolder,
     getCountOfWorkspaceFolders,
+    initializeWorkspaceFolders,
+    onFolderAdded,
 } from "../../src/extension/rn-extension";
 suite("rn-extension", function () {
+    suite("workspace trust", function () {
+        const workspaceFolder: vscode.WorkspaceFolder = {
+            uri: vscode.Uri.file("untrusted-workspace"),
+            name: "untrusted-workspace",
+            index: 0,
+        };
+        let isWorkspaceTrustedStub: Sinon.SinonStub;
+        let getVersionsStub: Sinon.SinonStub;
+
+        setup(() => {
+            isWorkspaceTrustedStub = sinon.stub(ExtensionHelper, "isWorkspaceTrusted");
+            getVersionsStub = sinon.stub(
+                ProjectVersionHelper,
+                "tryToGetRNSemverValidVersionsFromProjectPackage",
+            );
+        });
+
+        teardown(() => {
+            isWorkspaceTrustedStub.restore();
+            getVersionsStub.restore();
+        });
+
+        test("does not inspect projects in Restricted Mode", async () => {
+            isWorkspaceTrustedStub.returns(false);
+
+            await onFolderAdded(workspaceFolder);
+
+            sinon.assert.notCalled(getVersionsStub);
+        });
+
+        test("initializes current folders after workspace trust is granted", async () => {
+            isWorkspaceTrustedStub.returns(false);
+            getVersionsStub.returns(
+                Promise.resolve({
+                    reactNativeVersion: RN_VERSION_ERRORS.UNKNOWN_ERROR,
+                    reactNativeWindowsVersion: RN_VERSION_ERRORS.UNKNOWN_ERROR,
+                    reactNativeMacOSVersion: RN_VERSION_ERRORS.UNKNOWN_ERROR,
+                }),
+            );
+
+            await initializeWorkspaceFolders([workspaceFolder]);
+            sinon.assert.notCalled(getVersionsStub);
+
+            isWorkspaceTrustedStub.returns(true);
+            await initializeWorkspaceFolders([workspaceFolder]);
+
+            sinon.assert.calledOnce(getVersionsStub);
+        });
+    });
+
     suite("createAdditionalWorkspaceFolder", function () {
         test("createAdditionalWorkspaceFolder returns null", function () {
             const folderPath: string = "folderPath";

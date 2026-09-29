@@ -172,12 +172,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
             if (workspaceWithTrustEvent.onDidGrantWorkspaceTrust) {
                 EXTENSION_CONTEXT.subscriptions.push(
                     workspaceWithTrustEvent.onDidGrantWorkspaceTrust(() => {
-                        const trustedWorkspaceFolders = vscode.workspace.workspaceFolders;
-                        if (trustedWorkspaceFolders) {
-                            trustedWorkspaceFolders.forEach(folder => {
-                                void onFolderAdded(folder);
-                            });
-                        }
+                        void initializeWorkspaceFolders();
                     }),
                 );
             }
@@ -250,9 +245,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
             const promises: Promise<void>[] = [];
             if (workspaceFolders) {
                 outputChannelLogger.debug(`Projects found: ${workspaceFolders.length}`);
-                workspaceFolders.forEach((folder: vscode.WorkspaceFolder) => {
-                    promises.push(onFolderAdded(folder));
-                });
+                promises.push(initializeWorkspaceFolders(workspaceFolders));
             } else {
                 outputChannelLogger.warning("Could not find workspace while activating");
                 TelemetryHelper.sendErrorEvent(
@@ -351,6 +344,17 @@ export function createAdditionalWorkspaceFolder(folderPath: string): vscode.Work
 
 export function getCountOfWorkspaceFolders(): number {
     return COUNT_WORKSPACE_FOLDERS;
+}
+
+export async function initializeWorkspaceFolders(
+    workspaceFolders: readonly vscode.WorkspaceFolder[] | undefined = vscode.workspace
+        .workspaceFolders,
+): Promise<void> {
+    if (!workspaceFolders) {
+        return;
+    }
+
+    await Promise.all(workspaceFolders.map(folder => onFolderAdded(folder)));
 }
 
 export async function onFolderAdded(folder: vscode.WorkspaceFolder): Promise<void> {
