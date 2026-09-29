@@ -51,11 +51,14 @@ export class InstallPods extends Command {
             const podCommand = this.findPodCommand();
             logger.info(`Using pod command: ${podCommand}`);
             try {
-                const versionResult = await childProcess.exec(`${podCommand} --version`, {
-                    env: enhancedEnv,
-                    timeout: 10000,
-                });
-                const versionOutput = await versionResult.outcome;
+                const versionOutput = await childProcess.execFileToString(
+                    podCommand,
+                    ["--version"],
+                    {
+                        env: enhancedEnv,
+                        timeout: 10000,
+                    },
+                );
                 logger.info(`Pod version: ${versionOutput.trim()}`);
             } catch (versionError) {
                 const errorMsg =
@@ -65,13 +68,12 @@ export class InstallPods extends Command {
                 throw new Error(errorMsg);
             }
             logger.info(`Executing: ${podCommand} install`);
-            const installResult = await childProcess.exec(`${podCommand} install`, {
+            const stdout = await childProcess.execFileToString(podCommand, ["install"], {
                 cwd: iosPath,
                 env: enhancedEnv,
                 maxBuffer: 1024 * 1024 * 10,
                 timeout: 300000,
             });
-            const stdout = await installResult.outcome;
             if (stdout) {
                 logger.info(stdout);
             }
