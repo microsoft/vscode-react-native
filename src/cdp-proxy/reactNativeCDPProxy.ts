@@ -223,7 +223,12 @@ export class ReactNativeCDPProxy {
 
         return new Promise((resolve, reject) => {
             webSocket.once("open", () => {
-                resolve(new WebSocketTransport(webSocket));
+                // TypeScript 7 resolves vscode-cdp-proxy's legacy `import * as WebSocket`
+                // declaration as the DOM WebSocket type, although it accepts ws at runtime.
+                const transportWebSocket = webSocket as unknown as ConstructorParameters<
+                    typeof WebSocketTransport
+                >[0];
+                resolve(new WebSocketTransport(transportWebSocket));
             });
             webSocket.once("error", reject);
         });
