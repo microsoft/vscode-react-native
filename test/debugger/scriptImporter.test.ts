@@ -33,6 +33,13 @@ suite("scriptImporter", function () {
             );
         });
 
+        test("returns the debugger UI worker URL for invalid RN versions", function () {
+            assert.strictEqual(
+                scriptImporter.prepareDebuggerWorkerURL("not-a-semver"),
+                "http://localhost:8081/debugger-ui/debuggerWorker.js",
+            );
+        });
+
         test("uses the explicit debugger worker URL path when provided", function () {
             assert.strictEqual(
                 scriptImporter.prepareDebuggerWorkerURL("0.55.4", ""),

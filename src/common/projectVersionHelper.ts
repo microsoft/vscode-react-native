@@ -4,7 +4,7 @@
 import { URL } from "url";
 import * as semver from "semver";
 import { ILaunchArgs, PlatformType } from "../extension/launchArgs";
-import { AppLauncher } from "../extension/appLauncher";
+import { ProjectsStorage } from "../extension/projectsStorage";
 import { ErrorHelper } from "./error/errorHelper";
 import { InternalErrorCode } from "./error/internalErrorCode";
 import { RN_VERSION_ERRORS } from "./error/versionError";
@@ -60,7 +60,10 @@ export class ProjectVersionHelper {
     ): Promise<string | null> {
         try {
             if (!nodeModulesRoot) {
-                nodeModulesRoot = AppLauncher.getNodeModulesRootByProjectPath(projectRoot);
+                nodeModulesRoot =
+                    ProjectsStorage.getFolderByProjectRootPath(
+                        projectRoot,
+                    ).getOrUpdateNodeModulesRoot();
             }
             const rnPackage = new Package(nodeModulesRoot);
             const rnPkgJson = await rnPackage
@@ -88,7 +91,10 @@ export class ProjectVersionHelper {
         nodeModulesRoot?: string,
     ): Promise<RNPackageVersions> {
         if (!nodeModulesRoot) {
-            nodeModulesRoot = AppLauncher.getNodeModulesRootByProjectPath(projectRoot);
+            nodeModulesRoot =
+                ProjectsStorage.getFolderByProjectRootPath(
+                    projectRoot,
+                ).getOrUpdateNodeModulesRoot();
         }
 
         try {
@@ -119,7 +125,10 @@ export class ProjectVersionHelper {
             ) !== -1
         ) {
             if (!nodeModulesRoot) {
-                nodeModulesRoot = AppLauncher.getNodeModulesRootByProjectPath(projectRoot);
+                nodeModulesRoot =
+                    ProjectsStorage.getFolderByProjectRootPath(
+                        projectRoot,
+                    ).getOrUpdateNodeModulesRoot();
             }
 
             try {

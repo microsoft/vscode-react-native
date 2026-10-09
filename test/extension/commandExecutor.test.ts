@@ -12,7 +12,7 @@ import { ConsoleLogger } from "../../src/extension/log/ConsoleLogger";
 import { Node } from "../../src/common/node/node";
 import { ChildProcess } from "../../src/common/node/childProcess";
 import { Crypto } from "../../src/common/node/crypto";
-import { AppLauncher } from "../../src/extension/appLauncher";
+import { ProjectsStorage } from "../../src/extension/projectsStorage";
 import { HostPlatform } from "../../src/common/hostPlatform";
 // import { HostPlatform } from "../../src/common/hostPlatform";
 
@@ -21,7 +21,7 @@ suite("commandExecutor", function () {
         const childProcessStubInstance = new ChildProcess();
         let childProcessStub: Sinon.SinonStub & ChildProcess;
 
-        let appLauncherStub: Sinon.SinonStub;
+        let projectsStorageStub: Sinon.SinonStub;
         const Log = new ConsoleLogger();
         const sampleReactNativeProjectDir = path.join(
             __dirname,
@@ -42,7 +42,7 @@ suite("commandExecutor", function () {
             });
 
             childProcessStub.restore();
-            appLauncherStub.restore();
+            projectsStorageStub.restore();
         });
 
         setup(() => {
@@ -50,11 +50,9 @@ suite("commandExecutor", function () {
                 .stub(Node, "ChildProcess")
                 .returns(childProcessStubInstance) as ChildProcess & Sinon.SinonStub;
 
-            appLauncherStub = sinon.stub(
-                AppLauncher,
-                "getNodeModulesRootByProjectPath",
-                (projectRoot: string) => nodeModulesRoot,
-            );
+            projectsStorageStub = sinon
+                .stub(ProjectsStorage, "getFolderByProjectRootPath")
+                .returns({ getOrUpdateNodeModulesRoot: () => nodeModulesRoot });
 
             nodeModulesRoot = sampleReactNativeProjectDir;
         });

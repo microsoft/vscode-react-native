@@ -3,31 +3,61 @@
 
 import * as fs from "fs";
 import * as https from "https";
+import { pipeline } from "stream";
+import { URL } from "url";
 import * as vscode from "vscode";
 import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
 
-export async function downloadFile(url: any, targetFile: any) {
+const MAX_REDIRECTS = 5;
+
+export function downloadFile(
+    url: string,
+    targetFile: string,
+    redirectsRemaining: number = MAX_REDIRECTS,
+): Promise<void> {
     const logger = OutputChannelLogger.getMainChannel();
     let progress = 0;
-    let newProgress = 0;
-    return await new Promise((resolve, reject) => {
+    let downloadedLength = 0;
+
+    return new Promise<void>((resolve, reject) => {
         const request = https
             .get(url, response => {
                 const code = response.statusCode ?? 0;
 
-                if (code >= 400) {
-                    return reject(new Error(response.statusMessage));
+                if (code >= 300 && code < 400 && response.headers.location) {
+                    response.resume();
+                    if (redirectsRemaining === 0) {
+                        reject(new Error(`Too many redirects while downloading ${url}`));
+                        return;
+                    }
+
+                    const redirectUrl = new URL(response.headers.location, url).toString();
+                    downloadFile(redirectUrl, targetFile, redirectsRemaining - 1).then(
+                        resolve,
+                        reject,
+                    );
+                    return;
+                }
+
+                if (code < 200 || code >= 300) {
+                    response.resume();
+                    reject(
+                        new Error(
+                            `Download failed with HTTP status ${code}${
+                                response.statusMessage ? ` ${response.statusMessage}` : ""
+                            }`,
+                        ),
+                    );
+                    return;
                 }
 
                 const file = fs.createWriteStream(targetFile);
-                const totalLength = parseInt(response.headers["content-length"] as string, 10);
+                const totalLength = Number(response.headers["content-length"]);
 
-                response.pipe(file);
-                response.on("data", async function (chunk) {
-                    newProgress += chunk.length;
-                    const currentProgress =
-                        parseFloat(getDownloadProgress(newProgress, totalLength)) * 100;
-                    if (currentProgress - progress >= 5) {
+                response.on("data", (chunk: Buffer) => {
+                    downloadedLength += chunk.length;
+                    const currentProgress = getDownloadProgress(downloadedLength, totalLength);
+                    if (currentProgress !== undefined && currentProgress - progress >= 5) {
                         progress = currentProgress;
                         logger.logStream(
                             `Current progress: ${currentProgress}%, please wait... \n`,
@@ -35,16 +65,15 @@ export async function downloadFile(url: any, targetFile: any) {
                     }
                 });
 
-                file.on("finish", async () => {
-                    file.close();
-                    logger.logStream(`Download Expo Go Completed: ${targetFile as string} \n`);
-                    void vscode.window.showInformationMessage("Download Expo Go Completed.");
-                });
+                pipeline(response, file, error => {
+                    if (error) {
+                        fs.unlink(targetFile, () => reject(error));
+                        return;
+                    }
 
-                response.on("end", function () {
-                    resolve(() => {
-                        console.log("Progress end.");
-                    });
+                    logger.logStream(`Download Expo Go Completed: ${targetFile} \n`);
+                    void vscode.window.showInformationMessage("Download Expo Go Completed.");
+                    resolve();
                 });
             })
             .on("error", error => {
@@ -55,10 +84,14 @@ export async function downloadFile(url: any, targetFile: any) {
     });
 }
 
-export async function downloadExpoGo(url: string, targetFile: string) {
+export async function downloadExpoGo(url: string, targetFile: string): Promise<void> {
     await downloadFile(url, targetFile);
 }
 
-function getDownloadProgress(currentLength: number, totalLength: number): string {
-    return (currentLength / totalLength).toFixed(2);
+function getDownloadProgress(currentLength: number, totalLength: number): number | undefined {
+    if (!Number.isFinite(totalLength) || totalLength <= 0) {
+        return undefined;
+    }
+
+    return Math.floor((currentLength / totalLength) * 100);
 }

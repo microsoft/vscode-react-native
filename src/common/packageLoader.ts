@@ -3,7 +3,7 @@
 
 import * as path from "path";
 import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
-import { AppLauncher } from "../extension/appLauncher";
+import { ProjectsStorage } from "../extension/projectsStorage";
 import { CommandExecutor, CommandVerbosity } from "./commandExecutor";
 import customRequire from "./customRequire";
 import { findFileInFolderHierarchy, getVersionFromExtensionNodeModules } from "./extensionHelper";
@@ -65,7 +65,8 @@ export class PackageLoader {
     }
 
     public installGlobalPackage(packageConfig: PackageConfig, projectRoot: string): Promise<void> {
-        const nodeModulesRoot: string = AppLauncher.getNodeModulesRootByProjectPath(projectRoot);
+        const nodeModulesRoot: string =
+            ProjectsStorage.getFolderByProjectRootPath(projectRoot).getOrUpdateNodeModulesRoot();
         const commandExecutor = new CommandExecutor(nodeModulesRoot, projectRoot, this.logger);
 
         return commandExecutor.spawnWithProgress(
@@ -216,15 +217,20 @@ export class PackageLoader {
         packageConfig: PackageConfig,
         ...additionalDependencies: PackageConfig[]
     ): Promise<T> {
-        return new Promise(async (resolve, reject) => {
+        return new Promise((resolve, reject) => {
             const tryToRequire = this.getTryToRequireFunction(packageConfig, resolve, reject);
-            if (!(await tryToRequire())) {
-                this.tryToRequireAfterInstall(
-                    tryToRequire,
-                    packageConfig,
-                    ...additionalDependencies,
-                ).catch(reason => reject(reason));
-            }
+            void tryToRequire()
+                .then(packageLoaded => {
+                    if (!packageLoaded) {
+                        return this.tryToRequireAfterInstall(
+                            tryToRequire,
+                            packageConfig,
+                            ...additionalDependencies,
+                        );
+                    }
+                    return undefined;
+                })
+                .catch(reject);
         });
     }
 }

@@ -5,7 +5,6 @@
 /// <reference path="exponentHelper.d.ts" />
 
 import * as path from "path";
-import * as fs from "fs";
 import * as semver from "semver";
 import * as vscode from "vscode";
 import { sync as globSync } from "glob";
@@ -40,6 +39,18 @@ const DBL_SLASHES = /\\/g;
 
 const NGROK_PACKAGE = "@expo/ngrok";
 
+interface ExpoAppConfig {
+    expo?: {
+        owner?: string;
+        name?: string;
+        extra?: {
+            eas?: {
+                projectId?: string;
+            };
+        };
+    };
+}
+
 export class ExponentHelper {
     private workspaceRootPath: string;
     private projectRootPath: string;
@@ -47,6 +58,7 @@ export class ExponentHelper {
     private hasInitialized: boolean;
     private nodeModulesGlobalPathAddedToEnv: boolean;
     private logger: OutputChannelLogger = OutputChannelLogger.getMainChannel();
+    private appConfigCache?: { mtimeMs: number; config: ExpoAppConfig };
 
     public constructor(
         workspaceRootPath: string,
@@ -507,34 +519,33 @@ require('${entryPoint}');`;
     }
 
     public async getExpoEasProjectOwner(): Promise<string | null> {
-        const appJsonPath = this.pathToFileInWorkspace(APP_JSON);
-        try {
-            return JSON.parse(fs.readFileSync(appJsonPath, "utf-8")).expo.owner == undefined
-                ? null
-                : JSON.parse(fs.readFileSync(appJsonPath, "utf-8")).expo.owner;
-        } catch {
-            return null;
-        }
+        const config = await this.getAppJsonConfig();
+        return config?.expo?.owner ?? null;
     }
 
     public async getExpoEasProjectId(): Promise<string | null> {
-        const appJsonPath = this.pathToFileInWorkspace(APP_JSON);
-        try {
-            return JSON.parse(fs.readFileSync(appJsonPath, "utf-8")).expo.extra.eas.projectId ==
-                undefined
-                ? null
-                : JSON.parse(fs.readFileSync(appJsonPath, "utf-8")).expo.extra.eas.projectId;
-        } catch {
-            return null;
-        }
+        const config = await this.getAppJsonConfig();
+        return config?.expo?.extra?.eas?.projectId ?? null;
     }
 
     public async getExpoEasProjectName(): Promise<string | null> {
+        const config = await this.getAppJsonConfig();
+        return config?.expo?.name ?? null;
+    }
+
+    private async getAppJsonConfig(): Promise<ExpoAppConfig | null> {
         const appJsonPath = this.pathToFileInWorkspace(APP_JSON);
         try {
-            return JSON.parse(fs.readFileSync(appJsonPath, "utf-8")).expo.name == undefined
-                ? null
-                : JSON.parse(fs.readFileSync(appJsonPath, "utf-8")).expo.name;
+            const { mtimeMs } = await this.fs.stat(appJsonPath);
+            if (this.appConfigCache?.mtimeMs === mtimeMs) {
+                return this.appConfigCache.config;
+            }
+
+            const config = JSON.parse(
+                (await this.fs.readFile(appJsonPath, "utf-8")).toString(),
+            ) as ExpoAppConfig;
+            this.appConfigCache = { mtimeMs, config };
+            return config;
         } catch {
             return null;
         }

@@ -136,7 +136,7 @@ export class ChildProcess {
         const spawnedProcess = this.childProcess.spawn(
             command,
             args,
-            Object.assign({}, options, { shell: true }),
+            Object.assign({ shell: true }, options),
         );
         const outcome: Promise<void> = new Promise((resolve, reject) => {
             spawnedProcess.once("error", (error: any) => {

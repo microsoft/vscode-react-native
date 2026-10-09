@@ -196,7 +196,9 @@ export class AdbHelper {
     }
 
     public startLogCat(adbParameters: string[]): ISpawnResult {
-        return this.childProcess.spawn(this.adbExecutable.replace(/"/g, ""), adbParameters);
+        return this.childProcess.spawn(this.adbExecutable.replace(/"/g, ""), adbParameters, {
+            shell: false,
+        });
     }
 
     public parseSdkLocation(fileContent: string, logger?: ILogger): string | null {

@@ -146,6 +146,36 @@ suite("cleanRestartPackagerCommand", function () {
         assert.strictEqual(restartStub.calledWithExactly(9090), true);
     });
 
+    test("should wait for the Windows kill command before restarting packager", async function () {
+        let resolveKill: (() => void) | undefined;
+        const killOutcome = new Promise<void>(resolve => {
+            resolveKill = resolve;
+        });
+        const execStub = Sinon.stub();
+        execStub
+            .withArgs("netstat -ano | findstr :9090")
+            .returns(createExecResult("TCP    127.0.0.1:9090    0.0.0.0:0    LISTENING    12345"));
+        execStub.withArgs("taskkill /PID 12345 /F /T").returns(
+            Promise.resolve({
+                process: {},
+                outcome: killOutcome,
+            }),
+        );
+        execStub.withArgs("watchman watch-del-all").returns(createExecResult(""));
+        const restartStub = Sinon.stub().returns(Promise.resolve());
+        const { CleanRestartPackager } = createCommandModule(HostPlatformId.WINDOWS, execStub);
+
+        const command = runCommand(CleanRestartPackager, tempDir, restartStub);
+        await new Promise(resolve => {
+            setImmediate(resolve);
+        });
+
+        assert.strictEqual(restartStub.called, false);
+        resolveKill?.();
+        await command;
+        assert.strictEqual(restartStub.calledOnce, true);
+    });
+
     test("should kill Metro process on macOS and restart packager", async function () {
         const execStub = Sinon.stub();
         execStub.withArgs("lsof -ti:9090").returns(createExecResult("23456\n"));

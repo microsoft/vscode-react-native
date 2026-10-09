@@ -6,10 +6,12 @@ import { OutputChannelLogger } from "./log/OutputChannelLogger";
 export abstract class AbstractDeviceTracker {
     protected logger: OutputChannelLogger;
     protected isStop: boolean;
+    private readonly pollingIntervalMs: number;
 
     constructor() {
         this.logger = OutputChannelLogger.getMainChannel();
         this.isStop = false;
+        this.pollingIntervalMs = 3000;
     }
 
     public abstract start(): Promise<void>;
@@ -19,13 +21,14 @@ export abstract class AbstractDeviceTracker {
     protected async queryDevicesLoop(): Promise<void> {
         try {
             await this.queryDevices();
-            if (!this.isStop) {
-                // It's important to schedule the next check AFTER the current one has completed
-                // to avoid simultaneous queries which can cause multiple user input prompts.
-                setTimeout(() => this.queryDevicesLoop(), 3000);
-            }
         } catch (err) {
             this.logger.error((err as Error).toString());
+        } finally {
+            if (!this.isStop) {
+                // Schedule the next check only after completion to avoid overlapping queries,
+                // and keep polling alive even after transient failures.
+                setTimeout(() => this.queryDevicesLoop(), this.pollingIntervalMs);
+            }
         }
     }
 

@@ -1,7 +1,6 @@
 const del = require("del");
-const GulpExtras = require("../tools/gulp-extras");
 
-async function clean() {
+function clean() {
     const pathsToDelete = [
         "src/**/*.js",
         "src/**/*.js.map",
@@ -11,21 +10,11 @@ async function clean() {
         "dist",
         "!test/resources/sampleReactNativeProject/**/*.js",
         "!test/resources/newVersionReactNativeProject/**/*.js",
-        ".vscode-test/",
         "nls.*.json",
         "!test/smoke/**/*",
     ];
 
-    const TIMEOUT_MS = 5000;
-
-    return await GulpExtras.withTimeout(
-        del(pathsToDelete, { force: true }),
-        TIMEOUT_MS,
-        {
-            onTimeout: () => console.log("Timeout for clean up, will try on next step, but may cause other failures."),
-            fallbackValue: [],
-        }
-    );
+    return del(pathsToDelete, { force: true });
 }
 
 module.exports = {

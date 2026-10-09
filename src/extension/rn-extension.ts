@@ -27,6 +27,7 @@ import {
     getExtensionVersion,
     getExtensionName,
     findFileInFolderHierarchy,
+    isWorkspaceTrusted,
 } from "../common/extensionHelper";
 import { SettingsHelper } from "./settingsHelper";
 import { ReactDirManager } from "./reactDirManager";
@@ -58,9 +59,30 @@ const localize = nls.loadMessageBundle();
 /* all components use the same packager instance */
 const outputChannelLogger = OutputChannelLogger.getMainChannel();
 const entryPointHandler = new EntryPointHandler(ProcessType.Extension, outputChannelLogger);
-// #todo> are we sure we need null here and this is the correct place for this?
-export let debugConfigProvider: ReactNativeDebugConfigProvider | null;
+// Private state for debug config provider - initialized during activation
+let debugConfigProvider: ReactNativeDebugConfigProvider | null = null;
 const APP_NAME = "react-native-tools";
+
+/**
+ * Gets the debug configuration provider.
+ * Throws an error if the extension is not yet activated.
+ */
+export function getDebugConfigProvider(): ReactNativeDebugConfigProvider {
+    if (!debugConfigProvider) {
+        throw new Error(
+            "Debug configuration provider is not initialized. Extension may not be activated yet.",
+        );
+    }
+    return debugConfigProvider;
+}
+
+/**
+ * Internal function to initialize the debug config provider.
+ * Should only be called during extension activation.
+ */
+function setDebugConfigProvider(provider: ReactNativeDebugConfigProvider | null): void {
+    debugConfigProvider = provider;
+}
 
 interface ISetupableDisposable extends vscode.Disposable {
     setup(): Promise<any>;
@@ -118,7 +140,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         appVersion,
         Telemetry.APPINSIGHTS_INSTRUMENTATIONKEY,
     );
-    const configProvider = (debugConfigProvider = new ReactNativeDebugConfigProvider());
+    const configProvider = new ReactNativeDebugConfigProvider();
+    setDebugConfigProvider(configProvider);
     const dymConfigProvider = new ReactNativeDebugDynamicConfigProvider();
     const completionItemProviderInst = new LaunchJsonCompletionProvider();
     const workspaceFolders: readonly vscode.WorkspaceFolder[] | undefined =
@@ -143,6 +166,16 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
                     onChangeWorkspaceFolders(event),
                 ),
             );
+            const workspaceWithTrustEvent = vscode.workspace as typeof vscode.workspace & {
+                onDidGrantWorkspaceTrust?: (listener: () => void) => vscode.Disposable;
+            };
+            if (workspaceWithTrustEvent.onDidGrantWorkspaceTrust) {
+                EXTENSION_CONTEXT.subscriptions.push(
+                    workspaceWithTrustEvent.onDidGrantWorkspaceTrust(() => {
+                        initializeWorkspaceFoldersAfterTrust(vscode.workspace.workspaceFolders);
+                    }),
+                );
+            }
             EXTENSION_CONTEXT.subscriptions.push(
                 vscode.workspace.onDidChangeConfiguration(event => onChangeConfiguration(event)),
             );
@@ -239,7 +272,7 @@ export function deactivate(): Promise<void> {
             "extension.deactivate",
             ErrorHelper.getInternalError(InternalErrorCode.FailedToStopPackagerOnExit),
             async () => {
-                debugConfigProvider = null;
+                setDebugConfigProvider(null);
 
                 await Promise.all(
                     Object.values(ProjectsStorage.projectsCache).map(it =>
@@ -316,6 +349,10 @@ export function getCountOfWorkspaceFolders(): number {
 }
 
 export async function onFolderAdded(folder: vscode.WorkspaceFolder): Promise<void> {
+    if (!isWorkspaceTrusted()) {
+        return;
+    }
+
     const workspacePath = vscode.workspace.workspaceFile?.fsPath;
     const excludeFolders = await SettingsHelper.getWorkspaceFileExcludeFolder(workspacePath);
     let isExclude = false;
@@ -374,17 +411,27 @@ export async function onFolderAdded(folder: vscode.WorkspaceFolder): Promise<voi
     await Promise.all(promises);
 }
 
+export function initializeWorkspaceFoldersAfterTrust(
+    workspaceFolders: readonly vscode.WorkspaceFolder[] | undefined,
+    initializeFolder: (folder: vscode.WorkspaceFolder) => Promise<void> = onFolderAdded,
+): void {
+    workspaceFolders?.forEach(folder => {
+        void initializeFolder(folder);
+    });
+}
+
 function activateCommands(): void {
     void vscode.commands.executeCommand("setContext", CONTEXT_VARIABLES_NAMES.IS_RN_PROJECT, true);
 }
 
 function onFolderRemoved(folder: vscode.WorkspaceFolder): void {
-    const appLauncher = ProjectsStorage.getFolder(folder) as any;
-    Object.keys(appLauncher).forEach(key => {
-        if (appLauncher[key].dispose) {
-            appLauncher[key].dispose();
-        }
-    });
+    const appLauncher = ProjectsStorage.getFolder(folder);
+    if (!appLauncher) {
+        outputChannelLogger.debug(`Skip deleting uncached project: ${folder.uri.fsPath}`);
+        return;
+    }
+
+    appLauncher.dispose();
     outputChannelLogger.debug(`Delete project: ${folder.uri.fsPath}`);
     ProjectsStorage.delFolder(folder);
 

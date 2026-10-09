@@ -117,8 +117,8 @@ export class RNDebugSession extends DebugSessionBase {
 
         this.previousAttachArgs = attachArgs;
 
-        return new Promise<void>(async (resolve, reject) => {
-            try {
+        return new Promise<void>((resolve, reject) => {
+            const initializeAttach = async (): Promise<void> => {
                 const requiredNodeRange =
                     await ProjectVersionHelper.getReactNativeRequiredNodeRange(attachArgs.cwd);
                 if (requiredNodeRange) {
@@ -226,9 +226,9 @@ export class RNDebugSession extends DebugSessionBase {
                     }
                     return await this.appWorker.start();
                 });
-            } catch (error) {
-                reject(error);
-            }
+            };
+
+            void initializeAttach().catch(reject);
         })
             .then(() => {
                 this.sendResponse(response);
