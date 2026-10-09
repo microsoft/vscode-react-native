@@ -68,6 +68,7 @@ Using this extension, you can **debug your code and quickly run `react-native` o
   - [Sourcemaps](#sourcemaps)
   - [Debug in vscode workspace](#debug-in-vscode-workspace)
   - [Logging](#logging)
+  - [Configure output log highlighting](#configure-output-log-highlighting)
   - [Build APK and generate bundle](#build-apk-and-generate-bundle)
   - [Specifying custom arguments for `react-native run-*` command](#specifying-custom-arguments-for-react-native-run--command)
   - [Setting up the React Native packager](#setting-up-the-react-native-packager)
@@ -778,6 +779,18 @@ There are also some global extension technical logs that might be exposed to the
 ```
 
 `logLevel` can be `None` (no logs), `Error`, `Warning`, `Info`, `Debug`, `Trace` (all logs). Default is `Info`.
+
+## Configure output log highlighting
+
+You can enable lightweight syntax highlighting for common log keywords in React Native Tools output logs by adding the following setting to your VS Code `settings.json`:
+
+```json
+{
+  "react-native-tools.logHighlight.enabled": true
+}
+```
+
+This setting is disabled by default to avoid performance issues.
 
 ## Build APK and generate bundle
 
