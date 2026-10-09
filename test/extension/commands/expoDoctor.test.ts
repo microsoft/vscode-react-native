@@ -55,9 +55,27 @@ suite("expoDoctorCommand", function () {
         };
     }
 
-    function createExecResult(outcome: Promise<string>): any {
+    function createOutputStream(output: string): any {
+        return {
+            on(event: string, listener: (data: Buffer) => void) {
+                if (event === "data" && output) {
+                    listener(Buffer.from(output));
+                }
+                return this;
+            },
+        };
+    }
+
+    function createExecResult(
+        outcome: Promise<string>,
+        stdout: string = "",
+        stderr: string = "",
+    ): any {
         return Promise.resolve({
-            process: {},
+            process: {
+                stdout: createOutputStream(stdout),
+                stderr: createOutputStream(stderr),
+            },
             outcome,
         });
     }
@@ -75,8 +93,10 @@ suite("expoDoctorCommand", function () {
         await command.baseFn();
     }
 
-    test("should run expo doctor from the project root and log the outcome", async function () {
-        const execStub = Sinon.stub().returns(createExecResult(Promise.resolve("No issues found")));
+    test("should run expo doctor from the project root and log stdout", async function () {
+        const execStub = Sinon.stub().returns(
+            createExecResult(Promise.resolve("No issues found"), "No issues found"),
+        );
         const { expoDoctor, logger } = createCommandModule(execStub);
 
         await runCommand(expoDoctor);
@@ -87,6 +107,7 @@ suite("expoDoctorCommand", function () {
         );
         assert.strictEqual(logger.info.calledWithExactly("Running diagnostics..."), true);
         assert.strictEqual(logger.info.calledWithExactly("No issues found"), true);
+        assert.strictEqual(logger.error.called, false);
     });
 
     test("should propagate an error when starting expo doctor fails", async function () {
@@ -98,13 +119,21 @@ suite("expoDoctorCommand", function () {
         assert.strictEqual(logger.info.called, false);
     });
 
-    test("should propagate an error when expo doctor exits unsuccessfully", async function () {
+    test("should log diagnostic output and propagate an unsuccessful exit", async function () {
         const error = new Error("expo doctor failed");
-        const execStub = Sinon.stub().returns(createExecResult(Promise.reject(error)));
+        const execStub = Sinon.stub().returns(
+            createExecResult(
+                Promise.reject(error),
+                "17/18 checks passed\n",
+                "1 check failed\n",
+            ),
+        );
         const { expoDoctor, logger } = createCommandModule(execStub);
 
         await assert.rejects(() => runCommand(expoDoctor), error);
         assert.strictEqual(logger.info.calledWithExactly("Running diagnostics..."), true);
+        assert.strictEqual(logger.info.calledWithExactly("17/18 checks passed\n"), true);
+        assert.strictEqual(logger.error.calledWithExactly("1 check failed\n"), true);
     });
 
     test("should require a project before running expo doctor", async function () {
