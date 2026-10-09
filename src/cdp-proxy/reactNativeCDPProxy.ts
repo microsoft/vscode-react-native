@@ -12,7 +12,7 @@ import {
     IProtocolSuccess,
 } from "vscode-cdp-proxy";
 import { CancellationToken, EventEmitter } from "vscode";
-import * as WebSocket from "ws";
+import WebSocket = require("ws");
 import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
 import { LogLevel } from "../extension/log/LogHelper";
 import { DebuggerEndpointHelper } from "./debuggerEndpointHelper";
