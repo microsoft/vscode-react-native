@@ -284,10 +284,7 @@ suite("cleanRestartPackagerCommand", function () {
         assert.strictEqual(logger.warning.calledOnce, true);
         assert.ok(String(logger.warning.firstCall.args[0]).includes("12345"));
         assert.ok(String(logger.warning.firstCall.args[0]).includes("Access is denied"));
-        assert.strictEqual(
-            logger.info.calledWith("No Metro process found on port 9090"),
-            false,
-        );
+        assert.strictEqual(logger.info.calledWith("No Metro process found on port 9090"), false);
         assert.strictEqual(execStub.calledWith("watchman watch-del-all"), true);
         assert.strictEqual(restartStub.calledOnce, true);
     });
@@ -311,10 +308,7 @@ suite("cleanRestartPackagerCommand", function () {
         assert.strictEqual(logger.warning.calledOnce, true);
         assert.ok(String(logger.warning.firstCall.args[0]).includes("23456"));
         assert.ok(String(logger.warning.firstCall.args[0]).includes("Operation not permitted"));
-        assert.strictEqual(
-            logger.info.calledWith("No Metro process found on port 9090"),
-            false,
-        );
+        assert.strictEqual(logger.info.calledWith("No Metro process found on port 9090"), false);
         assert.strictEqual(execStub.calledWith("watchman watch-del-all"), true);
         assert.strictEqual(restartStub.calledOnce, true);
     });
@@ -333,10 +327,7 @@ suite("cleanRestartPackagerCommand", function () {
 
         await runCommand(CleanRestartPackager, tempDir, restartStub);
 
-        assert.strictEqual(
-            logger.info.calledWith("No Metro process found on port 9090"),
-            true,
-        );
+        assert.strictEqual(logger.info.calledWith("No Metro process found on port 9090"), true);
         assert.strictEqual(logger.warning.called, false);
         assert.strictEqual(execStub.calledWith("watchman watch-del-all"), true);
         assert.strictEqual(restartStub.calledOnce, true);
