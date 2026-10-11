@@ -244,7 +244,7 @@ suite("installPodsCommand", function () {
                 "findPodCommand",
             ).returns("pod");
             const execFileToStringStub = Sinon.stub(ChildProcess.prototype, "execFileToString");
-            execFileToStringStub.onFirstCall().rejects(new Error("spawn pod ENOENT"));
+            execFileToStringStub.onFirstCall().returns(Promise.reject(new Error("spawn pod ENOENT")));
 
             try {
                 const mockProject = createMockProject(tempDir, path.join(tempDir, "node_modules"));
