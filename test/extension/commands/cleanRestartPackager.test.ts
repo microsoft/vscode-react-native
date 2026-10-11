@@ -262,4 +262,83 @@ suite("cleanRestartPackagerCommand", function () {
         assert.strictEqual(restartStub.calledOnce, true);
         assert.strictEqual(restartStub.calledWithExactly(9090), true);
     });
+
+    test("should warn with the PID on Windows kill failure and still restart", async function () {
+        const execStub = Sinon.stub();
+        execStub
+            .withArgs("netstat -ano | findstr :9090")
+            .returns(createExecResult("TCP    127.0.0.1:9090    0.0.0.0:0    LISTENING    12345"));
+        execStub
+            .withArgs("taskkill /PID 12345 /F /T")
+            .returns(createRejectedExecResult(new Error("Access is denied")));
+        execStub.withArgs("watchman watch-del-all").returns(createExecResult(""));
+        const restartStub = Sinon.stub().returns(Promise.resolve());
+        const { CleanRestartPackager, logger } = createCommandModule(
+            HostPlatformId.WINDOWS,
+            execStub,
+        );
+
+        await runCommand(CleanRestartPackager, tempDir, restartStub);
+
+        assert.strictEqual(execStub.calledWith("taskkill /PID 12345 /F /T"), true);
+        assert.strictEqual(logger.warning.calledOnce, true);
+        assert.ok(String(logger.warning.firstCall.args[0]).includes("12345"));
+        assert.ok(String(logger.warning.firstCall.args[0]).includes("Access is denied"));
+        assert.strictEqual(
+            logger.info.calledWith("No Metro process found on port 9090"),
+            false,
+        );
+        assert.strictEqual(execStub.calledWith("watchman watch-del-all"), true);
+        assert.strictEqual(restartStub.calledOnce, true);
+    });
+
+    test("should warn with the PID on Unix kill failure and still restart", async function () {
+        const execStub = Sinon.stub();
+        execStub.withArgs("lsof -ti:9090").returns(createExecResult("23456\n"));
+        execStub
+            .withArgs("kill -9 23456")
+            .returns(createRejectedExecResult(new Error("Operation not permitted")));
+        execStub.withArgs("watchman watch-del-all").returns(createExecResult(""));
+        const restartStub = Sinon.stub().returns(Promise.resolve());
+        const { CleanRestartPackager, logger } = createCommandModule(
+            HostPlatformId.LINUX,
+            execStub,
+        );
+
+        await runCommand(CleanRestartPackager, tempDir, restartStub);
+
+        assert.strictEqual(execStub.calledWith("kill -9 23456"), true);
+        assert.strictEqual(logger.warning.calledOnce, true);
+        assert.ok(String(logger.warning.firstCall.args[0]).includes("23456"));
+        assert.ok(String(logger.warning.firstCall.args[0]).includes("Operation not permitted"));
+        assert.strictEqual(
+            logger.info.calledWith("No Metro process found on port 9090"),
+            false,
+        );
+        assert.strictEqual(execStub.calledWith("watchman watch-del-all"), true);
+        assert.strictEqual(restartStub.calledOnce, true);
+    });
+
+    test("should treat Windows lookup failure as no process and still restart", async function () {
+        const execStub = Sinon.stub();
+        execStub
+            .withArgs("netstat -ano | findstr :9090")
+            .returns(createRejectedExecResult(new Error("No matching process")));
+        execStub.withArgs("watchman watch-del-all").returns(createExecResult(""));
+        const restartStub = Sinon.stub().returns(Promise.resolve());
+        const { CleanRestartPackager, logger } = createCommandModule(
+            HostPlatformId.WINDOWS,
+            execStub,
+        );
+
+        await runCommand(CleanRestartPackager, tempDir, restartStub);
+
+        assert.strictEqual(
+            logger.info.calledWith("No Metro process found on port 9090"),
+            true,
+        );
+        assert.strictEqual(logger.warning.called, false);
+        assert.strictEqual(execStub.calledWith("watchman watch-del-all"), true);
+        assert.strictEqual(restartStub.calledOnce, true);
+    });
 });
