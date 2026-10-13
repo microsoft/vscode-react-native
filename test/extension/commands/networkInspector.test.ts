@@ -25,36 +25,39 @@ suite("networkInspectorCommands", function () {
             public stop = stopStub;
         }
 
-        const module = proxyquire.noCallThru()("../../../src/extension/commands/networkInspector", {
-            "vscode-nls": {
-                config: () => () => (key: string, defaultValue: string) => defaultValue,
-                loadMessageBundle: () => (_key: string, defaultValue: string) => defaultValue,
-                MessageFormat: { bundle: "bundle" },
-                BundleFormat: { standalone: "standalone" },
-            },
-            "../../common/error/errorHelper": {
-                ErrorHelper: {
-                    getInternalError: () => new Error("command failed"),
+        const module = proxyquire.noCallThru().noPreserveCache()(
+            "../../../src/extension/commands/networkInspector",
+            {
+                "vscode-nls": {
+                    config: () => () => (key: string, defaultValue: string) => defaultValue,
+                    loadMessageBundle: () => (_key: string, defaultValue: string) => defaultValue,
+                    MessageFormat: { bundle: "bundle" },
+                    BundleFormat: { standalone: "standalone" },
+                },
+                "../../common/error/errorHelper": {
+                    ErrorHelper: {
+                        getInternalError: () => new Error("command failed"),
+                    },
+                },
+                "../../common/error/internalErrorCode": {
+                    InternalErrorCode: {
+                        CouldNotStartNetworkInspector: 0,
+                        CouldNotStopNetworkInspector: 1,
+                    },
+                },
+                "../log/OutputChannelLogger": {
+                    OutputChannelLogger: {
+                        getMainChannel: () => ({ info: loggerInfoStub }),
+                    },
+                },
+                "./util/command": {
+                    Command: FakeCommand,
+                },
+                "./networkInspectorManager": {
+                    NetworkInspectorManager: FakeNetworkInspectorManager,
                 },
             },
-            "../../common/error/internalErrorCode": {
-                InternalErrorCode: {
-                    CouldNotStartNetworkInspector: 0,
-                    CouldNotStopNetworkInspector: 1,
-                },
-            },
-            "../log/OutputChannelLogger": {
-                OutputChannelLogger: {
-                    getMainChannel: () => ({ info: loggerInfoStub }),
-                },
-            },
-            "./util/command": {
-                Command: FakeCommand,
-            },
-            "./networkInspectorManager": {
-                NetworkInspectorManager: FakeNetworkInspectorManager,
-            },
-        }) as typeof import("../../../src/extension/commands/networkInspector");
+        ) as typeof import("../../../src/extension/commands/networkInspector");
 
         return {
             StartNetworkInspector: module.StartNetworkInspector,
@@ -96,6 +99,13 @@ suite("networkInspectorCommands", function () {
                 loggerInfoStub.calledWith("Another Network inspector is already running"),
                 true,
             );
+        });
+
+        test("should throw when project is not set", async function () {
+            const { StartNetworkInspector } = createCommandModule();
+            const command = StartNetworkInspector.formInstance();
+
+            await assert.rejects(() => command.baseFn());
         });
 
         test("should propagate error from start", async function () {
