@@ -53,7 +53,7 @@ export class IOSDirectCDPMessageHandler extends BaseCDPMessageHandler {
         ) {
             processedEvent = this.processDeprecatedConsoleMessage(event);
         }
-        if ("result" in processedEvent) {
+        if ("result" in processedEvent && processedEvent.result) {
             const result = processedEvent.result as { properties?: unknown };
             if (result.properties) {
                 (processedEvent as IProtocolSuccess).result = { result: result.properties };

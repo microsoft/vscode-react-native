@@ -69,7 +69,7 @@ export class HermesCDPMessageHandler extends BaseCDPMessageHandler {
     private handleCallFunctionOnEvent(event: IProtocolCommand): IProtocolSuccess {
         const params = event.params as { objectId?: unknown };
         return {
-            id: event.id ?? 0,
+            id: event.id as number,
             result: {
                 result: {
                     objectId: params.objectId,
