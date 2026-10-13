@@ -10,30 +10,12 @@ suite("selectAndInsertDebugConfigurationCommand", function () {
         return { line, character };
     }
 
-    function makeDocument(text: string, lines: string[]): any {
-        return {
-            uri: { toString: () => "file://launch.json" },
-            getText: () => text,
-            offsetAt: (pos: any) => {
-                let offset = 0;
-                for (let i = 0; i < pos.line; i++) {
-                    offset += lines[i].length + 1;
-                }
-                return offset + pos.character;
-            },
-            lineAt: (line: number) => ({
-                text: lines[line],
-                range: { start: makePosition(line, 0) },
-            }),
-        };
-    }
-
     function makeCancellationToken(cancelled = false): any {
         return { isCancellationRequested: cancelled };
     }
 
     function createCommandModule(
-        isRunningStub?: Sinon.SinonStub,
+        activeEditorDoc: any = {},
         getCursorPositionStub?: Sinon.SinonStub,
         isCommaBeforeCursorStub?: Sinon.SinonStub,
         getTextForInsertionStub?: Sinon.SinonStub,
@@ -89,7 +71,7 @@ suite("selectAndInsertDebugConfigurationCommand", function () {
                 },
                 vscode: {
                     window: {
-                        activeTextEditor: isRunningStub ? undefined : { document: "MATCH" },
+                        activeTextEditor: { document: activeEditorDoc },
                     },
                     workspace: {
                         getWorkspaceFolder: Sinon.stub().returns(undefined),
@@ -116,69 +98,84 @@ suite("selectAndInsertDebugConfigurationCommand", function () {
         };
     }
 
-    test("should return early when document does not match active editor", async function () {
-        const stubs = createCommandModule(Sinon.stub());
+    test("should throw when required parameters are missing", async function () {
+        const stubs = createCommandModule();
         const command = stubs.SelectAndInsertDebugConfiguration.formInstance();
-        const doc = makeDocument("{}", ["{}"]);
-        // active editor is undefined (set by isRunningStub path), doc won't match
+        const doc = {} as any;
         const pos = makePosition(0, 1);
         const token = makeCancellationToken();
 
-        await command.baseFn(doc, pos, token);
+        await assert.rejects(() => command.baseFn(undefined as any, pos, token));
+        await assert.rejects(() => command.baseFn(doc, undefined as any, token));
+        await assert.rejects(() => command.baseFn(doc, pos, undefined as any));
+    });
+
+    test("should return early when document does not match active editor", async function () {
+        const activeEditorDoc = { uri: "active-doc" } as any;
+        const stubs = createCommandModule(activeEditorDoc);
+        const command = stubs.SelectAndInsertDebugConfiguration.formInstance();
+        const differentDoc = { uri: "different-doc" } as any;
+        const pos = makePosition(0, 1);
+        const token = makeCancellationToken();
+
+        await command.baseFn(differentDoc, pos, token);
 
         assert.strictEqual(stubs.provideDebugFn.called, false);
         assert.strictEqual(stubs.applyEditFn.called, false);
     });
 
-    test("should return early when cancellation is requested before config", async function () {
+    test("should return early when config provider returns null", async function () {
+        const activeEditorDoc = { uri: "launch.json" } as any;
         const provideStub = Sinon.stub().returns(Promise.resolve(null));
-        const stubs = createCommandModule(undefined, undefined, undefined, undefined, provideStub);
+        const stubs = createCommandModule(
+            activeEditorDoc,
+            undefined,
+            undefined,
+            undefined,
+            provideStub,
+        );
         const command = stubs.SelectAndInsertDebugConfiguration.formInstance();
-        const doc = "MATCH" as any;
         const pos = makePosition(0, 1);
         const token = makeCancellationToken();
-        // Override active editor to match
-        (command as any)._doc = doc;
 
-        // provideDebugConfigurationSequentially returns null → early exit
-        await command.baseFn(doc, pos, token);
+        await command.baseFn(activeEditorDoc, pos, token);
 
         assert.strictEqual(stubs.applyEditFn.called, false);
     });
 
-    test("should return early when cancellation token is triggered", async function () {
-        const cancelledToken = makeCancellationToken(true);
-        const stubs = createCommandModule();
+    test("should return early when cancellation token is triggered after config is provided", async function () {
+        const activeEditorDoc = { uri: "launch.json" } as any;
+        const stubs = createCommandModule(activeEditorDoc);
         const command = stubs.SelectAndInsertDebugConfiguration.formInstance();
-        const doc = "MATCH" as any;
         const pos = makePosition(0, 1);
+        const cancelledToken = makeCancellationToken(true);
 
-        await command.baseFn(doc, pos, cancelledToken);
+        await command.baseFn(activeEditorDoc, pos, cancelledToken);
 
         assert.strictEqual(stubs.applyEditFn.called, false);
     });
 
     test("should return early when cursor position cannot be determined", async function () {
+        const activeEditorDoc = { uri: "launch.json" } as any;
         const cursorStub = Sinon.stub().returns(undefined);
-        const stubs = createCommandModule(undefined, cursorStub);
+        const stubs = createCommandModule(activeEditorDoc, cursorStub);
         const command = stubs.SelectAndInsertDebugConfiguration.formInstance();
-        const doc = "MATCH" as any;
         const pos = makePosition(0, 1);
         const token = makeCancellationToken();
 
-        await command.baseFn(doc, pos, token);
+        await command.baseFn(activeEditorDoc, pos, token);
 
         assert.strictEqual(stubs.applyEditFn.called, false);
     });
 
     test("should insert config text and format document when cursor is inside empty array", async function () {
-        const stubs = createCommandModule();
+        const activeEditorDoc = { uri: "launch.json" } as any;
+        const stubs = createCommandModule(activeEditorDoc);
         const command = stubs.SelectAndInsertDebugConfiguration.formInstance();
-        const doc = "MATCH" as any;
         const pos = makePosition(0, 1);
         const token = makeCancellationToken();
 
-        await command.baseFn(doc, pos, token);
+        await command.baseFn(activeEditorDoc, pos, token);
 
         assert.strictEqual(stubs.applyEditFn.calledOnce, true);
         assert.strictEqual(stubs.fakeWorkspaceEditInsert.calledOnce, true);
@@ -186,20 +183,20 @@ suite("selectAndInsertDebugConfigurationCommand", function () {
     });
 
     test("should pass BeforeCursor comma position when comma precedes cursor", async function () {
+        const activeEditorDoc = { uri: "launch.json" } as any;
         const isCommaStub = Sinon.stub().returns(true);
         const textStub = Sinon.stub().returns('{"type":"reactnative"}');
         const stubs = createCommandModule(
-            undefined,
+            activeEditorDoc,
             Sinon.stub().returns("AfterItem"),
             isCommaStub,
             textStub,
         );
         const command = stubs.SelectAndInsertDebugConfiguration.formInstance();
-        const doc = "MATCH" as any;
         const pos = makePosition(0, 1);
         const token = makeCancellationToken();
 
-        await command.baseFn(doc, pos, token);
+        await command.baseFn(activeEditorDoc, pos, token);
 
         assert.strictEqual(
             textStub.calledWith(stubs.fakeConfig, "AfterItem", "BeforeCursor"),
@@ -208,20 +205,20 @@ suite("selectAndInsertDebugConfigurationCommand", function () {
     });
 
     test("should pass undefined comma position when no comma precedes cursor", async function () {
+        const activeEditorDoc = { uri: "launch.json" } as any;
         const isCommaStub = Sinon.stub().returns(false);
         const textStub = Sinon.stub().returns('{"type":"reactnative"}');
         const stubs = createCommandModule(
-            undefined,
+            activeEditorDoc,
             Sinon.stub().returns("AfterItem"),
             isCommaStub,
             textStub,
         );
         const command = stubs.SelectAndInsertDebugConfiguration.formInstance();
-        const doc = "MATCH" as any;
         const pos = makePosition(0, 1);
         const token = makeCancellationToken();
 
-        await command.baseFn(doc, pos, token);
+        await command.baseFn(activeEditorDoc, pos, token);
 
         assert.strictEqual(textStub.calledWith(stubs.fakeConfig, "AfterItem", undefined), true);
     });
