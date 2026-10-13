@@ -46,7 +46,7 @@ suite("selectAndInsertDebugConfigurationCommand", function () {
             public insert = fakeWorkspaceEditInsert;
         }
 
-        const module = proxyquire.noCallThru()(
+        const module = proxyquire.noCallThru().noPreserveCache()(
             "../../../src/extension/commands/selectAndInsertDebugConfiguration",
             {
                 "../../common/error/errorHelper": {
