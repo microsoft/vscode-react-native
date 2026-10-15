@@ -11,7 +11,7 @@ export function startVsixExistenceTest(): void {
     describe("VSIX existence check", () => {
         // Use repo-relative path to match CI workspace
         const targetDirUri = pathToFileURL(
-            path.resolve(__dirname, "..", "..", "resources", "extension"),
+            path.resolve(__dirname, "..", "resources", "extension"),
         ).toString();
         const targetDir = fileURLToPath(targetDirUri);
 
