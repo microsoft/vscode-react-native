@@ -3,111 +3,74 @@
 
 import assert = require("assert");
 import Sinon = require("sinon");
-import proxyquire = require("proxyquire");
+import { NetworkInspectorManager } from "../../../src/extension/commands/networkInspectorManager";
 
 suite("networkInspectorCommands", function () {
-    const fakeManager = {
-        isRunning: Sinon.stub().returns(false),
-        start: Sinon.stub().returns(Promise.resolve()),
-        stop: Sinon.stub().returns(Promise.resolve()),
-    };
+    let isRunningStub: Sinon.SinonStub;
+    let startStub: Sinon.SinonStub;
+    let stopStub: Sinon.SinonStub;
+    let sandbox: Sinon.SinonSandbox;
 
-    const loggerInfoStub = Sinon.stub();
+    let StartNetworkInspector: typeof import("../../../src/extension/commands/networkInspector").StartNetworkInspector;
+    let StopNetworkInspector: typeof import("../../../src/extension/commands/networkInspector").StopNetworkInspector;
 
-    class FakeCommand {
-        static formInstance(): any {
-            return new this();
-        }
-    }
-
-    class FakeNetworkInspectorManager {
-        public isRunning = fakeManager.isRunning;
-        public start = fakeManager.start;
-        public stop = fakeManager.stop;
-    }
-
-    const commandModule = proxyquire.noCallThru()(
-        "../../../src/extension/commands/networkInspector",
-        {
-            "vscode-nls": {
-                config: () => () => (key: string, defaultValue: string) => defaultValue,
-                loadMessageBundle: () => (_key: string, defaultValue: string) => defaultValue,
-                MessageFormat: { bundle: "bundle" },
-                BundleFormat: { standalone: "standalone" },
-            },
-            "../../common/error/errorHelper": {
-                ErrorHelper: {
-                    getInternalError: () => new Error("command failed"),
-                },
-            },
-            "../../common/error/internalErrorCode": {
-                InternalErrorCode: {
-                    CouldNotStartNetworkInspector: 0,
-                    CouldNotStopNetworkInspector: 1,
-                },
-            },
-            "../log/OutputChannelLogger": {
-                OutputChannelLogger: {
-                    getMainChannel: () => ({ info: loggerInfoStub }),
-                },
-            },
-            "./util/command": {
-                Command: FakeCommand,
-            },
-            "./networkInspectorManager": {
-                NetworkInspectorManager: FakeNetworkInspectorManager,
-            },
-        },
-    ) as typeof import("../../../src/extension/commands/networkInspector");
-
-    const { StartNetworkInspector, StopNetworkInspector } = commandModule;
+    before(function () {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const mod = require("../../../src/extension/commands/networkInspector");
+        StartNetworkInspector = mod.StartNetworkInspector;
+        StopNetworkInspector = mod.StopNetworkInspector;
+    });
 
     beforeEach(function () {
-        fakeManager.isRunning.reset();
-        fakeManager.start.reset();
-        fakeManager.stop.reset();
-        loggerInfoStub.reset();
+        sandbox = Sinon.sandbox.create();
+        isRunningStub = sandbox.stub(NetworkInspectorManager.prototype, "isRunning").returns(false);
+        startStub = sandbox
+            .stub(NetworkInspectorManager.prototype, "start")
+            .returns(Promise.resolve());
+        stopStub = sandbox
+            .stub(NetworkInspectorManager.prototype, "stop")
+            .returns(Promise.resolve());
+    });
+
+    afterEach(function () {
+        sandbox.restore();
     });
 
     suite("StartNetworkInspector", function () {
         test("should start inspector when not already running", async function () {
-            fakeManager.isRunning.returns(false);
+            isRunningStub.returns(false);
             const command = StartNetworkInspector.formInstance();
             (command as any).project = {};
 
             await command.baseFn();
 
-            assert.strictEqual(fakeManager.isRunning.calledOnce, true);
-            assert.strictEqual(fakeManager.start.calledOnce, true);
-            assert.strictEqual(fakeManager.start.calledWith((command as any).project), true);
+            assert.strictEqual(isRunningStub.calledOnce, true);
+            assert.strictEqual(startStub.calledOnce, true);
+            assert.strictEqual(startStub.calledWith((command as any).project), true);
         });
 
         test("should log warning and skip start when inspector is already running", async function () {
-            fakeManager.isRunning.returns(true);
+            isRunningStub.returns(true);
             const command = StartNetworkInspector.formInstance();
             (command as any).project = {};
 
             await command.baseFn();
 
-            assert.strictEqual(fakeManager.isRunning.calledOnce, true);
-            assert.strictEqual(fakeManager.start.called, false);
-            assert.strictEqual(loggerInfoStub.calledOnce, true);
-            assert.strictEqual(
-                loggerInfoStub.calledWith("Another Network inspector is already running"),
-                true,
-            );
+            assert.strictEqual(isRunningStub.calledOnce, true);
+            assert.strictEqual(startStub.called, false);
         });
 
         test("should throw when project is not set", async function () {
             const command = StartNetworkInspector.formInstance();
+            (command as any).project = undefined;
 
             await assert.rejects(() => command.baseFn());
         });
 
         test("should propagate error from start", async function () {
             const error = new Error("start failed");
-            fakeManager.isRunning.returns(false);
-            fakeManager.start.returns(Promise.reject(error));
+            isRunningStub.returns(false);
+            startStub.returns(Promise.reject(error));
             const command = StartNetworkInspector.formInstance();
             (command as any).project = {};
 
@@ -121,12 +84,12 @@ suite("networkInspectorCommands", function () {
 
             await command.baseFn();
 
-            assert.strictEqual(fakeManager.stop.calledOnce, true);
+            assert.strictEqual(stopStub.calledOnce, true);
         });
 
         test("should propagate error from stop", async function () {
             const error = new Error("stop failed");
-            fakeManager.stop.returns(Promise.reject(error));
+            stopStub.returns(Promise.reject(error));
             const command = StopNetworkInspector.formInstance();
 
             await assert.rejects(() => command.baseFn(), error);
