@@ -15,7 +15,6 @@ nls.config({
 })();
 const localize = nls.loadMessageBundle();
 
-// Singleton instance of the Network Inspector Manager
 const inspectorManager = new NetworkInspectorManager();
 
 export class StartNetworkInspector extends Command {
@@ -24,12 +23,16 @@ export class StartNetworkInspector extends Command {
     requiresTrust = false;
     error = ErrorHelper.getInternalError(InternalErrorCode.CouldNotStartNetworkInspector);
 
+    constructor(private readonly manager: NetworkInspectorManager = inspectorManager) {
+        super();
+    }
+
     async baseFn(): Promise<void> {
         assert(this.project);
 
         const logger = OutputChannelLogger.getMainChannel();
 
-        if (inspectorManager.isRunning()) {
+        if (this.manager.isRunning()) {
             logger.info(
                 localize(
                     "AnotherNetworkInspectorAlreadyRun",
@@ -39,7 +42,7 @@ export class StartNetworkInspector extends Command {
             return;
         }
 
-        await inspectorManager.start(this.project);
+        await this.manager.start(this.project);
     }
 }
 
@@ -49,7 +52,11 @@ export class StopNetworkInspector extends Command {
     requiresTrust = false;
     error = ErrorHelper.getInternalError(InternalErrorCode.CouldNotStopNetworkInspector);
 
+    constructor(private readonly manager: NetworkInspectorManager = inspectorManager) {
+        super();
+    }
+
     async baseFn(): Promise<void> {
-        await inspectorManager.stop();
+        await this.manager.stop();
     }
 }
