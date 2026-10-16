@@ -23,16 +23,12 @@ export class StartNetworkInspector extends Command {
     requiresTrust = false;
     error = ErrorHelper.getInternalError(InternalErrorCode.CouldNotStartNetworkInspector);
 
-    constructor(private readonly manager: NetworkInspectorManager = inspectorManager) {
-        super();
-    }
-
     async baseFn(): Promise<void> {
         assert(this.project);
 
         const logger = OutputChannelLogger.getMainChannel();
 
-        if (this.manager.isRunning()) {
+        if (inspectorManager.isRunning()) {
             logger.info(
                 localize(
                     "AnotherNetworkInspectorAlreadyRun",
@@ -42,7 +38,7 @@ export class StartNetworkInspector extends Command {
             return;
         }
 
-        await this.manager.start(this.project);
+        await inspectorManager.start(this.project);
     }
 }
 
@@ -52,11 +48,7 @@ export class StopNetworkInspector extends Command {
     requiresTrust = false;
     error = ErrorHelper.getInternalError(InternalErrorCode.CouldNotStopNetworkInspector);
 
-    constructor(private readonly manager: NetworkInspectorManager = inspectorManager) {
-        super();
-    }
-
     async baseFn(): Promise<void> {
-        await this.manager.stop();
+        await inspectorManager.stop();
     }
 }
