@@ -2,20 +2,20 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { Connection } from "vscode-cdp-proxy";
-import { ICDPMessageHandler, ProcessedCDPMessage } from "./ICDPMessageHandler";
+import { ICDPMessageHandler, ProcessedCDPMessage, ProtocolMessage } from "./ICDPMessageHandler";
 
 export abstract class BaseCDPMessageHandler implements ICDPMessageHandler {
     protected debuggerTarget: Connection | null = null;
     protected applicationTarget: Connection | null = null;
 
-    public processDebuggerCDPMessage(event: any): ProcessedCDPMessage {
+    public processDebuggerCDPMessage(event: ProtocolMessage): ProcessedCDPMessage {
         return {
             event,
             sendBack: false,
         };
     }
 
-    public processApplicationCDPMessage(event: any): ProcessedCDPMessage {
+    public processApplicationCDPMessage(event: ProtocolMessage): ProcessedCDPMessage {
         return {
             event,
             sendBack: false,
