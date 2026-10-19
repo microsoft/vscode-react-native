@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as path from "path";
+import * as fs from "fs";
 import * as vscode from "vscode";
 import { ErrorHelper } from "../common/error/errorHelper";
 import { InternalErrorCode } from "../common/error/internalErrorCode";
@@ -26,11 +27,13 @@ export class ReactDirManager implements vscode.Disposable {
     public async setup(): Promise<void> {
         this.isDisposed = false;
         const fs = new FileSystem();
+        this.assertVscodeDirIsNotSymbolicLink();
         /* if the folder exists, remove it, then recreate it */
         await fs.removePathRecursivelyAsync(this.reactDirPath);
         if (!fs.existsSync(this.vscodeDirPath)) {
             await fs.mkDir(this.vscodeDirPath);
         }
+        this.assertVscodeDirIsNotSymbolicLink();
         await fs.mkDir(this.reactDirPath);
     }
 
@@ -45,7 +48,30 @@ export class ReactDirManager implements vscode.Disposable {
                 InternalErrorCode.RNTempFolderDeletionFailed,
                 this.reactDirPath,
             ),
-            () => new FileSystem().removePathRecursivelySync(this.reactDirPath),
+            () => {
+                if (!this.isVscodeDirSymbolicLink()) {
+                    new FileSystem().removePathRecursivelySync(this.reactDirPath);
+                }
+            },
         );
+    }
+
+    private assertVscodeDirIsNotSymbolicLink(): void {
+        if (this.isVscodeDirSymbolicLink()) {
+            throw new Error(
+                `Refusing to access React Native temporary directory through symbolic link ${this.vscodeDirPath}`,
+            );
+        }
+    }
+
+    private isVscodeDirSymbolicLink(): boolean {
+        try {
+            return fs.lstatSync(this.vscodeDirPath).isSymbolicLink();
+        } catch (error) {
+            if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+                return false;
+            }
+            throw error;
+        }
     }
 }

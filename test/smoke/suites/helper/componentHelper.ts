@@ -60,6 +60,7 @@ export class ComponentHelper {
     public static async openRunAndDebugTab() {
         const debugIcon = await ElementHelper.WaitElementClassNameVisible(
             Element.runAndDebugTabButtonClassName,
+            TimeoutConstants.RUN_AND_DEBUG_VIEW_TIMEOUT,
         );
         await debugIcon.click();
     }

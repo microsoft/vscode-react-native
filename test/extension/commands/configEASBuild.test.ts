@@ -119,4 +119,24 @@ suite("configEASBuildCommand", function () {
             true,
         );
     });
+
+    test("should preserve errors from eas build configure", async function () {
+        const commandError = new Error("EAS CLI failed");
+        const existsStub = Sinon.stub().returns(Promise.resolve(false));
+        const executeStub = Sinon.stub().returns(Promise.reject(commandError));
+        const isExpoStub = Sinon.stub().returns(Promise.resolve(true));
+        const { ConfigEASBuild, logger } = createCommandModule(existsStub, executeStub);
+
+        await assert.rejects(
+            runCommand(ConfigEASBuild, "/workspace/app", isExpoStub),
+            (error: any) => error === commandError,
+        );
+
+        assert.strictEqual(
+            logger.error.args.some((args: string[]) =>
+                args[0].includes("Unable to find existing EAS project"),
+            ),
+            true,
+        );
+    });
 });

@@ -10,10 +10,16 @@ const useNpm = process.argv.includes("--no-yarn");
 const isPrepublish = process.argv.includes("--no-prepublish");
 const extensionName = isNightly ? "vscode-react-native-preview" : "vscode-react-native";
 const executeCommand = GulpExtras.executeCommand;
+const smokeResourcesDirectory = path.join(
+    appRoot,
+    "test",
+    "smoke",
+    "resources",
+    "extension",
+);
 
-function release(cb) {
-    prepareLicenses();
-    cb();
+function release() {
+    return prepareLicenses();
 }
 
 function prepareLicenses() {
@@ -27,6 +33,7 @@ function prepareLicenses() {
     if (!fs.existsSync(backupFolder)) {
         fs.mkdirSync(backupFolder);
     }
+    let vsixFileName;
 
     return Promise.resolve()
         .then(() => {
@@ -61,7 +68,9 @@ function prepareLicenses() {
                 packageJson.preview = true;
                 packageJson.displayName += " (Preview)";
             }
+            vsixFileName = `${packageJson.name}-${packageJson.version}.vsix`;
             writeJson("/package.json", packageJson);
+            removeVsixFiles(appRoot);
             log("Creating release package...");
             return new Promise((resolve, reject) => {
                 // NOTE: vsce must see npm 3.X otherwise it will not correctly strip out dev dependencies.
@@ -89,6 +98,7 @@ function prepareLicenses() {
                 );
             });
         })
+        .then(() => moveVsixToSmokeResources(vsixFileName))
         .finally(() => {
             /* restore backed up files */
             log("Restoring modified files...");
@@ -99,6 +109,29 @@ function prepareLicenses() {
                 );
             });
         });
+}
+
+function removeVsixFiles(directory) {
+    if (!fs.existsSync(directory)) {
+        return;
+    }
+
+    fs.readdirSync(directory)
+        .filter(fileName => fileName.toLowerCase().endsWith(".vsix"))
+        .forEach(fileName => fs.unlinkSync(path.join(directory, fileName)));
+}
+
+function moveVsixToSmokeResources(vsixFileName) {
+    const sourcePath = path.join(appRoot, vsixFileName);
+    if (!fs.existsSync(sourcePath)) {
+        throw new Error(`Release package was not created: ${sourcePath}`);
+    }
+
+    fs.mkdirSync(smokeResourcesDirectory, { recursive: true });
+    removeVsixFiles(smokeResourcesDirectory);
+    const targetPath = path.join(smokeResourcesDirectory, vsixFileName);
+    fs.renameSync(sourcePath, targetPath);
+    log(`Moved release package to ${targetPath}`);
 }
 
 function readJson(file) {

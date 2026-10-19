@@ -71,7 +71,9 @@ export class CleanRestartPackager extends ReactNativeCommand {
                             if (match && match[1]) {
                                 const pid = match[1];
                                 logger.info(`Found Metro process with PID: ${pid}`);
-                                await childProcess.exec(`taskkill /PID ${pid} /F /T`);
+                                await childProcess
+                                    .exec(`taskkill /PID ${pid} /F /T`)
+                                    .then(killResult => killResult.outcome);
                                 logger.info(`Successfully terminated process ${pid}`);
                             }
                         }
@@ -88,7 +90,8 @@ export class CleanRestartPackager extends ReactNativeCommand {
                     if (outcome && outcome.trim()) {
                         const pid = outcome.trim();
                         logger.info(`Found Metro process with PID: ${pid}`);
-                        await childProcess.exec(`kill -9 ${pid}`);
+                        const killResult = await childProcess.exec(`kill -9 ${pid}`);
+                        await killResult.outcome;
                         logger.info(`Successfully terminated process ${pid}`);
                     }
                 } catch (error) {
