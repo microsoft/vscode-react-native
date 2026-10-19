@@ -76,7 +76,7 @@ suite("hermesCDPMessageHandler", function () {
                 method: CDP_API_NAMES.DEBUGGER_SET_BREAKPOINT_BY_URL,
                 params: {},
             });
-            handler.processDebuggerCDPMessage({ method: CDP_API_NAMES.CLOSE });
+            handler.processDebuggerCDPMessage({ method: CDP_API_NAMES.CLOSE, params: {} });
             await PromiseUtil.delay(afterDebounce);
 
             assert.strictEqual(sent.length, 0);

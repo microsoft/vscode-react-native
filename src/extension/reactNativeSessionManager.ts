@@ -23,27 +23,25 @@ export class ReactNativeSessionManager
     ): vscode.ProviderResult<vscode.DebugAdapterDescriptor> {
         const rnSession = new RNSession(session);
 
-        let debugServer: Net.Server;
-        if (session.configuration.platform != "expoweb") {
-            debugServer = Net.createServer(socket => {
-                const rnDebugSession =
-                    session.type === DEBUG_TYPES.REACT_NATIVE
-                        ? new RNDebugSession(rnSession)
-                        : new DirectDebugSession(rnSession);
+        const debugServer =
+            session.configuration.platform !== "expoweb"
+                ? Net.createServer(socket => {
+                      const rnDebugSession =
+                          session.type === DEBUG_TYPES.REACT_NATIVE
+                              ? new RNDebugSession(rnSession)
+                              : new DirectDebugSession(rnSession);
 
-                this.connections.set(session.id, socket);
+                      this.connections.set(session.id, socket);
 
-                rnDebugSession.setRunAsServer(true);
-                rnDebugSession.start(<NodeJS.ReadableStream>socket, socket);
-            });
-        } else {
-            debugServer = Net.createServer(socket => {
-                const webDebugSession = new WebDebugSession(rnSession);
-                webDebugSession.setRunAsServer(true);
-                this.connections.set(session.id, socket);
-                webDebugSession.start(<NodeJS.ReadableStream>socket, socket);
-            });
-        }
+                      rnDebugSession.setRunAsServer(true);
+                      rnDebugSession.start(<NodeJS.ReadableStream>socket, socket);
+                  })
+                : Net.createServer(socket => {
+                      const webDebugSession = new WebDebugSession(rnSession);
+                      webDebugSession.setRunAsServer(true);
+                      this.connections.set(session.id, socket);
+                      webDebugSession.start(<NodeJS.ReadableStream>socket, socket);
+                  });
 
         return new Promise<vscode.DebugAdapterServer>((resolve, reject) => {
             debugServer.once("error", reject);
