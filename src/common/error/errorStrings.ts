@@ -423,4 +423,5 @@ export const ERROR_STRINGS = {
     [InternalErrorCode.FailedToToggleNetworkView]: "Failed to config network view",
     [InternalErrorCode.FailedToRunEasBuild]: "Failed to run eas build",
     [InternalErrorCode.FailedToInstallPods]: "Failed to install pods",
+    [InternalErrorCode.FailedToSelectDevice]: "Failed to select device",
 };

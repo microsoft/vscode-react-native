@@ -16,6 +16,7 @@ export * from "./runIos";
 export * from "./runMacOs";
 export * from "./runWindows";
 export * from "./selectAndInsertDebugConfiguration";
+export * from "./selectDevice";
 export * from "./showDevMenu";
 export * from "./startLogCatMonitor";
 export * from "./startPackager";

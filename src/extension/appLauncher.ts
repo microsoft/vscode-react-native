@@ -38,7 +38,6 @@ import { LaunchScenariosManager } from "./launchScenariosManager";
 import { createAdditionalWorkspaceFolder, onFolderAdded } from "./rn-extension";
 import { RNProjectObserver } from "./rnProjectObserver";
 import { GeneralMobilePlatform } from "./generalMobilePlatform";
-import { DeviceStatusIndicator } from "./deviceStatusIndicator";
 
 nls.config({
     messageFormat: nls.MessageFormat.bundle,
@@ -205,7 +204,6 @@ export class AppLauncher {
         this.packager.getStatusIndicator().dispose();
         void this.packager.stop(true);
         this.mobilePlatform.dispose();
-        DeviceStatusIndicator.hide();
     }
 
     public async openFileAtLocation(filename: string, lineNumber: number): Promise<void> {
@@ -339,14 +337,6 @@ export class AppLauncher {
                     );
                     if (launchArgs.platform !== "exponent") {
                         await this.mobilePlatform.runApp();
-                    }
-
-                    // Show device name in status bar after app is launched
-                    if (this.mobilePlatform instanceof GeneralMobilePlatform) {
-                        const target = this.mobilePlatform.getResolvedTarget();
-                        if (target?.name) {
-                            DeviceStatusIndicator.show(target.name);
-                        }
                     }
 
                     if (mobilePlatformOptions.isDirect) {

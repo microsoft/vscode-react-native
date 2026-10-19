@@ -218,7 +218,7 @@ export class IOSTargetManager extends MobileTargetManager {
         return result?.toString();
     }
 
-    protected async launchSimulator(
+    public async launchSimulator(
         virtualTarget: IDebuggableIOSTarget,
     ): Promise<IOSTarget | undefined> {
         return new Promise<IOSTarget | undefined>((resolve, reject) => {

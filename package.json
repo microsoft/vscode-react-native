@@ -133,6 +133,12 @@
                 "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
             },
             {
+                "command": "reactNative.selectDevice",
+                "title": "%reactNative.command.selectDevice.title%",
+                "category": "React Native",
+                "enablement": "!config.security.workspace.trust.enabled || isWorkspaceTrusted"
+            },
+            {
                 "command": "reactNative.launchExpoWeb",
                 "title": "%reactNative.command.launchExpoWeb.title%",
                 "category": "React Native",

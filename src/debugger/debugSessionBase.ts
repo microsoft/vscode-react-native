@@ -17,7 +17,6 @@ import { ILaunchArgs, IRunOptions, PlatformType } from "../extension/launchArgs"
 import type { AppLauncher } from "../extension/appLauncher";
 import { RNPackageVersions } from "../common/projectVersionHelper";
 import { OutputChannelLogger } from "../extension/log/OutputChannelLogger";
-import { DeviceStatusIndicator } from "../extension/deviceStatusIndicator";
 import { RNSession } from "./debugSessionWrapper";
 
 nls.config({
@@ -233,8 +232,6 @@ export abstract class DebugSessionBase extends LoggingDebugSession {
                 await this.appLauncher.getPackager().stop(true);
             }
         }
-
-        DeviceStatusIndicator.hide();
 
         this.cancellationTokenSource.cancel();
         this.cancellationTokenSource.dispose();

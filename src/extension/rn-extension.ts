@@ -41,6 +41,7 @@ import {
 } from "./debuggingConfiguration/launchJsonCompletionProvider";
 import { ReactNativeSessionManager } from "./reactNativeSessionManager";
 import { ProjectsStorage } from "./projectsStorage";
+import { DeviceSelector } from "./deviceSelector";
 import { AppLauncher } from "./appLauncher";
 import { LogCatMonitorManager } from "./android/logCatMonitorManager";
 import { ExtensionConfigManager } from "./extensionConfigManager";
@@ -201,6 +202,19 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
                     DEBUG_TYPES.REACT_NATIVE_DIRECT,
                     dymConfigProvider,
                     vscode.DebugConfigurationProviderTriggerKind.Dynamic,
+                ),
+            );
+
+            const deviceSelector = new DeviceSelector(EXTENSION_CONTEXT.workspaceState);
+            EXTENSION_CONTEXT.subscriptions.push(
+                deviceSelector,
+                vscode.debug.registerDebugConfigurationProvider(
+                    DEBUG_TYPES.REACT_NATIVE,
+                    deviceSelector,
+                ),
+                vscode.debug.registerDebugConfigurationProvider(
+                    DEBUG_TYPES.REACT_NATIVE_DIRECT,
+                    deviceSelector,
                 ),
             );
 
@@ -402,6 +416,7 @@ export async function onFolderAdded(folder: vscode.WorkspaceFolder): Promise<voi
                         new AppLauncher(reactDirManager, projectObserver, folder),
                     );
                     COUNT_WORKSPACE_FOLDERS++;
+                    DeviceSelector.instance?.start();
                 },
             ),
         );

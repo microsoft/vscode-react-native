@@ -140,12 +140,19 @@ export class AndroidTargetManager extends MobileTargetManager {
         return this.selectTarget(filter);
     }
 
-    protected async launchSimulator(emulatorTarget: IMobileTarget): Promise<AndroidTarget> {
+    public async launchSimulator(
+        emulatorTarget: IMobileTarget,
+        coldBoot = false,
+    ): Promise<AndroidTarget> {
         return new Promise<AndroidTarget>((resolve, reject) => {
             let emulatorLaunchFailed = false;
             const emulatorProcess = this.childProcess.spawn(
                 AndroidTargetManager.EMULATOR_COMMAND,
-                [AndroidTargetManager.EMULATOR_AVD_START_COMMAND, emulatorTarget.name as string],
+                [
+                    AndroidTargetManager.EMULATOR_AVD_START_COMMAND,
+                    emulatorTarget.name as string,
+                    ...(coldBoot ? ["-no-snapshot-load"] : []),
+                ],
                 {
                     detached: true,
                 },

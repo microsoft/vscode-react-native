@@ -203,6 +203,7 @@ suite("rn-extension", function () {
                 "reactNative.runMacOS",
                 "reactNative.runWindows",
                 "reactNative.selectAndInsertDebugConfiguration",
+                "reactNative.selectDevice",
                 "reactNative.showDevMenu",
                 "reactNative.startLogCatMonitor",
                 "reactNative.startPackager",
