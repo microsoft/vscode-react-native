@@ -255,7 +255,7 @@ export class ReactNativeCDPProxy {
 
     private async onDebuggerTargetClosed() {
         this.browserInspectUri = "";
-        this.CDPMessageHandler.processDebuggerCDPMessage({ method: "close" });
+        this.CDPMessageHandler.processDebuggerCDPMessage({ method: "close", params: {} });
         this.debuggerTarget = null;
     }
 }
