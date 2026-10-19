@@ -109,13 +109,8 @@ export class CleanRestartPackager extends ReactNativeCommand {
         const metroCachePath = path.join(projectPath, "node_modules", ".cache", "metro");
 
         try {
-            if (fs.existsSync(metroCachePath)) {
-                // Use recursive directory deletion
-                await this.deleteDirectory(metroCachePath);
-                logger.info(`Successfully cleaned Metro cache at: ${metroCachePath}`);
-            } else {
-                logger.info("Metro cache directory not found, skipping...");
-            }
+            await fs.promises.rm(metroCachePath, { recursive: true, force: true });
+            logger.info(`Successfully cleaned Metro cache at: ${metroCachePath}`);
         } catch (error) {
             logger.warning(`Failed to clean Metro cache: ${String(error)}`);
         }
@@ -131,25 +126,6 @@ export class CleanRestartPackager extends ReactNativeCommand {
             logger.info("Successfully cleaned Watchman cache");
         } catch (error) {
             logger.info("Watchman not available or failed to clean cache, continuing...");
-        }
-    }
-
-    private async deleteDirectory(dirPath: string): Promise<void> {
-        if (fs.existsSync(dirPath)) {
-            const files = fs.readdirSync(dirPath);
-
-            for (const file of files) {
-                const filePath = path.join(dirPath, file);
-                const stat = fs.statSync(filePath);
-
-                if (stat.isDirectory()) {
-                    await this.deleteDirectory(filePath);
-                } else {
-                    fs.unlinkSync(filePath);
-                }
-            }
-
-            fs.rmdirSync(dirPath);
         }
     }
 }
