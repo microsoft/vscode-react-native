@@ -31,6 +31,32 @@ export function startVsixExistenceTest(): void {
             }
         });
 
+        it("Release moves the latest VSIX to smoke resources", () => {
+            const repoRoot = path.resolve(__dirname, "..", "..", "..");
+            const rootVsixFiles = fs
+                .readdirSync(repoRoot)
+                .filter(fileName => fileName.toLowerCase().endsWith(".vsix"));
+
+            assert.deepStrictEqual(
+                rootVsixFiles,
+                [],
+                `Unexpected VSIX files remain in the repository root: ${rootVsixFiles.join(", ")}`,
+            );
+            assert.ok(fs.existsSync(targetDir), `Smoke resource directory not found: ${targetDir}`);
+
+            const smokeVsixFiles = fs
+                .readdirSync(targetDir)
+                .filter(fileName => fileName.toLowerCase().endsWith(".vsix"));
+            assert.strictEqual(
+                smokeVsixFiles.length,
+                1,
+                `Expected one VSIX in smoke resources, found: ${smokeVsixFiles.join(", ")}`,
+            );
+
+            const generatedVsixPath = path.join(targetDir, smokeVsixFiles[0]);
+            assert.ok(fs.statSync(generatedVsixPath).size > 0, "Generated VSIX is empty");
+        });
+
         it("VSIX manifest contains required Identity fields", async function () {
             if (!fs.existsSync(targetDir)) {
                 this.skip?.();
