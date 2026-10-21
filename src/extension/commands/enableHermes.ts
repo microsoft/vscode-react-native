@@ -40,7 +40,7 @@ export class EnableHermes extends Command {
             }
 
             const podfileContent = fs.readFileSync(podfilePath, "utf-8");
-            const hermesMatches = podfileContent.match(/#?\s*:hermes_enabled\s*=>\s*\w*/);
+            const hermesMatches = podfileContent.match(/#?\s*:hermes_enabled\s*=>\s*(\w*)/);
             const regex = /(use_react_native!\s*\([^)]*?)(\n\s*\))/;
             const rnMatches = podfileContent.match(regex);
             const nodeModulesRoot: string =
@@ -52,6 +52,7 @@ export class EnableHermes extends Command {
             );
 
             if (hermesMatches && !hermesMatches[0].startsWith("#")) {
+                if (hermesMatches[1] === isHermesEnabled) return;
                 const updatedHermes = podfileContent.replace(
                     /:hermes_enabled\s*=>\s*\w+/,
                     `:hermes_enabled => ${isHermesEnabled}`,

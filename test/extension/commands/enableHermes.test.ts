@@ -162,6 +162,32 @@ suite("enableHermesCommand", function () {
         assert.strictEqual(spawnStub.called, false);
     });
 
+    for (const value of ["true", "false"]) {
+        test(`should skip writing and installing pods when iOS Hermes is already ${value}`, async function () {
+            const iosPath = path.join(tempDir, "ios");
+            fs.mkdirSync(iosPath, { recursive: true });
+            fs.writeFileSync(
+                path.join(iosPath, "Podfile"),
+                `use_react_native!(\n    :hermes_enabled  =>  ${value}\n)`,
+            );
+            const showQuickPickStub = Sinon.stub();
+            showQuickPickStub.onFirstCall().returns(Promise.resolve("iOS"));
+            showQuickPickStub.onSecondCall().returns(Promise.resolve(value));
+            const writeFileStub = Sinon.stub().returns(Promise.resolve());
+            const spawnStub = Sinon.stub().returns(Promise.resolve());
+            const { EnableHermes } = createCommandModule(
+                showQuickPickStub,
+                writeFileStub,
+                spawnStub,
+            );
+
+            await runCommand(EnableHermes);
+
+            assert.strictEqual(writeFileStub.called, false);
+            assert.strictEqual(spawnStub.called, false);
+        });
+    }
+
     test("should update iOS hermes flag and install pods", async function () {
         const iosPath = path.join(tempDir, "ios");
         const podfilePath = path.join(iosPath, "Podfile");
