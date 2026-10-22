@@ -76,6 +76,43 @@ suite("debuggerEndpointHelper", function () {
         assert.strictEqual(fetchJsonStub.thirdCall.args[0], "http://localhost:8081/json/list");
     });
 
+    test("getWSEndpoint should select the first target with a valid URL", async function () {
+        const helper = new DebuggerEndpointHelper();
+        const fetchJsonStub = sinon.stub(helper as any, "fetchJson");
+        stubs.push(fetchJsonStub);
+        fetchJsonStub.onCall(0).returns(Promise.resolve({}));
+        fetchJsonStub
+            .onCall(1)
+            .returns(
+                Promise.resolve([
+                    { title: "Missing URL" },
+                    { title: "Empty URL", webSocketDebuggerUrl: "  " },
+                    { title: "Valid target", webSocketDebuggerUrl: "ws://valid" },
+                ]),
+            );
+
+        const endpoint = await helper.getWSEndpoint("http://localhost:9222");
+
+        assert.strictEqual(endpoint, "ws://valid");
+        assert.strictEqual(fetchJsonStub.calledTwice, true);
+    });
+
+    test("getWSEndpoint should throw when no target has a valid URL", async function () {
+        const helper = new DebuggerEndpointHelper();
+        const fetchJsonStub = sinon.stub(helper as any, "fetchJson");
+        stubs.push(fetchJsonStub);
+        fetchJsonStub.onCall(0).returns(Promise.resolve({}));
+        fetchJsonStub.onCall(1).returns(Promise.resolve([{ title: "Missing URL" }]));
+        fetchJsonStub
+            .onCall(2)
+            .returns(Promise.resolve([{ title: "Invalid URL", webSocketDebuggerUrl: 42 }]));
+
+        await assert.rejects(
+            helper.getWSEndpoint("http://localhost:9222"),
+            /valid webSocketDebuggerUrl/,
+        );
+    });
+
     test("getDebuggerTpye should detect expo targets", async function () {
         const helper = new DebuggerEndpointHelper();
         const fetchJsonStub = sinon.stub(helper as any, "fetchJson");

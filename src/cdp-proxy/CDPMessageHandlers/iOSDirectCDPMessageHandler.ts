@@ -1,8 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import { IProtocolCommand, IProtocolSuccess } from "vscode-cdp-proxy";
 import { BaseCDPMessageHandler } from "./baseCDPMessageHandler";
-import { ProcessedCDPMessage } from "./ICDPMessageHandler";
+import { ProcessedCDPMessage, ProtocolMessage } from "./ICDPMessageHandler";
 import { CDP_API_NAMES } from "./CDPAPINames";
 
 interface ExecutionContext {
@@ -26,9 +27,13 @@ export class IOSDirectCDPMessageHandler extends BaseCDPMessageHandler {
         this.customMessageLastId = 0;
     }
 
-    public processDebuggerCDPMessage(event: any): ProcessedCDPMessage {
+    public processDebuggerCDPMessage(event: ProtocolMessage): ProcessedCDPMessage {
         const sendBack = false;
-        if (!this.isBackcompatConfigured && event.method === CDP_API_NAMES.RUNTIME_ENABLE) {
+        if (
+            !this.isBackcompatConfigured &&
+            "method" in event &&
+            event.method === CDP_API_NAMES.RUNTIME_ENABLE
+        ) {
             this.configureTargetForIWDPCommunication();
             this.configureDebuggerForIWDPCommunication();
             this.isBackcompatConfigured = true;
@@ -39,30 +44,47 @@ export class IOSDirectCDPMessageHandler extends BaseCDPMessageHandler {
         };
     }
 
-    public processApplicationCDPMessage(event: any): ProcessedCDPMessage {
-        if (event.method === CDP_API_NAMES.CONSOLE_MESSAGE_ADDED) {
-            event = this.processDeprecatedConsoleMessage(event);
+    public processApplicationCDPMessage(event: ProtocolMessage): ProcessedCDPMessage {
+        let processedEvent: ProtocolMessage = event;
+        if (
+            "method" in event &&
+            "params" in event &&
+            event.method === CDP_API_NAMES.CONSOLE_MESSAGE_ADDED
+        ) {
+            processedEvent = this.processDeprecatedConsoleMessage(event);
         }
-        if (event.result && event.result.properties) {
-            event.result = { result: event.result.properties };
+        if ("result" in processedEvent && processedEvent.result) {
+            const result = processedEvent.result as { properties?: unknown };
+            if (result.properties) {
+                (processedEvent as IProtocolSuccess).result = { result: result.properties };
+            }
         }
         return {
-            event,
+            event: processedEvent,
             sendBack: false,
         };
     }
 
-    private processDeprecatedConsoleMessage(event: any) {
+    private processDeprecatedConsoleMessage(event: IProtocolCommand): IProtocolCommand {
+        const params = event.params as {
+            message: {
+                type: unknown;
+                timestamp: unknown;
+                parameters?: unknown;
+                text: unknown;
+                stack?: unknown;
+                stackTrace?: unknown;
+            };
+        };
+        const message = params.message;
         return {
             method: CDP_API_NAMES.RUNTIME_CONSOLE_API_CALLED,
             params: {
-                type: event.params.message.type,
-                timestamp: event.params.message.timestamp,
-                args: event.params.message.parameters || [
-                    { type: "string", value: event.params.message.text },
-                ],
+                type: message.type,
+                timestamp: message.timestamp,
+                args: message.parameters || [{ type: "string", value: message.text }],
                 stackTrace: {
-                    callFrames: event.params.message.stack || event.params.message.stackTrace,
+                    callFrames: message.stack || message.stackTrace,
                 },
                 executionContextId: 1,
             },
@@ -100,10 +122,10 @@ export class IOSDirectCDPMessageHandler extends BaseCDPMessageHandler {
 
     private sendCustomRequestToDebuggerTarget(
         method: string,
-        params: any = {},
+        params: object = {},
         addMessageId: boolean = true,
     ): void {
-        const request: any = {
+        const request: IProtocolCommand = {
             method,
             params,
         };

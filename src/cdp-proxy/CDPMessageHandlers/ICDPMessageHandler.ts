@@ -11,6 +11,6 @@ export interface ProcessedCDPMessage {
 }
 
 export interface ICDPMessageHandler {
-    processDebuggerCDPMessage: (event: any) => ProcessedCDPMessage;
-    processApplicationCDPMessage: (event: any) => ProcessedCDPMessage;
+    processDebuggerCDPMessage: (event: ProtocolMessage) => ProcessedCDPMessage;
+    processApplicationCDPMessage: (event: ProtocolMessage) => ProcessedCDPMessage;
 }

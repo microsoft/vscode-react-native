@@ -11,7 +11,7 @@ export function startVsixExistenceTest(): void {
     describe("VSIX existence check", () => {
         // Use repo-relative path to match CI workspace
         const targetDirUri = pathToFileURL(
-            path.resolve(__dirname, "..", "..", "resources", "extension"),
+            path.resolve(__dirname, "..", "resources", "extension"),
         ).toString();
         const targetDir = fileURLToPath(targetDirUri);
 
@@ -29,6 +29,32 @@ export function startVsixExistenceTest(): void {
             } else {
                 assert.ok(true);
             }
+        });
+
+        it("Release moves the latest VSIX to smoke resources", () => {
+            const repoRoot = path.resolve(__dirname, "..", "..", "..");
+            const rootVsixFiles = fs
+                .readdirSync(repoRoot)
+                .filter(fileName => fileName.toLowerCase().endsWith(".vsix"));
+
+            assert.deepStrictEqual(
+                rootVsixFiles,
+                [],
+                `Unexpected VSIX files remain in the repository root: ${rootVsixFiles.join(", ")}`,
+            );
+            assert.ok(fs.existsSync(targetDir), `Smoke resource directory not found: ${targetDir}`);
+
+            const smokeVsixFiles = fs
+                .readdirSync(targetDir)
+                .filter(fileName => fileName.toLowerCase().endsWith(".vsix"));
+            assert.strictEqual(
+                smokeVsixFiles.length,
+                1,
+                `Expected one VSIX in smoke resources, found: ${smokeVsixFiles.join(", ")}`,
+            );
+
+            const generatedVsixPath = path.join(targetDir, smokeVsixFiles[0]);
+            assert.ok(fs.statSync(generatedVsixPath).size > 0, "Generated VSIX is empty");
         });
 
         it("VSIX manifest contains required Identity fields", async function () {
