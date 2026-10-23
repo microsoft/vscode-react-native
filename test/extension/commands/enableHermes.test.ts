@@ -140,6 +140,28 @@ suite("enableHermesCommand", function () {
         assert.strictEqual(spawnStub.called, false);
     });
 
+    test("should preserve a commented Android property and add an active one", async function () {
+        const androidPath = path.join(tempDir, "android");
+        const gradleFilePath = path.join(androidPath, "gradle.properties");
+        fs.mkdirSync(androidPath, { recursive: true });
+        fs.writeFileSync(gradleFilePath, "android.useAndroidX=true\n# hermesEnabled=false");
+        const showQuickPickStub = Sinon.stub();
+        showQuickPickStub.onFirstCall().returns(Promise.resolve("Android"));
+        showQuickPickStub.onSecondCall().returns(Promise.resolve("true"));
+        const writeFileStub = Sinon.stub().returns(Promise.resolve());
+        const spawnStub = Sinon.stub().returns(Promise.resolve());
+        const { EnableHermes } = createCommandModule(showQuickPickStub, writeFileStub, spawnStub);
+
+        await runCommand(EnableHermes);
+
+        assert.strictEqual(writeFileStub.calledOnce, true);
+        assert.strictEqual(
+            writeFileStub.firstCall.args[1],
+            "android.useAndroidX=true\n# hermesEnabled=false \nhermesEnabled=true",
+        );
+        assert.strictEqual(spawnStub.called, false);
+    });
+
     test("should update iOS hermes flag and install pods", async function () {
         const iosPath = path.join(tempDir, "ios");
         const podfilePath = path.join(iosPath, "Podfile");
