@@ -232,6 +232,42 @@ suite("installPodsCommand", function () {
                 platformStub.restore();
             }
         });
+
+        test("should notify once and preserve details when the pod version check fails", async function () {
+            const iosPath = path.join(tempDir, "ios");
+            fs.mkdirSync(iosPath, { recursive: true });
+            fs.writeFileSync(path.join(iosPath, "Podfile"), "");
+
+            const platformStub = Sinon.stub(os, "platform").returns("darwin");
+            const findPodCommandStub = Sinon.stub(
+                installPodsCommand as any,
+                "findPodCommand",
+            ).returns("pod");
+            const execFileToStringStub = Sinon.stub(ChildProcess.prototype, "execFileToString");
+            const podVersionError = new Error("spawn pod ENOENT");
+            execFileToStringStub.onFirstCall().returns(Promise.reject(podVersionError));
+
+            try {
+                const mockProject = createMockProject(tempDir, path.join(tempDir, "node_modules"));
+                (installPodsCommand as any).project = mockProject;
+
+                await assert.rejects(installPodsCommand.baseFn(), /spawn pod ENOENT/);
+
+                assert.strictEqual(execFileToStringStub.callCount, 1);
+                assert.strictEqual(
+                    showErrorMessageStub.callCount,
+                    1,
+                    "The version-check failure should only show one error notification",
+                );
+                const displayedError = String(showErrorMessageStub.firstCall.args[0]);
+                assert.ok(displayedError.includes("Cannot execute pod command"));
+                assert.ok(displayedError.includes("spawn pod ENOENT"));
+            } finally {
+                execFileToStringStub.restore();
+                findPodCommandStub.restore();
+                platformStub.restore();
+            }
+        });
     });
 
     suite("Pod command discovery", function () {
