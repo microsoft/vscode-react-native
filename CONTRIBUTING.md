@@ -16,6 +16,16 @@ To avoid conflicts with your existing installation, it is recommended to delete 
 - Run `gulp` and check `dist` folder for extension files (now the tasks from gulpfile.js are being exported following the latest guidance from https://gulpjs.com/docs/en/getting-started/creating-tasks/ as the task() API isn't the recommended pattern anymore)
 - After completing above steps, run `gulp release` to package extension `.vsix` file. A VSIX package can help you install the latest extension maunally in VS Code extension tab.
 
+### Temporary security dependency override
+
+The root `serialize-javascript` override uses the official v7.1.3 source archive,
+pinned to commit `4d36b828f7c1c6a1f0de9ef932fefadcca0edace`, to fix
+[GHSA-m5mm-p8h7-m29v](https://github.com/advisories/GHSA-m5mm-p8h7-m29v) while the
+configured npm registry does not provide the patched release. Installation
+requires access to `codeload.github.com`. Once a patched registry release is
+available, replace the archive URL with version `7.1.3` or later and regenerate
+the root lockfile. The smoke package has an independent override and lockfile.
+
 ## Debugging
 
 There are currently 2 components to our extension: The extension running in the VS Code process with the debug adapter, and some code wrapping the user React Native code which is launched by the debug adapter. These are all debugged in different ways:
