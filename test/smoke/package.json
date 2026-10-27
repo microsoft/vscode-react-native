@@ -35,6 +35,6 @@
   },
   "overrides": {
     "brace-expansion": "5.0.12",
-    "serialize-javascript": "7.0.5"
+    "serialize-javascript": "https://codeload.github.com/yahoo/serialize-javascript/tar.gz/4d36b828f7c1c6a1f0de9ef932fefadcca0edace"
   }
 }
