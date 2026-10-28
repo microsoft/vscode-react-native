@@ -52,6 +52,12 @@ suite("enableHermesCommand", function () {
             public spawn = spawnStub;
         }
 
+        class FakeCommand {
+            public static formInstance() {
+                return new this();
+            }
+        }
+
         const module = proxyquire.noCallThru()("../../../src/extension/commands/enableHermes", {
             vscode: {
                 window: {
@@ -73,6 +79,9 @@ suite("enableHermesCommand", function () {
                 OutputChannelLogger: {
                     getMainChannel: () => logger,
                 },
+            },
+            "./util/command": {
+                Command: FakeCommand,
             },
         }) as typeof import("../../../src/extension/commands/enableHermes");
 
@@ -97,6 +106,40 @@ suite("enableHermesCommand", function () {
     teardown(function () {
         removeDirRecursive(tempDir);
     });
+
+    test("should stop immediately when the platform selection is cancelled", async function () {
+        const showQuickPickStub = Sinon.stub().returns(Promise.resolve(undefined));
+        const writeFileStub = Sinon.stub().returns(Promise.resolve());
+        const spawnStub = Sinon.stub().returns(Promise.resolve());
+        const { EnableHermes } = createCommandModule(showQuickPickStub, writeFileStub, spawnStub);
+
+        await runCommand(EnableHermes);
+
+        assert.strictEqual(showQuickPickStub.calledOnce, true);
+        assert.strictEqual(writeFileStub.called, false);
+        assert.strictEqual(spawnStub.called, false);
+    });
+
+    for (const platform of ["Android", "iOS"]) {
+        test(`should not change ${platform} when the Hermes selection is cancelled`, async function () {
+            const showQuickPickStub = Sinon.stub();
+            showQuickPickStub.onFirstCall().returns(Promise.resolve(platform));
+            showQuickPickStub.onSecondCall().returns(Promise.resolve(undefined));
+            const writeFileStub = Sinon.stub().returns(Promise.resolve());
+            const spawnStub = Sinon.stub().returns(Promise.resolve());
+            const { EnableHermes } = createCommandModule(
+                showQuickPickStub,
+                writeFileStub,
+                spawnStub,
+            );
+
+            await runCommand(EnableHermes);
+
+            assert.strictEqual(showQuickPickStub.calledTwice, true);
+            assert.strictEqual(writeFileStub.called, false);
+            assert.strictEqual(spawnStub.called, false);
+        });
+    }
 
     test("should warn when iOS Podfile is missing", async function () {
         const showQuickPickStub = Sinon.stub();
