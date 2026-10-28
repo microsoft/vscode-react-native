@@ -30,7 +30,7 @@ suite("installExpoGoApplicationCommand", function () {
         const request = new EventEmitter() as any;
         request.end = Sinon.stub();
 
-        const getStub = ((_url: string, callback: (response: any) => void) => {
+        const getStub = Sinon.spy((_url: string, callback: (response: any) => void) => {
             callback(response);
             process.nextTick(() => {
                 response.emit(
@@ -49,7 +49,7 @@ suite("installExpoGoApplicationCommand", function () {
                 response.emit("end");
             });
             return request;
-        }) as any;
+        });
 
         const showQuickPickStub = Sinon.stub();
         quickPickResults.forEach((result, index) => {
