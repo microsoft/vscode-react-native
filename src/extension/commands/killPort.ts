@@ -23,8 +23,17 @@ export class killPort extends ReactNativeCommand {
             .showInputBox({ placeHolder: "please enter the port you want to kill" })
             .then(async value => {
                 if (value) {
-                    const res = await new ChildProcess().exec(`npx kill-port ${value}`);
-                    logger.info(`killing port ${value}, it may take a while...`);
+                    const port = value.trim();
+                    if (!/^\d+$/.test(port) || Number(port) < 1 || Number(port) > 65535) {
+                        void vscode.window.showErrorMessage(
+                            "Please enter a valid port number between 1 and 65535.",
+                        );
+                        return;
+                    }
+
+                    const normalizedPort = String(Number(port));
+                    const res = await new ChildProcess().exec(`npx kill-port ${normalizedPort}`);
+                    logger.info(`killing port ${normalizedPort}, it may take a while...`);
                     const outcome = await res.outcome;
                     logger.info(outcome);
                 }

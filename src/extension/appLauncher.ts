@@ -397,7 +397,6 @@ export class AppLauncher {
                         // since the error doesn't affects an application launch process
                         return;
                     }
-                    generator.addError(error as Error);
                     this.logger.error(
                         error instanceof Error ? error.message : String(error),
                         error instanceof Error ? error : undefined,
