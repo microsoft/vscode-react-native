@@ -127,6 +127,31 @@ suite("cleanRestartPackagerCommand", function () {
         removeDirRecursive(tempDir);
     });
 
+    test("should log all four cleanup and restart steps in order", async function () {
+        const execStub = Sinon.stub();
+        execStub.withArgs("lsof -ti:9090").returns(createExecResult(""));
+        execStub.withArgs("watchman watch-del-all").returns(createExecResult(""));
+        const restartStub = Sinon.stub().returns(Promise.resolve());
+        const { CleanRestartPackager, logger } = createCommandModule(
+            HostPlatformId.LINUX,
+            execStub,
+        );
+
+        await runCommand(CleanRestartPackager, tempDir, restartStub);
+
+        const stepMessages = Array.from(
+            { length: logger.info.callCount },
+            (_, index) => logger.info.getCall(index).args[0],
+        ).filter((message: string) => message.startsWith("Step "));
+        assert.deepStrictEqual(stepMessages, [
+            "Step 1/4: Terminating Metro process on port 9090...",
+            "Step 2/4: Cleaning Metro cache...",
+            "Step 3/4: Cleaning Watchman cache...",
+            "Step 4/4: Restarting Packager with clean cache...",
+        ]);
+        assert.strictEqual(restartStub.calledOnce, true);
+    });
+
     test("should kill Metro process on Windows and restart packager", async function () {
         const execStub = Sinon.stub();
         execStub

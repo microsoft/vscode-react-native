@@ -42,14 +42,14 @@ export class CleanRestartPackager extends ReactNativeCommand {
         await this.cleanWatchmanCache();
 
         // Step 4: Restart packager with reset cache
-        logger.info("Restarting Packager with clean cache...");
+        logger.info("Step 4/4: Restarting Packager with clean cache...");
         await this.project.getPackager().restart(packagerPort);
 
         logger.info("Metro Packager cleanup and restart completed successfully.");
     }
 
     private async killMetroProcess(port: number): Promise<void> {
-        logger.info(`Step 1/3: Terminating Metro process on port ${port}...`);
+        logger.info(`Step 1/4: Terminating Metro process on port ${port}...`);
 
         try {
             const platformId = HostPlatform.getPlatformId();
@@ -118,7 +118,7 @@ export class CleanRestartPackager extends ReactNativeCommand {
     }
 
     private async cleanMetroCache(projectPath: string): Promise<void> {
-        logger.info("Step 2/3: Cleaning Metro cache...");
+        logger.info("Step 2/4: Cleaning Metro cache...");
 
         const metroCachePath = path.join(projectPath, "node_modules", ".cache", "metro");
 
@@ -136,7 +136,7 @@ export class CleanRestartPackager extends ReactNativeCommand {
     }
 
     private async cleanWatchmanCache(): Promise<void> {
-        logger.info("Step 3/3: Cleaning Watchman cache...");
+        logger.info("Step 3/4: Cleaning Watchman cache...");
 
         try {
             const childProcess = new ChildProcess();
