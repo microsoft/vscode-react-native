@@ -9,6 +9,7 @@ import * as vscode from "vscode";
 import * as nls from "vscode-nls";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { ErrorHelper } from "../../common/error/errorHelper";
+import { NestedError } from "../../common/error/internalError";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
 import { downloadExpoGo } from "../../common/downloadHelper";
 import { installAndroidApplication, installiOSApplication } from "../../common/installHelper";
@@ -71,9 +72,11 @@ export class InstallExpoGoApplication extends Command {
                 if (!fs.existsSync(fileName)) {
                     try {
                         await downloadExpoGo(targetUrl, fileName);
-                    } catch {
-                        throw new Error(
+                    } catch (error) {
+                        throw new NestedError(
+                            InternalErrorCode.FailedToInstallExpoGo,
                             localize("FailedToDownloadExpoGo", "Failed to download Expo Go."),
+                            error,
                         );
                     }
                 }
@@ -81,9 +84,11 @@ export class InstallExpoGoApplication extends Command {
                 if (installItem == "Auto") {
                     try {
                         await installAndroidApplication(this.project, fileName);
-                    } catch {
-                        throw new Error(
+                    } catch (error) {
+                        throw new NestedError(
+                            InternalErrorCode.FailedToInstallExpoGo,
                             localize("FailedToInstallExpoGo", "Failed to install Expo Go."),
+                            error,
                         );
                     }
                 } else {
@@ -123,9 +128,11 @@ export class InstallExpoGoApplication extends Command {
                                 .getPackager()
                                 .getProjectPath()}/expogo_${iOSClientVersion}.tar.gz`,
                         );
-                    } catch {
-                        throw new Error(
+                    } catch (error) {
+                        throw new NestedError(
+                            InternalErrorCode.FailedToInstallExpoGo,
                             localize("FailedToDownloadExpoGo", "Failed to download Expo Go."),
+                            error,
                         );
                     }
                 }
@@ -133,9 +140,11 @@ export class InstallExpoGoApplication extends Command {
                 if (installItem == "Auto" && os.platform() == "darwin") {
                     try {
                         await installiOSApplication(this.project, tarFile);
-                    } catch {
-                        throw new Error(
+                    } catch (error) {
+                        throw new NestedError(
+                            InternalErrorCode.FailedToInstallExpoGo,
                             localize("FailedToInstallExpoGo", "Failed to install Expo Go."),
+                            error,
                         );
                     }
                 } else {

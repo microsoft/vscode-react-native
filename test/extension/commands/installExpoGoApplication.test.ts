@@ -5,6 +5,8 @@ import assert = require("assert");
 import { EventEmitter } from "events";
 import Sinon = require("sinon");
 import proxyquire = require("proxyquire");
+import { NestedError } from "../../../src/common/error/internalError";
+import { InternalErrorCode } from "../../../src/common/error/internalErrorCode";
 
 suite("installExpoGoApplicationCommand", function () {
     function createMockProject(projectPath: string): any {
@@ -63,6 +65,8 @@ suite("installExpoGoApplicationCommand", function () {
             debug: Sinon.stub(),
             logStream: Sinon.stub(),
         };
+        const installAndroidApplicationStub = Sinon.stub().returns(Promise.resolve());
+        const installiOSApplicationStub = Sinon.stub().returns(Promise.resolve());
 
         const module = proxyquire.noCallThru()(
             "../../../src/extension/commands/installExpoGoApplication",
@@ -76,12 +80,18 @@ suite("installExpoGoApplicationCommand", function () {
                 https: {
                     get: getStub,
                 },
+                fs: {
+                    existsSync: Sinon.stub().returns(false),
+                },
+                os: {
+                    platform: () => "darwin",
+                },
                 "../../common/downloadHelper": {
                     downloadExpoGo: downloadExpoGoStub,
                 },
                 "../../common/installHelper": {
-                    installAndroidApplication: Sinon.stub().returns(Promise.resolve()),
-                    installiOSApplication: Sinon.stub().returns(Promise.resolve()),
+                    installAndroidApplication: installAndroidApplicationStub,
+                    installiOSApplication: installiOSApplicationStub,
                 },
                 "../log/OutputChannelLogger": {
                     OutputChannelLogger: {
@@ -95,6 +105,8 @@ suite("installExpoGoApplicationCommand", function () {
             InstallExpoGoApplication: module.InstallExpoGoApplication,
             getStub,
             showQuickPickStub,
+            installAndroidApplicationStub,
+            installiOSApplicationStub,
         };
     }
 
@@ -162,4 +174,55 @@ suite("installExpoGoApplicationCommand", function () {
         assert.strictEqual(getStub.called, false);
         assert.strictEqual(downloadExpoGoStub.called, false);
     });
+
+    for (const platform of ["Android", "iOS"]) {
+        test(`should preserve the original ${platform} download error`, async function () {
+            const originalError = new Error("ECONNRESET while downloading Expo Go");
+            const downloadExpoGoStub = Sinon.stub().returns(Promise.reject(originalError));
+            const {
+                InstallExpoGoApplication,
+                installAndroidApplicationStub,
+                installiOSApplicationStub,
+            } = createCommandModule("2.0.0", downloadExpoGoStub, [platform, "Auto"]);
+
+            await assert.rejects(runCommand(InstallExpoGoApplication), (error: unknown) => {
+                assert.ok(error instanceof NestedError);
+                assert.strictEqual(error.innerError, originalError);
+                assert.strictEqual(error.errorCode, InternalErrorCode.FailedToInstallExpoGo);
+                assert.strictEqual(
+                    error.message,
+                    `Failed to download Expo Go.: ${originalError.message}`,
+                );
+                return true;
+            });
+            assert.strictEqual(installAndroidApplicationStub.called, false);
+            assert.strictEqual(installiOSApplicationStub.called, false);
+        });
+
+        test(`should preserve the original ${platform} installation error`, async function () {
+            const originalError = new Error(`${platform} device installation failed`);
+            const downloadExpoGoStub = Sinon.stub().returns(Promise.resolve());
+            const {
+                InstallExpoGoApplication,
+                installAndroidApplicationStub,
+                installiOSApplicationStub,
+            } = createCommandModule("2.0.0", downloadExpoGoStub, [platform, "Auto"]);
+            const installStub =
+                platform === "Android" ? installAndroidApplicationStub : installiOSApplicationStub;
+            installStub.returns(Promise.reject(originalError));
+
+            await assert.rejects(runCommand(InstallExpoGoApplication), (error: unknown) => {
+                assert.ok(error instanceof NestedError);
+                assert.strictEqual(error.innerError, originalError);
+                assert.strictEqual(error.errorCode, InternalErrorCode.FailedToInstallExpoGo);
+                assert.strictEqual(
+                    error.message,
+                    `Failed to install Expo Go.: ${originalError.message}`,
+                );
+                return true;
+            });
+            assert.strictEqual(downloadExpoGoStub.calledOnce, true);
+            assert.strictEqual(installStub.calledOnce, true);
+        });
+    }
 });
