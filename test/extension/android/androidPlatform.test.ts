@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as fs from "fs";
+import * as os from "os";
 import * as path from "path";
 import { EventEmitter } from "events";
 import assert = require("assert");
@@ -465,6 +466,188 @@ suite("androidPlatform", function () {
 
             runArgs.should.be.an.Array();
             runArgs.should.containDeepOrdered(args);
+        });
+
+        suite("getRunArguments with variant option", function () {
+            let getReactNativeCLIVersionStub: Sinon.SinonStub | undefined;
+
+            function stubCLIVersion(version: string | null): void {
+                getReactNativeCLIVersionStub = sinon
+                    .stub(AndroidPlatform, "getReactNativeCLIVersion")
+                    .returns(version);
+            }
+
+            function createRunOptionsWithVariant(variant?: string, extraOptions?: any): any {
+                return Object.assign(
+                    {
+                        platform: PlatformType.Android,
+                        workspaceRoot: projectRoot,
+                        projectRoot: projectRoot,
+                        variant,
+                        nodeModulesRoot,
+                    },
+                    extraOptions,
+                );
+            }
+
+            teardown(() => {
+                getReactNativeCLIVersionStub?.restore();
+                getReactNativeCLIVersionStub = undefined;
+            });
+
+            test("should use --variant option for CLI versions older than v12", function () {
+                stubCLIVersion("10.2.2");
+                const platform = createAndroidPlatform(createRunOptionsWithVariant("debug"));
+
+                platform.getRunArguments().should.eql(["--variant", "debug"]);
+            });
+
+            test("should use --variant option for CLI v11 where it is still supported", function () {
+                stubCLIVersion("11.3.8");
+                const platform = createAndroidPlatform(createRunOptionsWithVariant("debug"));
+
+                platform.getRunArguments().should.eql(["--variant", "debug"]);
+            });
+
+            test("should use --mode option starting exactly at the CLI v12.0.0 boundary", function () {
+                stubCLIVersion("12.0.0");
+                const platform = createAndroidPlatform(createRunOptionsWithVariant("debug"));
+
+                platform.getRunArguments().should.eql(["--mode", "debug"]);
+            });
+
+            test("should use --mode option for modern CLI v20", function () {
+                stubCLIVersion("20.2.0");
+                const platform = createAndroidPlatform(createRunOptionsWithVariant("devDebug"));
+
+                platform.getRunArguments().should.eql(["--mode", "devDebug"]);
+            });
+
+            test("should use --mode option for custom variant with modern CLI", function () {
+                stubCLIVersion("20.2.0");
+                const platform = createAndroidPlatform(createRunOptionsWithVariant("stagingDebug"));
+
+                platform.getRunArguments().should.eql(["--mode", "stagingDebug"]);
+            });
+
+            test("should generate the variant option for the platform instance created by the constructor", function () {
+                stubCLIVersion("20.2.0");
+                const platform = createAndroidPlatform(createRunOptionsWithVariant("debug"));
+
+                platform.runArguments.should.eql(["--mode", "debug"]);
+            });
+
+            test("should not add a variant option when no variant is configured", function () {
+                stubCLIVersion("20.2.0");
+                const platform = createAndroidPlatform(createRunOptionsWithVariant(undefined));
+
+                platform.getRunArguments().should.eql([]);
+            });
+
+            test("should not add a variant option when the variant is an empty string", function () {
+                stubCLIVersion("20.2.0");
+                const platform = createAndroidPlatform(createRunOptionsWithVariant(""));
+
+                platform.getRunArguments().should.eql([]);
+            });
+
+            test("should keep runArguments precedence over variant", function () {
+                stubCLIVersion("20.2.0");
+                const args = ["--deviceId", "emulator-5554", "--appIdSuffix", "debug"];
+                const platform = createAndroidPlatform(
+                    createRunOptionsWithVariant("debug", { runArguments: args }),
+                );
+
+                platform.getRunArguments().should.eql(args);
+            });
+
+            test("should keep the legacy --variant option when CLI version detection fails", function () {
+                stubCLIVersion(null);
+                const platform = createAndroidPlatform(createRunOptionsWithVariant("debug"));
+
+                platform.getRunArguments().should.eql(["--variant", "debug"]);
+            });
+
+            test("should keep the legacy --variant option when the detected CLI version is invalid", function () {
+                stubCLIVersion("not-a-semver-version");
+                const platform = createAndroidPlatform(createRunOptionsWithVariant("debug"));
+
+                platform.getRunArguments().should.eql(["--variant", "debug"]);
+            });
+
+            test("should combine the variant option with an explicit target", function () {
+                stubCLIVersion("20.2.0");
+                const platform = createAndroidPlatform(
+                    createRunOptionsWithVariant("debug", { target: "Nexus_12" }),
+                );
+
+                platform
+                    .getRunArguments()
+                    .should.eql(["--mode", "debug", "--deviceId", "Nexus_12"]);
+            });
+
+            test("getReactNativeCLIVersion should detect a hoisted CLI package", async function () {
+                const tempProjectRoot = fs.mkdtempSync(path.join(os.tmpdir(), "rn-cli-hoisted-"));
+                try {
+                    const cliPackagePath = path.join(
+                        tempProjectRoot,
+                        "node_modules",
+                        "@react-native-community",
+                        "cli",
+                    );
+                    fs.mkdirSync(cliPackagePath, { recursive: true });
+                    fs.writeFileSync(
+                        path.join(cliPackagePath, "package.json"),
+                        JSON.stringify({ name: "@react-native-community/cli", version: "15.0.0" }),
+                    );
+
+                    assert.strictEqual(
+                        AndroidPlatform.getReactNativeCLIVersion(tempProjectRoot),
+                        "15.0.0",
+                    );
+                } finally {
+                    await rimrafAsync(tempProjectRoot, {});
+                }
+            });
+
+            test("getReactNativeCLIVersion should detect a CLI package nested under react-native", async function () {
+                const tempProjectRoot = fs.mkdtempSync(path.join(os.tmpdir(), "rn-cli-nested-"));
+                try {
+                    const cliPackagePath = path.join(
+                        tempProjectRoot,
+                        "node_modules",
+                        "react-native",
+                        "node_modules",
+                        "@react-native-community",
+                        "cli",
+                    );
+                    fs.mkdirSync(cliPackagePath, { recursive: true });
+                    fs.writeFileSync(
+                        path.join(cliPackagePath, "package.json"),
+                        JSON.stringify({ name: "@react-native-community/cli", version: "12.3.6" }),
+                    );
+
+                    assert.strictEqual(
+                        AndroidPlatform.getReactNativeCLIVersion(tempProjectRoot),
+                        "12.3.6",
+                    );
+                } finally {
+                    await rimrafAsync(tempProjectRoot, {});
+                }
+            });
+
+            test("getReactNativeCLIVersion should return null when the CLI package is not installed", async function () {
+                const tempProjectRoot = fs.mkdtempSync(path.join(os.tmpdir(), "rn-cli-missing-"));
+                try {
+                    assert.strictEqual(
+                        AndroidPlatform.getReactNativeCLIVersion(tempProjectRoot),
+                        null,
+                    );
+                    assert.strictEqual(AndroidPlatform.getReactNativeCLIVersion(undefined), null);
+                } finally {
+                    await rimrafAsync(tempProjectRoot, {});
+                }
+            });
         });
 
         test("AdbHelper should correctly parse Android Sdk Location from local.properties file content", () => {

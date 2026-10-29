@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import * as fs from "fs";
+import * as path from "path";
 import * as semver from "semver";
 import * as nls from "vscode-nls";
 import { MobilePlatformDeps, TargetType } from "../generalPlatform";
@@ -61,10 +63,16 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         "Starting: Intent",
     ];
 
+    // React Native Community CLI v12.0.0 removed the deprecated "--variant" option of
+    // "run-android" in favor of "--mode": https://github.com/react-native-community/cli/blob/v12.0.0/packages/cli-platform-android/src/commands/buildAndroid/index.ts
+    private static readonly ANDROID_VARIANT_MODE_OPTION_CLI_VERSION = "12.0.0";
+    private static readonly REACT_NATIVE_CLI_PACKAGE_NAME = "@react-native-community/cli";
+
     private packageName!: string;
     private adbHelper: AdbHelper;
     private logCatMonitor: LogCatMonitor | null = null;
     private needsToLaunchApps: boolean = false;
+    private variantOptionName?: string;
 
     protected targetManager: AndroidTargetManager;
     protected target?: AndroidTarget;
@@ -300,7 +308,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
             runArguments = this.runOptions.runArguments;
         } else {
             if (this.runOptions.variant) {
-                runArguments.push("--variant", this.runOptions.variant);
+                runArguments.push(this.getVariantOptionName(), this.runOptions.variant);
             }
             if (this.runOptions.target) {
                 if (
@@ -313,6 +321,81 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         }
 
         return runArguments;
+    }
+
+    /**
+     * Returns the installed version of the React Native Community CLI package,
+     * or null if it cannot be detected.
+     */
+    public static getReactNativeCLIVersion(nodeModulesRoot?: string): string | null {
+        if (!nodeModulesRoot) {
+            return null;
+        }
+
+        // The CLI package can be hoisted into the project's node_modules folder
+        // or kept as a nested dependency of the react-native package
+        const possibleCLIPackagePaths = [
+            path.join(
+                nodeModulesRoot,
+                "node_modules",
+                AndroidPlatform.REACT_NATIVE_CLI_PACKAGE_NAME,
+            ),
+            path.join(
+                nodeModulesRoot,
+                "node_modules",
+                "react-native",
+                "node_modules",
+                AndroidPlatform.REACT_NATIVE_CLI_PACKAGE_NAME,
+            ),
+        ];
+
+        for (const cliPackagePath of possibleCLIPackagePaths) {
+            try {
+                const packageJson = JSON.parse(
+                    fs.readFileSync(path.join(cliPackagePath, "package.json"), "utf8"),
+                );
+                if (packageJson && typeof packageJson.version === "string") {
+                    return packageJson.version;
+                }
+            } catch (e) {
+                // The CLI package is not installed in this location, try the next one
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the "run-android" option used to select an Android build variant for the
+     * installed React Native Community CLI version. CLI v12.0.0 replaced the deprecated
+     * "--variant" option with "--mode". If the installed CLI version cannot be detected,
+     * the legacy "--variant" option is used to preserve the existing behavior.
+     */
+    private getVariantOptionName(): string {
+        if (!this.variantOptionName) {
+            const cliVersion = AndroidPlatform.getReactNativeCLIVersion(
+                this.runOptions.nodeModulesRoot,
+            );
+            const coercedCLIVersion = cliVersion ? semver.coerce(cliVersion) : null;
+            if (
+                coercedCLIVersion &&
+                semver.gte(
+                    coercedCLIVersion,
+                    AndroidPlatform.ANDROID_VARIANT_MODE_OPTION_CLI_VERSION,
+                )
+            ) {
+                this.variantOptionName = "--mode";
+            } else {
+                this.logger.warning(
+                    localize(
+                        "CannotDetectReactNativeCLIVersion",
+                        "Cannot detect the installed React Native Community CLI version. The legacy '--variant' option will be used to select the Android build variant. If your project uses React Native Community CLI v12.0.0 or newer, configure the build variant via the 'runArguments' property with the '--mode' option instead.",
+                    ),
+                );
+                this.variantOptionName = "--variant";
+            }
+        }
+        return this.variantOptionName;
     }
 
     public dispose(): void {
