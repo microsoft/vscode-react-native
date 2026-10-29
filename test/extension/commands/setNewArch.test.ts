@@ -148,10 +148,68 @@ suite("setNewArchCommand", function () {
         assert.strictEqual(writeFileStub.firstCall.args[0], gradleFilePath);
         assert.strictEqual(
             writeFileStub.firstCall.args[1],
-            "android.useAndroidX=true \nnewArchEnabled=false",
+            "android.useAndroidX=true\nnewArchEnabled=false",
         );
         assert.strictEqual(spawnStub.called, false);
     });
+
+    for (const { name, input, enabled, expected } of [
+        {
+            name: "ignores hash comments before an active setting",
+            input: "# newArchEnabled=false\nnewArchEnabled=false\n",
+            enabled: "true",
+            expected: "# newArchEnabled=false\nnewArchEnabled=true\n",
+        },
+        {
+            name: "ignores bang and indented comments",
+            input: "  ! newArchEnabled=true\n  # newArchEnabled=true\nnewArchEnabled=true\n",
+            enabled: "false",
+            expected: "  ! newArchEnabled=true\n  # newArchEnabled=true\nnewArchEnabled=false\n",
+        },
+        {
+            name: "appends a setting after a commented-only file without a trailing newline",
+            input: "! newArchEnabled=false",
+            enabled: "true",
+            expected: "! newArchEnabled=false\nnewArchEnabled=true",
+        },
+        {
+            name: "preserves CRLF and trailing whitespace on an active setting",
+            input: "android.useAndroidX=true\r\nnewArchEnabled=false  \r\n",
+            enabled: "true",
+            expected: "android.useAndroidX=true\r\nnewArchEnabled=true  \r\n",
+        },
+        {
+            name: "updates the effective last active setting",
+            input: "newArchEnabled=false\n# newArchEnabled=true\nnewArchEnabled=false\n",
+            enabled: "true",
+            expected: "newArchEnabled=false\n# newArchEnabled=true\nnewArchEnabled=true\n",
+        },
+        {
+            name: "preserves CRLF when appending to a file without an active setting",
+            input: "android.useAndroidX=true\r\n! newArchEnabled=false\r\n",
+            enabled: "true",
+            expected: "android.useAndroidX=true\r\n! newArchEnabled=false\r\nnewArchEnabled=true",
+        },
+    ]) {
+        test(`Android: ${name}`, async function () {
+            const androidPath = path.join(tempDir, "android");
+            const gradleFilePath = path.join(androidPath, "gradle.properties");
+            fs.mkdirSync(androidPath, { recursive: true });
+            fs.writeFileSync(gradleFilePath, input);
+            const showQuickPickStub = Sinon.stub();
+            showQuickPickStub.onFirstCall().returns(Promise.resolve("Android"));
+            showQuickPickStub.onSecondCall().returns(Promise.resolve(enabled));
+            const writeFileStub = Sinon.stub().returns(Promise.resolve());
+            const spawnStub = Sinon.stub().returns(Promise.resolve());
+            const { SetNewArch } = createCommandModule(showQuickPickStub, writeFileStub, spawnStub);
+
+            await runCommand(SetNewArch);
+
+            assert.strictEqual(writeFileStub.calledOnce, true);
+            assert.deepStrictEqual(writeFileStub.firstCall.args, [gradleFilePath, expected]);
+            assert.strictEqual(spawnStub.called, false);
+        });
+    }
 
     test("should remove iOS new architecture disable line and install pods when enabling", async function () {
         const iosPath = path.join(tempDir, "ios");

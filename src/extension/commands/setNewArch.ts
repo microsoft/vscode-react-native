@@ -71,17 +71,31 @@ export class SetNewArch extends Command {
             }
 
             const gradleFileContent = fs.readFileSync(gradleFilePath, "utf-8");
-            const archMatch = gradleFileContent.match(/newArchEnabled\s*=\s*\w*/);
-            if (archMatch && !archMatch[0].startsWith("#")) {
-                const updatedHermes = gradleFileContent.replace(
-                    /newArchEnabled\s*=\s*\w*/,
-                    `newArchEnabled=${isNewArchEnabled}`,
-                );
-                await this.nodeFileSystem.writeFile(gradleFilePath, updatedHermes);
-            } else {
-                const updatedGradle = `${gradleFileContent} \nnewArchEnabled=${isNewArchEnabled}`;
-                await this.nodeFileSystem.writeFile(gradleFilePath, updatedGradle);
+            const activeProperty =
+                /^([\t ]*newArchEnabled[\t ]*=[\t ]*)(?:true|false)([\t ]*)(?=\r?$)/gm;
+            let lastMatch: RegExpExecArray | null = null;
+            let match: RegExpExecArray | null;
+            while ((match = activeProperty.exec(gradleFileContent)) !== null) {
+                lastMatch = match;
             }
+
+            let updatedGradle: string;
+            if (lastMatch) {
+                updatedGradle =
+                    gradleFileContent.slice(0, lastMatch.index) +
+                    lastMatch[1] +
+                    isNewArchEnabled +
+                    lastMatch[2] +
+                    gradleFileContent.slice(lastMatch.index + lastMatch[0].length);
+            } else {
+                const newline = gradleFileContent.includes("\r\n") ? "\r\n" : "\n";
+                const separator =
+                    gradleFileContent.length > 0 && !gradleFileContent.endsWith("\n")
+                        ? newline
+                        : "";
+                updatedGradle = `${gradleFileContent}${separator}newArchEnabled=${isNewArchEnabled}`;
+            }
+            await this.nodeFileSystem.writeFile(gradleFilePath, updatedGradle);
         }
     }
 }
