@@ -2,8 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import assert = require("assert");
+import os = require("os");
 import * as fs from "fs";
-import * as os from "os";
 import * as path from "path";
 import * as url from "url";
 import * as vscode from "vscode";
@@ -51,27 +51,29 @@ export class InstallPods extends Command {
             const podCommand = this.findPodCommand();
             logger.info(`Using pod command: ${podCommand}`);
             try {
-                const versionResult = await childProcess.exec(`${podCommand} --version`, {
-                    env: enhancedEnv,
-                    timeout: 10000,
-                });
-                const versionOutput = await versionResult.outcome;
+                const versionOutput = await childProcess.execFileToString(
+                    podCommand,
+                    ["--version"],
+                    {
+                        env: enhancedEnv,
+                        timeout: 10000,
+                    },
+                );
                 logger.info(`Pod version: ${versionOutput.trim()}`);
             } catch (versionError) {
                 const errorMsg =
                     "Cannot execute pod command. Please ensure CocoaPods is properly installed.";
-                logger.error(errorMsg);
-                void vscode.window.showErrorMessage(errorMsg);
-                throw new Error(errorMsg);
+                const errorDetails =
+                    versionError instanceof Error ? versionError.message : String(versionError);
+                throw new Error(`${errorMsg} ${errorDetails}`);
             }
             logger.info(`Executing: ${podCommand} install`);
-            const installResult = await childProcess.exec(`${podCommand} install`, {
+            const stdout = await childProcess.execFileToString(podCommand, ["install"], {
                 cwd: iosPath,
                 env: enhancedEnv,
                 maxBuffer: 1024 * 1024 * 10,
                 timeout: 300000,
             });
-            const stdout = await installResult.outcome;
             if (stdout) {
                 logger.info(stdout);
             }

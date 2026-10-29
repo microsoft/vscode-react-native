@@ -38,6 +38,14 @@ module.exports = {
     overrides: [],
     rules: {
         // before adding new rules - https://github.com/prettier/eslint-plugin-prettier/issues/65
+        // Keep the existing lint baseline when using @typescript-eslint v8 for TypeScript 6 support.
+        "@typescript-eslint/no-duplicate-type-constituents": "off",
+        "@typescript-eslint/no-empty-object-type": "off",
+        "@typescript-eslint/no-require-imports": "off",
+        "@typescript-eslint/no-unused-expressions": "off",
+        "@typescript-eslint/only-throw-error": "off",
+        "@typescript-eslint/prefer-promise-reject-errors": "off",
+        "@typescript-eslint/unbound-method": "off",
         "@typescript-eslint/await-thenable": "warn",
         "@typescript-eslint/dot-notation": "warn",
         "@typescript-eslint/explicit-function-return-type": "off",
@@ -70,7 +78,12 @@ module.exports = {
         "@typescript-eslint/no-unsafe-enum-comparison": "off",
         "@typescript-eslint/no-unsafe-member-access": "off",
         "@typescript-eslint/no-unsafe-return": "off",
-        "@typescript-eslint/no-unused-vars": "warn",
+        "@typescript-eslint/no-unused-vars": [
+            "warn",
+            {
+                caughtErrors: "none",
+            },
+        ],
         "@typescript-eslint/no-use-before-define": [
             // function hoisting is a common, accepted pattern
             "error",

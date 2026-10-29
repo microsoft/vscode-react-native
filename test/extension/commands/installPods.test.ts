@@ -4,14 +4,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import assert = require("assert");
-import * as path from "path";
-import * as fs from "fs";
-import * as os from "os";
+import fs = require("fs");
+import os = require("os");
 import Sinon = require("sinon");
+import * as path from "path";
 import * as vscode from "vscode";
 import { InstallPods } from "../../../src/extension/commands/installPods";
 import { AppLauncher } from "../../../src/extension/appLauncher";
 import { OutputChannelLogger } from "../../../src/extension/log/OutputChannelLogger";
+import { ChildProcess } from "../../../src/common/node/childProcess";
 
 suite("installPodsCommand", function () {
     let showWarningMessageStub: Sinon.SinonStub;
@@ -190,6 +191,84 @@ suite("installPodsCommand", function () {
                 loggerErrorStub.firstCall.args[0].includes("Podfile"),
                 "Error message should mention Podfile",
             );
+        });
+    });
+
+    suite("Pod command execution", function () {
+        test("should preserve spaces in the pod executable path", async function () {
+            const iosPath = path.join(tempDir, "ios");
+            fs.mkdirSync(iosPath, { recursive: true });
+            fs.writeFileSync(path.join(iosPath, "Podfile"), "");
+
+            const platformStub = Sinon.stub(os, "platform").returns("darwin");
+            const podCommand = "/Users/test user/.rbenv/shims/pod";
+            const findPodCommandStub = Sinon.stub(
+                installPodsCommand as any,
+                "findPodCommand",
+            ).returns(podCommand);
+            const execFileToStringStub = Sinon.stub(ChildProcess.prototype, "execFileToString");
+            execFileToStringStub.onFirstCall().returns(Promise.resolve("1.15.2\n"));
+            execFileToStringStub.onSecondCall().returns(Promise.resolve("Installation complete"));
+
+            try {
+                const mockProject = createMockProject(tempDir, path.join(tempDir, "node_modules"));
+                (installPodsCommand as any).project = mockProject;
+
+                await installPodsCommand.baseFn();
+
+                assert.strictEqual(execFileToStringStub.callCount, 2);
+                assert.deepStrictEqual(execFileToStringStub.firstCall.args.slice(0, 2), [
+                    podCommand,
+                    ["--version"],
+                ]);
+                assert.deepStrictEqual(execFileToStringStub.secondCall.args.slice(0, 2), [
+                    podCommand,
+                    ["install"],
+                ]);
+                assert.strictEqual(showInformationMessageStub.calledOnce, true);
+            } finally {
+                execFileToStringStub.restore();
+                findPodCommandStub.restore();
+                platformStub.restore();
+            }
+        });
+
+        test("should report a pod version failure once", async function () {
+            const iosPath = path.join(tempDir, "ios");
+            fs.mkdirSync(iosPath, { recursive: true });
+            fs.writeFileSync(path.join(iosPath, "Podfile"), "");
+
+            const platformStub = Sinon.stub(os, "platform").returns("darwin");
+            const findPodCommandStub = Sinon.stub(
+                installPodsCommand as any,
+                "findPodCommand",
+            ).returns("pod");
+            const execFileToStringStub = Sinon.stub(
+                ChildProcess.prototype,
+                "execFileToString",
+            ).returns(Promise.reject(new Error("spawn EACCES")));
+
+            try {
+                const mockProject = createMockProject(tempDir, path.join(tempDir, "node_modules"));
+                (installPodsCommand as any).project = mockProject;
+
+                await assert.rejects(
+                    installPodsCommand.baseFn(),
+                    /Failed to install CocoaPods dependencies\.\nCannot execute pod command\..*spawn EACCES/,
+                );
+
+                assert.strictEqual(execFileToStringStub.calledOnce, true);
+                assert.strictEqual(showErrorMessageStub.calledOnce, true);
+                assert.strictEqual(showInformationMessageStub.called, false);
+                assert.ok(
+                    showErrorMessageStub.firstCall.args[0].includes("Cannot execute pod command"),
+                );
+                assert.ok(showErrorMessageStub.firstCall.args[0].includes("spawn EACCES"));
+            } finally {
+                execFileToStringStub.restore();
+                findPodCommandStub.restore();
+                platformStub.restore();
+            }
         });
     });
 

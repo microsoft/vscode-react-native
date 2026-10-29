@@ -49,7 +49,7 @@ export class NetworkView extends ReactNativeCommand {
             }
         } catch (error) {
             await vscode.window.showErrorMessage("Failed to enable Network View");
-            logger.info(`Failed to enable Network View: ${error}`);
+            logger.info(`Failed to enable Network View: ${String(error)}`);
         }
     }
 }

@@ -217,15 +217,20 @@ export class PackageLoader {
         packageConfig: PackageConfig,
         ...additionalDependencies: PackageConfig[]
     ): Promise<T> {
-        return new Promise(async (resolve, reject) => {
+        return new Promise((resolve, reject) => {
             const tryToRequire = this.getTryToRequireFunction(packageConfig, resolve, reject);
-            if (!(await tryToRequire())) {
-                this.tryToRequireAfterInstall(
-                    tryToRequire,
-                    packageConfig,
-                    ...additionalDependencies,
-                ).catch(reason => reject(reason));
-            }
+            void tryToRequire()
+                .then(packageLoaded => {
+                    if (!packageLoaded) {
+                        return this.tryToRequireAfterInstall(
+                            tryToRequire,
+                            packageConfig,
+                            ...additionalDependencies,
+                        );
+                    }
+                    return undefined;
+                })
+                .catch(reject);
         });
     }
 }

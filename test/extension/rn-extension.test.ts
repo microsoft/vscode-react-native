@@ -2,14 +2,56 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import assert = require("assert");
+import * as fs from "fs";
+import * as os from "os";
 import * as vscode from "vscode";
 import * as path from "path";
+import * as extensionHelper from "../../src/common/extensionHelper";
 import { Node } from "../../src/common/node/node";
 import {
     createAdditionalWorkspaceFolder,
     getCountOfWorkspaceFolders,
+    initializeWorkspaceFoldersAfterTrust,
+    onFolderAdded,
 } from "../../src/extension/rn-extension";
 suite("rn-extension", function () {
+    suite("workspace trust", () => {
+        test("does not initialize a project while the workspace is untrusted", async () => {
+            const workspaceRoot = await fs.promises.mkdtemp(
+                path.join(os.tmpdir(), "untrusted-rn-workspace-"),
+            );
+            const folder: vscode.WorkspaceFolder = {
+                uri: vscode.Uri.file(workspaceRoot),
+                name: path.basename(workspaceRoot),
+                index: 0,
+            };
+            const isWorkspaceTrusted = extensionHelper.isWorkspaceTrusted;
+
+            try {
+                (extensionHelper as any).isWorkspaceTrusted = () => false;
+                await onFolderAdded(folder);
+                assert.strictEqual(fs.existsSync(path.join(workspaceRoot, ".vscode")), false);
+            } finally {
+                (extensionHelper as any).isWorkspaceTrusted = isWorkspaceTrusted;
+                new Node.FileSystem().removePathRecursivelySync(workspaceRoot);
+            }
+        });
+
+        test("initializes each current workspace folder after trust is granted", () => {
+            const folders: vscode.WorkspaceFolder[] = [
+                { uri: vscode.Uri.file("first"), name: "first", index: 0 },
+                { uri: vscode.Uri.file("second"), name: "second", index: 1 },
+            ];
+            const initializedFolders: vscode.WorkspaceFolder[] = [];
+
+            initializeWorkspaceFoldersAfterTrust(folders, async folder => {
+                initializedFolders.push(folder);
+            });
+
+            assert.deepStrictEqual(initializedFolders, folders);
+        });
+    });
+
     suite("createAdditionalWorkspaceFolder", function () {
         test("createAdditionalWorkspaceFolder returns null", function () {
             const folderPath: string = "folderPath";
