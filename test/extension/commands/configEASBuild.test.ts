@@ -31,16 +31,16 @@ suite("configEASBuildCommand", function () {
             public exists = existsStub;
         }
 
-        class FakeCommandExecutor {
-            public execute = executeStub;
+        class FakeChildProcess {
+            public execToString = executeStub;
         }
 
         const module = proxyquire.noCallThru()("../../../src/extension/commands/configEASBuild", {
             "../../common/node/fileSystem": {
                 FileSystem: FakeFileSystem,
             },
-            "../../common/commandExecutor": {
-                CommandExecutor: FakeCommandExecutor,
+            "../../common/node/childProcess": {
+                ChildProcess: FakeChildProcess,
             },
             "../log/OutputChannelLogger": {
                 OutputChannelLogger: {
@@ -62,7 +62,6 @@ suite("configEASBuildCommand", function () {
     ): Promise<void> {
         const command = commandClass.formInstance();
         (command as any).project = createMockProject(projectPath, isExpoStub);
-        (command as any).nodeModulesRoot = `${projectPath}/node_modules`;
         await command.baseFn();
     }
 
@@ -100,7 +99,7 @@ suite("configEASBuildCommand", function () {
         );
     });
 
-    test("should run eas build configure for Expo projects without eas.json", async function () {
+    test("should run EAS CLI through npx from the project root without eas.json", async function () {
         const existsStub = Sinon.stub().returns(Promise.resolve(false));
         const executeStub = Sinon.stub().returns(Promise.resolve());
         const isExpoStub = Sinon.stub().returns(Promise.resolve(true));
@@ -109,7 +108,10 @@ suite("configEASBuildCommand", function () {
         await runCommand(ConfigEASBuild, "/workspace/app", isExpoStub);
 
         assert.strictEqual(
-            executeStub.calledWithExactly("eas build:configure --platform all"),
+            executeStub.calledOnce &&
+                executeStub.calledWithExactly("npx eas-cli build:configure --platform all", {
+                    cwd: "/workspace/app",
+                }),
             true,
         );
         assert.strictEqual(
@@ -133,9 +135,7 @@ suite("configEASBuildCommand", function () {
         );
 
         assert.strictEqual(
-            logger.error.args.some((args: string[]) =>
-                args[0].includes("Unable to find existing EAS project"),
-            ),
+            logger.error.args.some((args: string[]) => args[0].includes("npx eas-cli init")),
             true,
         );
     });
