@@ -26,12 +26,19 @@ export class EnableHermes extends Command {
         const type = await vscode.window.showQuickPick(["Android", "iOS"], {
             placeHolder: "Select type for mobile OS",
         });
+        if (type === undefined) {
+            return;
+        }
+
         const isHermesEnabled = await vscode.window.showQuickPick(["true", "false"], {
             placeHolder: "Whether to enable Hermes",
         });
+        if (isHermesEnabled === undefined) {
+            return;
+        }
+
         const projectRoot = this.project.getPackager().getProjectPath();
 
-        if (type === undefined || isHermesEnabled === undefined) return;
         if (type === "iOS") {
             const podfilePath = path.join(projectRoot, "ios", "Podfile");
             if (!projectRoot || !fs.existsSync(podfilePath)) {
@@ -79,11 +86,13 @@ export class EnableHermes extends Command {
             }
 
             const gradleFileContent = fs.readFileSync(gradleFilePath, "utf-8");
-            const hermesMatches = gradleFileContent.match(/hermesEnabled\s*=\s*\w*/);
-            if (hermesMatches && !hermesMatches[0].startsWith("#")) {
+            const hermesMatches = gradleFileContent.match(
+                /^([ \t]*)(#\s*)?hermesEnabled\s*=\s*\w*/m,
+            );
+            if (hermesMatches && !hermesMatches[2]) {
                 const updatedHermes = gradleFileContent.replace(
-                    /hermesEnabled\s*=\s*\w*/,
-                    `hermesEnabled=${isHermesEnabled}`,
+                    /^([ \t]*)hermesEnabled\s*=\s*\w*/m,
+                    `$1hermesEnabled=${isHermesEnabled}`,
                 );
                 await this.nodeFileSystem.writeFile(gradleFilePath, updatedHermes);
             } else {

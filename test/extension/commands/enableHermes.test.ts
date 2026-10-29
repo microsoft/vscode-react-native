@@ -52,6 +52,12 @@ suite("enableHermesCommand", function () {
             public spawn = spawnStub;
         }
 
+        class FakeCommand {
+            public static formInstance() {
+                return new this();
+            }
+        }
+
         const module = proxyquire.noCallThru()("../../../src/extension/commands/enableHermes", {
             vscode: {
                 window: {
@@ -73,6 +79,9 @@ suite("enableHermesCommand", function () {
                 OutputChannelLogger: {
                     getMainChannel: () => logger,
                 },
+            },
+            "./util/command": {
+                Command: FakeCommand,
             },
         }) as typeof import("../../../src/extension/commands/enableHermes");
 
@@ -97,6 +106,40 @@ suite("enableHermesCommand", function () {
     teardown(function () {
         removeDirRecursive(tempDir);
     });
+
+    test("should stop immediately when the platform selection is cancelled", async function () {
+        const showQuickPickStub = Sinon.stub().returns(Promise.resolve(undefined));
+        const writeFileStub = Sinon.stub().returns(Promise.resolve());
+        const spawnStub = Sinon.stub().returns(Promise.resolve());
+        const { EnableHermes } = createCommandModule(showQuickPickStub, writeFileStub, spawnStub);
+
+        await runCommand(EnableHermes);
+
+        assert.strictEqual(showQuickPickStub.calledOnce, true);
+        assert.strictEqual(writeFileStub.called, false);
+        assert.strictEqual(spawnStub.called, false);
+    });
+
+    for (const platform of ["Android", "iOS"]) {
+        test(`should not change ${platform} when the Hermes selection is cancelled`, async function () {
+            const showQuickPickStub = Sinon.stub();
+            showQuickPickStub.onFirstCall().returns(Promise.resolve(platform));
+            showQuickPickStub.onSecondCall().returns(Promise.resolve(undefined));
+            const writeFileStub = Sinon.stub().returns(Promise.resolve());
+            const spawnStub = Sinon.stub().returns(Promise.resolve());
+            const { EnableHermes } = createCommandModule(
+                showQuickPickStub,
+                writeFileStub,
+                spawnStub,
+            );
+
+            await runCommand(EnableHermes);
+
+            assert.strictEqual(showQuickPickStub.calledTwice, true);
+            assert.strictEqual(writeFileStub.called, false);
+            assert.strictEqual(spawnStub.called, false);
+        });
+    }
 
     test("should warn when iOS Podfile is missing", async function () {
         const showQuickPickStub = Sinon.stub();
@@ -136,6 +179,28 @@ suite("enableHermesCommand", function () {
         assert.strictEqual(
             writeFileStub.firstCall.args[1],
             "android.useAndroidX=true\nhermesEnabled=true",
+        );
+        assert.strictEqual(spawnStub.called, false);
+    });
+
+    test("should preserve a commented Android property and add an active one", async function () {
+        const androidPath = path.join(tempDir, "android");
+        const gradleFilePath = path.join(androidPath, "gradle.properties");
+        fs.mkdirSync(androidPath, { recursive: true });
+        fs.writeFileSync(gradleFilePath, "android.useAndroidX=true\n# hermesEnabled=false");
+        const showQuickPickStub = Sinon.stub();
+        showQuickPickStub.onFirstCall().returns(Promise.resolve("Android"));
+        showQuickPickStub.onSecondCall().returns(Promise.resolve("true"));
+        const writeFileStub = Sinon.stub().returns(Promise.resolve());
+        const spawnStub = Sinon.stub().returns(Promise.resolve());
+        const { EnableHermes } = createCommandModule(showQuickPickStub, writeFileStub, spawnStub);
+
+        await runCommand(EnableHermes);
+
+        assert.strictEqual(writeFileStub.calledOnce, true);
+        assert.strictEqual(
+            writeFileStub.firstCall.args[1],
+            "android.useAndroidX=true\n# hermesEnabled=false \nhermesEnabled=true",
         );
         assert.strictEqual(spawnStub.called, false);
     });
