@@ -83,7 +83,7 @@ suite("launchExpoWebCommand", function () {
         const command = launchExpoWeb.formInstance();
         (command as any).project = project;
 
-        await command.baseFn({});
+        await command.baseFn();
 
         assert.strictEqual(isExpoManagedAppStub.calledWithExactly(true), true);
         assert.strictEqual(getRunOptionsStub.called, false);
@@ -107,7 +107,7 @@ suite("launchExpoWebCommand", function () {
         const command = launchExpoWeb.formInstance();
         (command as any).project = project;
 
-        await command.baseFn({});
+        await command.baseFn();
 
         assert.strictEqual(isExpoManagedAppStub.calledWithExactly(true), true);
         assert.strictEqual(
@@ -120,4 +120,57 @@ suite("launchExpoWebCommand", function () {
         assert.strictEqual(startPackagerStub.calledOnce, true);
         assert.strictEqual(beforeStartPackagerStub.calledBefore(startPackagerStub), true);
     });
+
+    test("should wait for environment preparation before starting the packager", async function () {
+        const { launchExpoWeb, project, beforeStartPackagerStub, startPackagerStub } =
+            createCommandModule(true);
+        const command = launchExpoWeb.formInstance();
+        (command as any).project = project;
+        let completePreparation: (() => void) | undefined;
+        beforeStartPackagerStub.returns(
+            new Promise<void>(resolve => {
+                completePreparation = resolve;
+            }),
+        );
+
+        const execution = command.baseFn();
+        await Promise.resolve();
+
+        assert.strictEqual(beforeStartPackagerStub.calledOnce, true);
+        assert.strictEqual(startPackagerStub.called, false);
+        assert(completePreparation);
+        completePreparation();
+        await execution;
+
+        assert.strictEqual(startPackagerStub.calledOnce, true);
+    });
+
+    for (const stage of ["environment check", "environment preparation", "packager startup"]) {
+        test(`should propagate a failure during ${stage}`, async function () {
+            const {
+                launchExpoWeb,
+                project,
+                isExpoManagedAppStub,
+                platformConstructorStub,
+                beforeStartPackagerStub,
+                startPackagerStub,
+            } = createCommandModule(true);
+            const command = launchExpoWeb.formInstance();
+            (command as any).project = project;
+            const failure = new Error(`Failed during ${stage}`);
+            let failingStub = startPackagerStub;
+            if (stage === "environment check") {
+                failingStub = isExpoManagedAppStub;
+            } else if (stage === "environment preparation") {
+                failingStub = beforeStartPackagerStub;
+            }
+            failingStub.returns(Promise.reject(failure));
+
+            await assert.rejects(command.baseFn(), (error: unknown) => error === failure);
+
+            assert.strictEqual(platformConstructorStub.called, stage !== "environment check");
+            assert.strictEqual(beforeStartPackagerStub.called, stage !== "environment check");
+            assert.strictEqual(startPackagerStub.called, stage === "packager startup");
+        });
+    }
 });
