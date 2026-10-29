@@ -252,10 +252,14 @@ suite("installPodsCommand", function () {
                 const mockProject = createMockProject(tempDir, path.join(tempDir, "node_modules"));
                 (installPodsCommand as any).project = mockProject;
 
-                await installPodsCommand.baseFn();
+                await assert.rejects(
+                    installPodsCommand.baseFn(),
+                    /Failed to install CocoaPods dependencies\.\nCannot execute pod command\..*spawn EACCES/,
+                );
 
                 assert.strictEqual(execFileToStringStub.calledOnce, true);
                 assert.strictEqual(showErrorMessageStub.calledOnce, true);
+                assert.strictEqual(showInformationMessageStub.called, false);
                 assert.ok(
                     showErrorMessageStub.firstCall.args[0].includes("Cannot execute pod command"),
                 );
