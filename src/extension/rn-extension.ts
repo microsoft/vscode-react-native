@@ -27,6 +27,7 @@ import {
     getExtensionVersion,
     getExtensionName,
     findFileInFolderHierarchy,
+    isWorkspaceTrusted,
 } from "../common/extensionHelper";
 import { SettingsHelper } from "./settingsHelper";
 import { ReactDirManager } from "./reactDirManager";
@@ -165,6 +166,16 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
                     onChangeWorkspaceFolders(event),
                 ),
             );
+            const workspaceWithTrustEvent = vscode.workspace as typeof vscode.workspace & {
+                onDidGrantWorkspaceTrust?: (listener: () => void) => vscode.Disposable;
+            };
+            if (workspaceWithTrustEvent.onDidGrantWorkspaceTrust) {
+                EXTENSION_CONTEXT.subscriptions.push(
+                    workspaceWithTrustEvent.onDidGrantWorkspaceTrust(() => {
+                        initializeWorkspaceFoldersAfterTrust(vscode.workspace.workspaceFolders);
+                    }),
+                );
+            }
             EXTENSION_CONTEXT.subscriptions.push(
                 vscode.workspace.onDidChangeConfiguration(event => onChangeConfiguration(event)),
             );
@@ -338,6 +349,10 @@ export function getCountOfWorkspaceFolders(): number {
 }
 
 export async function onFolderAdded(folder: vscode.WorkspaceFolder): Promise<void> {
+    if (!isWorkspaceTrusted()) {
+        return;
+    }
+
     const workspacePath = vscode.workspace.workspaceFile?.fsPath;
     const excludeFolders = await SettingsHelper.getWorkspaceFileExcludeFolder(workspacePath);
     let isExclude = false;
@@ -394,6 +409,15 @@ export async function onFolderAdded(folder: vscode.WorkspaceFolder): Promise<voi
         outputChannelLogger.debug(`react-native@${versions.reactNativeVersion} isn't supported`);
     }
     await Promise.all(promises);
+}
+
+export function initializeWorkspaceFoldersAfterTrust(
+    workspaceFolders: readonly vscode.WorkspaceFolder[] | undefined,
+    initializeFolder: (folder: vscode.WorkspaceFolder) => Promise<void> = onFolderAdded,
+): void {
+    workspaceFolders?.forEach(folder => {
+        void initializeFolder(folder);
+    });
 }
 
 function activateCommands(): void {

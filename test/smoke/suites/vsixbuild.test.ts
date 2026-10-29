@@ -5,13 +5,13 @@ import * as fs from "fs";
 import * as path from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 import assert = require("assert");
-import AdmZip = require("adm-zip");
+import JSZip = require("jszip");
 
 export function startVsixExistenceTest(): void {
     describe("VSIX existence check", () => {
         // Use repo-relative path to match CI workspace
         const targetDirUri = pathToFileURL(
-            path.resolve(__dirname, "..", "..", "resources", "extension"),
+            path.resolve(__dirname, "..", "resources", "extension"),
         ).toString();
         const targetDir = fileURLToPath(targetDirUri);
 
@@ -31,7 +31,33 @@ export function startVsixExistenceTest(): void {
             }
         });
 
-        it("VSIX manifest contains required Identity fields", function () {
+        it("Release moves the latest VSIX to smoke resources", () => {
+            const repoRoot = path.resolve(__dirname, "..", "..", "..");
+            const rootVsixFiles = fs
+                .readdirSync(repoRoot)
+                .filter(fileName => fileName.toLowerCase().endsWith(".vsix"));
+
+            assert.deepStrictEqual(
+                rootVsixFiles,
+                [],
+                `Unexpected VSIX files remain in the repository root: ${rootVsixFiles.join(", ")}`,
+            );
+            assert.ok(fs.existsSync(targetDir), `Smoke resource directory not found: ${targetDir}`);
+
+            const smokeVsixFiles = fs
+                .readdirSync(targetDir)
+                .filter(fileName => fileName.toLowerCase().endsWith(".vsix"));
+            assert.strictEqual(
+                smokeVsixFiles.length,
+                1,
+                `Expected one VSIX in smoke resources, found: ${smokeVsixFiles.join(", ")}`,
+            );
+
+            const generatedVsixPath = path.join(targetDir, smokeVsixFiles[0]);
+            assert.ok(fs.statSync(generatedVsixPath).size > 0, "Generated VSIX is empty");
+        });
+
+        it("VSIX manifest contains required Identity fields", async function () {
             if (!fs.existsSync(targetDir)) {
                 this.skip?.();
                 return;
@@ -43,11 +69,11 @@ export function startVsixExistenceTest(): void {
             }
 
             const vsixPath = path.join(targetDir, vsixFiles[0]);
-            const zip = new AdmZip(vsixPath);
-            const manifestEntry = zip.getEntry("extension.vsixmanifest");
+            const zip = await JSZip.loadAsync(fs.readFileSync(vsixPath));
+            const manifestEntry = zip.file("extension.vsixmanifest");
             assert.ok(manifestEntry, "extension.vsixmanifest not found inside VSIX archive");
 
-            const manifestXml = zip.readAsText(manifestEntry);
+            const manifestXml = await manifestEntry.async("string");
             assert.ok(manifestXml.length > 0, "extension.vsixmanifest is empty");
 
             // Assert <PackageManifest> root element is present

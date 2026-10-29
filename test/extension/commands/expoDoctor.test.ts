@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import assert = require("assert");
+import { EventEmitter } from "events";
 import Sinon = require("sinon");
 import proxyquire = require("proxyquire");
 
@@ -9,7 +10,7 @@ suite("expoDoctorCommand", function () {
     const projectRootPath = "test-project";
 
     function createCommandModule(
-        execStub: Sinon.SinonStub,
+        spawnStub: Sinon.SinonStub,
         logger = {
             info: Sinon.stub(),
             error: Sinon.stub(),
@@ -22,7 +23,7 @@ suite("expoDoctorCommand", function () {
         }
 
         class FakeChildProcess {
-            public exec = execStub;
+            public spawn = spawnStub;
         }
 
         const module = proxyquire.noCallThru()("../../../src/extension/commands/expoDoctor", {
@@ -55,11 +56,22 @@ suite("expoDoctorCommand", function () {
         };
     }
 
-    function createExecResult(outcome: Promise<string>): any {
-        return Promise.resolve({
-            process: {},
-            outcome,
+    function createSpawnResult(stdout: string, stderr: string, error?: Error): any {
+        const stdoutStream = new EventEmitter();
+        const stderrStream = new EventEmitter();
+        const outcome = new Promise<void>((resolve, reject) => {
+            setImmediate(() => {
+                stdoutStream.emit("data", Buffer.from(stdout));
+                stderrStream.emit("data", Buffer.from(stderr));
+                error ? reject(error) : resolve();
+            });
         });
+
+        return {
+            stdout: stdoutStream,
+            stderr: stderrStream,
+            outcome,
+        };
     }
 
     async function runCommand(
@@ -76,13 +88,13 @@ suite("expoDoctorCommand", function () {
     }
 
     test("should run expo doctor from the project root and log the outcome", async function () {
-        const execStub = Sinon.stub().returns(createExecResult(Promise.resolve("No issues found")));
-        const { expoDoctor, logger } = createCommandModule(execStub);
+        const spawnStub = Sinon.stub().returns(createSpawnResult("No issues found", ""));
+        const { expoDoctor, logger } = createCommandModule(spawnStub);
 
         await runCommand(expoDoctor);
 
         assert.strictEqual(
-            execStub.calledWithExactly("npx expo-doctor", { cwd: projectRootPath }),
+            spawnStub.calledWithExactly("npx", ["expo-doctor"], { cwd: projectRootPath }),
             true,
         );
         assert.strictEqual(logger.info.calledWithExactly("Running diagnostics..."), true);
@@ -91,28 +103,32 @@ suite("expoDoctorCommand", function () {
 
     test("should propagate an error when starting expo doctor fails", async function () {
         const error = new Error("could not start expo doctor");
-        const execStub = Sinon.stub().returns(Promise.reject(error));
-        const { expoDoctor, logger } = createCommandModule(execStub);
+        const spawnStub = Sinon.stub().throws(error);
+        const { expoDoctor, logger } = createCommandModule(spawnStub);
 
         await assert.rejects(() => runCommand(expoDoctor), error);
         assert.strictEqual(logger.info.called, false);
     });
 
-    test("should propagate an error when expo doctor exits unsuccessfully", async function () {
+    test("should log output and propagate an error when expo doctor exits unsuccessfully", async function () {
         const error = new Error("expo doctor failed");
-        const execStub = Sinon.stub().returns(createExecResult(Promise.reject(error)));
-        const { expoDoctor, logger } = createCommandModule(execStub);
+        const spawnStub = Sinon.stub().returns(
+            createSpawnResult("Issues found", "Dependency mismatch", error),
+        );
+        const { expoDoctor, logger } = createCommandModule(spawnStub);
 
         await assert.rejects(() => runCommand(expoDoctor), error);
         assert.strictEqual(logger.info.calledWithExactly("Running diagnostics..."), true);
+        assert.strictEqual(logger.info.calledWithExactly("Issues found"), true);
+        assert.strictEqual(logger.error.calledWithExactly("Dependency mismatch"), true);
     });
 
     test("should require a project before running expo doctor", async function () {
-        const execStub = Sinon.stub().returns(createExecResult(Promise.resolve("")));
-        const { expoDoctor } = createCommandModule(execStub);
+        const spawnStub = Sinon.stub().returns(createSpawnResult("", ""));
+        const { expoDoctor } = createCommandModule(spawnStub);
         const command = expoDoctor.formInstance();
 
         await assert.rejects(() => command.baseFn(), assert.AssertionError);
-        assert.strictEqual(execStub.called, false);
+        assert.strictEqual(spawnStub.called, false);
     });
 });

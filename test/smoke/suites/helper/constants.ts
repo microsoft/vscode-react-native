@@ -19,7 +19,7 @@ export class Element {
     public static androidButtonSelector = "div[aria-label='Android']";
     public static reactNativeButtonSelector = "div[aria-label='React Native, Enum']";
     public static debugApplicationButtonSelector =
-        "div[aria-label='Debug application, Debug React Native application']";
+        '#quickInput_list .monaco-list-row:has-text("Debug application")';
     public static applicationInDirectModeButtonSelector =
         "div[aria-label='Application in direct mode(Hermes)']";
     public static configurationElementSelector = ".monaco-mouse-cursor-text";

@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { IProtocolCommand } from "vscode-cdp-proxy";
-import { ProcessedCDPMessage } from "./ICDPMessageHandler";
+import { ProcessedCDPMessage, ProtocolMessage } from "./ICDPMessageHandler";
 import { CDP_API_NAMES } from "./CDPAPINames";
 import { BaseCDPMessageHandler } from "./baseCDPMessageHandler";
 
@@ -14,9 +14,9 @@ export class RnCDPMessageHandler extends BaseCDPMessageHandler {
         this.firstStop = true;
     }
 
-    public processDebuggerCDPMessage(event: any): ProcessedCDPMessage {
+    public processDebuggerCDPMessage(event: ProtocolMessage): ProcessedCDPMessage {
         const sendBack = false;
-        if (event.method === CDP_API_NAMES.CLOSE) {
+        if ("method" in event && event.method === CDP_API_NAMES.CLOSE) {
             this.handleDebuggerDisconnect();
         }
 
@@ -26,10 +26,12 @@ export class RnCDPMessageHandler extends BaseCDPMessageHandler {
         };
     }
 
-    public processApplicationCDPMessage(event: any): ProcessedCDPMessage {
+    public processApplicationCDPMessage(event: ProtocolMessage): ProcessedCDPMessage {
         const sendBack = false;
-        if (event.method === CDP_API_NAMES.DEBUGGER_PAUSED && this.firstStop) {
-            event.params = this.handleAppBundleFirstPauseEvent(event);
+        if ("method" in event && event.method === CDP_API_NAMES.DEBUGGER_PAUSED && this.firstStop) {
+            (event as IProtocolCommand).params = this.handleAppBundleFirstPauseEvent(
+                event as IProtocolCommand,
+            );
         }
 
         return {
@@ -45,8 +47,8 @@ export class RnCDPMessageHandler extends BaseCDPMessageHandler {
      *  and then change pause reason to `Break on start` so js-debug can process all breakpoints in the bundle and
      *  continue the code execution using `continueOnAttach` flag
      */
-    private handleAppBundleFirstPauseEvent(event: IProtocolCommand): any {
-        const params: any = event.params;
+    private handleAppBundleFirstPauseEvent(event: IProtocolCommand): object {
+        const params = event.params as { reason?: string };
         if (params.reason && params.reason === "other") {
             this.firstStop = false;
             params.reason = "Break on start";
