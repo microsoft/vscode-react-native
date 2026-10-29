@@ -232,6 +232,44 @@ suite("installPodsCommand", function () {
                 platformStub.restore();
             }
         });
+
+        test("should report a pod version failure once", async function () {
+            const iosPath = path.join(tempDir, "ios");
+            fs.mkdirSync(iosPath, { recursive: true });
+            fs.writeFileSync(path.join(iosPath, "Podfile"), "");
+
+            const platformStub = Sinon.stub(os, "platform").returns("darwin");
+            const findPodCommandStub = Sinon.stub(
+                installPodsCommand as any,
+                "findPodCommand",
+            ).returns("pod");
+            const execFileToStringStub = Sinon.stub(
+                ChildProcess.prototype,
+                "execFileToString",
+            ).returns(Promise.reject(new Error("spawn EACCES")));
+
+            try {
+                const mockProject = createMockProject(tempDir, path.join(tempDir, "node_modules"));
+                (installPodsCommand as any).project = mockProject;
+
+                await assert.rejects(
+                    installPodsCommand.baseFn(),
+                    /Failed to install CocoaPods dependencies\.\nCannot execute pod command\..*spawn EACCES/,
+                );
+
+                assert.strictEqual(execFileToStringStub.calledOnce, true);
+                assert.strictEqual(showErrorMessageStub.calledOnce, true);
+                assert.strictEqual(showInformationMessageStub.called, false);
+                assert.ok(
+                    showErrorMessageStub.firstCall.args[0].includes("Cannot execute pod command"),
+                );
+                assert.ok(showErrorMessageStub.firstCall.args[0].includes("spawn EACCES"));
+            } finally {
+                execFileToStringStub.restore();
+                findPodCommandStub.restore();
+                platformStub.restore();
+            }
+        });
     });
 
     suite("Pod command discovery", function () {
