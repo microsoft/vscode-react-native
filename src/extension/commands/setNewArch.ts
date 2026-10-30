@@ -26,12 +26,13 @@ export class SetNewArch extends Command {
         const type = await vscode.window.showQuickPick(["Android", "iOS"], {
             placeHolder: "Select type for mobile OS",
         });
+        if (type === undefined) return;
         const isNewArchEnabled = await vscode.window.showQuickPick(["true", "false"], {
             placeHolder: "Whether to enable New Architecture",
         });
         const projectRoot = this.project.getPackager().getProjectPath();
 
-        if (type === undefined || isNewArchEnabled === undefined) return;
+        if (isNewArchEnabled === undefined) return;
         if (type === "iOS") {
             const podfilePath = path.join(projectRoot, "ios", "Podfile");
             let podfileContent = fs.readFileSync(podfilePath, "utf-8");
