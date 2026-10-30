@@ -148,8 +148,102 @@ suite("setNewArchCommand", function () {
         assert.strictEqual(writeFileStub.firstCall.args[0], gradleFilePath);
         assert.strictEqual(
             writeFileStub.firstCall.args[1],
-            "android.useAndroidX=true \nnewArchEnabled=false",
+            "android.useAndroidX=true\nnewArchEnabled=false",
         );
+        assert.strictEqual(spawnStub.called, false);
+    });
+
+    for (const eol of ["\n", "\r\n"]) {
+        for (const enabled of ["true", "false"]) {
+            const previous = enabled === "true" ? "false" : "true";
+            const comments = `# newArchEnabled=${previous}${eol} \t! newArchEnabled=${previous}`;
+            const cases = [
+                {
+                    name: "preserve hash and exclamation comments before an active key",
+                    input: `${comments}${eol}newArchEnabled=${previous}${eol}`,
+                    expected: `${comments}${eol}newArchEnabled=${enabled}${eol}`,
+                },
+                {
+                    name: "append an active key after comments without a final newline",
+                    input: comments,
+                    expected: `${comments}${eol}newArchEnabled=${enabled}`,
+                },
+                {
+                    name: "append an active key after comments with a final newline",
+                    input: `${comments}${eol}`,
+                    expected: `${comments}${eol}newArchEnabled=${enabled}`,
+                },
+                {
+                    name: "preserve indentation, spacing and trailing whitespace",
+                    input: `android.useAndroidX=true${eol}\tnewArchEnabled \t= \t${previous} \t${eol}`,
+                    expected: `android.useAndroidX=true${eol}\tnewArchEnabled \t= \t${enabled} \t${eol}`,
+                },
+                {
+                    name: "update the last effective duplicate key and preserve later comments",
+                    input: `newArchEnabled=${enabled}${eol}${comments}${eol}newArchEnabled=${previous}  ${eol}# newArchEnabled=${previous}${eol}`,
+                    expected: `newArchEnabled=${enabled}${eol}${comments}${eol}newArchEnabled=${enabled}  ${eol}# newArchEnabled=${previous}${eol}`,
+                },
+                {
+                    name: "leave earlier duplicate keys unchanged",
+                    input: `newArchEnabled=${previous}${eol}newArchEnabled=${previous}`,
+                    expected: `newArchEnabled=${previous}${eol}newArchEnabled=${enabled}`,
+                },
+                {
+                    name: "not match a property name inside another key or value",
+                    input: `other.newArchEnabled=${previous}${eol}example=newArchEnabled=${previous}${eol}`,
+                    expected: `other.newArchEnabled=${previous}${eol}example=newArchEnabled=${previous}${eol}newArchEnabled=${enabled}`,
+                },
+                {
+                    name: "append after unrelated properties",
+                    input: `android.useAndroidX=true${eol}`,
+                    expected: `android.useAndroidX=true${eol}newArchEnabled=${enabled}`,
+                },
+            ];
+
+            for (const { name, input, expected } of cases) {
+                test(`should ${name} (${enabled}, ${JSON.stringify(eol)})`, async function () {
+                    const androidPath = path.join(tempDir, "android");
+                    const gradleFilePath = path.join(androidPath, "gradle.properties");
+                    fs.mkdirSync(androidPath, { recursive: true });
+                    fs.writeFileSync(gradleFilePath, input);
+                    const showQuickPickStub = Sinon.stub();
+                    showQuickPickStub.onFirstCall().returns(Promise.resolve("Android"));
+                    showQuickPickStub.onSecondCall().returns(Promise.resolve(enabled));
+                    const writeFileStub = Sinon.stub().returns(Promise.resolve());
+                    const spawnStub = Sinon.stub().returns(Promise.resolve());
+                    const { SetNewArch } = createCommandModule(
+                        showQuickPickStub,
+                        writeFileStub,
+                        spawnStub,
+                    );
+
+                    await runCommand(SetNewArch);
+
+                    assert.strictEqual(writeFileStub.calledOnce, true);
+                    assert.strictEqual(writeFileStub.firstCall.args[0], gradleFilePath);
+                    assert.strictEqual(writeFileStub.firstCall.args[1], expected);
+                    assert.strictEqual(spawnStub.called, false);
+                });
+            }
+        }
+    }
+
+    test("should add an active Android key to an empty file", async function () {
+        const androidPath = path.join(tempDir, "android");
+        const gradleFilePath = path.join(androidPath, "gradle.properties");
+        fs.mkdirSync(androidPath, { recursive: true });
+        fs.writeFileSync(gradleFilePath, "");
+        const showQuickPickStub = Sinon.stub();
+        showQuickPickStub.onFirstCall().returns(Promise.resolve("Android"));
+        showQuickPickStub.onSecondCall().returns(Promise.resolve("true"));
+        const writeFileStub = Sinon.stub().returns(Promise.resolve());
+        const spawnStub = Sinon.stub().returns(Promise.resolve());
+        const { SetNewArch } = createCommandModule(showQuickPickStub, writeFileStub, spawnStub);
+
+        await runCommand(SetNewArch);
+
+        assert.strictEqual(writeFileStub.calledOnce, true);
+        assert.strictEqual(writeFileStub.firstCall.args[1], "newArchEnabled=true");
         assert.strictEqual(spawnStub.called, false);
     });
 
