@@ -176,6 +176,33 @@ suite("cleanRestartPackagerCommand", function () {
         assert.strictEqual(restartStub.calledOnce, true);
     });
 
+    test("should warn when terminating a Metro process fails on Windows", async function () {
+        const execStub = Sinon.stub();
+        execStub
+            .withArgs("netstat -ano | findstr :9090")
+            .returns(createExecResult("TCP    127.0.0.1:9090    0.0.0.0:0    LISTENING    12345"));
+        execStub
+            .withArgs("taskkill /PID 12345 /F /T")
+            .returns(createRejectedExecResult(new Error("access denied")));
+        execStub.withArgs("watchman watch-del-all").returns(createExecResult(""));
+        const restartStub = Sinon.stub().returns(Promise.resolve());
+        const { CleanRestartPackager, logger } = createCommandModule(
+            HostPlatformId.WINDOWS,
+            execStub,
+        );
+
+        await runCommand(CleanRestartPackager, tempDir, restartStub);
+
+        assert.strictEqual(
+            logger.warning.calledWith(
+                "Failed to terminate Metro process 12345: Error: access denied",
+            ),
+            true,
+        );
+        assert.strictEqual(logger.info.calledWith("No Metro process found on port 9090"), false);
+        assert.strictEqual(restartStub.calledOnce, true);
+    });
+
     test("should kill Metro process on macOS and restart packager", async function () {
         const execStub = Sinon.stub();
         execStub.withArgs("lsof -ti:9090").returns(createExecResult("23456\n"));
@@ -191,6 +218,31 @@ suite("cleanRestartPackagerCommand", function () {
         assert.strictEqual(execStub.calledWith("watchman watch-del-all"), true);
         assert.strictEqual(restartStub.calledOnce, true);
         assert.strictEqual(restartStub.calledWithExactly(9090), true);
+    });
+
+    test("should warn when terminating a Metro process fails on Unix", async function () {
+        const execStub = Sinon.stub();
+        execStub.withArgs("lsof -ti:9090").returns(createExecResult("23456\n"));
+        execStub
+            .withArgs("kill -9 23456")
+            .returns(createRejectedExecResult(new Error("operation not permitted")));
+        execStub.withArgs("watchman watch-del-all").returns(createExecResult(""));
+        const restartStub = Sinon.stub().returns(Promise.resolve());
+        const { CleanRestartPackager, logger } = createCommandModule(
+            HostPlatformId.LINUX,
+            execStub,
+        );
+
+        await runCommand(CleanRestartPackager, tempDir, restartStub);
+
+        assert.strictEqual(
+            logger.warning.calledWith(
+                "Failed to terminate Metro process 23456: Error: operation not permitted",
+            ),
+            true,
+        );
+        assert.strictEqual(logger.info.calledWith("No Metro process found on port 9090"), false);
+        assert.strictEqual(restartStub.calledOnce, true);
     });
 
     test("should remove Metro cache recursively before restarting packager", async function () {

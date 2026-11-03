@@ -3,6 +3,8 @@
 
 import assert = require("assert");
 import * as sinon from "sinon";
+import * as http from "http";
+import { AddressInfo } from "net";
 import { DebuggerEndpointHelper } from "../../src/cdp-proxy/debuggerEndpointHelper";
 import { PromiseUtil } from "../../src/common/node/promise";
 
@@ -12,6 +14,37 @@ suite("debuggerEndpointHelper", function () {
     teardown(function () {
         while (stubs.length) {
             stubs.pop()!.restore();
+        }
+    });
+
+    test("getWSEndpoint should preserve Buffer responses and decode split UTF-8 characters", async function () {
+        const endpoint = "ws://localhost:8081/\u4e2d\u6587";
+        const body = Buffer.from(JSON.stringify({ webSocketDebuggerUrl: endpoint }), "utf8");
+        const splitIndex = body.indexOf("\u4e2d") + 1;
+        const setEncodingSpy = sinon.spy(http.IncomingMessage.prototype, "setEncoding");
+        const server = http.createServer((_request, response) => {
+            response.setHeader("Content-Type", "application/json; charset=utf-8");
+            response.write(body.subarray(0, splitIndex));
+            setImmediate(() => response.end(body.subarray(splitIndex)));
+        });
+
+        try {
+            await new Promise<void>((resolve, reject) => {
+                server.once("error", reject);
+                server.listen(0, "127.0.0.1", resolve);
+            });
+            const address = server.address() as AddressInfo;
+            const helper = new DebuggerEndpointHelper();
+
+            const result = await helper.getWSEndpoint(`http://127.0.0.1:${address.port}`);
+
+            assert.strictEqual(result, endpoint);
+            assert.strictEqual(setEncodingSpy.called, false);
+        } finally {
+            setEncodingSpy.restore();
+            await new Promise<void>((resolve, reject) => {
+                server.close(error => (error ? reject(error) : resolve()));
+            });
         }
     });
 
