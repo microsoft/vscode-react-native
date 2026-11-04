@@ -46,14 +46,36 @@ export class ReactNativeProjectHelper {
     }
 
     public static isAndroidHermesEnabled(projectRoot: string): boolean {
-        const buildGradlePath = path.join(projectRoot, "android", "app", "build.gradle");
-        if (!projectRoot || !fs.existsSync(buildGradlePath)) {
+        if (!projectRoot) {
             return false;
         }
 
+        const gradlePropertiesPath = path.join(projectRoot, "android", "gradle.properties");
+        if (fs.existsSync(gradlePropertiesPath)) {
+            const properties = fs.readFileSync(gradlePropertiesPath, "utf-8");
+            let hermesEnabled: boolean | undefined;
+            for (const line of properties.split(/\r?\n/)) {
+                const match = line.match(/^[\t ]*hermesEnabled[\t ]*[:=][\t ]*(.*)$/);
+                if (match) {
+                    hermesEnabled = match[1].trim().toLowerCase() === "true";
+                }
+            }
+            if (hermesEnabled !== undefined) {
+                return hermesEnabled;
+            }
+        }
+
+        const buildGradlePath = path.join(projectRoot, "android", "app", "build.gradle");
+        if (!fs.existsSync(buildGradlePath)) {
+            return false;
+        }
         const buildGradleContent = fs.readFileSync(buildGradlePath, "utf-8");
-        const hermesEnabled = /enableHermes\s*:\s*true/.test(buildGradleContent);
-        return hermesEnabled;
+        // Mask strings as well as comments so examples and comment markers in strings are ignored.
+        const configuration = buildGradleContent.replace(
+            /"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\/\/[^\n\r]*|\/\*[\S\s]*?\*\//g,
+            " ",
+        );
+        return /\benableHermes\s*:\s*true\b/.test(configuration);
     }
 
     public static isIOSHermesEnabled(projectRoot: string): boolean {
