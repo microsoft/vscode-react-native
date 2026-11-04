@@ -10,6 +10,7 @@ import {
     RNPackageVersionsToPackageVersion,
 } from "../../common/projectVersionHelper";
 import { AppLauncher } from "../appLauncher";
+import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { RNProjectObserver } from "../rnProjectObserver";
 import { runChecks } from "../services/validationService/checker";
 import { ValidationCategoryE } from "../services/validationService/checks/types";
@@ -49,7 +50,13 @@ export class TestDevEnvironment extends Command {
         }
 
         const projectObserver =
-            project && (await this.createRNProjectObserver(project).catch(() => undefined));
+            project &&
+            (await this.createRNProjectObserver(project).catch(error => {
+                OutputChannelLogger.getMainChannel().warning(
+                    `Project detection failed; skipping Windows and macOS checks and package version detection: ${error}`,
+                );
+                return undefined;
+            }));
 
         const shouldCheck = {
             [ValidationCategoryE.Expo]:
@@ -57,7 +64,12 @@ export class TestDevEnvironment extends Command {
                     ?.getPackager()
                     .getExponentHelper()
                     .isExpoManagedApp(false)
-                    .catch(() => false)) || false,
+                    .catch(error => {
+                        OutputChannelLogger.getMainChannel().warning(
+                            `Expo detection failed; skipping Expo checks: ${error}`,
+                        );
+                        return false;
+                    })) || false,
 
             [ValidationCategoryE.Windows]:
                 (projectObserver && projectObserver.isRNWindowsProject) || false,
