@@ -26,12 +26,19 @@ export class EnableHermes extends Command {
         const type = await vscode.window.showQuickPick(["Android", "iOS"], {
             placeHolder: "Select type for mobile OS",
         });
+        if (type === undefined) {
+            return;
+        }
+
         const isHermesEnabled = await vscode.window.showQuickPick(["true", "false"], {
             placeHolder: "Whether to enable Hermes",
         });
+        if (isHermesEnabled === undefined) {
+            return;
+        }
+
         const projectRoot = this.project.getPackager().getProjectPath();
 
-        if (type === undefined || isHermesEnabled === undefined) return;
         if (type === "iOS") {
             const podfilePath = path.join(projectRoot, "ios", "Podfile");
             if (!projectRoot || !fs.existsSync(podfilePath)) {

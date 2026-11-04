@@ -57,45 +57,59 @@ export class CleanRestartPackager extends ReactNativeCommand {
 
             if (platformId === HostPlatformId.WINDOWS) {
                 // Windows: Use netstat and taskkill
+                let outcome: string;
                 try {
                     const netstatResult = await childProcess.exec(
                         `netstat -ano | findstr :${port}`,
                     );
-                    const outcome = await netstatResult.outcome;
-
-                    if (outcome) {
-                        // Extract PID from netstat output
-                        const lines = outcome.split("\n");
-                        for (const line of lines) {
-                            const match = line.match(/\s+LISTENING\s+(\d+)/);
-                            if (match && match[1]) {
-                                const pid = match[1];
-                                logger.info(`Found Metro process with PID: ${pid}`);
-                                await childProcess
-                                    .exec(`taskkill /PID ${pid} /F /T`)
-                                    .then(killResult => killResult.outcome);
-                                logger.info(`Successfully terminated process ${pid}`);
-                            }
-                        }
-                    }
+                    outcome = await netstatResult.outcome;
                 } catch (error) {
                     logger.info(`No Metro process found on port ${port}`);
+                    return;
+                }
+
+                // Extract PID from netstat output
+                const lines = outcome.split("\n");
+                for (const line of lines) {
+                    const match = line.match(/\s+LISTENING\s+(\d+)/);
+                    if (match && match[1]) {
+                        const pid = match[1];
+                        logger.info(`Found Metro process with PID: ${pid}`);
+                        try {
+                            await childProcess
+                                .exec(`taskkill /PID ${pid} /F /T`)
+                                .then(killResult => killResult.outcome);
+                            logger.info(`Successfully terminated process ${pid}`);
+                        } catch (error) {
+                            logger.warning(
+                                `Failed to terminate Metro process ${pid}: ${String(error)}`,
+                            );
+                        }
+                    }
                 }
             } else {
                 // macOS/Linux: Use lsof and kill
+                let outcome: string;
                 try {
                     const lsofResult = await childProcess.exec(`lsof -ti:${port}`);
-                    const outcome = await lsofResult.outcome;
+                    outcome = await lsofResult.outcome;
+                } catch (error) {
+                    logger.info(`No Metro process found on port ${port}`);
+                    return;
+                }
 
-                    if (outcome && outcome.trim()) {
-                        const pid = outcome.trim();
-                        logger.info(`Found Metro process with PID: ${pid}`);
+                if (outcome && outcome.trim()) {
+                    const pid = outcome.trim();
+                    logger.info(`Found Metro process with PID: ${pid}`);
+                    try {
                         const killResult = await childProcess.exec(`kill -9 ${pid}`);
                         await killResult.outcome;
                         logger.info(`Successfully terminated process ${pid}`);
+                    } catch (error) {
+                        logger.warning(
+                            `Failed to terminate Metro process ${pid}: ${String(error)}`,
+                        );
                     }
-                } catch (error) {
-                    logger.info(`No Metro process found on port ${port}`);
                 }
             }
         } catch (error) {
@@ -109,13 +123,8 @@ export class CleanRestartPackager extends ReactNativeCommand {
         const metroCachePath = path.join(projectPath, "node_modules", ".cache", "metro");
 
         try {
-            if (fs.existsSync(metroCachePath)) {
-                // Use recursive directory deletion
-                await this.deleteDirectory(metroCachePath);
-                logger.info(`Successfully cleaned Metro cache at: ${metroCachePath}`);
-            } else {
-                logger.info("Metro cache directory not found, skipping...");
-            }
+            await fs.promises.rm(metroCachePath, { recursive: true, force: true });
+            logger.info(`Successfully cleaned Metro cache at: ${metroCachePath}`);
         } catch (error) {
             logger.warning(`Failed to clean Metro cache: ${String(error)}`);
         }
@@ -131,25 +140,6 @@ export class CleanRestartPackager extends ReactNativeCommand {
             logger.info("Successfully cleaned Watchman cache");
         } catch (error) {
             logger.info("Watchman not available or failed to clean cache, continuing...");
-        }
-    }
-
-    private async deleteDirectory(dirPath: string): Promise<void> {
-        if (fs.existsSync(dirPath)) {
-            const files = fs.readdirSync(dirPath);
-
-            for (const file of files) {
-                const filePath = path.join(dirPath, file);
-                const stat = fs.statSync(filePath);
-
-                if (stat.isDirectory()) {
-                    await this.deleteDirectory(filePath);
-                } else {
-                    fs.unlinkSync(filePath);
-                }
-            }
-
-            fs.rmdirSync(dirPath);
         }
     }
 }

@@ -186,12 +186,13 @@ export class DebuggerEndpointHelper {
             }
 
             const request = driver.get(url, requestOptions, response => {
-                let data = "";
-                response.setEncoding("utf8");
-                response.on("data", (chunk: string) => {
-                    data += chunk;
+                const chunks: Uint8Array[] = [];
+                response.on("data", (chunk: Buffer) => {
+                    chunks.push(new Uint8Array(chunk.buffer, chunk.byteOffset, chunk.byteLength));
                 });
-                response.on("end", () => fulfill(data));
+                response.on("end", () => {
+                    fulfill(Buffer.concat(chunks).toString("utf8"));
+                });
                 response.on("error", reject);
             });
 
