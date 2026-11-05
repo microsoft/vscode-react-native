@@ -7,6 +7,7 @@ import proxyquire = require("proxyquire");
 
 suite("openEASProjectCommand", function () {
     function createCommandModule() {
+        const localizedMessage = "Localized EAS project message";
         const logger = {
             info: Sinon.stub(),
             error: Sinon.stub(),
@@ -30,7 +31,7 @@ suite("openEASProjectCommand", function () {
         const module = proxyquire.noCallThru()("../../../src/extension/commands/openEASProject", {
             "vscode-nls": {
                 config: () => () => undefined,
-                loadMessageBundle: () => (_key: string, message: string) => message,
+                loadMessageBundle: () => () => localizedMessage,
                 MessageFormat: { bundle: "bundle" },
                 BundleFormat: { standalone: "standalone" },
             },
@@ -70,6 +71,7 @@ suite("openEASProjectCommand", function () {
 
         return {
             OpenEASProject: module.OpenEASProject,
+            localizedMessage,
             project,
             logger,
             showErrorMessageStub,
@@ -149,7 +151,7 @@ suite("openEASProjectCommand", function () {
             assert.strictEqual(stubs.logger.error.calledOnce, true);
             assert.strictEqual(
                 stubs.showErrorMessageStub.firstCall.args[0],
-                "Unable to open the EAS project page because expo.slug is missing in app.json.",
+                stubs.localizedMessage,
             );
             assert.strictEqual(
                 stubs.logger.error.firstCall.args[0],
