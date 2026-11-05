@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import { ChildProcess } from "child_process";
+import { promises as fs } from "fs";
 import * as path from "path";
 import assert = require("assert");
 import * as semver from "semver";
@@ -274,9 +275,17 @@ export class Packager {
 
             let packagerSpawnResult;
             if (this.runOptions?.platform != "exponent" && this.runOptions?.platform != "expoweb") {
+                // Metro's file map is case-sensitive even on Windows.
+                const [metroProjectPath, metroNodeModulesRoot] =
+                    process.platform === "win32"
+                        ? await Promise.all([
+                              fs.realpath(this.projectPath),
+                              fs.realpath(nodeModulesRoot),
+                          ])
+                        : [this.projectPath, nodeModulesRoot];
                 packagerSpawnResult = new CommandExecutor(
-                    nodeModulesRoot,
-                    this.projectPath,
+                    metroNodeModulesRoot,
+                    metroProjectPath,
                     this.logger,
                 ).spawnReactPackager(args, spawnOptions);
             } else if (this.runOptions?.platform == "exponent") {

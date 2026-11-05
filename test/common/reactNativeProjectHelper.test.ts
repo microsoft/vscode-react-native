@@ -23,6 +23,11 @@ suite("ReactNativeProjectHelper", function () {
             "app",
             "build.gradle",
         );
+        const gradlePropertiesPath = path.join(
+            sampleReactNativeProjectDir,
+            "android",
+            "gradle.properties",
+        );
 
         suiteSetup(() => {
             fsHelper.makeDirectoryRecursiveSync(path.dirname(buildGradleFilePath));
@@ -30,6 +35,103 @@ suite("ReactNativeProjectHelper", function () {
 
         suiteTeardown(() => {
             fsHelper.removePathRecursivelySync(path.join(sampleReactNativeProjectDir, "android"));
+        });
+
+        teardown(() => {
+            for (const filePath of [buildGradleFilePath, gradlePropertiesPath]) {
+                if (fs.existsSync(filePath)) {
+                    fs.unlinkSync(filePath);
+                }
+            }
+        });
+
+        for (const [properties, expected] of [
+            ["hermesEnabled=true", true],
+            ["hermesEnabled=false", false],
+            ["  hermesEnabled = true  \r\n", true],
+            ["hermesEnabled: true", true],
+            ["hermesEnabled=TRUE", true],
+            ["hermesEnabled=true\nhermesEnabled=false", false],
+            ["hermesEnabled=false\nhermesEnabled=true", true],
+            ["# hermesEnabled=true\n! hermesEnabled=true", false],
+            ["hermesEnabled=trueSuffix", false],
+            ["otherHermesEnabled=true", false],
+        ] as const) {
+            test(`detects Gradle properties ${JSON.stringify(
+                properties,
+            )} as ${expected} without build.gradle`, () => {
+                fs.writeFileSync(gradlePropertiesPath, properties);
+                assert.strictEqual(
+                    ReactNativeProjectHelper.isAndroidHermesEnabled(sampleReactNativeProjectDir),
+                    expected,
+                );
+            });
+        }
+
+        for (const enabled of [true, false]) {
+            test(`prefers hermesEnabled=${enabled} over the opposite legacy value`, () => {
+                fs.writeFileSync(gradlePropertiesPath, `hermesEnabled=${enabled}`);
+                fs.writeFileSync(
+                    buildGradleFilePath,
+                    `project.ext.react = [enableHermes: ${!enabled}]`,
+                );
+                assert.strictEqual(
+                    ReactNativeProjectHelper.isAndroidHermesEnabled(sampleReactNativeProjectDir),
+                    enabled,
+                );
+            });
+        }
+
+        test("falls back to legacy configuration when the property is absent or commented", () => {
+            fs.writeFileSync(
+                gradlePropertiesPath,
+                "android.useAndroidX=true\n# hermesEnabled=false\n! hermesEnabled=false",
+            );
+            fs.writeFileSync(buildGradleFilePath, "project.ext.react = [enableHermes: true]");
+            assert.strictEqual(
+                ReactNativeProjectHelper.isAndroidHermesEnabled(sampleReactNativeProjectDir),
+                true,
+            );
+        });
+
+        for (const content of [
+            "// Repro only: enableHermes: true",
+            "/* enableHermes: true */",
+            "/*\n enableHermes: true,\n*/",
+            "// enableHermes: true\nproject.ext.react = [enableHermes: false]",
+            'def example = "enableHermes: true"',
+            "def example = 'enableHermes: true'",
+            "project.ext.react = [enableHermes: trueSuffix]",
+        ]) {
+            test(`ignores commented, quoted or invalid legacy configuration ${JSON.stringify(
+                content,
+            )}`, () => {
+                fs.writeFileSync(buildGradleFilePath, content);
+                assert.strictEqual(
+                    ReactNativeProjectHelper.isAndroidHermesEnabled(sampleReactNativeProjectDir),
+                    false,
+                );
+            });
+        }
+
+        test("preserves active legacy configuration after strings and comments", () => {
+            fs.writeFileSync(
+                buildGradleFilePath,
+                "def url = 'https://example.com'\n/* enableHermes: false */\n" +
+                    "project.ext.react = [enableHermes: true] // active configuration",
+            );
+            assert.strictEqual(
+                ReactNativeProjectHelper.isAndroidHermesEnabled(sampleReactNativeProjectDir),
+                true,
+            );
+        });
+
+        test("returns false when the project root or both configuration files are missing", () => {
+            assert.strictEqual(ReactNativeProjectHelper.isAndroidHermesEnabled(""), false);
+            assert.strictEqual(
+                ReactNativeProjectHelper.isAndroidHermesEnabled(sampleReactNativeProjectDir),
+                false,
+            );
         });
 
         test("isAndroidHermesEnabled should return 'true' if Hermes engine is enabled in the build.gradle file", () => {
