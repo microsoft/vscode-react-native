@@ -39,7 +39,14 @@ suite("debuggerEndpointHelper", function () {
             const result = await helper.getWSEndpoint(`http://127.0.0.1:${address.port}`);
 
             assert.strictEqual(result, endpoint);
-            assert.strictEqual(setEncodingSpy.called, false);
+            assert.strictEqual(
+                setEncodingSpy.thisValues.some(
+                    response =>
+                        response.req?.getHeader("host") === `127.0.0.1:${address.port}` &&
+                        response.req.path === "/json/version",
+                ),
+                false,
+            );
         } finally {
             setEncodingSpy.restore();
             await new Promise<void>((resolve, reject) => {

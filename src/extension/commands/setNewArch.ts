@@ -26,12 +26,13 @@ export class SetNewArch extends Command {
         const type = await vscode.window.showQuickPick(["Android", "iOS"], {
             placeHolder: "Select type for mobile OS",
         });
+        if (type === undefined) return;
         const isNewArchEnabled = await vscode.window.showQuickPick(["true", "false"], {
             placeHolder: "Whether to enable New Architecture",
         });
         const projectRoot = this.project.getPackager().getProjectPath();
 
-        if (type === undefined || isNewArchEnabled === undefined) return;
+        if (isNewArchEnabled === undefined) return;
         if (type === "iOS") {
             const podfilePath = path.join(projectRoot, "ios", "Podfile");
             let podfileContent = fs.readFileSync(podfilePath, "utf-8");
@@ -71,17 +72,27 @@ export class SetNewArch extends Command {
             }
 
             const gradleFileContent = fs.readFileSync(gradleFilePath, "utf-8");
-            const archMatch = gradleFileContent.match(/newArchEnabled\s*=\s*\w*/);
-            if (archMatch && !archMatch[0].startsWith("#")) {
-                const updatedHermes = gradleFileContent.replace(
-                    /newArchEnabled\s*=\s*\w*/,
-                    `newArchEnabled=${isNewArchEnabled}`,
+            const lines = gradleFileContent.split(/(\r?\n)/);
+            let updatedGradle: string | undefined;
+            // The last active property takes precedence in Gradle properties files.
+            for (let index = lines.length - 1; index >= 0; index--) {
+                const archMatch = lines[index].match(
+                    /^([\t ]*newArchEnabled[\t ]*=[\t ]*).*?([\t ]*)$/,
                 );
-                await this.nodeFileSystem.writeFile(gradleFilePath, updatedHermes);
-            } else {
-                const updatedGradle = `${gradleFileContent} \nnewArchEnabled=${isNewArchEnabled}`;
-                await this.nodeFileSystem.writeFile(gradleFilePath, updatedGradle);
+                if (archMatch) {
+                    lines[index] = `${archMatch[1]}${isNewArchEnabled}${archMatch[2]}`;
+                    updatedGradle = lines.join("");
+                    break;
+                }
             }
+
+            if (updatedGradle === undefined) {
+                const eol = gradleFileContent.match(/\r?\n/)?.[0] || "\n";
+                const separator =
+                    gradleFileContent.length === 0 || gradleFileContent.endsWith("\n") ? "" : eol;
+                updatedGradle = `${gradleFileContent}${separator}newArchEnabled=${isNewArchEnabled}`;
+            }
+            await this.nodeFileSystem.writeFile(gradleFilePath, updatedGradle);
         }
     }
 }

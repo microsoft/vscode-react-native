@@ -6,6 +6,7 @@
 
 interface CustomRequire extends NodeRequireFunction {
     cache: any;
+    resolve: RequireResolve;
 }
 
 // Portion of code was taken from https://github.com/sindresorhus/ow/blob/d62a06c192b892d504887f0b97fdc842e8cbf862/source/utils/node/require.ts
