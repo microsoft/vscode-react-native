@@ -59,6 +59,7 @@ export class GraphQLFormatter implements IFormatter {
                 return decoded
                     .replace(/}{/g, "}\r\n{")
                     .split("\n")
+                    .filter(json => json.trim().length > 0)
                     .map(json => JSON.parse(json));
             }
         }
