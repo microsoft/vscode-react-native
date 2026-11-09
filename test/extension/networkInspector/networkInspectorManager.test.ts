@@ -27,6 +27,7 @@ suite("networkInspectorManager", function () {
         const iOSDeviceTrackerStartStub = sinon.stub().returns(Promise.resolve());
         const iOSDeviceTrackerStopStub = sinon.stub();
         const networkInspectorStopStub = sinon.stub().returns(Promise.resolve());
+        const logger = { error: sinon.stub() };
 
         class FakeAndroidDeviceTracker {
             public start = androidDeviceTrackerStartStub;
@@ -69,6 +70,11 @@ suite("networkInspectorManager", function () {
                         clearCache: clearCacheStub,
                     },
                 },
+                "../log/OutputChannelLogger": {
+                    OutputChannelLogger: {
+                        getMainChannel: () => logger,
+                    },
+                },
             },
         ) as typeof import("../../../src/extension/commands/networkInspectorManager");
 
@@ -82,6 +88,7 @@ suite("networkInspectorManager", function () {
             iOSDeviceTrackerStopStub,
             networkInspectorStart,
             networkInspectorStopStub,
+            logger,
         };
     };
 
@@ -163,6 +170,88 @@ suite("networkInspectorManager", function () {
         await assert.rejects(async () => {
             await manager.start(fakeAppLauncher as any);
         }, /Network Inspector is already running/);
+    });
+
+    for (const failedStep of [
+        "androidDeviceTrackerStopStub",
+        "iOSDeviceTrackerStopStub",
+        "networkInspectorStopStub",
+        "clearCacheStub",
+        "executeCommandStub",
+    ] as const) {
+        test(`should finish remaining cleanup and allow retry when ${failedStep} fails`, async () => {
+            Object.defineProperty(process, "platform", { value: "darwin" });
+            const stubs = createManagerModule();
+            const manager = new stubs.NetworkInspectorManager();
+            await manager.start(fakeAppLauncher as any);
+
+            const stopError = new Error(`${failedStep} failed`);
+            if (failedStep === "executeCommandStub") {
+                stubs.executeCommandStub.onSecondCall().returns(Promise.reject(stopError));
+            } else if (failedStep === "networkInspectorStopStub") {
+                stubs.networkInspectorStopStub.onFirstCall().returns(Promise.reject(stopError));
+            } else {
+                stubs[failedStep].onFirstCall().throws(stopError);
+            }
+
+            await assert.rejects(manager.stop(), (error: unknown) => error === stopError);
+
+            assert.strictEqual(stubs.androidDeviceTrackerStopStub.calledOnce, true);
+            assert.strictEqual(stubs.iOSDeviceTrackerStopStub.calledOnce, true);
+            assert.strictEqual(stubs.networkInspectorStopStub.calledOnce, true);
+            assert.strictEqual(stubs.clearCacheStub.calledOnce, true);
+            assert.deepStrictEqual(stubs.executeCommandStub.secondCall.args, [
+                "setContext",
+                "isRNTNetworkInspectorRunning",
+                failedStep !== "executeCommandStub",
+            ]);
+            assert.strictEqual(
+                stubs.logger.error.calledWithExactly(String(stopError), stopError),
+                true,
+            );
+            assert.strictEqual(manager.isRunning(), true);
+            await assert.rejects(
+                manager.start(fakeAppLauncher as any),
+                /Network Inspector is already running/,
+            );
+
+            await manager.stop();
+
+            assert.strictEqual(manager.isRunning(), false);
+            assert.strictEqual(stubs.androidDeviceTrackerStopStub.calledTwice, true);
+            assert.strictEqual(stubs.iOSDeviceTrackerStopStub.calledTwice, true);
+            assert.strictEqual(stubs.networkInspectorStopStub.calledTwice, true);
+            assert.strictEqual(stubs.clearCacheStub.calledTwice, true);
+            assert.deepStrictEqual(stubs.executeCommandStub.thirdCall.args, [
+                "setContext",
+                "isRNTNetworkInspectorRunning",
+                false,
+            ]);
+        });
+    }
+
+    test("should report every cleanup failure and rethrow the first error", async () => {
+        const stubs = createManagerModule();
+        const manager = new stubs.NetworkInspectorManager();
+        await manager.start(fakeAppLauncher as any);
+        const trackerError = new Error("tracker stop failed");
+        const serverError = new Error("server stop failed");
+        stubs.androidDeviceTrackerStopStub.throws(trackerError);
+        stubs.networkInspectorStopStub.returns(Promise.reject(serverError));
+
+        await assert.rejects(manager.stop(), (error: unknown) => error === trackerError);
+
+        assert.strictEqual(stubs.clearCacheStub.calledOnce, true);
+        assert.strictEqual(stubs.logger.error.callCount, 2);
+        assert.deepStrictEqual(stubs.logger.error.firstCall.args, [
+            String(trackerError),
+            trackerError,
+        ]);
+        assert.deepStrictEqual(stubs.logger.error.secondCall.args, [
+            String(serverError),
+            serverError,
+        ]);
+        assert.strictEqual(manager.isRunning(), true);
     });
 
     test("should no-op stop when not running", async () => {
