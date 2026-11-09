@@ -83,9 +83,11 @@ suite("startStopCommands", function () {
         );
     });
 
-    test("should stop the Network Inspector", async () => {
+    test("should stop the Network Inspector without requiring a project", async () => {
         const { StopNetworkInspector, fakeManager } = createCommandModule();
         const command = StopNetworkInspector.formInstance();
+
+        assert.strictEqual(command.requiresProject, false);
 
         await command.baseFn();
 
