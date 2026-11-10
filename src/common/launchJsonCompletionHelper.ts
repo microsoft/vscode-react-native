@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
-import { DebugConfiguration, TextDocument, Position, Range } from "vscode";
+import type { DebugConfiguration, TextDocument, Position } from "vscode";
 import { createScanner, parse, SyntaxKind } from "jsonc-parser";
 
 export type PositionOfCursor = "InsideEmptyArray" | "BeforeItem" | "AfterItem";
@@ -57,31 +57,15 @@ export class LaunchJsonCompletionHelper {
         document: TextDocument,
         position: Position,
     ): boolean {
-        const line = document.lineAt(position.line);
-        // Get text from start of line until the cursor.
-        const currentLine = document.getText(new Range(line.range.start, position));
-        if (currentLine.trim().endsWith(",")) {
-            return true;
+        const textBeforeCursor = document.getText().slice(0, document.offsetAt(position));
+        const scanner = createScanner(textBeforeCursor, true);
+        let previousToken = SyntaxKind.EOF;
+        let token = scanner.scan();
+        while (token !== SyntaxKind.EOF) {
+            previousToken = token;
+            token = scanner.scan();
         }
-        // If there are other characters, then don't bother.
-        if (currentLine.trim().length !== 0) {
-            return false;
-        }
-
-        // Keep walking backwards until we hit a non-comma character or a comm character.
-        let startLineNumber = position.line - 1;
-        while (startLineNumber > 0) {
-            const lineText = document.lineAt(startLineNumber).text;
-            if (lineText.trim().endsWith(",")) {
-                return true;
-            }
-            // If there are other characters, then don't bother.
-            if (lineText.trim().length !== 0) {
-                return false;
-            }
-            startLineNumber -= 1;
-        }
-        return false;
+        return previousToken === SyntaxKind.CommaToken;
     }
 
     private static isConfigurationArrayEmpty(document: TextDocument): boolean {
