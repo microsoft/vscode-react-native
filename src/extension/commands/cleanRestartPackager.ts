@@ -42,14 +42,14 @@ export class CleanRestartPackager extends ReactNativeCommand {
         await this.cleanWatchmanCache();
 
         // Step 4: Restart packager with reset cache
-        logger.info("Restarting Packager with clean cache...");
+        logger.info("Step 4/4: Restarting Packager with clean cache...");
         await this.project.getPackager().restart(packagerPort);
 
         logger.info("Metro Packager cleanup and restart completed successfully.");
     }
 
     private async killMetroProcess(port: number): Promise<void> {
-        logger.info(`Step 1/3: Terminating Metro process on port ${port}...`);
+        logger.info(`Step 1/4: Terminating Metro process on port ${port}...`);
 
         try {
             const platformId = HostPlatform.getPlatformId();
@@ -118,25 +118,20 @@ export class CleanRestartPackager extends ReactNativeCommand {
     }
 
     private async cleanMetroCache(projectPath: string): Promise<void> {
-        logger.info("Step 2/3: Cleaning Metro cache...");
+        logger.info("Step 2/4: Cleaning Metro cache...");
 
         const metroCachePath = path.join(projectPath, "node_modules", ".cache", "metro");
 
         try {
-            if (fs.existsSync(metroCachePath)) {
-                // Use recursive directory deletion
-                await this.deleteDirectory(metroCachePath);
-                logger.info(`Successfully cleaned Metro cache at: ${metroCachePath}`);
-            } else {
-                logger.info("Metro cache directory not found, skipping...");
-            }
+            await fs.promises.rm(metroCachePath, { recursive: true, force: true });
+            logger.info(`Successfully cleaned Metro cache at: ${metroCachePath}`);
         } catch (error) {
             logger.warning(`Failed to clean Metro cache: ${String(error)}`);
         }
     }
 
     private async cleanWatchmanCache(): Promise<void> {
-        logger.info("Step 3/3: Cleaning Watchman cache...");
+        logger.info("Step 3/4: Cleaning Watchman cache...");
 
         try {
             const childProcess = new ChildProcess();
@@ -145,25 +140,6 @@ export class CleanRestartPackager extends ReactNativeCommand {
             logger.info("Successfully cleaned Watchman cache");
         } catch (error) {
             logger.info("Watchman not available or failed to clean cache, continuing...");
-        }
-    }
-
-    private async deleteDirectory(dirPath: string): Promise<void> {
-        if (fs.existsSync(dirPath)) {
-            const files = fs.readdirSync(dirPath);
-
-            for (const file of files) {
-                const filePath = path.join(dirPath, file);
-                const stat = fs.statSync(filePath);
-
-                if (stat.isDirectory()) {
-                    await this.deleteDirectory(filePath);
-                } else {
-                    fs.unlinkSync(filePath);
-                }
-            }
-
-            fs.rmdirSync(dirPath);
         }
     }
 }
