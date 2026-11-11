@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import assert = require("assert");
+import * as path from "path";
 import * as nls from "vscode-nls";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { ErrorHelper } from "../../common/error/errorHelper";
@@ -32,7 +33,7 @@ export class ConfigEASBuild extends ReactNativeCommand {
 
         if (isExpo) {
             const fs = new FileSystem();
-            const exists = await fs.exists(`${projectRootPath}/eas.json`);
+            const exists = await fs.exists(path.join(projectRootPath, "eas.json"));
             if (exists) {
                 logger.info(
                     localize(

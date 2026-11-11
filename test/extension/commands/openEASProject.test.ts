@@ -7,6 +7,7 @@ import proxyquire = require("proxyquire");
 
 suite("openEASProjectCommand", function () {
     function createCommandModule() {
+        const localizedMessage = "Localized EAS project message";
         const logger = {
             info: Sinon.stub(),
             error: Sinon.stub(),
@@ -17,7 +18,7 @@ suite("openEASProjectCommand", function () {
         const isExpoManagedAppStub = Sinon.stub().returns(Promise.resolve(true));
         const getExpoEasProjectIdStub = Sinon.stub().returns(Promise.resolve("project-id"));
         const getExpoEasProjectOwnerStub = Sinon.stub().returns(Promise.resolve("project-owner"));
-        const getExpoEasProjectNameStub = Sinon.stub().returns(Promise.resolve("project-name"));
+        const getExpoEasProjectSlugStub = Sinon.stub().returns(Promise.resolve("project-slug"));
 
         class FakeReactNativeCommand {
             public project: any;
@@ -30,7 +31,7 @@ suite("openEASProjectCommand", function () {
         const module = proxyquire.noCallThru()("../../../src/extension/commands/openEASProject", {
             "vscode-nls": {
                 config: () => () => undefined,
-                loadMessageBundle: () => (_key: string, message: string) => message,
+                loadMessageBundle: () => () => localizedMessage,
                 MessageFormat: { bundle: "bundle" },
                 BundleFormat: { standalone: "standalone" },
             },
@@ -64,12 +65,13 @@ suite("openEASProjectCommand", function () {
                 isExpoManagedApp: isExpoManagedAppStub,
                 getExpoEasProjectId: getExpoEasProjectIdStub,
                 getExpoEasProjectOwner: getExpoEasProjectOwnerStub,
-                getExpoEasProjectName: getExpoEasProjectNameStub,
+                getExpoEasProjectSlug: getExpoEasProjectSlugStub,
             }),
         };
 
         return {
             OpenEASProject: module.OpenEASProject,
+            localizedMessage,
             project,
             logger,
             showErrorMessageStub,
@@ -78,7 +80,7 @@ suite("openEASProjectCommand", function () {
             isExpoManagedAppStub,
             getExpoEasProjectIdStub,
             getExpoEasProjectOwnerStub,
-            getExpoEasProjectNameStub,
+            getExpoEasProjectSlugStub,
         };
     }
 
@@ -127,23 +129,36 @@ suite("openEASProjectCommand", function () {
 
         assert.strictEqual(
             stubs.parseStub.calledWithExactly(
-                "https://expo.dev/accounts/project-owner/projects/project-name",
+                "https://expo.dev/accounts/project-owner/projects/project-slug",
             ),
             true,
         );
         assert.strictEqual(stubs.openExternalStub.calledWithExactly({ parsed: true }), true);
     });
 
-    test("should not open a URL when the EAS project name is missing", async function () {
-        const stubs = createCommandModule();
-        stubs.getExpoEasProjectNameStub.returns(Promise.resolve(null));
+    for (const slug of [null, ""]) {
+        test(`should show an error when the EAS project slug is ${JSON.stringify(
+            slug,
+        )}`, async function () {
+            const stubs = createCommandModule();
+            stubs.getExpoEasProjectSlugStub.returns(Promise.resolve(slug));
 
-        await runCommand(stubs);
+            await runCommand(stubs);
 
-        assert.strictEqual(stubs.parseStub.called, false);
-        assert.strictEqual(stubs.openExternalStub.called, false);
-        assert.strictEqual(stubs.showErrorMessageStub.called, false);
-    });
+            assert.strictEqual(stubs.parseStub.called, false);
+            assert.strictEqual(stubs.openExternalStub.called, false);
+            assert.strictEqual(stubs.showErrorMessageStub.calledOnce, true);
+            assert.strictEqual(stubs.logger.error.calledOnce, true);
+            assert.strictEqual(
+                stubs.showErrorMessageStub.firstCall.args[0],
+                stubs.localizedMessage,
+            );
+            assert.strictEqual(
+                stubs.logger.error.firstCall.args[0],
+                stubs.showErrorMessageStub.firstCall.args[0],
+            );
+        });
+    }
 
     test("should log an error when EAS project details cannot be read", async function () {
         const error = new Error("failed to read EAS project details");
