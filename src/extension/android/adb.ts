@@ -267,8 +267,13 @@ export class AdbHelper {
         ]);
     }
 
-    public installApplicationToEmulator(appPath: string): Promise<string> {
-        return this.childProcess.execFileToString("adb", ["install", appPath]);
+    public installApplicationToEmulator(appPath: string, deviceId: string): Promise<string> {
+        return this.childProcess.execFileToString(this.adbExecutable, [
+            "-s",
+            deviceId,
+            "install",
+            appPath,
+        ]);
     }
 
     public executeQuery(deviceId: string, args: string[]): Promise<string> {

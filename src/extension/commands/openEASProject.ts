@@ -30,18 +30,9 @@ export class OpenEASProject extends ReactNativeCommand {
 
         if (isExpo) {
             try {
-                let id = null;
-                await expoHelper.getExpoEasProjectId().then(result => {
-                    id = result;
-                });
-                let owner = null;
-                await expoHelper.getExpoEasProjectOwner().then(result => {
-                    owner = result;
-                });
-                let name = null;
-                await expoHelper.getExpoEasProjectName().then(result => {
-                    name = result;
-                });
+                const id = await expoHelper.getExpoEasProjectId();
+                const owner = await expoHelper.getExpoEasProjectOwner();
+                const slug = await expoHelper.getExpoEasProjectSlug();
                 if (id == null || owner == null) {
                     const error = localize(
                         "ExpoProjectNotLinkToEAS",
@@ -49,9 +40,15 @@ export class OpenEASProject extends ReactNativeCommand {
                     );
                     void vscode.window.showErrorMessage(error);
                     logger.error(error);
-                } else if (name != null) {
-                    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                    const url = `https://expo.dev/accounts/${owner}/projects/${name}`;
+                } else if (!slug) {
+                    const error = localize(
+                        "ExpoProjectSlugMissing",
+                        "Unable to open the EAS project page because expo.slug is missing in app.json.",
+                    );
+                    void vscode.window.showErrorMessage(error);
+                    logger.error(error);
+                } else {
+                    const url = `https://expo.dev/accounts/${owner}/projects/${slug}`;
                     await vscode.env.openExternal(vscode.Uri.parse(url));
                 }
             } catch {
