@@ -42,7 +42,10 @@ export class JSONFormatter implements IFormatter {
                 return JSON.parse(body);
             } catch (SyntaxError) {
                 // Multiple top level JSON roots, map them one by one
-                return body.split("\n").map(json => JSON.parse(json));
+                return body
+                    .split("\n")
+                    .filter(json => json.trim().length > 0)
+                    .map(json => JSON.parse(json));
             }
         }
         return null;
