@@ -4,6 +4,8 @@
 import assert = require("assert");
 import Sinon = require("sinon");
 import proxyquire = require("proxyquire");
+import { InternalError } from "../../../src/common/error/internalError";
+import { InternalErrorCode } from "../../../src/common/error/internalErrorCode";
 
 suite("stopPackagerCommand", function () {
     function createProjectWithPackager(stopStub: Sinon.SinonStub): any {
@@ -89,6 +91,54 @@ suite("stopPackagerCommand", function () {
         assert.strictEqual(selectProjectStub.calledOnce, true);
     });
 
+    test("should propagate a superclass failure without selecting a project", async function () {
+        const { StopPackager, superOnBeforeExecuteStub, selectProjectStub } = createCommandModule();
+        const command = StopPackager.formInstance();
+        const argument = {};
+        const failure = new Error("Superclass preparation failed");
+        superOnBeforeExecuteStub.returns(Promise.reject(failure));
+
+        await assert.rejects(
+            () => command.onBeforeExecute(argument as any),
+            (error: unknown) => error === failure,
+        );
+
+        assert.strictEqual(superOnBeforeExecuteStub.calledOnce, true);
+        assert.strictEqual(superOnBeforeExecuteStub.calledWithExactly(argument), true);
+        assert.strictEqual(selectProjectStub.called, false);
+        assert.strictEqual((command as any).project, undefined);
+    });
+
+    for (const { scenario, failure } of [
+        { scenario: "fails", failure: new Error("Project selection failed") },
+        {
+            scenario: "is canceled",
+            failure: new InternalError(
+                InternalErrorCode.CommandCanceled,
+                "Project selection canceled",
+            ),
+        },
+    ]) {
+        test(`should propagate the error when project selection ${scenario}`, async function () {
+            const { StopPackager, superOnBeforeExecuteStub, selectProjectStub } =
+                createCommandModule();
+            const command = StopPackager.formInstance();
+            const argument = {};
+            selectProjectStub.returns(Promise.reject(failure));
+
+            await assert.rejects(
+                () => command.onBeforeExecute(argument as any),
+                (error: unknown) => error === failure,
+            );
+
+            assert.strictEqual(superOnBeforeExecuteStub.calledOnce, true);
+            assert.strictEqual(superOnBeforeExecuteStub.calledWithExactly(argument), true);
+            assert.strictEqual(selectProjectStub.calledOnce, true);
+            assert.strictEqual(selectProjectStub.calledWithExactly(), true);
+            assert.strictEqual((command as any).project, undefined);
+        });
+    }
+
     test("should stop the current packager", async function () {
         const { StopPackager } = createCommandModule();
         const command = StopPackager.formInstance();
@@ -106,5 +156,21 @@ suite("stopPackagerCommand", function () {
         (command as any).project = createProjectWithoutPackager();
 
         await command.baseFn();
+    });
+
+    test("should reject when stopping the packager fails", async function () {
+        const { StopPackager } = createCommandModule();
+        const command = StopPackager.formInstance();
+        const failure = new Error("Failed to stop the packager");
+        const stopStub = Sinon.stub().returns(Promise.reject(failure));
+        (command as any).project = createProjectWithPackager(stopStub);
+
+        await assert.rejects(
+            () => command.baseFn(),
+            (error: unknown) => error === failure,
+        );
+
+        assert.strictEqual(stopStub.calledOnce, true);
+        assert.strictEqual(stopStub.calledWithExactly(), true);
     });
 });
