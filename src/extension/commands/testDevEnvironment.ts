@@ -64,13 +64,11 @@ export class TestDevEnvironment extends Command {
             [ValidationCategoryE.macOS]:
                 (projectObserver && projectObserver.isRNMacosProject) || false,
         } as const;
-        if (project && projectObserver) {
-            await runChecks(
-                shouldCheck,
-                RNPackageVersionsToPackageVersion(projectObserver.rnPackageVersions),
-            );
-        } else {
-            await runChecks(shouldCheck);
-        }
+        await runChecks(
+            shouldCheck,
+            projectObserver
+                ? RNPackageVersionsToPackageVersion(projectObserver.rnPackageVersions)
+                : undefined,
+        );
     }
 }

@@ -179,6 +179,7 @@ suite("testDevEnvironmentCommand", function () {
                 [validationCategories.Windows]: false,
                 [validationCategories.macOS]: false,
             },
+            undefined,
         ]);
         assert.strictEqual(stubs.getVersionsStub.called, false);
     });
@@ -270,6 +271,7 @@ suite("testDevEnvironmentCommand", function () {
                 [validationCategories.Windows]: false,
                 [validationCategories.macOS]: false,
             },
+            undefined,
         ]);
         assert.strictEqual(stubs.convertVersionsStub.called, false);
     });
@@ -289,6 +291,7 @@ suite("testDevEnvironmentCommand", function () {
                 [validationCategories.Windows]: false,
                 [validationCategories.macOS]: false,
             },
+            undefined,
         ]);
         assert.strictEqual(stubs.convertVersionsStub.called, false);
     });
