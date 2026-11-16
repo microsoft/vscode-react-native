@@ -42,7 +42,7 @@ const NGROK_PACKAGE = "@expo/ngrok";
 interface ExpoAppConfig {
     expo?: {
         owner?: string;
-        name?: string;
+        slug?: string;
         extra?: {
             eas?: {
                 projectId?: string;
@@ -528,9 +528,9 @@ require('${entryPoint}');`;
         return config?.expo?.extra?.eas?.projectId ?? null;
     }
 
-    public async getExpoEasProjectName(): Promise<string | null> {
+    public async getExpoEasProjectSlug(): Promise<string | null> {
         const config = await this.getAppJsonConfig();
-        return config?.expo?.name ?? null;
+        return config?.expo?.slug ?? null;
     }
 
     private async getAppJsonConfig(): Promise<ExpoAppConfig | null> {

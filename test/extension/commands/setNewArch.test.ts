@@ -345,6 +345,7 @@ suite("setNewArchCommand", function () {
 
         await runCommand(SetNewArch);
 
+        assert.strictEqual(showQuickPickStub.calledOnce, true);
         assert.strictEqual(writeFileStub.called, false);
         assert.strictEqual(spawnStub.called, false);
     });

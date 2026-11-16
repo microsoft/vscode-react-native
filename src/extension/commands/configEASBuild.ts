@@ -2,11 +2,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import assert = require("assert");
+import * as path from "path";
 import * as nls from "vscode-nls";
 import { OutputChannelLogger } from "../log/OutputChannelLogger";
 import { ErrorHelper } from "../../common/error/errorHelper";
 import { InternalErrorCode } from "../../common/error/internalErrorCode";
-import { CommandExecutor } from "../../common/commandExecutor";
+import { ChildProcess } from "../../common/node/childProcess";
 import { FileSystem } from "../../common/node/fileSystem";
 import { ReactNativeCommand } from "./util/reactNativeCommand";
 
@@ -18,7 +19,6 @@ const localize = nls.loadMessageBundle();
 const logger = OutputChannelLogger.getMainChannel();
 
 export class ConfigEASBuild extends ReactNativeCommand {
-    nodeModulesRoot!: string;
     codeName = "createExpoEASBuildConfigFile";
     label = "Config Expo app with EAS build";
     error = ErrorHelper.getInternalError(InternalErrorCode.FailedToConfigEASBuild);
@@ -32,7 +32,7 @@ export class ConfigEASBuild extends ReactNativeCommand {
 
         if (isExpo) {
             const fs = new FileSystem();
-            const exists = await fs.exists(`${projectRootPath}/eas.json`);
+            const exists = await fs.exists(path.join(projectRootPath, "eas.json"));
             if (exists) {
                 logger.info(
                     localize(
@@ -46,8 +46,9 @@ export class ConfigEASBuild extends ReactNativeCommand {
                 );
 
                 try {
-                    await new CommandExecutor(this.nodeModulesRoot, projectRootPath).execute(
-                        "eas build:configure --platform all",
+                    await new ChildProcess().execToString(
+                        "npx eas-cli build:configure --platform all",
+                        { cwd: projectRootPath },
                     );
 
                     logger.info(
@@ -60,7 +61,7 @@ export class ConfigEASBuild extends ReactNativeCommand {
                     logger.error(
                         localize(
                             "NoExistingEASProject",
-                            "Unable to find existing EAS project. Please run 'eas init' firstly to bind your app to EAS project.",
+                            "Unable to find existing EAS project. Please run 'npx eas-cli init' firstly to bind your app to EAS project.",
                         ),
                     );
                     throw error;
