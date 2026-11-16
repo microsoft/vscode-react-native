@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import * as fs from "fs";
+import * as path from "path";
 import * as semver from "semver";
 import * as nls from "vscode-nls";
 import { MobilePlatformDeps, TargetType } from "../generalPlatform";
@@ -15,6 +17,7 @@ import { notNullOrUndefined } from "../../common/utils";
 import { PromiseUtil } from "../../common/node/promise";
 import { GeneralMobilePlatform } from "../generalMobilePlatform";
 import { ProjectVersionHelper } from "../../common/projectVersionHelper";
+import customRequire from "../../common/customRequire";
 import { LogCatMonitorManager } from "./logCatMonitorManager";
 import { AndroidTarget, AndroidTargetManager } from "./androidTargetManager";
 import { AdbHelper, AndroidAPILevel } from "./adb";
@@ -300,7 +303,7 @@ export class AndroidPlatform extends GeneralMobilePlatform {
             runArguments = this.runOptions.runArguments;
         } else {
             if (this.runOptions.variant) {
-                runArguments.push("--variant", this.runOptions.variant);
+                runArguments.push(this.getVariantOptionName(), this.runOptions.variant);
             }
             if (this.runOptions.target) {
                 if (
@@ -313,6 +316,69 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         }
 
         return runArguments;
+    }
+
+    private getVariantOptionName(): "--mode" | "--variant" {
+        const searchPaths = [
+            this.runOptions.projectRoot,
+            this.runOptions.nodeModulesRoot,
+            path.join(this.runOptions.nodeModulesRoot, "node_modules", "react-native"),
+            path.join(
+                this.runOptions.nodeModulesRoot,
+                "node_modules",
+                "@react-native-community",
+                "cli",
+            ),
+        ];
+
+        try {
+            for (const packageName of [
+                "@react-native-community/cli-platform-android",
+                "@react-native-community/cli",
+                "react-native",
+            ]) {
+                let packageJsonPath: string;
+                try {
+                    packageJsonPath = customRequire.resolve(`${packageName}/package.json`, {
+                        paths: searchPaths,
+                    });
+                } catch (error) {
+                    if ((error as NodeJS.ErrnoException).code === "MODULE_NOT_FOUND") {
+                        continue;
+                    }
+                    throw error;
+                }
+
+                const packageJson: unknown = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
+                const version =
+                    packageJson && typeof packageJson === "object" && "version" in packageJson
+                        ? packageJson.version
+                        : undefined;
+                if (typeof version !== "string" || !semver.valid(version)) {
+                    throw new Error(`Invalid package version in ${packageJsonPath}`);
+                }
+
+                if (packageName === "react-native") {
+                    // Older React Native releases bundled the Android CLI.
+                    if (semver.lt(version, "0.60.0")) {
+                        return "--variant";
+                    }
+                    break;
+                }
+
+                return semver.gte(version, "12.0.0") ? "--mode" : "--variant";
+            }
+
+            throw new Error("Cannot locate the project's Android CLI package");
+        } catch (error) {
+            throw new Error(
+                localize(
+                    "CannotDetermineAndroidVariantOption",
+                    "Cannot determine the Android build variant option: {0}. Check the project's CLI installation or specify the supported option explicitly in 'runArguments'.",
+                    error instanceof Error ? error.message : String(error),
+                ),
+            );
+        }
     }
 
     public dispose(): void {

@@ -22,19 +22,19 @@ export async function installAndroidApplication(project: AppLauncher, appPath: s
             `Found ${targets.length} online emulators, installing application on ${targets[0].id}. \n`,
         );
         try {
-            await adbHelper.installApplicationToEmulator(appPath);
+            await adbHelper.installApplicationToEmulator(appPath, targets[0].id);
         } catch {
             throw new Error(`Failed to install application: ${appPath}.`);
         }
     } else {
         logger.logStream(`Installing application on ${targets[0].id}. \n`);
         try {
-            await adbHelper.installApplicationToEmulator(appPath);
+            await adbHelper.installApplicationToEmulator(appPath, targets[0].id);
         } catch {
             throw new Error(`Failed to install application: ${appPath}.`);
         }
-        logger.logStream(`Install Android application is completed. \n`);
     }
+    logger.logStream(`Install Android application is completed. \n`);
 }
 
 export async function installiOSApplication(project: AppLauncher, appPath: string) {

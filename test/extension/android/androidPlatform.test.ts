@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import * as fs from "fs";
+import * as os from "os";
 import * as path from "path";
 import { EventEmitter } from "events";
 import assert = require("assert");
@@ -20,6 +21,155 @@ import { LogCatMonitorManager } from "../../../src/extension/android/logCatMonit
 import { rimrafAsync } from "../../common/utils";
 
 suite("androidPlatform", function () {
+    suite("build variant compatibility", function () {
+        let projectRoot: string;
+
+        setup(() => {
+            projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), "rn-android-variant-"));
+        });
+
+        teardown(async () => {
+            await rimrafAsync(projectRoot, {});
+        });
+
+        function writePackage(name: string, version: string, root = projectRoot): string {
+            const packagePath = path.join(root, "node_modules", name, "package.json");
+            fs.mkdirSync(path.dirname(packagePath), { recursive: true });
+            fs.writeFileSync(packagePath, JSON.stringify({ name, version }));
+            return packagePath;
+        }
+
+        function createPlatform(options: Partial<IAndroidRunOptions> = {}): AndroidPlatform {
+            return new AndroidPlatform({
+                platform: PlatformType.Android,
+                workspaceRoot: projectRoot,
+                projectRoot,
+                nodeModulesRoot: projectRoot,
+                reactNativeVersions: {
+                    reactNativeVersion: "0.87.1",
+                    reactNativeWindowsVersion: "",
+                    reactNativeMacOSVersion: "",
+                },
+                variant: "debug",
+                ...options,
+            });
+        }
+
+        for (const [version, option] of [
+            ["10.2.2", "--variant"],
+            ["11.3.8", "--variant"],
+            ["12.0.0", "--mode"],
+            ["20.2.0", "--mode"],
+        ]) {
+            test(`should use ${option} for Android CLI ${version}`, () => {
+                writePackage("@react-native-community/cli-platform-android", version);
+                assert.deepStrictEqual(createPlatform().runArguments, [option, "debug"]);
+            });
+        }
+
+        test("should prefer the Android CLI version over the core CLI version", () => {
+            writePackage("@react-native-community/cli", "11.3.8");
+            writePackage("@react-native-community/cli-platform-android", "20.2.0");
+            assert.deepStrictEqual(createPlatform().runArguments, ["--mode", "debug"]);
+        });
+
+        test("should preserve the old Android option even with a newer core CLI", () => {
+            writePackage("@react-native-community/cli", "20.2.0");
+            writePackage("@react-native-community/cli-platform-android", "11.3.8");
+            assert.deepStrictEqual(createPlatform().runArguments, ["--variant", "debug"]);
+        });
+
+        test("should preserve custom variant names and the target", () => {
+            writePackage("@react-native-community/cli-platform-android", "20.2.0");
+            assert.deepStrictEqual(
+                createPlatform({ variant: "stagingDebug", target: "emulator-5554" }).runArguments,
+                ["--mode", "stagingDebug", "--deviceId", "emulator-5554"],
+            );
+        });
+
+        test("should resolve a hoisted Android CLI package", () => {
+            writePackage("@react-native-community/cli-platform-android", "20.2.0");
+            const appRoot = path.join(projectRoot, "apps", "mobile");
+            assert.deepStrictEqual(
+                createPlatform({ projectRoot: appRoot, nodeModulesRoot: appRoot }).runArguments,
+                ["--mode", "debug"],
+            );
+        });
+
+        test("should resolve an Android CLI package nested under the core CLI", () => {
+            const cliRoot = path.join(
+                projectRoot,
+                "node_modules",
+                "@react-native-community",
+                "cli",
+            );
+            writePackage("@react-native-community/cli", "11.3.8");
+            writePackage("@react-native-community/cli-platform-android", "20.2.0", cliRoot);
+            assert.deepStrictEqual(createPlatform().runArguments, ["--mode", "debug"]);
+        });
+
+        test("should resolve an Android CLI package nested under React Native", () => {
+            const rnRoot = path.join(projectRoot, "node_modules", "react-native");
+            writePackage("react-native", "0.73.0");
+            writePackage("@react-native-community/cli-platform-android", "12.0.0", rnRoot);
+            assert.deepStrictEqual(createPlatform().runArguments, ["--mode", "debug"]);
+        });
+
+        test("should support older CLI packages containing Android commands", () => {
+            writePackage("@react-native-community/cli", "1.0.0");
+            assert.deepStrictEqual(createPlatform().runArguments, ["--variant", "debug"]);
+        });
+
+        test("should support legacy React Native with a bundled CLI", () => {
+            writePackage("react-native", "0.57.8");
+            assert.deepStrictEqual(createPlatform().runArguments, ["--variant", "debug"]);
+        });
+
+        test("should not detect the CLI without a variant", () => {
+            writePackage("@react-native-community/cli-platform-android", "invalid");
+            assert.deepStrictEqual(createPlatform({ variant: undefined }).runArguments, []);
+        });
+
+        test("should not detect the CLI for an empty variant", () => {
+            writePackage("@react-native-community/cli-platform-android", "invalid");
+            assert.deepStrictEqual(createPlatform({ variant: "" }).runArguments, []);
+        });
+
+        test("should preserve explicit runArguments without detecting the CLI", () => {
+            writePackage("@react-native-community/cli-platform-android", "invalid");
+            const runArguments = ["--mode", "devDebug"];
+            assert.deepStrictEqual(createPlatform({ runArguments }).runArguments, runArguments);
+        });
+
+        test("should generate the variant option when runArguments is empty", () => {
+            writePackage("@react-native-community/cli-platform-android", "20.2.0");
+            assert.deepStrictEqual(createPlatform({ runArguments: [] }).runArguments, [
+                "--mode",
+                "debug",
+            ]);
+        });
+
+        test("should report missing CLI metadata instead of guessing for modern RN", () => {
+            writePackage("react-native", "0.87.1");
+            assert.throws(() => createPlatform(), /Cannot determine.*runArguments/);
+        });
+
+        test("should report invalid versions instead of falling back to the core CLI", () => {
+            writePackage("@react-native-community/cli-platform-android", "invalid");
+            writePackage("@react-native-community/cli", "20.2.0");
+            assert.throws(() => createPlatform(), /Invalid package version/);
+        });
+
+        test("should report malformed package metadata", () => {
+            const packagePath = writePackage(
+                "@react-native-community/cli-platform-android",
+                "20.2.0",
+            );
+            fs.writeFileSync(packagePath, "{");
+            assert.throws(() => createPlatform(), /Cannot determine.*runArguments/);
+        });
+    });
+
     suite("extensionContext", function () {
         const projectRoot = path.join(
             __dirname,

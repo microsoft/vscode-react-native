@@ -212,8 +212,10 @@ export class Packager {
     }
 
     public async start(resetCache: boolean = false): Promise<void> {
+        this.clearExitedPackagerProcess();
         this.packagerStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STARTING);
         let executedStartPackagerCmd = false;
+        let startedProcess: ChildProcess | undefined;
         let rnVersion: string;
         let reactEnv = {};
         if (!(await this.isRunning())) {
@@ -307,9 +309,15 @@ export class Packager {
                 ).spawnExpoPackager(["--web"]);
             }
 
-            this.packagerProcess = packagerSpawnResult.spawnedProcess;
-
-            packagerSpawnResult.outcome.catch(() => {}); // We ignore all outcome errors
+            const spawnedProcess = packagerSpawnResult.spawnedProcess;
+            this.packagerProcess = startedProcess = spawnedProcess;
+            void packagerSpawnResult.outcome.then(
+                () => this.clearPackagerProcess(spawnedProcess),
+                error => {
+                    this.logger.debug(String(error));
+                    this.clearPackagerProcess(spawnedProcess);
+                },
+            );
         }
 
         if (await this.stopWithlowNode(reactEnv)) {
@@ -319,7 +327,7 @@ export class Packager {
             );
         }
         await this.verifiyTSVersion();
-        await this.awaitStart();
+        await this.awaitStart(startedProcess);
         if (executedStartPackagerCmd) {
             this.logger.info(localize("PackagerStarted", "Packager started."));
             this.packagerStatus = PackagerStatus.PACKAGER_STARTED;
@@ -356,6 +364,7 @@ export class Packager {
     }
 
     public async stop(silent: boolean = false): Promise<boolean> {
+        this.clearExitedPackagerProcess();
         this.packagerStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPING);
         let successfullyStopped = false;
 
@@ -379,6 +388,9 @@ export class Packager {
                 successfullyStopped = true;
             }
         } else {
+            if (this.packagerProcess) {
+                await this.killPackagerProcess();
+            }
             if (!silent) {
                 this.logger.warning(
                     ErrorHelper.getWarning(
@@ -389,11 +401,6 @@ export class Packager {
             successfullyStopped = true;
         }
         this.setPackagerStopStateUI();
-        void vscode.commands.executeCommand(
-            "setContext",
-            CONTEXT_VARIABLES_NAMES.IS_RN_PACKAGER_RUNNING,
-            false,
-        );
         return successfullyStopped;
     }
 
@@ -507,17 +514,39 @@ export class Packager {
         });
     }
 
-    private async awaitStart(retryCount = 60, delay = 3000): Promise<void> {
+    private async awaitStart(
+        packagerProcess?: ChildProcess,
+        retryCount = 60,
+        delay = 3000,
+    ): Promise<void> {
+        const failure = localize("CouldNotStartPackager", "Could not start the packager.");
+        const checkProcess = () => {
+            if (
+                packagerProcess &&
+                (this.packagerProcess !== packagerProcess ||
+                    ("exitCode" in packagerProcess && packagerProcess.exitCode !== null) ||
+                    ("signalCode" in packagerProcess && packagerProcess.signalCode !== null))
+            ) {
+                throw new Error(failure);
+            }
+        };
         try {
             await PromiseUtil.retryAsync(
-                () => this.isRunning(),
+                async () => {
+                    checkProcess();
+                    const running = await this.isRunning();
+                    checkProcess();
+                    return running;
+                },
                 running => running,
                 retryCount,
                 delay,
-                localize("CouldNotStartPackager", "Could not start the packager."),
+                failure,
             );
         } catch (error) {
-            this.setPackagerStopStateUI();
+            if (!this.packagerProcess || this.packagerProcess === packagerProcess) {
+                this.setPackagerStopStateUI();
+            }
             throw error;
         }
     }
@@ -672,6 +701,29 @@ export class Packager {
     private setPackagerStopStateUI() {
         this.packagerStatus = PackagerStatus.PACKAGER_STOPPED;
         this.packagerStatusIndicator.updatePackagerStatus(PackagerStatus.PACKAGER_STOPPED);
+        void vscode.commands.executeCommand(
+            "setContext",
+            CONTEXT_VARIABLES_NAMES.IS_RN_PACKAGER_RUNNING,
+            false,
+        );
+    }
+
+    private clearExitedPackagerProcess(): void {
+        const packagerProcess = this.packagerProcess;
+        if (
+            packagerProcess &&
+            (("exitCode" in packagerProcess && packagerProcess.exitCode !== null) ||
+                ("signalCode" in packagerProcess && packagerProcess.signalCode !== null))
+        ) {
+            this.clearPackagerProcess(packagerProcess);
+        }
+    }
+
+    private clearPackagerProcess(packagerProcess: ChildProcess): void {
+        if (this.packagerProcess === packagerProcess) {
+            this.packagerProcess = undefined;
+            this.setPackagerStopStateUI();
+        }
     }
 
     private async killPackagerProcess(): Promise<void> {
@@ -681,10 +733,13 @@ export class Packager {
             this.projectPath,
         );
 
+        const packagerProcess = this.packagerProcess;
         await new CommandExecutor(nodeModulesRoot, this.projectPath, this.logger).killReactPackager(
-            this.packagerProcess,
+            packagerProcess,
         );
-        this.packagerProcess = undefined;
+        if (packagerProcess) {
+            this.clearPackagerProcess(packagerProcess);
+        }
         if (
             await new ExponentHelper(this.workspacePath, this.projectPath).isExpoManagedApp(false)
         ) {
