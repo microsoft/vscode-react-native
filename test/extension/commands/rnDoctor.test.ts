@@ -2,187 +2,204 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import assert = require("assert");
+import * as path from "path";
+import * as vscode from "vscode";
 import Sinon = require("sinon");
 import proxyquire = require("proxyquire");
 
 suite("rnDoctorCommand", function () {
-    const projectRootPath = "test-project";
-    const nodeModulesRoot = "test-node-modules";
-    const failedToRunDoctorErrorCode = 126;
+    function createCommandModule(suffix = ".cmd") {
+        const projectRoot = path.resolve("test project");
+        const nodeModulesRoot = path.resolve("shared dependencies");
+        const cli = path.resolve("custom cli folder", "react-native");
+        const workspaceFolder = { name: "test workspace" };
+        const commandError = new Error("Doctor failed");
+        const getInternalError = Sinon.stub().returns(commandError);
+        const getNodeModulesRoot = Sinon.stub().returns(nodeModulesRoot);
+        const executorConstructor = Sinon.stub();
+        const selectCLI = Sinon.stub().returns(cli);
+        const getNpmCliCommand = Sinon.stub().returns(`${cli}${suffix}`);
+        const shellConstructor = Sinon.stub();
+        const taskConstructor = Sinon.stub();
+        const executeTask = Sinon.stub().returns(Promise.resolve());
+        const processDispose = Sinon.stub();
+        const taskDispose = Sinon.stub();
+        let processHandler: (event: vscode.TaskProcessEndEvent) => void;
+        let taskHandler: (event: vscode.TaskEndEvent) => void;
 
-    function createCommandModule() {
-        const commandError = new Error("React Native doctor failed");
-        const logger = {
-            info: Sinon.stub(),
-            error: Sinon.stub(),
-            warning: Sinon.stub(),
-            debug: Sinon.stub(),
-        };
-        const spawnResult = { process: {} };
-        const spawnReactCommandStub = Sinon.stub().returns(spawnResult);
-        const commandExecutorConstructorStub = Sinon.stub();
-        const outputVerifierConstructorStub = Sinon.stub();
-        const processStub = Sinon.stub().returns(Promise.resolve());
-        const getChannelStub = Sinon.stub().returns(logger);
-        const getNodeModulesRootStub = Sinon.stub().returns(nodeModulesRoot);
-        const getInternalErrorStub = Sinon.stub().returns(commandError);
-
-        class FakeReactNativeCommand {
-            public project: any;
-
+        class FakeCommand {
             static formInstance(): any {
                 return new this();
             }
         }
-
-        class FakeCommandExecutor {
-            constructor(...args: any[]) {
-                commandExecutorConstructorStub(...args);
+        class FakeExecutor {
+            constructor(...args: unknown[]) {
+                executorConstructor(...args);
             }
-
-            public spawnReactCommand = spawnReactCommandStub;
+            selectReactNativeCLI = selectCLI;
         }
-
-        class FakeOutputVerifier {
-            constructor(...args: any[]) {
-                outputVerifierConstructorStub(...args);
+        class FakeTask {
+            constructor(public definition: vscode.TaskDefinition, ...args: unknown[]) {
+                taskConstructor(definition, ...args);
             }
-
-            public process = processStub;
+        }
+        class FakeShellExecution {
+            constructor(...args: unknown[]) {
+                shellConstructor(...args);
+            }
         }
 
         const module = proxyquire.noCallThru()("../../../src/extension/commands/rnDoctor", {
-            "../../common/commandExecutor": {
-                CommandExecutor: FakeCommandExecutor,
-            },
-            "../../common/error/errorHelper": {
-                ErrorHelper: {
-                    getInternalError: getInternalErrorStub,
+            vscode: {
+                Task: FakeTask,
+                ShellExecution: FakeShellExecution,
+                TaskRevealKind: { Always: 1 },
+                TaskPanelKind: { Dedicated: 2 },
+                tasks: {
+                    executeTask,
+                    onDidEndTaskProcess: (handler: typeof processHandler) => {
+                        processHandler = handler;
+                        return { dispose: processDispose };
+                    },
+                    onDidEndTask: (handler: typeof taskHandler) => {
+                        taskHandler = handler;
+                        return { dispose: taskDispose };
+                    },
                 },
             },
+            "../../common/commandExecutor": { CommandExecutor: FakeExecutor },
+            "../../common/hostPlatform": { HostPlatform: { getNpmCliCommand } },
+            "../../common/error/errorHelper": { ErrorHelper: { getInternalError } },
             "../../common/error/internalErrorCode": {
-                InternalErrorCode: {
-                    FailedToRunRNDoctor: failedToRunDoctorErrorCode,
-                },
-            },
-            "../../common/outputVerifier": {
-                OutputVerifier: FakeOutputVerifier,
+                InternalErrorCode: { FailedToRunRNDoctor: 126, CommandFailed: 101 },
             },
             "../appLauncher": {
-                AppLauncher: {
-                    getNodeModulesRootByProjectPath: getNodeModulesRootStub,
-                },
+                AppLauncher: { getNodeModulesRootByProjectPath: getNodeModulesRoot },
             },
-            "../log/OutputChannelLogger": {
-                OutputChannelLogger: {
-                    getChannel: getChannelStub,
-                },
-            },
-            "./util/reactNativeCommand": {
-                ReactNativeCommand: FakeReactNativeCommand,
-            },
+            "./util/reactNativeCommand": { ReactNativeCommand: FakeCommand },
         }) as typeof import("../../../src/extension/commands/rnDoctor");
-
-        const project = {
-            getPackager: Sinon.stub().returns({
-                getProjectPath: Sinon.stub().returns(projectRootPath),
-            }),
+        const command = module.rnDoctor.formInstance();
+        (command as any).project = {
+            getPackager: () => ({ getProjectPath: () => projectRoot }),
+            getWorkspaceFolder: () => workspaceFolder,
         };
-
+        // VS Code can serialize tasks, so events need not contain the original Task object.
+        const execution = (own: boolean) => ({
+            task: { definition: own ? { ...executeTask.firstCall.args[0].definition } : {} },
+        });
         return {
-            rnDoctor: module.rnDoctor,
-            project,
+            command,
             commandError,
-            logger,
-            spawnResult,
-            spawnReactCommandStub,
-            commandExecutorConstructorStub,
-            outputVerifierConstructorStub,
-            processStub,
-            getChannelStub,
-            getNodeModulesRootStub,
-            getInternalErrorStub,
+            projectRoot,
+            nodeModulesRoot,
+            cli,
+            workspaceFolder,
+            getInternalError,
+            getNodeModulesRoot,
+            executorConstructor,
+            getNpmCliCommand,
+            shellConstructor,
+            taskConstructor,
+            executeTask,
+            processDispose,
+            taskDispose,
+            endProcess: (exitCode?: number, own = true) =>
+                processHandler({
+                    execution: execution(own),
+                    exitCode,
+                } as vscode.TaskProcessEndEvent),
+            endTask: (own = true) =>
+                taskHandler({ execution: execution(own) } as vscode.TaskEndEvent),
         };
     }
 
-    async function runCommand(stubs: ReturnType<typeof createCommandModule>): Promise<any> {
-        const command = stubs.rnDoctor.formInstance();
-        (command as any).project = stubs.project;
-        await command.baseFn();
-        return command;
+    for (const suffix of [".cmd", ""]) {
+        test(`should focus an interactive task using the selected CLI (${
+            suffix || "Unix"
+        })`, async function () {
+            const s = createCommandModule(suffix);
+            const result = s.command.baseFn();
+            assert.strictEqual(s.command.codeName, "doctor");
+            assert.strictEqual(s.command.label, "React Native Doctor");
+            assert.strictEqual(s.getNodeModulesRoot.calledWithExactly(s.projectRoot), true);
+            assert.strictEqual(
+                s.executorConstructor.calledWithExactly(s.nodeModulesRoot, s.projectRoot),
+                true,
+            );
+            assert.strictEqual(s.getNpmCliCommand.calledWithExactly(s.cli), true);
+            assert.deepStrictEqual(s.shellConstructor.firstCall.args, [
+                `${s.cli}${suffix}`,
+                ["doctor"],
+                { cwd: s.projectRoot },
+            ]);
+            assert.strictEqual(s.taskConstructor.firstCall.args[1], s.workspaceFolder);
+            assert.strictEqual(s.taskConstructor.firstCall.args[2], "React Native Doctor");
+            assert.deepStrictEqual(s.executeTask.firstCall.args[0].presentationOptions, {
+                reveal: 1,
+                focus: true,
+                panel: 2,
+            });
+            s.endProcess(0);
+            await result;
+            assert.strictEqual(s.processDispose.calledOnce, true);
+            assert.strictEqual(s.taskDispose.calledOnce, true);
+        });
     }
 
-    test("should expose the registered command metadata", async function () {
-        const stubs = createCommandModule();
-
-        const command = await runCommand(stubs);
-
-        assert.strictEqual(command.codeName, "doctor");
-        assert.strictEqual(command.label, "React Native Doctor");
-        assert.strictEqual(command.error, stubs.commandError);
-        assert.strictEqual(
-            stubs.getInternalErrorStub.calledWithExactly(failedToRunDoctorErrorCode),
-            true,
-        );
+    test("should wait for Doctor and ignore unrelated task events", async function () {
+        const s = createCommandModule();
+        let completed = false;
+        const result = s.command.baseFn().then(() => {
+            completed = true;
+        });
+        s.endProcess(1, false);
+        s.endTask(false);
+        await Promise.resolve();
+        assert.strictEqual(completed, false);
+        s.endProcess(0);
+        s.endTask();
+        await result;
     });
 
-    test("should execute React Native doctor from the project root", async function () {
-        const stubs = createCommandModule();
+    for (const exitCode of [1, undefined]) {
+        test(`should report unsuccessful termination (${String(exitCode)})`, async function () {
+            const s = createCommandModule();
+            const result = s.command.baseFn();
+            const rejection = assert.rejects(() => result, s.commandError);
+            s.endProcess(exitCode);
+            await rejection;
+            assert.strictEqual(
+                s.getInternalError.calledWithExactly(101, `${s.cli}.cmd doctor`, exitCode),
+                true,
+            );
+            assert.strictEqual(s.processDispose.calledOnce, true);
+            assert.strictEqual(s.taskDispose.calledOnce, true);
+        });
+    }
 
-        await runCommand(stubs);
-
-        assert.strictEqual(stubs.getNodeModulesRootStub.calledWithExactly(projectRootPath), true);
-        assert.strictEqual(
-            stubs.getChannelStub.calledWithExactly("ReactNativeRunDoctor", true),
-            true,
-        );
-        assert.strictEqual(
-            stubs.commandExecutorConstructorStub.calledWithExactly(
-                nodeModulesRoot,
-                projectRootPath,
-                stubs.logger,
-            ),
-            true,
-        );
-        assert.strictEqual(stubs.spawnReactCommandStub.calledWithExactly("doctor"), true);
-        assert.strictEqual(stubs.processStub.calledWithExactly(stubs.spawnResult), true);
+    test("should handle task termination without a process result", async function () {
+        const s = createCommandModule();
+        const result = s.command.baseFn();
+        const rejection = assert.rejects(() => result, s.commandError);
+        s.endTask();
+        await rejection;
+        assert.strictEqual(s.processDispose.calledOnce, true);
+        assert.strictEqual(s.taskDispose.calledOnce, true);
     });
 
-    test("should configure doctor output verification patterns", async function () {
-        const stubs = createCommandModule();
-
-        await runCommand(stubs);
-
-        assert.strictEqual(stubs.outputVerifierConstructorStub.calledOnce, true);
-        const [generateSuccessPatterns, generateFailurePatterns, operationName] =
-            stubs.outputVerifierConstructorStub.firstCall.args;
-
-        assert.strictEqual(operationName, "run doctor");
-        assert.deepStrictEqual(await generateSuccessPatterns(), ["run doctor succeeded"]);
-        assert.deepStrictEqual(await generateFailurePatterns(), [
-            {
-                pattern: "Failed to run doctor",
-                errorCode: failedToRunDoctorErrorCode,
-            },
-        ]);
+    test("should propagate startup failures and dispose listeners", async function () {
+        const s = createCommandModule();
+        const error = new Error("Cannot start task");
+        s.executeTask.returns(Promise.reject(error));
+        await assert.rejects(() => s.command.baseFn(), error);
+        assert.strictEqual(s.processDispose.calledOnce, true);
+        assert.strictEqual(s.taskDispose.calledOnce, true);
     });
 
-    test("should propagate output verification errors", async function () {
-        const error = new Error("doctor output verification failed");
-        const stubs = createCommandModule();
-        stubs.processStub.returns(Promise.reject(error));
-
-        await assert.rejects(() => runCommand(stubs), error);
-    });
-
-    test("should require a project before running React Native doctor", async function () {
-        const stubs = createCommandModule();
-        const command = stubs.rnDoctor.formInstance();
-
-        await assert.rejects(() => command.baseFn(), assert.AssertionError);
-
-        assert.strictEqual(stubs.getChannelStub.called, false);
-        assert.strictEqual(stubs.spawnReactCommandStub.called, false);
-        assert.strictEqual(stubs.processStub.called, false);
+    test("should require a project", async function () {
+        const s = createCommandModule();
+        (s.command as any).project = undefined;
+        await assert.rejects(() => s.command.baseFn(), assert.AssertionError);
+        assert.strictEqual(s.executeTask.called, false);
     });
 });
