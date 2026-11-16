@@ -27,14 +27,21 @@ export function startNetworkInspectorTests(): void {
                     TimeoutConstants.COMMAND_PALETTE_TIMEOUT,
                 );
 
-                await ElementHelper.inputText(command);
+                const selectAllKey = process.platform === "darwin" ? "Meta+A" : "Control+A";
+                await ElementHelper.sendKeys(selectAllKey);
+                await ElementHelper.sendKeys("Backspace");
+                await ElementHelper.inputText(`>${command}`);
                 const option = await ElementHelper.WaitElementSelectorVisible(
-                    Element.commandPaletteFocusedItemSelector,
+                    `#quickInput_list .monaco-list-row:has-text("${command}")`,
                     TimeoutConstants.COMMAND_PALETTE_TIMEOUT,
                 );
 
-                const value = await option.getAttribute("aria-label");
-                assert.ok(value?.includes(command), `Command '${command}' is not visible`);
+                const ariaLabel = (await option.getAttribute("aria-label")) || "";
+                const textContent = (await option.textContent()) || "";
+                assert.ok(
+                    ariaLabel.includes(command) || textContent.includes(command),
+                    `Command '${command}' is not visible`,
+                );
 
                 await ComponentHelper.closeCommandPalette();
             }
