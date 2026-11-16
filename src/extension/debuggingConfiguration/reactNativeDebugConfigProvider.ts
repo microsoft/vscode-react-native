@@ -207,9 +207,12 @@ export class ReactNativeDebugConfigProvider implements vscode.DebugConfiguration
         const state = { config, scenarioType: DebugScenarioType.DebugApp, folder, token };
 
         const multiStep = new MultiStepInput<DebugConfigurationState>();
-        await multiStep.run((input, s) => this.pickDebugConfiguration(input, s), state);
+        const completed = await multiStep.run(
+            (input, s) => this.pickDebugConfiguration(input, s),
+            state,
+        );
 
-        if (Object.keys(state.config).length === 0) {
+        if (!completed || Object.keys(state.config).length === 0) {
             return;
         }
         if (state.config.platform !== PlatformType.ExpoWeb) {
