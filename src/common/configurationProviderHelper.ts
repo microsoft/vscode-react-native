@@ -265,7 +265,7 @@ export class ConfigurationProviderHelper {
             portNumber = parseInt(portStr, 10);
         }
 
-        if (portNumber && portNumber !== Packager.DEFAULT_PORT) {
+        if (portNumber && portNumber !== Number(defaultPort)) {
             config.port = portNumber;
         }
 
