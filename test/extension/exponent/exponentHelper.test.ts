@@ -92,7 +92,8 @@ suite("exponentHelper", function () {
                     JSON.stringify({
                         expo: {
                             owner: "owner",
-                            name: "project",
+                            name: "Project Display Name",
+                            slug: "project-slug",
                             extra: { eas: { projectId: "project-id" } },
                         },
                     }),
@@ -101,7 +102,7 @@ suite("exponentHelper", function () {
 
                 assert.strictEqual(await expoHelper.getExpoEasProjectOwner(), "owner");
                 assert.strictEqual(await expoHelper.getExpoEasProjectId(), "project-id");
-                assert.strictEqual(await expoHelper.getExpoEasProjectName(), "project");
+                assert.strictEqual(await expoHelper.getExpoEasProjectSlug(), "project-slug");
             });
 
             test("should cache app.json until its modification time changes", async () => {
@@ -119,7 +120,8 @@ suite("exponentHelper", function () {
                             ? {
                                   expo: {
                                       owner: "owner",
-                                      name: "project",
+                                      name: "Project Display Name",
+                                      slug: "project-slug",
                                       extra: { eas: { projectId: "project-id" } },
                                   },
                               }
@@ -130,7 +132,7 @@ suite("exponentHelper", function () {
 
                 assert.strictEqual(await expoHelper.getExpoEasProjectOwner(), "owner");
                 assert.strictEqual(await expoHelper.getExpoEasProjectId(), "project-id");
-                assert.strictEqual(await expoHelper.getExpoEasProjectName(), "project");
+                assert.strictEqual(await expoHelper.getExpoEasProjectSlug(), "project-slug");
                 assert.strictEqual(readFileCallCount, 1);
 
                 assert.strictEqual(await expoHelper.getExpoEasProjectOwner(), "new-owner");
@@ -145,7 +147,18 @@ suite("exponentHelper", function () {
 
                 assert.strictEqual(await expoHelper.getExpoEasProjectOwner(), null);
                 assert.strictEqual(await expoHelper.getExpoEasProjectId(), null);
-                assert.strictEqual(await expoHelper.getExpoEasProjectName(), null);
+                assert.strictEqual(await expoHelper.getExpoEasProjectSlug(), null);
+            });
+
+            test("should not use the display name when the slug is missing", async () => {
+                const fs = new FileSystem();
+                sinon.stub(fs, "stat", async () => ({ mtimeMs: 1 } as Stats));
+                sinon.stub(fs, "readFile", async () =>
+                    JSON.stringify({ expo: { name: "Project Display Name" } }),
+                );
+                const expoHelper = new ExponentHelper(RESOURCES_ROOT, "", fs);
+
+                assert.strictEqual(await expoHelper.getExpoEasProjectSlug(), null);
             });
         });
     });

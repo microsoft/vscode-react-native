@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 import assert = require("assert");
+import * as path from "path";
 import Sinon = require("sinon");
 import proxyquire = require("proxyquire");
 
@@ -31,16 +32,16 @@ suite("configEASBuildCommand", function () {
             public exists = existsStub;
         }
 
-        class FakeCommandExecutor {
-            public execute = executeStub;
+        class FakeChildProcess {
+            public execToString = executeStub;
         }
 
         const module = proxyquire.noCallThru()("../../../src/extension/commands/configEASBuild", {
             "../../common/node/fileSystem": {
                 FileSystem: FakeFileSystem,
             },
-            "../../common/commandExecutor": {
-                CommandExecutor: FakeCommandExecutor,
+            "../../common/node/childProcess": {
+                ChildProcess: FakeChildProcess,
             },
             "../log/OutputChannelLogger": {
                 OutputChannelLogger: {
@@ -62,7 +63,6 @@ suite("configEASBuildCommand", function () {
     ): Promise<void> {
         const command = commandClass.formInstance();
         (command as any).project = createMockProject(projectPath, isExpoStub);
-        (command as any).nodeModulesRoot = `${projectPath}/node_modules`;
         await command.baseFn();
     }
 
@@ -90,7 +90,10 @@ suite("configEASBuildCommand", function () {
 
         await runCommand(ConfigEASBuild, "/workspace/app", isExpoStub);
 
-        assert.strictEqual(existsStub.calledWithExactly("/workspace/app/eas.json"), true);
+        assert.strictEqual(
+            existsStub.calledWithExactly(path.join("/workspace/app", "eas.json")),
+            true,
+        );
         assert.strictEqual(executeStub.called, false);
         assert.strictEqual(
             logger.info.args.some((args: string[]) =>
@@ -98,6 +101,19 @@ suite("configEASBuildCommand", function () {
             ),
             true,
         );
+    });
+
+    test("should normalize the eas.json path when the project root has a trailing separator", async function () {
+        const projectPath = path.join(path.sep, "workspace", "app with spaces") + path.sep;
+        const existsStub = Sinon.stub().returns(Promise.resolve(true));
+        const executeStub = Sinon.stub().returns(Promise.resolve());
+        const isExpoStub = Sinon.stub().returns(Promise.resolve(true));
+        const { ConfigEASBuild } = createCommandModule(existsStub, executeStub);
+
+        await runCommand(ConfigEASBuild, projectPath, isExpoStub);
+
+        assert.strictEqual(existsStub.calledWithExactly(path.join(projectPath, "eas.json")), true);
+        assert.strictEqual(executeStub.called, false);
     });
 
     test("should run eas build configure for Expo projects without eas.json", async function () {
@@ -109,7 +125,10 @@ suite("configEASBuildCommand", function () {
         await runCommand(ConfigEASBuild, "/workspace/app", isExpoStub);
 
         assert.strictEqual(
-            executeStub.calledWithExactly("eas build:configure --platform all"),
+            executeStub.calledOnce &&
+                executeStub.calledWithExactly("npx eas-cli build:configure --platform all", {
+                    cwd: "/workspace/app",
+                }),
             true,
         );
         assert.strictEqual(
@@ -133,9 +152,7 @@ suite("configEASBuildCommand", function () {
         );
 
         assert.strictEqual(
-            logger.error.args.some((args: string[]) =>
-                args[0].includes("Unable to find existing EAS project"),
-            ),
+            logger.error.args.some((args: string[]) => args[0].includes("npx eas-cli init")),
             true,
         );
     });

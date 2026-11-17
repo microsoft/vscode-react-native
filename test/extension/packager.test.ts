@@ -4,7 +4,14 @@
 import * as path from "path";
 import * as os from "os";
 import { promises as fs } from "fs";
+import { ChildProcess } from "child_process";
+import { EventEmitter } from "events";
+import { PassThrough } from "stream";
+import * as vscode from "vscode";
 import { Packager } from "../../src/common/packager";
+import { ISpawnResult } from "../../src/common/node/childProcess";
+import { PackagerStatus } from "../../src/extension/packagerStatusIndicator";
+import { CONTEXT_VARIABLES_NAMES } from "../../src/common/contextVariablesNames";
 import { CommandExecutor } from "../../src/common/commandExecutor";
 import { ProjectVersionHelper } from "../../src/common/projectVersionHelper";
 import { AppLauncher } from "../../src/extension/appLauncher";
@@ -18,6 +25,220 @@ import assert = require("assert");
 import * as sinon from "sinon";
 
 suite("packager", function () {
+    suite("process lifecycle", function () {
+        class MetroProcess extends EventEmitter implements ChildProcess {
+            stdin = new PassThrough();
+            stdout = new PassThrough();
+            stderr = new PassThrough();
+            stdio: ChildProcess["stdio"] = [this.stdin, this.stdout, this.stderr];
+            killed = false;
+            pid = 12345;
+            connected = false;
+            exitCode: number | null = null;
+            signalCode: string | null = null;
+            kill = sinon.spy();
+            send = sinon.stub().returns(false);
+            disconnect = sinon.spy();
+            ref = sinon.spy();
+            unref = sinon.spy();
+        }
+
+        let packager: Packager;
+        let running: boolean;
+        let stubs: Sinon.SinonStub[];
+        let spawnStub: Sinon.SinonStub;
+        let killStub: Sinon.SinonStub;
+        let contextStub: Sinon.SinonStub;
+        let nextProcess: ReturnType<typeof createProcess>;
+        let startupError: Error | undefined;
+
+        function createProcess() {
+            const child = new MetroProcess();
+            let resolveOutcome!: () => void;
+            let rejectOutcome!: (error: Error) => void;
+            const result: ISpawnResult = {
+                spawnedProcess: child,
+                stdin: child.stdin,
+                stdout: child.stdout,
+                stderr: child.stderr,
+                outcome: new Promise<void>((resolve, reject) => {
+                    resolveOutcome = resolve;
+                    rejectOutcome = reject;
+                }),
+            };
+            return { child, result, resolveOutcome, rejectOutcome };
+        }
+
+        setup(function () {
+            const projectPath = path.resolve(__dirname, "..", "resources");
+            running = false;
+            startupError = undefined;
+            packager = new Packager(projectPath, projectPath, Packager.DEFAULT_PORT);
+            stubs = [
+                sinon.stub(packager, "isRunning", async () => running),
+                sinon
+                    .stub(ProjectVersionHelper, "getReactNativeVersions")
+                    .returns(Promise.resolve({ reactNativeVersion: "0.87.1" })),
+                sinon
+                    .stub(Object.getPrototypeOf(packager), "monkeyPatchOpnForRNPackager")
+                    .returns(Promise.resolve()),
+                sinon
+                    .stub(Object.getPrototypeOf(packager), "stopWithlowNode")
+                    .returns(Promise.resolve(false)),
+                sinon
+                    .stub(Object.getPrototypeOf(packager), "verifiyTSVersion")
+                    .returns(Promise.resolve()),
+                sinon.stub(packager, "getPackagerArgs").returns(Promise.resolve([])),
+                sinon.stub(AppLauncher, "getNodeModulesRootByProjectPath").returns(projectPath),
+                sinon
+                    .stub(ExponentHelper.prototype, "isExpoManagedApp")
+                    .returns(Promise.resolve(false)),
+            ];
+            spawnStub = sinon.stub(CommandExecutor.prototype, "spawnReactPackager", () => {
+                if (startupError) {
+                    nextProcess.child.exitCode = 1;
+                    nextProcess.rejectOutcome(startupError);
+                } else {
+                    running = true;
+                }
+                return nextProcess.result;
+            });
+            killStub = sinon.stub(CommandExecutor.prototype, "killReactPackager", async () => {
+                running = false;
+            });
+            contextStub = sinon.stub(vscode.commands, "executeCommand").returns(Promise.resolve());
+            stubs.push(spawnStub, killStub, contextStub);
+        });
+
+        teardown(function () {
+            stubs.reverse().forEach(stub => stub.restore());
+            packager.getStatusIndicator().dispose();
+        });
+
+        function spawn(process: ReturnType<typeof createProcess>): void {
+            nextProcess = process;
+            startupError = undefined;
+        }
+
+        test("restarts after an externally terminated Metro process", async function () {
+            const first = createProcess();
+            spawn(first);
+            await packager.start();
+            assert.strictEqual(packager.getPackagerStatus(), PackagerStatus.PACKAGER_STARTED);
+
+            running = false;
+            first.child.signalCode = "SIGTERM";
+            first.rejectOutcome(new Error("Metro terminated externally"));
+            await Promise.resolve();
+
+            assert.strictEqual(packager.getPackagerStatus(), PackagerStatus.PACKAGER_STOPPED);
+            assert(
+                contextStub.calledWith(
+                    "setContext",
+                    CONTEXT_VARIABLES_NAMES.IS_RN_PACKAGER_RUNNING,
+                    false,
+                ),
+            );
+            const second = createProcess();
+            spawn(second);
+            await packager.start();
+            assert.strictEqual(spawnStub.callCount, 2);
+            assert.strictEqual(packager.getPackagerStatus(), PackagerStatus.PACKAGER_STARTED);
+        });
+
+        test("restarts after Metro exits successfully", async function () {
+            const first = createProcess();
+            spawn(first);
+            await packager.start();
+            running = false;
+            first.child.exitCode = 0;
+            first.resolveOutcome();
+            await Promise.resolve();
+
+            assert.strictEqual(packager.getPackagerStatus(), PackagerStatus.PACKAGER_STOPPED);
+            spawn(createProcess());
+            await packager.start();
+            assert.strictEqual(spawnStub.callCount, 2);
+        });
+
+        test("reports startup failure and allows retry after fixing a configuration error", async function () {
+            const failed = createProcess();
+            spawn(failed);
+            startupError = new Error("METRO_CONFIG_REPRO");
+
+            await assert.rejects(packager.start());
+            assert.strictEqual(packager.getPackagerStatus(), PackagerStatus.PACKAGER_STOPPED);
+            spawn(createProcess());
+            await packager.start();
+            assert.strictEqual(spawnStub.callCount, 2);
+            assert.strictEqual(packager.getPackagerStatus(), PackagerStatus.PACKAGER_STARTED);
+        });
+
+        test("allows stop then start after Metro exits before its outcome is delivered", async function () {
+            const first = createProcess();
+            spawn(first);
+            await packager.start();
+            running = false;
+            first.child.exitCode = 1;
+
+            assert.strictEqual(await packager.stop(true), true);
+            assert.strictEqual(killStub.called, false);
+            spawn(createProcess());
+            await packager.start();
+            assert.strictEqual(spawnStub.callCount, 2);
+        });
+
+        test("a delayed outcome from an exited process does not clear a replacement process", async function () {
+            const first = createProcess();
+            spawn(first);
+            await packager.start();
+            running = false;
+            first.child.exitCode = 1;
+
+            const second = createProcess();
+            spawn(second);
+            await packager.start();
+            first.rejectOutcome(new Error("Delayed exit notification"));
+            await Promise.resolve();
+
+            assert.strictEqual(packager.getPackagerStatus(), PackagerStatus.PACKAGER_STARTED);
+            await packager.stop(true);
+            assert.strictEqual(killStub.firstCall.args[0], second.child);
+        });
+
+        test("preserves normal stop and restart behavior", async function () {
+            const first = createProcess();
+            spawn(first);
+            await packager.start();
+            assert.strictEqual(await packager.stop(true), true);
+            assert.strictEqual(killStub.firstCall.args[0], first.child);
+            assert.strictEqual(packager.getPackagerStatus(), PackagerStatus.PACKAGER_STOPPED);
+            spawn(createProcess());
+            await packager.start();
+            assert.strictEqual(spawnStub.callCount, 2);
+        });
+
+        test("stops an owned process even when its status endpoint is unavailable", async function () {
+            const first = createProcess();
+            spawn(first);
+            await packager.start();
+            running = false;
+            await packager.stop(true);
+            assert.strictEqual(killStub.firstCall.args[0], first.child);
+            spawn(createProcess());
+            await packager.start();
+            assert.strictEqual(spawnStub.callCount, 2);
+        });
+
+        test("does not terminate a packager started outside the extension", async function () {
+            running = true;
+            await packager.start();
+            assert.strictEqual(await packager.stop(true), false);
+            assert.strictEqual(spawnStub.called, false);
+            assert.strictEqual(killStub.called, false);
+        });
+    });
+
     suite("Windows Metro paths", function () {
         const projectPath = "d:\\workspace\\app";
         const nodeModulesRoot = "d:\\workspace";
