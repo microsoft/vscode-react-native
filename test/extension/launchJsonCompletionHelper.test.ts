@@ -4,7 +4,10 @@
 import assert = require("assert");
 import type { DebugConfiguration, Position, TextDocument } from "vscode";
 import { parse, ParseError } from "jsonc-parser";
-import { LaunchJsonCompletionHelper } from "../../src/common/launchJsonCompletionHelper";
+import {
+    LaunchJsonCompletionHelper,
+    PositionOfCursor,
+} from "../../src/common/launchJsonCompletionHelper";
 
 suite("LaunchJsonCompletionHelper", function () {
     const config: DebugConfiguration = {
@@ -27,6 +30,97 @@ suite("LaunchJsonCompletionHelper", function () {
         };
         return { document: document as TextDocument, position };
     }
+
+    suite("getTextForInsertion", function () {
+        const json = '{"name":"New configuration","type":"reactnativedirect","request":"attach"}';
+        const cases: { position: PositionOfCursor; withoutComma: string; withComma: string }[] = [
+            { position: "InsideEmptyArray", withoutComma: json, withComma: json },
+            { position: "BeforeItem", withoutComma: `${json},`, withComma: `${json},` },
+            { position: "AfterItem", withoutComma: `,${json}`, withComma: json },
+        ];
+
+        for (const { position, withoutComma, withComma } of cases) {
+            test(`formats ${position} with and without a preceding comma`, function () {
+                assert.strictEqual(
+                    LaunchJsonCompletionHelper.getTextForInsertion(config, position),
+                    withoutComma,
+                );
+                assert.strictEqual(
+                    LaunchJsonCompletionHelper.getTextForInsertion(
+                        config,
+                        position,
+                        "BeforeCursor",
+                    ),
+                    withComma,
+                );
+            });
+        }
+    });
+
+    suite("getCursorPositionInConfigurationsArray", function () {
+        const cases: {
+            name: string;
+            beforeCursor: string;
+            afterCursor: string;
+            expected: PositionOfCursor | undefined;
+        }[] = [
+            {
+                name: "empty array",
+                beforeCursor: '{"configurations":[ ',
+                afterCursor: "]}",
+                expected: "InsideEmptyArray",
+            },
+            {
+                name: "missing configurations",
+                beforeCursor: "{}",
+                afterCursor: "",
+                expected: "InsideEmptyArray",
+            },
+            {
+                name: "non-array configurations",
+                beforeCursor: '{"configurations":{}}',
+                afterCursor: "",
+                expected: "InsideEmptyArray",
+            },
+            {
+                name: "before an item",
+                beforeCursor: '{"configurations":[ ',
+                afterCursor: `${existing}]}`,
+                expected: "BeforeItem",
+            },
+            {
+                name: "after an item before the closing bracket",
+                beforeCursor: `{"configurations":[${existing} `,
+                afterCursor: "]}",
+                expected: "AfterItem",
+            },
+            {
+                name: "after an item before a comma",
+                beforeCursor: `{"configurations":[${existing} `,
+                afterCursor: `,${existing}]}`,
+                expected: "AfterItem",
+            },
+            {
+                name: "at an unsupported token",
+                beforeCursor: '{"configurations":[{"name":',
+                afterCursor: '"existing"}]}',
+                expected: undefined,
+            },
+        ];
+
+        for (const { name, beforeCursor, afterCursor, expected } of cases) {
+            test(`recognizes ${name}`, function () {
+                const { document, position } = fixture(beforeCursor, afterCursor);
+                assert.strictEqual(
+                    LaunchJsonCompletionHelper.getCursorPositionInConfigurationsArray(
+                        document,
+                        position,
+                    ),
+                    expected,
+                );
+            });
+        }
+    });
 
     const separators = [
         { name: "same-line comma", text: ", ", hasComma: true },
@@ -99,6 +193,14 @@ suite("LaunchJsonCompletionHelper", function () {
 
     test("should not treat a comma inside a string as a separator", function () {
         const { document, position } = fixture('{"name":"staging," ', "}");
+        assert.strictEqual(
+            LaunchJsonCompletionHelper.isCommaImmediatelyBeforeCursor(document, position),
+            false,
+        );
+    });
+
+    test("should not find a comma at the start of the document", function () {
+        const { document, position } = fixture("", ",");
         assert.strictEqual(
             LaunchJsonCompletionHelper.isCommaImmediatelyBeforeCursor(document, position),
             false,
