@@ -55,7 +55,7 @@ type MultiStepInputInputBoxResponseType<P> =
     | string
     | (P extends { buttons: (infer I)[] } ? I : never);
 export interface IMultiStepInput<S> {
-    run(start: InputStep<S>, state: S): Promise<void>;
+    run(start: InputStep<S>, state: S): Promise<boolean>;
     showQuickPick<T extends QuickPickItem, P extends IQuickPickParameters<T>>({
         title,
         step,
@@ -82,7 +82,7 @@ export class MultiStepInput<S> implements IMultiStepInput<S> {
     private current?: QuickInput;
     private steps: InputStep<S>[] = [];
 
-    public run(start: InputStep<S>, state: S): Promise<void> {
+    public run(start: InputStep<S>, state: S): Promise<boolean> {
         return this.stepThrough(start, state);
     }
 
@@ -233,8 +233,9 @@ export class MultiStepInput<S> implements IMultiStepInput<S> {
         }
     }
 
-    private async stepThrough(start: InputStep<S>, state: S) {
+    private async stepThrough(start: InputStep<S>, state: S): Promise<boolean> {
         let step: InputStep<S> | void = start;
+        let cancelled = false;
         while (step) {
             this.steps.push(step);
             if (this.current) {
@@ -250,6 +251,7 @@ export class MultiStepInput<S> implements IMultiStepInput<S> {
                 } else if (err === InputFlowAction.resume) {
                     step = this.steps.pop();
                 } else if (err === InputFlowAction.cancel) {
+                    cancelled = true;
                     step = undefined;
                 } else {
                     throw err;
@@ -259,5 +261,6 @@ export class MultiStepInput<S> implements IMultiStepInput<S> {
         if (this.current) {
             this.current.dispose();
         }
+        return !cancelled;
     }
 }
