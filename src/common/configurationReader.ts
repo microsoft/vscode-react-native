@@ -65,7 +65,7 @@ export class ConfigurationReader {
     }
 
     private static isObject(value: any): boolean {
-        return typeof value === "object" || !ConfigurationReader.isArray(value);
+        return value !== null && typeof value === "object" && !ConfigurationReader.isArray(value);
     }
 
     private static isString(value: any): boolean {

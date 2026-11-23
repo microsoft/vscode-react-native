@@ -59,6 +59,7 @@ suite("testDevEnvironmentCommand", function () {
         const commandError = new Error("Failed to test development environment");
         const selectProjectStub = Sinon.stub();
         const runChecksStub = Sinon.stub().returns(Promise.resolve());
+        const warningStub = Sinon.stub();
         const getInternalErrorStub = Sinon.stub().returns(commandError);
         const getReactNativeProjectRootStub = Sinon.stub().returns(projectRoot);
         const getVersionsStub = Sinon.stub().returns(
@@ -118,6 +119,11 @@ suite("testDevEnvironmentCommand", function () {
                 "../rnProjectObserver": {
                     RNProjectObserver: FakeRNProjectObserver,
                 },
+                "../log/OutputChannelLogger": {
+                    OutputChannelLogger: {
+                        getMainChannel: () => ({ warning: warningStub }),
+                    },
+                },
                 "../services/validationService/checker": {
                     runChecks: runChecksStub,
                 },
@@ -140,6 +146,7 @@ suite("testDevEnvironmentCommand", function () {
             commandError,
             selectProjectStub,
             runChecksStub,
+            warningStub,
             getInternalErrorStub,
             getReactNativeProjectRootStub,
             getVersionsStub,
@@ -253,6 +260,11 @@ suite("testDevEnvironmentCommand", function () {
             [validationCategories.Windows]: true,
             [validationCategories.macOS]: false,
         });
+        Sinon.assert.calledOnce(stubs.warningStub);
+        Sinon.assert.calledWithExactly(
+            stubs.warningStub,
+            "Expo detection failed; skipping Expo checks: Error: Expo detection failed",
+        );
     });
 
     test("should run checks without package versions when version detection fails", async function () {
@@ -272,6 +284,11 @@ suite("testDevEnvironmentCommand", function () {
             },
         ]);
         assert.strictEqual(stubs.convertVersionsStub.called, false);
+        Sinon.assert.calledOnce(stubs.warningStub);
+        Sinon.assert.calledWithExactly(
+            stubs.warningStub,
+            "Project detection failed; skipping Windows and macOS checks and package version detection: Error: Version detection failed",
+        );
     });
 
     test("should run checks without package versions when observer creation fails", async function () {
@@ -291,6 +308,11 @@ suite("testDevEnvironmentCommand", function () {
             },
         ]);
         assert.strictEqual(stubs.convertVersionsStub.called, false);
+        Sinon.assert.calledOnce(stubs.warningStub);
+        Sinon.assert.calledWithExactly(
+            stubs.warningStub,
+            "Project detection failed; skipping Windows and macOS checks and package version detection: Error: Observer creation failed",
+        );
     });
 
     test("should propagate validation execution errors", async function () {
