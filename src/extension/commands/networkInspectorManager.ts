@@ -9,6 +9,7 @@ import { NetworkInspectorServer } from "../networkInspector/networkInspectorServ
 import { CONTEXT_VARIABLES_NAMES } from "../../common/contextVariablesNames";
 import { InspectorViewFactory } from "../networkInspector/views/inspectorViewFactory";
 import { AppLauncher } from "../appLauncher";
+import { OutputChannelLogger } from "../log/OutputChannelLogger";
 
 interface NetworkInspectorModule {
     networkInspector: NetworkInspectorServer;
@@ -67,23 +68,44 @@ export class NetworkInspectorManager {
 
     /**
      * Stops the Network Inspector module and cleans up resources.
+     * Attempts every cleanup step and retains the module for retry if cleanup fails.
      */
     async stop(): Promise<void> {
         if (!this.networkInspectorModule) {
             return;
         }
 
-        this.networkInspectorModule.androidDeviceTracker?.stop();
-        this.networkInspectorModule.iOSDeviceTracker?.stop();
-        await this.networkInspectorModule.networkInspector?.stop();
-        this.networkInspectorModule = undefined;
-        InspectorViewFactory.clearCache();
+        const module = this.networkInspectorModule;
+        const errors: unknown[] = [];
+        const cleanup = async (action: () => void | PromiseLike<unknown>): Promise<void> => {
+            try {
+                await action();
+            } catch (error) {
+                errors.push(error);
+                OutputChannelLogger.getMainChannel().error(
+                    String(error),
+                    error instanceof Error ? error : undefined,
+                );
+            }
+        };
 
-        void vscode.commands.executeCommand(
-            "setContext",
-            CONTEXT_VARIABLES_NAMES.IS_RNT_NETWORK_INSPECTOR_RUNNING,
-            false,
+        await cleanup(() => module.androidDeviceTracker.stop());
+        await cleanup(() => module.iOSDeviceTracker?.stop());
+        await cleanup(() => module.networkInspector.stop());
+        await cleanup(() => InspectorViewFactory.clearCache());
+        await cleanup(() =>
+            vscode.commands.executeCommand(
+                "setContext",
+                CONTEXT_VARIABLES_NAMES.IS_RNT_NETWORK_INSPECTOR_RUNNING,
+                errors.length > 0,
+            ),
         );
+
+        if (errors.length > 0) {
+            throw errors[0];
+        }
+
+        this.networkInspectorModule = undefined;
     }
 
     /**
