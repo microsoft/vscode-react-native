@@ -55,10 +55,14 @@ export class GraphQLFormatter implements IFormatter {
                 const data = JSON.parse(decoded);
                 return data;
             } catch (SyntaxError) {
+                if (!decoded.trim()) {
+                    throw SyntaxError;
+                }
                 // Multiple top level JSON roots, map them one by one
                 return decoded
                     .replace(/}{/g, "}\r\n{")
                     .split("\n")
+                    .filter(json => json.trim() !== "")
                     .map(json => JSON.parse(json));
             }
         }
