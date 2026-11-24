@@ -222,6 +222,27 @@ suite("testDevEnvironmentCommand", function () {
         assert.strictEqual(stubs.convertVersionsStub.calledWithExactly(packageVersions), true);
     });
 
+    test("should check Windows and macOS independently", async function () {
+        for (const isRNWindowsProject of [false, true]) {
+            for (const isRNMacosProject of [false, true]) {
+                const stubs = createCommandModule({ isRNWindowsProject, isRNMacosProject });
+                const projectStubs = createProject();
+                stubs.selectProjectStub.returns(Promise.resolve(projectStubs.project));
+
+                await stubs.TestDevEnvironment.formInstance().baseFn();
+
+                assert.deepStrictEqual(stubs.runChecksStub.firstCall.args, [
+                    {
+                        [validationCategories.Expo]: false,
+                        [validationCategories.Windows]: isRNWindowsProject,
+                        [validationCategories.macOS]: isRNMacosProject,
+                    },
+                    convertedPackageVersions,
+                ]);
+            }
+        }
+    });
+
     test("should create the project observer from the resolved roots and package versions", async function () {
         const stubs = createCommandModule();
         const projectStubs = createProject();

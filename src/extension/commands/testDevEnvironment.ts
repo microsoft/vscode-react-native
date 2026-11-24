@@ -71,10 +71,8 @@ export class TestDevEnvironment extends Command {
                         return false;
                     })) || false,
 
-            [ValidationCategoryE.Windows]:
-                (projectObserver && projectObserver.isRNWindowsProject) || false,
-            [ValidationCategoryE.macOS]:
-                (projectObserver && projectObserver.isRNMacosProject) || false,
+            [ValidationCategoryE.Windows]: projectObserver?.isRNWindowsProject ?? false,
+            [ValidationCategoryE.macOS]: projectObserver?.isRNMacosProject ?? false,
         } as const;
         if (project && projectObserver) {
             await runChecks(
