@@ -47,6 +47,7 @@ export class StopNetworkInspector extends Command {
     codeName = "stopNetworkInspector";
     label = "Stop Network Inspector";
     requiresTrust = false;
+    requiresProject = false;
     error = ErrorHelper.getInternalError(InternalErrorCode.CouldNotStopNetworkInspector);
 
     async baseFn(): Promise<void> {
