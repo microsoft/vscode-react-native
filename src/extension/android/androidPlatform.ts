@@ -188,6 +188,8 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                 this.adbHelper.setLaunchActivity(this.runOptions.debugLaunchActivity);
             }
 
+            await this.preparePackageName();
+
             const runAndroidSpawn = new CommandExecutor(
                 this.runOptions.nodeModulesRoot,
                 this.projectPath,
@@ -209,7 +211,6 @@ export class AndroidPlatform extends GeneralMobilePlatform {
                     await output;
                 } finally {
                     targetId = await this.getTargetIdForRunApp(onlineTargetsIds);
-                    this.packageName = await this.getPackageName();
                     devicesIdsForLaunch = [targetId];
 
                     // Save target info for status indicator
@@ -470,9 +471,28 @@ export class AndroidPlatform extends GeneralMobilePlatform {
         }
     }
 
-    private async getPackageName(): Promise<string> {
+    private async preparePackageName(): Promise<void> {
+        const appIdIndex = this.runArguments.indexOf("--appId");
+        const explicitAppId =
+            appIdIndex >= 0
+                ? this.runArguments[appIdIndex + 1]
+                : this.runArguments
+                      .find(arg => arg.startsWith("--appId="))
+                      ?.slice("--appId=".length);
+        if (explicitAppId) {
+            this.packageName = explicitAppId;
+            return;
+        }
+
         const appName = await new Package(this.runOptions.projectRoot).name();
-        return new PackageNameResolver(appName).resolvePackageName(this.runOptions.projectRoot);
+        const resolver = new PackageNameResolver(appName);
+        const applicationId = await resolver.resolveApplicationId(this.runOptions.projectRoot);
+        this.packageName =
+            applicationId || (await resolver.resolvePackageName(this.runOptions.projectRoot));
+        if (applicationId) {
+            // The CLI has its own Gradle parser, which can also match commented applicationIds.
+            this.runArguments.push("--appId", applicationId);
+        }
     }
 
     private startMonitoringLogCat(deviceId: string, logCatArguments: string[]): void {

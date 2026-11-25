@@ -55,6 +55,84 @@ suite("androidPlatform", function () {
             });
         }
 
+        async function captureLaunchArguments(
+            gradleContent: string,
+            runArguments?: string[],
+        ): Promise<string[]> {
+            writePackage("@react-native-community/cli-platform-android", "20.2.0");
+            fs.writeFileSync(
+                path.join(projectRoot, "package.json"),
+                JSON.stringify({ name: "ExampleApp" }),
+            );
+            const appRoot = path.join(projectRoot, "android", "app");
+            fs.mkdirSync(appRoot, { recursive: true });
+            fs.writeFileSync(path.join(appRoot, "build.gradle"), gradleContent);
+
+            const platform = createPlatform({ runArguments });
+            const launchError = new Error("CLI invocation captured");
+            const spawnStub = sinon
+                .stub(CommandExecutor.prototype, "spawnReactCommand")
+                .throws(launchError);
+            try {
+                await assert.rejects(platform.runApp(), launchError);
+                return spawnStub.firstCall.args[1];
+            } finally {
+                spawnStub.restore();
+            }
+        }
+
+        test("should pass the active applicationId to the CLI before launching", async () => {
+            const args = await captureLaunchArguments(`
+                android {
+                    defaultConfig {
+                        // applicationId "com.example.old"
+                        applicationId "com.example.current"
+                    }
+                }
+            `);
+
+            assert.deepStrictEqual(args, [
+                "--mode",
+                "debug",
+                "--no-packager",
+                "--appId",
+                "com.example.current",
+            ]);
+        });
+
+        for (const args of [["--appId", "com.example.flavor"], ["--appId=com.example.flavor"]]) {
+            test(`should preserve an explicit applicationId: ${args.join(" ")}`, async () => {
+                const actual = await captureLaunchArguments(
+                    `android { defaultConfig { applicationId "com.example.default" } }`,
+                    args.slice(),
+                );
+
+                assert.deepStrictEqual(actual, [...args, "--no-packager"]);
+            });
+        }
+
+        test("should not treat applicationIdSuffix as an explicit applicationId", async () => {
+            const args = await captureLaunchArguments(
+                `android { defaultConfig { applicationId "com.example.default" } }`,
+                ["--appIdSuffix=dev"],
+            );
+
+            assert.deepStrictEqual(args, [
+                "--appIdSuffix=dev",
+                "--no-packager",
+                "--appId",
+                "com.example.default",
+            ]);
+        });
+
+        test("should leave CLI resolution unchanged when no literal applicationId is available", async () => {
+            const args = await captureLaunchArguments(`
+                android { defaultConfig { applicationId project.appId } }
+            `);
+
+            assert.deepStrictEqual(args, ["--mode", "debug", "--no-packager"]);
+        });
+
         for (const [version, option] of [
             ["10.2.2", "--variant"],
             ["11.3.8", "--variant"],
