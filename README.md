@@ -977,6 +977,8 @@ To specify a subfolder in which the react-native project is located, set `react-
 }
 ```
 
+Dynamic debug configurations detect Hermes support in the configured project root.
+
 ## Configure an Android LogCat Monitor
 
 There are two ways to filter your LogCat Monitor output depending on how LogCat Monitor was launched:

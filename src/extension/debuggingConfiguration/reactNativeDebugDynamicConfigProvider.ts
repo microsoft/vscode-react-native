@@ -37,14 +37,16 @@ export class ReactNativeDebugDynamicConfigProvider implements vscode.DebugConfig
 
             let macOSHermesEnabled = false;
             let windowsHermesEnabled = false;
-            const androidHermesEnabled = ReactNativeProjectHelper.isAndroidHermesEnabled(rootPath);
-            const iOSHermesEnabled = ReactNativeProjectHelper.isIOSHermesEnabled(rootPath);
+            const androidHermesEnabled =
+                ReactNativeProjectHelper.isAndroidHermesEnabled(projectRootPath);
+            const iOSHermesEnabled = ReactNativeProjectHelper.isIOSHermesEnabled(projectRootPath);
 
             if (ProjectVersionHelper.isVersionError(versions.reactNativeWindowsVersion)) {
                 delete debugConfigurationsToShow[DEBUG_CONFIGURATION_NAMES.DEBUG_WINDOWS];
                 delete debugConfigurationsToShow[DEBUG_CONFIGURATION_NAMES.DEBUG_WINDOWS_HERMES];
             } else {
-                windowsHermesEnabled = ReactNativeProjectHelper.isWindowsHermesEnabled(rootPath);
+                windowsHermesEnabled =
+                    ReactNativeProjectHelper.isWindowsHermesEnabled(projectRootPath);
                 if (!windowsHermesEnabled) {
                     delete debugConfigurationsToShow[
                         DEBUG_CONFIGURATION_NAMES.DEBUG_WINDOWS_HERMES
@@ -56,7 +58,7 @@ export class ReactNativeDebugDynamicConfigProvider implements vscode.DebugConfig
                 delete debugConfigurationsToShow[DEBUG_CONFIGURATION_NAMES.DEBUG_MACOS];
                 delete debugConfigurationsToShow[DEBUG_CONFIGURATION_NAMES.DEBUG_MACOS_HERMES];
             } else {
-                macOSHermesEnabled = ReactNativeProjectHelper.isMacOSHermesEnabled(rootPath);
+                macOSHermesEnabled = ReactNativeProjectHelper.isMacOSHermesEnabled(projectRootPath);
                 if (!macOSHermesEnabled) {
                     delete debugConfigurationsToShow[DEBUG_CONFIGURATION_NAMES.DEBUG_MACOS_HERMES];
                 }
