@@ -242,9 +242,9 @@ export class AppLauncher {
 
         // We add the parameter if it's defined (adapter crashes otherwise)
         if (!isNullOrUndefined(launchArgs.logCatArguments)) {
-            mobilePlatformOptions.logCatArguments = [
-                this.parseLogCatArguments(launchArgs.logCatArguments),
-            ];
+            mobilePlatformOptions.logCatArguments = this.parseLogCatArguments(
+                launchArgs.logCatArguments,
+            );
         }
 
         if (!isNullOrUndefined(launchArgs.variant)) {
@@ -647,12 +647,9 @@ export class AppLauncher {
         return SettingsHelper.getReactNativeProjectRoot(args.cwd || args.program);
     }
 
-    /**
-     * Parses log cat arguments to a string
-     */
-    private parseLogCatArguments(userProvidedLogCatArguments: any): string {
+    private parseLogCatArguments(userProvidedLogCatArguments: string | string[]): string[] {
         return Array.isArray(userProvidedLogCatArguments)
-            ? userProvidedLogCatArguments.join(" ") // If it's an array, we join the arguments
-            : userProvidedLogCatArguments; // If not, we leave it as-is
+            ? userProvidedLogCatArguments
+            : String(userProvidedLogCatArguments).split(" ");
     }
 }

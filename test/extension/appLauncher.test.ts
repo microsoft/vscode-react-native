@@ -13,6 +13,7 @@ import { AppLauncher } from "../../src/extension/appLauncher";
 import { ProjectsStorage } from "../../src/extension/projectsStorage";
 import { Node } from "../../src/common/node/node";
 import { PlatformType } from "../../src/extension/launchArgs";
+import { PlatformResolver } from "../../src/extension/platformResolver";
 import { BROWSER_TYPES } from "../../src/extension/debuggingConfiguration/debugConfigTypesAndConstants";
 suite("appLauncher", function () {
     const fsHelper = new Node.FileSystem();
@@ -165,6 +166,36 @@ suite("appLauncher", function () {
             assert.notStrictEqual(nodeModulesRoot1, nodeModulesRoot2);
         });
     });
+
+    suite("LogCat launch arguments", function () {
+        let resolveStub: Sinon.SinonStub;
+
+        teardown(() => resolveStub.restore());
+
+        for (const [description, input, expected] of [
+            ["array", ["--pid", "1234"], ["--pid", "1234"]],
+            ["array containing spaces", ["--regex", "one two"], ["--regex", "one two"]],
+            ["string", "-v threadtime", ["-v", "threadtime"]],
+            ["empty array", [], []],
+        ] as Array<[string, string | string[], string[]]>) {
+            test(`preserves ${description} when launching`, async () => {
+                const launcher: AppLauncher = Object.create(AppLauncher.prototype);
+                const options = {};
+                Object.defineProperty(launcher, "requestSetup", { value: () => options });
+                const stop = new Error("platform options captured");
+                resolveStub = sinon
+                    .stub(PlatformResolver.prototype, "resolveMobilePlatform")
+                    .throws(stop);
+
+                await assert.rejects(
+                    launcher.launch({ platform: PlatformType.Android, logCatArguments: input }),
+                    stop,
+                );
+                assert.deepStrictEqual(resolveStub.firstCall.args[1].logCatArguments, expected);
+            });
+        }
+    });
+
     suite("launchBrowser", function () {
         test("expo web launch on edge browser", async function () {
             // test for windows only

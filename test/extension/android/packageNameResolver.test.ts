@@ -100,6 +100,65 @@ suite("PackageNameResolver", function () {
         assert.strictEqual(packageName, "com.exampleapp");
     });
 
+    for (const prefix of [
+        `//applicationId "com.example.old"\r\n`,
+        `/*\napplicationId 'com.example.old'\n*/`,
+        `def example = 'applicationId "com.example.old"'`,
+        `def example = "applicationId 'com.example.old'"`,
+        `def example = """\napplicationId "com.example.old"\n"""`,
+        `def example = '''\napplicationId 'com.example.old'\n'''`,
+        `def url = "https://example.com"; /* applicationId "com.example.old" */`,
+        `def marker = '/*'; // applicationId "com.example.old"\n`,
+        `def example = "escaped \\" quote applicationId 'com.example.old'"`,
+        `def oldapplicationId = "com.example.old"`,
+    ]) {
+        test(`should ignore non-declaration before the active applicationId: ${prefix}`, async () => {
+            setupBuildGradleStub(`
+                ${prefix}
+                android { defaultConfig { applicationId = 'com.example.current' } }
+            `);
+
+            assert.strictEqual(
+                await resolvePackageName("ExampleApp"),
+                "com.example.current",
+                `Failed for: ${prefix}`,
+            );
+        });
+    }
+
+    test("should fall back to manifest when Gradle only has commented applicationIds", async () => {
+        setupBuildGradleStub(`
+            // applicationId "com.example.old"
+            /* applicationId = 'com.example.old.block' */
+        `);
+        setupManifestStub(`<manifest package="com.example.manifest" />`);
+
+        assert.strictEqual(await resolvePackageName("ExampleApp"), "com.example.manifest");
+    });
+
+    test("should ignore XML comments before the active manifest package", async () => {
+        existsStub.withArgs(buildGradlePath).returns(Promise.resolve(false));
+        setupManifestStub(`
+            <!-- <manifest package="com.example.old" /> -->
+            <!--
+                package="com.example.old.multiline"
+            -->
+            <manifest package="com.example.current" />
+        `);
+
+        assert.strictEqual(await resolvePackageName("ExampleApp"), "com.example.current");
+    });
+
+    test("should use the default when the manifest package exists only in a comment", async () => {
+        existsStub.withArgs(buildGradlePath).returns(Promise.resolve(false));
+        setupManifestStub(`
+            <!-- <manifest package="com.example.old" /> -->
+            <manifest xmlns:android="http://schemas.android.com/apk/res/android" />
+        `);
+
+        assert.strictEqual(await resolvePackageName("ExampleApp"), "com.exampleapp");
+    });
+
     test("should handle build.gradle with multiline applicationId", async () => {
         const buildGradleContent = `
             android {

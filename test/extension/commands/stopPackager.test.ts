@@ -150,6 +150,24 @@ suite("stopPackagerCommand", function () {
         assert.strictEqual(stopStub.calledOnce, true);
     });
 
+    test("should propagate packager stop errors", async function () {
+        const { StopPackager, selectProjectStub } = createCommandModule();
+        const command = StopPackager.formInstance();
+        const error = new Error("Packager stop failed");
+        const stopStub = Sinon.stub().returns(Promise.reject(error));
+        const project = createProjectWithPackager(stopStub);
+        (command as any).project = project;
+
+        await assert.rejects(
+            () => command.baseFn(),
+            (actualError: unknown) => actualError === error,
+        );
+
+        assert.strictEqual(stopStub.calledOnce, true);
+        assert.strictEqual(selectProjectStub.called, false);
+        assert.strictEqual((command as any).project, project);
+    });
+
     test("should not throw when the current project has no packager", async function () {
         const { StopPackager } = createCommandModule();
         const command = StopPackager.formInstance();

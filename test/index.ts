@@ -122,6 +122,7 @@ export async function run(): Promise<void> {
 
     // Exclude smoke test bundle and localization driver; only run unit/integration tests here
     return Promise.all([
+        getTestFiles("common/entryPointHandler.test.js", testsRoot),
         getTestFiles("debugger/scriptImporter.test.js", testsRoot),
         getTestFiles("extension/**/*.test.js", testsRoot),
         getTestFiles("cdp-proxy/**/*.test.js", testsRoot),

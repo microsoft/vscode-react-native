@@ -34,7 +34,17 @@ export class SetNewArch extends Command {
 
         if (isNewArchEnabled === undefined) return;
         if (type === "iOS") {
+            if (!projectRoot) {
+                logger.warning("Project root not found");
+                return;
+            }
+
             const podfilePath = path.join(projectRoot, "ios", "Podfile");
+            if (!fs.existsSync(podfilePath)) {
+                logger.warning("Podfile not found");
+                return;
+            }
+
             let podfileContent = fs.readFileSync(podfilePath, "utf-8");
 
             const nodeModulesRoot: string =
@@ -44,10 +54,6 @@ export class SetNewArch extends Command {
                 `${projectRoot}/ios`,
                 logger,
             );
-            if (!projectRoot || !fs.existsSync(podfilePath)) {
-                logger.warning("Podfile not found");
-                return;
-            }
             const editLine = "ENV['RCT_NEW_ARCH_ENABLED'] = '0'";
             if (isNewArchEnabled === "true" && podfileContent.includes(editLine)) {
                 const lines = podfileContent.split("\n");

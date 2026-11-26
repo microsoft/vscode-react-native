@@ -6,7 +6,8 @@ import { FileSystem } from "../../common/node/fileSystem";
 
 export class PackageNameResolver {
     private static PackageNameRegexp: RegExp = /package="(.+?)"/;
-    private static ApplicationIdRegexp: RegExp = /applicationId\s+(=)?\s*["'](.+?)["']/;
+    private static ApplicationIdRegexp: RegExp =
+        /\/\/[^\n\r]*|\/\*[\S\s]*?\*\/|"""[\S\s]*?"""|'''[\S\s]*?'''|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\bapplicationId\s+(?:=\s*)?(["'])(.+?)\1/g;
     private static ManifestName = "AndroidManifest.xml";
     private static GradleBuildName = "build.gradle";
     private static DefaultPackagePrefix = "com.";
@@ -28,15 +29,11 @@ export class PackageNameResolver {
     }
 
     /**
-     * Tries to find the package name in AndroidManifest.xml. If not found, it returns the default package name,
-     * which is the application name prefixed with the default prefix.
+     * Reads the first uncommented applicationId from build.gradle, then falls back to AndroidManifest.xml.
+     * If neither provides a package name, returns the application name prefixed with the default prefix.
      */
     public async resolvePackageName(projectRoot: string): Promise<string> {
-        const expectedGradleBuildPath = path.join.apply(
-            this,
-            [projectRoot].concat(PackageNameResolver.DefaultGradleBuildLocation),
-        );
-        const gradlePackageName = await this.readApplicationId(expectedGradleBuildPath);
+        const gradlePackageName = await this.resolveApplicationId(projectRoot);
         if (gradlePackageName) {
             return gradlePackageName;
         }
@@ -48,14 +45,30 @@ export class PackageNameResolver {
         return this.readPackageName(expectedAndroidManifestPath);
     }
 
+    /**
+     * Returns an applicationId declaration from Gradle, or null when none can be parsed.
+     */
+    public async resolveApplicationId(projectRoot: string): Promise<string | null> {
+        const expectedGradleBuildPath = path.join.apply(
+            this,
+            [projectRoot].concat(PackageNameResolver.DefaultGradleBuildLocation),
+        );
+        return this.readApplicationId(expectedGradleBuildPath);
+    }
+
     private async readApplicationId(gradlePath: string): Promise<string | null> {
         if (!(await this.fileSystem.exists(gradlePath))) {
             return null;
         }
 
         const content = await this.fileSystem.readFile(gradlePath);
-        const match = content.toString().match(PackageNameResolver.ApplicationIdRegexp);
-        return match ? match[2] : null;
+        // Consume comments and quoted examples as whole tokens before looking for a declaration.
+        for (const match of content.toString().matchAll(PackageNameResolver.ApplicationIdRegexp)) {
+            if (match[2]) {
+                return match[2];
+            }
+        }
+        return null;
     }
 
     /**
@@ -84,8 +97,8 @@ export class PackageNameResolver {
      * If a match was found, it is returned. Otherwise null is returned.
      */
     private parsePackageName(manifestContents: string) {
-        // first we remove all the comments from the file
-        const match = manifestContents.match(PackageNameResolver.PackageNameRegexp);
+        const uncommentedContents = manifestContents.replace(/<!--[\S\s]*?-->/g, " ");
+        const match = uncommentedContents.match(PackageNameResolver.PackageNameRegexp);
         return match ? match[1] : null;
     }
 }

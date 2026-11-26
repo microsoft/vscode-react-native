@@ -27,13 +27,17 @@ export class LogCatMonitor implements vscode.Disposable {
 
     private _logger: OutputChannelLogger;
 
-    private _userProvidedLogCatArguments: any; // This is user input, we don't know what's here
+    private _userProvidedLogCatArguments: string | string[] | null | undefined;
 
     private _logCatSpawn: ISpawnResult | null = null;
     private adbHelper: AdbHelper;
     public deviceId: string;
 
-    constructor(deviceId: string, adbHelper: AdbHelper, userProvidedLogCatArguments?: string[]) {
+    constructor(
+        deviceId: string,
+        adbHelper: AdbHelper,
+        userProvidedLogCatArguments?: string | string[] | null,
+    ) {
         this.deviceId = deviceId;
         this._userProvidedLogCatArguments = userProvidedLogCatArguments;
 
@@ -45,7 +49,7 @@ export class LogCatMonitor implements vscode.Disposable {
         const logCatArguments = this.getLogCatArguments();
         const adbParameters = ["-s", this.deviceId, "logcat"].concat(logCatArguments);
         this._logger.debug(
-            `Monitoring LogCat for device ${this.deviceId} with arguments: ${String(
+            `Monitoring LogCat for device ${this.deviceId} with arguments: ${JSON.stringify(
                 logCatArguments,
             )}`,
         );
@@ -99,13 +103,14 @@ export class LogCatMonitor implements vscode.Disposable {
     }
 
     private getLogCatArguments(): string[] {
-        // We use the setting if it's defined, or the defaults if it's not
-        return this.isNullOrUndefined(this._userProvidedLogCatArguments) // "" is a valid value, so we can't just if () this
-            ? LogCatMonitor.DEFAULT_PARAMETERS
-            : String(this._userProvidedLogCatArguments).split(" "); // Parse string and split into string[]
-    }
-
-    private isNullOrUndefined(value: any): boolean {
-        return typeof value === "undefined" || value === null;
+        if (
+            this._userProvidedLogCatArguments === null ||
+            this._userProvidedLogCatArguments === undefined
+        ) {
+            return LogCatMonitor.DEFAULT_PARAMETERS;
+        }
+        return Array.isArray(this._userProvidedLogCatArguments)
+            ? this._userProvidedLogCatArguments
+            : String(this._userProvidedLogCatArguments).split(" ");
     }
 }

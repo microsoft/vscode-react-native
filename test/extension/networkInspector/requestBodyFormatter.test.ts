@@ -1,9 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
+import { Base64 } from "js-base64";
 import { OutputChannelLogger } from "../../../src/extension/log/OutputChannelLogger";
 import { LogLevel } from "../../../src/extension/log/LogHelper";
 import { RequestBodyFormatter } from "../../../src/extension/networkInspector/requestBodyFormatters/requestBodyFormatter";
+import { JSONFormatter } from "../../../src/extension/networkInspector/requestBodyFormatters/jsonFormatter";
+import { GraphQLFormatter } from "../../../src/extension/networkInspector/requestBodyFormatters/graphQLFormatter";
 import { Response, Request } from "../../../src/extension/networkInspector/networkMessageData";
 import * as sinon from "sinon";
 import assert = require("assert");
@@ -66,5 +69,77 @@ suite("requestBodyFormatter", function () {
             const formattedBodyRes = requestBodyFormatter.formatBody(request);
             assert.deepStrictEqual(formattedBodyRes, formattedBodyReference);
         });
+
+        const contentType = "application/json;charset=utf-8";
+        const request: Request = {
+            headers: [{ key: "Content-Type", value: contentType }],
+            id: "json-lines-test",
+            timestamp: 0,
+            url: "https://test.org",
+            method: "POST",
+        };
+        const response: Response = {
+            headers: request.headers,
+            id: request.id,
+            timestamp: 0,
+            status: 200,
+            reason: "",
+            isMock: false,
+        };
+        const jsonFormatter = new JSONFormatter(testLogger);
+        const graphQLFormatter = new GraphQLFormatter(testLogger);
+        const formatters = [
+            {
+                name: "JSON request",
+                format: (body: string) =>
+                    jsonFormatter.formatRequest(
+                        { ...request, data: Base64.encode(body) },
+                        contentType,
+                    ),
+            },
+            {
+                name: "JSON response",
+                format: (body: string) =>
+                    jsonFormatter.formatResponse(
+                        { ...response, data: Base64.encode(body) },
+                        contentType,
+                    ),
+            },
+            {
+                name: "GraphQL response",
+                format: (body: string) =>
+                    graphQLFormatter.formatResponse(
+                        { ...response, data: Base64.encode(body) },
+                        contentType,
+                    ),
+            },
+        ];
+
+        for (const formatter of formatters) {
+            suite(formatter.name, () => {
+                for (const newline of ["\n", "\r\n"]) {
+                    test(`should ignore blank lines with ${JSON.stringify(
+                        newline,
+                    )} separators`, () => {
+                        const body = ["", '{"a":1}', "", " \t ", '{"b":2}', "", ""].join(newline);
+                        assert.deepStrictEqual(formatter.format(body), [{ a: 1 }, { b: 2 }]);
+                    });
+                }
+
+                test("should preserve a single pretty-printed JSON document", () => {
+                    assert.deepStrictEqual(formatter.format('{\n\n  "a": 1\n}\n'), { a: 1 });
+                });
+
+                test("should reject malformed nonblank lines", () => {
+                    assert.throws(() => formatter.format('{"a":1}\n\ninvalid\n'), SyntaxError);
+                });
+
+                test("should reject empty and whitespace-only bodies", () => {
+                    for (const body of ["", "\n \t\r\n"]) {
+                        assert.throws(() => formatter.format(body), SyntaxError);
+                    }
+                });
+            });
+        }
     });
 });
