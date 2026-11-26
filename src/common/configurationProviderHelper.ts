@@ -254,9 +254,12 @@ export class ConfigurationProviderHelper {
             ),
             validate: value =>
                 Promise.resolve(
-                    value && portRegex.test(value.trim())
+                    portRegex.test(value.trim()) && Number(value) >= 1 && Number(value) <= 65535
                         ? undefined
-                        : localize("PortInputInvalid", "Enter a valid port number"),
+                        : localize(
+                              "PortInputInvalidRange",
+                              "Enter a port number between 1 and 65535",
+                          ),
                 ),
         });
 
