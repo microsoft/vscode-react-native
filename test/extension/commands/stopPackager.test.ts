@@ -91,45 +91,50 @@ suite("stopPackagerCommand", function () {
         assert.strictEqual(selectProjectStub.calledOnce, true);
     });
 
-    test("should propagate parent execution errors without selecting a project", async function () {
+    test("should propagate a superclass failure without selecting a project", async function () {
         const { StopPackager, superOnBeforeExecuteStub, selectProjectStub } = createCommandModule();
         const command = StopPackager.formInstance();
-        const error = new Error("Parent execution failed");
-        superOnBeforeExecuteStub.returns(Promise.reject(error));
+        const argument = {};
+        const failure = new Error("Superclass preparation failed");
+        superOnBeforeExecuteStub.returns(Promise.reject(failure));
 
         await assert.rejects(
-            () => command.onBeforeExecute({} as any),
-            (actualError: unknown) => actualError === error,
+            () => command.onBeforeExecute(argument as any),
+            (error: unknown) => error === failure,
         );
 
         assert.strictEqual(superOnBeforeExecuteStub.calledOnce, true);
+        assert.strictEqual(superOnBeforeExecuteStub.calledWithExactly(argument), true);
         assert.strictEqual(selectProjectStub.called, false);
         assert.strictEqual((command as any).project, undefined);
     });
 
-    for (const { name, error } of [
-        { name: "fails", error: new Error("Project selection failed") },
+    for (const { scenario, failure } of [
+        { scenario: "fails", failure: new Error("Project selection failed") },
         {
-            name: "is canceled",
-            error: new InternalError(
+            scenario: "is canceled",
+            failure: new InternalError(
                 InternalErrorCode.CommandCanceled,
                 "Project selection canceled",
             ),
         },
     ]) {
-        test(`should propagate errors when project selection ${name}`, async function () {
+        test(`should propagate the error when project selection ${scenario}`, async function () {
             const { StopPackager, superOnBeforeExecuteStub, selectProjectStub } =
                 createCommandModule();
             const command = StopPackager.formInstance();
-            selectProjectStub.returns(Promise.reject(error));
+            const argument = {};
+            selectProjectStub.returns(Promise.reject(failure));
 
             await assert.rejects(
-                () => command.onBeforeExecute({} as any),
-                (actualError: unknown) => actualError === error,
+                () => command.onBeforeExecute(argument as any),
+                (error: unknown) => error === failure,
             );
 
             assert.strictEqual(superOnBeforeExecuteStub.calledOnce, true);
+            assert.strictEqual(superOnBeforeExecuteStub.calledWithExactly(argument), true);
             assert.strictEqual(selectProjectStub.calledOnce, true);
+            assert.strictEqual(selectProjectStub.calledWithExactly(), true);
             assert.strictEqual((command as any).project, undefined);
         });
     }
@@ -169,5 +174,21 @@ suite("stopPackagerCommand", function () {
         (command as any).project = createProjectWithoutPackager();
 
         await command.baseFn();
+    });
+
+    test("should reject when stopping the packager fails", async function () {
+        const { StopPackager } = createCommandModule();
+        const command = StopPackager.formInstance();
+        const failure = new Error("Failed to stop the packager");
+        const stopStub = Sinon.stub().returns(Promise.reject(failure));
+        (command as any).project = createProjectWithPackager(stopStub);
+
+        await assert.rejects(
+            () => command.baseFn(),
+            (error: unknown) => error === failure,
+        );
+
+        assert.strictEqual(stopStub.calledOnce, true);
+        assert.strictEqual(stopStub.calledWithExactly(), true);
     });
 });
