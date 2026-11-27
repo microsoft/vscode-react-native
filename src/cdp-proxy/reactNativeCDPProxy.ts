@@ -237,15 +237,16 @@ export class ReactNativeCDPProxy {
     private static getWebSocketOrigin(webSocketUrl: string): string | undefined {
         const url = new URL(webSocketUrl);
 
-        if (url.protocol === "ws:") {
-            return `http://${url.host}`;
+        if (url.protocol !== "ws:" && url.protocol !== "wss:") {
+            return undefined;
         }
 
-        if (url.protocol === "wss:") {
-            return `https://${url.host}`;
+        // Expo compares the Origin host with its canonical loopback address.
+        if (url.hostname === "localhost") {
+            url.hostname = "127.0.0.1";
         }
-
-        return undefined;
+        url.protocol = url.protocol === "ws:" ? "http:" : "https:";
+        return url.origin;
     }
 
     private async onApplicationTargetClosed() {
