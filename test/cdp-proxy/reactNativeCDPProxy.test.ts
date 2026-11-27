@@ -44,6 +44,32 @@ suite("reactNativeCDPProxy", function () {
     // For all hooks and tests set a time limit
     this.timeout(5000);
 
+    suite("WebSocket origin", () => {
+        test("should normalize localhost to IPv4 loopback", () => {
+            assert.strictEqual(
+                (ReactNativeCDPProxy as any).getWebSocketOrigin(
+                    "ws://localhost:8081/inspector/debug?device=test",
+                ),
+                "http://127.0.0.1:8081",
+            );
+            assert.strictEqual(
+                (ReactNativeCDPProxy as any).getWebSocketOrigin(
+                    "wss://localhost:8443/inspector/debug",
+                ),
+                "https://127.0.0.1:8443",
+            );
+        });
+
+        test("should preserve non-localhost inspector hosts", () => {
+            assert.strictEqual(
+                (ReactNativeCDPProxy as any).getWebSocketOrigin(
+                    "ws://metro.example.test:8081/inspector/debug",
+                ),
+                "http://metro.example.test:8081",
+            );
+        });
+    });
+
     async function getMessageFromTarget(message: any): Promise<any> {
         return new Promise(resolve => {
             targetConnection?.send(message);
